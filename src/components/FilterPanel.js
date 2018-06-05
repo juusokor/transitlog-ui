@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import logo from '../hsl-logo.png';
 
-
 import gql from "graphql-tag"
 import sortBy from "lodash/sortBy";
 import uniq from "lodash/uniq";
@@ -77,6 +76,12 @@ export class FilterPanel extends Component {
       <header className="transitlog-header">
         <img src={logo} className="App-logo" alt="logo"/>
         <h1 className="App-title">Liikenteenvalvontatyökalu</h1>
+        <input
+          type="text"
+          placeholder="Hae reitti"
+          //value={query}
+          //onChange={onChange}
+        />
       </header>
     )
   }
