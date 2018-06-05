@@ -6,8 +6,6 @@ Run `npm install` once to get dependencies installed.
 
 ---
 
-_Some highlights from main documentation (README_react_instructions.md)._
-
 #### Available Scripts
 
 In the project directory, you can run:

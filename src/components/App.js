@@ -7,12 +7,12 @@ class App extends Component {
 
   render() {
     return (
-      <div className="App">
-        <header className="transitlog">
+      <div className="transitlog">
+        <header className="transitlog-header">
           <img src={logo} className="App-logo" alt="logo" />
           <h1 className="App-title">Liikenteenvalvontatyökalu</h1>
         </header>
-        <LeafletMap className={"leaflet-map"}/>
+        <LeafletMap />
       </div>
     );
   }

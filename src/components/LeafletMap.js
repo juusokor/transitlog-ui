@@ -1,5 +1,7 @@
-import {Map, TileLayer} from 'react-leaflet'
-import React, {Component} from 'react'
+import React, { Component } from 'react';
+import { Map, TileLayer, ZoomControl } from 'react-leaflet';
+
+import 'leaflet/dist/leaflet.css';
 
 export class LeafletMap extends Component {
   constructor() {
@@ -13,7 +15,7 @@ export class LeafletMap extends Component {
 
   render() {
     const position = [this.state.lat, this.state.lng]
-    return <Map center={position} zoom={this.state.zoom} maxZoom={18}>
+    return <Map center={position} zoom={this.state.zoom} maxZoom={18} zoomControl={false}>
         <TileLayer
           attribution={'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
           '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'}
@@ -21,6 +23,7 @@ export class LeafletMap extends Component {
           tileSize={512}
           zoomOffset={-1}
         />
+      <ZoomControl position="topright" />
     </Map>
   }
 
