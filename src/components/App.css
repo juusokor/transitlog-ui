@@ -25,6 +25,7 @@
 }
 
 .App-title {
+  font-family: fontFamily;
   font-size: 1.5em;
   color: white;
 }
@@ -32,3 +33,5 @@
 .App-intro {
   font-size: large;
 }
+
+@value fontFamily: "Gotham Rounded SSm A", "Gotham Rounded SSm B", sans-serif;

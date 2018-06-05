@@ -1,21 +1,34 @@
-import React, { Component } from 'react';
-import logo from '../hsl-logo.png';
-import './App.css';
-import { LeafletMap } from './LeafletMap'
+import React, {Component} from 'react'
+
+import './App.css'
+import {LeafletMap} from './LeafletMap'
+import {FilterPanel} from './FilterPanel'
+import {ApolloClient} from "apollo-boost"
+import {HttpLink} from 'apollo-link-http'
+import {ApolloProvider} from 'react-apollo'
+import {InMemoryCache} from 'apollo-cache-inmemory'
+
+
 
 class App extends Component {
 
   render() {
+    const client = new ApolloClient({
+      link: new HttpLink({uri: "http://kartat.hsl.fi/jore/graphql"}),
+      cache: new InMemoryCache()
+    })
+
+
     return (
       <div className="transitlog">
-        <header className="transitlog-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Liikenteenvalvontatyökalu</h1>
-        </header>
-        <LeafletMap />
+        <ApolloProvider client={client}>
+          <FilterPanel/>
+        </ApolloProvider>
+        <LeafletMap/>
+
       </div>
-    );
+    )
   }
 }
 
-export default App;
+export default App
