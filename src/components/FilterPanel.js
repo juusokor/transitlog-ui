@@ -165,12 +165,12 @@ export class FilterPanel extends Component {
   };
 
   render() {
-    const { value, suggestions } = this.state;
+    const {value, suggestions} = this.state
     const inputProps = {
       placeholder: 'Hae reitti...',
       value,
       onChange: this.onChange
-    };
+    }
     return (
       <header className="transitlog-header">
         <img src={logo} className="App-logo" alt="logo"/>

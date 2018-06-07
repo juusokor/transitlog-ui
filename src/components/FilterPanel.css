@@ -12,8 +12,8 @@ body {
 }
 
 .react-autosuggest__input {
-    width: 240px;
-    height: 30px;
+    width: 300px;
+    height: 20px;
     padding: 10px 20px;
     font-family: fontFamily;
     font-weight: 300;
@@ -38,8 +38,8 @@ body {
 .react-autosuggest__container--open .react-autosuggest__suggestions-container {
     display: block;
     position: absolute;
-    top: 51px;
-    width: 280px;
+    top: 41px;
+    width: 340px;
     border: 1px solid #aaa;
     background-color: #fff;
     font-family: fontFamily;
@@ -77,8 +77,6 @@ body {
 }
 
 .BUS {
-    color: #007AC9;
-    font-family: fontFamily;
     background-image: url("../icon-bus.svg");
 }
 

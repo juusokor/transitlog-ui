@@ -4,20 +4,9 @@
   position: absolute;
   margin: 20px;
   padding: 20px;
-  text-align: center;
   background-color: #007AC9;
 }
 
-.transitlog-header input {
-  border-radius: 4px;
-  border: 1px solid lightGray;
-  border-left: 1px solid gray;
-  border-top: 1px solid gray;
-  font-size: 15px;
-  padding: 5px 6px 4px 6px;
-  width: 100%;
-  max-width: 300px;
-}
 
 
 
