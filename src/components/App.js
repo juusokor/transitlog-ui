@@ -8,8 +8,6 @@ import {HttpLink} from 'apollo-link-http'
 import {ApolloProvider} from 'react-apollo'
 import {InMemoryCache} from 'apollo-cache-inmemory'
 
-
-
 class App extends Component {
 
   render() {
@@ -17,7 +15,6 @@ class App extends Component {
       link: new HttpLink({uri: "http://kartat.hsl.fi/jore/graphql"}),
       cache: new InMemoryCache()
     })
-
 
     return (
       <div className="transitlog">

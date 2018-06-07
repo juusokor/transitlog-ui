@@ -1,37 +1,11 @@
+@import url(https://cloud.typography.com/6364294/6653152/css/fonts.css);
+
 .transitlog-header {
   position: absolute;
   margin: 20px;
   padding: 20px;
   text-align: center;
   background-color: #007AC9;
-}
-
-.leaflet-container {
-  width: 100%;
-  height: 100%;
-  position: fixed;
-  z-index: -1;
-}
-
-.App-logo {
-  height: 80px;
-}
-
-.App-header {
-  background-color: #222;
-  height: 150px;
-  padding: 20px;
-  color: white;
-}
-
-.App-title {
-  font-family: fontFamily;
-  font-size: 1.5em;
-  color: white;
-}
-
-.App-intro {
-  font-size: large;
 }
 
 .transitlog-header input {
@@ -44,5 +18,29 @@
   width: 100%;
   max-width: 300px;
 }
+
+
+
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  z-index: -1;
+}
+
+.App-logo {
+  height: 80px;
+}
+
+.App-title {
+  font-family: fontFamily;
+  font-size: 1.5em;
+  color: white;
+}
+
+.App-intro {
+  font-size: large;
+}
+
 
 @value fontFamily: "Gotham Rounded SSm A", "Gotham Rounded SSm B", sans-serif;
