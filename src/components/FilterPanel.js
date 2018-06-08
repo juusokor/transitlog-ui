@@ -106,14 +106,6 @@ const routes = [
     {
       "shortName": "214",
       "mode": "BUS"
-    },
-    {
-      "shortName": "M2",
-      "mode": "SUBWAY"
-    },
-    {
-      "shortName": "M1",
-      "mode": "SUBWAY"
     }
     ]
 
@@ -186,6 +178,5 @@ export class FilterPanel extends Component {
       </header>
     )
   }
-
 
 }

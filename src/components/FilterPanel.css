@@ -58,7 +58,7 @@ body {
 
 .react-autosuggest__suggestion {
     cursor: pointer;
-    padding: 10px 20px;
+    padding: 5px 10px;
 }
 
 .react-autosuggest__suggestion:not(:first-child) {
@@ -78,23 +78,22 @@ body {
 
 .BUS {
     background-image: url("../icon-bus.svg");
+    color: #007AC9;
 }
 
 .TRAM {
     background-image: url("../icon-tram.svg");
+    color: #00985f;
 }
 
-
-
 .routeItem {
-    color: #007AC9;
     font-family: fontFamily;
-    margin-left: 68px;
-    line-height: 45px;
+    margin-left: 40px;
+    line-height: 30px;
 }
 
 .highlight {
-    color: #ee0000;
+    color: #007AC9;
     font-weight: bold;
 }
 
