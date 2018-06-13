@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
 import logo from '../hsl-logo.png';
-import './FilterPanel.css'
-import {RouteInput} from './RouteInput'
-import gql from "graphql-tag"
-import graphql, {Query} from 'react-apollo'
+import './FilterPanel.css';
+import {RouteInput} from './RouteInput';
+import gql from "graphql-tag";
+import graphql, {Query} from 'react-apollo';
 
 import sortBy from "lodash/sortBy";
 import uniq from "lodash/uniq";
@@ -23,6 +23,21 @@ const routeQuery = gql`
     }
   }
 `;
+const removeTrainsFilter = line => line.lineId.substring(0, 1) !== "3";
+const removeFerryFilter = line => line.lineId.substring(0, 4) !== "1019";
+
+const transportTypeOrder = ["tram", "bus"];
+const linesSorter = (a, b) => {
+    if (a.transportType !== b.transportType) {
+        return transportTypeOrder.indexOf(a.transportType) >
+                transportTypeOrder.indexOf(b.transportType) ? 1 : -1;
+    } else if (a.lineId.substring(1, 4) !== b.lineId.substring(1, 4)) {
+        return a.lineId.substring(1, 4) > b.lineId.substring(1, 4) ? 1 : -1;
+    } else if (a.lineId.substring(0, 1) !== b.lineId.substring(0, 1)) {
+        return a.lineId.substring(0, 1) > b.lineId.substring(0, 1) ? 1 : -1;
+    }
+    return a.lineId.substring(4, 6) > b.lineId.substring(4, 6) ? 1 : -1;
+};
 
 
 export class FilterPanel extends Component {
@@ -38,11 +53,13 @@ export class FilterPanel extends Component {
           if (error) return <div>Error!</div>;
           return (<RouteInput routes={{
                lines: data.allLines.nodes
-                 .filter(node => node.routes.totalCount !== 0),
+                 .filter(node => node.routes.totalCount !== 0)
+                 .filter(removeTrainsFilter)
+                 .filter(removeFerryFilter)
+                 .sort(linesSorter),
               }}/>)
           }}
         </Query>
-       
       </header>
     )
   }

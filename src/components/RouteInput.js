@@ -22,16 +22,16 @@ const getSuggestions = (routes, value) => {
   const inputLength = inputValue.length;
 
   return inputLength === 0 ? [] : routes.filter(route =>
-    route.nameFi.toLowerCase().includes(inputValue.slice(0, inputLength))
+    parseLineNumber(route.lineId.toLowerCase()).includes(inputValue.slice(0, inputLength))
   );
 };
 
-const getSuggestionValue = suggestion => suggestion.nameFi;
+const getSuggestionValue = suggestion => suggestion.lineId;
 
 const renderSuggestion = suggestion => (
   <span className={'suggestion-content ' + getTransportType(suggestion)}>
   <div className={"routeItem"}>
-    {suggestion.nameFi}
+    {parseLineNumber(suggestion.lineId)}
   </div>
   </span>
 );

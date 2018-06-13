@@ -11,6 +11,13 @@ import {InMemoryCache} from 'apollo-cache-inmemory'
 
 
 class App extends Component {
+  
+  constructor() {
+    super();
+    this.state= {
+      selectedRoute: ''
+    }
+  }
 
   render() {
     const client = new ApolloClient({
@@ -18,15 +25,13 @@ class App extends Component {
       cache: new InMemoryCache()
     })
 
-
     return (
+    <ApolloProvider client={client}>  
       <div className="transitlog">
-        <ApolloProvider client={client}>
-          <FilterPanel/>
-        </ApolloProvider>
+        <FilterPanel/>
         <LeafletMap/>
-
       </div>
+    </ApolloProvider>
     )
   }
 }
