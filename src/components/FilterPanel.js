@@ -3,10 +3,7 @@ import logo from '../hsl-logo.png';
 import './FilterPanel.css';
 import {RouteInput} from './RouteInput';
 import gql from "graphql-tag";
-import graphql, {Query} from 'react-apollo';
-
-import sortBy from "lodash/sortBy";
-import uniq from "lodash/uniq";
+import {Query} from 'react-apollo';
 
 const routeQuery = gql`
   query AllLinesQuery {
@@ -49,9 +46,9 @@ export class FilterPanel extends Component {
         <h1 className="App-title">Liikenteenvalvontatyökalu</h1>
         <Query query={routeQuery}>
           {({ loading, error, data }) => {
-          if (loading) return <div>Loading...</div>;
+          if (loading) return <div className="graphqlLoad">Loading...</div>;
           if (error) return <div>Error!</div>;
-          return (<RouteInput routes={{
+          return (<RouteInput selectedRoute={this.props.selectedRoute} onRouteSelected={this.props.onRouteSelected} routes={{
                lines: data.allLines.nodes
                  .filter(node => node.routes.totalCount !== 0)
                  .filter(removeTrainsFilter)

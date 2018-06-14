@@ -3,8 +3,6 @@ import PropTypes from 'prop-types'
 import Autosuggest from 'react-autosuggest';
 import './RouteInput.css'
 
-
-
 const parseLineNumber = lineId =>
   // Remove 1st number, which represents the city
   // Remove all zeros from the beginning
@@ -38,10 +36,10 @@ const renderSuggestion = suggestion => (
 
 
 export class RouteInput extends Component {
-   constructor() {
-    super();
+   constructor(props) {
+    super(props);
     this.state = {
-      value: '',
+      value: this.props.selectedRoute.lineId,
       suggestions: []
     }
   }
@@ -51,6 +49,10 @@ export class RouteInput extends Component {
       value: newValue
     });
   };
+  
+  onSuggestionSelected = (event, {suggestion}) => {
+    this.props.onRouteSelected(suggestion);
+  }
 
   onSuggestionsFetchRequested = ({ value }) => {
     this.setState({
@@ -74,6 +76,7 @@ export class RouteInput extends Component {
     return (
         <Autosuggest
           suggestions={suggestions}
+          onSuggestionSelected={this.onSuggestionSelected}
           onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
           onSuggestionsClearRequested={this.onSuggestionsClearRequested}
           getSuggestionValue={getSuggestionValue}
@@ -83,8 +86,4 @@ export class RouteInput extends Component {
     )
   }
 
-}
-
-RouteInput.PropTypes = {
-    routes: PropTypes.func.isRequired
 }
