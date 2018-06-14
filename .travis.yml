@@ -24,7 +24,7 @@ before_install:
 
 script:
   - sh ./.travis/check_semver
-  - docker run --rm "${DOCKER_LOCAL}" test
+  - docker run --rm -e "CI=true" "${DOCKER_LOCAL}" test
 
 deploy:
   - provider: script
