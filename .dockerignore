@@ -1,4 +1,6 @@
 .dockerignore
 .git
+.travis
+.travis.yml
 Dockerfile
 node_modules
