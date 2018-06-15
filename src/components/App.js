@@ -17,7 +17,9 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
-      selectedRoute: {lineId: '1006', dateBegin: '2017-08-14', dateEnd: '2018-12-31'}
+      date: '2018-05-07',
+      startTime: '11:55',
+      selectedRoute: {lineId: '1006', direction: '1', dateBegin: '2017-08-14', dateEnd: '2018-12-31'}
     }
   }
 

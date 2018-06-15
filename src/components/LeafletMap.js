@@ -6,6 +6,18 @@ import gql from 'graphql-tag';
 import 'leaflet/dist/leaflet.css';
 import MapLayer from './MapLayer'
 
+const hfpQuery = gql`
+  query hfpQuery($routeId: String!, $directionId: Int!, $startTime: Time!, $date: Date!){
+   allVehicles(condition: {routeId: $routeId, directionId: $directionId, journeyStartTime: $startTime, oday: $date}) {
+     nodes {
+       receivedAt
+       lat
+       long
+       uniqueVehicleId
+     }
+   }
+  }`;
+
 const lineQuery = gql`
   query lineQuery($lineId: String!, $dateBegin: Date!, $dateEnd: Date!) {
     line: lineByLineIdAndDateBeginAndDateEnd(lineId: $lineId, dateBegin: $dateBegin, dateEnd: $dateEnd) {
@@ -83,7 +95,12 @@ export class LeafletMap extends Component {
           return (<MapLayer line={data.line.routes.nodes[0].geometries.nodes[0]}/>);
           }}
         </Query>
-      </Map>
+
+     </Map>
     )
   }
 }
+
+//        <Query query={hfpQuery} variables={this.props.selectedRoute}>
+//        {({ loading, error, data }) => {}}
+//        </Query>

@@ -20,6 +20,7 @@ const routeQuery = gql`
     }
   }
 `;
+
 const removeTrainsFilter = line => line.lineId.substring(0, 1) !== "3";
 const removeFerryFilter = line => line.lineId.substring(0, 4) !== "1019";
 
