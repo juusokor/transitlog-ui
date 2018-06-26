@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
 import {Polyline} from 'react-leaflet'
 
-const HfpLayer = ({vehicle}) => {
-    const coords = vehicle.nodes.coordinates.map(([lon, lat]) => [lat, lon]);
-    return (<Polyline color={"red"} positions={coords}/>)
+const HfpLayer = ({positions}) => {
+    const coords = positions.map(({lat, long}) => [lat, long]);
+    return (<Polyline color={"green"} positions={coords}/>)
 }
 
 export default HfpLayer;
