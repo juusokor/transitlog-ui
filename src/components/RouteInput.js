@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import PropTypes from 'prop-types'
 import Autosuggest from 'react-autosuggest';
 import './RouteInput.css'
 
@@ -52,13 +51,13 @@ export class RouteInput extends Component {
   
   onSuggestionSelected = (event, {suggestion}) => {
     this.props.onRouteSelected(suggestion);
-  }
+  };
 
   onSuggestionsFetchRequested = ({ value }) => {
     this.setState({
       suggestions: getSuggestions(this.props.routes.lines, value)
     });
-  }
+  };
 
   onSuggestionsClearRequested = () => {
     this.setState({
@@ -67,12 +66,12 @@ export class RouteInput extends Component {
   };
   
   render() {
-    const {value, suggestions} = this.state
+    const {value, suggestions} = this.state;
     const inputProps = {
       placeholder: 'Hae reitti...',
       value,
       onChange: this.onChange
-    }
+    };
     return (
         <Autosuggest
           suggestions={suggestions}
