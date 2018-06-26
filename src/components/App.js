@@ -1,11 +1,8 @@
-import React, {Component} from 'react'
-import './App.css'
-import {LeafletMap} from './LeafletMap'
-import {FilterPanel} from './FilterPanel'
-import {ApolloClient} from "apollo-boost"
-import {HttpLink} from 'apollo-link-http'
-import {ApolloProvider} from 'react-apollo'
-import {InMemoryCache} from 'apollo-cache-inmemory'
+import React, {Component} from 'react';
+import './App.css';
+import {LeafletMap} from './LeafletMap';
+import {FilterPanel} from './FilterPanel';
+import {ApolloProvider} from 'react-apollo';
 import {joreClient, digiTClient, hfpClient } from '../api';
 
 
@@ -22,7 +19,7 @@ class App extends Component {
 
   onRouteSelected = ({lineId, dateBegin, dateEnd}) => {
     this.setState({selectedRoute: {lineId, dateBegin, dateEnd}});
-  }
+  };
 
   render() {
     return (

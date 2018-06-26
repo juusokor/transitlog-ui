@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React from 'react';
 import {Polyline} from 'react-leaflet'
 
 const HfpLayer = ({positions}) => {

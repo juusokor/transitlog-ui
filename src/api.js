@@ -13,7 +13,7 @@ const digiTClient = new ApolloClient({
 });
 
 const hfpClient = new ApolloClient({
-    link: new HttpLink({uri: "https://sandbox-1.hsldev.com:8080/graphql"}),
+    link: new HttpLink({uri: "https://sandbox-1.hsldev.com/transitlog-timescaledb/graphql"}),
     cache: new InMemoryCache(),
 });
 

@@ -1,10 +1,9 @@
-import React, {Component} from 'react';
-import PropTypes from 'prop-types'
+import React from 'react';
 import {Polyline} from 'react-leaflet'
 
-const MapLayer = ({line}) => {
+const RouteLayer = ({line}) => {
     const coords = line.geometry.coordinates.map(([lon, lat]) => [lat, lon]);
     return (<Polyline positions={coords}/>)
-}
+};
 
-export default MapLayer;
+export default RouteLayer;

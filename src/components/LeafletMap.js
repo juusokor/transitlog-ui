@@ -3,12 +3,9 @@ import {Map, TileLayer, ZoomControl} from 'react-leaflet';
 import {Query} from 'react-apollo';
 import gql from 'graphql-tag';
 import 'leaflet/dist/leaflet.css';
-import MapLayer from './MapLayer';
-import HfpLayer from './HfpLayer'
-import {hfpClient} from '../api.js'
-
-import {Polyline} from 'react-leaflet'
-
+import RouteLayer from './RouteLayer';
+import HfpLayer from './HfpLayer';
+import {hfpClient} from '../api.js';
 
 const hfpQuery = gql`
   query hfpQuery($routeId: String!, $directionId: Int!, $startTime: Time!, $date: Date!){
@@ -70,7 +67,7 @@ const lineQuery = gql`
 
 export class LeafletMap extends Component {
   constructor() {
-    super()
+    super();
     this.state = {
       lat: 60.20,
       lng: 24.93,
@@ -79,7 +76,7 @@ export class LeafletMap extends Component {
   }
 
   render() {
-    const position = [this.state.lat, this.state.lng]
+    const position = [this.state.lat, this.state.lng];
     return (
       <Map center={position} zoom={this.state.zoom} maxZoom={22} zoomControl={false}>
         <TileLayer
@@ -96,7 +93,7 @@ export class LeafletMap extends Component {
           if (error) return <div>Error!</div>;
           if (!data.line) return <div>No route!</div>;
           // FIXME: now just picks the first geometry of first route of selected line, atleast route should be selected
-          return (<MapLayer line={data.line.routes.nodes[0].geometries.nodes[0]}/>);
+          return (<RouteLayer line={data.line.routes.nodes[0].geometries.nodes[0]}/>);
           }}
         </Query>
         <Query client={hfpClient} query={hfpQuery} variables={{routeId: '1006', directionId: 2, startTime: '11:29:00', date: '2018-05-06'}}>
@@ -108,7 +105,6 @@ export class LeafletMap extends Component {
             return (<HfpLayer positions = {data.allVehicles.nodes}/>)
           }}
         </Query>
-        
      </Map>
     )
   }

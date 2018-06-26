@@ -61,5 +61,4 @@ export class FilterPanel extends Component {
       </header>
     )
   }
-
 }
