@@ -15,3 +15,7 @@
     border-radius: 4px;
     align-items: center;
 }
+
+.calendar:hover {
+    border: 1px solid #120000;
+}

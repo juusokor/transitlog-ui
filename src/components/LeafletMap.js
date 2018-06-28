@@ -78,7 +78,7 @@ export class LeafletMap extends Component {
   render() {
     const position = [this.state.lat, this.state.lng];
     return (
-      <Map center={position} zoom={this.state.zoom} maxZoom={22} zoomControl={false}>
+      <Map center={position} zoom={this.state.zoom} maxZoom={18} zoomControl={false}>
         <TileLayer
           attribution={'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors '}
           url="https://digitransit-prod-cdn-origin.azureedge.net/map/v1/hsl-map/{z}/{x}/{y}@2x.png"
@@ -96,7 +96,7 @@ export class LeafletMap extends Component {
           return (<RouteLayer line={data.line.routes.nodes[0].geometries.nodes[0]}/>);
           }}
         </Query>
-      <Query client={hfpClient} query={hfpQuery} variables={{routeId: '1006', directionId: 1, startTime: '11:55:00', date: '2018-05-07'}}>
+      <Query client={hfpClient} query={hfpQuery} variables={{routeId: this.props.selectedRoute.lineId, directionId: 1, startTime: this.props.startTime, date: this.props.date}}>
           {({ loading, error, data }) => {
               console.log('HFP', loading, error, data);
               if (loading) return <div>Loading...</div>;

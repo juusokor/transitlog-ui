@@ -24,6 +24,23 @@ const routeQuery = gql`
   }
 `;
 
+const jorneyStartTimeQuery = gql`
+  query Alldepartures($routeId: String!, $stopId: String!, $direction: String!, $dayType: String!) {
+    allDepartures(condition: {routeId: $routeId, stopId: $stopId, direction: $direction, dayType: $dayType}) {
+      nodes {
+        direction
+        dayType
+        dateBegin
+        dateEnd
+        stopId
+        departureId
+        arrivalHours
+        arrivalMinutes
+      }
+    }
+  }
+`;
+
 const removeTrainsFilter = line => line.lineId.substring(0, 1) !== "3";
 const removeFerryFilter = line => line.lineId.substring(0, 4) !== "1019";
 
@@ -62,6 +79,16 @@ export class FilterPanel extends Component {
               }}/>)
           }}
         </Query>
+        <input value={'suunta'}/>
+        <Query query={jorneyStartTimeQuery} variables={{routeId: this.props.selectedRoute.lineId, stopId: "1040446", direction: this.props.selectedRoute.direction, dayType: "Ma"}}>
+          {({ loading, error, data }) => {
+              console.log('jorney', loading, error, data);
+              if (loading) return <div>Loading...</div>;
+              if (error) return <div>Error!</div>;
+              return (<input value={'lähdöt'}/>)
+          }}
+        </Query>
+        
       </header>
     )
   }
