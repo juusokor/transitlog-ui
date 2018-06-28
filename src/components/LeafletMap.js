@@ -9,7 +9,7 @@ import {hfpClient} from '../api.js';
 
 const hfpQuery = gql`
   query hfpQuery($routeId: String!, $directionId: Int!, $startTime: Time!, $date: Date!){
-   allVehicles(condition: {routeId: $routeId, directionId: $directionId, journeyStartTime: $startTime, oday: $date}) {
+   allVehicles(orderBy: RECEIVED_AT_ASC condition: {routeId: $routeId, directionId: $directionId, journeyStartTime: $startTime, oday: $date}) {
      nodes {
        receivedAt
        lat
@@ -69,8 +69,8 @@ export class LeafletMap extends Component {
   constructor() {
     super();
     this.state = {
-      lat: 60.20,
-      lng: 24.93,
+      lat: 60.170988,
+      lng: 24.940842,
       zoom: 13,
     }
   }
@@ -96,18 +96,16 @@ export class LeafletMap extends Component {
           return (<RouteLayer line={data.line.routes.nodes[0].geometries.nodes[0]}/>);
           }}
         </Query>
-        <Query client={hfpClient} query={hfpQuery} variables={{routeId: '1006', directionId: 2, startTime: '11:29:00', date: '2018-05-06'}}>
+      <Query client={hfpClient} query={hfpQuery} variables={{routeId: '1006', directionId: 1, startTime: '11:55:00', date: '2018-05-07'}}>
           {({ loading, error, data }) => {
-            console.log('HFP', loading, error, data);
-            if (loading) return <div>Loading...</div>;
-            if (error) return <div>Error!</div>;
-            if (!data.allVehicles.nodes) return <div>No route!</div>;
-            return (<HfpLayer positions = {data.allVehicles.nodes}/>)
+              console.log('HFP', loading, error, data);
+              if (loading) return <div>Loading...</div>;
+              if (error) return <div>Error!</div>;
+              if (!data.allVehicles.nodes) return <div>No route!</div>;
+              return (<HfpLayer positions = {data.allVehicles.nodes}/>)
           }}
-        </Query>
+      </Query>
      </Map>
     )
   }
 }
-
-        

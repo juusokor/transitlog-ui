@@ -4,6 +4,9 @@ import './FilterPanel.css';
 import {RouteInput} from './RouteInput';
 import gql from "graphql-tag";
 import {Query} from 'react-apollo';
+import {DateInput} from './DateInput';
+import "moment";
+import "moment/locale/fi";
 
 const routeQuery = gql`
   query AllLinesQuery {
@@ -39,12 +42,13 @@ const linesSorter = (a, b) => {
 
 
 export class FilterPanel extends Component {
-  
+
   render() {
     return (
       <header className="transitlog-header">
         <img src={logo} className="App-logo" alt="logo"/>
         <h1 className="App-title">Liikenteenvalvontatyökalu</h1>
+        <DateInput locale={"fi"}/>
         <Query query={routeQuery}>
           {({ loading, error, data }) => {
           if (loading) return <div className="graphqlLoad">Loading...</div>;

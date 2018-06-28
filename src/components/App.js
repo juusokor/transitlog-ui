@@ -13,7 +13,7 @@ class App extends Component {
     this.state = {
       date: '2018-05-07',
       startTime: '11:55',
-      selectedRoute: {lineId: '1006', direction: '2', dateBegin: '2017-08-14', dateEnd: '2018-12-31'}
+      selectedRoute: {lineId: '1006', direction: '1', dateBegin: '2017-08-14', dateEnd: '2018-12-31'}
     }
   }
 
