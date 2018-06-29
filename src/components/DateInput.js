@@ -6,24 +6,10 @@ import './DateInput.css'
 import 'react-datepicker/dist/react-datepicker.css';
 
 export class DateInput extends Component {
-    constructor (props) {
-        super(props)
-        this.state = {
-            startDate: moment()
-        };
-        this.handleChange = this.handleChange.bind(this);
-    }
-
-    handleChange(date) {
-        this.setState({
-            startDate: date
-        });
-    }
-
     render() {
         return <DatePicker
-            selected={this.state.startDate}
-            onChange={this.handleChange}
+            selected={moment(this.props.date)}
+            onChange={date => this.props.onDateSelected(date.format('YYYY-MM-DD'))}
             className="calendar"
         />;
     }

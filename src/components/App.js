@@ -12,21 +12,26 @@ class App extends Component {
     super();
     this.state = {
       date: '2018-05-07',
+      selectedLine: {lineId: '1006', dateBegin: '2017-08-14', dateEnd: '2018-12-31'},
       startTime: '11:55',
-      selectedRoute: {lineId: '1006', direction: '1', dateBegin: '2017-08-14', dateEnd: '2018-12-31'}
-    }
+      selectedRoute: {lineId: '1006', direction: '1', dateBegin: '2017-08-14', dateEnd: '2018-12-31'},
+    };
   }
 
-  onRouteSelected = ({lineId, dateBegin, dateEnd}) => {
-    this.setState({selectedRoute: {lineId, dateBegin, dateEnd}});
+  onDateSelected = (date) => {
+    this.setState({date});
+  };
+
+  onLineSelected = ({lineId, dateBegin, dateEnd}) => {
+    this.setState({selectedLine: {lineId, dateBegin, dateEnd}});
   };
 
   render() {
     return (
     <ApolloProvider client={joreClient}>  
       <div className="transitlog">
-        <FilterPanel selectedRoute={this.state.selectedRoute} onRouteSelected={this.onRouteSelected}/>
-        <LeafletMap selectedRoute={this.state.selectedRoute}/>
+        <FilterPanel date={this.state.date} onDateSelected={this.onDateSelected} selectedLine={this.state.selectedLine} onLineSelected={this.onLineSelected} selectedRoute={this.state.selectedRoute}/>
+        <LeafletMap selectedRoute={this.state.selectedRoute} date={this.state.date} startTime={this.state.startTime}/>
       </div>
     </ApolloProvider>
     )

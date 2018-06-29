@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Map, TileLayer, ZoomControl} from 'react-leaflet';
+import {Map, TileLayer, ZoomControl, Pane} from 'react-leaflet';
 import {Query} from 'react-apollo';
 import gql from 'graphql-tag';
 import 'leaflet/dist/leaflet.css';
@@ -79,6 +79,7 @@ export class LeafletMap extends Component {
     const position = [this.state.lat, this.state.lng];
     return (
       <Map center={position} zoom={this.state.zoom} maxZoom={18} zoomControl={false}>
+        <Pane name='hfp' style={{zIndex: 450}}/>
         <TileLayer
           attribution={'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors '}
           url="https://digitransit-prod-cdn-origin.azureedge.net/map/v1/hsl-map/{z}/{x}/{y}@2x.png"
@@ -102,7 +103,7 @@ export class LeafletMap extends Component {
               if (loading) return <div>Loading...</div>;
               if (error) return <div>Error!</div>;
               if (!data.allVehicles.nodes) return <div>No route!</div>;
-              return (<HfpLayer positions = {data.allVehicles.nodes}/>)
+              return (<HfpLayer positions={data.allVehicles.nodes}/>)
           }}
       </Query>
      </Map>

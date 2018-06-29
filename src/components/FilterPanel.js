@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import logo from '../hsl-logo.png';
 import './FilterPanel.css';
+import {LineInput} from './LineInput';
 import {RouteInput} from './RouteInput';
 import gql from "graphql-tag";
 import {Query} from 'react-apollo';
@@ -8,7 +9,7 @@ import {DateInput} from './DateInput';
 import "moment";
 import "moment/locale/fi";
 
-const routeQuery = gql`
+const allLinesQuery = gql`
   query AllLinesQuery {
     allLines {
       nodes {
@@ -24,7 +25,26 @@ const routeQuery = gql`
   }
 `;
 
-const jorneyStartTimeQuery = gql`
+const routesQuery = gql`
+  query lineQuery($lineId: String!, $dateBegin: Date!, $dateEnd: Date!) {
+    line: lineByLineIdAndDateBeginAndDateEnd(lineId: $lineId, dateBegin: $dateBegin, dateEnd: $dateEnd) {
+      lineId
+      nameFi
+      routes {
+        nodes {
+          routeId
+          direction
+          dateBegin
+          dateEnd
+          destinationFi
+          originFi
+        }
+      }    
+    }
+  }
+`;
+
+const journeyStartTimeQuery = gql`
   query Alldepartures($routeId: String!, $stopId: String!, $direction: String!, $dayType: String!) {
     allDepartures(condition: {routeId: $routeId, stopId: $stopId, direction: $direction, dayType: $dayType}) {
       nodes {
@@ -57,7 +77,6 @@ const linesSorter = (a, b) => {
     return a.lineId.substring(4, 6) > b.lineId.substring(4, 6) ? 1 : -1;
 };
 
-
 export class FilterPanel extends Component {
 
   render() {
@@ -65,24 +84,32 @@ export class FilterPanel extends Component {
       <header className="transitlog-header">
         <img src={logo} className="App-logo" alt="logo"/>
         <h1 className="App-title">Liikenteenvalvontatyökalu</h1>
-        <DateInput locale={"fi"}/>
-        <Query query={routeQuery}>
+        <DateInput locale={"fi"} date={this.props.date} onDateSelected={this.props.onDateSelected}/>
+        <Query query={allLinesQuery}>
           {({ loading, error, data }) => {
           if (loading) return <div className="graphqlLoad">Loading...</div>;
           if (error) return <div>Error!</div>;
-          return (<RouteInput selectedRoute={this.props.selectedRoute} onRouteSelected={this.props.onRouteSelected} routes={{
+          return (<LineInput selectedLine={this.props.selectedLine} onLineSelected={this.props.onLineSelected} lines={{
                lines: data.allLines.nodes
                  .filter(node => node.routes.totalCount !== 0)
                  .filter(removeTrainsFilter)
                  .filter(removeFerryFilter)
+                 .filter(({dateBegin, dateEnd}) => this.props.date >= dateBegin && this.props.date <= dateEnd)
                  .sort(linesSorter),
               }}/>)
           }}
         </Query>
-        <input value={'suunta'}/>
-        <Query query={jorneyStartTimeQuery} variables={{routeId: this.props.selectedRoute.lineId, stopId: "1040446", direction: this.props.selectedRoute.direction, dayType: "Ma"}}>
+        <Query query={routesQuery} variables={this.props.selectedLine}>
           {({ loading, error, data }) => {
-              console.log('jorney', loading, error, data);
+              console.log('journey', loading, error, data);
+              if (loading) return <div>Loading...</div>;
+              if (error) return <div>Error!</div>;
+              return (<RouteInput selectedLine={this.props.selectedLine} selectedRoute={this.props.selectedroute} routes={data}/>)
+          }}
+        </Query>
+        <Query query={journeyStartTimeQuery} variables={{routeId: this.props.selectedRoute.lineId, stopId: "1040446", direction: this.props.selectedRoute.direction, dayType: "Ma"}}>
+          {({ loading, error, data }) => {
+              console.log('journey', loading, error, data);
               if (loading) return <div>Loading...</div>;
               if (error) return <div>Error!</div>;
               return (<input value={'lähdöt'}/>)
