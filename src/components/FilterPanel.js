@@ -75,7 +75,7 @@ const linesSorter = (a, b) => {
 
 export class FilterPanel extends Component {
   render() {
-    const { line, dateBegin, dateEnd } = this.props
+    const { line, queryDate } = this.props
     
     return (
       <header className="transitlog-header">
@@ -83,8 +83,7 @@ export class FilterPanel extends Component {
         <h1 className="App-title">Liikenteenvalvontatyökalu</h1>
         <DateInput
           locale={"fi"}
-          dateBegin={dateBegin}
-          dateEnd={dateEnd}
+          dateBegin={queryDate}
           onDateSelected={this.props.onDateSelected}
         />
         <Query query={allLinesQuery}>
@@ -111,19 +110,21 @@ export class FilterPanel extends Component {
             );
           }}
         </Query>
-        <QueryRoutesByLine variables={{ lineId: line, dateBegin, dateEnd }}>
-          {({loading, error, data}) => {
-            if (loading) return <div>Loading...</div>;
-            if (error) return <div>Error!</div>;
-            return (
-              <RouteInput
-                route={this.props.route}
-                onRouteSelected={this.props.onRouteSelected}
-                routes={data}
-              />
-            );
-          }}
-        </QueryRoutesByLine>
+        { line.lineId && (
+          <QueryRoutesByLine variables={ line }>
+            { ({loading, error, data}) => {
+              if( loading ) return <div>Loading...</div>;
+              if( error ) return <div>Error!</div>;
+              return (
+                <RouteInput
+                  route={ this.props.route }
+                  onRouteSelected={ this.props.onRouteSelected }
+                  routes={ data }
+                />
+              );
+            } }
+          </QueryRoutesByLine>
+        )}
         {/*<Query
           query={journeyStartTimeQuery}
           variables={{

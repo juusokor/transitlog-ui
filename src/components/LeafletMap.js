@@ -2,6 +2,7 @@ import React, {Component} from "react";
 import {Map, TileLayer, ZoomControl, Pane} from "react-leaflet";
 import {Query} from "react-apollo";
 import gql from "graphql-tag";
+import get from "lodash/get";
 import "leaflet/dist/leaflet.css";
 import RouteLayer from "./RouteLayer";
 import HfpLayer from "./HfpLayer";
@@ -66,7 +67,8 @@ export class LeafletMap extends Component {
   }
 
   render() {
-    const {route, dateBegin, dateEnd, startTime} = this.props;
+    const {route, startTime, queryDate} = this.props;
+    const {routeId, direction, dateBegin, dateEnd} = route;
 
     const position = [this.state.lat, this.state.lng];
     return (
@@ -81,25 +83,38 @@ export class LeafletMap extends Component {
           zoomOffset={-1}
         />
         <ZoomControl position="topright" />
-        <Query query={routeQuery} variables={{...route, dateBegin, dateEnd}}>
+        <Query
+          query={routeQuery}
+          variables={{
+            routeId,
+            direction,
+            dateBegin,
+            dateEnd,
+          }}>
           {({loading, error, data}) => {
-            // FIXME: returning divs for loading and error do not make sense for map layers - figure out something else
-            if (loading) return <div>Loading...</div>;
-            if (error) return <div>Error!</div>;
-            if (!data.line) return <div>No route!</div>;
-            return <RouteLayer line={data.route.geometries.nodes[0]} />;
+            const positions = get(
+              data,
+              "route.geometries.nodes[0].geometry.coordinates",
+              []
+            );
+            if (loading || error || positions.length === 0) return null;
+            return <RouteLayer positions={positions} />;
           }}
         </Query>
         <Query
           client={hfpClient}
           query={hfpQuery}
-          variables={{...route, startTime, date: dateBegin }}>
+          variables={{
+            routeId,
+            direction,
+            startTime,
+            date: queryDate,
+          }}>
           {({loading, error, data}) => {
             console.log("HFP", loading, error, data);
-            if (loading) return <div>Loading...</div>;
-            if (error) return <div>Error!</div>;
-            if (!data.allVehicles.nodes) return <div>No route!</div>;
-            return <HfpLayer positions={data.allVehicles.nodes} />;
+            const positions = get(data, "allVehicles.nodes", []);
+            if (loading || error || positions.length === 0) return null;
+            return <HfpLayer positions={positions} />;
           }}
         </Query>
       </Map>

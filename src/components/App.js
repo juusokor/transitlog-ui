@@ -10,13 +10,19 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
-      dateBegin: "2018-07-17",
-      dateEnd: "2018-07-20",
-      line: "1006",
+      queryDate: "2018-07-17",
+      line: {
+        lineId: "",
+        dateBegin: "",
+        dateEnd: "",
+      },
       startTime: "11:55",
       route: {
-        routeId: "1006",
+        routeId: "",
         direction: "1",
+        nameFi: "",
+        dateBegin: "",
+        dateEnd: "",
       },
     };
   }
@@ -24,11 +30,11 @@ class App extends Component {
   onDateSelected = (dateBegin, dateEnd = null) => {
     this.setState({
       dateBegin: moment(dateBegin).format("YYYY-MM-DD"),
-      dateEnd:
-        dateEnd ||
-        moment(dateBegin)
-          .add(1, "days")
-          .format("YYYY-MM-DD"),
+      dateEnd: dateEnd
+        ? moment(dateEnd).format("YYYY-MM-DD")
+        : moment(dateBegin)
+            .add(1, "days")
+            .format("YYYY-MM-DD"),
     });
   };
 
@@ -36,19 +42,34 @@ class App extends Component {
     this.setState({startTime});
   };
 
-  onRouteSelected = ({routeId, direction, dateBegin, dateEnd}) => {
+  onRouteSelected = (route) => {
+    // route might be null
+    const {
+      routeId = "",
+      direction = "1",
+      nameFi = "",
+      dateBegin = "",
+      dateEnd = "",
+    } = route;
+
     this.setState({
-      route: {routeId, direction},
-      dateBegin,
-      dateEnd,
+      route: {
+        routeId,
+        direction,
+        nameFi,
+        dateBegin,
+        dateEnd,
+      },
     });
   };
 
   onLineSelected = ({lineId, dateBegin, dateEnd}) => {
     this.setState({
-      line: lineId,
-      dateBegin,
-      dateEnd,
+      line: {
+        lineId,
+        dateBegin,
+        dateEnd,
+      },
     });
   };
 
@@ -57,8 +78,7 @@ class App extends Component {
       <ApolloProvider client={joreClient}>
         <div className="transitlog">
           <FilterPanel
-            dateBegin={this.state.dateBegin}
-            dateEnd={this.state.dateEnd}
+            queryDate={this.state.queryDate}
             onDateSelected={this.onDateSelected}
             startTime={this.state.startTime}
             onStartTimeSelected={this.onStartTimeSelected}
@@ -68,8 +88,7 @@ class App extends Component {
             onRouteSelected={this.onRouteSelected}
           />
           <LeafletMap
-            dateBegin={this.state.dateBegin}
-            dateEnd={this.state.dateEnd}
+            queryDate={this.state.queryDate}
             startTime={this.state.startTime}
             route={this.state.route}
           />
