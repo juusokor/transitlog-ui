@@ -3,6 +3,7 @@ import logo from '../hsl-logo.png';
 import './FilterPanel.css';
 import {LineInput} from './LineInput';
 import {RouteInput} from './RouteInput';
+import QueryRoutesByFilter from './QueryRoutesByFilter';
 import gql from "graphql-tag";
 import {Query} from 'react-apollo';
 import {DateInput} from './DateInput';
@@ -25,24 +26,7 @@ const allLinesQuery = gql`
   }
 `;
 
-const routesQuery = gql`
-  query lineQuery($lineId: String!, $dateBegin: Date!, $dateEnd: Date!) {
-    line: lineByLineIdAndDateBeginAndDateEnd(lineId: $lineId, dateBegin: $dateBegin, dateEnd: $dateEnd) {
-      lineId
-      nameFi
-      routes {
-        nodes {
-          routeId
-          direction
-          dateBegin
-          dateEnd
-          destinationFi
-          originFi
-        }
-      }    
-    }
-  }
-`;
+
 
 const journeyStartTimeQuery = gql`
   query Alldepartures($routeId: String!, $stopId: String!, $direction: String!, $dayType: String!) {
@@ -89,25 +73,26 @@ export class FilterPanel extends Component {
           {({ loading, error, data }) => {
           if (loading) return <div className="graphqlLoad">Loading...</div>;
           if (error) return <div>Error!</div>;
-          return (<LineInput selectedLine={this.props.selectedLine} onLineSelected={this.props.onLineSelected} lines={{
-               lines: data.allLines.nodes
-                 .filter(node => node.routes.totalCount !== 0)
-                 .filter(removeTrainsFilter)
-                 .filter(removeFerryFilter)
-                 .filter(({dateBegin, dateEnd}) => this.props.date >= dateBegin && this.props.date <= dateEnd)
-                 .sort(linesSorter),
-              }}/>)
+          return <div>incomplete</div>;
+          //return (<LineInput line={this.props.line} onLineSelected={this.props.onLineSelected} lines={{
+          //     lines: data.allLines.nodes
+          //       .filter(node => node.routes.totalCount !== 0)
+          //       .filter(removeTrainsFilter)
+          //       .filter(removeFerryFilter)
+          //       .filter(({dateBegin, dateEnd}) => this.props.date >= dateBegin && this.props.date <= dateEnd)
+          //       .sort(linesSorter),
+          //    }}/>)
           }}
         </Query>
-        <Query query={routesQuery} variables={this.props.selectedLine}>
+        <QueryRoutesByFilter filter={this.props.filter}>
           {({ loading, error, data }) => {
               console.log('journey', loading, error, data);
               if (loading) return <div>Loading...</div>;
               if (error) return <div>Error!</div>;
-              return (<RouteInput selectedLine={this.props.selectedLine} selectedRoute={this.props.selectedroute} routes={data}/>)
+              return (<RouteInput route={this.props.route} onRouteSelected={this.props.onRouteSelected} routes={data}/>)
           }}
-        </Query>
-        <Query query={journeyStartTimeQuery} variables={{routeId: this.props.selectedRoute.lineId, stopId: "1040446", direction: this.props.selectedRoute.direction, dayType: "Ma"}}>
+        </QueryRoutesByFilter>
+        <Query query={journeyStartTimeQuery} variables={{routeId: this.props.route.routeId, stopId: "1040446", direction: this.props.route.direction, dayType: "Ma"}}>
           {({ loading, error, data }) => {
               console.log('journey', loading, error, data);
               if (loading) return <div>Loading...</div>;

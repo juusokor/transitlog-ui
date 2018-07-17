@@ -65,6 +65,18 @@ const lineQuery = gql`
   }
 `;
 
+const routeQuery = gql`
+query routeQuery($routeId: String!, $direction: String!, $dateBegin: Date!, $dateEnd: Date!) {
+  route: routeByRouteIdAndDirectionAndDateBeginAndDateEnd(routeId: $routeId, direction: $direction, dateBegin: $dateBegin, dateEnd: $dateEnd) {
+    geometries {
+      nodes {
+        geometry
+      }
+    }
+  }
+}
+`;
+
 export class LeafletMap extends Component {
   constructor() {
     super();
@@ -87,17 +99,16 @@ export class LeafletMap extends Component {
           zoomOffset={-1}
         />
         <ZoomControl position="topright"/>
-        <Query query={lineQuery} variables={this.props.selectedRoute}>
+        <Query query={routeQuery} variables={this.props.route}>
           {({ loading, error, data }) => {
           // FIXME: returning divs for loading and error do not make sense for map layers - figure out something else
           if (loading) return <div>Loading...</div>;
           if (error) return <div>Error!</div>;
           if (!data.line) return <div>No route!</div>;
-          // FIXME: now just picks the first geometry of first route of selected line, atleast route should be selected
-          return (<RouteLayer line={data.line.routes.nodes[0].geometries.nodes[0]}/>);
+          return (<RouteLayer line={data.route.geometries.nodes[0]}/>);
           }}
         </Query>
-      <Query client={hfpClient} query={hfpQuery} variables={{routeId: this.props.selectedRoute.lineId, directionId: 1, startTime: this.props.startTime, date: this.props.date}}>
+      <Query client={hfpClient} query={hfpQuery} variables={this.props.route}>
           {({ loading, error, data }) => {
               console.log('HFP', loading, error, data);
               if (loading) return <div>Loading...</div>;

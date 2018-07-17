@@ -12,26 +12,34 @@ class App extends Component {
     super();
     this.state = {
       date: '2018-05-07',
-      selectedLine: {lineId: '1006', dateBegin: '2017-08-14', dateEnd: '2018-12-31'},
+      filter: {type: 'line', lineId: '1006', dateBegin: '2017-08-14', dateEnd: '2018-12-31'},
       startTime: '11:55',
-      selectedRoute: {lineId: '1006', direction: '1', dateBegin: '2017-08-14', dateEnd: '2018-12-31'},
+      route: {routeId: '1006', direction: '1', dateBegin: '2017-08-14', dateEnd: '2018-12-31'},
     };
   }
-
+  
   onDateSelected = (date) => {
     this.setState({date});
   };
 
-  onLineSelected = ({lineId, dateBegin, dateEnd}) => {
-    this.setState({selectedLine: {lineId, dateBegin, dateEnd}});
+  onStartTimeSelected = (startTime) => {
+    this.setState({startTime});
   };
+  
+  onRouteSelected = ({routeId, direction, dateBegin, dateEnd}) => {
+    this.setState({route: {routeId, direction, dateBegin, dateEnd}});
+  }
+  
 
   render() {
     return (
     <ApolloProvider client={joreClient}>  
       <div className="transitlog">
-        <FilterPanel date={this.state.date} onDateSelected={this.onDateSelected} selectedLine={this.state.selectedLine} onLineSelected={this.onLineSelected} selectedRoute={this.state.selectedRoute}/>
-        <LeafletMap selectedRoute={this.state.selectedRoute} date={this.state.date} startTime={this.state.startTime}/>
+        <FilterPanel date={this.state.date} onDateSelected={this.onDateSelected}
+          filter={this.state.filter} 
+          startTime={this.state.startTime} onStartTimeSelected={this.onStartTimeselected} 
+          route={this.state.route} onRouteSelected={this.onRouteSelected}/>
+        <LeafletMap date={this.state.date} startTime={this.state.startTime} route={this.state.route}/>
       </div>
     </ApolloProvider>
     )

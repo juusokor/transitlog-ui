@@ -7,14 +7,10 @@ export class RouteInput extends Component {
     }
     
     render() {
-        const options = this.props.routes.line.routes.nodes.map(({direction, originFi, destinationFi}) => (originFi + '-' + destinationFi))
+        const options = this.props.routes.map(({direction, nameFi}) => ('suunta' + direction + ', ' + nameFi))
         console.log('routes', options)
         return (
-        <select>
-            <option value='foo'/>
-        </select>
+        <select>{options.map(name => <option value={name}>{name}</option>)}</select>
         )
     }
 }
-
-//     options.map(({o}) => (<option value=o/>) )
