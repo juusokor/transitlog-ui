@@ -33,7 +33,7 @@ class App extends Component {
 
   render() {
     return (
-    <ApolloProvider client={joreClient}>  
+    <ApolloProvider client={joreClient}>
       <div className="transitlog">
         <FilterPanel date={this.state.date} onDateSelected={this.onDateSelected}
           filter={this.state.filter} 
