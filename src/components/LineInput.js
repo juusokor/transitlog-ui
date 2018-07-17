@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import Autosuggest from "react-autosuggest";
+import get from 'lodash/get'
 import "./LineInput.css";
 
 const parseLineNumber = (lineId) =>
@@ -27,7 +28,7 @@ const getSuggestions = (lines, value) => {
       );
 };
 
-const getSuggestionValue = (suggestion) => parseLineNumber(suggestion.lineId);
+const getSuggestionValue = (suggestion) => parseLineNumber(get(suggestion, 'lineId', ''));
 
 const renderSuggestion = (suggestion) => (
   <span className={"suggestion-content " + getTransportType(suggestion)}>
@@ -38,6 +39,9 @@ const renderSuggestion = (suggestion) => (
 export class LineInput extends Component {
   constructor(props) {
     super(props);
+    
+    console.log(this.props.selectedLine)
+    
     this.state = {
       value: getSuggestionValue(this.props.selectedLine),
       suggestions: [],
@@ -51,6 +55,7 @@ export class LineInput extends Component {
   };
 
   onSuggestionSelected = (event, {suggestion}) => {
+    console.log(suggestion)
     this.props.onLineSelected(suggestion);
   };
 

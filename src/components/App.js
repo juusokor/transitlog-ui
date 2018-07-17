@@ -10,12 +10,7 @@ class App extends Component {
     super();
     this.state = {
       date: "2018-05-07",
-      filter: {
-        type: "line",
-        lineId: "1006",
-        dateBegin: "2017-08-14",
-        dateEnd: "2018-12-31",
-      },
+      selectedLine: "1006",
       startTime: "11:55",
       route: {
         routeId: "1006",
@@ -37,6 +32,8 @@ class App extends Component {
   onRouteSelected = ({routeId, direction, dateBegin, dateEnd}) => {
     this.setState({route: {routeId, direction, dateBegin, dateEnd}});
   };
+  
+  onLineSelected = ()
 
   render() {
     return (
@@ -47,7 +44,7 @@ class App extends Component {
             onDateSelected={this.onDateSelected}
             filter={this.state.filter}
             startTime={this.state.startTime}
-            onStartTimeSelected={this.onStartTimeselected}
+            onStartTimeSelected={this.onStartTimeSelected}
             route={this.state.route}
             onRouteSelected={this.onRouteSelected}
           />

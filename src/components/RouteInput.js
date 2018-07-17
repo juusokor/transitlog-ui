@@ -11,7 +11,13 @@ export class RouteInput extends Component {
     );
     console.log("routes", options);
     return (
-      <select>{options.map((name) => <option value={name}>{name}</option>)}</select>
+      <select>
+        {options.map((name) => (
+          <option key={`route_select_${name}`} value={name}>
+            {name}
+          </option>
+        ))}
+      </select>
     );
   }
 }

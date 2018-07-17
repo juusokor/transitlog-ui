@@ -88,15 +88,24 @@ export class FilterPanel extends Component {
           {({loading, error, data}) => {
             if (loading) return <div className="graphqlLoad">Loading...</div>;
             if (error) return <div>Error!</div>;
-            return <div>incomplete</div>;
-            //return (<LineInput line={this.props.line} onLineSelected={this.props.onLineSelected} lines={{
-            //     lines: data.allLines.nodes
-            //       .filter(node => node.routes.totalCount !== 0)
-            //       .filter(removeTrainsFilter)
-            //       .filter(removeFerryFilter)
-            //       .filter(({dateBegin, dateEnd}) => this.props.date >= dateBegin && this.props.date <= dateEnd)
-            //       .sort(linesSorter),
-            //    }}/>)
+
+            return (
+              <LineInput
+                line={this.props.line}
+                onLineSelected={this.props.onLineSelected}
+                lines={{
+                  lines: data.allLines.nodes
+                    .filter((node) => node.routes.totalCount !== 0)
+                    .filter(removeTrainsFilter)
+                    .filter(removeFerryFilter)
+                    .filter(
+                      ({dateBegin, dateEnd}) =>
+                        this.props.date >= dateBegin && this.props.date <= dateEnd
+                    )
+                    .sort(linesSorter),
+                }}
+              />
+            );
           }}
         </Query>
         <QueryRoutesByFilter filter={this.props.filter}>
