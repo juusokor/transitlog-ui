@@ -10,7 +10,7 @@ import {hfpClient} from "../api.js";
 const hfpQuery = gql`
   query hfpQuery(
     $routeId: String!
-    $directionId: Int!
+    $direction: Int!
     $startTime: Time!
     $date: Date!
   ) {
@@ -18,7 +18,7 @@ const hfpQuery = gql`
       orderBy: RECEIVED_AT_ASC
       condition: {
         routeId: $routeId
-        directionId: $directionId
+        directionId: $direction
         journeyStartTime: $startTime
         oday: $date
       }
@@ -28,56 +28,6 @@ const hfpQuery = gql`
         lat
         long
         uniqueVehicleId
-      }
-    }
-  }
-`;
-
-const lineQuery = gql`
-  query lineQuery($lineId: String!, $dateBegin: Date!, $dateEnd: Date!) {
-    line: lineByLineIdAndDateBeginAndDateEnd(
-      lineId: $lineId
-      dateBegin: $dateBegin
-      dateEnd: $dateEnd
-    ) {
-      lineId
-      nameFi
-      routes {
-        nodes {
-          routeId
-          direction
-          dateBegin
-          dateEnd
-          routeSegments {
-            nodes {
-              stopIndex
-              timingStopType
-              duration
-              stop: stopByStopId {
-                stopId
-                lat
-                lon
-                shortId
-                nameFi
-                nameSe
-              }
-            }
-          }
-          geometries {
-            nodes {
-              geometry
-              dateBegin
-              dateEnd
-            }
-          }
-        }
-      }
-      notes {
-        nodes {
-          noteType
-          noteText
-          dateEnd
-        }
       }
     }
   }
@@ -116,6 +66,8 @@ export class LeafletMap extends Component {
   }
 
   render() {
+    const {route, dateBegin, dateEnd, startTime} = this.props;
+
     const position = [this.state.lat, this.state.lng];
     return (
       <Map center={position} zoom={this.state.zoom} maxZoom={18} zoomControl={false}>
@@ -129,7 +81,7 @@ export class LeafletMap extends Component {
           zoomOffset={-1}
         />
         <ZoomControl position="topright" />
-        <Query query={routeQuery} variables={this.props.route}>
+        <Query query={routeQuery} variables={{...route, dateBegin, dateEnd}}>
           {({loading, error, data}) => {
             // FIXME: returning divs for loading and error do not make sense for map layers - figure out something else
             if (loading) return <div>Loading...</div>;
@@ -138,7 +90,10 @@ export class LeafletMap extends Component {
             return <RouteLayer line={data.route.geometries.nodes[0]} />;
           }}
         </Query>
-        <Query client={hfpClient} query={hfpQuery} variables={this.props.route}>
+        <Query
+          client={hfpClient}
+          query={hfpQuery}
+          variables={{...route, startTime, date: dateBegin }}>
           {({loading, error, data}) => {
             console.log("HFP", loading, error, data);
             if (loading) return <div>Loading...</div>;

@@ -40,10 +40,8 @@ export class LineInput extends Component {
   constructor(props) {
     super(props);
     
-    console.log(this.props.selectedLine)
-    
     this.state = {
-      value: getSuggestionValue(this.props.selectedLine),
+      value: getSuggestionValue(this.props.line),
       suggestions: [],
     };
   }
@@ -55,7 +53,6 @@ export class LineInput extends Component {
   };
 
   onSuggestionSelected = (event, {suggestion}) => {
-    console.log(suggestion)
     this.props.onLineSelected(suggestion);
   };
 

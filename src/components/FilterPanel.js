@@ -3,7 +3,7 @@ import logo from "../hsl-logo.png";
 import "./FilterPanel.css";
 import {LineInput} from "./LineInput";
 import {RouteInput} from "./RouteInput";
-import QueryRoutesByFilter from "./QueryRoutesByFilter";
+import QueryRoutesByLine from "./QueryRoutesByLine";
 import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import {DateInput} from "./DateInput";
@@ -75,13 +75,16 @@ const linesSorter = (a, b) => {
 
 export class FilterPanel extends Component {
   render() {
+    const { line, dateBegin, dateEnd } = this.props
+    
     return (
       <header className="transitlog-header">
         <img src={logo} className="App-logo" alt="logo" />
         <h1 className="App-title">Liikenteenvalvontatyökalu</h1>
         <DateInput
           locale={"fi"}
-          date={this.props.date}
+          dateBegin={dateBegin}
+          dateEnd={dateEnd}
           onDateSelected={this.props.onDateSelected}
         />
         <Query query={allLinesQuery}>
@@ -100,7 +103,7 @@ export class FilterPanel extends Component {
                     .filter(removeFerryFilter)
                     .filter(
                       ({dateBegin, dateEnd}) =>
-                        this.props.date >= dateBegin && this.props.date <= dateEnd
+                        dateBegin >= dateBegin && dateBegin <= dateEnd
                     )
                     .sort(linesSorter),
                 }}
@@ -108,9 +111,8 @@ export class FilterPanel extends Component {
             );
           }}
         </Query>
-        <QueryRoutesByFilter filter={this.props.filter}>
+        <QueryRoutesByLine variables={{ lineId: line, dateBegin, dateEnd }}>
           {({loading, error, data}) => {
-            console.log("journey", loading, error, data);
             if (loading) return <div>Loading...</div>;
             if (error) return <div>Error!</div>;
             return (
@@ -121,8 +123,8 @@ export class FilterPanel extends Component {
               />
             );
           }}
-        </QueryRoutesByFilter>
-        <Query
+        </QueryRoutesByLine>
+        {/*<Query
           query={journeyStartTimeQuery}
           variables={{
             routeId: this.props.route.routeId,
@@ -131,12 +133,12 @@ export class FilterPanel extends Component {
             dayType: "Ma",
           }}>
           {({loading, error, data}) => {
-            console.log("journey", loading, error, data);
+            console.log(data)
             if (loading) return <div>Loading...</div>;
             if (error) return <div>Error!</div>;
             return <input value={"lähdöt"} />;
           }}
-        </Query>
+        </Query>*/}
       </header>
     );
   }
