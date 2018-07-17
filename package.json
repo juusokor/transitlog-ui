@@ -22,7 +22,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "codestyle": "prettier \"src/**/*\" --write"
+    "codestyle": "prettier \"src/**/*.{css,js}\" --write"
   },
   "devDependencies": {
     "prettier": "^1.13.7"
