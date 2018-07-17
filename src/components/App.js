@@ -23,7 +23,7 @@ class App extends Component {
 
   render() {
     return (
-    <ApolloProvider client={joreClient}>  
+    <ApolloProvider client={joreClient}>
       <div className="transitlog">
         <FilterPanel selectedRoute={this.state.selectedRoute} onRouteSelected={this.onRouteSelected}/>
         <LeafletMap selectedRoute={this.state.selectedRoute}/>
