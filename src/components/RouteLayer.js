@@ -1,9 +1,17 @@
-import React from "react";
+import React, {Component} from "react";
 import {Polyline} from "react-leaflet";
 
-const RouteLayer = ({positions}) => {
-  const coords = positions.map(([lon, lat]) => [lat, lon]);
-  return <Polyline positions={coords} />;
-};
+class RouteLayer extends Component {
+  coords = this.props.positions.map(([lon, lat]) => [lat, lon]);
+
+  render() {
+    return (
+      <Polyline
+        weight={5}
+        positions={this.coords}
+      />
+    );
+  }
+}
 
 export default RouteLayer;
