@@ -5,8 +5,6 @@ import moment from "moment";
 
 class HfpLayer extends Component {
   mouseOver = false;
-  
-  tooltip = tooltip()
 
   coords = this.props.positions
     .filter((pos) => !!pos.lat && !!pos.long)
