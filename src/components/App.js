@@ -14,16 +14,16 @@ class App extends Component {
       queryTime: "00:00",
       stop: "",
       line: {
-        lineId: "",
-        dateBegin: "",
-        dateEnd: "",
+        lineId: "1006T",
+        dateBegin: "2017-08-14",
+        dateEnd: "2050-12-31",
       },
       route: {
-        routeId: "",
+        routeId: "1006T",
         direction: "1",
-        nameFi: "",
-        dateBegin: "",
-        dateEnd: "",
+        nameFi: "Länsiterminaali - Rautatieasema - Sörnäinen (M) - Arabia",
+        dateBegin: "2017-08-14",
+        dateEnd: "2050-12-31",
       },
     };
   }
