@@ -74,13 +74,20 @@ export class LeafletMap extends Component {
     this.state = {lat: 60.170988, lng: 24.940842, zoom: 13};
   }
 
+  map = React.createRef();
+
   render() {
     const {route, queryTime, queryDate} = this.props;
     const {routeId, direction, dateBegin, dateEnd} = route;
 
     const position = [this.state.lat, this.state.lng];
     return (
-      <Map center={position} zoom={this.state.zoom} maxZoom={18} zoomControl={false}>
+      <Map
+        center={position}
+        ref={this.map}
+        zoom={this.state.zoom}
+        maxZoom={18}
+        zoomControl={false}>
         <Pane name="hfp" style={{zIndex: 450}} />
         <TileLayer
           attribution={
@@ -106,14 +113,12 @@ export class LeafletMap extends Component {
               "route.geometries.nodes[0].geometry.coordinates",
               []
             );
-            const stops = get(
-              data,
-              "route.routeSegments.nodes",
-              []
-            );
+            const stops = get(data, "route.routeSegments.nodes", []);
 
             if (loading || error || positions.length === 0) return null;
-            return <RouteLayer positions={positions} />;
+            return (
+              <RouteLayer key={`${routeId}_${direction}`} positions={positions} />
+            );
           }}
         </Query>
         <Query
@@ -129,7 +134,9 @@ export class LeafletMap extends Component {
           {({loading, error, data}) => {
             const positions = get(data, "allVehicles.nodes", []);
             if (loading || error || positions.length === 0) return null;
-            return <HfpLayer positions={positions} />;
+            return (
+              <HfpLayer key={`${routeId}_${direction}`} positions={positions} />
+            );
           }}
         </Query>
       </Map>
