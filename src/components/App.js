@@ -10,13 +10,13 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
-      queryDate: "2018-07-17",
+      queryDate: "2018-05-06",
+      queryTime: "00:00",
       line: {
         lineId: "",
         dateBegin: "",
         dateEnd: "",
       },
-      startTime: "11:55",
       route: {
         routeId: "",
         direction: "1",
@@ -27,19 +27,14 @@ class App extends Component {
     };
   }
 
-  onDateSelected = (dateBegin, dateEnd = null) => {
+  onDateSelected = (queryDate) => {
     this.setState({
-      dateBegin: moment(dateBegin).format("YYYY-MM-DD"),
-      dateEnd: dateEnd
-        ? moment(dateEnd).format("YYYY-MM-DD")
-        : moment(dateBegin)
-            .add(1, "days")
-            .format("YYYY-MM-DD"),
+      queryDate: moment(queryDate).format("YYYY-MM-DD"),
     });
   };
 
-  onStartTimeSelected = (startTime) => {
-    this.setState({startTime});
+  onTimeSelected = (queryTime) => {
+    this.setState({queryTime});
   };
 
   onRouteSelected = (route) => {
@@ -51,7 +46,7 @@ class App extends Component {
       dateBegin = "",
       dateEnd = "",
     } = route;
-
+    
     this.setState({
       route: {
         routeId,
@@ -79,9 +74,11 @@ class App extends Component {
         <div className="transitlog">
           <FilterPanel
             queryDate={this.state.queryDate}
+            queryTime={this.state.queryTime}
             onDateSelected={this.onDateSelected}
+            onTimeSelected={this.onTimeSelected}
             startTime={this.state.startTime}
-            onStartTimeSelected={this.onStartTimeSelected}
+            onStartTimeSelected={this.onTimeSelected}
             line={this.state.line}
             onLineSelected={this.onLineSelected}
             route={this.state.route}

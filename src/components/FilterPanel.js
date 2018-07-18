@@ -7,8 +7,10 @@ import QueryRoutesByLine from "./QueryRoutesByLine";
 import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import {DateInput} from "./DateInput";
+import DatePicker from "react-datepicker";
 import "moment";
 import "moment/locale/fi";
+import moment from "moment";
 
 const allLinesQuery = gql`
   query AllLinesQuery {
@@ -75,8 +77,8 @@ const linesSorter = (a, b) => {
 
 export class FilterPanel extends Component {
   render() {
-    const { line, queryDate } = this.props
-    
+    const {line, queryDate, queryTime, onTimeSelected, onDateSelected} = this.props;
+
     return (
       <header className="transitlog-header">
         <img src={logo} className="App-logo" alt="logo" />
@@ -84,8 +86,19 @@ export class FilterPanel extends Component {
         <DateInput
           locale={"fi"}
           dateBegin={queryDate}
-          onDateSelected={this.props.onDateSelected}
+          onDateSelected={onDateSelected}
         />
+        {/*<DatePicker
+          selected={moment()
+            .set("HH", queryTime.split(":")[0])
+            .set("MM", queryTime.split(":")[1])}
+          onChange={onTimeSelected}
+          showTimeSelect
+          showTimeSelectOnly
+          timeIntervals={15}
+          dateFormat="LT"
+          timeCaption="Time"
+        />*/}
         <Query query={allLinesQuery}>
           {({loading, error, data}) => {
             if (loading) return <div className="graphqlLoad">Loading...</div>;
@@ -110,19 +123,19 @@ export class FilterPanel extends Component {
             );
           }}
         </Query>
-        { line.lineId && (
-          <QueryRoutesByLine variables={ line }>
-            { ({loading, error, data}) => {
-              if( loading ) return <div>Loading...</div>;
-              if( error ) return <div>Error!</div>;
+        {line.lineId && (
+          <QueryRoutesByLine variables={line}>
+            {({loading, error, data}) => {
+              if (loading) return <div>Loading...</div>;
+              if (error) return <div>Error!</div>;
               return (
                 <RouteInput
-                  route={ this.props.route }
-                  onRouteSelected={ this.props.onRouteSelected }
-                  routes={ data }
+                  route={this.props.route}
+                  onRouteSelected={this.props.onRouteSelected}
+                  routes={data}
                 />
               );
-            } }
+            }}
           </QueryRoutesByLine>
         )}
         {/*<Query

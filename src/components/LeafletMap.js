@@ -85,6 +85,7 @@ export class LeafletMap extends Component {
         <ZoomControl position="topright" />
         <Query
           query={routeQuery}
+          fetchPolicy="cache-and-network"
           variables={{
             routeId,
             direction,
@@ -97,6 +98,7 @@ export class LeafletMap extends Component {
               "route.geometries.nodes[0].geometry.coordinates",
               []
             );
+
             if (loading || error || positions.length === 0) return null;
             return <RouteLayer positions={positions} />;
           }}
@@ -104,14 +106,14 @@ export class LeafletMap extends Component {
         <Query
           client={hfpClient}
           query={hfpQuery}
+          fetchPolicy="cache-and-network"
           variables={{
             routeId,
-            direction,
+            direction: parseInt(direction),
             startTime,
             date: queryDate,
           }}>
           {({loading, error, data}) => {
-            console.log("HFP", loading, error, data);
             const positions = get(data, "allVehicles.nodes", []);
             if (loading || error || positions.length === 0) return null;
             return <HfpLayer positions={positions} />;
