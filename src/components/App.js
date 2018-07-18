@@ -3,7 +3,7 @@ import "./App.css";
 import {LeafletMap} from "./LeafletMap";
 import {FilterPanel} from "./FilterPanel";
 import {ApolloProvider} from "react-apollo";
-import {joreClient, digiTClient, hfpClient} from "../api";
+import {joreClient} from "../api";
 import moment from "moment";
 
 class App extends Component {
@@ -12,6 +12,7 @@ class App extends Component {
     this.state = {
       queryDate: "2018-05-06",
       queryTime: "00:00",
+      stop: "",
       line: {
         lineId: "",
         dateBegin: "",
@@ -46,7 +47,7 @@ class App extends Component {
       dateBegin = "",
       dateEnd = "",
     } = route;
-    
+
     this.setState({
       route: {
         routeId,
