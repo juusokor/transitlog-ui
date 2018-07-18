@@ -3,7 +3,7 @@ import "./App.css";
 import {LeafletMap} from "./LeafletMap";
 import {FilterPanel} from "./FilterPanel";
 import {ApolloProvider} from "react-apollo";
-import {joreClient, digiTClient, hfpClient} from "../api";
+import {joreClient} from "../api";
 import moment from "moment";
 
 class App extends Component {
@@ -11,18 +11,18 @@ class App extends Component {
     super();
     this.state = {
       queryDate: "2018-05-06",
-      queryTime: "00:00",
+      queryTime: "13:13:00",
       line: {
-        lineId: "",
-        dateBegin: "",
-        dateEnd: "",
+        lineId: "1006T",
+        dateBegin: "2017-08-14",
+        dateEnd: "2050-12-31",
       },
       route: {
-        routeId: "",
+        routeId: "1006T",
         direction: "1",
-        nameFi: "",
-        dateBegin: "",
-        dateEnd: "",
+        nameFi: "Länsiterminaali - Rautatieasema - Sörnäinen (M) - Arabia",
+        dateBegin: "2017-08-14",
+        dateEnd: "2050-12-31",
       },
     };
   }
@@ -69,6 +69,7 @@ class App extends Component {
   };
 
   render() {
+    
     return (
       <ApolloProvider client={joreClient}>
         <div className="transitlog">
