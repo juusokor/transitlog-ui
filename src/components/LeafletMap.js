@@ -117,7 +117,7 @@ export class LeafletMap extends Component {
 
             if (loading || error || positions.length === 0) return null;
             return (
-              <RouteLayer key={`${routeId}_${direction}`} positions={positions} />
+              <RouteLayer key={`${routeId}_${direction}`} positions={positions} stops={stops}/>
             );
           }}
         </Query>
