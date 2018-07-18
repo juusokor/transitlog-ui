@@ -67,7 +67,7 @@ export class LeafletMap extends Component {
   }
 
   render() {
-    const {route, startTime, queryDate} = this.props;
+    const {route, queryTime, queryDate} = this.props;
     const {routeId, direction, dateBegin, dateEnd} = route;
 
     const position = [this.state.lat, this.state.lng];
@@ -110,7 +110,7 @@ export class LeafletMap extends Component {
           variables={{
             routeId,
             direction: parseInt(direction),
-            startTime,
+            startTime: queryTime,
             date: queryDate,
           }}>
           {({loading, error, data}) => {

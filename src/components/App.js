@@ -77,8 +77,6 @@ class App extends Component {
             queryTime={this.state.queryTime}
             onDateSelected={this.onDateSelected}
             onTimeSelected={this.onTimeSelected}
-            startTime={this.state.startTime}
-            onStartTimeSelected={this.onTimeSelected}
             line={this.state.line}
             onLineSelected={this.onLineSelected}
             route={this.state.route}
@@ -86,7 +84,7 @@ class App extends Component {
           />
           <LeafletMap
             queryDate={this.state.queryDate}
-            startTime={this.state.startTime}
+            queryTime={this.state.queryTime}
             route={this.state.route}
           />
         </div>

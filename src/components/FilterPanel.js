@@ -85,20 +85,9 @@ export class FilterPanel extends Component {
         <h1 className="App-title">Liikenteenvalvontatyökalu</h1>
         <DateInput
           locale={"fi"}
-          dateBegin={queryDate}
+          date={queryDate}
           onDateSelected={onDateSelected}
         />
-        {/*<DatePicker
-          selected={moment()
-            .set("HH", queryTime.split(":")[0])
-            .set("MM", queryTime.split(":")[1])}
-          onChange={onTimeSelected}
-          showTimeSelect
-          showTimeSelectOnly
-          timeIntervals={15}
-          dateFormat="LT"
-          timeCaption="Time"
-        />*/}
         <Query query={allLinesQuery}>
           {({loading, error, data}) => {
             if (loading) return <div className="graphqlLoad">Loading...</div>;
