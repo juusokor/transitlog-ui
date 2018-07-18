@@ -85,7 +85,6 @@ export class FilterPanel extends Component {
                 lines={{
                   lines: data.allLines.nodes
                     .filter((node) => node.routes.totalCount !== 0)
-                    .filter(removeTrainsFilter)
                     .filter(removeFerryFilter)
                     .filter(
                       ({dateBegin, dateEnd}) =>
