@@ -12,6 +12,8 @@ export class DateInput extends Component {
     return (
       <React.Fragment>
         <DatePicker
+          locale="fi-FI"
+          dateFormat="YYYY-MM-DD"
           selected={moment(date)}
           onChange={ onDateSelected}
           className="calendar"
