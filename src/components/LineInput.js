@@ -1,7 +1,6 @@
-import React, {Component} from "react";
-import Autosuggest from "react-autosuggest";
-import get from 'lodash/get'
-import "./LineInput.css";
+import React from "react";
+import get from "lodash/get";
+import SuggestionInput from "./SuggestionInput";
 
 const parseLineNumber = (lineId) =>
   // Remove 1st number, which represents the city
@@ -15,7 +14,18 @@ const getTransportType = (line) => {
   return "BUS";
 };
 
-const getSuggestions = (lines, value) => {
+const getSuggestionValue = (suggestion) =>
+  parseLineNumber(get(suggestion, "lineId", ""));
+
+const renderSuggestion = (suggestion) => (
+  <span className={`suggestion-content ${getTransportType(suggestion)}`}>
+    <div className="suggestion-text with-icon">
+      {parseLineNumber(suggestion.lineId)}
+    </div>
+  </span>
+);
+
+const getSuggestions = (lines) => (value = "") => {
   const inputValue = value.trim().toLowerCase();
   const inputLength = inputValue.length;
 
@@ -28,63 +38,14 @@ const getSuggestions = (lines, value) => {
       );
 };
 
-const getSuggestionValue = (suggestion) => parseLineNumber(get(suggestion, 'lineId', ''));
-
-const renderSuggestion = (suggestion) => (
-  <span className={"suggestion-content " + getTransportType(suggestion)}>
-    <div className={"lineItem"}>{parseLineNumber(suggestion.lineId)}</div>
-  </span>
+export default ({lines, line, onSelect}) => (
+  <SuggestionInput
+    minimumInput={1}
+    placeholder="Hae linjaa..."
+    value={getSuggestionValue(line)}
+    onSelect={onSelect}
+    getValue={getSuggestionValue}
+    renderSuggestion={renderSuggestion}
+    getSuggestions={getSuggestions(lines)}
+  />
 );
-
-export class LineInput extends Component {
-  constructor(props) {
-    super(props);
-    
-    this.state = {
-      value: getSuggestionValue(this.props.line),
-      suggestions: [],
-    };
-  }
-
-  onChange = (event, {newValue}) => {
-    this.setState({
-      value: newValue,
-    });
-  };
-
-  onSuggestionSelected = (event, {suggestion}) => {
-    this.props.onLineSelected(suggestion);
-  };
-
-  onSuggestionsFetchRequested = ({value}) => {
-    this.setState({
-      suggestions: getSuggestions(this.props.lines.lines, value),
-    });
-  };
-
-  onSuggestionsClearRequested = () => {
-    this.setState({
-      suggestions: [],
-    });
-  };
-
-  render() {
-    const {value, suggestions} = this.state;
-    const inputProps = {
-      placeholder: "Hae linja...",
-      value,
-      onChange: this.onChange,
-    };
-    return (
-      <Autosuggest
-        suggestions={suggestions}
-        onSuggestionSelected={this.onSuggestionSelected}
-        onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
-        onSuggestionsClearRequested={this.onSuggestionsClearRequested}
-        getSuggestionValue={getSuggestionValue}
-        renderSuggestion={renderSuggestion}
-        inputProps={inputProps}
-      />
-    );
-  }
-}

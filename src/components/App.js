@@ -11,7 +11,8 @@ class App extends Component {
     super();
     this.state = {
       queryDate: "2018-05-06",
-      queryTime: "13:13:00",
+      queryTime: "00:00",
+      stop: "",
       line: {
         lineId: "1006T",
         dateBegin: "2017-08-14",
@@ -46,7 +47,7 @@ class App extends Component {
       dateBegin = "",
       dateEnd = "",
     } = route;
-    
+
     this.setState({
       route: {
         routeId,
@@ -68,8 +69,16 @@ class App extends Component {
     });
   };
 
+  onStopSelected = ({stopId, shortId}) => {
+    this.setState({
+      stop: {
+        stopId,
+        shortId,
+      },
+    });
+  };
+
   render() {
-    
     return (
       <ApolloProvider client={joreClient}>
         <div className="transitlog">
@@ -82,6 +91,8 @@ class App extends Component {
             onLineSelected={this.onLineSelected}
             route={this.state.route}
             onRouteSelected={this.onRouteSelected}
+            stop={this.state.stop}
+            onStopSelected={this.onStopSelected}
           />
           <LeafletMap
             queryDate={this.state.queryDate}

@@ -122,10 +122,7 @@ export class LeafletMap extends Component {
             const positions = get(data, "allVehicles.nodes", []);
             if (loading || error || positions.length === 0) return null;
             return (
-              <HfpLayer
-                key={`${routeId}_${direction}`}
-                positions={positions}
-              />
+              <HfpLayer key={`${routeId}_${direction}`} positions={positions} />
             );
           }}
         </Query>

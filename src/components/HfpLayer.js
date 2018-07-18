@@ -16,8 +16,8 @@ class HfpLayer extends Component {
     const hfpItem = this.coords.find((hfp) =>
       latlng.equals(latLng(hfp[0], hfp[1]), 0.0001)
     );
-    
-    return hfpItem ? hfpItem[2] : null
+
+    return hfpItem ? hfpItem[2] : null;
   };
 
   onMouseout = (event) => {
@@ -42,16 +42,14 @@ class HfpLayer extends Component {
     if (hfpItem) {
       const line = event.target;
       const tooltipContent = `${moment(hfpItem.receivedAt).format("HH:mm:ss")}<br />
-${hfpItem.uniqueVehicleId}`
+${hfpItem.uniqueVehicleId}`;
 
-      const lineTooltip = line.getTooltip()
-      
-      if(lineTooltip) {
-        lineTooltip.setContent(tooltipContent)
+      const lineTooltip = line.getTooltip();
+
+      if (lineTooltip) {
+        lineTooltip.setContent(tooltipContent);
       } else {
-        line
-          .bindTooltip(tooltipContent, { sticky: true })
-          .openTooltip();
+        line.bindTooltip(tooltipContent, {sticky: true}).openTooltip();
       }
     }
   };

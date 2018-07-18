@@ -5,12 +5,7 @@ class RouteLayer extends Component {
   coords = this.props.positions.map(([lon, lat]) => [lat, lon]);
 
   render() {
-    return (
-      <Polyline
-        weight={5}
-        positions={this.coords}
-      />
-    );
+    return <Polyline weight={5} positions={this.coords} />;
   }
 }
 
