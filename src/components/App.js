@@ -69,6 +69,15 @@ class App extends Component {
     });
   };
 
+  onStopSelected = ({stopId, shortId}) => {
+    this.setState({
+      stop: {
+        stopId,
+        shortId,
+      },
+    });
+  };
+
   render() {
     return (
       <ApolloProvider client={joreClient}>
@@ -82,6 +91,8 @@ class App extends Component {
             onLineSelected={this.onLineSelected}
             route={this.state.route}
             onRouteSelected={this.onRouteSelected}
+            stop={this.state.stop}
+            onStopSelected={this.onStopSelected}
           />
           <LeafletMap
             queryDate={this.state.queryDate}

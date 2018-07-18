@@ -85,10 +85,13 @@ body {
   color: #00985f;
 }
 
-.lineItem {
+.suggestion-text {
   font-family: fontFamily;
-  margin-left: 40px;
   line-height: 30px;
+}
+
+.suggestion-text.with-icon {
+  margin-left: 40px;
 }
 
 .highlight {
