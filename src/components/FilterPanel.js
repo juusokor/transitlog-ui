@@ -1,7 +1,8 @@
 import React, {Component} from "react";
 import logo from "../hsl-logo.png";
 import "./FilterPanel.css";
-import {LineInput} from "./LineInput";
+import LineInput from "./LineInput";
+import StopInput from "./StopInput";
 import {RouteInput} from "./RouteInput";
 import QueryRoutesByLine from "./QueryRoutesByLine";
 import gql from "graphql-tag";
@@ -10,6 +11,18 @@ import {DateInput} from "./DateInput";
 import get from "lodash/get";
 import uniqBy from "lodash/uniqBy";
 import {hfpClient} from "../api";
+import moment from "moment";
+
+const allStopsQuery = gql`
+  {
+    allStops {
+      nodes {
+        stopId
+        shortId
+      }
+    }
+  }
+`;
 
 const allLinesQuery = gql`
   query AllLinesQuery {
@@ -39,7 +52,6 @@ const journeyStartTimeQuery = gql`
   }
 `;
 
-const removeTrainsFilter = (line) => line.lineId.substring(0, 1) !== "3";
 const removeFerryFilter = (line) => line.lineId.substring(0, 4) !== "1019";
 
 const transportTypeOrder = ["tram", "bus"];
@@ -60,19 +72,34 @@ const linesSorter = (a, b) => {
 export class FilterPanel extends Component {
   render() {
     const {
+      stop,
       route,
       line,
       queryDate,
       queryTime,
       onTimeSelected,
       onDateSelected,
+      onStopSelected,
     } = this.props;
+
+    const queryMoment = moment(queryDate);
 
     return (
       <header className="transitlog-header">
         <img src={logo} className="App-logo" alt="logo" />
         <h1 className="App-title">Liikenteenvalvontatyökalu</h1>
         <DateInput date={queryDate} onDateSelected={onDateSelected} />
+
+        <Query query={allStopsQuery}>
+          {({loading, data, error}) => {
+            if (loading) return "Loading...";
+            if (error) return "Error!";
+
+            const stops = get(data, "allStops.nodes", []);
+            return <StopInput onSelect={onStopSelected} stop={stop} stops={stops} />;
+          }}
+        </Query>
+
         <Query query={allLinesQuery}>
           {({loading, error, data}) => {
             if (loading) return <div className="graphqlLoad">Loading...</div>;
@@ -81,17 +108,20 @@ export class FilterPanel extends Component {
             return (
               <LineInput
                 line={this.props.line}
-                onLineSelected={this.props.onLineSelected}
-                lines={{
-                  lines: data.allLines.nodes
-                    .filter((node) => node.routes.totalCount !== 0)
-                    .filter(removeFerryFilter)
-                    .filter(
-                      ({dateBegin, dateEnd}) =>
-                        dateBegin >= dateBegin && dateBegin <= dateEnd
-                    )
-                    .sort(linesSorter),
-                }}
+                onSelect={this.props.onLineSelected}
+                lines={data.allLines.nodes
+                  .filter((node) => node.routes.totalCount !== 0)
+                  .filter(removeFerryFilter)
+                  .filter(({dateBegin, dateEnd}) => {
+                    const beginMoment = moment(dateBegin);
+                    const endMoment = moment(dateEnd);
+
+                    return (
+                      beginMoment.isBefore(queryMoment) &&
+                      endMoment.isAfter(queryMoment)
+                    );
+                  })
+                  .sort(linesSorter)}
               />
             );
           }}
