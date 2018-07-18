@@ -46,7 +46,7 @@ class App extends Component {
       dateBegin = "",
       dateEnd = "",
     } = route;
-    
+
     this.setState({
       route: {
         routeId,

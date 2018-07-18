@@ -52,6 +52,18 @@ const routeQuery = gql`
           geometry
         }
       }
+      routeSegments {
+        nodes {
+          stop: stopByStopId {
+            stopId
+            lat
+            lon
+            shortId
+            nameFi
+            nameSe
+          }
+        }
+      }
     }
   }
 `;
@@ -96,6 +108,11 @@ export class LeafletMap extends Component {
             const positions = get(
               data,
               "route.geometries.nodes[0].geometry.coordinates",
+              []
+            );
+            const stops = get(
+              data,
+              "route.routeSegments.nodes",
               []
             );
 
