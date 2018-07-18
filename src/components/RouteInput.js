@@ -1,88 +1,41 @@
-import React, {Component} from 'react';
-import Autosuggest from 'react-autosuggest';
-import './RouteInput.css'
-
-const parseLineNumber = lineId =>
-  // Remove 1st number, which represents the city
-  // Remove all zeros from the beginning
-  lineId.substring(1).replace(/^0+/, "");
-
-const getTransportType = (line) => {
-  if (line.lineId.substring(0, 4) >= 1001 && line.lineId.substring(0, 4) <= 1010) {
-    return "TRAM";
-  }
-  return "BUS";
-};
-
-const getSuggestions = (routes, value) => {
-  const inputValue = value.trim().toLowerCase();
-  const inputLength = inputValue.length;
-
-  return inputLength === 0 ? [] : routes.filter(route =>
-    parseLineNumber(route.lineId.toLowerCase()).includes(inputValue.slice(0, inputLength))
-  );
-};
-
-const getSuggestionValue = suggestion => suggestion.lineId;
-
-const renderSuggestion = suggestion => (
-  <span className={'suggestion-content ' + getTransportType(suggestion)}>
-  <div className={"routeItem"}>
-    {parseLineNumber(suggestion.lineId)}
-  </div>
-  </span>
-);
-
+import React, {Component} from "react";
 
 export class RouteInput extends Component {
-   constructor(props) {
-    super(props);
-    this.state = {
-      value: this.props.selectedRoute.lineId,
-      suggestions: []
+  onChange = (e) => {
+    const {routes, onRouteSelected} = this.props;
+    const selectedValue = e.target.value;
+
+    if (!selectedValue) {
+      return onRouteSelected(null);
     }
-  }
 
-  onChange = (event, { newValue }) => {
-    this.setState({
-      value: newValue
-    });
-  };
-  
-  onSuggestionSelected = (event, {suggestion}) => {
-    this.props.onRouteSelected(suggestion);
+    const route = routes.find(
+      (r) => this.createRouteIdentifier(r.routeId, r.direction) === selectedValue
+    );
+
+    onRouteSelected(route);
   };
 
-  onSuggestionsFetchRequested = ({ value }) => {
-    this.setState({
-      suggestions: getSuggestions(this.props.routes.lines, value)
-    });
-  };
+  createRouteIdentifier = (routeId, direction) => `${routeId}_${direction}`;
 
-  onSuggestionsClearRequested = () => {
-    this.setState({
-      suggestions: []
-    });
-  };
-  
   render() {
-    const {value, suggestions} = this.state;
-    const inputProps = {
-      placeholder: 'Hae reitti...',
-      value,
-      onChange: this.onChange
-    };
-    return (
-        <Autosuggest
-          suggestions={suggestions}
-          onSuggestionSelected={this.onSuggestionSelected}
-          onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
-          onSuggestionsClearRequested={this.onSuggestionsClearRequested}
-          getSuggestionValue={getSuggestionValue}
-          renderSuggestion={renderSuggestion}
-          inputProps={inputProps}
-        />
-    )
-  }
+    const {route, routes} = this.props;
 
+    const options = routes.map(({routeId, direction, nameFi}) => ({
+      value: this.createRouteIdentifier(routeId, direction),
+      label: `${routeId} - suunta ${direction}, ${nameFi}`,
+    }));
+
+    options.unshift({value: "", label: "Choose route..."});
+
+    return (
+      <select value={this.createRouteIdentifier(route.routeId, route.direction)} onChange={this.onChange}>
+        {options.map(({value, label}) => (
+          <option key={`route_select_${value}`} value={value}>
+            {label}
+          </option>
+        ))}
+      </select>
+    );
+  }
 }

@@ -1,64 +1,55 @@
-import React, {Component} from 'react';
-import {Map, TileLayer, ZoomControl} from 'react-leaflet';
-import {Query} from 'react-apollo';
-import gql from 'graphql-tag';
-import 'leaflet/dist/leaflet.css';
-import RouteLayer from './RouteLayer';
-import HfpLayer from './HfpLayer';
-import {hfpClient} from '../api.js';
+import React, {Component} from "react";
+import {Map, TileLayer, ZoomControl, Pane} from "react-leaflet";
+import {Query} from "react-apollo";
+import gql from "graphql-tag";
+import get from "lodash/get";
+import "leaflet/dist/leaflet.css";
+import RouteLayer from "./RouteLayer";
+import HfpLayer from "./HfpLayer";
+import {hfpClient} from "../api.js";
 
 const hfpQuery = gql`
-  query hfpQuery($routeId: String!, $directionId: Int!, $startTime: Time!, $date: Date!){
-   allVehicles(condition: {routeId: $routeId, directionId: $directionId, journeyStartTime: $startTime, oday: $date}) {
-     nodes {
-       receivedAt
-       lat
-       long
-       uniqueVehicleId
-     }
-   }
-  }`;
-
-const lineQuery = gql`
-  query lineQuery($lineId: String!, $dateBegin: Date!, $dateEnd: Date!) {
-    line: lineByLineIdAndDateBeginAndDateEnd(lineId: $lineId, dateBegin: $dateBegin, dateEnd: $dateEnd) {
-      lineId
-      nameFi
-      routes {
-        nodes {
-          routeId
-          direction
-          dateBegin
-          dateEnd
-          routeSegments {
-            nodes {
-              stopIndex
-              timingStopType
-              duration
-              stop: stopByStopId {
-                stopId
-                lat
-                lon
-                shortId
-                nameFi
-                nameSe
-              }
-            }
-          }
-          geometries {
-            nodes {
-              geometry
-              dateBegin
-              dateEnd
-            }
-          }
-        }
+  query hfpQuery(
+    $routeId: String!
+    $direction: Int!
+    $startTime: Time!
+    $date: Date!
+  ) {
+    allVehicles(
+      orderBy: RECEIVED_AT_ASC
+      condition: {
+        routeId: $routeId
+        directionId: $direction
+        journeyStartTime: $startTime
+        oday: $date
       }
-      notes {
+    ) {
+      nodes {
+        receivedAt
+        lat
+        long
+        uniqueVehicleId
+      }
+    }
+  }
+`;
+
+const routeQuery = gql`
+  query routeQuery(
+    $routeId: String!
+    $direction: String!
+    $dateBegin: Date!
+    $dateEnd: Date!
+  ) {
+    route: routeByRouteIdAndDirectionAndDateBeginAndDateEnd(
+      routeId: $routeId
+      direction: $direction
+      dateBegin: $dateBegin
+      dateEnd: $dateEnd
+    ) {
+      geometries {
         nodes {
-          noteType
-          noteText
-          dateEnd
+          geometry
         }
       }
     }
@@ -69,45 +60,66 @@ export class LeafletMap extends Component {
   constructor() {
     super();
     this.state = {
-      lat: 60.20,
-      lng: 24.93,
+      lat: 60.170988,
+      lng: 24.940842,
       zoom: 13,
-    }
+    };
   }
 
   render() {
+    const {route, queryTime, queryDate} = this.props;
+    const {routeId, direction, dateBegin, dateEnd} = route;
+
     const position = [this.state.lat, this.state.lng];
     return (
-      <Map center={position} zoom={this.state.zoom} maxZoom={22} zoomControl={false}>
+      <Map center={position} zoom={this.state.zoom} maxZoom={18} zoomControl={false}>
+        <Pane name="hfp" style={{zIndex: 450}} />
         <TileLayer
-          attribution={'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors '}
+          attribution={
+            'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors '
+          }
           url="https://digitransit-prod-cdn-origin.azureedge.net/map/v1/hsl-map/{z}/{x}/{y}@2x.png"
           tileSize={512}
           zoomOffset={-1}
         />
-        <ZoomControl position="topright"/>
-        <Query query={lineQuery} variables={this.props.selectedRoute}>
-          {({ loading, error, data }) => {
-          // FIXME: returning divs for loading and error do not make sense for map layers - figure out something else
-          if (loading) return <div>Loading...</div>;
-          if (error) return <div>Error!</div>;
-          if (!data.line) return <div>No route!</div>;
-          // FIXME: now just picks the first geometry of first route of selected line, atleast route should be selected
-          return (<RouteLayer line={data.line.routes.nodes[0].geometries.nodes[0]}/>);
+        <ZoomControl position="topright" />
+        <Query
+          query={routeQuery}
+          fetchPolicy="cache-and-network"
+          variables={{
+            routeId,
+            direction,
+            dateBegin,
+            dateEnd,
+          }}>
+          {({loading, error, data}) => {
+            const positions = get(
+              data,
+              "route.geometries.nodes[0].geometry.coordinates",
+              []
+            );
+
+            if (loading || error || positions.length === 0) return null;
+            return <RouteLayer positions={positions} />;
           }}
         </Query>
-        <Query client={hfpClient} query={hfpQuery} variables={{routeId: '1006', directionId: 2, startTime: '11:29:00', date: '2018-05-06'}}>
-          {({ loading, error, data }) => {
-            console.log('HFP', loading, error, data);
-            if (loading) return <div>Loading...</div>;
-            if (error) return <div>Error!</div>;
-            if (!data.allVehicles.nodes) return <div>No route!</div>;
-            return (<HfpLayer positions = {data.allVehicles.nodes}/>)
+        <Query
+          client={hfpClient}
+          query={hfpQuery}
+          fetchPolicy="cache-and-network"
+          variables={{
+            routeId,
+            direction: parseInt(direction),
+            startTime: queryTime,
+            date: queryDate,
+          }}>
+          {({loading, error, data}) => {
+            const positions = get(data, "allVehicles.nodes", []);
+            if (loading || error || positions.length === 0) return null;
+            return <HfpLayer positions={positions} />;
           }}
         </Query>
-     </Map>
-    )
+      </Map>
+    );
   }
 }
-
-        
