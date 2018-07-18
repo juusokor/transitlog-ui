@@ -59,11 +59,8 @@ const routeQuery = gql`
 export class LeafletMap extends Component {
   constructor() {
     super();
-    this.state = {
-      lat: 60.170988,
-      lng: 24.940842,
-      zoom: 13,
-    };
+
+    this.state = {lat: 60.170988, lng: 24.940842, zoom: 13};
   }
 
   render() {
