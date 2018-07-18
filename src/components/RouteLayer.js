@@ -1,18 +1,20 @@
 import React, {Component} from "react";
-import {Polyline, Circle} from "react-leaflet";
+import {Polyline, CircleMarker, Popup} from "react-leaflet";
 
 class RouteLayer extends Component {
   coords = this.props.positions.map(([lon, lat]) => [lat, lon]);
-  teststop = this.props.stops[5].stop
-  stops = this.props.stops
+  stops = this.props.stops;
   render() {
-    console.log('STOPP', this.teststop)
-    return (
-      [<Polyline weight={5} positions={this.coords} />,
-      [this.stops.map(({stop}) => (
-         <Circle center={[stop.lat, stop.lon]} color="red" radius={20} />))],
-      <Circle center={[this.teststop.lat, this.teststop.lon]} color="red" radius={20} />]
-    );
+    return [
+      <Polyline weight={5} positions={this.coords} />,
+      [
+        this.stops.map(({stop}) => (
+          <CircleMarker center={[stop.lat, stop.lon]} color="#007ac9" radius={10}>
+            <Popup> {[stop.nameFi, " ", stop.shortId.replace(/ /g, "")]} </Popup>
+          </CircleMarker>
+        )),
+      ],
+    ];
   }
 }
 

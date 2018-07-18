@@ -26,7 +26,7 @@ export class RouteInput extends Component {
       label: `${routeId} - suunta ${direction}, ${nameFi}`,
     }));
 
-    options.unshift({value: "", label: "Choose route..."});
+    options.unshift({value: "", label: "Valitse reitti..."});
 
     return (
       <select
