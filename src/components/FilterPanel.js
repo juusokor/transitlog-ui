@@ -42,6 +42,7 @@ const stopsByRouteQuery = gql`
     ) {
       routeSegments {
         nodes {
+          stopIndex
           stop: stopByStopId {
             stopId
             lat
@@ -154,7 +155,7 @@ export class FilterPanel extends Component {
               if (error) return "Error!";
 
               const stops = get(data, "route.routeSegments.nodes", []).map(
-                (segment) => segment.stop
+                (segment) => ({stopIndex: segment.stopIndex, ...segment.stop})
               );
 
               return (

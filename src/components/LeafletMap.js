@@ -25,6 +25,7 @@ const hfpQuery = gql`
       }
     ) {
       nodes {
+        nextStopId
         receivedAt
         lat
         long

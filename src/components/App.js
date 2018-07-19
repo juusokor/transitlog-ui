@@ -12,6 +12,7 @@ const defaultStop = {
   lat: "",
   lon: "",
   nameFi: "",
+  stopIndex: 0,
 };
 
 const defaultLine = {
