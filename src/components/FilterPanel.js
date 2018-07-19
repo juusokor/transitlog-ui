@@ -10,6 +10,7 @@ import {Query} from "react-apollo";
 import {DateInput} from "./DateInput";
 import get from "lodash/get";
 import uniq from "lodash/uniq";
+import orderBy from "lodash/orderBy";
 import moment from "moment";
 
 const allStopsQuery = gql`
@@ -107,14 +108,9 @@ function padNumber(number, length) {
   return (number + "").padStart(length, "0");
 }
 
-const transportTypeOrder = ["tram", "bus"];
+const transportTypeOrder = ["TRAM", "BUS", "TRAIN"];
 const linesSorter = (a, b) => {
-  if (a.transportType !== b.transportType) {
-    return transportTypeOrder.indexOf(a.transportType) >
-      transportTypeOrder.indexOf(b.transportType)
-      ? 1
-      : -1;
-  } else if (a.lineId.substring(1, 4) !== b.lineId.substring(1, 4)) {
+  if (a.lineId.substring(1, 4) !== b.lineId.substring(1, 4)) {
     return a.lineId.substring(1, 4) > b.lineId.substring(1, 4) ? 1 : -1;
   } else if (a.lineId.substring(0, 1) !== b.lineId.substring(0, 1)) {
     return a.lineId.substring(0, 1) > b.lineId.substring(0, 1) ? 1 : -1;
@@ -190,19 +186,21 @@ export class FilterPanel extends Component {
               <LineInput
                 line={this.props.line}
                 onSelect={this.props.onLineSelected}
-                lines={data.allLines.nodes
-                  .filter((node) => node.routes.totalCount !== 0)
-                  .filter(removeFerryFilter)
-                  .filter(({dateBegin, dateEnd}) => {
-                    const beginMoment = moment(dateBegin);
-                    const endMoment = moment(dateEnd);
+                lines={orderBy(
+                  get(data, "allLines.nodes", [])
+                    .filter((node) => node.routes.totalCount !== 0)
+                    .filter(removeFerryFilter)
+                    .filter(({dateBegin, dateEnd}) => {
+                      const beginMoment = moment(dateBegin);
+                      const endMoment = moment(dateEnd);
 
-                    return (
-                      beginMoment.isBefore(queryMoment) &&
-                      endMoment.isAfter(queryMoment)
-                    );
-                  })
-                  .sort(linesSorter)}
+                      return (
+                        beginMoment.isBefore(queryMoment) &&
+                        endMoment.isAfter(queryMoment)
+                      );
+                    }),
+                  "lineId"
+                )}
               />
             );
           }}
