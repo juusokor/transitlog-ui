@@ -19,6 +19,7 @@ const routesByLineQuery = gql`
           destinationFi
           originFi
           nameFi
+          originstopId
         }
       }
     }
