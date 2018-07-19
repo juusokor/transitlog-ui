@@ -12,6 +12,7 @@ import get from "lodash/get";
 import uniq from "lodash/uniq";
 import orderBy from "lodash/orderBy";
 import moment from "moment";
+import {hfpClient} from "../api";
 
 const allStopsQuery = gql`
   query allStopsQuery {
@@ -76,25 +77,24 @@ const departuresQuery = gql`
   query startTimesQuery(
     $stopId: String
     $routeId: String
-    $direction: String
-    $dayType: String
+    $direction: Int
+    $date: Date
   ) {
-    allDepartures(
+    allVehicles(
       condition: {
-        stopId: $stopId
+        oday: $date
+        directionId: $direction
         routeId: $routeId
-        direction: $direction
-        dayType: $dayType
+        nextStopId: $stopId
       }
     ) {
       nodes {
-        stopId
-        routeId
-        departureId
-        hours
-        minutes
-        dateBegin
-        dateEnd
+        receivedAt
+        lat
+        long
+        journeyStartTime
+        nextStopId
+        spd
       }
     }
   }
@@ -144,7 +144,7 @@ export class FilterPanel extends Component {
         <DateInput date={queryDate} onDateSelected={onDateSelected} />
         <input
           value={queryTime}
-          onChange={onChangeQueryTime}
+          onChange={(e) => onChangeQueryTime(e.target.value)}
           placeholder="Query time"
         />
         {!!route.routeId ? (
@@ -231,15 +231,16 @@ export class FilterPanel extends Component {
             </QueryRoutesByLine>
           )}
         </div>
-        <div>
+        {/*<div>
           {!!route.routeId && (
             <Query
+              client={hfpClient}
               query={departuresQuery}
               variables={{
                 stopId: route.originstopId,
                 routeId: route.routeId,
-                direction: route.direction,
-                dayType: dayTypes[moment(queryDate).day()],
+                direction: parseInt(route.direction),
+                date: queryDate,
               }}>
               {({loading, error, data}) => {
                 const startTimes = uniq(
@@ -272,7 +273,7 @@ export class FilterPanel extends Component {
               }}
             </Query>
           )}
-        </div>
+        </div>*/}
       </header>
     );
   }

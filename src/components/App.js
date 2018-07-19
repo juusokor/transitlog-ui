@@ -7,17 +7,20 @@ import {joreClient, hfpClient} from "../api";
 import moment from "moment";
 import get from "lodash/get";
 import gql from "graphql-tag";
+import distanceBetween from "../helpers/distanceBetween";
 
 const hfpQuery = gql`
   query hfpQuery(
-    $routeId: String!
-    $direction: Int!
-    $startTime: Time!
-    $date: Date!
+    $routeId: String
+    $direction: Int
+    $startTime: Time
+    $date: Date
+    $stopId: String
   ) {
     allVehicles(
       orderBy: RECEIVED_AT_ASC
       condition: {
+        nextStopId: $stopId
         routeId: $routeId
         directionId: $direction
         journeyStartTime: $startTime
@@ -30,7 +33,6 @@ const hfpQuery = gql`
         lat
         long
         uniqueVehicleId
-        acc
         spd
       }
     }
@@ -100,8 +102,8 @@ class App extends Component {
     super();
     this.state = {
       queryDate: "2018-05-06",
-      queryTime: "00:00",
-      departureTime: "00:00",
+      queryTime: "10:00",
+      departureTime: "",
       stop: defaultStop,
       line: defaultLine,
       route: defaultRoute,
@@ -153,6 +155,11 @@ class App extends Component {
     const {route, departureTime, queryDate, stop, line, queryTime} = this.state;
     const {routeId, direction, dateBegin, dateEnd} = route;
 
+    const hfpQueryStopId =
+      stop.stopId && !departureTime ? stop.stopId : !!departureTime ? undefined : "";
+    const hfpQueryTime =
+      !stop.stopId && departureTime ? departureTime : !!stop.stopId ? undefined : "";
+
     return (
       <ApolloProvider client={joreClient}>
         <Query
@@ -161,12 +168,32 @@ class App extends Component {
           fetchPolicy="cache-and-network"
           variables={{
             routeId,
+            stopId: hfpQueryStopId,
             direction: parseInt(direction),
-            startTime: departureTime,
+            startTime: hfpQueryTime,
             date: queryDate,
           }}>
           {({loading: hfpLoading, error: hfpError, data}) => {
-            const hfpPositions = get(data, "allVehicles.nodes", []);
+            let hfpPositions = get(data, "allVehicles.nodes", []);
+
+            if (stop.stopId && !queryTime) {
+              hfpPositions = [];
+            } else {
+              const queryTimeMoment = moment(`${queryDate}T${queryTime}`);
+              const queryMin = queryTimeMoment.clone().subtract(5, "minutes");
+              const queryMax = queryTimeMoment.clone().add(5, "minutes");
+
+              hfpPositions = hfpPositions.reduce((chosenPositions, pos, index) => {
+                const receivedMoment = moment(pos.receivedAt);
+                if (receivedMoment.isBetween(queryMin, queryMax)) {
+                  chosenPositions.push(pos);
+                }
+
+                return chosenPositions;
+              }, []);
+            }
+
+            console.log(hfpPositions);
 
             return (
               <Query
@@ -186,6 +213,52 @@ class App extends Component {
                   );
 
                   const stops = get(data, "route.routeSegments.nodes", []);
+                  const hfpStops = stops.reduce((stops, {stop}) => {
+                    const {lat: stopLat, lon: stopLng} = stop;
+                    const firstHfp = hfpPositions[0];
+                    let hfp;
+
+                    if (firstHfp) {
+                      const initialClosest = {
+                        pos: firstHfp,
+                        distance: distanceBetween(
+                          stopLat,
+                          stopLng,
+                          firstHfp.lat,
+                          firstHfp.long
+                        ),
+                      };
+
+                      hfp = hfpPositions.reduce((closest, pos) => {
+                        if (closest.distance < 0.005) {
+                          return closest;
+                        }
+
+                        const {lat: posLat, long: posLng} = pos;
+
+                        const distance = distanceBetween(
+                          stopLat,
+                          stopLng,
+                          posLat,
+                          posLng
+                        );
+                        return distance < closest.distance
+                          ? {
+                              distance,
+                              pos,
+                            }
+                          : closest;
+                      }, initialClosest);
+                    }
+
+                    const hfpStop = {
+                      ...stop,
+                      hfp: hfp ? hfp.pos : null,
+                    };
+
+                    stops.push(hfpStop);
+                    return stops;
+                  }, []);
 
                   return (
                     <div className="transitlog">
@@ -205,7 +278,7 @@ class App extends Component {
                       />
                       <LeafletMap
                         routePositions={positions}
-                        stops={stops}
+                        stops={hfpStops}
                         hfpPositions={hfpPositions}
                         stop={stop}
                         departureTime={departureTime}
