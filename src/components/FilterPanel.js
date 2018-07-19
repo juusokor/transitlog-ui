@@ -9,7 +9,7 @@ import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import {DateInput} from "./DateInput";
 import get from "lodash/get";
-import uniqBy from "lodash/uniqBy";
+import uniq from "lodash/uniq";
 import moment from "moment";
 
 const allStopsQuery = gql`
@@ -75,16 +75,14 @@ const departuresQuery = gql`
     $stopId: String
     $routeId: String
     $direction: String
-    $dateBegin: Date
-    $dateEnd: Date
+    $dayType: String
   ) {
     allDepartures(
       condition: {
         stopId: $stopId
         routeId: $routeId
         direction: $direction
-        dateBegin: $dateBegin
-        dateEnd: $dateEnd
+        dayType: $dayType
       }
     ) {
       nodes {
@@ -101,6 +99,13 @@ const departuresQuery = gql`
 `;
 
 const removeFerryFilter = (line) => line.lineId.substring(0, 4) !== "1019";
+
+// Zero-indexed and sunday first because that's the most reliable number we get from moment.
+const dayTypes = ["Su", "Ma", "Ti", "Ke", "To", "Pe", "La"];
+
+function padNumber(number, length) {
+  return (number + "").padStart(length, "0");
+}
 
 const transportTypeOrder = ["tram", "bus"];
 const linesSorter = (a, b) => {
@@ -224,17 +229,20 @@ export class FilterPanel extends Component {
             <Query
               query={departuresQuery}
               variables={{
-                stopId: stop.stopId || undefined,
-                routeId: route.routeId || undefined,
-                direction: route.direction || undefined,
+                stopId: route.originstopId,
+                routeId: route.routeId,
+                direction: route.direction,
+                dayType: dayTypes[moment(queryDate).day()],
               }}>
               {({loading, error, data}) => {
-                console.log(data);
-                return null;
-
-                const startTimes = uniqBy(
-                  get(data, "allVehicles.nodes", []),
-                  "journeyStartTime"
+                const startTimes = uniq(
+                  get(data, "allDepartures.nodes", []).map(
+                    (departure) =>
+                      `${padNumber(departure.hours, 2)}:${padNumber(
+                        departure.minutes,
+                        2
+                      )}`
+                  )
                 );
 
                 if (loading) return <div>Loading...</div>;
@@ -245,7 +253,7 @@ export class FilterPanel extends Component {
                     value={queryTime}
                     onChange={(e) => onTimeSelected(e.target.value)}>
                     <option value="">Select departure...</option>
-                    {startTimes.map(({journeyStartTime}) => (
+                    {startTimes.map((journeyStartTime) => (
                       <option
                         key={`start_time_${journeyStartTime}`}
                         value={journeyStartTime}>

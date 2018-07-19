@@ -19,6 +19,7 @@ const routesByLineQuery = gql`
           destinationFi
           originFi
           nameFi
+          originstopId
         }
       }
     }
@@ -28,7 +29,6 @@ const routesByLineQuery = gql`
 export default ({variables, children}) => (
   <Query query={routesByLineQuery} variables={variables}>
     {({loading, error, data}) => {
-      
       return children({
         loading,
         error,

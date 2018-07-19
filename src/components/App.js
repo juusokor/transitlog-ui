@@ -21,11 +21,12 @@ const defaultLine = {
 };
 
 const defaultRoute = {
-  routeId: "1006T",
-  direction: "1",
-  nameFi: "Länsiterminaali - Rautatieasema - Sörnäinen (M) - Arabia",
-  dateBegin: "2017-08-14",
-  dateEnd: "2050-12-31",
+  routeId: "",
+  direction: "",
+  nameFi: "",
+  dateBegin: "",
+  dateEnd: "",
+  originstopId: "",
 };
 
 class App extends Component {
@@ -56,8 +57,6 @@ class App extends Component {
 
     this.setState({
       route: setRoute,
-      // Clear stop selection when route changes.
-      stop: setRoute !== this.state.routeId ? defaultStop : undefined,
     });
   };
 
@@ -68,6 +67,8 @@ class App extends Component {
         dateBegin,
         dateEnd,
       },
+      // Clear stop selection when line changes.
+      stop: lineId !== this.state.line.lineId ? defaultStop : undefined,
     });
   };
 
