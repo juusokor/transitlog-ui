@@ -1,75 +1,8 @@
 import React, {Component} from "react";
 import {Map, TileLayer, ZoomControl, Pane, Popup, CircleMarker} from "react-leaflet";
-import {Query} from "react-apollo";
-import gql from "graphql-tag";
-import get from "lodash/get";
 import "leaflet/dist/leaflet.css";
 import RouteLayer from "./RouteLayer";
 import HfpLayer from "./HfpLayer";
-import {hfpClient} from "../api.js";
-
-const hfpQuery = gql`
-  query hfpQuery(
-    $routeId: String!
-    $direction: Int!
-    $startTime: Time!
-    $date: Date!
-  ) {
-    allVehicles(
-      orderBy: RECEIVED_AT_ASC
-      condition: {
-        routeId: $routeId
-        directionId: $direction
-        journeyStartTime: $startTime
-        oday: $date
-      }
-    ) {
-      nodes {
-        nextStopId
-        receivedAt
-        lat
-        long
-        uniqueVehicleId
-        acc
-        spd
-      }
-    }
-  }
-`;
-
-const routeQuery = gql`
-  query routeQuery(
-    $routeId: String!
-    $direction: String!
-    $dateBegin: Date!
-    $dateEnd: Date!
-  ) {
-    route: routeByRouteIdAndDirectionAndDateBeginAndDateEnd(
-      routeId: $routeId
-      direction: $direction
-      dateBegin: $dateBegin
-      dateEnd: $dateEnd
-    ) {
-      geometries {
-        nodes {
-          geometry
-        }
-      }
-      routeSegments {
-        nodes {
-          stop: stopByStopId {
-            stopId
-            lat
-            lon
-            shortId
-            nameFi
-            nameSe
-          }
-        }
-      }
-    }
-  }
-`;
 
 export class LeafletMap extends Component {
   constructor() {
@@ -80,10 +13,22 @@ export class LeafletMap extends Component {
   map = React.createRef();
 
   render() {
-    const {stop, route, departureTime, queryDate, queryTime} = this.props;
-    const {routeId, direction, dateBegin, dateEnd} = route;
+    const {
+      stop,
+      route,
+      departureTime,
+      hfpPositions,
+      routePositions,
+      stops,
+    } = this.props;
+    const {routeId, direction} = route;
 
     const position = [this.state.lat, this.state.lng];
+
+    const routeLayerKey = `${routeId}_${direction}_${departureTime}_${
+      hfpPositions.length
+    }`;
+
     return (
       <Map
         center={position}
@@ -101,61 +46,15 @@ export class LeafletMap extends Component {
           zoomOffset={-1}
         />
         <ZoomControl position="topright" />
-        <Query
-          client={hfpClient}
-          query={hfpQuery}
-          fetchPolicy="cache-and-network"
-          variables={{
-            routeId,
-            direction: parseInt(direction),
-            startTime: departureTime,
-            date: queryDate,
-          }}>
-          {({loading: hfpLoading, error: hfpError, data}) => {
-            const hfpPositions = get(data, "allVehicles.nodes", []);
-            const routeLayerKey = `${routeId}_${direction}_${departureTime}_${
-              hfpPositions.length
-            }`;
-
-            return (
-              <React.Fragment>
-                <Query
-                  query={routeQuery}
-                  fetchPolicy="cache-and-network"
-                  variables={{
-                    routeId,
-                    direction,
-                    dateBegin,
-                    dateEnd,
-                  }}>
-                  {({loading, error, data}) => {
-                    const positions = get(
-                      data,
-                      "route.geometries.nodes[0].geometry.coordinates",
-                      []
-                    );
-                    const stops = get(data, "route.routeSegments.nodes", []);
-                    if (loading || error || positions.length === 0) return null;
-
-                    return (
-                      <RouteLayer
-                        key={routeLayerKey}
-                        positions={positions}
-                        hfpPositions={hfpPositions}
-                        stops={stops}
-                      />
-                    );
-                  }}
-                </Query>
-                {!hfpLoading &&
-                  !hfpError &&
-                  hfpPositions.length > 0 && (
-                    <HfpLayer key={routeLayerKey} positions={hfpPositions} />
-                  )}
-              </React.Fragment>
-            );
-          }}
-        </Query>
+        <RouteLayer
+          key={"route" + routeLayerKey}
+          positions={routePositions}
+          hfpPositions={hfpPositions}
+          stops={stops}
+        />
+        {hfpPositions.length > 0 && (
+          <HfpLayer key={"hfp" + routeLayerKey} positions={hfpPositions} />
+        )}
         <Pane name="stops" style={{zIndex: 420}} />
         {stop.stopId && (
           <CircleMarker

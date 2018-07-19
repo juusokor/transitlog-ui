@@ -2,9 +2,74 @@ import React, {Component} from "react";
 import "./App.css";
 import {LeafletMap} from "./LeafletMap";
 import {FilterPanel} from "./FilterPanel";
-import {ApolloProvider} from "react-apollo";
-import {joreClient} from "../api";
+import {ApolloProvider, Query} from "react-apollo";
+import {joreClient, hfpClient} from "../api";
 import moment from "moment";
+import get from "lodash/get";
+import gql from "graphql-tag";
+
+const hfpQuery = gql`
+  query hfpQuery(
+    $routeId: String!
+    $direction: Int!
+    $startTime: Time!
+    $date: Date!
+  ) {
+    allVehicles(
+      orderBy: RECEIVED_AT_ASC
+      condition: {
+        routeId: $routeId
+        directionId: $direction
+        journeyStartTime: $startTime
+        oday: $date
+      }
+    ) {
+      nodes {
+        nextStopId
+        receivedAt
+        lat
+        long
+        uniqueVehicleId
+        acc
+        spd
+      }
+    }
+  }
+`;
+
+const routeQuery = gql`
+  query routeQuery(
+    $routeId: String!
+    $direction: String!
+    $dateBegin: Date!
+    $dateEnd: Date!
+  ) {
+    route: routeByRouteIdAndDirectionAndDateBeginAndDateEnd(
+      routeId: $routeId
+      direction: $direction
+      dateBegin: $dateBegin
+      dateEnd: $dateEnd
+    ) {
+      geometries {
+        nodes {
+          geometry
+        }
+      }
+      routeSegments {
+        nodes {
+          stop: stopByStopId {
+            stopId
+            lat
+            lon
+            shortId
+            nameFi
+            nameSe
+          }
+        }
+      }
+    }
+  }
+`;
 
 const defaultStop = {
   stopId: "",
@@ -85,31 +150,74 @@ class App extends Component {
   };
 
   render() {
+    const {route, departureTime, queryDate, stop, line, queryTime} = this.state;
+    const {routeId, direction, dateBegin, dateEnd} = route;
+
     return (
       <ApolloProvider client={joreClient}>
-        <div className="transitlog">
-          <FilterPanel
-            queryDate={this.state.queryDate}
-            onDateSelected={this.onDateSelected}
-            departureTime={this.state.departureTime}
-            onTimeSelected={this.onTimeSelected}
-            queryTime={this.state.queryTime}
-            onChangeQueryTime={this.onChangeQueryTime}
-            line={this.state.line}
-            onLineSelected={this.onLineSelected}
-            route={this.state.route}
-            onRouteSelected={this.onRouteSelected}
-            stop={this.state.stop}
-            onStopSelected={this.onStopSelected}
-          />
-          <LeafletMap
-            stop={this.state.stop}
-            queryDate={this.state.queryDate}
-            queryTime={this.state.queryTime}
-            departureTime={this.state.departureTime}
-            route={this.state.route}
-          />
-        </div>
+        <Query
+          client={hfpClient}
+          query={hfpQuery}
+          fetchPolicy="cache-and-network"
+          variables={{
+            routeId,
+            direction: parseInt(direction),
+            startTime: departureTime,
+            date: queryDate,
+          }}>
+          {({loading: hfpLoading, error: hfpError, data}) => {
+            const hfpPositions = get(data, "allVehicles.nodes", []);
+
+            return (
+              <Query
+                query={routeQuery}
+                fetchPolicy="cache-and-network"
+                variables={{
+                  routeId,
+                  direction,
+                  dateBegin,
+                  dateEnd,
+                }}>
+                {({loading, error, data}) => {
+                  const positions = get(
+                    data,
+                    "route.geometries.nodes[0].geometry.coordinates",
+                    []
+                  );
+
+                  const stops = get(data, "route.routeSegments.nodes", []);
+
+                  return (
+                    <div className="transitlog">
+                      <FilterPanel
+                        queryDate={queryDate}
+                        departureTime={departureTime}
+                        queryTime={queryTime}
+                        line={line}
+                        route={route}
+                        stop={stop}
+                        onDateSelected={this.onDateSelected}
+                        onTimeSelected={this.onTimeSelected}
+                        onChangeQueryTime={this.onChangeQueryTime}
+                        onLineSelected={this.onLineSelected}
+                        onRouteSelected={this.onRouteSelected}
+                        onStopSelected={this.onStopSelected}
+                      />
+                      <LeafletMap
+                        routePositions={positions}
+                        stops={stops}
+                        hfpPositions={hfpPositions}
+                        stop={stop}
+                        departureTime={departureTime}
+                        route={route}
+                      />
+                    </div>
+                  );
+                }}
+              </Query>
+            );
+          }}
+        </Query>
       </ApolloProvider>
     );
   }
