@@ -1,6 +1,7 @@
 import React, {Component} from "react";
-import {Polyline} from "react-leaflet";
-import {latLng, tooltip} from "leaflet";
+import {Polyline, Popup, CircleMarker, Tooltip} from "react-leaflet";
+import {latLng} from "leaflet";
+import get from "lodash/get";
 import moment from "moment";
 
 class HfpLayer extends Component {
@@ -62,7 +63,7 @@ ${hfpItem.uniqueVehicleId}`;
         onMouseout={this.onMouseout}
         pane="hfp"
         weight={3}
-        color={"green"}
+        color="green"
         positions={this.coords}
       />
     );

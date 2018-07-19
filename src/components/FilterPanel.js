@@ -42,6 +42,7 @@ const stopsByRouteQuery = gql`
     ) {
       routeSegments {
         nodes {
+          stopIndex
           stop: stopByStopId {
             stopId
             lat
@@ -126,9 +127,12 @@ export class FilterPanel extends Component {
       line,
       queryDate,
       queryTime,
+      departureTime,
       onTimeSelected,
+      onChangeQueryTime,
       onDateSelected,
       onStopSelected,
+      onRouteSelected,
     } = this.props;
 
     const queryMoment = moment(queryDate);
@@ -138,7 +142,11 @@ export class FilterPanel extends Component {
         <img src={logo} className="App-logo" alt="logo" />
         <h1 className="App-title">Liikenteenvalvontatyökalu</h1>
         <DateInput date={queryDate} onDateSelected={onDateSelected} />
-
+        <input
+          value={queryTime}
+          onChange={onChangeQueryTime}
+          placeholder="Query time"
+        />
         {!!route.routeId ? (
           <Query
             key="stop_input_by_route"
@@ -154,7 +162,7 @@ export class FilterPanel extends Component {
               if (error) return "Error!";
 
               const stops = get(data, "route.routeSegments.nodes", []).map(
-                (segment) => segment.stop
+                (segment) => ({stopIndex: segment.stopIndex, ...segment.stop})
               );
 
               return (
@@ -211,10 +219,11 @@ export class FilterPanel extends Component {
               {({loading, error, data}) => {
                 if (loading) return <div>Loading...</div>;
                 if (error) return <div>Error!</div>;
+
                 return (
                   <RouteInput
-                    route={this.props.route}
-                    onRouteSelected={this.props.onRouteSelected}
+                    route={route}
+                    onRouteSelected={onRouteSelected}
                     routes={data}
                   />
                 );
@@ -248,7 +257,7 @@ export class FilterPanel extends Component {
 
                 return (
                   <select
-                    value={queryTime}
+                    value={departureTime}
                     onChange={(e) => onTimeSelected(e.target.value)}>
                     <option value="">Select departure...</option>
                     {startTimes.map((journeyStartTime) => (
