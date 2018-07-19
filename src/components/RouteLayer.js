@@ -9,13 +9,16 @@ class RouteLayer extends Component {
 
     return (
       <React.Fragment>
-        <Polyline weight={5} positions={this.coords} />
+        <Polyline weight={3} positions={this.coords} />
         {stops.map(({stop}) => (
           <CircleMarker
             key={`stop_marker_${stop.stopId}`}
             center={[stop.lat, stop.lon]}
-            color="#007ac9"
-            radius={10}>
+            color="#3388ff"
+            fill={true}
+            fillColor="#3388ff"
+            fillOpacity={1}
+            radius={6}>
             <Popup> {[stop.nameFi, " ", stop.shortId.replace(/ /g, "")]} </Popup>
           </CircleMarker>
         ))}

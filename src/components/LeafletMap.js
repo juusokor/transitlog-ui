@@ -117,7 +117,11 @@ export class LeafletMap extends Component {
 
             if (loading || error || positions.length === 0) return null;
             return (
-              <RouteLayer key={`${routeId}_${direction}`} positions={positions} stops={stops}/>
+              <RouteLayer
+                key={`${routeId}_${direction}`}
+                positions={positions}
+                stops={stops}
+              />
             );
           }}
         </Query>
@@ -139,12 +143,16 @@ export class LeafletMap extends Component {
             );
           }}
         </Query>
+        <Pane name="stops" style={{zIndex: 420}} />
         {stop.stopId && (
           <CircleMarker
+            pane="stops"
             center={[stop.lat, stop.lon]}
-            color="#007ac9"
-            fill="#007ac9"
-            radius={12}>
+            fill={true}
+            fillColor="#00ff88"
+            fillOpacity={1}
+            weight={3}
+            radius={8}>
             <Popup>{[stop.nameFi, " ", stop.shortId.replace(/ /g, "")]}</Popup>
           </CircleMarker>
         )}
