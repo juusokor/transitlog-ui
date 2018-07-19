@@ -6,25 +6,38 @@ import {ApolloProvider} from "react-apollo";
 import {joreClient} from "../api";
 import moment from "moment";
 
+const defaultStop = {
+  stopId: "",
+  shortId: "",
+  lat: "",
+  lon: "",
+  nameFi: "",
+};
+
+const defaultLine = {
+  lineId: "1006T",
+  dateBegin: "2017-08-14",
+  dateEnd: "2050-12-31",
+};
+
+const defaultRoute = {
+  routeId: "",
+  direction: "",
+  nameFi: "",
+  dateBegin: "",
+  dateEnd: "",
+  originstopId: "",
+};
+
 class App extends Component {
   constructor() {
     super();
     this.state = {
       queryDate: "2018-05-06",
       queryTime: "00:00",
-      stop: "",
-      line: {
-        lineId: "1006T",
-        dateBegin: "2017-08-14",
-        dateEnd: "2050-12-31",
-      },
-      route: {
-        routeId: "1006T",
-        direction: "1",
-        nameFi: "Länsiterminaali - Rautatieasema - Sörnäinen (M) - Arabia",
-        dateBegin: "2017-08-14",
-        dateEnd: "2050-12-31",
-      },
+      stop: defaultStop,
+      line: defaultLine,
+      route: defaultRoute,
     };
   }
 
@@ -38,24 +51,12 @@ class App extends Component {
     this.setState({queryTime});
   };
 
-  onRouteSelected = (route) => {
-    // route might be null
-    const {
-      routeId = "",
-      direction = "1",
-      nameFi = "",
-      dateBegin = "",
-      dateEnd = "",
-    } = route;
+  onRouteSelected = (route = defaultRoute) => {
+    // route might be null (default arg only catches undefined)
+    const setRoute = route || defaultRoute;
 
     this.setState({
-      route: {
-        routeId,
-        direction,
-        nameFi,
-        dateBegin,
-        dateEnd,
-      },
+      route: setRoute,
     });
   };
 
@@ -66,15 +67,14 @@ class App extends Component {
         dateBegin,
         dateEnd,
       },
+      // Clear stop selection when line changes.
+      stop: lineId !== this.state.line.lineId ? defaultStop : undefined,
     });
   };
 
-  onStopSelected = ({stopId, shortId}) => {
+  onStopSelected = (stop) => {
     this.setState({
-      stop: {
-        stopId,
-        shortId,
-      },
+      stop,
     });
   };
 
@@ -95,6 +95,7 @@ class App extends Component {
             onStopSelected={this.onStopSelected}
           />
           <LeafletMap
+            stop={this.state.stop}
             queryDate={this.state.queryDate}
             queryTime={this.state.queryTime}
             route={this.state.route}

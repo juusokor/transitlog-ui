@@ -3,7 +3,7 @@ import SuggestionInput from "./SuggestionInput";
 import fuzzySearch from "../helpers/fuzzySearch";
 
 const getSuggestionValue = (suggestion) =>
-  `${suggestion.stopId} (${suggestion.shortId})`;
+  suggestion.stopId ? `${suggestion.stopId} (${suggestion.shortId})` : "";
 
 const renderSuggestion = (suggestion) => (
   <span className="suggestion-content">
@@ -16,7 +16,7 @@ const getSuggestions = (stops) => (value = "") => {
   const inputLength = inputValue.length;
 
   return inputLength === 0
-    ? []
+    ? stops.slice(0, 20)
     : stops.filter((item) =>
         fuzzySearch(inputValue, `${item.stopId} ${item.shortId}`)
       );
@@ -25,8 +25,9 @@ const getSuggestions = (stops) => (value = "") => {
 export default ({stops, onSelect, stop}) => {
   return (
     <SuggestionInput
+      minimumInput={0}
       placeholder="Hae pysäkkiä..."
-      value={stop}
+      value={getSuggestionValue(stop)}
       onSelect={onSelect}
       getValue={getSuggestionValue}
       renderSuggestion={renderSuggestion}
