@@ -30,7 +30,7 @@ const getSuggestions = (lines) => (value = "") => {
   const inputLength = inputValue.length;
 
   return inputLength === 0
-    ? []
+    ? lines
     : lines.filter((line) =>
         parseLineNumber(line.lineId.toLowerCase()).includes(
           inputValue.slice(0, inputLength)
