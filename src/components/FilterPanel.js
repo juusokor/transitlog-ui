@@ -10,7 +10,6 @@ import {Query} from "react-apollo";
 import {DateInput} from "./DateInput";
 import get from "lodash/get";
 import uniqBy from "lodash/uniqBy";
-import {hfpClient} from "../api";
 import moment from "moment";
 
 const allStopsQuery = gql`
@@ -19,6 +18,8 @@ const allStopsQuery = gql`
       nodes {
         stopId
         shortId
+        lat
+        lon
       }
     }
   }
@@ -40,13 +41,31 @@ const allLinesQuery = gql`
   }
 `;
 
-const journeyStartTimeQuery = gql`
-  query startTimesQuery($routeId: String!, $direction: Int!, $date: Date!) {
-    allVehicles(
-      condition: {routeId: $routeId, directionId: $direction, oday: $date}
+const departuresQuery = gql`
+  query startTimesQuery(
+    $stopId: String
+    $routeId: String
+    $direction: String
+    $dateBegin: Date
+    $dateEnd: Date
+  ) {
+    allDepartures(
+      condition: {
+        stopId: $stopId
+        routeId: $routeId
+        direction: $direction
+        dateBegin: $dateBegin
+        dateEnd: $dateEnd
+      }
     ) {
       nodes {
-        journeyStartTime
+        stopId
+        routeId
+        departureId
+        hours
+        minutes
+        dateBegin
+        dateEnd
       }
     }
   }
@@ -147,14 +166,18 @@ export class FilterPanel extends Component {
           {!!queryDate &&
             !!route.routeId && (
               <Query
-                client={hfpClient}
-                query={journeyStartTimeQuery}
+                query={departuresQuery}
                 variables={{
-                  date: queryDate,
+                  stopId: stop.stopId,
+                  dateBegin: route.dateBegin,
+                  dateEnd: route.dateEnd,
                   routeId: route.routeId,
                   direction: route.direction,
                 }}>
                 {({loading, error, data}) => {
+                  console.log(data);
+                  return null;
+
                   const startTimes = uniqBy(
                     get(data, "allVehicles.nodes", []),
                     "journeyStartTime"
