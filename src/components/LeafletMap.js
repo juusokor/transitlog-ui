@@ -50,8 +50,7 @@ export class LeafletMap extends Component {
         )}
         <Pane name="stops" style={{zIndex: 420}} />
         {stop.stopId && (
-          <CircleMarkergc
-            RE
+          <CircleMarker
             pane="stops"
             center={[stop.lat, stop.lon]}
             fill={true}
@@ -60,7 +59,7 @@ export class LeafletMap extends Component {
             weight={3}
             radius={8}>
             <Popup>{[stop.nameFi, " ", stop.shortId.replace(/ /g, "")]}</Popup>
-          </CircleMarkergc>
+          </CircleMarker>
         )}
       </Map>
     );
