@@ -15,6 +15,9 @@ class App extends Component {
       stop: {
         stopId: "",
         shortId: "",
+        lat: "",
+        lon: "",
+        nameFi: "",
       },
       line: {
         lineId: "1006T",
@@ -72,12 +75,9 @@ class App extends Component {
     });
   };
 
-  onStopSelected = ({stopId, shortId}) => {
+  onStopSelected = (stop) => {
     this.setState({
-      stop: {
-        stopId,
-        shortId,
-      },
+      stop,
     });
   };
 
@@ -98,6 +98,7 @@ class App extends Component {
             onStopSelected={this.onStopSelected}
           />
           <LeafletMap
+            stop={this.state.stop}
             queryDate={this.state.queryDate}
             queryTime={this.state.queryTime}
             route={this.state.route}
