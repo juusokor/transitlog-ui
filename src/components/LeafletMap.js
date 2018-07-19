@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {Map, TileLayer, ZoomControl, Pane} from "react-leaflet";
+import {Map, TileLayer, ZoomControl, Pane, Popup, CircleMarker} from "react-leaflet";
 import {Query} from "react-apollo";
 import gql from "graphql-tag";
 import get from "lodash/get";
@@ -65,7 +65,7 @@ export class LeafletMap extends Component {
   map = React.createRef();
 
   render() {
-    const {route, queryTime, queryDate} = this.props;
+    const {stop, route, queryTime, queryDate} = this.props;
     const {routeId, direction, dateBegin, dateEnd} = route;
 
     const position = [this.state.lat, this.state.lng];
@@ -126,6 +126,15 @@ export class LeafletMap extends Component {
             );
           }}
         </Query>
+        {stop.stopId && (
+          <CircleMarker
+            center={[stop.lat, stop.lon]}
+            color="#007ac9"
+            fill="#007ac9"
+            radius={12}>
+            <Popup>{[stop.nameFi, " ", stop.shortId.replace(/ /g, "")]}</Popup>
+          </CircleMarker>
+        )}
       </Map>
     );
   }

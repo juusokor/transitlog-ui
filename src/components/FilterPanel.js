@@ -13,13 +13,42 @@ import uniqBy from "lodash/uniqBy";
 import moment from "moment";
 
 const allStopsQuery = gql`
-  {
+  query allStopsQuery {
     allStops {
       nodes {
         stopId
         shortId
         lat
         lon
+        nameFi
+      }
+    }
+  }
+`;
+
+const stopsByRouteQuery = gql`
+  query stopsByRoute(
+    $routeId: String!
+    $direction: String!
+    $dateBegin: Date!
+    $dateEnd: Date!
+  ) {
+    route: routeByRouteIdAndDirectionAndDateBeginAndDateEnd(
+      routeId: $routeId
+      direction: $direction
+      dateBegin: $dateBegin
+      dateEnd: $dateEnd
+    ) {
+      routeSegments {
+        nodes {
+          stop: stopByStopId {
+            stopId
+            lat
+            lon
+            shortId
+            nameFi
+          }
+        }
       }
     }
   }
@@ -34,6 +63,13 @@ const allLinesQuery = gql`
         dateBegin
         dateEnd
         routes {
+          nodes {
+            routeSegments {
+              nodes {
+                stopId
+              }
+            }
+          }
           totalCount
         }
       }
@@ -109,6 +145,41 @@ export class FilterPanel extends Component {
         <h1 className="App-title">Liikenteenvalvontatyökalu</h1>
         <DateInput date={queryDate} onDateSelected={onDateSelected} />
 
+        {!!route.routeId ? (
+          <Query
+            query={stopsByRouteQuery}
+            variables={{
+              routeId: route.routeId,
+              direction: route.direction,
+              dateBegin: route.dateBegin,
+              dateEnd: route.dateEnd,
+            }}>
+            {({loading, data, error}) => {
+              if (loading) return "Loading...";
+              if (error) return "Error!";
+
+              const stops = get(data, "route.routeSegments.nodes", []).map(
+                (segment) => segment.stop
+              );
+              return (
+                <StopInput onSelect={onStopSelected} stop={stop} stops={stops} />
+              );
+            }}
+          </Query>
+        ) : (
+          <Query query={allStopsQuery}>
+            {({loading, data, error}) => {
+              if (loading) return "Loading...";
+              if (error) return "Error!";
+
+              const stops = get(data, "allStops.nodes", []);
+              return (
+                <StopInput onSelect={onStopSelected} stop={stop} stops={stops} />
+              );
+            }}
+          </Query>
+        )}
+
         <Query query={allStopsQuery}>
           {({loading, data, error}) => {
             if (loading) return "Loading...";
@@ -163,46 +234,43 @@ export class FilterPanel extends Component {
           )}
         </div>
         <div>
-          {!!queryDate &&
-            !!route.routeId && (
-              <Query
-                query={departuresQuery}
-                variables={{
-                  stopId: stop.stopId,
-                  dateBegin: route.dateBegin,
-                  dateEnd: route.dateEnd,
-                  routeId: route.routeId,
-                  direction: route.direction,
-                }}>
-                {({loading, error, data}) => {
-                  console.log(data);
-                  return null;
+          {!!route.routeId && (
+            <Query
+              query={departuresQuery}
+              variables={{
+                stopId: stop.stopId || undefined,
+                routeId: route.routeId || undefined,
+                direction: route.direction || undefined,
+              }}>
+              {({loading, error, data}) => {
+                console.log(data);
+                return null;
 
-                  const startTimes = uniqBy(
-                    get(data, "allVehicles.nodes", []),
-                    "journeyStartTime"
-                  );
+                const startTimes = uniqBy(
+                  get(data, "allVehicles.nodes", []),
+                  "journeyStartTime"
+                );
 
-                  if (loading) return <div>Loading...</div>;
-                  if (error) return <div>Error!</div>;
+                if (loading) return <div>Loading...</div>;
+                if (error) return <div>Error!</div>;
 
-                  return (
-                    <select
-                      value={queryTime}
-                      onChange={(e) => onTimeSelected(e.target.value)}>
-                      <option value="">Select departure...</option>
-                      {startTimes.map(({journeyStartTime}) => (
-                        <option
-                          key={`start_time_${journeyStartTime}`}
-                          value={journeyStartTime}>
-                          {journeyStartTime}
-                        </option>
-                      ))}
-                    </select>
-                  );
-                }}
-              </Query>
-            )}
+                return (
+                  <select
+                    value={queryTime}
+                    onChange={(e) => onTimeSelected(e.target.value)}>
+                    <option value="">Select departure...</option>
+                    {startTimes.map(({journeyStartTime}) => (
+                      <option
+                        key={`start_time_${journeyStartTime}`}
+                        value={journeyStartTime}>
+                        {journeyStartTime}
+                      </option>
+                    ))}
+                  </select>
+                );
+              }}
+            </Query>
+          )}
         </div>
       </header>
     );
