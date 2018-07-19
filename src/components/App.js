@@ -12,7 +12,10 @@ class App extends Component {
     this.state = {
       queryDate: "2018-05-06",
       queryTime: "00:00",
-      stop: "",
+      stop: {
+        stopId: "",
+        shortId: "",
+      },
       line: {
         lineId: "1006T",
         dateBegin: "2017-08-14",
