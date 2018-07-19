@@ -16,7 +16,7 @@ const getSuggestions = (stops) => (value = "") => {
   const inputLength = inputValue.length;
 
   return inputLength === 0
-    ? []
+    ? stops.slice(0, 20)
     : stops.filter((item) =>
         fuzzySearch(inputValue, `${item.stopId} ${item.shortId}`)
       );
@@ -25,6 +25,7 @@ const getSuggestions = (stops) => (value = "") => {
 export default ({stops, onSelect, stop}) => {
   return (
     <SuggestionInput
+      minimumInput={0}
       placeholder="Hae pysäkkiä..."
       value={getSuggestionValue(stop)}
       onSelect={onSelect}

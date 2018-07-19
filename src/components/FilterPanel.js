@@ -63,13 +63,6 @@ const allLinesQuery = gql`
         dateBegin
         dateEnd
         routes {
-          nodes {
-            routeSegments {
-              nodes {
-                stopId
-              }
-            }
-          }
           totalCount
         }
       }
@@ -147,6 +140,7 @@ export class FilterPanel extends Component {
 
         {!!route.routeId ? (
           <Query
+            key="stop_input_by_route"
             query={stopsByRouteQuery}
             variables={{
               routeId: route.routeId,
@@ -161,34 +155,26 @@ export class FilterPanel extends Component {
               const stops = get(data, "route.routeSegments.nodes", []).map(
                 (segment) => segment.stop
               );
+
               return (
                 <StopInput onSelect={onStopSelected} stop={stop} stops={stops} />
               );
             }}
           </Query>
         ) : (
-          <Query query={allStopsQuery}>
+          <Query key="stop_input_all" query={allStopsQuery}>
             {({loading, data, error}) => {
               if (loading) return "Loading...";
               if (error) return "Error!";
 
               const stops = get(data, "allStops.nodes", []);
+
               return (
                 <StopInput onSelect={onStopSelected} stop={stop} stops={stops} />
               );
             }}
           </Query>
         )}
-
-        <Query query={allStopsQuery}>
-          {({loading, data, error}) => {
-            if (loading) return "Loading...";
-            if (error) return "Error!";
-
-            const stops = get(data, "allStops.nodes", []);
-            return <StopInput onSelect={onStopSelected} stop={stop} stops={stops} />;
-          }}
-        </Query>
 
         <Query query={allLinesQuery}>
           {({loading, error, data}) => {
