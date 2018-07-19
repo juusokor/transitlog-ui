@@ -10,8 +10,6 @@ export class LeafletMap extends Component {
     this.state = {lat: 60.170988, lng: 24.940842, zoom: 13};
   }
 
-  map = React.createRef();
-
   render() {
     const {
       stop,
@@ -30,12 +28,7 @@ export class LeafletMap extends Component {
     }`;
 
     return (
-      <Map
-        center={position}
-        ref={this.map}
-        zoom={this.state.zoom}
-        maxZoom={18}
-        zoomControl={false}>
+      <Map center={position} zoom={this.state.zoom} maxZoom={18} zoomControl={false}>
         <Pane name="hfp" style={{zIndex: 450}} />
         <TileLayer
           attribution={
@@ -57,7 +50,8 @@ export class LeafletMap extends Component {
         )}
         <Pane name="stops" style={{zIndex: 420}} />
         {stop.stopId && (
-          <CircleMarker
+          <CircleMarkergc
+            RE
             pane="stops"
             center={[stop.lat, stop.lon]}
             fill={true}
@@ -66,7 +60,7 @@ export class LeafletMap extends Component {
             weight={3}
             radius={8}>
             <Popup>{[stop.nameFi, " ", stop.shortId.replace(/ /g, "")]}</Popup>
-          </CircleMarker>
+          </CircleMarkergc>
         )}
       </Map>
     );
