@@ -13,20 +13,6 @@ class HfpLayer extends Component {
       return [lat, long, rest];
     });
 
-  stops = this.props.positions
-    .filter((pos) => !!pos.receivedAt && !!pos.nextStopId)
-    .reduce((stops, pos, index, allPos) => {
-      const prevPos = get(allPos, `[${index - 1}]`, pos);
-      const nextStopId = get(pos, "nextStopId", "");
-      const prevStopId = get(prevPos, "nextStopId", nextStopId);
-
-      if (prevStopId !== nextStopId) {
-        stops.push(prevPos);
-      }
-
-      return stops;
-    }, []);
-
   findHfpItem = (latlng) => {
     const hfpItem = this.coords.find((hfp) =>
       latlng.equals(latLng(hfp[0], hfp[1]), 0.0001)
@@ -71,29 +57,15 @@ ${hfpItem.uniqueVehicleId}`;
 
   render() {
     return (
-      <React.Fragment>
-        <Polyline
-          onMousemove={this.onMousemove}
-          onMouseover={this.onHover}
-          onMouseout={this.onMouseout}
-          pane="hfp"
-          weight={3}
-          color="green"
-          positions={this.coords}
-        />
-        {this.stops.map((pos) => (
-          <CircleMarker
-            key={`hfp_stop_marker_${pos.nextStopId}`}
-            center={[pos.lat, pos.long]}
-            color="green"
-            fill={true}
-            fillColor="green"
-            fillOpacity={1}
-            radius={6}>
-            <Tooltip>{moment(pos.receivedAt).format("HH:mm:ss")}</Tooltip>
-          </CircleMarker>
-        ))}
-      </React.Fragment>
+      <Polyline
+        onMousemove={this.onMousemove}
+        onMouseover={this.onHover}
+        onMouseout={this.onMouseout}
+        pane="hfp"
+        weight={3}
+        color="green"
+        positions={this.coords}
+      />
     );
   }
 }

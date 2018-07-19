@@ -36,6 +36,7 @@ class App extends Component {
     this.state = {
       queryDate: "2018-05-06",
       queryTime: "00:00",
+      departureTime: "00:00",
       stop: defaultStop,
       line: defaultLine,
       route: defaultRoute,
@@ -48,8 +49,12 @@ class App extends Component {
     });
   };
 
-  onTimeSelected = (queryTime) => {
+  onChangeQueryTime = (queryTime) => {
     this.setState({queryTime});
+  };
+
+  onTimeSelected = (departureTime) => {
+    this.setState({departureTime});
   };
 
   onRouteSelected = (route = defaultRoute) => {
@@ -85,9 +90,11 @@ class App extends Component {
         <div className="transitlog">
           <FilterPanel
             queryDate={this.state.queryDate}
-            queryTime={this.state.queryTime}
             onDateSelected={this.onDateSelected}
+            departureTime={this.state.departureTime}
             onTimeSelected={this.onTimeSelected}
+            queryTime={this.state.queryTime}
+            onChangeQueryTime={this.onChangeQueryTime}
             line={this.state.line}
             onLineSelected={this.onLineSelected}
             route={this.state.route}
@@ -99,6 +106,7 @@ class App extends Component {
             stop={this.state.stop}
             queryDate={this.state.queryDate}
             queryTime={this.state.queryTime}
+            departureTime={this.state.departureTime}
             route={this.state.route}
           />
         </div>

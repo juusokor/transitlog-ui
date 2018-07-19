@@ -33,7 +33,11 @@ export class RouteInput extends Component {
 
     return (
       <select
-        value={this.createRouteIdentifier(route.routeId, route.direction)}
+        value={this.createRouteIdentifier(
+          route.routeId,
+          route.direction,
+          route.dateBegin
+        )}
         onChange={this.onChange}>
         {options.map(({value, label}) => (
           <option key={`route_select_${value}`} value={value}>

@@ -30,6 +30,8 @@ const hfpQuery = gql`
         lat
         long
         uniqueVehicleId
+        acc
+        spd
       }
     }
   }
@@ -78,7 +80,7 @@ export class LeafletMap extends Component {
   map = React.createRef();
 
   render() {
-    const {stop, route, queryTime, queryDate} = this.props;
+    const {stop, route, departureTime, queryDate, queryTime} = this.props;
     const {routeId, direction, dateBegin, dateEnd} = route;
 
     const position = [this.state.lat, this.state.lng];
@@ -100,47 +102,57 @@ export class LeafletMap extends Component {
         />
         <ZoomControl position="topright" />
         <Query
-          query={routeQuery}
-          fetchPolicy="cache-and-network"
-          variables={{
-            routeId,
-            direction,
-            dateBegin,
-            dateEnd,
-          }}>
-          {({loading, error, data}) => {
-            const positions = get(
-              data,
-              "route.geometries.nodes[0].geometry.coordinates",
-              []
-            );
-            const stops = get(data, "route.routeSegments.nodes", []);
-
-            if (loading || error || positions.length === 0) return null;
-            return (
-              <RouteLayer
-                key={`${routeId}_${direction}`}
-                positions={positions}
-                stops={stops}
-              />
-            );
-          }}
-        </Query>
-        <Query
           client={hfpClient}
           query={hfpQuery}
           fetchPolicy="cache-and-network"
           variables={{
             routeId,
             direction: parseInt(direction),
-            startTime: queryTime,
+            startTime: departureTime,
             date: queryDate,
           }}>
-          {({loading, error, data}) => {
-            const positions = get(data, "allVehicles.nodes", []);
-            if (loading || error || positions.length === 0) return null;
+          {({loading: hfpLoading, error: hfpError, data}) => {
+            const hfpPositions = get(data, "allVehicles.nodes", []);
+            const routeLayerKey = `${routeId}_${direction}_${departureTime}_${
+              hfpPositions.length
+            }`;
+
             return (
-              <HfpLayer key={`${routeId}_${direction}`} positions={positions} />
+              <React.Fragment>
+                <Query
+                  query={routeQuery}
+                  fetchPolicy="cache-and-network"
+                  variables={{
+                    routeId,
+                    direction,
+                    dateBegin,
+                    dateEnd,
+                  }}>
+                  {({loading, error, data}) => {
+                    const positions = get(
+                      data,
+                      "route.geometries.nodes[0].geometry.coordinates",
+                      []
+                    );
+                    const stops = get(data, "route.routeSegments.nodes", []);
+                    if (loading || error || positions.length === 0) return null;
+
+                    return (
+                      <RouteLayer
+                        key={routeLayerKey}
+                        positions={positions}
+                        hfpPositions={hfpPositions}
+                        stops={stops}
+                      />
+                    );
+                  }}
+                </Query>
+                {!hfpLoading &&
+                  !hfpError &&
+                  hfpPositions.length > 0 && (
+                    <HfpLayer key={routeLayerKey} positions={hfpPositions} />
+                  )}
+              </React.Fragment>
             );
           }}
         </Query>
