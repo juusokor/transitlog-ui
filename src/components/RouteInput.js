@@ -26,10 +26,12 @@ export class RouteInput extends Component {
       label: `${routeId} - suunta ${direction}, ${nameFi}`,
     }));
 
-    options.unshift({value: "", label: "Choose route..."});
+    options.unshift({value: "", label: "Valitse reitti..."});
 
     return (
-      <select value={this.createRouteIdentifier(route.routeId, route.direction)} onChange={this.onChange}>
+      <select
+        value={this.createRouteIdentifier(route.routeId, route.direction)}
+        onChange={this.onChange}>
         {options.map(({value, label}) => (
           <option key={`route_select_${value}`} value={value}>
             {label}

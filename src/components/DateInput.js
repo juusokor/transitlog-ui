@@ -15,7 +15,7 @@ export class DateInput extends Component {
           locale="fi-FI"
           dateFormat="YYYY-MM-DD"
           selected={moment(date)}
-          onChange={ onDateSelected}
+          onChange={onDateSelected}
           className="calendar"
         />
       </React.Fragment>
