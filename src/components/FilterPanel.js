@@ -128,6 +128,7 @@ export class FilterPanel extends Component {
       queryDate,
       queryTime,
       departureTime,
+      departureOptions,
       onTimeSelected,
       onChangeQueryTime,
       onDateSelected,
@@ -231,6 +232,26 @@ export class FilterPanel extends Component {
             </QueryRoutesByLine>
           )}
         </div>
+        {departureOptions &&
+          departureOptions.length > 0 && (
+            <select
+              value={departureTime}
+              onChange={(e) => onTimeSelected(e.target.value)}>
+              <option value="">Select departure...</option>
+              {departureOptions.map((journeyStartTime) => {
+                const [hours, minutes] = journeyStartTime.split(":");
+                const timeWithoutSeconds = `${hours}:${minutes}`;
+
+                return (
+                  <option
+                    key={`start_time_${journeyStartTime}`}
+                    value={timeWithoutSeconds}>
+                    {timeWithoutSeconds}
+                  </option>
+                );
+              })}
+            </select>
+          )}
         {/*<div>
           {!!route.routeId && (
             <Query

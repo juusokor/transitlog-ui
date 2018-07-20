@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import {Polyline, CircleMarker, Popup} from "react-leaflet";
 import moment from "moment";
+import get from "lodash";
 
 class RouteLayer extends Component {
   render() {
@@ -20,10 +21,11 @@ class RouteLayer extends Component {
             radius={6}>
             <Popup>
               {stop.nameFi}, {stop.shortId.replace(/ /g, "")}
-              {!!stop.hfp && (
+              {get(stop, "distanceFromStop", 1) < 0.1 && (
                 <React.Fragment>
                   <br />
-                  Drive-by time: {moment(stop.hfp.receivedAt).format("HH:mm:ss")}
+                  Drive-by time:{" "}
+                  {moment(get(stop, "hfp.receivedAt")).format("HH:mm:ss")}
                 </React.Fragment>
               )}
             </Popup>
