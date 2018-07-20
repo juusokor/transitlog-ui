@@ -111,10 +111,12 @@ export class FilterPanel extends Component {
       line,
       queryDate,
       queryTime,
+      isPlaying,
       onChangeQueryTime,
       onDateSelected,
       onStopSelected,
       onRouteSelected,
+      onClickPlay,
     } = this.props;
 
     const queryMoment = moment(queryDate);
@@ -124,8 +126,15 @@ export class FilterPanel extends Component {
         <img src={logo} className="App-logo" alt="logo" />
         <h1 className="App-title">Liikenteenvalvontatyökalu</h1>
         <DateInput date={queryDate} onDateSelected={onDateSelected} />
-        <TimeSlider value={queryTime} onChange={onChangeQueryTime} />
-        <span>{queryTime}</span>
+        <p>
+          <TimeSlider value={queryTime} onChange={onChangeQueryTime} />
+          <input value={queryTime} onChange={onChangeQueryTime} />
+        </p>
+        <p>
+          <button onClick={onClickPlay}>
+            {isPlaying ? "Pysäytä simulaatio" : "Simuloi"}
+          </button>
+        </p>
         {!!route.routeId ? (
           <Query
             key="stop_input_by_route"

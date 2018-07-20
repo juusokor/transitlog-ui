@@ -46,9 +46,8 @@ class Root extends Component {
   formatHfpData = (hfpData) => {
     let data = orderBy(hfpData, (pos) => moment(pos.receivedAt).unix());
     data = groupBy(data, "uniqueVehicleId");
-
     data = map(data, (positions, groupName) => ({
-      group: groupName,
+      groupName: groupName,
       positions: takeEveryNth(positions, 10),
     }));
 

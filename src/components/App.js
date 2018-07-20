@@ -4,6 +4,9 @@ import {LeafletMap} from "./LeafletMap";
 import {FilterPanel} from "./FilterPanel";
 import RouteQuery from "../queries/RouteQuery";
 import moment from "moment";
+import RouteLayer from "./RouteLayer";
+import HfpMarkerLayer from "./HfpMarkerLayer";
+import timer from "../helpers/timer";
 
 const defaultStop = {
   stopId: "",
@@ -21,17 +24,20 @@ const defaultLine = {
 };
 
 class App extends Component {
+  autoplayTimerHandle = null;
+
   constructor() {
     super();
     this.state = {
-      queryTime: "12:30",
+      playing: false,
+      queryTime: "12:30:00",
       stop: defaultStop,
       line: defaultLine,
     };
   }
 
   onChangeQueryTime = (queryTime) => {
-    this.setState({queryTime});
+    this.setState({queryTime, playing: false});
   };
 
   onLineSelected = ({lineId, dateBegin, dateEnd}) => {
@@ -50,75 +56,80 @@ class App extends Component {
     this.setState({stop});
   };
 
-  prevQueryTime = "";
-  prevHfpPosition = null;
-
-  hfpPositionAtTime = (queryTime) => {
-    if (!queryTime || queryTime === this.prevQueryTime) {
-      return this.prevHfpPosition;
-    }
-
-    const {hfpPositions, queryDate} = this.props;
-    const queryTimeMoment = moment(`${queryDate}T${queryTime}`);
-
-    const nextHfpPosition = hfpPositions.reduce((chosenPosition, position) => {
-      const prevDifference = Math.abs(
-        queryTimeMoment.diff(moment(chosenPosition.receivedAt), "seconds")
-      );
-
-      if (prevDifference < 5) {
-        return chosenPosition;
-      }
-
-      if (
-        Math.abs(queryTimeMoment.diff(moment(position.receivedAt), "seconds")) <
-        prevDifference
-      ) {
-        return position;
-      }
-
-      return chosenPosition;
-    }, hfpPositions[0]);
-
-    this.prevHfpPosition = nextHfpPosition;
-    return nextHfpPosition;
+  toggleAutoplay = (e) => {
+    this.setState({playing: !this.state.playing});
   };
 
-  render() {
-    const {stop, line, queryTime} = this.state;
-    const {route, queryDate, onRouteSelected, onDateSelected} = this.props;
+  autoplay = () => {
+    const nextQueryTime = moment(this.state.queryTime, "HH:mm:ss")
+      .add(10, "seconds")
+      .format("HH:mm:ss");
 
-    let hfpPosition = this.hfpPositionAtTime(queryTime);
+    this.setState({
+      queryTime: nextQueryTime,
+    });
+  };
+
+  componentDidUpdate() {
+    if (this.state.playing && !this.autoplayTimerHandle) {
+      this.autoplayTimerHandle = timer(() => this.autoplay(), 1000);
+    } else if (!this.state.playing && !!this.autoplayTimerHandle) {
+      cancelAnimationFrame(this.autoplayTimerHandle.value);
+      this.autoplayTimerHandle = null;
+    }
+  }
+
+  render() {
+    const {playing, stop, line, queryTime} = this.state;
+
+    const {
+      route,
+      queryDate,
+      onRouteSelected,
+      onDateSelected,
+      hfpPositions,
+    } = this.props;
 
     return (
-      <RouteQuery route={route} hfpPositions={hfpPosition}>
-        {({routePositions, stops}) => {
-          return (
-            <div className="transitlog">
-              <FilterPanel
-                queryDate={queryDate}
-                queryTime={queryTime}
-                line={line}
-                route={route}
-                stop={stop}
-                onDateSelected={onDateSelected}
-                onChangeQueryTime={this.onChangeQueryTime}
-                onLineSelected={this.onLineSelected}
-                onRouteSelected={onRouteSelected}
-                onStopSelected={this.onStopSelected}
-              />
-              <LeafletMap
-                routePositions={routePositions}
-                hfpPositions={[]}
-                hfpPosition={hfpPosition}
-                stops={stops}
-                stop={stop}
-                route={route}
-              />
-            </div>
-          );
-        }}
-      </RouteQuery>
+      <div className="transitlog">
+        <FilterPanel
+          queryDate={queryDate}
+          queryTime={queryTime}
+          line={line}
+          route={route}
+          stop={stop}
+          isPlaying={playing}
+          onClickPlay={this.toggleAutoplay}
+          onDateSelected={onDateSelected}
+          onChangeQueryTime={this.onChangeQueryTime}
+          onLineSelected={this.onLineSelected}
+          onRouteSelected={onRouteSelected}
+          onStopSelected={this.onStopSelected}
+        />
+        <RouteQuery route={route}>
+          {({routePositions, stops}) => {
+            return (
+              <LeafletMap>
+                <RouteLayer
+                  positions={routePositions}
+                  stops={stops}
+                  selectedStop={stop}
+                />
+                {hfpPositions.length > 0 &&
+                  hfpPositions.map((positionGroup) => (
+                    <HfpMarkerLayer
+                      key={`hfp_group_${positionGroup.groupName}_${route.routeId}`}
+                      queryDate={queryDate}
+                      queryTime={queryTime}
+                      positions={positionGroup.positions}
+                      name={positionGroup.groupName}
+                    />
+                  ))}
+              </LeafletMap>
+            );
+          }}
+        </RouteQuery>
+      </div>
     );
   }
 }

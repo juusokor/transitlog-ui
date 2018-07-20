@@ -4,14 +4,17 @@ import moment from "moment";
 class TimeSlider extends Component {
   getNumericValue = (value) => {
     return Math.abs(
-      moment(value || "23:59", "HH:mm").diff(moment("00:00", "HH:mm"), "seconds")
+      moment(value || "23:59:00", "HH:mm:ss").diff(
+        moment("00:00:00", "HH:mm:ss"),
+        "seconds"
+      )
     );
   };
 
   getTimeValue = (value) => {
-    return moment("00:00", "HH:mm")
+    return moment("00:00:00", "HH:mm:ss")
       .add(value, "seconds")
-      .format("HH:mm");
+      .format("HH:mm:ss");
   };
 
   onChange = (e) => {

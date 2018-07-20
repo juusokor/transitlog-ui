@@ -8,25 +8,61 @@ import {darken, lighten} from "polished";
 const identities = {};
 
 class HfpMarkerLayer extends Component {
-  onMouseout = (color) => (event) => {
-    const marker = event.target;
-    marker.setStyle({weight: 3, fillColor: color, color: darken(0.2, color)});
-  };
+  prevQueryTime = "";
+  prevHfpPosition = null;
 
-  onHover = (color) => (event) => {
-    const marker = event.target;
-    marker.setStyle({
-      weight: 5,
-      fillColor: lighten(0.2, color),
-      color: lighten(0.1, color),
-    });
+  getHfpPosition = () => {
+    const {positions, queryDate, queryTime} = this.props;
+
+    if (!queryTime || queryTime === this.prevQueryTime) {
+      return this.prevHfpPosition;
+    }
+
+    const queryTimeMoment = moment(
+      `${queryDate} ${queryTime}`,
+      "YYYY-MM-DD HH:mm:ss",
+      true
+    );
+
+    const nextHfpPosition = positions.reduce((chosenPosition, position) => {
+      let prevDifference = 30;
+
+      if (chosenPosition) {
+        prevDifference = Math.abs(
+          queryTimeMoment.diff(moment(chosenPosition.receivedAt), "seconds")
+        );
+
+        if (prevDifference < 3) {
+          return chosenPosition;
+        }
+      }
+
+      const difference = Math.abs(
+        queryTimeMoment.diff(moment(position.receivedAt), "seconds")
+      );
+
+      if (difference < prevDifference) {
+        return position;
+      }
+
+      return chosenPosition;
+    }, null);
+
+    this.prevHfpPosition = nextHfpPosition;
+    this.prevQueryTime = queryTime;
+
+    return nextHfpPosition;
   };
 
   render() {
-    const {position} = this.props;
-
-    const name = position.uniqueVehicleId;
+    const {name} = this.props;
     let color = get(identities, name);
+
+    const position = this.getHfpPosition();
+
+    if (!position) {
+      return null;
+    }
 
     if (!color) {
       color = `rgb(${random(0, 255)}, ${random(0, 255)}, ${random(0, 255)})`;
@@ -37,8 +73,6 @@ class HfpMarkerLayer extends Component {
       <React.Fragment>
         <CircleMarker
           center={[position.lat, position.long]}
-          onMouseover={this.onHover(color)}
-          onMouseout={this.onMouseout(color)}
           fillColor={color}
           fillOpacity={1}
           weight={3}
