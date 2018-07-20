@@ -9,10 +9,9 @@ import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import {DateInput} from "./DateInput";
 import get from "lodash/get";
-import uniq from "lodash/uniq";
 import orderBy from "lodash/orderBy";
 import moment from "moment";
-import {hfpClient} from "../api";
+import TimeSlider from "./TimeSlider";
 
 const allStopsQuery = gql`
   query allStopsQuery {
@@ -74,27 +73,12 @@ const allLinesQuery = gql`
 `;
 
 const departuresQuery = gql`
-  query startTimesQuery(
-    $stopId: String
-    $routeId: String
-    $direction: Int
-    $date: Date
-  ) {
+  query startTimesQuery($routeId: String, $direction: Int, $date: Date) {
     allVehicles(
-      condition: {
-        oday: $date
-        directionId: $direction
-        routeId: $routeId
-        nextStopId: $stopId
-      }
+      condition: {oday: $date, directionId: $direction, routeId: $routeId}
     ) {
       nodes {
-        receivedAt
-        lat
-        long
         journeyStartTime
-        nextStopId
-        spd
       }
     }
   }
@@ -127,9 +111,6 @@ export class FilterPanel extends Component {
       line,
       queryDate,
       queryTime,
-      departureTime,
-      departureOptions,
-      onTimeSelected,
       onChangeQueryTime,
       onDateSelected,
       onStopSelected,
@@ -143,11 +124,8 @@ export class FilterPanel extends Component {
         <img src={logo} className="App-logo" alt="logo" />
         <h1 className="App-title">Liikenteenvalvontatyökalu</h1>
         <DateInput date={queryDate} onDateSelected={onDateSelected} />
-        <input
-          value={queryTime}
-          onChange={(e) => onChangeQueryTime(e.target.value)}
-          placeholder="Query time"
-        />
+        <TimeSlider value={queryTime} onChange={onChangeQueryTime} />
+        <span>{queryTime}</span>
         {!!route.routeId ? (
           <Query
             key="stop_input_by_route"
@@ -232,69 +210,6 @@ export class FilterPanel extends Component {
             </QueryRoutesByLine>
           )}
         </div>
-        {departureOptions &&
-          departureOptions.length > 0 && (
-            <select
-              value={departureTime}
-              onChange={(e) => onTimeSelected(e.target.value)}>
-              <option value="">Select departure...</option>
-              {departureOptions.map((journeyStartTime) => {
-                const [hours, minutes] = journeyStartTime.split(":");
-                const timeWithoutSeconds = `${hours}:${minutes}`;
-
-                return (
-                  <option
-                    key={`start_time_${journeyStartTime}`}
-                    value={timeWithoutSeconds}>
-                    {timeWithoutSeconds}
-                  </option>
-                );
-              })}
-            </select>
-          )}
-        {/*<div>
-          {!!route.routeId && (
-            <Query
-              client={hfpClient}
-              query={departuresQuery}
-              variables={{
-                stopId: route.originstopId,
-                routeId: route.routeId,
-                direction: parseInt(route.direction),
-                date: queryDate,
-              }}>
-              {({loading, error, data}) => {
-                const startTimes = uniq(
-                  get(data, "allDepartures.nodes", []).map(
-                    (departure) =>
-                      `${padNumber(departure.hours, 2)}:${padNumber(
-                        departure.minutes,
-                        2
-                      )}`
-                  )
-                );
-
-                if (loading) return <div>Loading...</div>;
-                if (error) return <div>Error!</div>;
-
-                return (
-                  <select
-                    value={departureTime}
-                    onChange={(e) => onTimeSelected(e.target.value)}>
-                    <option value="">Select departure...</option>
-                    {startTimes.map((journeyStartTime) => (
-                      <option
-                        key={`start_time_${journeyStartTime}`}
-                        value={journeyStartTime}>
-                        {journeyStartTime}
-                      </option>
-                    ))}
-                  </select>
-                );
-              }}
-            </Query>
-          )}
-        </div>*/}
       </header>
     );
   }

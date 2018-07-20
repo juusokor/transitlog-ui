@@ -3,6 +3,7 @@ import {Map, TileLayer, ZoomControl, Pane, Popup, CircleMarker} from "react-leaf
 import "leaflet/dist/leaflet.css";
 import RouteLayer from "./RouteLayer";
 import HfpLayer from "./HfpLayer";
+import HfpMarkerLayer from "./HfpMarkerLayer";
 
 export class LeafletMap extends Component {
   constructor() {
@@ -16,9 +17,11 @@ export class LeafletMap extends Component {
       route,
       departureTime,
       hfpPositions,
+      hfpPosition,
       routePositions,
       stops,
     } = this.props;
+
     const {routeId, direction} = route;
 
     const position = [this.state.lat, this.state.lng];
@@ -40,7 +43,6 @@ export class LeafletMap extends Component {
         />
         <ZoomControl position="topright" />
         <RouteLayer
-          key={"route" + routeLayerKey}
           positions={routePositions}
           hfpPositions={hfpPositions}
           stops={stops}
@@ -48,12 +50,12 @@ export class LeafletMap extends Component {
         {hfpPositions.length > 0 && (
           <HfpLayer key={"hfp" + routeLayerKey} positions={hfpPositions} />
         )}
+        {hfpPosition && <HfpMarkerLayer position={hfpPosition} />}
         <Pane name="stops" style={{zIndex: 420}} />
         {stop.stopId && (
           <CircleMarker
             pane="stops"
             center={[stop.lat, stop.lon]}
-            fill={true}
             fillColor="#00ff88"
             fillOpacity={1}
             weight={3}

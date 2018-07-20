@@ -2,78 +2,8 @@ import React, {Component} from "react";
 import "./App.css";
 import {LeafletMap} from "./LeafletMap";
 import {FilterPanel} from "./FilterPanel";
-import {ApolloProvider, Query} from "react-apollo";
-import {joreClient, hfpClient} from "../api";
+import RouteQuery from "../queries/RouteQuery";
 import moment from "moment";
-import get from "lodash/get";
-import uniq from "lodash/uniq";
-import gql from "graphql-tag";
-import distanceBetween from "../helpers/distanceBetween";
-
-const hfpQuery = gql`
-  query hfpQuery(
-    $routeId: String
-    $direction: Int
-    $startTime: Time
-    $date: Date
-    $stopId: String
-  ) {
-    allVehicles(
-      orderBy: RECEIVED_AT_ASC
-      condition: {
-        nextStopId: $stopId
-        routeId: $routeId
-        directionId: $direction
-        journeyStartTime: $startTime
-        oday: $date
-      }
-    ) {
-      nodes {
-        journeyStartTime
-        nextStopId
-        receivedAt
-        lat
-        long
-        uniqueVehicleId
-        spd
-      }
-    }
-  }
-`;
-
-const routeQuery = gql`
-  query routeQuery(
-    $routeId: String!
-    $direction: String!
-    $dateBegin: Date!
-    $dateEnd: Date!
-  ) {
-    route: routeByRouteIdAndDirectionAndDateBeginAndDateEnd(
-      routeId: $routeId
-      direction: $direction
-      dateBegin: $dateBegin
-      dateEnd: $dateEnd
-    ) {
-      geometries {
-        nodes {
-          geometry
-        }
-      }
-      routeSegments {
-        nodes {
-          stop: stopByStopId {
-            stopId
-            lat
-            lon
-            shortId
-            nameFi
-            nameSe
-          }
-        }
-      }
-    }
-  }
-`;
 
 const defaultStop = {
   stopId: "",
@@ -90,49 +20,18 @@ const defaultLine = {
   dateEnd: "2050-12-31",
 };
 
-const defaultRoute = {
-  routeId: "",
-  direction: "",
-  nameFi: "",
-  dateBegin: "",
-  dateEnd: "",
-  originstopId: "",
-};
-
 class App extends Component {
   constructor() {
     super();
     this.state = {
-      queryDate: "2018-05-06",
       queryTime: "12:30",
-      departureTime: "",
       stop: defaultStop,
       line: defaultLine,
-      route: defaultRoute,
     };
   }
 
-  onDateSelected = (queryDate) => {
-    this.setState({
-      queryDate: moment(queryDate).format("YYYY-MM-DD"),
-    });
-  };
-
   onChangeQueryTime = (queryTime) => {
     this.setState({queryTime});
-  };
-
-  onTimeSelected = (departureTime) => {
-    this.setState({departureTime});
-  };
-
-  onRouteSelected = (route = defaultRoute) => {
-    // route might be null (default arg only catches undefined)
-    const setRoute = route || defaultRoute;
-
-    this.setState({
-      route: setRoute,
-    });
   };
 
   onLineSelected = ({lineId, dateBegin, dateEnd}) => {
@@ -148,161 +47,78 @@ class App extends Component {
   };
 
   onStopSelected = (stop) => {
-    this.setState({
-      stop,
-    });
+    this.setState({stop});
+  };
+
+  prevQueryTime = "";
+  prevHfpPosition = null;
+
+  hfpPositionAtTime = (queryTime) => {
+    if (!queryTime || queryTime === this.prevQueryTime) {
+      return this.prevHfpPosition;
+    }
+
+    const {hfpPositions, queryDate} = this.props;
+    const queryTimeMoment = moment(`${queryDate}T${queryTime}`);
+
+    const nextHfpPosition = hfpPositions.reduce((chosenPosition, position) => {
+      const prevDifference = Math.abs(
+        queryTimeMoment.diff(moment(chosenPosition.receivedAt), "seconds")
+      );
+
+      if (prevDifference < 5) {
+        return chosenPosition;
+      }
+
+      if (
+        Math.abs(queryTimeMoment.diff(moment(position.receivedAt), "seconds")) <
+        prevDifference
+      ) {
+        return position;
+      }
+
+      return chosenPosition;
+    }, hfpPositions[0]);
+
+    this.prevHfpPosition = nextHfpPosition;
+    return nextHfpPosition;
   };
 
   render() {
-    const {route, departureTime, queryDate, stop, line, queryTime} = this.state;
-    const {routeId, direction, dateBegin, dateEnd} = route;
+    const {stop, line, queryTime} = this.state;
+    const {route, queryDate, onRouteSelected, onDateSelected} = this.props;
 
-    const hfpQueryStopId =
-      stop.stopId && !departureTime ? stop.stopId : !!departureTime ? undefined : "";
-    const hfpQueryTime =
-      !stop.stopId && departureTime ? departureTime : !!stop.stopId ? undefined : "";
+    let hfpPosition = this.hfpPositionAtTime(queryTime);
 
     return (
-      <ApolloProvider client={joreClient}>
-        <Query
-          client={hfpClient}
-          query={hfpQuery}
-          fetchPolicy="cache-and-network"
-          variables={{
-            routeId,
-            stopId: hfpQueryStopId,
-            direction: parseInt(direction),
-            startTime: hfpQueryTime,
-            date: queryDate,
-          }}>
-          {({loading: hfpLoading, error: hfpError, data}) => {
-            let hfpPositions = get(data, "allVehicles.nodes", []);
-
-            /*if (queryTime) {
-              const queryTimeMoment = moment(`${queryDate}T${queryTime}`);
-              const queryMin = queryTimeMoment.clone().subtract(10, "m");
-              const queryMax = queryTimeMoment.clone().add(10, "m");
-              
-              hfpPositions = get(data, "allVehicles.nodes", []).reduce(
-                (chosenPositions, pos, index) => {
-                  const receivedMoment = moment(pos.receivedAt);
-                  if (receivedMoment.isBetween(queryMin, queryMax)) {
-                    chosenPositions.push(pos);
-                  }
-
-                  return chosenPositions;
-                },
-                []
-              );
-            }
-
-            console.log(hfpPositions);*/
-
-            return (
-              <Query
-                query={routeQuery}
-                fetchPolicy="cache-and-network"
-                variables={{
-                  routeId,
-                  direction,
-                  dateBegin,
-                  dateEnd,
-                }}>
-                {({loading, error, data}) => {
-                  const positions = get(
-                    data,
-                    "route.geometries.nodes[0].geometry.coordinates",
-                    []
-                  );
-
-                  const firstHfp = hfpPositions[0];
-                  const stops = get(data, "route.routeSegments.nodes", []);
-                  const hfpStops = stops.reduce((stops, {stop}) => {
-                    const {lat: stopLat, lon: stopLng} = stop;
-                    let hfp = {};
-
-                    if (firstHfp) {
-                      const initialClosest = {
-                        hfp: firstHfp,
-                        distanceFromStop: distanceBetween(
-                          stopLat,
-                          stopLng,
-                          firstHfp.lat,
-                          firstHfp.long
-                        ),
-                      };
-
-                      hfp = hfpPositions.reduce((closest, pos) => {
-                        if (closest.distanceFromStop < 0.005) {
-                          return closest;
-                        }
-
-                        const {lat: posLat, long: posLng} = pos;
-
-                        const distanceFromStop = distanceBetween(
-                          stopLat,
-                          stopLng,
-                          posLat,
-                          posLng
-                        );
-
-                        return distanceFromStop < closest.distanceFromStop
-                          ? {
-                              distanceFromStop,
-                              hfp: pos,
-                            }
-                          : closest;
-                      }, initialClosest);
-                    }
-
-                    const hfpStop = {
-                      ...stop,
-                      ...hfp,
-                    };
-
-                    stops.push(hfpStop);
-                    return stops;
-                  }, []);
-
-                  const departureOptions = uniq(
-                    hfpStops
-                      .map((stop) => get(stop, "hfp.journeyStartTime", ""))
-                      .filter((time) => !!time)
-                  );
-
-                  return (
-                    <div className="transitlog">
-                      <FilterPanel
-                        queryDate={queryDate}
-                        departureTime={departureTime}
-                        queryTime={queryTime}
-                        line={line}
-                        route={route}
-                        stop={stop}
-                        departureOptions={departureOptions}
-                        onDateSelected={this.onDateSelected}
-                        onTimeSelected={this.onTimeSelected}
-                        onChangeQueryTime={this.onChangeQueryTime}
-                        onLineSelected={this.onLineSelected}
-                        onRouteSelected={this.onRouteSelected}
-                        onStopSelected={this.onStopSelected}
-                      />
-                      <LeafletMap
-                        routePositions={positions}
-                        stops={hfpStops}
-                        hfpPositions={hfpPositions}
-                        stop={stop}
-                        departureTime={departureTime}
-                        route={route}
-                      />
-                    </div>
-                  );
-                }}
-              </Query>
-            );
-          }}
-        </Query>
-      </ApolloProvider>
+      <RouteQuery route={route} hfpPositions={hfpPosition}>
+        {({routePositions, stops}) => {
+          return (
+            <div className="transitlog">
+              <FilterPanel
+                queryDate={queryDate}
+                queryTime={queryTime}
+                line={line}
+                route={route}
+                stop={stop}
+                onDateSelected={onDateSelected}
+                onChangeQueryTime={this.onChangeQueryTime}
+                onLineSelected={this.onLineSelected}
+                onRouteSelected={onRouteSelected}
+                onStopSelected={this.onStopSelected}
+              />
+              <LeafletMap
+                routePositions={routePositions}
+                hfpPositions={[]}
+                hfpPosition={hfpPosition}
+                stops={stops}
+                stop={stop}
+                route={route}
+              />
+            </div>
+          );
+        }}
+      </RouteQuery>
     );
   }
 }
