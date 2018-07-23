@@ -8,7 +8,6 @@ import orderBy from "lodash/orderBy";
 import groupBy from "lodash/groupBy";
 import map from "lodash/map";
 import get from "lodash/get";
-import set from "lodash/set";
 import takeEveryNth from "./helpers/takeEveryNth";
 
 const defaultRoute = {
@@ -44,6 +43,10 @@ class Root extends Component {
   };
 
   formatHfpData = (hfpData) => {
+    if (!hfpData || hfpData.length === 0) {
+      return hfpData;
+    }
+
     let data = orderBy(hfpData, (pos) => moment(pos.receivedAt).unix());
     data = groupBy(data, "uniqueVehicleId");
     data = map(data, (positions, groupName) => ({
@@ -55,6 +58,10 @@ class Root extends Component {
   };
 
   cachePositions = (hfpData, overwrite = false) => {
+    if (!hfpData || hfpData.length === 0) {
+      return;
+    }
+
     const {queryDate, route} = this.state;
     const cachedDate = get(hfpCache, queryDate, {});
     const cachedRoute = get(cachedDate, route.routeId, []);
@@ -80,8 +87,9 @@ class Root extends Component {
     return JSON.parse(stored);
   };
 
-  getAppContent = (hfpPositions = []) => (
+  getAppContent = (hfpPositions = [], loading = false) => (
     <App
+      loading={loading}
       hfpPositions={hfpPositions}
       route={this.state.route}
       queryDate={this.state.queryDate}
@@ -98,7 +106,11 @@ class Root extends Component {
       <ApolloProvider client={joreClient}>
         {hfpPositions.length === 0 ? (
           <HfpQuery route={route} queryDate={queryDate}>
-            {({hfpPositions}) => {
+            {({hfpPositions, loading}) => {
+              if (loading) {
+                return this.getAppContent([], true);
+              }
+
               const formattedPositions = this.formatHfpData(hfpPositions);
               this.cachePositions(formattedPositions);
               return this.getAppContent(formattedPositions);

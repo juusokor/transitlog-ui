@@ -7,6 +7,7 @@ import moment from "moment";
 import RouteLayer from "./RouteLayer";
 import HfpMarkerLayer from "./HfpMarkerLayer";
 import timer from "../helpers/timer";
+import LoadingOverlay from "./LoadingOverlay";
 
 const defaultStop = {
   stopId: "",
@@ -88,6 +89,7 @@ class App extends Component {
       onRouteSelected,
       onDateSelected,
       hfpPositions,
+      loading,
     } = this.props;
 
     return (
@@ -129,6 +131,7 @@ class App extends Component {
             );
           }}
         </RouteQuery>
+        {loading && <LoadingOverlay message="Ladataan HFP tietoja..." />}
       </div>
     );
   }

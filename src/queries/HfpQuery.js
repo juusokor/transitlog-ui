@@ -53,9 +53,9 @@ class HfpQuery extends Component {
           direction: parseInt(direction),
           date: queryDate,
         }}>
-        {({loading: hfpLoading, error: hfpError, data}) => {
+        {({loading, error, data}) => {
           let hfpPositions = get(data, "allVehicles.nodes", []);
-          return children({hfpPositions});
+          return children({hfpPositions, loading, error});
         }}
       </Query>
     );
