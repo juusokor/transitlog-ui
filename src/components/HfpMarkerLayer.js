@@ -10,6 +10,7 @@ const identities = {};
 class HfpMarkerLayer extends Component {
   prevQueryTime = "";
   prevHfpPosition = null;
+  prevPositionIndex = 0;
 
   getHfpPosition = () => {
     const {positions, queryDate, queryTime} = this.props;
@@ -24,16 +25,21 @@ class HfpMarkerLayer extends Component {
       true
     );
 
-    const nextHfpPosition = positions.reduce((chosenPosition, position) => {
+    let nextHfpPosition = null;
+    const total = positions.length;
+    let posIdx = this.prevPositionIndex < total ? this.prevPositionIndex : 0;
+
+    for (; posIdx < total; posIdx++) {
+      const position = positions[posIdx];
       let prevDifference = 30;
 
-      if (chosenPosition) {
+      if (nextHfpPosition) {
         prevDifference = Math.abs(
-          queryTimeMoment.diff(moment(chosenPosition.receivedAt), "seconds")
+          queryTimeMoment.diff(moment(nextHfpPosition.receivedAt), "seconds")
         );
 
-        if (prevDifference < 3) {
-          return chosenPosition;
+        if (prevDifference < 5) {
+          break;
         }
       }
 
@@ -42,11 +48,9 @@ class HfpMarkerLayer extends Component {
       );
 
       if (difference < prevDifference) {
-        return position;
+        nextHfpPosition = position;
       }
-
-      return chosenPosition;
-    }, null);
+    }
 
     this.prevHfpPosition = nextHfpPosition;
     this.prevQueryTime = queryTime;
