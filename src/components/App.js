@@ -92,6 +92,8 @@ class App extends Component {
       loading,
     } = this.props;
 
+    // TODO: Find out why the routes and the map isn't updating.
+
     return (
       <div className="transitlog">
         <FilterPanel

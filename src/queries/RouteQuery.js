@@ -86,6 +86,7 @@ class RouteQuery extends Component {
           const stops = get(data, "route.routeSegments.nodes", []).map(
             (segment) => segment.stop
           );
+
           return children({routePositions: positions, stops});
         }}
       </Query>

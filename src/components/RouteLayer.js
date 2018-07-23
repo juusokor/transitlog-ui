@@ -4,9 +4,6 @@ import moment from "moment";
 import get from "lodash/get";
 import map from "lodash/map";
 import orderBy from "lodash/orderBy";
-import groupBy from "lodash/groupBy";
-import flatten from "lodash/flatten";
-import reduce from "lodash/reduce";
 import {lighten} from "polished";
 import distanceBetween from "../helpers/distanceBetween";
 
@@ -41,7 +38,7 @@ class RouteLayer extends Component {
         const {lat: posLat, long: posLng} = pos;
         const distanceFromStop = distanceBetween(stopLat, stopLng, posLat, posLng);
 
-        if (distanceFromStop < 0.005) {
+        if (distanceFromStop < 0.01) {
           stopHfp.push(pos);
         }
       }
