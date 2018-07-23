@@ -108,29 +108,28 @@ class App extends Component {
           onRouteSelected={onRouteSelected}
           onStopSelected={this.onStopSelected}
         />
-        <RouteQuery route={route}>
-          {({routePositions, stops}) => {
-            return (
-              <LeafletMap>
-                <RouteLayer
-                  positions={routePositions}
-                  stops={stops}
-                  selectedStop={stop}
-                />
-                {hfpPositions.length > 0 &&
-                  hfpPositions.map((positionGroup) => (
-                    <HfpMarkerLayer
-                      key={`hfp_group_${positionGroup.groupName}_${route.routeId}`}
-                      queryDate={queryDate}
-                      queryTime={queryTime}
-                      positions={positionGroup.positions}
-                      name={positionGroup.groupName}
-                    />
-                  ))}
-              </LeafletMap>
-            );
-          }}
-        </RouteQuery>
+        <LeafletMap>
+          <RouteQuery route={route}>
+            {({routePositions, stops}) => (
+              <RouteLayer
+                hfpPositions={hfpPositions}
+                positions={routePositions}
+                stops={stops}
+                selectedStop={stop}
+              />
+            )}
+          </RouteQuery>
+          {hfpPositions.length > 0 &&
+            hfpPositions.map((positionGroup) => (
+              <HfpMarkerLayer
+                key={`hfp_group_${positionGroup.groupName}_${route.routeId}`}
+                queryDate={queryDate}
+                queryTime={queryTime}
+                positions={positionGroup.positions}
+                name={positionGroup.groupName}
+              />
+            ))}
+        </LeafletMap>
         {loading && <LoadingOverlay message="Ladataan HFP tietoja..." />}
       </div>
     );

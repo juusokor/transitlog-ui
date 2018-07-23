@@ -1,13 +1,60 @@
 import React, {Component} from "react";
 import {Polyline, CircleMarker, Popup} from "react-leaflet";
 import moment from "moment";
-import get from "lodash";
-import {lighten, darken} from "polished";
+import get from "lodash/get";
+import map from "lodash/map";
+import orderBy from "lodash/orderBy";
+import groupBy from "lodash/groupBy";
+import flatten from "lodash/flatten";
+import reduce from "lodash/reduce";
+import {lighten} from "polished";
+import distanceBetween from "../helpers/distanceBetween";
 
 const stopColor = "#3388ff";
-const selectedStopColor = "#00ff88";
+const selectedStopColor = lighten(0.2, "#3388ff");
 
 class RouteLayer extends Component {
+  stopTimes = {};
+
+  getStopTimes = (stop) => {
+    const cachedHfp = get(this, `stopTimes.${stop.stopId}`);
+
+    if (cachedHfp) {
+      return cachedHfp;
+    }
+
+    const {lat: stopLat, lon: stopLng} = stop;
+
+    const stopHfpGroups = this.props.hfpPositions.map(({groupName, positions}) => {
+      const stopHfp = [];
+      const total = positions.length;
+      let posIdx = 0;
+
+      for (; posIdx < total; posIdx++) {
+        const lastAdded = stopHfp[stopHfp.length - 1];
+        const pos = positions[posIdx];
+
+        if (!!lastAdded && lastAdded.journeyStartTime === pos.journeyStartTime) {
+          continue;
+        }
+
+        const {lat: posLat, long: posLng} = pos;
+        const distanceFromStop = distanceBetween(stopLat, stopLng, posLat, posLng);
+
+        if (distanceFromStop < 0.005) {
+          stopHfp.push(pos);
+        }
+      }
+
+      return {groupName, positions: stopHfp};
+    });
+
+    const sortedGroups = orderBy(stopHfpGroups, "positions[0].receivedAt");
+
+    this.stopTimes[stop.stopId] = sortedGroups;
+    return sortedGroups;
+  };
+
   render() {
     const {positions, selectedStop, stops} = this.props;
     const coords = positions.map(([lon, lat]) => [lat, lon]);
@@ -16,26 +63,37 @@ class RouteLayer extends Component {
       <React.Fragment>
         <Polyline weight={3} positions={coords} />
         {stops.map((stop) => {
-          const isSelected = stop.stopId === selectedStop;
+          const isSelected = stop.stopId === selectedStop.stopId;
+          const hfp = this.getStopTimes(stop);
 
           return (
             <CircleMarker
               pane="stops"
               key={`stop_marker_${stop.stopId}`}
               center={[stop.lat, stop.lon]}
-              color={isSelected ? lighten(0.2, selectedStopColor) : stopColor}
+              color={isSelected ? selectedStopColor : stopColor}
               fillColor={isSelected ? selectedStopColor : stopColor}
               fillOpacity={1}
-              radius={isSelected ? 10 : 6}>
+              radius={isSelected ? 8 : 6}>
               <Popup>
-                {stop.nameFi}, {stop.shortId.replace(/ /g, "")}
-                {get(stop, "distanceFromStop", 1) < 0.1 && (
-                  <React.Fragment>
-                    <br />
-                    Drive-by time:{" "}
-                    {moment(get(stop, "hfp.receivedAt")).format("HH:mm:ss")}
-                  </React.Fragment>
-                )}
+                <h4>
+                  {stop.nameFi}, {stop.shortId.replace(/ /g, "")}
+                </h4>
+                {hfp.length > 0 &&
+                  map(
+                    hfp,
+                    ({positions, groupName}) =>
+                      positions.length ? (
+                        <div key={`hfpPos_${groupName}`}>
+                          <span>{groupName}:</span>{" "}
+                          <strong>
+                            {map(positions, (position) =>
+                              moment(position.receivedAt).format("HH:mm:ss")
+                            ).join(",  ")}
+                          </strong>
+                        </div>
+                      ) : null
+                  )}
               </Popup>
             </CircleMarker>
           );

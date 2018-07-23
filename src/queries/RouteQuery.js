@@ -56,8 +56,14 @@ class RouteQuery extends Component {
     children: PropTypes.func.isRequired,
   };
 
+  shouldComponentUpdate(nextProps) {
+    return (
+      get(nextProps, "route.routeId", "") !== get(this, "props.route.routeId", "")
+    );
+  }
+
   render() {
-    const {route, hfpPositions = [], children} = this.props;
+    const {route, children} = this.props;
     const {routeId, direction, dateBegin, dateEnd} = route;
 
     return (
@@ -77,58 +83,10 @@ class RouteQuery extends Component {
             []
           );
 
-          const firstHfp = hfpPositions[0];
-
-          const stops = get(data, "route.routeSegments.nodes", []);
-
-          const hfpStops = stops.reduce((stops, {stop}) => {
-            const {lat: stopLat, lon: stopLng} = stop;
-            let hfp = {};
-
-            if (firstHfp) {
-              const initialClosest = {
-                hfp: firstHfp,
-                distanceFromStop: distanceBetween(
-                  stopLat,
-                  stopLng,
-                  firstHfp.lat,
-                  firstHfp.long
-                ),
-              };
-
-              hfp = hfpPositions.reduce((closest, pos) => {
-                if (closest.distanceFromStop < 0.005) {
-                  return closest;
-                }
-
-                const {lat: posLat, long: posLng} = pos;
-
-                const distanceFromStop = distanceBetween(
-                  stopLat,
-                  stopLng,
-                  posLat,
-                  posLng
-                );
-
-                return distanceFromStop < closest.distanceFromStop
-                  ? {
-                      distanceFromStop,
-                      hfp: pos,
-                    }
-                  : closest;
-              }, initialClosest);
-            }
-
-            const hfpStop = {
-              ...stop,
-              ...hfp,
-            };
-
-            stops.push(hfpStop);
-            return stops;
-          }, []);
-
-          return children({routePositions: positions, stops: hfpStops});
+          const stops = get(data, "route.routeSegments.nodes", []).map(
+            (segment) => segment.stop
+          );
+          return children({routePositions: positions, stops});
         }}
       </Query>
     );

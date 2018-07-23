@@ -47,7 +47,7 @@ class Root extends Component {
       return hfpData;
     }
 
-    let data = orderBy(hfpData, (pos) => moment(pos.receivedAt).unix());
+    let data = orderBy(hfpData, "receivedAt");
     data = groupBy(data, "uniqueVehicleId");
     data = map(data, (positions, groupName) => ({
       groupName: groupName,
@@ -69,10 +69,14 @@ class Root extends Component {
     const cachedRoute = get(cachedDate, route.routeId, []);
 
     if (overwrite || cachedRoute.length === 0) {
-      window.localStorage.setItem(
-        `${queryDate}.${route.routeId}.${route.direction}`,
-        JSON.stringify(hfpData)
-      );
+      const key = `${queryDate}.${route.routeId}.${route.direction}`;
+
+      try {
+        window.localStorage.setItem(key, JSON.stringify(hfpData));
+      } catch (e) {
+        window.localStorage.clear();
+        window.localStorage.setItem(key, JSON.stringify(hfpData));
+      }
     }
   };
 
