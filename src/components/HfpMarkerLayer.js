@@ -77,6 +77,7 @@ class HfpMarkerLayer extends Component {
           fillOpacity={1}
           weight={3}
           radius={12}
+          pane="hfp"
           color={darken(0.2, color)}>
           <Tooltip>
             {moment(position.receivedAt).format("HH:mm:ss")}
