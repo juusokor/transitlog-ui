@@ -37,7 +37,7 @@ class App extends Component {
   }
 
   onChangeQueryTime = (queryTime) => {
-    this.setState({queryTime, playing: false});
+    this.setState({queryTime});
   };
 
   onLineSelected = ({lineId, dateBegin, dateEnd}) => {

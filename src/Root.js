@@ -60,13 +60,24 @@ class Root extends Component {
     const cachedRoute = get(cachedDate, route.routeId, []);
 
     if (overwrite || cachedRoute.length === 0) {
-      set(hfpCache, `${queryDate}.${route.routeId}`, hfpData);
+      window.localStorage.setItem(
+        `${queryDate}.${route.routeId}.${route.direction}`,
+        JSON.stringify(hfpData)
+      );
     }
   };
 
   getCachedPositions = () => {
     const {queryDate, route} = this.state;
-    return get(hfpCache, `${queryDate}.${route.routeId}`, []);
+    const stored = window.localStorage.getItem(
+      `${queryDate}.${route.routeId}.${route.direction}`
+    );
+
+    if (!stored) {
+      return [];
+    }
+
+    return JSON.parse(stored);
   };
 
   getAppContent = (hfpPositions = []) => (
