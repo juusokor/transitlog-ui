@@ -9,9 +9,9 @@ import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import {DateInput} from "./DateInput";
 import get from "lodash/get";
-import uniq from "lodash/uniq";
 import orderBy from "lodash/orderBy";
 import moment from "moment";
+import TimeSlider from "./TimeSlider";
 
 const allStopsQuery = gql`
   query allStopsQuery {
@@ -73,51 +73,18 @@ const allLinesQuery = gql`
 `;
 
 const departuresQuery = gql`
-  query startTimesQuery(
-    $stopId: String
-    $routeId: String
-    $direction: String
-    $dayType: String
-  ) {
-    allDepartures(
-      condition: {
-        stopId: $stopId
-        routeId: $routeId
-        direction: $direction
-        dayType: $dayType
-      }
+  query startTimesQuery($routeId: String, $direction: Int, $date: Date) {
+    allVehicles(
+      condition: {oday: $date, directionId: $direction, routeId: $routeId}
     ) {
       nodes {
-        stopId
-        routeId
-        departureId
-        hours
-        minutes
-        dateBegin
-        dateEnd
+        journeyStartTime
       }
     }
   }
 `;
 
 const removeFerryFilter = (line) => line.lineId.substring(0, 4) !== "1019";
-
-// Zero-indexed and sunday first because that's the most reliable number we get from moment.
-const dayTypes = ["Su", "Ma", "Ti", "Ke", "To", "Pe", "La"];
-
-function padNumber(number, length) {
-  return (number + "").padStart(length, "0");
-}
-
-const transportTypeOrder = ["TRAM", "BUS", "TRAIN"];
-const linesSorter = (a, b) => {
-  if (a.lineId.substring(1, 4) !== b.lineId.substring(1, 4)) {
-    return a.lineId.substring(1, 4) > b.lineId.substring(1, 4) ? 1 : -1;
-  } else if (a.lineId.substring(0, 1) !== b.lineId.substring(0, 1)) {
-    return a.lineId.substring(0, 1) > b.lineId.substring(0, 1) ? 1 : -1;
-  }
-  return a.lineId.substring(4, 6) > b.lineId.substring(4, 6) ? 1 : -1;
-};
 
 export class FilterPanel extends Component {
   render() {
@@ -127,12 +94,12 @@ export class FilterPanel extends Component {
       line,
       queryDate,
       queryTime,
-      departureTime,
-      onTimeSelected,
+      isPlaying,
       onChangeQueryTime,
       onDateSelected,
       onStopSelected,
       onRouteSelected,
+      onClickPlay,
     } = this.props;
 
     const queryMoment = moment(queryDate);
@@ -142,11 +109,18 @@ export class FilterPanel extends Component {
         <img src={logo} className="App-logo" alt="logo" />
         <h1 className="App-title">Liikenteenvalvontatyökalu</h1>
         <DateInput date={queryDate} onDateSelected={onDateSelected} />
-        <input
-          value={queryTime}
-          onChange={onChangeQueryTime}
-          placeholder="Query time"
-        />
+        <p>
+          <TimeSlider value={queryTime} onChange={onChangeQueryTime} />
+          <input
+            value={queryTime}
+            onChange={(e) => onChangeQueryTime(e.target.value)}
+          />
+        </p>
+        <p>
+          <button onClick={onClickPlay}>
+            {isPlaying ? "Pysäytä simulaatio" : "Simuloi"}
+          </button>
+        </p>
         {!!route.routeId ? (
           <Query
             key="stop_input_by_route"
@@ -229,48 +203,6 @@ export class FilterPanel extends Component {
                 );
               }}
             </QueryRoutesByLine>
-          )}
-        </div>
-        <div>
-          {!!route.routeId && (
-            <Query
-              query={departuresQuery}
-              variables={{
-                stopId: route.originstopId,
-                routeId: route.routeId,
-                direction: route.direction,
-                dayType: dayTypes[moment(queryDate).day()],
-              }}>
-              {({loading, error, data}) => {
-                const startTimes = uniq(
-                  get(data, "allDepartures.nodes", []).map(
-                    (departure) =>
-                      `${padNumber(departure.hours, 2)}:${padNumber(
-                        departure.minutes,
-                        2
-                      )}`
-                  )
-                );
-
-                if (loading) return <div>Loading...</div>;
-                if (error) return <div>Error!</div>;
-
-                return (
-                  <select
-                    value={departureTime}
-                    onChange={(e) => onTimeSelected(e.target.value)}>
-                    <option value="">Select departure...</option>
-                    {startTimes.map((journeyStartTime) => (
-                      <option
-                        key={`start_time_${journeyStartTime}`}
-                        value={journeyStartTime}>
-                        {journeyStartTime}
-                      </option>
-                    ))}
-                  </select>
-                );
-              }}
-            </Query>
           )}
         </div>
       </header>

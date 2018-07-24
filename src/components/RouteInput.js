@@ -1,4 +1,5 @@
 import React, {Component} from "react";
+import createRouteIdentifier from "../helpers/createRouteIdentifier";
 
 export class RouteInput extends Component {
   onChange = (e) => {
@@ -10,35 +11,24 @@ export class RouteInput extends Component {
     }
 
     const route = routes.find(
-      (r) =>
-        this.createRouteIdentifier(r.routeId, r.direction, r.dateBegin) ===
-        selectedValue
+      (route) => createRouteIdentifier(route) === selectedValue
     );
 
     onRouteSelected(route);
   };
 
-  createRouteIdentifier = (routeId, direction, dateBegin) =>
-    `${routeId}_${direction}_${dateBegin}`;
-
   render() {
     const {route, routes} = this.props;
 
     const options = routes.map(({routeId, direction, nameFi, dateBegin}) => ({
-      value: this.createRouteIdentifier(routeId, direction, dateBegin),
+      value: createRouteIdentifier({routeId, direction, dateBegin}),
       label: `${routeId} - suunta ${direction}, ${nameFi}`,
     }));
 
     options.unshift({value: "", label: "Valitse reitti..."});
 
     return (
-      <select
-        value={this.createRouteIdentifier(
-          route.routeId,
-          route.direction,
-          route.dateBegin
-        )}
-        onChange={this.onChange}>
+      <select value={createRouteIdentifier(route)} onChange={this.onChange}>
         {options.map(({value, label}) => (
           <option key={`route_select_${value}`} value={value}>
             {label}

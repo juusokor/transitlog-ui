@@ -1,0 +1,14 @@
+.hfp-time-row {
+  white-space: nowrap;
+}
+
+.hfp-time-tag {
+  text-decoration: none;
+  font-weight: bold;
+  padding: 2px 4px;
+  border-radius: 3px;
+  background: #e6e6e6;
+  margin: 0 0 3px 3px;
+  display: inline-block;
+  border: 1px solid transparent;
+}
