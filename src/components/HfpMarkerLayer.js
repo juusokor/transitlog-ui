@@ -3,7 +3,7 @@ import {CircleMarker, Tooltip} from "react-leaflet";
 import get from "lodash/get";
 import random from "lodash/random";
 import moment from "moment";
-import {darken, lighten} from "polished";
+import {darken} from "polished";
 
 const identities = {};
 

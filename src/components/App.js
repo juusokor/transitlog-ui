@@ -92,8 +92,6 @@ class App extends Component {
       loading,
     } = this.props;
 
-    // TODO: Find out why the routes and the map isn't updating.
-
     return (
       <div className="transitlog">
         <FilterPanel
@@ -124,7 +122,9 @@ class App extends Component {
           {hfpPositions.length > 0 &&
             hfpPositions.map((positionGroup) => (
               <HfpMarkerLayer
-                key={`hfp_group_${positionGroup.groupName}_${route.routeId}`}
+                key={`hfp_group_${positionGroup.groupName}_${route.routeId}_${
+                  route.direction
+                }`}
                 queryDate={queryDate}
                 queryTime={queryTime}
                 positions={positionGroup.positions}

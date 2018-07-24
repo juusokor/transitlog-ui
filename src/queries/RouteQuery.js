@@ -4,6 +4,7 @@ import get from "lodash/get";
 import distanceBetween from "../helpers/distanceBetween";
 import {Query} from "react-apollo";
 import gql from "graphql-tag";
+import createRouteIdentifier from "../helpers/createRouteIdentifier";
 
 const routeQuery = gql`
   query routeQuery(
@@ -57,9 +58,10 @@ class RouteQuery extends Component {
   };
 
   shouldComponentUpdate(nextProps) {
-    return (
-      get(nextProps, "route.routeId", "") !== get(this, "props.route.routeId", "")
-    );
+    const routeIdentifier = createRouteIdentifier(this.props.route);
+    const nextRouteIdentifier = createRouteIdentifier(nextProps.route);
+
+    return routeIdentifier !== nextRouteIdentifier;
   }
 
   render() {
