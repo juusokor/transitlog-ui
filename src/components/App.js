@@ -18,12 +18,6 @@ const defaultStop = {
   stopIndex: 0,
 };
 
-const defaultLine = {
-  lineId: "1006T",
-  dateBegin: "2017-08-14",
-  dateEnd: "2050-12-31",
-};
-
 class App extends Component {
   autoplayTimerHandle = null;
 
@@ -33,24 +27,11 @@ class App extends Component {
       playing: false,
       queryTime: "12:30:00",
       stop: defaultStop,
-      line: defaultLine,
     };
   }
 
   onChangeQueryTime = (queryTime) => {
     this.setState({queryTime});
-  };
-
-  onLineSelected = ({lineId, dateBegin, dateEnd}) => {
-    this.setState({
-      line: {
-        lineId,
-        dateBegin,
-        dateEnd,
-      },
-      // Clear stop selection when line changes.
-      stop: lineId !== this.state.line.lineId ? defaultStop : undefined,
-    });
   };
 
   onStopSelected = (stop) => {
@@ -81,12 +62,14 @@ class App extends Component {
   }
 
   render() {
-    const {playing, stop, line, queryTime} = this.state;
+    const {playing, stop, queryTime} = this.state;
 
     const {
       route,
+      line,
       queryDate,
       onRouteSelected,
+      onLineSelected,
       onDateSelected,
       hfpPositions,
       loading,
@@ -104,7 +87,7 @@ class App extends Component {
           onClickPlay={this.toggleAutoplay}
           onDateSelected={onDateSelected}
           onChangeQueryTime={this.onChangeQueryTime}
-          onLineSelected={this.onLineSelected}
+          onLineSelected={onLineSelected}
           onRouteSelected={onRouteSelected}
           onStopSelected={this.onStopSelected}
         />
@@ -112,6 +95,7 @@ class App extends Component {
           <RouteQuery route={route}>
             {({routePositions, stops}) => (
               <RouteLayer
+                key={`routes_${route.routeId}_${route.direction}_${stop.stopId}`}
                 onChangeQueryTime={this.onChangeQueryTime}
                 queryDate={queryDate}
                 queryTime={queryTime}

@@ -19,17 +19,34 @@ const defaultRoute = {
   originstopId: "",
 };
 
+const defaultLine = {
+  lineId: "1006T",
+  dateBegin: "2017-08-14",
+  dateEnd: "2050-12-31",
+};
+
 const hfpCache = {};
 
 class Root extends Component {
   state = {
     queryDate: "2018-05-06",
     route: defaultRoute,
+    line: defaultLine,
   };
 
   onDateSelected = (queryDate) => {
     this.setState({
       queryDate: moment(queryDate).format("YYYY-MM-DD"),
+    });
+  };
+
+  onLineSelected = ({lineId, dateBegin, dateEnd}) => {
+    this.setState({
+      line: {
+        lineId,
+        dateBegin,
+        dateEnd,
+      },
     });
   };
 
@@ -98,8 +115,10 @@ class Root extends Component {
       loading={loading}
       hfpPositions={hfpPositions}
       route={this.state.route}
+      line={this.state.line}
       queryDate={this.state.queryDate}
       onRouteSelected={this.onRouteSelected}
+      onLineSelected={this.onLineSelected}
       onDateSelected={this.onDateSelected}
     />
   );

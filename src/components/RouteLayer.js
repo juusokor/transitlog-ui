@@ -2,7 +2,6 @@ import React, {Component} from "react";
 import {Polyline, CircleMarker, Popup} from "react-leaflet";
 import moment from "moment";
 import get from "lodash/get";
-import map from "lodash/map";
 import orderBy from "lodash/orderBy";
 import {lighten} from "polished";
 import distanceBetween from "../helpers/distanceBetween";
@@ -15,10 +14,12 @@ class RouteLayer extends Component {
   stopTimes = {};
 
   getStopTimes = (stop) => {
-    const cachedHfp = get(this, `stopTimes.${stop.stopId}`);
+    if (Object.keys(this.stopTimes).length > 0) {
+      const cachedHfp = get(this, `stopTimes.${stop.stopId}`);
 
-    if (cachedHfp) {
-      return cachedHfp;
+      if (cachedHfp && cachedHfp.length > 0) {
+        return cachedHfp;
+      }
     }
 
     const {lat: stopLat, lon: stopLng} = stop;
