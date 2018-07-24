@@ -112,6 +112,7 @@ class App extends Component {
           <RouteQuery route={route}>
             {({routePositions, stops}) => (
               <RouteLayer
+                onChangeQueryTime={this.onChangeQueryTime}
                 queryDate={queryDate}
                 queryTime={queryTime}
                 hfpPositions={hfpPositions}

@@ -6,7 +6,7 @@ import map from "lodash/map";
 import orderBy from "lodash/orderBy";
 import {lighten} from "polished";
 import distanceBetween from "../helpers/distanceBetween";
-import "./Popup.css";
+import DriveByTimes from "./DriveByTimes";
 
 const stopColor = "#3388ff";
 const selectedStopColor = lighten(0.2, "#22ccaa");
@@ -53,6 +53,11 @@ class RouteLayer extends Component {
     return sortedGroups;
   };
 
+  onTimeClick = (receivedAtMoment) => (e) => {
+    e.preventDefault();
+    this.props.onChangeQueryTime(receivedAtMoment.format("HH:mm:ss"));
+  };
+
   render() {
     const {positions, selectedStop, stops, queryTime, queryDate} = this.props;
     const coords = positions.map(([lon, lat]) => [lat, lon]);
@@ -83,35 +88,13 @@ class RouteLayer extends Component {
                 <h4>
                   {stop.nameFi}, {stop.shortId.replace(/ /g, "")}
                 </h4>
-                {hfp.length > 0 &&
-                  map(hfp, ({positions, groupName}) => {
-                    return positions.length ? (
-                      <div className="hfp-time-row" key={`hfpPos_${groupName}`}>
-                        <span>{groupName}:</span>{" "}
-                        {map(positions, (position) => {
-                          const receivedAtMoment = moment(position.receivedAt);
-
-                          const diffFromQuery = Math.min(
-                            Math.abs(
-                              queryTimeMoment.diff(receivedAtMoment, "seconds")
-                            ),
-                            125
-                          );
-
-                          return (
-                            <strong
-                              style={{
-                                backgroundColor: `rgb(50, ${diffFromQuery *
-                                  2}, ${diffFromQuery})`,
-                              }}
-                              className="hfp-time-tag">
-                              {receivedAtMoment.format("HH:mm:ss")}{" "}
-                            </strong>
-                          );
-                        })}
-                      </div>
-                    ) : null;
-                  })}
+                {hfp.length > 0 && (
+                  <DriveByTimes
+                    onTimeClick={this.onTimeClick}
+                    queryTime={queryTimeMoment}
+                    positions={hfp}
+                  />
+                )}
               </Popup>
             </CircleMarker>
           );
