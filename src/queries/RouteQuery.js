@@ -57,13 +57,6 @@ class RouteQuery extends Component {
     children: PropTypes.func.isRequired,
   };
 
-  shouldComponentUpdate(nextProps) {
-    const routeIdentifier = createRouteIdentifier(this.props.route);
-    const nextRouteIdentifier = createRouteIdentifier(nextProps.route);
-
-    return routeIdentifier !== nextRouteIdentifier;
-  }
-
   render() {
     const {route, children} = this.props;
     const {routeId, direction, dateBegin, dateEnd} = route;

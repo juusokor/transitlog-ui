@@ -6,9 +6,10 @@ import map from "lodash/map";
 import orderBy from "lodash/orderBy";
 import {lighten} from "polished";
 import distanceBetween from "../helpers/distanceBetween";
+import "./Popup.css";
 
 const stopColor = "#3388ff";
-const selectedStopColor = lighten(0.2, "#3388ff");
+const selectedStopColor = lighten(0.2, "#22ccaa");
 
 class RouteLayer extends Component {
   stopTimes = {};
@@ -53,8 +54,14 @@ class RouteLayer extends Component {
   };
 
   render() {
-    const {positions, selectedStop, stops} = this.props;
+    const {positions, selectedStop, stops, queryTime, queryDate} = this.props;
     const coords = positions.map(([lon, lat]) => [lat, lon]);
+
+    const queryTimeMoment = moment(
+      `${queryDate} ${queryTime}`,
+      "YYYY-MM-DD HH:mm:ss",
+      true
+    );
 
     return (
       <React.Fragment>
@@ -77,20 +84,34 @@ class RouteLayer extends Component {
                   {stop.nameFi}, {stop.shortId.replace(/ /g, "")}
                 </h4>
                 {hfp.length > 0 &&
-                  map(
-                    hfp,
-                    ({positions, groupName}) =>
-                      positions.length ? (
-                        <div key={`hfpPos_${groupName}`}>
-                          <span>{groupName}:</span>{" "}
-                          <strong>
-                            {map(positions, (position) =>
-                              moment(position.receivedAt).format("HH:mm:ss")
-                            ).join(",  ")}
-                          </strong>
-                        </div>
-                      ) : null
-                  )}
+                  map(hfp, ({positions, groupName}) => {
+                    return positions.length ? (
+                      <div className="hfp-time-row" key={`hfpPos_${groupName}`}>
+                        <span>{groupName}:</span>{" "}
+                        {map(positions, (position) => {
+                          const receivedAtMoment = moment(position.receivedAt);
+
+                          const diffFromQuery = Math.min(
+                            Math.abs(
+                              queryTimeMoment.diff(receivedAtMoment, "seconds")
+                            ),
+                            125
+                          );
+
+                          return (
+                            <strong
+                              style={{
+                                backgroundColor: `rgb(50, ${diffFromQuery *
+                                  2}, ${diffFromQuery})`,
+                              }}
+                              className="hfp-time-tag">
+                              {receivedAtMoment.format("HH:mm:ss")}{" "}
+                            </strong>
+                          );
+                        })}
+                      </div>
+                    ) : null;
+                  })}
               </Popup>
             </CircleMarker>
           );
