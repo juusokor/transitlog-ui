@@ -86,23 +86,6 @@ const departuresQuery = gql`
 
 const removeFerryFilter = (line) => line.lineId.substring(0, 4) !== "1019";
 
-// Zero-indexed and sunday first because that's the most reliable number we get from moment.
-const dayTypes = ["Su", "Ma", "Ti", "Ke", "To", "Pe", "La"];
-
-function padNumber(number, length) {
-  return (number + "").padStart(length, "0");
-}
-
-const transportTypeOrder = ["TRAM", "BUS", "TRAIN"];
-const linesSorter = (a, b) => {
-  if (a.lineId.substring(1, 4) !== b.lineId.substring(1, 4)) {
-    return a.lineId.substring(1, 4) > b.lineId.substring(1, 4) ? 1 : -1;
-  } else if (a.lineId.substring(0, 1) !== b.lineId.substring(0, 1)) {
-    return a.lineId.substring(0, 1) > b.lineId.substring(0, 1) ? 1 : -1;
-  }
-  return a.lineId.substring(4, 6) > b.lineId.substring(4, 6) ? 1 : -1;
-};
-
 export class FilterPanel extends Component {
   render() {
     const {
@@ -128,7 +111,10 @@ export class FilterPanel extends Component {
         <DateInput date={queryDate} onDateSelected={onDateSelected} />
         <p>
           <TimeSlider value={queryTime} onChange={onChangeQueryTime} />
-          <input value={queryTime} onChange={onChangeQueryTime} />
+          <input
+            value={queryTime}
+            onChange={(e) => onChangeQueryTime(e.target.value)}
+          />
         </p>
         <p>
           <button onClick={onClickPlay}>
