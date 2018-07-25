@@ -15,7 +15,8 @@ export class LeafletMap extends Component {
 
     return (
       <Map center={position} zoom={this.state.zoom} maxZoom={18} zoomControl={false}>
-        <Pane name="hfp" style={{zIndex: 450}} />
+        <Pane name="hfp-lines" style={{zIndex: 440}} />
+        <Pane name="hfp-markers" style={{zIndex: 450}} />
         <Pane name="stops" style={{zIndex: 420}} />
         <TileLayer
           attribution={

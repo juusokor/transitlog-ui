@@ -1,11 +1,9 @@
 import React, {Component} from "react";
 import {CircleMarker, Tooltip} from "react-leaflet";
 import get from "lodash/get";
-import random from "lodash/random";
 import moment from "moment";
 import {darken} from "polished";
-
-const identities = {};
+import {getColor} from "../helpers/vehicleColor";
 
 class HfpMarkerLayer extends Component {
   prevQueryTime = "";
@@ -58,9 +56,20 @@ class HfpMarkerLayer extends Component {
     return nextHfpPosition;
   };
 
+  onMarkerClick = (positionWhenClicked) => () => {
+    const {onMarkerClick, selectedVehicle} = this.props;
+
+    onMarkerClick(
+      get(selectedVehicle, "uniqueVehicleId", null) !==
+      positionWhenClicked.uniqueVehicleId
+        ? positionWhenClicked
+        : null
+    );
+  };
+
   render() {
     const {name} = this.props;
-    let color = get(identities, name);
+    const color = getColor(name);
 
     const position = this.getHfpPosition();
 
@@ -68,20 +77,16 @@ class HfpMarkerLayer extends Component {
       return null;
     }
 
-    if (!color) {
-      color = `rgb(${random(0, 255)}, ${random(0, 255)}, ${random(0, 255)})`;
-      identities[name] = color;
-    }
-
     return (
       <React.Fragment>
         <CircleMarker
+          onClick={this.onMarkerClick(position)}
           center={[position.lat, position.long]}
           fillColor={color}
           fillOpacity={1}
           weight={3}
           radius={12}
-          pane="hfp"
+          pane="hfp-markers"
           color={darken(0.2, color)}>
           <Tooltip>
             {moment(position.receivedAt).format("HH:mm:ss")}
