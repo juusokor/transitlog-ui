@@ -15,12 +15,16 @@ class HfpLayer extends Component {
 
     return positions
       .filter((pos) => pos.journeyStartTime === journeyStartTime)
-      .map((pos) => [pos.lat, pos.long]);
+      .map(({lat, long, receivedAt, uniqueVehicleId}) => [
+        lat,
+        long,
+        {receivedAt, uniqueVehicleId},
+      ]);
   }
 
   findHfpItem = (latlng) => {
     const hfpItem = this.positions.find((hfp) =>
-      latlng.equals(latLng(hfp[0], hfp[1]), 0.0001)
+      latlng.equals(latLng(hfp[0], hfp[1]), 0.001)
     );
 
     return hfpItem ? hfpItem[2] : null;
