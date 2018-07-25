@@ -20,6 +20,8 @@ const defaultStop = {
   stopIndex: 0,
 };
 
+const defaultMapPosition = {lat: 60.170988, lng: 24.940842, zoom: 13};
+
 class App extends Component {
   autoplayTimerHandle = null;
 
@@ -30,6 +32,7 @@ class App extends Component {
       queryTime: "12:30:00",
       stop: defaultStop,
       selectedVehicle: null,
+      map: defaultMapPosition,
     };
   }
 
@@ -38,7 +41,14 @@ class App extends Component {
   };
 
   onStopSelected = (stop) => {
-    this.setState({stop});
+    this.setState({
+      stop,
+      map: {
+        zoom: !!stop ? 16 : 13,
+        lat: get(stop, "lat", defaultMapPosition.lat),
+        lng: get(stop, "lon", defaultMapPosition.lng),
+      },
+    });
   };
 
   selectVehicle = (vehiclePosition = null) => {
@@ -71,7 +81,7 @@ class App extends Component {
   }
 
   render() {
-    const {playing, stop, queryTime, selectedVehicle} = this.state;
+    const {map, playing, stop, queryTime, selectedVehicle} = this.state;
 
     const {
       route,
@@ -100,7 +110,7 @@ class App extends Component {
           onRouteSelected={onRouteSelected}
           onStopSelected={this.onStopSelected}
         />
-        <LeafletMap>
+        <LeafletMap position={map}>
           <RouteQuery route={route}>
             {({routePositions, stops}) => (
               <RouteLayer
