@@ -1,12 +1,9 @@
 import React, {Component} from "react";
-import {Polyline, Popup, CircleMarker, Tooltip} from "react-leaflet";
+import {Polyline} from "react-leaflet";
 import {latLng} from "leaflet";
 import get from "lodash/get";
-import map from "lodash/map";
-import random from "lodash/random";
 import moment from "moment";
-
-const identities = {};
+import {getColor} from "../helpers/vehicleColor";
 
 class HfpLayer extends Component {
   mouseOver = false;
@@ -57,12 +54,10 @@ ${hfpItem.uniqueVehicleId}`;
 
   render() {
     const {name, positions} = this.props;
-    let color = get(identities, name);
+    const color = getColor(name);
 
-    if (!color) {
-      color = `rgb(${random(0, 255)}, ${random(0, 255)}, ${random(0, 255)})`;
-      identities[name] = color;
-    }
+    const linePositions = positions.map((hfp) => [hfp.lat, hfp.long]);
+    linePositions.shift();
 
     return (
       <Polyline
@@ -70,10 +65,10 @@ ${hfpItem.uniqueVehicleId}`;
         onMousemove={this.onMousemove()}
         onMouseover={this.onHover}
         onMouseout={this.onMouseout}
-        pane="hfp"
+        pane="hfp-lines"
         weight={3}
         color={color}
-        positions={positions}
+        positions={linePositions}
       />
     );
   }
