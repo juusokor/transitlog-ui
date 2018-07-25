@@ -16,9 +16,9 @@ function calculateBoundsFromPositions(
     const pos = positions[posIndex];
 
     latMin = Math.min(latMin, pos.lat);
-    lngMin = Math.min(lngMin, pos.lng);
+    lngMin = Math.min(lngMin, pos.lon);
     latMax = Math.max(latMax, pos.lat);
-    lngMax = Math.max(lngMax, pos.lng);
+    lngMax = Math.max(lngMax, pos.lon);
   }
 
   return latLngBounds([[latMin, lngMin], [latMax, lngMax]]);

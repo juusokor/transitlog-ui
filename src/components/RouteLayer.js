@@ -6,12 +6,28 @@ import orderBy from "lodash/orderBy";
 import {darken} from "polished";
 import distanceBetween from "../helpers/distanceBetween";
 import DriveByTimes from "./DriveByTimes";
+import calculateBoundsFromPositions from "../helpers/calculateBoundsFromPositions";
 
 const stopColor = "#3388ff";
 const selectedStopColor = darken(0.2, stopColor);
 
 class RouteLayer extends Component {
   stopTimes = {};
+
+  static getDerivedStateFromProps({stops, mapBounds, setMapBounds = () => {}}) {
+    if (stops && stops.length > 0) {
+      const bounds = calculateBoundsFromPositions(stops, {
+        lat: 60.170988,
+        lng: 24.940842,
+      });
+
+      if ((mapBounds && !mapBounds.equals(bounds)) || !mapBounds) {
+        setMapBounds(bounds);
+      }
+    }
+
+    return null;
+  }
 
   getStopTimes = (stop) => {
     if (Object.keys(this.stopTimes).length > 0) {

@@ -10,7 +10,6 @@ import HfpMarkerLayer from "./HfpMarkerLayer";
 import timer from "../helpers/timer";
 import LoadingOverlay from "./LoadingOverlay";
 import HfpLayer from "./HfpLayer";
-import calculateBoundsFromPositions from "../helpers/calculateBoundsFromPositions";
 
 const defaultStop = {
   stopId: "",
@@ -21,23 +20,9 @@ const defaultStop = {
   stopIndex: 0,
 };
 
-const defaultMapPosition = {lat: 60.170988, lng: 24.940842, zoom: 13};
+const defaultMapPosition = {lat: 60.170988, lng: 24.940842, zoom: 13, bounds: null};
 
 class App extends Component {
-  static getDerivedStateFromProps({useBounds, markers}) {
-    if (useBounds && markers && markers.length > 0) {
-      const bounds = calculateBoundsFromPositions(markers);
-
-      return {
-        bounds,
-      };
-    }
-
-    return {
-      bounds: null,
-    };
-  }
-
   autoplayTimerHandle = null;
 
   constructor() {
@@ -74,6 +59,16 @@ class App extends Component {
 
   toggleAutoplay = (e) => {
     this.setState({playing: !this.state.playing});
+  };
+
+  setMapBounds = (bounds = null) => {
+    if (bounds) {
+      this.setState({
+        map: {
+          bounds,
+        },
+      });
+    }
   };
 
   autoplay = () => {
@@ -129,6 +124,8 @@ class App extends Component {
           <RouteQuery route={route}>
             {({routePositions, stops}) => (
               <RouteLayer
+                setMapBounds={this.setMapBounds}
+                mapBounds={map.bounds}
                 key={`routes_${route.routeId}_${route.direction}_${stop.stopId}`}
                 onChangeQueryTime={this.onChangeQueryTime}
                 queryDate={queryDate}
