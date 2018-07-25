@@ -23,3 +23,5 @@ function calculateBoundsFromPositions(
 
   return latLngBounds([[latMin, lngMin], [latMax, lngMax]]);
 }
+
+export default calculateBoundsFromPositions;

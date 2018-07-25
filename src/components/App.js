@@ -10,6 +10,7 @@ import HfpMarkerLayer from "./HfpMarkerLayer";
 import timer from "../helpers/timer";
 import LoadingOverlay from "./LoadingOverlay";
 import HfpLayer from "./HfpLayer";
+import calculateBoundsFromPositions from "../helpers/calculateBoundsFromPositions";
 
 const defaultStop = {
   stopId: "",
@@ -21,6 +22,20 @@ const defaultStop = {
 };
 
 class App extends Component {
+  static getDerivedStateFromProps({useBounds, markers}) {
+    if (useBounds && markers && markers.length > 0) {
+      const bounds = calculateBoundsFromPositions(markers);
+
+      return {
+        bounds,
+      };
+    }
+
+    return {
+      bounds: null,
+    };
+  }
+
   autoplayTimerHandle = null;
 
   constructor() {
