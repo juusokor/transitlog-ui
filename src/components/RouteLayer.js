@@ -3,12 +3,12 @@ import {Polyline, CircleMarker, Popup} from "react-leaflet";
 import moment from "moment";
 import get from "lodash/get";
 import orderBy from "lodash/orderBy";
-import {lighten} from "polished";
+import {darken} from "polished";
 import distanceBetween from "../helpers/distanceBetween";
 import DriveByTimes from "./DriveByTimes";
 
 const stopColor = "#3388ff";
-const selectedStopColor = lighten(0.2, "#22ccaa");
+const selectedStopColor = darken(0.2, stopColor);
 
 class RouteLayer extends Component {
   stopTimes = {};
@@ -84,7 +84,7 @@ class RouteLayer extends Component {
               color={isSelected ? selectedStopColor : stopColor}
               fillColor={isSelected ? selectedStopColor : stopColor}
               fillOpacity={1}
-              radius={isSelected ? 8 : 6}>
+              radius={isSelected ? 10 : 6}>
               <Popup>
                 <h4>
                   {stop.nameFi}, {stop.shortId.replace(/ /g, "")}

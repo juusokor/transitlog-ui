@@ -3,19 +3,14 @@ import {Map, TileLayer, ZoomControl, Pane} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
 export class LeafletMap extends Component {
-  constructor() {
-    super();
-    this.state = {lat: 60.170988, lng: 24.940842, zoom: 13};
-  }
-
   render() {
-    const {children} = this.props;
-
-    const position = [this.state.lat, this.state.lng];
+    const {children, position} = this.props;
+    const center = [position.lat, position.lng];
 
     return (
-      <Map center={position} zoom={this.state.zoom} maxZoom={18} zoomControl={false}>
-        <Pane name="hfp" style={{zIndex: 450}} />
+      <Map center={center} zoom={position.zoom} maxZoom={18} zoomControl={false}>
+        <Pane name="hfp-lines" style={{zIndex: 440}} />
+        <Pane name="hfp-markers" style={{zIndex: 450}} />
         <Pane name="stops" style={{zIndex: 420}} />
         <TileLayer
           attribution={
