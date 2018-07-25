@@ -56,9 +56,15 @@ class HfpMarkerLayer extends Component {
     return nextHfpPosition;
   };
 
-  onMarkerClick = () => {
-    const {onMarkerClick, name} = this.props;
-    onMarkerClick(name);
+  onMarkerClick = (positionWhenClicked) => () => {
+    const {onMarkerClick, selectedVehicle} = this.props;
+
+    onMarkerClick(
+      get(selectedVehicle, "uniqueVehicleId", null) !==
+      positionWhenClicked.uniqueVehicleId
+        ? positionWhenClicked
+        : null
+    );
   };
 
   render() {
@@ -74,7 +80,7 @@ class HfpMarkerLayer extends Component {
     return (
       <React.Fragment>
         <CircleMarker
-          onClick={this.onMarkerClick}
+          onClick={this.onMarkerClick(position)}
           center={[position.lat, position.long]}
           fillColor={color}
           fillOpacity={1}

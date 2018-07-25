@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import "./App.css";
+import get from "lodash/get";
 import {LeafletMap} from "./LeafletMap";
 import {FilterPanel} from "./FilterPanel";
 import RouteQuery from "../queries/RouteQuery";
@@ -28,7 +29,7 @@ class App extends Component {
       playing: false,
       queryTime: "12:30:00",
       stop: defaultStop,
-      selectedVehicle: "",
+      selectedVehicle: null,
     };
   }
 
@@ -40,9 +41,9 @@ class App extends Component {
     this.setState({stop});
   };
 
-  selectVehicle = (vehicleId = "") => {
+  selectVehicle = (vehiclePosition = null) => {
     this.setState({
-      selectedVehicle: vehicleId,
+      selectedVehicle: vehiclePosition,
     });
   };
 
@@ -120,8 +121,11 @@ class App extends Component {
                 key={`hfp_group_${positionGroup.groupName}_${route.routeId}_${
                   route.direction
                 }`}>
-                {selectedVehicle === positionGroup.groupName && (
+                {get(selectedVehicle, "uniqueVehicleId", null) ===
+                  positionGroup.groupName && (
                   <HfpLayer
+                    key={`hfp_lines_${positionGroup.groupName}`}
+                    selectedVehicle={selectedVehicle}
                     positions={positionGroup.positions}
                     name={positionGroup.groupName}
                   />

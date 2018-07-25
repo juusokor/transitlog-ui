@@ -7,11 +7,19 @@ import {getColor} from "../helpers/vehicleColor";
 
 class HfpLayer extends Component {
   mouseOver = false;
+  positions = this.getLine();
+
+  getLine() {
+    const {selectedVehicle: selectedVehiclePosition, positions} = this.props;
+    const journeyStartTime = get(selectedVehiclePosition, "journeyStartTime", null);
+
+    return positions
+      .filter((pos) => pos.journeyStartTime === journeyStartTime)
+      .map((pos) => [pos.lat, pos.long]);
+  }
 
   findHfpItem = (latlng) => {
-    const {positions} = this.props;
-
-    const hfpItem = positions.find((hfp) =>
+    const hfpItem = this.positions.find((hfp) =>
       latlng.equals(latLng(hfp[0], hfp[1]), 0.0001)
     );
 
@@ -53,22 +61,19 @@ ${hfpItem.uniqueVehicleId}`;
   };
 
   render() {
-    const {name, positions} = this.props;
+    const {name} = this.props;
     const color = getColor(name);
-
-    const linePositions = positions.map((hfp) => [hfp.lat, hfp.long]);
-    linePositions.shift();
 
     return (
       <Polyline
         key={`hfp_polyline_${name}`}
-        onMousemove={this.onMousemove()}
+        onMousemove={this.onMousemove}
         onMouseover={this.onHover}
         onMouseout={this.onMouseout}
         pane="hfp-lines"
         weight={3}
         color={color}
-        positions={linePositions}
+        positions={this.positions}
       />
     );
   }
