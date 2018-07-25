@@ -5,6 +5,7 @@ import {FilterPanel} from "./FilterPanel";
 import RouteQuery from "../queries/RouteQuery";
 import moment from "moment";
 import RouteLayer from "./RouteLayer";
+import StopLayer from "./StopLayer";
 import HfpMarkerLayer from "./HfpMarkerLayer";
 import timer from "../helpers/timer";
 import LoadingOverlay from "./LoadingOverlay";
@@ -92,6 +93,7 @@ class App extends Component {
           onStopSelected={this.onStopSelected}
         />
         <LeafletMap>
+          <StopLayer />
           <RouteQuery route={route}>
             {({routePositions, stops}) => (
               <RouteLayer
@@ -119,7 +121,7 @@ class App extends Component {
               />
             ))}
         </LeafletMap>
-        {loading && <LoadingOverlay message="Ladataan HFP tietoja..." />}
+        {loading && <LoadingOverlay message="Ladataan HFP-tietoja..." />}
       </div>
     );
   }
