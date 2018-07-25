@@ -9,6 +9,7 @@ import RouteLayer from "./RouteLayer";
 import HfpMarkerLayer from "./HfpMarkerLayer";
 import timer from "../helpers/timer";
 import LoadingOverlay from "./LoadingOverlay";
+import HfpLayer from "./HfpLayer";
 
 const defaultStop = {
   stopId: "",
@@ -30,6 +31,7 @@ class App extends Component {
       playing: false,
       queryTime: "12:30:00",
       stop: defaultStop,
+      selectedVehicle: null,
       map: defaultMapPosition,
     };
   }
@@ -46,6 +48,12 @@ class App extends Component {
         lat: get(stop, "lat", defaultMapPosition.lat),
         lng: get(stop, "lon", defaultMapPosition.lng),
       },
+    });
+  };
+
+  selectVehicle = (vehiclePosition = null) => {
+    this.setState({
+      selectedVehicle: vehiclePosition,
     });
   };
 
@@ -73,7 +81,7 @@ class App extends Component {
   }
 
   render() {
-    const {map, playing, stop, queryTime} = this.state;
+    const {map, playing, stop, queryTime, selectedVehicle} = this.state;
 
     const {
       route,
@@ -119,15 +127,28 @@ class App extends Component {
           </RouteQuery>
           {hfpPositions.length > 0 &&
             hfpPositions.map((positionGroup) => (
-              <HfpMarkerLayer
+              <React.Fragment
                 key={`hfp_group_${positionGroup.groupName}_${route.routeId}_${
                   route.direction
-                }`}
-                queryDate={queryDate}
-                queryTime={queryTime}
-                positions={positionGroup.positions}
-                name={positionGroup.groupName}
-              />
+                }`}>
+                {get(selectedVehicle, "uniqueVehicleId", null) ===
+                  positionGroup.groupName && (
+                  <HfpLayer
+                    key={`hfp_lines_${positionGroup.groupName}`}
+                    selectedVehicle={selectedVehicle}
+                    positions={positionGroup.positions}
+                    name={positionGroup.groupName}
+                  />
+                )}
+                <HfpMarkerLayer
+                  onMarkerClick={this.selectVehicle}
+                  selectedVehicle={selectedVehicle}
+                  queryDate={queryDate}
+                  queryTime={queryTime}
+                  positions={positionGroup.positions}
+                  name={positionGroup.groupName}
+                />
+              </React.Fragment>
             ))}
         </LeafletMap>
         {loading && <LoadingOverlay message="Ladataan HFP tietoja..." />}

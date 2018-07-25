@@ -1,21 +1,30 @@
 import React, {Component} from "react";
-import {Polyline, Popup, CircleMarker, Tooltip} from "react-leaflet";
+import {Polyline} from "react-leaflet";
 import {latLng} from "leaflet";
 import get from "lodash/get";
-import map from "lodash/map";
-import random from "lodash/random";
 import moment from "moment";
-
-const identities = {};
+import {getColor} from "../helpers/vehicleColor";
 
 class HfpLayer extends Component {
   mouseOver = false;
+  positions = this.getLine();
+
+  getLine() {
+    const {selectedVehicle: selectedVehiclePosition, positions} = this.props;
+    const journeyStartTime = get(selectedVehiclePosition, "journeyStartTime", null);
+
+    return positions
+      .filter((pos) => pos.journeyStartTime === journeyStartTime)
+      .map(({lat, long, receivedAt, uniqueVehicleId}) => [
+        lat,
+        long,
+        {receivedAt, uniqueVehicleId},
+      ]);
+  }
 
   findHfpItem = (latlng) => {
-    const {positions} = this.props;
-
-    const hfpItem = positions.find((hfp) =>
-      latlng.equals(latLng(hfp[0], hfp[1]), 0.0001)
+    const hfpItem = this.positions.find((hfp) =>
+      latlng.equals(latLng(hfp[0], hfp[1]), 0.001)
     );
 
     return hfpItem ? hfpItem[2] : null;
@@ -56,24 +65,19 @@ ${hfpItem.uniqueVehicleId}`;
   };
 
   render() {
-    const {name, positions} = this.props;
-    let color = get(identities, name);
-
-    if (!color) {
-      color = `rgb(${random(0, 255)}, ${random(0, 255)}, ${random(0, 255)})`;
-      identities[name] = color;
-    }
+    const {name} = this.props;
+    const color = getColor(name);
 
     return (
       <Polyline
         key={`hfp_polyline_${name}`}
-        onMousemove={this.onMousemove()}
+        onMousemove={this.onMousemove}
         onMouseover={this.onHover}
         onMouseout={this.onMouseout}
-        pane="hfp"
+        pane="hfp-lines"
         weight={3}
         color={color}
-        positions={positions}
+        positions={this.positions}
       />
     );
   }
