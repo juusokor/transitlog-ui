@@ -4,11 +4,17 @@ import "leaflet/dist/leaflet.css";
 
 export class LeafletMap extends Component {
   render() {
-    const {children, position} = this.props;
+    const {children, position, onMapChanged} = this.props;
     const center = [position.lat, position.lng];
 
     return (
-      <Map center={center} zoom={position.zoom} maxZoom={18} zoomControl={false}>
+      <Map
+        center={center}
+        zoom={position.zoom}
+        maxZoom={18}
+        zoomControl={false}
+        onDragend={onMapChanged}
+        onZoomend={onMapChanged}>
         <Pane name="hfp-lines" style={{zIndex: 440}} />
         <Pane name="hfp-markers" style={{zIndex: 450}} />
         <Pane name="stops" style={{zIndex: 420}} />

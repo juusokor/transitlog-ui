@@ -54,8 +54,18 @@ class App extends Component {
   };
 
   onMapChanged = ({target}) => {
-    this.setState({bbox: target.getBounds()});
-    console.log("changed", target);
+    const center = target.getCenter();
+    const zoom = target.getZoom();
+    const bounds = target.getBounds();
+    this.setState({
+      map: {zoom, lat: center.lat, lng: center.lng},
+      bbox: {
+        minLat: bounds.getSouth(),
+        minLon: bounds.getWest(),
+        maxLat: bounds.getNorth(),
+        maxLon: bounds.getEast(),
+      },
+    });
   };
 
   selectVehicle = (vehiclePosition = null) => {
@@ -117,12 +127,12 @@ class App extends Component {
           onRouteSelected={onRouteSelected}
           onStopSelected={this.onStopSelected}
         />
-        <LeafletMap
-          position={map}
-          onDragend={this.onMapChanged}
-          onZoomend={this.onMapChanged}
-          onLoad={this.onMapChanged}>
-          {route.routeId ? undefined : <StopLayer bounds={this.state.bbox} />}
+        <LeafletMap position={map} onMapChanged={this.onMapChanged}>
+          {route.routeId || this.state.map.zoom <= 15 ? (
+            undefined
+          ) : (
+            <StopLayer bounds={this.state.bbox} />
+          )}
           <RouteQuery route={route}>
             {({routePositions, stops}) => (
               <RouteLayer
