@@ -65,6 +65,7 @@ class App extends Component {
     if (bounds) {
       this.setState({
         map: {
+          ...this.state.map,
           bounds,
         },
       });

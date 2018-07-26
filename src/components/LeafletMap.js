@@ -8,7 +8,12 @@ export class LeafletMap extends Component {
     const center = [position.lat, position.lng];
 
     return (
-      <Map center={center} zoom={position.zoom} maxZoom={18} zoomControl={false}>
+      <Map
+        center={center}
+        zoom={position.zoom}
+        bounds={position.bounds || undefined}
+        maxZoom={18}
+        zoomControl={false}>
         <Pane name="hfp-lines" style={{zIndex: 440}} />
         <Pane name="hfp-markers" style={{zIndex: 450}} />
         <Pane name="stops" style={{zIndex: 420}} />

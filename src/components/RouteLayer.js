@@ -13,6 +13,7 @@ const selectedStopColor = darken(0.2, stopColor);
 
 class RouteLayer extends Component {
   stopTimes = {};
+  state = {}; // Needs to be here for gDSFP to work. Not used otherwise.
 
   static getDerivedStateFromProps({stops, mapBounds, setMapBounds = () => {}}) {
     if (stops && stops.length > 0) {

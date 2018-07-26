@@ -9,6 +9,7 @@ import groupBy from "lodash/groupBy";
 import map from "lodash/map";
 import get from "lodash/get";
 import takeEveryNth from "./helpers/takeEveryNth";
+import * as JSONC from "./helpers/JSONC";
 
 const defaultRoute = {
   routeId: "",
@@ -76,24 +77,21 @@ class Root extends Component {
     return data;
   };
 
-  cachePositions = (hfpData, overwrite = false) => {
+  cachePositions = (hfpData) => {
     if (!hfpData || hfpData.length === 0) {
       return;
     }
 
     const {queryDate, route} = this.state;
-    const cachedDate = get(hfpCache, queryDate, {});
-    const cachedRoute = get(cachedDate, route.routeId, []);
+    const key = `${queryDate}.${route.routeId}.${route.direction}`;
 
-    if (overwrite || cachedRoute.length === 0) {
-      const key = `${queryDate}.${route.routeId}.${route.direction}`;
+    const data = JSONC.pack(hfpData, true); // Compress json
 
-      try {
-        window.localStorage.setItem(key, JSON.stringify(hfpData));
-      } catch (e) {
-        window.localStorage.clear();
-        window.localStorage.setItem(key, JSON.stringify(hfpData));
-      }
+    try {
+      window.localStorage.setItem(key, data);
+    } catch (e) {
+      window.localStorage.clear();
+      window.localStorage.setItem(key, data);
     }
   };
 
@@ -107,7 +105,7 @@ class Root extends Component {
       return [];
     }
 
-    return JSON.parse(stored);
+    return JSONC.unpack(stored, true);
   };
 
   getAppContent = (hfpPositions = [], loading = false) => (
