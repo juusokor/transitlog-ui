@@ -14,9 +14,10 @@ export class LeafletMap extends Component {
         bounds={position.bounds || undefined}
         maxZoom={18}
         zoomControl={false}>
-        <Pane name="hfp-lines" style={{zIndex: 440}} />
-        <Pane name="hfp-markers" style={{zIndex: 450}} />
-        <Pane name="stops" style={{zIndex: 420}} />
+        <Pane name="route-lines" style={{zIndex: 410}} />
+        <Pane name="hfp-lines" style={{zIndex: 420}} />
+        <Pane name="hfp-markers" style={{zIndex: 430}} />
+        <Pane name="stops" style={{zIndex: 450}} />
         <TileLayer
           attribution={
             'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors '

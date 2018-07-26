@@ -88,7 +88,7 @@ class RouteLayer extends Component {
 
     return (
       <React.Fragment>
-        <Polyline weight={3} positions={coords} />
+        <Polyline pane="route-lines" weight={3} positions={coords} />
         {stops.map((stop) => {
           const isSelected = stop.stopId === selectedStop.stopId;
           const hfp = this.getStopTimes(stop);
