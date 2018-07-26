@@ -72,18 +72,6 @@ const allLinesQuery = gql`
   }
 `;
 
-const departuresQuery = gql`
-  query startTimesQuery($routeId: String, $direction: Int, $date: Date) {
-    allVehicles(
-      condition: {oday: $date, directionId: $direction, routeId: $routeId}
-    ) {
-      nodes {
-        journeyStartTime
-      }
-    }
-  }
-`;
-
 const removeFerryFilter = (line) => line.lineId.substring(0, 4) !== "1019";
 
 export class FilterPanel extends Component {

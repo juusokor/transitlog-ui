@@ -57,6 +57,10 @@ class RouteQuery extends Component {
     children: PropTypes.func.isRequired,
   };
 
+  shouldComponentUpdate({route}) {
+    return !!route.routeId; // Stop the map from flashing and thrashing
+  }
+
   render() {
     const {route, children} = this.props;
     const {routeId, direction, dateBegin, dateEnd} = route;
