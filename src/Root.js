@@ -26,8 +26,6 @@ const defaultLine = {
   dateEnd: "2050-12-31",
 };
 
-const hfpCache = {};
-
 class Root extends Component {
   state = {
     queryDate: "2018-05-06",

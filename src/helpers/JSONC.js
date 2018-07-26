@@ -263,12 +263,9 @@ function pack(json, bCompress) {
  * @returns {*}
  */
 function decompress(json) {
-  let decompressed;
-  if (_isArray(json)) {
-    decompressed = _decompressArray(json);
-  } else {
-    decompressed = _decompressOther(json);
-  }
+  const decompressed = _isArray(json)
+    ? _decompressArray(json)
+    : _decompressOther(json);
   return typeof decompressed === "string" ? JSON.parse(decompressed) : decompressed;
 }
 
