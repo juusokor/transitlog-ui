@@ -3,6 +3,9 @@ import {Polyline, CircleMarker, Popup} from "react-leaflet";
 import moment from "moment";
 import get from "lodash/get";
 import orderBy from "lodash/orderBy";
+import groupBy from "lodash/groupBy";
+import flatten from "lodash/flatten";
+import map from "lodash/map";
 import {darken} from "polished";
 import distanceBetween from "../helpers/distanceBetween";
 import DriveByTimes from "./DriveByTimes";
@@ -42,27 +45,16 @@ class RouteLayer extends Component {
     const {lat: stopLat, lon: stopLng} = stop;
 
     const stopHfpGroups = this.props.hfpPositions.map(({groupName, positions}) => {
-      const stopHfp = [];
-      const total = positions.length;
-      let posIdx = 0;
-
-      for (; posIdx < total; posIdx++) {
-        const lastAdded = stopHfp[stopHfp.length - 1];
-        const pos = positions[posIdx];
-
-        if (!!lastAdded && lastAdded.journeyStartTime === pos.journeyStartTime) {
-          continue;
+      const departureGroups = map(
+        groupBy(positions, "journeyStartTime"),
+        (journeyPositions) => {
+          return orderBy(journeyPositions, (pos) => {
+            distanceBetween(stopLat, stopLng, pos.lat, pos.long);
+          }).pop();
         }
+      );
 
-        const {lat: posLat, long: posLng} = pos;
-        const distanceFromStop = distanceBetween(stopLat, stopLng, posLat, posLng);
-
-        if (distanceFromStop < 0.01) {
-          stopHfp.push(pos);
-        }
-      }
-
-      return {groupName, positions: stopHfp};
+      return {groupName, positions: flatten(departureGroups)};
     });
 
     const sortedGroups = orderBy(stopHfpGroups, "positions[0].receivedAt");

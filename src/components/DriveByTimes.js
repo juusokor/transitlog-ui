@@ -19,13 +19,14 @@ export default ({onTimeClick = () => {}, positions: positionGroups, queryTime}) 
           );
 
           const isMatch = diffFromQuery < 3;
+          const didntStop = !position.drst;
 
           return (
             <button
               onClick={onTimeClick(receivedAtMoment)}
               key={`time_tag_${position.receivedAt}_${position.uniqueVehivleId}`}
               style={{
-                borderColor: isMatch ? "green" : "transparent",
+                borderColor: didntStop ? "red" : isMatch ? "green" : "transparent",
                 color: isMatch ? "#444" : "#fff",
                 backgroundColor: darken(
                   diffFromQuery / 1000,

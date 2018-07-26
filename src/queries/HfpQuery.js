@@ -18,7 +18,7 @@ const hfpQuery = gql`
         lat
         long
         uniqueVehicleId
-        spd
+        drst
         mode
         __typename
       }
