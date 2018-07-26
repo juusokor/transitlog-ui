@@ -32,7 +32,6 @@ class App extends Component {
     }
 
     if (queryDate !== prevQueryDate && !!selectedVehicle) {
-      console.log("boo");
       return {
         prevQueryDate: queryDate,
         selectedVehicle: null,
