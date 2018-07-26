@@ -78,9 +78,11 @@ class HfpMarkerLayer extends Component {
     }
 
     const markerIcon = divIcon({
-      className: `hfp-icon ${get(position, "mode", "").toUpperCase()}`,
+      className: `hfp-icon`,
       iconSize: 25,
-      style: `background-color: ${color}`,
+      html: `<span class="hfp-marker-color" style="background-color: ${color}">
+<span class="hfp-marker-icon ${get(position, "mode", "").toUpperCase()}" />
+</span>`,
     });
 
     return (

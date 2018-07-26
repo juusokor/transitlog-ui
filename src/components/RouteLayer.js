@@ -95,13 +95,16 @@ class RouteLayer extends Component {
 
           return (
             <CircleMarker
+              className="stop-marker"
               pane="stops"
               key={`stop_marker_${stop.stopId}`}
               center={[stop.lat, stop.lon]}
-              color={isSelected ? selectedStopColor : stopColor}
+              color="white"
               fillColor={isSelected ? selectedStopColor : stopColor}
               fillOpacity={1}
-              radius={isSelected ? 10 : 6}>
+              strokeWeight={2}
+              shadow={true}
+              radius={isSelected ? 14 : 10}>
               <Popup>
                 <h4>
                   {stop.nameFi}, {stop.shortId.replace(/ /g, "")}

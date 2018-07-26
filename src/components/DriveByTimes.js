@@ -2,7 +2,6 @@ import React from "react";
 import map from "lodash/map";
 import moment from "moment";
 import {darken} from "polished";
-import "./Popup.css";
 
 export default ({onTimeClick = () => {}, positions: positionGroups, queryTime}) => {
   return map(positionGroups, ({positions, groupName}) => {

@@ -75,6 +75,16 @@ const allLinesQuery = gql`
 const removeFerryFilter = (line) => line.lineId.substring(0, 4) !== "1019";
 
 export class FilterPanel extends Component {
+  onDateButtonClick = (modifier) => (e) => {
+    const {queryDate, onDateSelected} = this.props;
+
+    const nextDate = moment(queryDate, "YYYY-MM-DD")
+      .add(modifier, "days")
+      .format("YYYY-MM-DD");
+
+    onDateSelected(nextDate);
+  };
+
   render() {
     const {
       stop,
@@ -96,7 +106,13 @@ export class FilterPanel extends Component {
       <header className="transitlog-header filter-panel">
         <img src={logo} className="App-logo" alt="logo" />
         <h1 className="App-title">Liikenteenvalvontatyökalu</h1>
-        <DateInput date={queryDate} onDateSelected={onDateSelected} />
+        <div className="date-input">
+          <button onClick={this.onDateButtonClick(-7)}>&laquo; 1 viikko</button>
+          <button onClick={this.onDateButtonClick(-1)}>&lsaquo; 1 päivä</button>
+          <DateInput date={queryDate} onDateSelected={onDateSelected} />
+          <button onClick={this.onDateButtonClick(1)}>1 päivä &rsaquo;</button>
+          <button onClick={this.onDateButtonClick(7)}>1 viikko &raquo;</button>
+        </div>
         <p>
           <TimeSlider value={queryTime} onChange={onChangeQueryTime} />
           <input

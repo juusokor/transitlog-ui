@@ -24,10 +24,28 @@ const defaultMapPosition = {lat: 60.170988, lng: 24.940842, zoom: 13, bounds: nu
 
 class App extends Component {
   autoplayTimerHandle = null;
+  loadingTimerHandle = null;
+
+  componentDidUpdate({loading: prevLoading}) {
+    const {loading} = this.props;
+
+    if (loading && loading !== prevLoading && !this.loadingTimerHandle) {
+      this.loadingTimerHandle = setTimeout(() => {
+        this.setState({
+          showLoading: true,
+        });
+      }, 1000);
+    } else if (this.loadingTimerHandle && !loading) {
+      console.log("Cancel loading timer");
+      clearTimeout(this.loadingTimerHandle);
+      this.loadingTimerHandle = null;
+    }
+  }
 
   constructor() {
     super();
     this.state = {
+      showLoading: false,
       playing: false,
       queryTime: "12:30:00",
       stop: defaultStop,
@@ -92,7 +110,7 @@ class App extends Component {
   }
 
   render() {
-    const {map, playing, stop, queryTime, selectedVehicle} = this.state;
+    const {showLoading, map, playing, stop, queryTime, selectedVehicle} = this.state;
 
     const {
       route,
@@ -102,7 +120,6 @@ class App extends Component {
       onLineSelected,
       onDateSelected,
       hfpPositions,
-      loading,
     } = this.props;
 
     return (
@@ -164,7 +181,7 @@ class App extends Component {
               </React.Fragment>
             ))}
         </LeafletMap>
-        {loading && <LoadingOverlay message="Ladataan HFP tietoja..." />}
+        {showLoading && <LoadingOverlay message="Ladataan HFP tietoja..." />}
       </div>
     );
   }

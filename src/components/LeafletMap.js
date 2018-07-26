@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import {Map, TileLayer, ZoomControl, Pane} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import "./Map.css";
 
 export class LeafletMap extends Component {
   render() {
