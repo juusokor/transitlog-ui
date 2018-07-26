@@ -24,6 +24,11 @@ const stopsByBboxQuery = gql`
 const stopColor = "#3388ff";
 
 class StopLayer extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {selectedStop: null};
+  }
+
   render() {
     return (
       <Query query={stopsByBboxQuery} variables={this.props.bounds}>
@@ -41,8 +46,14 @@ class StopLayer extends Component {
                   color={stopColor}
                   fillColor={stopColor}
                   fillOpacity={1}
-                  radius={6}>
-                  <Popup>Timetable of the day</Popup>
+                  radius={6}
+                  onPopupopen={() => this.setState({selectedStop: stop.stopId})}
+                  onPopupclose={() => this.setState({selectedStop: null})}>
+                  {this.state.selectedStop === stop.stopId ? (
+                    <Popup>Routes</Popup>
+                  ) : (
+                    <Popup>Loading..</Popup>
+                  )}
                 </CircleMarker>
               ))}
             </React.Fragment>
