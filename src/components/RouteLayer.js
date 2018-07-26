@@ -95,7 +95,6 @@ class RouteLayer extends Component {
 
           return (
             <CircleMarker
-              className="stop-marker"
               pane="stops"
               key={`stop_marker_${stop.stopId}`}
               center={[stop.lat, stop.lon]}

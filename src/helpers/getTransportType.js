@@ -1,7 +1,7 @@
 import "../components/LineIcon.css";
 
 function getTransportType(lineId) {
-  const lineType = parseInt(lineId.substring(0, 4));
+  const lineType = parseInt(lineId.substring(0, 4), 10);
 
   if (lineType <= 1010) {
     return "TRAM";

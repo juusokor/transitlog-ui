@@ -1,10 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
+// eslint-disable-next-line
 import Root from "./Root";
-import {AppContainer, setConfig} from "react-hot-loader";
-
-setConfig({logLevel: "debug"});
+import {AppContainer} from "react-hot-loader";
 
 const root = document.getElementById("root");
 

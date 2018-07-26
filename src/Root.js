@@ -7,7 +7,6 @@ import {ApolloProvider} from "react-apollo";
 import orderBy from "lodash/orderBy";
 import groupBy from "lodash/groupBy";
 import map from "lodash/map";
-import get from "lodash/get";
 import takeEveryNth from "./helpers/takeEveryNth";
 import * as JSONC from "./helpers/JSONC";
 

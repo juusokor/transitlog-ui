@@ -26,26 +26,26 @@ class App extends Component {
   autoplayTimerHandle = null;
   loadingTimerHandle = null;
 
-  componentDidUpdate({loading: prevLoading}) {
-    const {loading} = this.props;
-
-    if (loading && loading !== prevLoading && !this.loadingTimerHandle) {
-      this.loadingTimerHandle = setTimeout(() => {
-        this.setState({
-          showLoading: true,
-        });
-      }, 1000);
-    } else if (this.loadingTimerHandle && !loading) {
-      console.log("Cancel loading timer");
-      clearTimeout(this.loadingTimerHandle);
-      this.loadingTimerHandle = null;
+  static getDerivedStateFromProps({queryDate}, {prevQueryDate, selectedVehicle}) {
+    if (!selectedVehicle || !prevQueryDate) {
+      return null;
     }
+
+    if (queryDate !== prevQueryDate && !!selectedVehicle) {
+      console.log("boo");
+      return {
+        prevQueryDate: queryDate,
+        selectedVehicle: null,
+      };
+    }
+
+    return null;
   }
 
   constructor() {
     super();
     this.state = {
-      showLoading: false,
+      prevQueryDate: "",
       playing: false,
       queryTime: "12:30:00",
       stop: defaultStop,
@@ -100,8 +100,10 @@ class App extends Component {
     });
   };
 
-  componentDidUpdate() {
+  componentDidUpdate({loading}) {
     if (this.state.playing && !this.autoplayTimerHandle) {
+      // timer() is a setInterval alternative that uses requestAnimationFrame.
+      // This makes it more performant and can "pause" when the tab is not focused.
       this.autoplayTimerHandle = timer(() => this.autoplay(), 1000);
     } else if (!this.state.playing && !!this.autoplayTimerHandle) {
       cancelAnimationFrame(this.autoplayTimerHandle.value);
@@ -109,8 +111,13 @@ class App extends Component {
     }
   }
 
+  componentWillUnmount() {
+    clearTimeout(this.loadingTimerHandle);
+    this.loadingTimerHandle = null;
+  }
+
   render() {
-    const {showLoading, map, playing, stop, queryTime, selectedVehicle} = this.state;
+    const {map, playing, stop, queryTime, selectedVehicle} = this.state;
 
     const {
       route,
@@ -120,6 +127,7 @@ class App extends Component {
       onLineSelected,
       onDateSelected,
       hfpPositions,
+      loading,
     } = this.props;
 
     return (
@@ -181,7 +189,7 @@ class App extends Component {
               </React.Fragment>
             ))}
         </LeafletMap>
-        {showLoading && <LoadingOverlay message="Ladataan HFP tietoja..." />}
+        <LoadingOverlay show={loading} message="Ladataan HFP tietoja..." />
       </div>
     );
   }

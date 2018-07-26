@@ -21,8 +21,7 @@ export default ({onTimeClick = () => {}, positions: positionGroups, queryTime}) 
           const isMatch = diffFromQuery < 3;
 
           return (
-            <a
-              href="#"
+            <button
               onClick={onTimeClick(receivedAtMoment)}
               key={`time_tag_${position.receivedAt}_${position.uniqueVehivleId}`}
               style={{
@@ -35,7 +34,7 @@ export default ({onTimeClick = () => {}, positions: positionGroups, queryTime}) 
               }}
               className="hfp-time-tag">
               {receivedAtMoment.format("HH:mm:ss")}{" "}
-            </a>
+            </button>
           );
         })}
       </div>
