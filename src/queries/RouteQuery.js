@@ -1,10 +1,8 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 import get from "lodash/get";
-import distanceBetween from "../helpers/distanceBetween";
 import {Query} from "react-apollo";
 import gql from "graphql-tag";
-import createRouteIdentifier from "../helpers/createRouteIdentifier";
 
 const routeQuery = gql`
   query routeQuery(

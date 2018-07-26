@@ -20,6 +20,7 @@ const hfpQuery = gql`
         long
         uniqueVehicleId
         spd
+        mode
         __typename
       }
     }

@@ -93,7 +93,7 @@ export class FilterPanel extends Component {
     const queryMoment = moment(queryDate);
 
     return (
-      <header className="transitlog-header">
+      <header className="transitlog-header filter-panel">
         <img src={logo} className="App-logo" alt="logo" />
         <h1 className="App-title">Liikenteenvalvontatyökalu</h1>
         <DateInput date={queryDate} onDateSelected={onDateSelected} />

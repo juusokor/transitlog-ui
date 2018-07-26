@@ -1,0 +1,23 @@
+.BUS {
+  background-image: url("../icon-bus.svg");
+  color: #007ac9;
+}
+
+.TRAM {
+  background-image: url("../icon-tram.svg");
+  color: #00985f;
+}
+
+.TRAIN {
+  background-image: url("../icon-rail.svg");
+  color: #00985f;
+}
+
+.TRUNK {
+  background-image: url("../icon-trunk.svg");
+  color: #00985f;
+}
+
+.hfp-icon {
+  background-size: contain;
+}
