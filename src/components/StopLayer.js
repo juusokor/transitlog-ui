@@ -4,20 +4,6 @@ import get from "lodash/get";
 import gql from "graphql-tag";
 import {Query} from "react-apollo";
 
-const allStopsQuery = gql`
-  query allStopsQuery {
-    allStops(first: 50) {
-      nodes {
-        stopId
-        shortId
-        lat
-        lon
-        nameFi
-      }
-    }
-  }
-`;
-
 const stopsByBboxQuery = gql`
   query stopsByBboxQuery(
     $minLat: Float!
