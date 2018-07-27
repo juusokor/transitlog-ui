@@ -114,7 +114,7 @@ class App extends Component {
 
   autoplay = () => {
     const nextQueryTime = moment(this.state.queryTime, "HH:mm:ss")
-      .add(10, "seconds")
+      .add(this.state.timeIncrement, "seconds")
       .format("HH:mm:ss");
 
     this.setState({
