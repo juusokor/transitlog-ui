@@ -47,12 +47,36 @@ class RouteLayer extends Component {
     const stopHfpGroups = this.props.hfpPositions.map(({groupName, positions}) => {
       let driveByTimes = groupBy(positions, "journeyStartTime");
       driveByTimes = map(driveByTimes, (journeyPositions) => {
+        const closestPositions = [];
+        let posIdx = 0;
+
+        while (closestPositions.length < 50) {
+          const pos = journeyPositions[posIdx];
+
+          if (!pos) {
+            break;
+          }
+
+          const maxDistance = pos.mode.toUpperCase() === "TRAIN" ? 0.5 : 0.05; // 0.5 km for trains, 50m for others.
+          const distanceFromStop = distanceBetween(
+            stopLat,
+            stopLng,
+            pos.lat,
+            pos.long
+          );
+
+          if (distanceFromStop < maxDistance) {
+            closestPositions.push({...pos, distanceFromStop});
+          }
+
+          posIdx++;
+        }
+
         const closestTimes = orderBy(
-          journeyPositions.filter(
-            (pos) => distanceBetween(stopLat, stopLng, pos.lat, pos.long) < 1
-          ),
-          (pos) => distanceBetween(stopLat, stopLng, pos.lat, pos.long)
-        ).slice(0, 50);
+          closestPositions,
+          ["distanceFromStop", "receivedAt"],
+          ["asc", "desc"]
+        );
 
         const withOpenDoors = closestTimes.filter((c) => c.drst);
 
