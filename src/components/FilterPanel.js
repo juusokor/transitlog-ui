@@ -75,11 +75,7 @@ const allLinesQuery = gql`
 const removeFerryFilter = (line) => line.lineId.substring(0, 4) !== "1019";
 
 export class FilterPanel extends Component {
-  state = {
-    timeIncrement: 5,
-  };
-
-  onDateButtonClick = (modifier) => (e) => {
+  onDateButtonClick = (modifier) => () => {
     const {queryDate, onDateSelected} = this.props;
 
     const nextDate = moment(queryDate, "YYYY-MM-DD")
@@ -99,12 +95,6 @@ export class FilterPanel extends Component {
     onChangeQueryTime(nextDate);
   };
 
-  setTimeIncrement = ({target}) => {
-    this.setState({
-      timeIncrement: target.value,
-    });
-  };
-
   render() {
     const {
       stop,
@@ -118,9 +108,9 @@ export class FilterPanel extends Component {
       onStopSelected,
       onRouteSelected,
       onClickPlay,
+      timeIncrement,
+      setTimeIncrement,
     } = this.props;
-
-    const {timeIncrement} = this.state;
 
     const queryMoment = moment(queryDate);
 
@@ -128,6 +118,9 @@ export class FilterPanel extends Component {
       <header className="transitlog-header filter-panel">
         <img src={logo} className="App-logo" alt="logo" />
         <h1 className="App-title">Liikenteenvalvontatyökalu</h1>
+        <p>
+          <label>Choose date</label>
+        </p>
         <div className="date-input">
           <button onClick={this.onDateButtonClick(-7)}>&laquo; 1 viikko</button>
           <button onClick={this.onDateButtonClick(-1)}>&lsaquo; 1 päivä</button>
@@ -136,6 +129,9 @@ export class FilterPanel extends Component {
           <button onClick={this.onDateButtonClick(7)}>1 viikko &raquo;</button>
         </div>
         <div>
+          <p>
+            <label>Choose time</label>
+          </p>
           <p>
             <TimeSlider value={queryTime} onChange={onChangeQueryTime} />
           </p>
@@ -153,8 +149,8 @@ export class FilterPanel extends Component {
           </p>
           <p>
             <label>
-              Time increment:{" "}
-              <input value={timeIncrement} onChange={this.setTimeIncrement} />
+              Time increment:<br />
+              <input value={timeIncrement} onChange={setTimeIncrement} />
             </label>
           </p>
         </div>

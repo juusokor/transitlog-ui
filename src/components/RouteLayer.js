@@ -10,6 +10,7 @@ import {darken} from "polished";
 import distanceBetween from "../helpers/distanceBetween";
 import DriveByTimes from "./DriveByTimes";
 import calculateBoundsFromPositions from "../helpers/calculateBoundsFromPositions";
+import RouteQuery from "../queries/RouteQuery";
 
 const stopColor = "#3388ff";
 const selectedStopColor = darken(0.2, stopColor);
@@ -77,8 +78,7 @@ class RouteLayer extends Component {
   };
 
   render() {
-    const {positions, selectedStop, stops, queryTime, queryDate} = this.props;
-    const coords = positions.map(([lon, lat]) => [lat, lon]);
+    const {selectedStop, route, queryTime, queryDate} = this.props;
 
     const queryTimeMoment = moment(
       `${queryDate} ${queryTime}`,
@@ -87,39 +87,49 @@ class RouteLayer extends Component {
     );
 
     return (
-      <React.Fragment>
-        <Polyline pane="route-lines" weight={3} positions={coords} />
-        {stops.map((stop) => {
-          const isSelected = stop.stopId === selectedStop.stopId;
-          const hfp = this.getStopTimes(stop);
+      <RouteQuery route={route}>
+        {({routePositions, stops}) => {
+          const coords = routePositions.map(([lon, lat]) => [lat, lon]);
 
           return (
-            <CircleMarker
-              pane="stops"
-              key={`stop_marker_${stop.stopId}`}
-              center={[stop.lat, stop.lon]}
-              color="white"
-              fillColor={isSelected ? selectedStopColor : stopColor}
-              fillOpacity={1}
-              strokeWeight={2}
-              shadow={true}
-              radius={isSelected ? 14 : 10}>
-              <Popup>
-                <h4>
-                  {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
-                </h4>
-                {hfp.length > 0 && (
-                  <DriveByTimes
-                    onTimeClick={this.onTimeClick}
-                    queryTime={queryTimeMoment}
-                    positions={hfp}
-                  />
-                )}
-              </Popup>
-            </CircleMarker>
+            <React.Fragment>
+              <Polyline pane="route-lines" weight={3} positions={coords} />
+              {stops.map((stop) => {
+                const isSelected = stop.stopId === selectedStop.stopId;
+                const hfp = this.getStopTimes(stop);
+
+                return (
+                  <CircleMarker
+                    pane="stops"
+                    key={`stop_marker_${stop.stopId}`}
+                    center={[stop.lat, stop.lon]}
+                    color="white"
+                    fillColor={isSelected ? selectedStopColor : stopColor}
+                    fillOpacity={1}
+                    strokeWeight={2}
+                    shadow={true}
+                    radius={isSelected ? 14 : 10}>
+                    <Popup>
+                      <h4>
+                        {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({
+                          stop.stopId
+                        })
+                      </h4>
+                      {hfp.length > 0 && (
+                        <DriveByTimes
+                          onTimeClick={this.onTimeClick}
+                          queryTime={queryTimeMoment}
+                          positions={hfp}
+                        />
+                      )}
+                    </Popup>
+                  </CircleMarker>
+                );
+              })}
+            </React.Fragment>
           );
-        })}
-      </React.Fragment>
+        }}
+      </RouteQuery>
     );
   }
 }

@@ -51,6 +51,7 @@ class App extends Component {
       selectedVehicle: null,
       map: defaultMapPosition,
       bbox: null,
+      timeIncrement: 5,
     };
   }
 
@@ -94,6 +95,12 @@ class App extends Component {
     this.setState({playing: !this.state.playing});
   };
 
+  setTimeIncrement = ({target}) => {
+    this.setState({
+      timeIncrement: target.value,
+    });
+  };
+
   setMapBounds = (bounds = null) => {
     if (bounds) {
       this.setState({
@@ -127,7 +134,14 @@ class App extends Component {
   }
 
   render() {
-    const {map, playing, stop, queryTime, selectedVehicle} = this.state;
+    const {
+      map,
+      playing,
+      timeIncrement,
+      stop,
+      queryTime,
+      selectedVehicle,
+    } = this.state;
 
     const {
       route,
@@ -149,6 +163,8 @@ class App extends Component {
           route={route}
           stop={stop}
           isPlaying={playing}
+          timeIncrement={timeIncrement}
+          setTimeIncrement={this.setTimeIncrement}
           onClickPlay={this.toggleAutoplay}
           onDateSelected={onDateSelected}
           onChangeQueryTime={this.onChangeQueryTime}
@@ -157,24 +173,18 @@ class App extends Component {
           onStopSelected={this.onStopSelected}
         />
         <LeafletMap position={map} onMapChanged={this.onMapChanged}>
-          {!route.routeId &&
-            this.state.map.zoom > 15 && <StopLayer bounds={this.state.bbox} />}
-          <RouteQuery route={route}>
-            {({routePositions, stops}) => (
-              <RouteLayer
-                setMapBounds={this.setMapBounds}
-                mapBounds={map.bounds}
-                key={`routes_${route.routeId}_${route.direction}_${stop.stopId}`}
-                onChangeQueryTime={this.onChangeQueryTime}
-                queryDate={queryDate}
-                queryTime={queryTime}
-                hfpPositions={hfpPositions}
-                positions={routePositions}
-                stops={stops}
-                selectedStop={stop}
-              />
-            )}
-          </RouteQuery>
+          {!route.routeId && map.zoom > 15 && <StopLayer bounds={this.state.bbox} />}
+          <RouteLayer
+            route={route}
+            setMapBounds={this.setMapBounds}
+            mapBounds={map.bounds}
+            key={`routes_${route.routeId}_${route.direction}_${stop.stopId}`}
+            onChangeQueryTime={this.onChangeQueryTime}
+            queryDate={queryDate}
+            queryTime={queryTime}
+            hfpPositions={hfpPositions}
+            selectedStop={stop}
+          />
           {hfpPositions.length > 0 &&
             hfpPositions.map((positionGroup) => (
               <React.Fragment
