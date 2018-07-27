@@ -16,9 +16,10 @@ const selectedStopColor = darken(0.2, stopColor);
 
 class RouteLayer extends Component {
   stopTimes = {};
-  state = {}; // Needs to be here for gDSFP to work. Not used otherwise.
 
-  static getDerivedStateFromProps({stops, mapBounds, setMapBounds = () => {}}) {
+  componentDidUpdate() {
+    const {stops, mapBounds, setMapBounds = () => {}} = this.props;
+
     if (stops && stops.length > 0) {
       const bounds = calculateBoundsFromPositions(stops, {
         lat: 60.170988,
@@ -29,32 +30,39 @@ class RouteLayer extends Component {
         setMapBounds(bounds);
       }
     }
-
-    return null;
   }
 
   getStopTimes = (stop) => {
-    if (Object.keys(this.stopTimes).length > 0) {
+    /*if (Object.keys(this.stopTimes).length > 0) {
       const cachedHfp = get(this, `stopTimes.${stop.stopId}`);
 
       if (cachedHfp && cachedHfp.length > 0) {
         return cachedHfp;
       }
-    }
+    }*/
 
     const {lat: stopLat, lon: stopLng} = stop;
 
     const stopHfpGroups = this.props.hfpPositions.map(({groupName, positions}) => {
-      const departureGroups = map(
-        groupBy(positions, "journeyStartTime"),
-        (journeyPositions) => {
-          return orderBy(journeyPositions, (pos) => {
-            distanceBetween(stopLat, stopLng, pos.lat, pos.long);
-          }).pop();
-        }
-      );
+      let driveByTimes = groupBy(positions, "journeyStartTime");
+      driveByTimes = map(driveByTimes, (journeyPositions) => {
+        const closestTimes = orderBy(
+          journeyPositions.filter(
+            (pos) => distanceBetween(stopLat, stopLng, pos.lat, pos.long) < 0.1
+          ),
+          (pos) => distanceBetween(stopLat, stopLng, pos.lat, pos.long)
+        ).slice(0, 20);
 
-      return {groupName, positions: flatten(departureGroups)};
+        const withOpenDoors = closestTimes.filter((c) => c.drst);
+
+        if (withOpenDoors.length) {
+          return withOpenDoors[0];
+        }
+
+        return closestTimes[0];
+      });
+
+      return {groupName, positions: flatten(driveByTimes)};
     });
 
     const sortedGroups = orderBy(stopHfpGroups, "positions[0].receivedAt");
