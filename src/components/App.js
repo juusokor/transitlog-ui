@@ -6,6 +6,7 @@ import {FilterPanel} from "./FilterPanel";
 import RouteQuery from "../queries/RouteQuery";
 import moment from "moment";
 import RouteLayer from "./RouteLayer";
+import StopLayer from "./StopLayer";
 import HfpMarkerLayer from "./HfpMarkerLayer";
 import timer from "../helpers/timer";
 import LoadingOverlay from "./LoadingOverlay";
@@ -33,6 +34,7 @@ class App extends Component {
       stop: defaultStop,
       selectedVehicle: null,
       map: defaultMapPosition,
+      bbox: null,
     };
   }
 
@@ -47,6 +49,21 @@ class App extends Component {
         zoom: !!stop ? 16 : 13,
         lat: get(stop, "lat", defaultMapPosition.lat),
         lng: get(stop, "lon", defaultMapPosition.lng),
+      },
+    });
+  };
+
+  onMapChanged = ({target}) => {
+    const center = target.getCenter();
+    const zoom = target.getZoom();
+    const bounds = target.getBounds();
+    this.setState({
+      map: {zoom, lat: center.lat, lng: center.lng},
+      bbox: {
+        minLat: bounds.getSouth(),
+        minLon: bounds.getWest(),
+        maxLat: bounds.getNorth(),
+        maxLon: bounds.getEast(),
       },
     });
   };
@@ -110,7 +127,12 @@ class App extends Component {
           onRouteSelected={onRouteSelected}
           onStopSelected={this.onStopSelected}
         />
-        <LeafletMap position={map}>
+        <LeafletMap position={map} onMapChanged={this.onMapChanged}>
+          {route.routeId || this.state.map.zoom <= 15 ? (
+            undefined
+          ) : (
+            <StopLayer bounds={this.state.bbox} />
+          )}
           <RouteQuery route={route}>
             {({routePositions, stops}) => (
               <RouteLayer
@@ -151,7 +173,7 @@ class App extends Component {
               </React.Fragment>
             ))}
         </LeafletMap>
-        {loading && <LoadingOverlay message="Ladataan HFP tietoja..." />}
+        {loading && <LoadingOverlay message="Ladataan HFP-tietoja..." />}
       </div>
     );
   }
