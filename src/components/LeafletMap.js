@@ -5,7 +5,7 @@ import "./Map.css";
 
 export class LeafletMap extends Component {
   render() {
-    const {children, position} = this.props;
+    const {children, position, onMapChanged} = this.props;
     const center = [position.lat, position.lng];
 
     return (
@@ -14,7 +14,9 @@ export class LeafletMap extends Component {
         zoom={position.zoom}
         bounds={position.bounds || undefined}
         maxZoom={18}
-        zoomControl={false}>
+        zoomControl={false}
+        onDragend={onMapChanged}
+        onZoomend={onMapChanged}>
         <Pane name="route-lines" style={{zIndex: 410}} />
         <Pane name="hfp-lines" style={{zIndex: 420}} />
         <Pane name="hfp-markers" style={{zIndex: 430}} />

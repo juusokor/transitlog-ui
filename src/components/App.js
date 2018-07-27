@@ -6,6 +6,7 @@ import {FilterPanel} from "./FilterPanel";
 import RouteQuery from "../queries/RouteQuery";
 import moment from "moment";
 import RouteLayer from "./RouteLayer";
+import StopLayer from "./StopLayer";
 import HfpMarkerLayer from "./HfpMarkerLayer";
 import timer from "../helpers/timer";
 import LoadingOverlay from "./LoadingOverlay";
@@ -24,7 +25,6 @@ const defaultMapPosition = {lat: 60.170988, lng: 24.940842, zoom: 13, bounds: nu
 
 class App extends Component {
   autoplayTimerHandle = null;
-  loadingTimerHandle = null;
 
   static getDerivedStateFromProps({queryDate}, {prevQueryDate, selectedVehicle}) {
     if (!selectedVehicle || !prevQueryDate) {
@@ -50,6 +50,7 @@ class App extends Component {
       stop: defaultStop,
       selectedVehicle: null,
       map: defaultMapPosition,
+      bbox: null,
     };
   }
 
@@ -64,6 +65,21 @@ class App extends Component {
         zoom: !!stop ? 16 : 13,
         lat: get(stop, "lat", defaultMapPosition.lat),
         lng: get(stop, "lon", defaultMapPosition.lng),
+      },
+    });
+  };
+
+  onMapChanged = ({target}) => {
+    const center = target.getCenter();
+    const zoom = target.getZoom();
+    const bounds = target.getBounds();
+    this.setState({
+      map: {zoom, lat: center.lat, lng: center.lng},
+      bbox: {
+        minLat: bounds.getSouth(),
+        minLon: bounds.getWest(),
+        maxLat: bounds.getNorth(),
+        maxLon: bounds.getEast(),
       },
     });
   };
@@ -99,7 +115,7 @@ class App extends Component {
     });
   };
 
-  componentDidUpdate({loading}) {
+  componentDidUpdate() {
     if (this.state.playing && !this.autoplayTimerHandle) {
       // timer() is a setInterval alternative that uses requestAnimationFrame.
       // This makes it more performant and can "pause" when the tab is not focused.
@@ -108,11 +124,6 @@ class App extends Component {
       cancelAnimationFrame(this.autoplayTimerHandle.value);
       this.autoplayTimerHandle = null;
     }
-  }
-
-  componentWillUnmount() {
-    clearTimeout(this.loadingTimerHandle);
-    this.loadingTimerHandle = null;
   }
 
   render() {
@@ -145,7 +156,9 @@ class App extends Component {
           onRouteSelected={onRouteSelected}
           onStopSelected={this.onStopSelected}
         />
-        <LeafletMap position={map}>
+        <LeafletMap position={map} onMapChanged={this.onMapChanged}>
+          {route.routeId ||
+            (this.state.map.zoom <= 15 && <StopLayer bounds={this.state.bbox} />)}
           <RouteQuery route={route}>
             {({routePositions, stops}) => (
               <RouteLayer
@@ -188,7 +201,7 @@ class App extends Component {
               </React.Fragment>
             ))}
         </LeafletMap>
-        <LoadingOverlay show={loading} message="Ladataan HFP tietoja..." />
+        <LoadingOverlay show={loading} message="Ladataan HFP-tietoja..." />
       </div>
     );
   }
