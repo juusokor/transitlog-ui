@@ -82,6 +82,7 @@ class HfpMarkerLayer extends Component {
       iconSize: 25,
       html: `<span class="hfp-marker-color" style="background-color: ${color}">
 <span class="hfp-marker-icon ${get(position, "mode", "").toUpperCase()}" />
+${position.drst ? `<span class="hfp-marker-drst" />` : ""}
 </span>`,
     });
 

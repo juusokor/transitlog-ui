@@ -33,13 +33,13 @@ class RouteLayer extends Component {
   }
 
   getStopTimes = (stop) => {
-    /*if (Object.keys(this.stopTimes).length > 0) {
+    if (Object.keys(this.stopTimes).length > 0) {
       const cachedHfp = get(this, `stopTimes.${stop.stopId}`);
 
       if (cachedHfp && cachedHfp.length > 0) {
         return cachedHfp;
       }
-    }*/
+    }
 
     const {lat: stopLat, lon: stopLng} = stop;
 
