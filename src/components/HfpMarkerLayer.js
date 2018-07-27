@@ -96,6 +96,8 @@ ${position.drst ? `<span class="hfp-marker-drst" />` : ""}
           {moment(position.receivedAt).format("HH:mm:ss")}
           <br />
           {name}
+          <br />
+          Next stop: {position.nextStopId}
         </Tooltip>
       </Marker>
     );

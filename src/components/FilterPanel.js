@@ -75,6 +75,10 @@ const allLinesQuery = gql`
 const removeFerryFilter = (line) => line.lineId.substring(0, 4) !== "1019";
 
 export class FilterPanel extends Component {
+  state = {
+    timeIncrement: 5,
+  };
+
   onDateButtonClick = (modifier) => (e) => {
     const {queryDate, onDateSelected} = this.props;
 
@@ -83,6 +87,22 @@ export class FilterPanel extends Component {
       .format("YYYY-MM-DD");
 
     onDateSelected(nextDate);
+  };
+
+  onTimeButtonClick = (modifier) => (e) => {
+    const {queryTime, onChangeQueryTime} = this.props;
+
+    const nextDate = moment(queryTime, "HH:mm:ss")
+      .add(modifier, "seconds")
+      .format("HH:mm:ss");
+
+    onChangeQueryTime(nextDate);
+  };
+
+  setTimeIncrement = ({target}) => {
+    this.setState({
+      timeIncrement: target.value,
+    });
   };
 
   render() {
@@ -100,6 +120,8 @@ export class FilterPanel extends Component {
       onClickPlay,
     } = this.props;
 
+    const {timeIncrement} = this.state;
+
     const queryMoment = moment(queryDate);
 
     return (
@@ -113,13 +135,29 @@ export class FilterPanel extends Component {
           <button onClick={this.onDateButtonClick(1)}>1 päivä &rsaquo;</button>
           <button onClick={this.onDateButtonClick(7)}>1 viikko &raquo;</button>
         </div>
-        <p>
-          <TimeSlider value={queryTime} onChange={onChangeQueryTime} />
-          <input
-            value={queryTime}
-            onChange={(e) => onChangeQueryTime(e.target.value)}
-          />
-        </p>
+        <div>
+          <p>
+            <TimeSlider value={queryTime} onChange={onChangeQueryTime} />
+          </p>
+          <p>
+            <button onClick={this.onTimeButtonClick(-timeIncrement)}>
+              &lsaquo; {timeIncrement} sek.
+            </button>
+            <input
+              value={queryTime}
+              onChange={(e) => onChangeQueryTime(e.target.value)}
+            />
+            <button onClick={this.onTimeButtonClick(timeIncrement)}>
+              &rsaquo; {timeIncrement} sek.
+            </button>
+          </p>
+          <p>
+            <label>
+              Time increment:{" "}
+              <input value={timeIncrement} onChange={this.setTimeIncrement} />
+            </label>
+          </p>
+        </div>
         <p>
           <button onClick={onClickPlay}>
             {isPlaying ? "Pysäytä simulaatio" : "Simuloi"}

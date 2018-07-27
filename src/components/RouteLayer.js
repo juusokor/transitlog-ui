@@ -48,18 +48,18 @@ class RouteLayer extends Component {
       driveByTimes = map(driveByTimes, (journeyPositions) => {
         const closestTimes = orderBy(
           journeyPositions.filter(
-            (pos) => distanceBetween(stopLat, stopLng, pos.lat, pos.long) < 0.1
+            (pos) => distanceBetween(stopLat, stopLng, pos.lat, pos.long) < 1
           ),
           (pos) => distanceBetween(stopLat, stopLng, pos.lat, pos.long)
-        ).slice(0, 20);
+        ).slice(0, 50);
 
         const withOpenDoors = closestTimes.filter((c) => c.drst);
 
-        if (withOpenDoors.length) {
+        if (withOpenDoors.length > 0) {
           return withOpenDoors[0];
         }
 
-        return closestTimes[0];
+        return closestTimes[0] || null;
       });
 
       return {groupName, positions: flatten(driveByTimes)};
@@ -106,7 +106,7 @@ class RouteLayer extends Component {
               radius={isSelected ? 14 : 10}>
               <Popup>
                 <h4>
-                  {stop.nameFi}, {stop.shortId.replace(/ /g, "")}
+                  {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
                 </h4>
                 {hfp.length > 0 && (
                   <DriveByTimes

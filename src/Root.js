@@ -66,9 +66,7 @@ class Root extends Component {
     data = groupBy(data, "uniqueVehicleId");
     data = map(data, (positions, groupName) => ({
       groupName: groupName,
-      positions: takeEveryNth(positions, 10).filter(
-        (pos) => !!pos.lat && !!pos.long
-      ),
+      positions: takeEveryNth(positions, 5).filter((pos) => !!pos.lat && !!pos.long),
     }));
 
     return data;

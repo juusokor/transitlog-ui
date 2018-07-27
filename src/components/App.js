@@ -70,11 +70,11 @@ class App extends Component {
   };
 
   onMapChanged = ({target}) => {
-    const center = target.getCenter();
-    const zoom = target.getZoom();
     const bounds = target.getBounds();
+    const zoom = target.getZoom();
+
     this.setState({
-      map: {zoom, lat: center.lat, lng: center.lng},
+      map: {...this.state.map, zoom},
       bbox: {
         minLat: bounds.getSouth(),
         minLon: bounds.getWest(),
@@ -157,8 +157,8 @@ class App extends Component {
           onStopSelected={this.onStopSelected}
         />
         <LeafletMap position={map} onMapChanged={this.onMapChanged}>
-          {route.routeId ||
-            (this.state.map.zoom <= 15 && <StopLayer bounds={this.state.bbox} />)}
+          {!route.routeId &&
+            this.state.map.zoom > 15 && <StopLayer bounds={this.state.bbox} />}
           <RouteQuery route={route}>
             {({routePositions, stops}) => (
               <RouteLayer

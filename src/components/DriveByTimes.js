@@ -9,6 +9,10 @@ export default ({onTimeClick = () => {}, positions: positionGroups, queryTime}) 
       <div className="hfp-time-row" key={`hfpPos_${groupName}`}>
         <span>{groupName}:</span>{" "}
         {map(positions, (position) => {
+          if (!position) {
+            return null;
+          }
+
           const receivedAtMoment = moment(position.receivedAt);
 
           // How far the receivedAt time is from the queried time,
