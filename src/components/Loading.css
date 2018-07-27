@@ -12,6 +12,7 @@
 }
 
 .Loading-overlay {
+  user-select: none;
   background: rgba(0, 0, 0, 0.6);
   position: fixed;
   top: 0;
@@ -24,6 +25,15 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+  transition-delay: 1s;
+}
+
+.Loading-overlay.show-overlay {
+  pointer-events: all;
+  opacity: 1;
 }
 
 .Loading-message {

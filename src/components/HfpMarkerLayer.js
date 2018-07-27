@@ -1,9 +1,9 @@
 import React, {Component} from "react";
-import {CircleMarker, Tooltip} from "react-leaflet";
+import {Tooltip, Marker} from "react-leaflet";
 import get from "lodash/get";
 import moment from "moment";
-import {darken} from "polished";
 import {getColor} from "../helpers/vehicleColor";
+import {divIcon} from "leaflet";
 
 class HfpMarkerLayer extends Component {
   prevQueryTime = "";
@@ -77,24 +77,29 @@ class HfpMarkerLayer extends Component {
       return null;
     }
 
+    const markerIcon = divIcon({
+      className: `hfp-icon`,
+      iconSize: 25,
+      html: `<span class="hfp-marker-color" style="background-color: ${color}">
+<span class="hfp-marker-icon ${get(position, "mode", "").toUpperCase()}" />
+${position.drst ? `<span class="hfp-marker-drst" />` : ""}
+</span>`,
+    });
+
     return (
-      <React.Fragment>
-        <CircleMarker
-          onClick={this.onMarkerClick(position)}
-          center={[position.lat, position.long]}
-          fillColor={color}
-          fillOpacity={1}
-          weight={3}
-          radius={12}
-          pane="hfp-markers"
-          color={darken(0.2, color)}>
-          <Tooltip>
-            {moment(position.receivedAt).format("HH:mm:ss")}
-            <br />
-            {name}
-          </Tooltip>
-        </CircleMarker>
-      </React.Fragment>
+      <Marker
+        onClick={this.onMarkerClick(position)}
+        position={[position.lat, position.long]}
+        icon={markerIcon}
+        pane="hfp-markers">
+        <Tooltip>
+          {moment(position.receivedAt).format("HH:mm:ss")}
+          <br />
+          {name}
+          <br />
+          Next stop: {position.nextStopId}
+        </Tooltip>
+      </Marker>
     );
   }
 }

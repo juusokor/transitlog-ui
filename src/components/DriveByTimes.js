@@ -2,7 +2,6 @@ import React from "react";
 import map from "lodash/map";
 import moment from "moment";
 import {darken} from "polished";
-import "./Popup.css";
 
 export default ({onTimeClick = () => {}, positions: positionGroups, queryTime}) => {
   return map(positionGroups, ({positions, groupName}) => {
@@ -10,6 +9,10 @@ export default ({onTimeClick = () => {}, positions: positionGroups, queryTime}) 
       <div className="hfp-time-row" key={`hfpPos_${groupName}`}>
         <span>{groupName}:</span>{" "}
         {map(positions, (position) => {
+          if (!position) {
+            return null;
+          }
+
           const receivedAtMoment = moment(position.receivedAt);
 
           // How far the receivedAt time is from the queried time,
@@ -20,14 +23,14 @@ export default ({onTimeClick = () => {}, positions: positionGroups, queryTime}) 
           );
 
           const isMatch = diffFromQuery < 3;
+          const didntStop = !position.drst;
 
           return (
-            <a
-              href="#"
+            <button
               onClick={onTimeClick(receivedAtMoment)}
               key={`time_tag_${position.receivedAt}_${position.uniqueVehivleId}`}
               style={{
-                borderColor: isMatch ? "green" : "transparent",
+                borderColor: didntStop ? "red" : isMatch ? "green" : "transparent",
                 color: isMatch ? "#444" : "#fff",
                 backgroundColor: darken(
                   diffFromQuery / 1000,
@@ -36,7 +39,7 @@ export default ({onTimeClick = () => {}, positions: positionGroups, queryTime}) 
               }}
               className="hfp-time-tag">
               {receivedAtMoment.format("HH:mm:ss")}{" "}
-            </a>
+            </button>
           );
         })}
       </div>

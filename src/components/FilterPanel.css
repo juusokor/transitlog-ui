@@ -6,3 +6,19 @@
   font-family: fontFamily;
   color: #aaa;
 }
+
+.filter-panel {
+  max-width: 400px;
+}
+
+.date-input {
+  display: flex;
+}
+
+.date-input > * {
+  flex: 1 1 20%;
+}
+
+.date-input .calendar {
+  width: 100px;
+}

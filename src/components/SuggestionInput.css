@@ -75,16 +75,6 @@ body {
   background-repeat: no-repeat;
 }
 
-.BUS {
-  background-image: url("../icon-bus.svg");
-  color: #007ac9;
-}
-
-.TRAM {
-  background-image: url("../icon-tram.svg");
-  color: #00985f;
-}
-
 .suggestion-text {
   font-family: fontFamily;
   line-height: 30px;

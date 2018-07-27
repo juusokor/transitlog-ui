@@ -1,10 +1,8 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 import get from "lodash/get";
-import distanceBetween from "../helpers/distanceBetween";
 import {Query} from "react-apollo";
 import gql from "graphql-tag";
-import createRouteIdentifier from "../helpers/createRouteIdentifier";
 
 const routeQuery = gql`
   query routeQuery(
@@ -56,6 +54,10 @@ class RouteQuery extends Component {
     ),
     children: PropTypes.func.isRequired,
   };
+
+  shouldComponentUpdate({route}) {
+    return !!route.routeId; // Stop the map from flashing and thrashing
+  }
 
   render() {
     const {route, children} = this.props;

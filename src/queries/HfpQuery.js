@@ -1,7 +1,6 @@
 import React, {Component} from "react";
 import {hfpClient} from "../api";
 import get from "lodash/get";
-import moment from "moment";
 import {Query} from "react-apollo";
 import PropTypes from "prop-types";
 import gql from "graphql-tag";
@@ -19,7 +18,8 @@ const hfpQuery = gql`
         lat
         long
         uniqueVehicleId
-        spd
+        drst
+        mode
         __typename
       }
     }
@@ -50,7 +50,7 @@ class HfpQuery extends Component {
         fetchPolicy="cache-first"
         variables={{
           routeId,
-          direction: parseInt(direction),
+          direction: parseInt(direction, 10),
           date: queryDate,
         }}>
         {({loading, error, data}) => {

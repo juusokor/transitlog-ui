@@ -7,8 +7,8 @@ import {ApolloProvider} from "react-apollo";
 import orderBy from "lodash/orderBy";
 import groupBy from "lodash/groupBy";
 import map from "lodash/map";
-import get from "lodash/get";
 import takeEveryNth from "./helpers/takeEveryNth";
+import * as JSONC from "./helpers/JSONC";
 
 const defaultRoute = {
   routeId: "",
@@ -24,8 +24,6 @@ const defaultLine = {
   dateBegin: "2017-08-14",
   dateEnd: "2050-12-31",
 };
-
-const hfpCache = {};
 
 class Root extends Component {
   state = {
@@ -68,32 +66,27 @@ class Root extends Component {
     data = groupBy(data, "uniqueVehicleId");
     data = map(data, (positions, groupName) => ({
       groupName: groupName,
-      positions: takeEveryNth(positions, 10).filter(
-        (pos) => !!pos.lat && !!pos.long
-      ),
+      positions: takeEveryNth(positions, 5).filter((pos) => !!pos.lat && !!pos.long),
     }));
 
     return data;
   };
 
-  cachePositions = (hfpData, overwrite = false) => {
+  cachePositions = (hfpData) => {
     if (!hfpData || hfpData.length === 0) {
       return;
     }
 
     const {queryDate, route} = this.state;
-    const cachedDate = get(hfpCache, queryDate, {});
-    const cachedRoute = get(cachedDate, route.routeId, []);
+    const key = `${queryDate}.${route.routeId}.${route.direction}`;
 
-    if (overwrite || cachedRoute.length === 0) {
-      const key = `${queryDate}.${route.routeId}.${route.direction}`;
+    const data = JSONC.pack(hfpData, true); // Compress json
 
-      try {
-        window.localStorage.setItem(key, JSON.stringify(hfpData));
-      } catch (e) {
-        window.localStorage.clear();
-        window.localStorage.setItem(key, JSON.stringify(hfpData));
-      }
+    try {
+      window.localStorage.setItem(key, data);
+    } catch (e) {
+      window.localStorage.clear();
+      window.localStorage.setItem(key, data);
     }
   };
 
@@ -107,7 +100,7 @@ class Root extends Component {
       return [];
     }
 
-    return JSON.parse(stored);
+    return JSONC.unpack(stored, true);
   };
 
   getAppContent = (hfpPositions = [], loading = false) => (

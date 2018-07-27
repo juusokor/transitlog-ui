@@ -72,21 +72,29 @@ const allLinesQuery = gql`
   }
 `;
 
-const departuresQuery = gql`
-  query startTimesQuery($routeId: String, $direction: Int, $date: Date) {
-    allVehicles(
-      condition: {oday: $date, directionId: $direction, routeId: $routeId}
-    ) {
-      nodes {
-        journeyStartTime
-      }
-    }
-  }
-`;
-
 const removeFerryFilter = (line) => line.lineId.substring(0, 4) !== "1019";
 
 export class FilterPanel extends Component {
+  onDateButtonClick = (modifier) => () => {
+    const {queryDate, onDateSelected} = this.props;
+
+    const nextDate = moment(queryDate, "YYYY-MM-DD")
+      .add(modifier, "days")
+      .format("YYYY-MM-DD");
+
+    onDateSelected(nextDate);
+  };
+
+  onTimeButtonClick = (modifier) => (e) => {
+    const {queryTime, onChangeQueryTime} = this.props;
+
+    const nextDate = moment(queryTime, "HH:mm:ss")
+      .add(modifier, "seconds")
+      .format("HH:mm:ss");
+
+    onChangeQueryTime(nextDate);
+  };
+
   render() {
     const {
       stop,
@@ -100,22 +108,52 @@ export class FilterPanel extends Component {
       onStopSelected,
       onRouteSelected,
       onClickPlay,
+      timeIncrement,
+      setTimeIncrement,
     } = this.props;
 
     const queryMoment = moment(queryDate);
 
     return (
-      <header className="transitlog-header">
+      <header className="transitlog-header filter-panel">
         <img src={logo} className="App-logo" alt="logo" />
         <h1 className="App-title">Liikenteenvalvontatyökalu</h1>
-        <DateInput date={queryDate} onDateSelected={onDateSelected} />
         <p>
-          <TimeSlider value={queryTime} onChange={onChangeQueryTime} />
-          <input
-            value={queryTime}
-            onChange={(e) => onChangeQueryTime(e.target.value)}
-          />
+          <label>Choose date</label>
         </p>
+        <div className="date-input">
+          <button onClick={this.onDateButtonClick(-7)}>&laquo; 1 viikko</button>
+          <button onClick={this.onDateButtonClick(-1)}>&lsaquo; 1 päivä</button>
+          <DateInput date={queryDate} onDateSelected={onDateSelected} />
+          <button onClick={this.onDateButtonClick(1)}>1 päivä &rsaquo;</button>
+          <button onClick={this.onDateButtonClick(7)}>1 viikko &raquo;</button>
+        </div>
+        <div>
+          <p>
+            <label>Choose time</label>
+          </p>
+          <p>
+            <TimeSlider value={queryTime} onChange={onChangeQueryTime} />
+          </p>
+          <p>
+            <button onClick={this.onTimeButtonClick(-timeIncrement)}>
+              &lsaquo; {timeIncrement} sek.
+            </button>
+            <input
+              value={queryTime}
+              onChange={(e) => onChangeQueryTime(e.target.value)}
+            />
+            <button onClick={this.onTimeButtonClick(timeIncrement)}>
+              &rsaquo; {timeIncrement} sek.
+            </button>
+          </p>
+          <p>
+            <label>
+              Time increment:<br />
+              <input value={timeIncrement} onChange={setTimeIncrement} />
+            </label>
+          </p>
+        </div>
         <p>
           <button onClick={onClickPlay}>
             {isPlaying ? "Pysäytä simulaatio" : "Simuloi"}

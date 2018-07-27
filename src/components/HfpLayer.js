@@ -69,16 +69,18 @@ ${hfpItem.uniqueVehicleId}`;
     const color = getColor(name);
 
     return (
-      <Polyline
-        key={`hfp_polyline_${name}`}
-        onMousemove={this.onMousemove}
-        onMouseover={this.onHover}
-        onMouseout={this.onMouseout}
-        pane="hfp-lines"
-        weight={3}
-        color={color}
-        positions={this.positions}
-      />
+      <React.Fragment>
+        <Polyline
+          key={`hfp_polyline_${name}`}
+          onMousemove={this.onMousemove}
+          onMouseover={this.onHover}
+          onMouseout={this.onMouseout}
+          pane="hfp-lines"
+          weight={3}
+          color={color}
+          positions={this.positions}
+        />
+      </React.Fragment>
     );
   }
 }
