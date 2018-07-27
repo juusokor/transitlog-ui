@@ -1,23 +1,21 @@
 import "../components/LineIcon.css";
 
 function getTransportType(lineId) {
-  const lineType = parseInt(lineId.substring(0, 4), 10);
+  const lineType = lineId.substring(0, 4);
 
-  if (lineType <= 1010) {
+  if (lineType >= 1001 && lineType <= 1010) {
     return "TRAM";
   }
 
-  if (lineType < 2000) {
-    return "BUS";
+  if (/^300[12]/.test(lineType)) {
+    return "TRAIN";
   }
 
-  if (lineType < 3000) {
+  if (lineType.substr(1) === "560" || lineType.substr(1) === "550") {
     return "TRUNK";
   }
 
-  if (lineType < 3010) {
-    return "TRAIN";
-  }
+  return "BUS";
 }
 
 export default getTransportType;
