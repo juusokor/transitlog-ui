@@ -118,8 +118,12 @@ class RouteLayer extends Component {
           return (
             <React.Fragment>
               <Polyline pane="route-lines" weight={3} positions={coords} />
-              {stops.map((stop) => {
+              {stops.map((stop, index) => {
                 const isSelected = stop.stopId === selectedStop.stopId;
+                const isFirst = index === stops.length - 1;
+                const isLast = index === 0;
+                const isTerminal = isFirst || isLast;
+
                 const hfp = this.getStopTimes(stop);
 
                 return (
@@ -128,11 +132,20 @@ class RouteLayer extends Component {
                     key={`stop_marker_${stop.stopId}`}
                     center={[stop.lat, stop.lon]}
                     color="white"
-                    fillColor={isSelected ? selectedStopColor : stopColor}
+                    fillColor={
+                      isFirst
+                        ? "green"
+                        : isLast
+                          ? "red"
+                          : isSelected
+                            ? selectedStopColor
+                            : stopColor
+                    }
                     fillOpacity={1}
                     strokeWeight={2}
                     shadow={true}
-                    radius={isSelected ? 14 : 10}>
+                    radius={isSelected ? 14 : isTerminal ? 10 : 8}>
+                    {route.direction}
                     <Popup>
                       <h4>
                         {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({
