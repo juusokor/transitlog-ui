@@ -1,16 +1,15 @@
 import React, {Component} from "react";
 import "./App.css";
 import get from "lodash/get";
-import {LeafletMap} from "./LeafletMap";
-import {FilterPanel} from "./FilterPanel";
-import RouteQuery from "../queries/RouteQuery";
+import {LeafletMap} from "./map/LeafletMap";
+import {FilterPanel} from "./filterpanel/FilterPanel";
 import moment from "moment";
-import RouteLayer from "./RouteLayer";
-import StopLayer from "./StopLayer";
-import HfpMarkerLayer from "./HfpMarkerLayer";
+import RouteLayer from "./map/RouteLayer";
+import StopLayer from "./map/StopLayer";
+import HfpMarkerLayer from "./map/HfpMarkerLayer";
 import timer from "../helpers/timer";
 import LoadingOverlay from "./LoadingOverlay";
-import HfpLayer from "./HfpLayer";
+import HfpLayer from "./map/HfpLayer";
 
 const defaultStop = {
   stopId: "",

@@ -1,7 +1,7 @@
 import React from "react";
 import get from "lodash/get";
 import SuggestionInput from "./SuggestionInput";
-import getTransportType from "../helpers/getTransportType";
+import getTransportType from "../../helpers/getTransportType";
 
 const parseLineNumber = (lineId) =>
   // Remove 1st number, which represents the city

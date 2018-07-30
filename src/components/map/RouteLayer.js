@@ -7,10 +7,10 @@ import groupBy from "lodash/groupBy";
 import flatten from "lodash/flatten";
 import map from "lodash/map";
 import {darken} from "polished";
-import distanceBetween from "../helpers/distanceBetween";
+import distanceBetween from "../../helpers/distanceBetween";
 import DriveByTimes from "./DriveByTimes";
-import calculateBoundsFromPositions from "../helpers/calculateBoundsFromPositions";
-import RouteQuery from "../queries/RouteQuery";
+import calculateBoundsFromPositions from "../../helpers/calculateBoundsFromPositions";
+import RouteQuery from "../../queries/RouteQuery";
 
 const stopColor = "#3388ff";
 const selectedStopColor = darken(0.2, stopColor);
