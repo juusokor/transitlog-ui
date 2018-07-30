@@ -5,9 +5,9 @@ import get from "lodash/get";
 import orderBy from "lodash/orderBy";
 import groupBy from "lodash/groupBy";
 import flatten from "lodash/flatten";
+import filter from "lodash/filter";
 import map from "lodash/map";
 import {darken} from "polished";
-import distanceBetween from "../helpers/distanceBetween";
 import DriveByTimes from "./DriveByTimes";
 import calculateBoundsFromPositions from "../helpers/calculateBoundsFromPositions";
 import RouteQuery from "../queries/RouteQuery";
@@ -33,6 +33,33 @@ class RouteLayer extends Component {
     }
   }
 
+  getHfpStopsForJourney = (positions, stopId) => {
+    const journeyGroups = groupBy(positions, "journeyStartTime");
+
+    return map(journeyGroups, (journeyPositions) => {
+      const stopPos = filter(journeyPositions, (pos) => pos.nextStopId === stopId);
+      let doorCheckIdx = stopPos.length - 1;
+      let firstDoorOpenPos = -1;
+
+      while (doorCheckIdx > 0) {
+        const pos = stopPos[doorCheckIdx];
+
+        if (pos.drst) {
+          firstDoorOpenPos = doorCheckIdx;
+        } else if (firstDoorOpenPos > -1) {
+          break;
+        }
+
+        doorCheckIdx--;
+      }
+
+      const sliceStart =
+        firstDoorOpenPos > -1 ? firstDoorOpenPos : stopPos.length - 1;
+
+      return stopPos.slice(sliceStart);
+    });
+  };
+
   getStopTimes = (stop) => {
     if (Object.keys(this.stopTimes).length > 0) {
       const cachedHfp = get(this, `stopTimes.${stop.stopId}`);
@@ -42,52 +69,17 @@ class RouteLayer extends Component {
       }
     }
 
-    const {lat: stopLat, lon: stopLng} = stop;
-
     const stopHfpGroups = this.props.hfpPositions.map(({groupName, positions}) => {
-      let driveByTimes = groupBy(positions, "journeyStartTime");
-      driveByTimes = map(driveByTimes, (journeyPositions) => {
-        const closestPositions = [];
-        let posIdx = 0;
+      const stopJourneys = this.getHfpStopsForJourney(positions, stop.stopId);
+      const journeys = stopJourneys.map((journeyPositions) => {
+        const departHfp = journeyPositions.pop();
+        const arriveHfp =
+          journeyPositions.length === 0 ? departHfp : journeyPositions.shift();
 
-        while (closestPositions.length < 50) {
-          const pos = journeyPositions[posIdx];
-
-          if (!pos) {
-            break;
-          }
-
-          const maxDistance = pos.mode.toUpperCase() === "TRAIN" ? 0.5 : 0.05; // 0.5 km for trains, 50m for others.
-          const distanceFromStop = distanceBetween(
-            stopLat,
-            stopLng,
-            pos.lat,
-            pos.long
-          );
-
-          if (distanceFromStop < maxDistance) {
-            closestPositions.push({...pos, distanceFromStop});
-          }
-
-          posIdx++;
-        }
-
-        const closestTimes = orderBy(
-          closestPositions,
-          ["distanceFromStop", "receivedAt"],
-          ["asc", "desc"]
-        );
-
-        const withOpenDoors = closestTimes.filter((c) => c.drst);
-
-        if (withOpenDoors.length > 0) {
-          return withOpenDoors[0];
-        }
-
-        return closestTimes[0] || null;
+        return {arrive: arriveHfp, depart: departHfp};
       });
 
-      return {groupName, positions: flatten(driveByTimes)};
+      return {groupName, journeys};
     });
 
     const sortedGroups = orderBy(stopHfpGroups, "positions[0].receivedAt");

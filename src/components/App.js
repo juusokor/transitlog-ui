@@ -3,7 +3,6 @@ import "./App.css";
 import get from "lodash/get";
 import {LeafletMap} from "./LeafletMap";
 import {FilterPanel} from "./FilterPanel";
-import RouteQuery from "../queries/RouteQuery";
 import moment from "moment";
 import RouteLayer from "./RouteLayer";
 import StopLayer from "./StopLayer";
@@ -11,7 +10,6 @@ import HfpMarkerLayer from "./HfpMarkerLayer";
 import timer from "../helpers/timer";
 import LoadingOverlay from "./LoadingOverlay";
 import HfpLayer from "./HfpLayer";
-import HfpStopsLayer from "./HfpStopsLayer";
 
 const defaultStop = {
   stopId: "",
@@ -211,7 +209,6 @@ class App extends Component {
                 />
               </React.Fragment>
             ))}
-          <HfpStopsLayer positions={hfpPositions} />
         </LeafletMap>
         <LoadingOverlay show={loading} message="Ladataan HFP-tietoja..." />
       </div>
