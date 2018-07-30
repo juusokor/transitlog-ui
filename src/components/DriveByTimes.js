@@ -3,7 +3,12 @@ import map from "lodash/map";
 import moment from "moment";
 import {darken} from "polished";
 
-export default ({onTimeClick = () => {}, positions: journeyGroups, queryTime}) => {
+export default ({
+  onTimeClick = () => {},
+  positions: journeyGroups,
+  queryTime,
+  showTime = "arrive",
+}) => {
   return map(journeyGroups, ({groupName, journeys}) => (
     <div className="hfp-time-row" key={`hfpPos_${groupName}`}>
       <span>{groupName}:</span>{" "}
@@ -12,7 +17,8 @@ export default ({onTimeClick = () => {}, positions: journeyGroups, queryTime}) =
           return null;
         }
 
-        const receivedAtMoment = moment(arrive.receivedAt);
+        const useTime = showTime === "arrive" ? arrive : depart;
+        const receivedAtMoment = moment(useTime.receivedAt);
 
         // How far the receivedAt time is from the queried time,
         // divided a bit to fit into the darken() function.
@@ -27,7 +33,7 @@ export default ({onTimeClick = () => {}, positions: journeyGroups, queryTime}) =
         return (
           <button
             onClick={onTimeClick(receivedAtMoment)}
-            key={`time_tag_${arrive.receivedAt}_${arrive.uniqueVehicleId}`}
+            key={`time_tag_${useTime.receivedAt}_${useTime.uniqueVehicleId}`}
             style={{
               borderColor: didntStop ? "red" : isMatch ? "green" : "transparent",
               color: isMatch ? "#444" : "#fff",

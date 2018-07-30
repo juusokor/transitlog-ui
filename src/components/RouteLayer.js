@@ -17,6 +17,15 @@ const selectedStopColor = darken(0.2, stopColor);
 
 class RouteLayer extends Component {
   stopTimes = {};
+  state = {
+    showTime: "arrive",
+  };
+
+  onChangeShowTime = (e) => {
+    this.setState({
+      showTime: e.target.value,
+    });
+  };
 
   componentDidUpdate() {
     const {stops, mapBounds, setMapBounds = () => {}} = this.props;
@@ -94,6 +103,7 @@ class RouteLayer extends Component {
   };
 
   render() {
+    const {showTime} = this.state;
     const {selectedStop, route, queryTime, queryDate} = this.props;
 
     const queryTimeMoment = moment(
@@ -145,11 +155,36 @@ class RouteLayer extends Component {
                         })
                       </h4>
                       {hfp.length > 0 && (
-                        <DriveByTimes
-                          onTimeClick={this.onTimeClick}
-                          queryTime={queryTimeMoment}
-                          positions={hfp}
-                        />
+                        <React.Fragment>
+                          <div>
+                            <label>
+                              <input
+                                type="radio"
+                                value="arrive"
+                                checked={showTime === "arrive"}
+                                name="showTime"
+                                onChange={this.onChangeShowTime}
+                              />{" "}
+                              Arrive
+                            </label>
+                            <label>
+                              <input
+                                type="radio"
+                                value="depart"
+                                checked={showTime === "depart"}
+                                name="showTime"
+                                onChange={this.onChangeShowTime}
+                              />{" "}
+                              Depart
+                            </label>
+                          </div>
+                          <DriveByTimes
+                            showTime={showTime}
+                            onTimeClick={this.onTimeClick}
+                            queryTime={queryTimeMoment}
+                            positions={hfp}
+                          />
+                        </React.Fragment>
                       )}
                     </Popup>
                   </CircleMarker>
