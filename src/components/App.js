@@ -1,5 +1,4 @@
 import React, {Component} from "react";
-import "./App.css";
 import get from "lodash/get";
 import {LeafletMap} from "./map/LeafletMap";
 import {FilterPanel} from "./filterpanel/FilterPanel";
@@ -10,6 +9,8 @@ import HfpMarkerLayer from "./map/HfpMarkerLayer";
 import timer from "../helpers/timer";
 import LoadingOverlay from "./LoadingOverlay";
 import HfpLayer from "./map/HfpLayer";
+import "./App.css";
+import "./Form.css";
 
 const defaultStop = {
   stopId: "",

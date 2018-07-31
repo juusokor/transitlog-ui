@@ -4,7 +4,6 @@ import LineInput from "./LineInput";
 import StopInput from "./StopInput";
 import {RouteInput} from "./RouteInput";
 import QueryRoutesByLine from "../../queries/RoutesByLineQuery";
-import moment from "moment";
 import AllStopsQuery from "../../queries/AllStopsQuery";
 import StopsByRouteQuery from "../../queries/StopsByRouteQuery";
 import Header from "./Header";
