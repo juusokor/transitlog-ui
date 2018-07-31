@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import {Tooltip, Marker} from "react-leaflet";
 import get from "lodash/get";
 import moment from "moment";
-import {getColor} from "../helpers/vehicleColor";
+import {getColor} from "../../helpers/vehicleColor";
 import {divIcon} from "leaflet";
 
 class HfpMarkerLayer extends Component {

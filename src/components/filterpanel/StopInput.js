@@ -1,6 +1,6 @@
 import React from "react";
 import SuggestionInput from "./SuggestionInput";
-import fuzzySearch from "../helpers/fuzzySearch";
+import fuzzySearch from "../../helpers/fuzzySearch";
 
 const getSuggestionValue = (suggestion) =>
   suggestion.stopId ? `${suggestion.stopId} (${suggestion.shortId})` : "";

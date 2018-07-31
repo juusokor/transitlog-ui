@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import createRouteIdentifier from "../helpers/createRouteIdentifier";
+import createRouteIdentifier from "../../helpers/createRouteIdentifier";
 
 export class RouteInput extends Component {
   onChange = (e) => {
