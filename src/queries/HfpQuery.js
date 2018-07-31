@@ -19,6 +19,7 @@ const hfpQuery = gql`
         long
         uniqueVehicleId
         drst
+        spd
         mode
         __typename
       }

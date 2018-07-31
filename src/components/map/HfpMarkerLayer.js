@@ -98,6 +98,8 @@ ${position.drst ? `<span class="hfp-marker-drst" />` : ""}
           {name}
           <br />
           Next stop: {position.nextStopId}
+          <br />
+          Speed: {position.spd}
         </Tooltip>
       </Marker>
     );
