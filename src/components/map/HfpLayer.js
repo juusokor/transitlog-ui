@@ -3,7 +3,7 @@ import {Polyline} from "react-leaflet";
 import {latLng} from "leaflet";
 import get from "lodash/get";
 import moment from "moment";
-import {getColor} from "../helpers/vehicleColor";
+import {getColor} from "../../helpers/vehicleColor";
 
 class HfpLayer extends Component {
   mouseOver = false;
@@ -15,10 +15,10 @@ class HfpLayer extends Component {
 
     return positions
       .filter((pos) => pos.journeyStartTime === journeyStartTime)
-      .map(({lat, long, receivedAt, uniqueVehicleId}) => [
+      .map(({lat, long, receivedAt, uniqueVehicleId, spd}) => [
         lat,
         long,
-        {receivedAt, uniqueVehicleId},
+        {receivedAt, uniqueVehicleId, spd},
       ]);
   }
 
@@ -52,7 +52,8 @@ class HfpLayer extends Component {
     if (hfpItem) {
       const line = event.target;
       const tooltipContent = `${moment(hfpItem.receivedAt).format("HH:mm:ss")}<br />
-${hfpItem.uniqueVehicleId}`;
+${hfpItem.uniqueVehicleId}<br />
+Speed: ${hfpItem.spd} km/h`;
 
       const lineTooltip = line.getTooltip();
 
@@ -69,16 +70,18 @@ ${hfpItem.uniqueVehicleId}`;
     const color = getColor(name);
 
     return (
-      <Polyline
-        key={`hfp_polyline_${name}`}
-        onMousemove={this.onMousemove}
-        onMouseover={this.onHover}
-        onMouseout={this.onMouseout}
-        pane="hfp-lines"
-        weight={3}
-        color={color}
-        positions={this.positions}
-      />
+      <React.Fragment>
+        <Polyline
+          key={`hfp_polyline_${name}`}
+          onMousemove={this.onMousemove}
+          onMouseover={this.onHover}
+          onMouseout={this.onMouseout}
+          pane="hfp-lines"
+          weight={3}
+          color={color}
+          positions={this.positions}
+        />
+      </React.Fragment>
     );
   }
 }

@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import createRouteIdentifier from "../helpers/createRouteIdentifier";
+import createRouteIdentifier from "../../helpers/createRouteIdentifier";
 
 export class RouteInput extends Component {
   onChange = (e) => {
@@ -20,10 +20,12 @@ export class RouteInput extends Component {
   render() {
     const {route, routes} = this.props;
 
-    const options = routes.map(({routeId, direction, nameFi, dateBegin}) => ({
-      value: createRouteIdentifier({routeId, direction, dateBegin}),
-      label: `${routeId} - suunta ${direction}, ${nameFi}`,
-    }));
+    const options = routes.map(
+      ({routeId, direction, nameFi, dateBegin, dateEnd}) => ({
+        value: createRouteIdentifier({routeId, direction, dateBegin}),
+        label: `${routeId} - suunta ${direction}, ${nameFi}. ${dateBegin} - ${dateEnd}`,
+      })
+    );
 
     options.unshift({value: "", label: "Valitse reitti..."});
 

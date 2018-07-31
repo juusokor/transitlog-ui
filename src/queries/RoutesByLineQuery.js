@@ -29,10 +29,13 @@ const routesByLineQuery = gql`
 export default ({variables, children}) => (
   <Query query={routesByLineQuery} variables={variables}>
     {({loading, error, data}) => {
+      if (loading) return <div>Loading...</div>;
+      if (error) return <div>Error!</div>;
+
       return children({
         loading,
         error,
-        data: get(data, "line.routes.nodes", []),
+        routes: get(data, "line.routes.nodes", []),
       });
     }}
   </Query>

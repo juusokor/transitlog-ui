@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import {Map, TileLayer, ZoomControl, Pane} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import "./Map.css";
 
 export class LeafletMap extends Component {
   render() {
@@ -11,13 +12,15 @@ export class LeafletMap extends Component {
       <Map
         center={center}
         zoom={position.zoom}
+        bounds={position.bounds || undefined}
         maxZoom={18}
         zoomControl={false}
         onDragend={onMapChanged}
         onZoomend={onMapChanged}>
-        <Pane name="hfp-lines" style={{zIndex: 440}} />
-        <Pane name="hfp-markers" style={{zIndex: 450}} />
-        <Pane name="stops" style={{zIndex: 420}} />
+        <Pane name="route-lines" style={{zIndex: 410}} />
+        <Pane name="hfp-lines" style={{zIndex: 420}} />
+        <Pane name="hfp-markers" style={{zIndex: 430}} />
+        <Pane name="stops" style={{zIndex: 450}} />
         <TileLayer
           attribution={
             'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors '
