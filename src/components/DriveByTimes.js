@@ -31,7 +31,7 @@ export default ({
         // If arrive and depart are the same, it means the stop times algorithm
         // didn't find an open door at this stop and it's safe to say that
         // the vehicle didn't stop here.
-        const didntStop = arrive.receivedAt === depart.receivedAt;
+        const didntStop = arrive.receivedAt === depart.receivedAt && !depart.drst;
 
         return (
           <button

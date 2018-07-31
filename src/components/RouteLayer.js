@@ -52,15 +52,21 @@ class RouteLayer extends Component {
       // Get the hfp positions we're interested in. Now we are working with
       // hfp data that happens before or at the requested stop.
       const stopPos = filter(journeyPositions, (pos) => pos.nextStopId === stopId);
+
+      if (stopPos.length === 0) {
+        return [];
+      }
+
       let doorCheckIdx = stopPos.length - 1;
       let firstDoorOpenPos = -1;
       // Loop through the positions in reverse and determine when the doors were
       // opened. The loop breaks when an open door has been found and the current
       // hfp item does not have open doors.
-      while (doorCheckIdx > 0) {
+      while (doorCheckIdx >= 0) {
         const pos = stopPos[doorCheckIdx];
 
         if (pos.drst) {
+          // "door status"
           // We're interested in the index of the hfp position when the door was open.
           firstDoorOpenPos = doorCheckIdx;
         } else if (firstDoorOpenPos > -1) {
@@ -75,7 +81,7 @@ class RouteLayer extends Component {
       // If the doors were never opened, just return an array of length 1
       // containing the moment before nextStopId was changed to the next stop.
       const sliceStart =
-        firstDoorOpenPos > -1 ? firstDoorOpenPos : stopPos.length - 1;
+        firstDoorOpenPos !== -1 ? firstDoorOpenPos : stopPos.length - 1;
 
       return stopPos.slice(sliceStart);
     });
@@ -99,12 +105,8 @@ class RouteLayer extends Component {
       const journeys = stopJourneys.map((journeyPositions) => {
         // The last array element is when the vehicle left the stop, ie the
         // moment before the nextStopId prop changed to the next stop.
-        const departHfp = journeyPositions.pop();
-
-        // The above pop() modified the array, so if it is empty now that means the
-        // doors were never opened and departure and arrival times are the same.
-        const arriveHfp =
-          journeyPositions.length === 0 ? departHfp : journeyPositions.shift();
+        const departHfp = journeyPositions[journeyPositions.length - 1];
+        const arriveHfp = journeyPositions[0];
 
         return {arrive: arriveHfp, depart: departHfp};
       });
