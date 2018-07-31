@@ -1,6 +1,9 @@
+.idea
 .dockerignore
 .git
-.travis
 .travis.yml
 Dockerfile
 node_modules
+LICENSE
+graphql.config.json
+travis-build.sh
