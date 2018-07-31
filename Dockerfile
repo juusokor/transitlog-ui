@@ -1,13 +1,18 @@
 FROM node:10-alpine
 
-WORKDIR /app
-COPY . ./
+ENV WORK /opt/transitlog
 
-RUN yarn install
-RUN yarn build
-RUN yarn add serve
+RUN mkdir -p ${WORK}
+WORKDIR ${WORK}
+
+# Install app dependencies
+COPY yarn.lock ${WORK}
+COPY package.json ${WORK}
+RUN yarn
+
+COPY . ${WORK}
+RUN yarn run build
 
 EXPOSE 3000
 
-ENTRYPOINT ["yarn", "run"]
-CMD ["serve", "-s", "build"]
+CMD yarn run production
