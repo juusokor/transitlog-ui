@@ -31,7 +31,7 @@ class TimeSettings extends Component {
         <p>
           <TimeSlider value={queryTime} onChange={onChangeQueryTime} />
         </p>
-        <p>
+        <p className="control-group">
           <button onClick={this.onTimeButtonClick(-timeIncrement)}>
             &lsaquo; {timeIncrement} sek.
           </button>
@@ -42,12 +42,13 @@ class TimeSettings extends Component {
           <button onClick={this.onTimeButtonClick(timeIncrement)}>
             &rsaquo; {timeIncrement} sek.
           </button>
-        </p>
-        <p>
-          <label>
-            Time increment:<br />
-            <input value={timeIncrement} onChange={setTimeIncrement} />
-          </label>
+          <input
+            type="number"
+            max={1000}
+            maxLength={4}
+            value={timeIncrement}
+            onChange={setTimeIncrement}
+          />
         </p>
         <p>
           <button onClick={onClickPlay}>
