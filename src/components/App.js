@@ -3,7 +3,6 @@ import "./App.css";
 import get from "lodash/get";
 import {LeafletMap} from "./LeafletMap";
 import {FilterPanel} from "./FilterPanel";
-import RouteQuery from "../queries/RouteQuery";
 import moment from "moment";
 import RouteLayer from "./RouteLayer";
 import StopLayer from "./StopLayer";
