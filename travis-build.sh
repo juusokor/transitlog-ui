@@ -9,7 +9,7 @@ DOCKER_IMAGE_LATEST=${ORG}/transitlog-ui:latest
 docker build -t ${DOCKER_IMAGE} .
 
 if [[ ${TRAVIS_PULL_REQUEST} == "false" ]] && [[ ${TRAVIS_BRANCH} == "master" ]]; then
-  docker login -u ${DOCKER_USER} -p ${DOCKER_AUTH}
+  docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
   docker push ${DOCKER_IMAGE}
   docker tag ${DOCKER_IMAGE} ${DOCKER_IMAGE_LATEST}
   docker push ${DOCKER_IMAGE_LATEST}
