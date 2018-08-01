@@ -2,8 +2,8 @@ import React, {Component} from "react";
 import {Tooltip, Marker} from "react-leaflet";
 import get from "lodash/get";
 import moment from "moment";
-import {getColor} from "../../helpers/vehicleColor";
 import {divIcon} from "leaflet";
+import getDelayType from "../../helpers/getDelayType";
 
 class HfpMarkerLayer extends Component {
   prevQueryTime = "";
@@ -69,18 +69,20 @@ class HfpMarkerLayer extends Component {
 
   render() {
     const {name} = this.props;
-    const color = getColor(name);
-
     const position = this.getHfpPosition();
 
     if (!position) {
       return null;
     }
 
+    const delayType = getDelayType(position.dl);
+    const color =
+      delayType === "early" ? "red" : delayType === "late" ? "yellow" : "green";
+
     const markerIcon = divIcon({
       className: `hfp-icon`,
       iconSize: 25,
-      html: `<span class="hfp-marker-color" style="background-color: ${color}">
+      html: `<span class="hfp-marker-wrapper" style="background-color: ${color}">
 <span class="hfp-marker-icon ${get(position, "mode", "").toUpperCase()}" />
 ${position.drst ? `<span class="hfp-marker-drst" />` : ""}
 </span>`,
@@ -100,6 +102,8 @@ ${position.drst ? `<span class="hfp-marker-drst" />` : ""}
           Next stop: {position.nextStopId}
           <br />
           Speed: {position.spd}
+          <br />
+          Delay: {position.dl} sek.
         </Tooltip>
       </Marker>
     );

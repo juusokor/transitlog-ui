@@ -43,7 +43,7 @@ export default ({
       fillColor: stop.timingStopType ? "lime" : "white",
       fillOpacity: 1,
       strokeWeight: 3,
-      radius: firstTerminal || lastTerminal ? 10 : 8,
+      radius: firstTerminal || lastTerminal ? 12 : 10,
     },
     <Popup>
       <h4>
