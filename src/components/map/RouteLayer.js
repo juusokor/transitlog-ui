@@ -148,6 +148,7 @@ class RouteLayer extends Component {
 
                 return (
                   <StopMarker
+                    onChangeShowTime={this.onChangeShowTime}
                     key={`stop_marker_${stop.stopId}`}
                     showTime={showTime}
                     queryTime={queryTimeMoment}

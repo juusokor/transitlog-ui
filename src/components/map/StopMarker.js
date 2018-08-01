@@ -2,7 +2,7 @@ import React from "react";
 import {darken} from "polished";
 import DriveByTimes from "./DriveByTimes";
 import {Popup, Marker, CircleMarker} from "react-leaflet";
-import {icon, divIcon} from "leaflet";
+import {icon} from "leaflet";
 import TimingStopIcon from "../../icon-time1.svg";
 
 const stopColor = "#3388ff";
@@ -16,6 +16,7 @@ export default ({
   hfp,
   showTime,
   queryTime,
+  onChangeShowTime,
 }) => {
   const timingStopIcon = icon({
     iconUrl: TimingStopIcon,
@@ -56,7 +57,7 @@ export default ({
                 value="arrive"
                 checked={showTime === "arrive"}
                 name="showTime"
-                onChange={this.onChangeShowTime}
+                onChange={onChangeShowTime}
               />{" "}
               Arrive
             </label>
@@ -66,7 +67,7 @@ export default ({
                 value="depart"
                 checked={showTime === "depart"}
                 name="showTime"
-                onChange={this.onChangeShowTime}
+                onChange={onChangeShowTime}
               />{" "}
               Depart
             </label>
