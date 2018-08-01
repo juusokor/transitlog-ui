@@ -158,8 +158,7 @@ class RouteLayer extends Component {
                     pane="stops"
                     key={`stop_marker_${stop.stopId}`}
                     center={[stop.lat, stop.lon]}
-                    color="white"
-                    fillColor={
+                    color={
                       isFirst
                         ? "green"
                         : isLast
@@ -168,8 +167,9 @@ class RouteLayer extends Component {
                             ? selectedStopColor
                             : stopColor
                     }
+                    fillColor="white"
                     fillOpacity={1}
-                    strokeWeight={2}
+                    strokeWeight={3}
                     radius={isSelected ? 14 : isTerminal ? 10 : 8}>
                     {route.direction}
                     <Popup>
