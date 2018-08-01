@@ -4,11 +4,9 @@ import moment from "moment";
 import get from "lodash/get";
 import groupBy from "lodash/groupBy";
 import filter from "lodash/filter";
-import invoke from "lodash/invoke";
 import map from "lodash/map";
 import {darken} from "polished";
 import DriveByTimes from "./DriveByTimes";
-import RouteQuery from "../../queries/RouteQuery";
 import calculateBoundsFromPositions from "../../helpers/calculateBoundsFromPositions";
 
 const stopColor = "#3388ff";
