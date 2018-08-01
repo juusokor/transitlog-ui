@@ -17,6 +17,7 @@ export default ({
   showTime,
   queryTime,
   onChangeShowTime,
+  onTimeClick,
 }) => {
   const timingStopIcon = icon({
     iconUrl: TimingStopIcon,
@@ -74,7 +75,7 @@ export default ({
           </div>
           <DriveByTimes
             showTime={showTime}
-            onTimeClick={this.onTimeClick}
+            onTimeClick={onTimeClick}
             queryTime={queryTime}
             positions={hfp}
           />
