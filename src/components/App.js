@@ -63,6 +63,7 @@ class App extends Component {
     this.setState({
       stop,
       map: {
+        ...this.state.map,
         zoom: !!stop ? 16 : 13,
         lat: get(stop, "lat", defaultMapPosition.lat),
         lng: get(stop, "lon", defaultMapPosition.lng),

@@ -2,21 +2,19 @@ import React, {Component} from "react";
 import {Polyline, CircleMarker, Popup} from "react-leaflet";
 import moment from "moment";
 import get from "lodash/get";
-import orderBy from "lodash/orderBy";
 import groupBy from "lodash/groupBy";
-import flatten from "lodash/flatten";
 import filter from "lodash/filter";
+import invoke from "lodash/invoke";
 import map from "lodash/map";
 import {darken} from "polished";
-import distanceBetween from "../../helpers/distanceBetween";
 import DriveByTimes from "./DriveByTimes";
-import calculateBoundsFromPositions from "../../helpers/calculateBoundsFromPositions";
 import RouteQuery from "../../queries/RouteQuery";
 
 const stopColor = "#3388ff";
 const selectedStopColor = darken(0.2, stopColor);
 
 class RouteLayer extends Component {
+  polylineRef = React.createRef();
   stopTimes = {};
   state = {
     showTime: "arrive",
@@ -29,17 +27,11 @@ class RouteLayer extends Component {
   };
 
   componentDidUpdate() {
-    const {stops, mapBounds, setMapBounds = () => {}} = this.props;
+    const {mapBounds, setMapBounds = () => {}} = this.props;
+    const bounds = invoke(this, "polylineRef.current.leafletElement.getBounds");
 
-    if (stops && stops.length > 0) {
-      const bounds = calculateBoundsFromPositions(stops, {
-        lat: 60.170988,
-        lng: 24.940842,
-      });
-
-      if ((mapBounds && !mapBounds.equals(bounds)) || !mapBounds) {
-        setMapBounds(bounds);
-      }
+    if ((bounds && (mapBounds && !mapBounds.equals(bounds))) || !mapBounds) {
+      setMapBounds(bounds);
     }
   }
 
@@ -142,7 +134,12 @@ class RouteLayer extends Component {
 
           return (
             <React.Fragment>
-              <Polyline pane="route-lines" weight={3} positions={coords} />
+              <Polyline
+                pane="route-lines"
+                weight={3}
+                positions={coords}
+                ref={this.polylineRef}
+              />
               {stops.map((stop, index) => {
                 const isSelected = stop.stopId === selectedStop.stopId;
                 // Funnily enough, the first stop is last in the array.
