@@ -2,19 +2,13 @@ import React, {Component} from "react";
 import {Polyline, CircleMarker, Popup} from "react-leaflet";
 import moment from "moment";
 import get from "lodash/get";
-import orderBy from "lodash/orderBy";
 import groupBy from "lodash/groupBy";
-import flatten from "lodash/flatten";
 import filter from "lodash/filter";
 import map from "lodash/map";
-import {darken} from "polished";
-import distanceBetween from "../../helpers/distanceBetween";
 import DriveByTimes from "./DriveByTimes";
 import calculateBoundsFromPositions from "../../helpers/calculateBoundsFromPositions";
 import RouteQuery from "../../queries/RouteQuery";
-
-const stopColor = "#3388ff";
-const selectedStopColor = darken(0.2, stopColor);
+import StopMarker from "./StopMarker";
 
 class RouteLayer extends Component {
   stopTimes = {};
@@ -149,69 +143,20 @@ class RouteLayer extends Component {
                 const isFirst = index === stops.length - 1;
                 // ...and the last stop is first.
                 const isLast = index === 0;
-                const isTerminal = isFirst || isLast;
 
                 const hfp = this.getStopTimes(stop);
 
                 return (
-                  <CircleMarker
-                    pane="stops"
+                  <StopMarker
                     key={`stop_marker_${stop.stopId}`}
-                    center={[stop.lat, stop.lon]}
-                    color={
-                      isFirst
-                        ? "green"
-                        : isLast
-                          ? "red"
-                          : isSelected
-                            ? selectedStopColor
-                            : stopColor
-                    }
-                    fillColor={stop.timingStopType ? "lime" : "white"}
-                    fillOpacity={1}
-                    strokeWeight={3}
-                    radius={isSelected ? 14 : isTerminal ? 10 : 8}>
-                    {route.direction}
-                    <Popup>
-                      <h4>
-                        {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({
-                          stop.stopId
-                        })
-                      </h4>
-                      {hfp.length > 0 && (
-                        <React.Fragment>
-                          <div>
-                            <label>
-                              <input
-                                type="radio"
-                                value="arrive"
-                                checked={showTime === "arrive"}
-                                name="showTime"
-                                onChange={this.onChangeShowTime}
-                              />{" "}
-                              Arrive
-                            </label>
-                            <label>
-                              <input
-                                type="radio"
-                                value="depart"
-                                checked={showTime === "depart"}
-                                name="showTime"
-                                onChange={this.onChangeShowTime}
-                              />{" "}
-                              Depart
-                            </label>
-                          </div>
-                          <DriveByTimes
-                            showTime={showTime}
-                            onTimeClick={this.onTimeClick}
-                            queryTime={queryTimeMoment}
-                            positions={hfp}
-                          />
-                        </React.Fragment>
-                      )}
-                    </Popup>
-                  </CircleMarker>
+                    showTime={showTime}
+                    queryTime={queryTimeMoment}
+                    selected={isSelected}
+                    firstTerminal={isFirst}
+                    lastTerminal={isLast}
+                    hfp={hfp}
+                    stop={stop}
+                  />
                 );
               })}
             </React.Fragment>
