@@ -167,7 +167,7 @@ class RouteLayer extends Component {
                             ? selectedStopColor
                             : stopColor
                     }
-                    fillColor="white"
+                    fillColor={stop.timingStopType ? "lime" : "white"}
                     fillOpacity={1}
                     strokeWeight={3}
                     radius={isSelected ? 14 : isTerminal ? 10 : 8}>
