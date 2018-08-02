@@ -21,6 +21,7 @@ const hfpQuery = gql`
         drst
         spd
         mode
+        dl
         __typename
       }
     }
