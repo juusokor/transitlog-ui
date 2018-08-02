@@ -62,7 +62,7 @@ class HfpMarkerLayer extends Component {
     onMarkerClick(
       selectedVehicle !== positionWhenClicked.uniqueVehicleId
         ? positionWhenClicked.uniqueVehicleId
-        : null
+        : ""
     );
   };
 
