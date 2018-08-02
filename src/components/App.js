@@ -48,12 +48,19 @@ class App extends Component {
       playing: false,
       queryTime: "12:30:00",
       stop: defaultStop,
-      selectedVehicle: null,
+      selectedVehicle: "",
       map: defaultMapPosition,
       bbox: null,
       timeIncrement: 5,
+      queryVehicle: "",
     };
   }
+
+  onChangeQueryVehicle = ({target}) => {
+    this.setState({
+      queryVehicle: target.value,
+    });
+  };
 
   onChangeQueryTime = (queryTime) => {
     this.setState({queryTime});
@@ -85,9 +92,9 @@ class App extends Component {
     });
   };
 
-  selectVehicle = (vehiclePosition = null) => {
+  selectVehicle = (uniqueVehicleId) => {
     this.setState({
-      selectedVehicle: vehiclePosition,
+      selectedVehicle: uniqueVehicleId,
     });
   };
 
@@ -141,6 +148,7 @@ class App extends Component {
       stop,
       queryTime,
       selectedVehicle,
+      queryVehicle,
     } = this.state;
 
     const {
@@ -159,6 +167,7 @@ class App extends Component {
         <FilterPanel
           queryDate={queryDate}
           queryTime={queryTime}
+          queryVehicle={queryVehicle}
           line={line}
           route={route}
           stop={stop}
@@ -168,6 +177,7 @@ class App extends Component {
           onClickPlay={this.toggleAutoplay}
           onDateSelected={onDateSelected}
           onChangeQueryTime={this.onChangeQueryTime}
+          onChangeQueryVehicle={this.onChangeQueryVehicle}
           onLineSelected={onLineSelected}
           onRouteSelected={onRouteSelected}
           onStopSelected={this.onStopSelected}
@@ -189,30 +199,35 @@ class App extends Component {
             selectedStop={stop}
           />
           {hfpPositions.length > 0 &&
-            hfpPositions.map((positionGroup) => (
-              <React.Fragment
-                key={`hfp_group_${positionGroup.groupName}_${route.routeId}_${
-                  route.direction
-                }`}>
-                {get(selectedVehicle, "uniqueVehicleId", null) ===
-                  positionGroup.groupName && (
-                  <HfpLayer
-                    key={`hfp_lines_${positionGroup.groupName}`}
+            hfpPositions.map((positionGroup) => {
+              if (queryVehicle && positionGroup.groupName !== queryVehicle) {
+                return null;
+              }
+
+              return (
+                <React.Fragment
+                  key={`hfp_group_${positionGroup.groupName}_${route.routeId}_${
+                    route.direction
+                  }`}>
+                  {(queryVehicle || selectedVehicle === positionGroup.groupName) && (
+                    <HfpLayer
+                      key={`hfp_lines_${positionGroup.groupName}`}
+                      selectedVehicle={selectedVehicle}
+                      positions={positionGroup.positions}
+                      name={positionGroup.groupName}
+                    />
+                  )}
+                  <HfpMarkerLayer
+                    onMarkerClick={this.selectVehicle}
                     selectedVehicle={selectedVehicle}
+                    queryDate={queryDate}
+                    queryTime={queryTime}
                     positions={positionGroup.positions}
                     name={positionGroup.groupName}
                   />
-                )}
-                <HfpMarkerLayer
-                  onMarkerClick={this.selectVehicle}
-                  selectedVehicle={selectedVehicle}
-                  queryDate={queryDate}
-                  queryTime={queryTime}
-                  positions={positionGroup.positions}
-                  name={positionGroup.groupName}
-                />
-              </React.Fragment>
-            ))}
+                </React.Fragment>
+              );
+            })}
         </LeafletMap>
         <LoadingOverlay show={loading} message="Ladataan HFP-tietoja..." />
       </div>

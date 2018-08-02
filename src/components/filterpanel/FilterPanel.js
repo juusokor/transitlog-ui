@@ -10,6 +10,7 @@ import Header from "./Header";
 import DateSettings from "./DateSettings";
 import TimeSettings from "./TimeSettings";
 import AllLinesQuery from "../../queries/AllLinesQuery";
+import VehicleQuery from "../../queries/VehicleQuery";
 
 export class FilterPanel extends Component {
   state = {
@@ -32,6 +33,8 @@ export class FilterPanel extends Component {
       queryDate,
       queryTime,
       isPlaying,
+      queryVehicle,
+      onChangeQueryVehicle,
       onChangeQueryTime,
       onDateSelected,
       onStopSelected,
@@ -56,6 +59,14 @@ export class FilterPanel extends Component {
           setTimeIncrement={setTimeIncrement}
           timeIncrement={timeIncrement}
         />
+        <p>
+          <input
+            type="text"
+            name="vehicle"
+            value={queryVehicle}
+            onChange={onChangeQueryVehicle}
+          />
+        </p>
         {!!route.routeId ? (
           <StopsByRouteQuery
             key="stop_input_by_route"
