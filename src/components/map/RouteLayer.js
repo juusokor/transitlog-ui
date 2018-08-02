@@ -23,17 +23,22 @@ class RouteLayer extends Component {
   };
 
   componentDidUpdate() {
-    const {stops, mapBounds, setMapBounds = () => {}} = this.props;
+    const {mapBounds, stops, setMapBounds = () => {}} = this.props;
 
-    if (stops && stops.length > 0) {
-      const bounds = calculateBoundsFromPositions(stops, {
-        lat: 60.170988,
-        lng: 24.940842,
-      });
+    if (stops.length === 0) {
+      return;
+    }
 
-      if ((mapBounds && !mapBounds.equals(bounds)) || !mapBounds) {
-        setMapBounds(bounds);
-      }
+    const bounds = calculateBoundsFromPositions(stops, {
+      lat: 60.170988,
+      lon: 24.940842,
+    });
+
+    if (
+      !mapBounds ||
+      (mapBounds && mapBounds.isValid() && !mapBounds.equals(bounds))
+    ) {
+      setMapBounds(bounds);
     }
   }
 
@@ -121,7 +126,8 @@ class RouteLayer extends Component {
 
   render() {
     const {showTime} = this.state;
-    const {selectedStop, route, queryTime, queryDate} = this.props;
+
+    const {selectedStop, queryTime, queryDate, routePositions, stops} = this.props;
 
     const queryTimeMoment = moment(
       `${queryDate} ${queryTime}`,
@@ -129,42 +135,36 @@ class RouteLayer extends Component {
       true
     );
 
+    const coords = routePositions.map(([lon, lat]) => [lat, lon]);
+
     return (
-      <RouteQuery route={route}>
-        {({routePositions, stops}) => {
-          const coords = routePositions.map(([lon, lat]) => [lat, lon]);
+      <React.Fragment>
+        <Polyline pane="route-lines" weight={3} positions={coords} />
+        {stops.map((stop, index) => {
+          const isSelected = stop.stopId === selectedStop.stopId;
+          // Funnily enough, the first stop is last in the array.
+          const isFirst = index === stops.length - 1;
+          // ...and the last stop is first.
+          const isLast = index === 0;
+
+          const hfp = this.getStopTimes(stop);
 
           return (
-            <React.Fragment>
-              <Polyline pane="route-lines" weight={3} positions={coords} />
-              {stops.map((stop, index) => {
-                const isSelected = stop.stopId === selectedStop.stopId;
-                // Funnily enough, the first stop is last in the array.
-                const isFirst = index === stops.length - 1;
-                // ...and the last stop is first.
-                const isLast = index === 0;
-
-                const hfp = this.getStopTimes(stop);
-
-                return (
-                  <StopMarker
-                    onTimeClick={this.onTimeClick}
-                    onChangeShowTime={this.onChangeShowTime}
-                    key={`stop_marker_${stop.stopId}`}
-                    showTime={showTime}
-                    queryTime={queryTimeMoment}
-                    selected={isSelected}
-                    firstTerminal={isFirst}
-                    lastTerminal={isLast}
-                    hfp={hfp}
-                    stop={stop}
-                  />
-                );
-              })}
-            </React.Fragment>
+            <StopMarker
+              onTimeClick={this.onTimeClick}
+              onChangeShowTime={this.onChangeShowTime}
+              key={`stop_marker_${stop.stopId}`}
+              showTime={showTime}
+              queryTime={queryTimeMoment}
+              selected={isSelected}
+              firstTerminal={isFirst}
+              lastTerminal={isLast}
+              hfp={hfp}
+              stop={stop}
+            />
           );
-        }}
-      </RouteQuery>
+        })}
+      </React.Fragment>
     );
   }
 }

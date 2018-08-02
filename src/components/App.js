@@ -11,6 +11,7 @@ import LoadingOverlay from "./LoadingOverlay";
 import HfpLayer from "./map/HfpLayer";
 import "./App.css";
 import "./Form.css";
+import RouteQuery from "../queries/RouteQuery";
 
 const defaultStop = {
   stopId: "",
@@ -63,6 +64,7 @@ class App extends Component {
     this.setState({
       stop,
       map: {
+        ...this.state.map,
         zoom: !!stop ? 16 : 13,
         lat: get(stop, "lat", defaultMapPosition.lat),
         lng: get(stop, "lon", defaultMapPosition.lng),
@@ -73,6 +75,10 @@ class App extends Component {
   onMapChanged = ({target}) => {
     const bounds = target.getBounds();
     const zoom = target.getZoom();
+
+    if (!bounds.isValid()) {
+      return;
+    }
 
     this.setState({
       map: {...this.state.map, zoom},
@@ -174,17 +180,23 @@ class App extends Component {
         />
         <LeafletMap position={map} onMapChanged={this.onMapChanged}>
           {!route.routeId && map.zoom > 15 && <StopLayer bounds={this.state.bbox} />}
-          <RouteLayer
-            route={route}
-            setMapBounds={this.setMapBounds}
-            mapBounds={map.bounds}
-            key={`routes_${route.routeId}_${route.direction}_${stop.stopId}`}
-            onChangeQueryTime={this.onChangeQueryTime}
-            queryDate={queryDate}
-            queryTime={queryTime}
-            hfpPositions={hfpPositions}
-            selectedStop={stop}
-          />
+          <RouteQuery route={route}>
+            {({routePositions, stops}) => (
+              <RouteLayer
+                route={route}
+                routePositions={routePositions}
+                stops={stops}
+                setMapBounds={this.setMapBounds}
+                mapBounds={map.bounds}
+                key={`routes_${route.routeId}_${route.direction}_${stop.stopId}`}
+                onChangeQueryTime={this.onChangeQueryTime}
+                queryDate={queryDate}
+                queryTime={queryTime}
+                hfpPositions={hfpPositions}
+                selectedStop={stop}
+              />
+            )}
+          </RouteQuery>
           {hfpPositions.length > 0 &&
             hfpPositions.map((positionGroup) => (
               <React.Fragment
