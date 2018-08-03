@@ -25,6 +25,7 @@ const routeQuery = gql`
       }
       routeSegments {
         nodes {
+          timingStopType
           stop: stopByStopId {
             stopId
             lat
@@ -82,7 +83,7 @@ class RouteQuery extends Component {
           );
 
           const stops = get(data, "route.routeSegments.nodes", []).map(
-            (segment) => segment.stop
+            (segment) => ({...segment.stop, timingStopType: segment.timingStopType})
           );
 
           return children({routePositions: positions, stops});

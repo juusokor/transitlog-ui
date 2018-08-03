@@ -5,15 +5,12 @@ import get from "lodash/get";
 import groupBy from "lodash/groupBy";
 import filter from "lodash/filter";
 import map from "lodash/map";
-import {darken} from "polished";
 import DriveByTimes from "./DriveByTimes";
 import calculateBoundsFromPositions from "../../helpers/calculateBoundsFromPositions";
-
-const stopColor = "#3388ff";
-const selectedStopColor = darken(0.2, stopColor);
+import RouteQuery from "../../queries/RouteQuery";
+import StopMarker from "./StopMarker";
 
 class RouteLayer extends Component {
-  polylineRef = React.createRef();
   stopTimes = {};
   state = {
     showTime: "arrive",
@@ -129,14 +126,8 @@ class RouteLayer extends Component {
 
   render() {
     const {showTime} = this.state;
-    const {
-      selectedStop,
-      route,
-      queryTime,
-      queryDate,
-      routePositions,
-      stops,
-    } = this.props;
+
+    const {selectedStop, queryTime, queryDate, routePositions, stops} = this.props;
 
     const queryTimeMoment = moment(
       `${queryDate} ${queryTime}`,
@@ -145,81 +136,32 @@ class RouteLayer extends Component {
     );
 
     const coords = routePositions.map(([lon, lat]) => [lat, lon]);
+
     return (
       <React.Fragment>
-        <Polyline
-          pane="route-lines"
-          weight={3}
-          positions={coords}
-          ref={this.polylineRef}
-        />
+        <Polyline pane="route-lines" weight={3} positions={coords} />
         {stops.map((stop, index) => {
           const isSelected = stop.stopId === selectedStop.stopId;
           // Funnily enough, the first stop is last in the array.
           const isFirst = index === stops.length - 1;
           // ...and the last stop is first.
           const isLast = index === 0;
-          const isTerminal = isFirst || isLast;
 
           const hfp = this.getStopTimes(stop);
 
           return (
-            <CircleMarker
-              pane="stops"
+            <StopMarker
+              onTimeClick={this.onTimeClick}
+              onChangeShowTime={this.onChangeShowTime}
               key={`stop_marker_${stop.stopId}`}
-              center={[stop.lat, stop.lon]}
-              color="white"
-              fillColor={
-                isFirst
-                  ? "green"
-                  : isLast
-                    ? "red"
-                    : isSelected
-                      ? selectedStopColor
-                      : stopColor
-              }
-              fillOpacity={1}
-              strokeWeight={2}
-              radius={isSelected ? 14 : isTerminal ? 10 : 8}>
-              {route.direction}
-              <Popup>
-                <h4>
-                  {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
-                </h4>
-                {hfp.length > 0 && (
-                  <React.Fragment>
-                    <div>
-                      <label>
-                        <input
-                          type="radio"
-                          value="arrive"
-                          checked={showTime === "arrive"}
-                          name="showTime"
-                          onChange={this.onChangeShowTime}
-                        />{" "}
-                        Arrive
-                      </label>
-                      <label>
-                        <input
-                          type="radio"
-                          value="depart"
-                          checked={showTime === "depart"}
-                          name="showTime"
-                          onChange={this.onChangeShowTime}
-                        />{" "}
-                        Depart
-                      </label>
-                    </div>
-                    <DriveByTimes
-                      showTime={showTime}
-                      onTimeClick={this.onTimeClick}
-                      queryTime={queryTimeMoment}
-                      positions={hfp}
-                    />
-                  </React.Fragment>
-                )}
-              </Popup>
-            </CircleMarker>
+              showTime={showTime}
+              queryTime={queryTimeMoment}
+              selected={isSelected}
+              firstTerminal={isFirst}
+              lastTerminal={isLast}
+              hfp={hfp}
+              stop={stop}
+            />
           );
         })}
       </React.Fragment>
