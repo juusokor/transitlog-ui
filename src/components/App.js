@@ -49,7 +49,7 @@ class App extends Component {
       playing: false,
       queryTime: "12:30:00",
       stop: defaultStop,
-      selectedVehicle: "",
+      selectedVehicle: null,
       map: defaultMapPosition,
       bbox: null,
       timeIncrement: 5,
@@ -221,7 +221,9 @@ class App extends Component {
                   key={`hfp_group_${positionGroup.groupName}_${route.routeId}_${
                     route.direction
                   }`}>
-                  {(queryVehicle || selectedVehicle === positionGroup.groupName) && (
+                  {(queryVehicle ||
+                    get(selectedVehicle, "uniqueVehicleId", "") ===
+                      positionGroup.groupName) && (
                     <HfpLayer
                       key={`hfp_lines_${positionGroup.groupName}`}
                       selectedVehicle={selectedVehicle}
