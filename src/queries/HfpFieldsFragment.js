@@ -11,6 +11,7 @@ const HfpFieldsFragment = gql`
     drst
     spd
     mode
+    dl
     __typename
   }
 `;
