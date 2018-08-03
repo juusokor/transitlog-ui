@@ -16,6 +16,14 @@ const stopsByBboxQuery = gql`
         stopId
         lat
         lon
+        routeSegmentsForDate(date: "2018-05-06") {
+          nodes {
+            routeId
+            dateBegin
+            dateEnd
+            direction
+          }
+        }
       }
     }
   }
@@ -36,6 +44,7 @@ class StopLayer extends Component {
           if (loading) return "Loading...";
           if (error) return "Error!";
           const stops = get(data, "stopsByBbox.nodes", []);
+          console.log(stops);
           return (
             <React.Fragment>
               {stops.map((stop) => (
@@ -44,13 +53,19 @@ class StopLayer extends Component {
                   pane="stops"
                   center={[stop.lat, stop.lon]}
                   color={stopColor}
-                  fillColor={stopColor}
+                  fillColor={"#FFF"}
                   fillOpacity={1}
                   radius={6}
                   onPopupopen={() => this.setState({selectedStop: stop.stopId})}
                   onPopupclose={() => this.setState({selectedStop: null})}>
                   {this.state.selectedStop === stop.stopId ? (
-                    <Popup>Routes</Popup>
+                    <Popup>
+                      {stop.routeSegmentsForDate.nodes.map((route) => (
+                        <button key={`route_${route.routeId}`}>
+                          {route.routeId.substring(1).replace(/^0+/, "")}
+                        </button>
+                      ))}
+                    </Popup>
                   ) : (
                     <Popup>Loading..</Popup>
                   )}
