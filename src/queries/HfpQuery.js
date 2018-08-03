@@ -9,7 +9,12 @@ const hfpQuery = gql`
   query hfpQuery($routeId: String, $direction: Int, $date: Date) {
     allVehicles(
       orderBy: RECEIVED_AT_ASC
-      condition: {routeId: $routeId, directionId: $direction, oday: $date}
+      condition: {
+        geohashLevel: 3
+        routeId: $routeId
+        directionId: $direction
+        oday: $date
+      }
     ) {
       nodes {
         journeyStartTime

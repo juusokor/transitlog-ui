@@ -12,6 +12,7 @@ const routesByLineQuery = gql`
     ) {
       routes {
         nodes {
+          nodeId
           routeId
           direction
           dateBegin
