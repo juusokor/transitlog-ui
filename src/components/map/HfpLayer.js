@@ -9,7 +9,6 @@ import getDelayType from "../../helpers/getDelayType";
 
 class HfpLayer extends Component {
   mouseOver = false;
-  positions = this.getLine();
 
   getLine() {
     const {selectedVehicle: selectedVehiclePosition, positions} = this.props;
@@ -19,19 +18,43 @@ class HfpLayer extends Component {
     // Additional data can be passed as the third array element which Leaflet won't touch.
     return positions
       .filter((pos) => pos.journeyStartTime === journeyStartTime)
-      .map(({lat, long, receivedAt, uniqueVehicleId, spd, dl}) => [
-        lat,
-        long,
-        {receivedAt, uniqueVehicleId, spd, dl},
-      ]);
+      .reduce((allChunks, position) => {
+        const positionDelay = get(position, "dl", 0);
+        const delayType = getDelayType(positionDelay); // "early", "late" or "on-time"
+
+        set(position, "_dlType", delayType); // Save the delay type on the position
+
+        // If this is the first position, allChunks will be empty.
+        // Add it as a new chunk to kick things off.
+        if (allChunks.length === 0) {
+          allChunks.push([position]);
+          return allChunks;
+        }
+
+        // Check the last element of the last chunk to determine if we want to push
+        // `position` onto the last chunk or start a new chunk for it.
+        const lastItem = last(last(allChunks));
+        const lastDelayType = get(lastItem, "_dlType", "on-time");
+
+        // If the delay types are the same, add the position to the last chunk.
+        if (delayType === lastDelayType) {
+          allChunks[allChunks.length - 1].push(position);
+        } else {
+          // Otherwise start a new chunk. Include the last element from the
+          // previous chunk to eliminate gaps in the line.
+          allChunks.push([lastItem, position]);
+        }
+
+        return allChunks;
+      }, []);
   }
 
-  findHfpItem = (latlng) => {
-    const hfpItem = this.positions.find((hfp) =>
-      latlng.equals(latLng(hfp[0], hfp[1]), 0.001)
+  findHfpItem = (positions, latlng) => {
+    const hfpItem = positions.find((hfp) =>
+      latlng.equals(latLng(hfp.lat, hfp.long), 0.001)
     );
 
-    return hfpItem ? hfpItem[2] : null;
+    return hfpItem || null;
   };
 
   onMouseout = (event) => {
@@ -46,12 +69,12 @@ class HfpLayer extends Component {
     line.setStyle({weight: 10});
   };
 
-  onMousemove = (event) => {
+  onMousemove = (positions) => (event) => {
     if (!this.mouseOver) {
       return;
     }
 
-    const hfpItem = this.findHfpItem(event.latlng);
+    const hfpItem = this.findHfpItem(positions, event.latlng);
 
     if (hfpItem) {
       const line = event.target;
@@ -69,52 +92,22 @@ Speed: ${hfpItem.spd} km/h`;
     }
   };
 
-  componentWillUnmount() {
-    console.log("unmount hfp line");
-  }
-
   render() {
     const {name} = this.props;
-
-    // Split the positions into chunks by the delay.
-    const positionDelayChunks = this.positions.reduce((allChunks, position) => {
-      const positionDelay = get(position, "[2].dl", 0);
-      const delayType = getDelayType(positionDelay); // "early", "late" or "on-time"
-
-      set(position, "[2]._dlType", delayType); // Save the delay type on the position
-
-      // If this is the first position, allChunks will be empty.
-      // Add it as a new chunk to kick things off.
-      if (allChunks.length === 0) {
-        allChunks.push([position]);
-        return allChunks;
-      }
-
-      // Check the last element of the last chunk to determine if we want to push
-      // `position` onto the last chunk or start a new chunk for it.
-      const lastDelayType = get(last(last(allChunks)), "[2]._dlType", "on-time");
-
-      // If the delay types are the same, add the position to the last chunk.
-      if (delayType === lastDelayType) {
-        allChunks[allChunks.length - 1].push(position);
-      } else {
-        // Otherwise start a new chunk.
-        allChunks.push([position]);
-      }
-
-      return allChunks;
-    }, []);
+    const positions = this.getLine();
 
     return (
       <React.Fragment>
-        {positionDelayChunks.map((delayChunk, index) => {
-          const chunkDelayType = get(delayChunk, "[0][2]._dlType", "on-time");
+        {positions.map((delayChunk, index) => {
+          // Check the SECOND array element for the delay type. The first
+          // element might be of the previous type, included to eliminate gaps.
+          const chunkDelayType = get(delayChunk, "[1]._dlType", "on-time");
 
           // Render each chunk with a color that matches the delay.
           return (
             <Polyline
               key={`hfp_polyline_${name}_chunk_${index}`}
-              onMousemove={this.onMousemove}
+              onMousemove={this.onMousemove(delayChunk)}
               onMouseover={this.onHover}
               onMouseout={this.onMouseout}
               pane="hfp-lines"
@@ -126,7 +119,7 @@ Speed: ${hfpItem.spd} km/h`;
                     ? "yellow"
                     : "green"
               }
-              positions={delayChunk}
+              positions={delayChunk.map((pos) => [pos.lat, pos.long])}
             />
           );
         })}
