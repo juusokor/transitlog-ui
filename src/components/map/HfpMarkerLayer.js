@@ -57,7 +57,7 @@ class HfpMarkerLayer extends Component {
 
     onMarkerClick(
       get(selectedVehicle, "uniqueVehicleId", "") !==
-        positionWhenClicked.uniqueVehicleId &&
+        positionWhenClicked.uniqueVehicleId ||
       get(selectedVehicle, "journeyStartTime", "") !==
         positionWhenClicked.journeyStartTime
         ? positionWhenClicked

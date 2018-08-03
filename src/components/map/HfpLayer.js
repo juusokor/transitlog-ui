@@ -9,6 +9,7 @@ import getDelayType from "../../helpers/getDelayType";
 
 class HfpLayer extends Component {
   mouseOver = false;
+  positions = this.getLine();
 
   getLine() {
     const {selectedVehicle: selectedVehiclePosition, positions} = this.props;
@@ -51,7 +52,7 @@ class HfpLayer extends Component {
 
   findHfpItem = (positions, latlng) => {
     const hfpItem = positions.find((hfp) =>
-      latlng.equals(latLng(hfp.lat, hfp.long), 0.001)
+      latlng.equals(latLng(hfp.lat, hfp.long), 0.0001)
     );
 
     return hfpItem || null;
@@ -80,7 +81,8 @@ class HfpLayer extends Component {
       const line = event.target;
       const tooltipContent = `${moment(hfpItem.receivedAt).format("HH:mm:ss")}<br />
 ${hfpItem.uniqueVehicleId}<br />
-Speed: ${hfpItem.spd} km/h`;
+Speed: ${hfpItem.spd} km/h<br />
+Delay: ${hfpItem.dl} sek.`;
 
       const lineTooltip = line.getTooltip();
 
@@ -94,7 +96,7 @@ Speed: ${hfpItem.spd} km/h`;
 
   render() {
     const {name} = this.props;
-    const positions = this.getLine();
+    const positions = this.positions;
 
     return (
       <React.Fragment>
