@@ -211,24 +211,27 @@ class App extends Component {
             )}
           </RouteQuery>
           {hfpPositions.length > 0 &&
-            hfpPositions.map((positionGroup) => {
-              if (queryVehicle && positionGroup.groupName !== queryVehicle) {
+            hfpPositions.map(({positions, groupName}) => {
+              if (queryVehicle && groupName !== queryVehicle) {
                 return null;
               }
 
+              const key = `${groupName}_${route.routeId}_${route.direction}`;
+              const lineVehicleId =
+                queryVehicle || get(selectedVehicle, "uniqueVehicleId", "");
+
+              const lineKey = `${route.routeId}_${
+                route.direction
+              }_${lineVehicleId}_${get(selectedVehicle, "journeyStartTime", "")}`;
+
               return (
-                <React.Fragment
-                  key={`hfp_group_${positionGroup.groupName}_${route.routeId}_${
-                    route.direction
-                  }`}>
-                  {(queryVehicle ||
-                    get(selectedVehicle, "uniqueVehicleId", "") ===
-                      positionGroup.groupName) && (
+                <React.Fragment key={`hfp_group_${key}`}>
+                  {(queryVehicle || lineVehicleId === groupName) && (
                     <HfpLayer
-                      key={`hfp_lines_${positionGroup.groupName}`}
+                      key={`hfp_lines_${lineKey}`}
                       selectedVehicle={selectedVehicle}
-                      positions={positionGroup.positions}
-                      name={positionGroup.groupName}
+                      positions={positions}
+                      name={groupName}
                     />
                   )}
                   <HfpMarkerLayer
@@ -236,8 +239,8 @@ class App extends Component {
                     selectedVehicle={selectedVehicle}
                     queryDate={queryDate}
                     queryTime={queryTime}
-                    positions={positionGroup.positions}
-                    name={positionGroup.groupName}
+                    positions={positions}
+                    name={groupName}
                   />
                 </React.Fragment>
               );
