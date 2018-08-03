@@ -4,6 +4,7 @@ import get from "lodash/get";
 import moment from "moment";
 import {divIcon} from "leaflet";
 import getDelayType from "../../helpers/getDelayType";
+import diffDates from "../../helpers/diffDates";
 
 class HfpMarkerLayer extends Component {
   prevQueryTime = "";
@@ -17,11 +18,7 @@ class HfpMarkerLayer extends Component {
       return this.prevHfpPosition;
     }
 
-    const queryTimeMoment = moment(
-      `${queryDate} ${queryTime}`,
-      "YYYY-MM-DD HH:mm:ss",
-      true
-    );
+    const queryTimeDate = new Date(`${queryDate}T${queryTime}`);
 
     let nextHfpPosition = null;
     const total = positions.length;
@@ -32,17 +29,16 @@ class HfpMarkerLayer extends Component {
       let prevDifference = 30;
 
       if (nextHfpPosition) {
-        prevDifference = Math.abs(
-          queryTimeMoment.diff(moment(nextHfpPosition.receivedAt), "seconds")
-        );
+        const nextHfpDate = new Date(nextHfpPosition.receivedAt);
+        prevDifference = Math.abs(diffDates(queryTimeDate, nextHfpDate));
 
-        if (prevDifference < 5) {
+        if (prevDifference < 7) {
           break;
         }
       }
 
       const difference = Math.abs(
-        queryTimeMoment.diff(moment(position.receivedAt), "seconds")
+        diffDates(queryTimeDate, new Date(position.receivedAt))
       );
 
       if (difference < prevDifference) {
