@@ -5,7 +5,11 @@ function fuzzySearch(needle = "", haystack = "") {
   let n = -1;
   let l;
 
-  for (; (l = search[i++]); ) if (!~(n = hay.indexOf(l, n + 1))) return false;
+  for (; (l = search[i++]); ) {
+    if (!~(n = hay.indexOf(l, n + 1))) {
+      return false;
+    }
+  }
   return true;
 }
 

@@ -22,9 +22,12 @@ const stopsByBboxQuery = gql`
 `;
 
 const stopColor = "#3388ff";
+const selectedStopColor = "#33ff88";
 
 class StopLayer extends Component {
   render() {
+    const {selectedStop} = this.props;
+
     return (
       <Query query={stopsByBboxQuery} variables={this.props.bounds}>
         {({loading, data, error}) => {
@@ -39,9 +42,11 @@ class StopLayer extends Component {
                   pane="stops"
                   center={[stop.lat, stop.lon]}
                   color={stopColor}
-                  fillColor={stopColor}
+                  fillColor={
+                    selectedStop === stop.stopId ? selectedStopColor : stopColor
+                  }
                   fillOpacity={1}
-                  radius={6}>
+                  radius={selectedStop === stop.stopId ? 10 : 6}>
                   <Popup>Timetable of the day</Popup>
                 </CircleMarker>
               ))}

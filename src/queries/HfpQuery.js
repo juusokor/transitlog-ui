@@ -4,6 +4,7 @@ import get from "lodash/get";
 import {Query} from "react-apollo";
 import PropTypes from "prop-types";
 import gql from "graphql-tag";
+import HfpFieldsFragment from "./HfpFieldsFragment";
 
 const hfpQuery = gql`
   query hfpQuery($routeId: String, $direction: Int, $date: Date) {
@@ -12,20 +13,11 @@ const hfpQuery = gql`
       condition: {routeId: $routeId, directionId: $direction, oday: $date}
     ) {
       nodes {
-        journeyStartTime
-        nextStopId
-        receivedAt
-        lat
-        long
-        uniqueVehicleId
-        drst
-        spd
-        mode
-        dl
-        __typename
+        ...HfpFieldsFragment
       }
     }
   }
+  ${HfpFieldsFragment}
 `;
 
 class HfpQuery extends Component {

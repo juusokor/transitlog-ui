@@ -10,8 +10,21 @@ import Header from "./Header";
 import DateSettings from "./DateSettings";
 import TimeSettings from "./TimeSettings";
 import AllLinesQuery from "../../queries/AllLinesQuery";
+import VehicleQuery from "../../queries/VehicleQuery";
 
 export class FilterPanel extends Component {
+  state = {
+    visible: true,
+  };
+
+  toggleVisibility = (e) => {
+    e.preventDefault();
+
+    this.setState({
+      visible: !this.state.visible,
+    });
+  };
+
   render() {
     const {
       stop,
@@ -20,6 +33,8 @@ export class FilterPanel extends Component {
       queryDate,
       queryTime,
       isPlaying,
+      queryVehicle,
+      onChangeQueryVehicle,
       onChangeQueryTime,
       onDateSelected,
       onStopSelected,
@@ -29,8 +44,11 @@ export class FilterPanel extends Component {
       setTimeIncrement,
     } = this.props;
 
+    const {visible} = this.state;
+
     return (
-      <header className="transitlog-header filter-panel">
+      <header
+        className={`transitlog-header filter-panel ${visible ? "visible" : ""}`}>
         <Header />
         <DateSettings queryDate={queryDate} onDateSelected={onDateSelected} />
         <TimeSettings
@@ -41,6 +59,14 @@ export class FilterPanel extends Component {
           setTimeIncrement={setTimeIncrement}
           timeIncrement={timeIncrement}
         />
+        <p>
+          <input
+            type="text"
+            name="vehicle"
+            value={queryVehicle}
+            onChange={onChangeQueryVehicle}
+          />
+        </p>
         {!!route.routeId ? (
           <StopsByRouteQuery
             key="stop_input_by_route"
@@ -81,6 +107,9 @@ export class FilterPanel extends Component {
             )}
           </QueryRoutesByLine>
         )}
+        <button className="toggle-filter-panel" onClick={this.toggleVisibility}>
+          {visible ? "<" : ">"}
+        </button>
       </header>
     );
   }

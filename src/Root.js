@@ -62,11 +62,10 @@ class Root extends Component {
       return hfpData;
     }
 
-    let data = orderBy(hfpData, "receivedAt");
-    data = groupBy(data, "uniqueVehicleId");
+    let data = groupBy(takeEveryNth(hfpData, 5), "uniqueVehicleId");
     data = map(data, (positions, groupName) => ({
       groupName: groupName,
-      positions: takeEveryNth(positions, 5).filter((pos) => !!pos.lat && !!pos.long),
+      positions: positions.filter((pos) => !!pos.lat && !!pos.long),
     }));
 
     return data;
