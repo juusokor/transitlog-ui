@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import get from "lodash/get";
 import {LeafletMap} from "./map/LeafletMap";
-import {FilterPanel} from "./filterpanel/FilterPanel";
+import FilterPanel from "./filterpanel/FilterPanel";
 import moment from "moment";
 import RouteLayer from "./map/RouteLayer";
 import StopLayer from "./map/StopLayer";
@@ -12,6 +12,9 @@ import HfpLayer from "./map/HfpLayer";
 import "./App.css";
 import "./Form.css";
 import RouteQuery from "../queries/RouteQuery";
+import withHfpData from "../hoc/withHfpData";
+import {app} from "mobx-app";
+import {inject, observer} from "mobx-react";
 
 const defaultStop = {
   stopId: "",
@@ -24,10 +27,13 @@ const defaultStop = {
 
 const defaultMapPosition = {lat: 60.170988, lng: 24.940842, zoom: 13, bounds: null};
 
+@withHfpData
+@inject(app("Filters", "Time"))
+@observer
 class App extends Component {
-  autoplayTimerHandle = null;
+  static getDerivedStateFromProps({state}, {prevQueryDate, selectedVehicle}) {
+    const queryDate = state.date;
 
-  static getDerivedStateFromProps({queryDate}, {prevQueryDate, selectedVehicle}) {
     if (!selectedVehicle || !prevQueryDate) {
       return null;
     }
@@ -46,19 +52,12 @@ class App extends Component {
     super();
     this.state = {
       prevQueryDate: "",
-      playing: false,
-      queryTime: "12:30:00",
       stop: defaultStop,
       selectedVehicle: null,
       map: defaultMapPosition,
       bbox: null,
-      timeIncrement: 5,
     };
   }
-
-  onChangeQueryTime = (queryTime) => {
-    this.setState({queryTime});
-  };
 
   onStopSelected = (stop) => {
     this.setState({
@@ -97,16 +96,6 @@ class App extends Component {
     });
   };
 
-  toggleAutoplay = (e) => {
-    this.setState({playing: !this.state.playing});
-  };
-
-  setTimeIncrement = ({target}) => {
-    this.setState({
-      timeIncrement: target.value,
-    });
-  };
-
   setMapBounds = (bounds = null) => {
     if (bounds) {
       this.setState({
@@ -118,53 +107,31 @@ class App extends Component {
     }
   };
 
-  autoplay = () => {
-    const nextQueryTime = moment(this.state.queryTime, "HH:mm:ss")
-      .add(this.state.timeIncrement, "seconds")
-      .format("HH:mm:ss");
-
-    this.setState({
-      queryTime: nextQueryTime,
-    });
-  };
-
-  componentDidUpdate() {
-    if (this.state.playing && !this.autoplayTimerHandle) {
-      // timer() is a setInterval alternative that uses requestAnimationFrame.
-      // This makes it more performant and can "pause" when the tab is not focused.
-      this.autoplayTimerHandle = timer(() => this.autoplay(), 1000);
-    } else if (!this.state.playing && !!this.autoplayTimerHandle) {
-      cancelAnimationFrame(this.autoplayTimerHandle.value);
-      this.autoplayTimerHandle = null;
-    }
-  }
-
   render() {
-    const {
-      map,
-      playing,
-      timeIncrement,
-      stop,
-      queryTime,
-      selectedVehicle,
-    } = this.state;
+    const {map, playing, timeIncrement, stop, selectedVehicle} = this.state;
 
     const {
       route,
       line,
-      queryDate,
       onRouteSelected,
       onLineSelected,
       onDateSelected,
       hfpPositions,
       loading,
+      Filters,
+      Time,
+      state,
     } = this.props;
+
+    const {date, time} = state;
+    const {setTime, setTimeIncrement, toggleAutoplay} = Time;
+    const {setDate} = Filters;
 
     return (
       <div className="transitlog">
         <FilterPanel
-          queryDate={queryDate}
-          queryTime={queryTime}
+          queryDate={date}
+          queryTime={time}
           line={line}
           route={route}
           stop={stop}
@@ -190,8 +157,8 @@ class App extends Component {
                 mapBounds={map.bounds}
                 key={`routes_${route.routeId}_${route.direction}_${stop.stopId}`}
                 onChangeQueryTime={this.onChangeQueryTime}
-                queryDate={queryDate}
-                queryTime={queryTime}
+                queryDate={date}
+                queryTime={time}
                 hfpPositions={hfpPositions}
                 selectedStop={stop}
               />
@@ -215,8 +182,8 @@ class App extends Component {
                 <HfpMarkerLayer
                   onMarkerClick={this.selectVehicle}
                   selectedVehicle={selectedVehicle}
-                  queryDate={queryDate}
-                  queryTime={queryTime}
+                  queryDate={date}
+                  queryTime={time}
                   positions={positionGroup.positions}
                   name={positionGroup.groupName}
                 />

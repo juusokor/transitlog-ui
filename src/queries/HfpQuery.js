@@ -5,7 +5,7 @@ import {Query} from "react-apollo";
 import PropTypes from "prop-types";
 import gql from "graphql-tag";
 
-const hfpQuery = gql`
+export const hfpQuery = gql`
   query hfpQuery($routeId: String, $direction: Int, $date: Date) {
     allVehicles(
       orderBy: RECEIVED_AT_ASC

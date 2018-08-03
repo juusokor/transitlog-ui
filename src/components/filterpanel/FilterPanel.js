@@ -10,37 +10,18 @@ import Header from "./Header";
 import DateSettings from "./DateSettings";
 import TimeSettings from "./TimeSettings";
 import AllLinesQuery from "../../queries/AllLinesQuery";
+import {observer} from "mobx-react";
 
-export class FilterPanel extends Component {
+@observer
+class FilterPanel extends Component {
   render() {
-    const {
-      stop,
-      route,
-      line,
-      queryDate,
-      queryTime,
-      isPlaying,
-      onChangeQueryTime,
-      onDateSelected,
-      onStopSelected,
-      onRouteSelected,
-      onClickPlay,
-      timeIncrement,
-      setTimeIncrement,
-    } = this.props;
+    const {stop, route, line, onStopSelected, onRouteSelected} = this.props;
 
     return (
       <header className="transitlog-header filter-panel">
         <Header />
-        <DateSettings queryDate={queryDate} onDateSelected={onDateSelected} />
-        <TimeSettings
-          queryTime={queryTime}
-          onClickPlay={onClickPlay}
-          isPlaying={isPlaying}
-          onChangeQueryTime={onChangeQueryTime}
-          setTimeIncrement={setTimeIncrement}
-          timeIncrement={timeIncrement}
-        />
+        <DateSettings />
+        <TimeSettings />
         {!!route.routeId ? (
           <StopsByRouteQuery
             key="stop_input_by_route"
@@ -61,7 +42,7 @@ export class FilterPanel extends Component {
             )}
           </AllStopsQuery>
         )}
-        <AllLinesQuery queryDate={queryDate}>
+        <AllLinesQuery queryDate={date}>
           {({lines}) => (
             <LineInput
               line={this.props.line}
@@ -85,3 +66,5 @@ export class FilterPanel extends Component {
     );
   }
 }
+
+export default FilterPanel;
