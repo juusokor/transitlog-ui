@@ -16,7 +16,7 @@ export default (Component) => {
         return hfpData;
       }
 
-      const groupedData = groupBy(takeEveryNth(hfpData, 3), "uniqueVehicleId");
+      const groupedData = groupBy(takeEveryNth(hfpData, 10), "uniqueVehicleId");
       return map(groupedData, (positions, groupName) => ({
         vehicleId: groupName,
         positions,
