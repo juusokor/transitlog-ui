@@ -2,6 +2,7 @@ import React from "react";
 import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import get from "lodash/get";
+import RouteFieldsFragment from "./RouteFieldsFragment";
 
 const routesByLineQuery = gql`
   query lineQuery($lineId: String!, $dateBegin: Date!, $dateEnd: Date!) {
@@ -10,21 +11,18 @@ const routesByLineQuery = gql`
       dateBegin: $dateBegin
       dateEnd: $dateEnd
     ) {
+      __typename
+      lineId
+      dateBegin
+      dateEnd
       routes {
         nodes {
-          nodeId
-          routeId
-          direction
-          dateBegin
-          dateEnd
-          destinationFi
-          originFi
-          nameFi
-          originstopId
+          ...RouteFieldsFragment
         }
       }
     }
   }
+  ${RouteFieldsFragment}
 `;
 
 export default ({variables, children}) => (

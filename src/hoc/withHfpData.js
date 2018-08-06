@@ -5,9 +5,11 @@ import HfpQuery from "../queries/HfpQuery";
 import {getCachedData, cacheData} from "../helpers/hfpCache";
 import groupBy from "lodash/groupBy";
 import map from "lodash/map";
+import withRoute from "./withRoute";
 
 export default (Component) => {
   @inject(app("state"))
+  @withRoute
   @observer
   class WithHfpData extends React.Component {
     formatData = (hfpData) => {
@@ -28,7 +30,8 @@ export default (Component) => {
 
     render() {
       const {
-        state: {date, selectedRoute},
+        state: {date},
+        route,
       } = this.props;
       let hfpPositions = getCachedData(date, selectedRoute);
 

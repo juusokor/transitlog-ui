@@ -2,11 +2,9 @@ import React, {Component} from "react";
 import get from "lodash/get";
 import {LeafletMap} from "./map/LeafletMap";
 import FilterPanel from "./filterpanel/FilterPanel";
-import moment from "moment";
 import RouteLayer from "./map/RouteLayer";
 import StopLayer from "./map/StopLayer";
 import HfpMarkerLayer from "./map/HfpMarkerLayer";
-import timer from "../helpers/timer";
 import LoadingOverlay from "./LoadingOverlay";
 import HfpLayer from "./map/HfpLayer";
 import "./App.css";
@@ -28,37 +26,17 @@ const defaultStop = {
 const defaultMapPosition = {lat: 60.170988, lng: 24.940842, zoom: 13, bounds: null};
 
 @withHfpData
-@inject(app("Filters", "Time"))
+@inject(app("state"))
 @observer
 class App extends Component {
   constructor() {
     super();
     this.state = {
-      stop: defaultStop,
       selectedVehicle: null,
       map: defaultMapPosition,
       bbox: null,
-      queryVehicle: "",
     };
   }
-
-  onChangeQueryVehicle = ({target}) => {
-    this.setState({
-      queryVehicle: target.value,
-    });
-  };
-
-  onStopSelected = (stop) => {
-    this.setState({
-      stop,
-      map: {
-        ...this.state.map,
-        zoom: !!stop ? 16 : 13,
-        lat: get(stop, "lat", defaultMapPosition.lat),
-        lng: get(stop, "lon", defaultMapPosition.lng),
-      },
-    });
-  };
 
   onMapChanged = ({target}) => {
     const bounds = target.getBounds();
@@ -79,12 +57,6 @@ class App extends Component {
     });
   };
 
-  selectVehicle = (vehiclePosition = null) => {
-    this.setState({
-      selectedVehicle: vehiclePosition,
-    });
-  };
-
   setMapBounds = (bounds = null) => {
     if (bounds) {
       this.setState({
@@ -96,56 +68,25 @@ class App extends Component {
     }
   };
 
+  selectVehicle = (vehiclePosition = null) => {
+    this.setState({
+      selectedVehicle: vehiclePosition,
+    });
+  };
+
   render() {
-    const {
-      map,
-      playing,
-      timeIncrement,
-      stop,
-      selectedVehicle,
-      queryVehicle,
-    } = this.state;
+    const {map, selectedVehicle} = this.state;
+    const {hfpPositions, loading, state} = this.props;
 
-    const {
-      route,
-      line,
-      onRouteSelected,
-      onLineSelected,
-      onDateSelected,
-      hfpPositions,
-      loading,
-      Filters,
-      Time,
-      state,
-    } = this.props;
-
-    const {date, time} = state;
-    const {setTime, setTimeIncrement, toggleAutoplay} = Time;
-    const {setDate} = Filters;
+    const {date, time, route, vehicle, stop} = state;
 
     return (
       <div className="transitlog">
-        <FilterPanel
-          queryDate={date}
-          queryTime={time}
-          queryVehicle={queryVehicle}
-          line={line}
-          route={route}
-          stop={stop}
-          isPlaying={playing}
-          timeIncrement={timeIncrement}
-          setTimeIncrement={this.setTimeIncrement}
-          onClickPlay={this.toggleAutoplay}
-          onDateSelected={onDateSelected}
-          onChangeQueryVehicle={this.onChangeQueryVehicle}
-          onLineSelected={onLineSelected}
-          onRouteSelected={onRouteSelected}
-          onStopSelected={this.onStopSelected}
-        />
+        <FilterPanel />
         <LeafletMap position={map} onMapChanged={this.onMapChanged}>
           {!route.routeId &&
             map.zoom > 14 && (
-              <StopLayer selectedStop={stop.stopId} bounds={this.state.bbox} />
+              <StopLayer selectedStop={stop} bounds={this.state.bbox} />
             )}
           <RouteQuery route={route}>
             {({routePositions, stops}) => (
@@ -156,22 +97,19 @@ class App extends Component {
                 setMapBounds={this.setMapBounds}
                 mapBounds={map.bounds}
                 key={`routes_${route.routeId}_${route.direction}_${stop.stopId}`}
-                queryDate={date}
-                queryTime={time}
                 hfpPositions={hfpPositions}
-                selectedStop={stop}
               />
             )}
           </RouteQuery>
           {hfpPositions.length > 0 &&
             hfpPositions.map(({positions, groupName}) => {
-              if (queryVehicle && groupName !== queryVehicle) {
+              if (vehicle && groupName !== vehicle) {
                 return null;
               }
 
               const key = `${groupName}_${route.routeId}_${route.direction}`;
               const lineVehicleId =
-                queryVehicle || get(selectedVehicle, "uniqueVehicleId", "");
+                vehicle || get(selectedVehicle, "uniqueVehicleId", "");
 
               const lineKey = `${route.routeId}_${
                 route.direction
@@ -179,7 +117,7 @@ class App extends Component {
 
               return (
                 <React.Fragment key={`hfp_group_${key}`}>
-                  {(queryVehicle || lineVehicleId === groupName) && (
+                  {(vehicle || lineVehicleId === groupName) && (
                     <HfpLayer
                       key={`hfp_lines_${lineKey}`}
                       selectedVehicle={selectedVehicle}
@@ -190,8 +128,6 @@ class App extends Component {
                   <HfpMarkerLayer
                     onMarkerClick={this.selectVehicle}
                     selectedVehicle={selectedVehicle}
-                    queryDate={date}
-                    queryTime={time}
                     positions={positions}
                     name={groupName}
                   />

@@ -13,6 +13,7 @@ const allLinesQuery = gql`
         nameFi
         dateBegin
         dateEnd
+        __typename
         routes {
           totalCount
         }

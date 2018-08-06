@@ -16,15 +16,21 @@ const stopsByRouteQuery = gql`
       dateBegin: $dateBegin
       dateEnd: $dateEnd
     ) {
+      nodeId
+      __typename
       routeSegments {
         nodes {
+          nodeId
           stopIndex
+          __typename
           stop: stopByStopId {
+            nodeId
             stopId
             lat
             lon
             shortId
             nameFi
+            __typename
           }
         }
       }

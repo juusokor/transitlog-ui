@@ -8,18 +8,31 @@ export default (state) => {
     vehicle: "",
     line: "1006T",
     route: "",
-    routeDirection: 1,
   });
 
-  const setDate = action(
-    (dateValue) => (state.date = moment(dateValue).format("YYYY-MM-DD"))
-  );
-  const setStop = action((stopId) => (state.stop = stopId));
-  const setVehicle = action((vehicleId) => (state.vehicle = vehicleId));
-  const setLine = action((lineId) => (state.line = lineId));
-  const setRoute = action((routeId, direction) => {
-    state.route = routeId;
-    state.routeDirection = direction;
+  // Make sure all dates are correctly formed.
+  const setDate = action((dateValue) => {
+    state.date = moment(dateValue).format("YYYY-MM-DD");
+  });
+
+  // Grab the nodeId from the passed stop object.
+  const setStop = action(({nodeId}) => {
+    state.stop = nodeId;
+  });
+
+  // The uniqueVehicleId we're interested in.
+  const setVehicle = action((vehicleId) => {
+    state.vehicle = vehicleId;
+  });
+
+  // Grab lineId from the passed line. Lines do not have nodeId's.
+  const setLine = action(({lineId}) => {
+    state.line = lineId;
+  });
+
+  // Grab the nodeId from the passed route.
+  const setRoute = action(({nodeId}) => {
+    state.route = nodeId;
   });
 
   return {
