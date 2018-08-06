@@ -9,9 +9,9 @@ export default ({
   queryTime,
   showTime = "arrive",
 }) => {
-  return map(journeyGroups, ({groupName, journeys}) => (
-    <div className="hfp-time-row" key={`hfpPos_${groupName}`}>
-      <span>{groupName}:</span>{" "}
+  return map(journeyGroups, ({vehicleId, journeys}) => (
+    <div className="hfp-time-row" key={`hfpPos_${vehicleId}`}>
+      <span>{vehicleId}:</span>{" "}
       {map(journeys, ({arrive, depart}) => {
         if (!arrive) {
           return null;

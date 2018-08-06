@@ -1,12 +1,17 @@
 import {extendObservable, action} from "mobx";
 import moment from "moment";
+import get from "lodash/get";
 
 export default (state) => {
   extendObservable(state, {
     date: "2018-05-06",
     stop: "",
     vehicle: "",
-    line: "1006T",
+    line: {
+      lineId: "1006T",
+      dateBegin: "",
+      dateEnd: "",
+    },
     route: "",
   });
 
@@ -16,8 +21,8 @@ export default (state) => {
   });
 
   // Grab the nodeId from the passed stop object.
-  const setStop = action(({nodeId}) => {
-    state.stop = nodeId;
+  const setStop = action((stop = "") => {
+    state.stop = get(stop, "nodeId", stop);
   });
 
   // The uniqueVehicleId we're interested in.
@@ -25,14 +30,17 @@ export default (state) => {
     state.vehicle = vehicleId;
   });
 
-  // Grab lineId from the passed line. Lines do not have nodeId's.
-  const setLine = action(({lineId}) => {
-    state.line = lineId;
+  // We need to save lineId, dateBegin and dateEnd to uniquely
+  // identify the line and do further queries based on it.
+  const setLine = action(({lineId = "", dateBegin = "", dateEnd = ""}) => {
+    state.line.lineId = lineId;
+    state.line.dateBegin = dateBegin;
+    state.line.dateEnd = dateEnd;
   });
 
   // Grab the nodeId from the passed route.
-  const setRoute = action(({nodeId}) => {
-    state.route = nodeId;
+  const setRoute = action((route = "") => {
+    state.route = get(route, "nodeId", route);
   });
 
   return {

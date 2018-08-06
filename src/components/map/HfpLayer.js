@@ -6,7 +6,11 @@ import set from "lodash/set";
 import last from "lodash/last";
 import moment from "moment";
 import getDelayType from "../../helpers/getDelayType";
+import {observer, inject} from "mobx-react";
+import {app} from "mobx-app";
 
+@inject(app("state"))
+@observer
 class HfpLayer extends Component {
   mouseOver = false;
   positions = this.getLine();

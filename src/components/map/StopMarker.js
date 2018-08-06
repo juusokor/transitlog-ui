@@ -15,7 +15,7 @@ export default ({
   lastTerminal,
   hfp,
   showTime,
-  queryTime,
+  time,
   onChangeShowTime,
   onTimeClick,
 }) => {
@@ -76,7 +76,7 @@ export default ({
           <DriveByTimes
             showTime={showTime}
             onTimeClick={onTimeClick}
-            queryTime={queryTime}
+            queryTime={time}
             positions={hfp}
           />
         </React.Fragment>

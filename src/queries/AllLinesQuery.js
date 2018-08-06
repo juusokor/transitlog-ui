@@ -4,6 +4,7 @@ import {Query} from "react-apollo";
 import get from "lodash/get";
 import orderBy from "lodash/orderBy";
 import moment from "moment";
+import {observer} from "mobx-react";
 
 const allLinesQuery = gql`
   query AllLinesQuery {
@@ -24,13 +25,13 @@ const allLinesQuery = gql`
 
 const removeFerryFilter = (line) => line.lineId.substring(0, 4) !== "1019";
 
-export default ({children, queryDate}) => (
+export default observer(({children, date}) => (
   <Query query={allLinesQuery}>
     {({loading, error, data}) => {
       if (loading) return "Loading...";
       if (error) return "Error!";
 
-      const queryMoment = moment(queryDate);
+      const queryMoment = moment(date);
 
       const lines = orderBy(
         get(data, "allLines.nodes", [])
@@ -54,4 +55,4 @@ export default ({children, queryDate}) => (
       });
     }}
   </Query>
-);
+));

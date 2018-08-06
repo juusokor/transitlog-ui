@@ -3,9 +3,10 @@ import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import get from "lodash/get";
 import RouteFieldsFragment from "./RouteFieldsFragment";
+import {observer} from "mobx-react";
 
 const routesByLineQuery = gql`
-  query lineQuery($lineId: String!, $dateBegin: Date!, $dateEnd: Date!) {
+  query routesByLineQuery($lineId: String!, $dateBegin: Date!, $dateEnd: Date!) {
     line: lineByLineIdAndDateBeginAndDateEnd(
       lineId: $lineId
       dateBegin: $dateBegin
@@ -25,8 +26,8 @@ const routesByLineQuery = gql`
   ${RouteFieldsFragment}
 `;
 
-export default ({variables, children}) => (
-  <Query query={routesByLineQuery} variables={variables}>
+export default observer(({line, children}) => (
+  <Query query={routesByLineQuery} variables={line}>
     {({loading, error, data}) => {
       if (loading) return <div>Loading...</div>;
       if (error) return <div>Error!</div>;
@@ -38,4 +39,4 @@ export default ({variables, children}) => (
       });
     }}
   </Query>
-);
+));

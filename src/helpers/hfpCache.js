@@ -1,8 +1,7 @@
 import * as JSONC from "./JSONC";
 
 export function getCacheKey(date, route) {
-  const {routeId, direction} = route;
-  return `${date}.${routeId}.${direction}`;
+  return `${date}.${route}`;
 }
 
 export function cacheData(hfpData, date, route) {

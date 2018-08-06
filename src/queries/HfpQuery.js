@@ -5,6 +5,8 @@ import {Query} from "react-apollo";
 import PropTypes from "prop-types";
 import gql from "graphql-tag";
 import HfpFieldsFragment from "./HfpFieldsFragment";
+import withRoute from "../hoc/withRoute";
+import {observer} from "mobx-react";
 
 export const hfpQuery = gql`
   query hfpQuery($routeId: String, $direction: Int, $date: Date) {
@@ -20,6 +22,8 @@ export const hfpQuery = gql`
   ${HfpFieldsFragment}
 `;
 
+@withRoute
+@observer
 class HfpQuery extends Component {
   static propTypes = {
     route: PropTypes.shape({
@@ -29,12 +33,12 @@ class HfpQuery extends Component {
       dateEnd: PropTypes.string,
     }).isRequired,
     stopId: PropTypes.string,
-    queryDate: PropTypes.string,
+    date: PropTypes.string,
     children: PropTypes.func.isRequired,
   };
 
   render() {
-    const {route, children, queryDate} = this.props;
+    const {route, children, date} = this.props;
     const {routeId, direction} = route;
 
     return (
@@ -45,7 +49,7 @@ class HfpQuery extends Component {
         variables={{
           routeId,
           direction: parseInt(direction, 10),
-          date: queryDate,
+          date,
         }}>
         {({loading, error, data}) => {
           let hfpPositions = get(data, "allVehicles.nodes", []);

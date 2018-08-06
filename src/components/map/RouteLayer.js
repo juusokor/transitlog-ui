@@ -1,15 +1,17 @@
 import React, {Component} from "react";
-import {Polyline, CircleMarker, Popup} from "react-leaflet";
+import {Polyline} from "react-leaflet";
 import moment from "moment";
 import get from "lodash/get";
 import groupBy from "lodash/groupBy";
 import filter from "lodash/filter";
 import map from "lodash/map";
-import DriveByTimes from "./DriveByTimes";
 import calculateBoundsFromPositions from "../../helpers/calculateBoundsFromPositions";
-import RouteQuery from "../../queries/RouteQuery";
 import StopMarker from "./StopMarker";
+import {inject, observer} from "mobx-react";
+import {app} from "mobx-app";
 
+@inject(app("Time"))
+@observer
 class RouteLayer extends Component {
   stopTimes = {};
   state = {
@@ -99,7 +101,7 @@ class RouteLayer extends Component {
 
     // Hfp positions are delivered grouped by the vehicle ID,
     // which suits this component splendidly.
-    const stopHfpGroups = this.props.hfpPositions.map(({groupName, positions}) => {
+    const stopHfpGroups = this.props.hfpPositions.map(({vehicleId, positions}) => {
       // Get the hfp positions for when this vehicle was at this stop.
       const stopJourneys = this.getHfpStopsForJourney(positions, stop.stopId);
       const journeys = stopJourneys.map((journeyPositions) => {
@@ -112,7 +114,7 @@ class RouteLayer extends Component {
       });
 
       // Return the journeys, grouped by the vehicle ID.
-      return {groupName, journeys};
+      return {vehicleId, journeys};
     });
 
     this.stopTimes[stop.stopId] = stopHfpGroups;
@@ -121,19 +123,16 @@ class RouteLayer extends Component {
 
   onTimeClick = (receivedAtMoment) => (e) => {
     e.preventDefault();
-    this.props.onChangeQueryTime(receivedAtMoment.format("HH:mm:ss"));
+    this.props.Time.setTime(receivedAtMoment.format("HH:mm:ss"));
   };
 
   render() {
     const {showTime} = this.state;
 
-    const {selectedStop, queryTime, queryDate, routePositions, stops} = this.props;
+    const {state, routePositions, stops} = this.props;
+    const {stop: selectedStop, time, date} = state;
 
-    const queryTimeMoment = moment(
-      `${queryDate} ${queryTime}`,
-      "YYYY-MM-DD HH:mm:ss",
-      true
-    );
+    const timeMoment = moment(`${date} ${time}`, "YYYY-MM-DD HH:mm:ss", true);
 
     const coords = routePositions.map(([lon, lat]) => [lat, lon]);
 
@@ -141,7 +140,7 @@ class RouteLayer extends Component {
       <React.Fragment>
         <Polyline pane="route-lines" weight={3} positions={coords} />
         {stops.map((stop, index) => {
-          const isSelected = stop.stopId === selectedStop.stopId;
+          const isSelected = stop.nodeId === selectedStop;
           // Funnily enough, the first stop is last in the array.
           const isFirst = index === stops.length - 1;
           // ...and the last stop is first.
@@ -155,7 +154,7 @@ class RouteLayer extends Component {
               onChangeShowTime={this.onChangeShowTime}
               key={`stop_marker_${stop.stopId}`}
               showTime={showTime}
-              queryTime={queryTimeMoment}
+              time={timeMoment}
               selected={isSelected}
               firstTerminal={isFirst}
               lastTerminal={isLast}

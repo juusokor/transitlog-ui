@@ -14,19 +14,10 @@ import withHfpData from "../hoc/withHfpData";
 import {app} from "mobx-app";
 import {inject, observer} from "mobx-react";
 
-const defaultStop = {
-  stopId: "",
-  shortId: "",
-  lat: "",
-  lon: "",
-  nameFi: "",
-  stopIndex: 0,
-};
-
 const defaultMapPosition = {lat: 60.170988, lng: 24.940842, zoom: 13, bounds: null};
 
-@withHfpData
 @inject(app("state"))
+@withHfpData
 @observer
 class App extends Component {
   constructor() {
@@ -78,13 +69,13 @@ class App extends Component {
     const {map, selectedVehicle} = this.state;
     const {hfpPositions, loading, state} = this.props;
 
-    const {date, time, route, vehicle, stop} = state;
+    const {route, vehicle, stop} = state;
 
     return (
       <div className="transitlog">
         <FilterPanel />
         <LeafletMap position={map} onMapChanged={this.onMapChanged}>
-          {!route.routeId &&
+          {!route &&
             map.zoom > 14 && (
               <StopLayer selectedStop={stop} bounds={this.state.bbox} />
             )}
@@ -96,40 +87,43 @@ class App extends Component {
                 stops={stops}
                 setMapBounds={this.setMapBounds}
                 mapBounds={map.bounds}
-                key={`routes_${route.routeId}_${route.direction}_${stop.stopId}`}
+                key={`route_line_${route}`}
                 hfpPositions={hfpPositions}
               />
             )}
           </RouteQuery>
           {hfpPositions.length > 0 &&
-            hfpPositions.map(({positions, groupName}) => {
-              if (vehicle && groupName !== vehicle) {
+            hfpPositions.map(({positions, vehicleId}) => {
+              if (vehicle && vehicleId !== vehicle) {
                 return null;
               }
 
-              const key = `${groupName}_${route.routeId}_${route.direction}`;
+              const key = `${vehicleId}_${route}`;
+
               const lineVehicleId =
                 vehicle || get(selectedVehicle, "uniqueVehicleId", "");
 
-              const lineKey = `${route.routeId}_${
-                route.direction
-              }_${lineVehicleId}_${get(selectedVehicle, "journeyStartTime", "")}`;
+              const lineKey = `${route}_${lineVehicleId}_${get(
+                selectedVehicle,
+                "journeyStartTime",
+                ""
+              )}`;
 
               return (
                 <React.Fragment key={`hfp_group_${key}`}>
-                  {(vehicle || lineVehicleId === groupName) && (
+                  {(vehicle || lineVehicleId === vehicleId) && (
                     <HfpLayer
                       key={`hfp_lines_${lineKey}`}
                       selectedVehicle={selectedVehicle}
                       positions={positions}
-                      name={groupName}
+                      name={vehicleId}
                     />
                   )}
                   <HfpMarkerLayer
                     onMarkerClick={this.selectVehicle}
                     selectedVehicle={selectedVehicle}
                     positions={positions}
-                    name={groupName}
+                    name={vehicleId}
                   />
                 </React.Fragment>
               );

@@ -3,16 +3,17 @@ import "./FilterPanel.css";
 import LineInput from "./LineInput";
 import StopInput from "./StopInput";
 import {RouteInput} from "./RouteInput";
-import QueryRoutesByLine from "../../queries/RoutesByLineQuery";
+import RoutesByLineQuery from "../../queries/RoutesByLineQuery";
 import AllStopsQuery from "../../queries/AllStopsQuery";
 import StopsByRouteQuery from "../../queries/StopsByRouteQuery";
 import Header from "./Header";
 import DateSettings from "./DateSettings";
 import TimeSettings from "./TimeSettings";
 import AllLinesQuery from "../../queries/AllLinesQuery";
-import {observer} from "mobx-react";
-import VehicleQuery from "../../queries/VehicleQuery";
+import {observer, inject} from "mobx-react";
+import {app} from "mobx-app";
 
+@inject(app("Filters"))
 @observer
 class FilterPanel extends Component {
   state = {
@@ -27,19 +28,14 @@ class FilterPanel extends Component {
     });
   };
 
+  onChangeQueryVehicle = ({target}) => {
+    this.props.Filters.setVehicle(target.value);
+  };
+
   render() {
-    const {
-      stop,
-      route,
-      line,
-      queryDate,
-      onStopSelected,
-      onLineSelected,
-      onRouteSelected,
-      queryVehicle,
-      onChangeQueryVehicle,
-    } = this.props;
+    const {state, Filters} = this.props;
     const {visible} = this.state;
+    const {vehicle, stop, route, line, date} = state;
 
     return (
       <header
@@ -51,50 +47,40 @@ class FilterPanel extends Component {
           <input
             type="text"
             name="vehicle"
-            value={queryVehicle}
-            onChange={onChangeQueryVehicle}
+            value={vehicle}
+            onChange={this.onChangeQueryVehicle}
           />
         </p>
-        {!!route.routeId ? (
-          <StopsByRouteQuery
-            key="stop_input_by_route"
-            variables={{
-              routeId: route.routeId,
-              direction: route.direction,
-              dateBegin: route.dateBegin,
-              dateEnd: route.dateEnd,
-            }}>
+        {!!route ? (
+          <StopsByRouteQuery key="stop_input_by_route" route={route}>
             {({stops}) => (
-              <StopInput onSelect={onStopSelected} stop={stop} stops={stops} />
+              <StopInput onSelect={Filters.setStop} stop={stop} stops={stops} />
             )}
           </StopsByRouteQuery>
         ) : (
           <AllStopsQuery key="all_stops">
             {({stops}) => (
-              <StopInput onSelect={onStopSelected} stop={stop} stops={stops} />
+              <StopInput onSelect={Filters.setStop} stop={stop} stops={stops} />
             )}
           </AllStopsQuery>
         )}
-        <AllLinesQuery queryDate={queryDate}>
+        <AllLinesQuery date={date}>
           {({lines}) => (
-            <LineInput
-              line={this.props.line}
-              onSelect={this.props.onLineSelected}
-              lines={lines}
-            />
+            <LineInput line={line} onSelect={Filters.setLine} lines={lines} />
           )}
         </AllLinesQuery>
-        {line.lineId && (
-          <QueryRoutesByLine variables={line}>
-            {({routes}) => (
-              <RouteInput
-                route={route}
-                onRouteSelected={onRouteSelected}
-                routes={routes}
-              />
-            )}
-          </QueryRoutesByLine>
-        )}
+        {line.lineId &&
+          line.dateBegin && (
+            <RoutesByLineQuery line={line}>
+              {({routes}) => (
+                <RouteInput
+                  route={route}
+                  onRouteSelected={Filters.setRoute}
+                  routes={routes}
+                />
+              )}
+            </RoutesByLineQuery>
+          )}
         <button className="toggle-filter-panel" onClick={this.toggleVisibility}>
           {visible ? "<" : ">"}
         </button>

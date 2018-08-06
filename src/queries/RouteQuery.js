@@ -23,6 +23,7 @@ const routeQuery = gql`
       __typename
       geometries {
         nodes {
+          __typename
           geometry
         }
       }
@@ -77,7 +78,6 @@ class RouteQuery extends Component {
     return (
       <Query
         query={routeQuery}
-        fetchPolicy="cache-and-network"
         variables={{
           routeId,
           direction,

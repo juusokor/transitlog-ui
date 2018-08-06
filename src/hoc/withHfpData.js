@@ -5,11 +5,10 @@ import HfpQuery from "../queries/HfpQuery";
 import {getCachedData, cacheData} from "../helpers/hfpCache";
 import groupBy from "lodash/groupBy";
 import map from "lodash/map";
-import withRoute from "./withRoute";
+import takeEveryNth from "../helpers/takeEveryNth";
 
 export default (Component) => {
   @inject(app("state"))
-  @withRoute
   @observer
   class WithHfpData extends React.Component {
     formatData = (hfpData) => {
@@ -17,7 +16,7 @@ export default (Component) => {
         return hfpData;
       }
 
-      const groupedData = groupBy(hfpData, "uniqueVehicleId");
+      const groupedData = groupBy(takeEveryNth(hfpData, 3), "uniqueVehicleId");
       return map(groupedData, (positions, groupName) => ({
         vehicleId: groupName,
         positions,
@@ -29,23 +28,21 @@ export default (Component) => {
     );
 
     render() {
-      const {
-        state: {date},
-        route,
-      } = this.props;
-      let hfpPositions = getCachedData(date, selectedRoute);
+      const {date, route} = this.props.state;
+
+      let hfpPositions = getCachedData(date, route);
 
       return (
         <React.Fragment>
           {hfpPositions.length === 0 ? (
-            <HfpQuery route={selectedRoute} queryDate={date}>
+            <HfpQuery route={route} date={date}>
               {({hfpPositions, loading}) => {
                 if (loading) {
                   return this.getComponent([], true);
                 }
 
                 const formattedPositions = this.formatData(hfpPositions);
-                cacheData(formattedPositions);
+                cacheData(formattedPositions, date, route);
                 return this.getComponent(formattedPositions);
               }}
             </HfpQuery>
