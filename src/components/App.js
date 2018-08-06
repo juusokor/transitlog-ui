@@ -31,33 +31,22 @@ const defaultMapPosition = {lat: 60.170988, lng: 24.940842, zoom: 13, bounds: nu
 @inject(app("Filters", "Time"))
 @observer
 class App extends Component {
-  static getDerivedStateFromProps({state}, {prevQueryDate, selectedVehicle}) {
-    const queryDate = state.date;
-
-    if (!selectedVehicle || !prevQueryDate) {
-      return null;
-    }
-
-    if (queryDate !== prevQueryDate && !!selectedVehicle) {
-      return {
-        prevQueryDate: queryDate,
-        selectedVehicle: null,
-      };
-    }
-
-    return null;
-  }
-
   constructor() {
     super();
     this.state = {
-      prevQueryDate: "",
       stop: defaultStop,
       selectedVehicle: null,
       map: defaultMapPosition,
       bbox: null,
+      queryVehicle: "",
     };
   }
+
+  onChangeQueryVehicle = ({target}) => {
+    this.setState({
+      queryVehicle: target.value,
+    });
+  };
 
   onStopSelected = (stop) => {
     this.setState({
@@ -108,7 +97,14 @@ class App extends Component {
   };
 
   render() {
-    const {map, playing, timeIncrement, stop, selectedVehicle} = this.state;
+    const {
+      map,
+      playing,
+      timeIncrement,
+      stop,
+      selectedVehicle,
+      queryVehicle,
+    } = this.state;
 
     const {
       route,
@@ -132,6 +128,7 @@ class App extends Component {
         <FilterPanel
           queryDate={date}
           queryTime={time}
+          queryVehicle={queryVehicle}
           line={line}
           route={route}
           stop={stop}
@@ -140,13 +137,16 @@ class App extends Component {
           setTimeIncrement={this.setTimeIncrement}
           onClickPlay={this.toggleAutoplay}
           onDateSelected={onDateSelected}
-          onChangeQueryTime={this.onChangeQueryTime}
+          onChangeQueryVehicle={this.onChangeQueryVehicle}
           onLineSelected={onLineSelected}
           onRouteSelected={onRouteSelected}
           onStopSelected={this.onStopSelected}
         />
         <LeafletMap position={map} onMapChanged={this.onMapChanged}>
-          {!route.routeId && map.zoom > 15 && <StopLayer bounds={this.state.bbox} />}
+          {!route.routeId &&
+            map.zoom > 14 && (
+              <StopLayer selectedStop={stop.stopId} bounds={this.state.bbox} />
+            )}
           <RouteQuery route={route}>
             {({routePositions, stops}) => (
               <RouteLayer
@@ -156,7 +156,6 @@ class App extends Component {
                 setMapBounds={this.setMapBounds}
                 mapBounds={map.bounds}
                 key={`routes_${route.routeId}_${route.direction}_${stop.stopId}`}
-                onChangeQueryTime={this.onChangeQueryTime}
                 queryDate={date}
                 queryTime={time}
                 hfpPositions={hfpPositions}
@@ -165,30 +164,40 @@ class App extends Component {
             )}
           </RouteQuery>
           {hfpPositions.length > 0 &&
-            hfpPositions.map((positionGroup) => (
-              <React.Fragment
-                key={`hfp_group_${positionGroup.groupName}_${route.routeId}_${
-                  route.direction
-                }`}>
-                {get(selectedVehicle, "uniqueVehicleId", null) ===
-                  positionGroup.groupName && (
-                  <HfpLayer
-                    key={`hfp_lines_${positionGroup.groupName}`}
+            hfpPositions.map(({positions, groupName}) => {
+              if (queryVehicle && groupName !== queryVehicle) {
+                return null;
+              }
+
+              const key = `${groupName}_${route.routeId}_${route.direction}`;
+              const lineVehicleId =
+                queryVehicle || get(selectedVehicle, "uniqueVehicleId", "");
+
+              const lineKey = `${route.routeId}_${
+                route.direction
+              }_${lineVehicleId}_${get(selectedVehicle, "journeyStartTime", "")}`;
+
+              return (
+                <React.Fragment key={`hfp_group_${key}`}>
+                  {(queryVehicle || lineVehicleId === groupName) && (
+                    <HfpLayer
+                      key={`hfp_lines_${lineKey}`}
+                      selectedVehicle={selectedVehicle}
+                      positions={positions}
+                      name={groupName}
+                    />
+                  )}
+                  <HfpMarkerLayer
+                    onMarkerClick={this.selectVehicle}
                     selectedVehicle={selectedVehicle}
-                    positions={positionGroup.positions}
-                    name={positionGroup.groupName}
+                    queryDate={date}
+                    queryTime={time}
+                    positions={positions}
+                    name={groupName}
                   />
-                )}
-                <HfpMarkerLayer
-                  onMarkerClick={this.selectVehicle}
-                  selectedVehicle={selectedVehicle}
-                  queryDate={date}
-                  queryTime={time}
-                  positions={positionGroup.positions}
-                  name={positionGroup.groupName}
-                />
-              </React.Fragment>
-            ))}
+                </React.Fragment>
+              );
+            })}
         </LeafletMap>
         <LoadingOverlay show={loading} message="Ladataan HFP-tietoja..." />
       </div>

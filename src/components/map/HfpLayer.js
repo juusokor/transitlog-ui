@@ -4,7 +4,6 @@ import {latLng} from "leaflet";
 import get from "lodash/get";
 import set from "lodash/set";
 import last from "lodash/last";
-import flatten from "lodash/flatten";
 import moment from "moment";
 import getDelayType from "../../helpers/getDelayType";
 
@@ -51,9 +50,9 @@ class HfpLayer extends Component {
       }, []);
   }
 
-  findHfpItem = (latlng) => {
-    const hfpItem = flatten(this.positions).find((hfp) =>
-      latlng.equals(latLng(hfp.lat, hfp.long), 0.001)
+  findHfpItem = (positions, latlng) => {
+    const hfpItem = positions.find((hfp) =>
+      latlng.equals(latLng(hfp.lat, hfp.long), 0.0001)
     );
 
     return hfpItem || null;
@@ -71,18 +70,19 @@ class HfpLayer extends Component {
     line.setStyle({weight: 10});
   };
 
-  onMousemove = (event) => {
+  onMousemove = (positions) => (event) => {
     if (!this.mouseOver) {
       return;
     }
 
-    const hfpItem = this.findHfpItem(event.latlng);
+    const hfpItem = this.findHfpItem(positions, event.latlng);
 
     if (hfpItem) {
       const line = event.target;
       const tooltipContent = `${moment(hfpItem.receivedAt).format("HH:mm:ss")}<br />
 ${hfpItem.uniqueVehicleId}<br />
-Speed: ${hfpItem.spd} km/h`;
+Speed: ${hfpItem.spd} km/h<br />
+Delay: ${hfpItem.dl} sek.`;
 
       const lineTooltip = line.getTooltip();
 
@@ -96,10 +96,11 @@ Speed: ${hfpItem.spd} km/h`;
 
   render() {
     const {name} = this.props;
+    const positions = this.positions;
 
     return (
       <React.Fragment>
-        {this.positions.map((delayChunk, index) => {
+        {positions.map((delayChunk, index) => {
           // Check the SECOND array element for the delay type. The first
           // element might be of the previous type, included to eliminate gaps.
           const chunkDelayType = get(delayChunk, "[1]._dlType", "on-time");
@@ -108,7 +109,7 @@ Speed: ${hfpItem.spd} km/h`;
           return (
             <Polyline
               key={`hfp_polyline_${name}_chunk_${index}`}
-              onMousemove={this.onMousemove}
+              onMousemove={this.onMousemove(delayChunk)}
               onMouseover={this.onHover}
               onMouseout={this.onMouseout}
               pane="hfp-lines"

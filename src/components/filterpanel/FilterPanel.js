@@ -11,17 +11,50 @@ import DateSettings from "./DateSettings";
 import TimeSettings from "./TimeSettings";
 import AllLinesQuery from "../../queries/AllLinesQuery";
 import {observer} from "mobx-react";
+import VehicleQuery from "../../queries/VehicleQuery";
 
 @observer
 class FilterPanel extends Component {
+  state = {
+    visible: true,
+  };
+
+  toggleVisibility = (e) => {
+    e.preventDefault();
+
+    this.setState({
+      visible: !this.state.visible,
+    });
+  };
+
   render() {
-    const {stop, route, line, onStopSelected, onRouteSelected} = this.props;
+    const {
+      stop,
+      route,
+      line,
+      queryDate,
+      onStopSelected,
+      onLineSelected,
+      onRouteSelected,
+      queryVehicle,
+      onChangeQueryVehicle,
+    } = this.props;
+    const {visible} = this.state;
 
     return (
-      <header className="transitlog-header filter-panel">
+      <header
+        className={`transitlog-header filter-panel ${visible ? "visible" : ""}`}>
         <Header />
         <DateSettings />
         <TimeSettings />
+        <p>
+          <input
+            type="text"
+            name="vehicle"
+            value={queryVehicle}
+            onChange={onChangeQueryVehicle}
+          />
+        </p>
         {!!route.routeId ? (
           <StopsByRouteQuery
             key="stop_input_by_route"
@@ -42,7 +75,7 @@ class FilterPanel extends Component {
             )}
           </AllStopsQuery>
         )}
-        <AllLinesQuery queryDate={date}>
+        <AllLinesQuery queryDate={queryDate}>
           {({lines}) => (
             <LineInput
               line={this.props.line}
@@ -62,6 +95,9 @@ class FilterPanel extends Component {
             )}
           </QueryRoutesByLine>
         )}
+        <button className="toggle-filter-panel" onClick={this.toggleVisibility}>
+          {visible ? "<" : ">"}
+        </button>
       </header>
     );
   }
