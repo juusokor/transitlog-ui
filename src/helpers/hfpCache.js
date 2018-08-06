@@ -1,37 +1,41 @@
-import * as JSONC from "./JSONC";
+import localforage from "localforage";
 
 export function getCacheKey(date, route) {
   return `${date}.${route}`;
 }
 
-export function cacheData(hfpData, date, route) {
+export async function cacheData(hfpData, date, route) {
   if (!hfpData || hfpData.length === 0) {
     return;
   }
 
+  console.time("Cache HFP");
+
   const key = getCacheKey(date, route);
 
-  if (window.localStorage.getItem(key)) {
-    window.localStorage.removeItem(key);
+  if (await localforage.getItem(key)) {
+    await localforage.removeItem(key);
   }
-
-  const data = JSONC.pack(hfpData, true); // Compress json
 
   try {
-    window.localStorage.setItem(key, data);
+    await localforage.setItem(key, hfpData);
   } catch (e) {
-    window.localStorage.clear();
-    window.localStorage.setItem(key, data);
+    // Take a blind guess that the error happened because
+    // the storage quota was reached. Clear and try again.
+    await localforage.clear();
+    await localforage.setItem(key, hfpData);
   }
+
+  console.timeEnd("Cache HFP");
 }
 
-export function getCachedData(date, route) {
+export async function getCachedData(date, route) {
   const key = getCacheKey(date, route);
-  const stored = window.localStorage.getItem(key);
+  const stored = await localforage.getItem(key);
 
   if (!stored) {
     return [];
   }
 
-  return JSONC.unpack(stored, true);
+  return stored;
 }
