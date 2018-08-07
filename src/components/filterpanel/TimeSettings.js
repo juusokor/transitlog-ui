@@ -45,7 +45,7 @@ class TimeSettings extends Component {
             max={1000}
             maxLength={4}
             value={timeIncrement}
-            onChange={Time.setTimeIncrement}
+            onChange={(e) => Time.setTimeIncrement(e.target.value)}
           />
         </p>
         <p>

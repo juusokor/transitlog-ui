@@ -12,6 +12,7 @@ export default (state) => {
   });
 
   const setTime = action((timeValue) => (state.time = timeValue));
+
   const setTimeIncrement = action(
     (timeIncrementValue) => (state.timeIncrement = timeIncrementValue)
   );

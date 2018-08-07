@@ -5,9 +5,8 @@ import React from "react";
 import {getCachedData, cacheData, getCacheKey} from "../helpers/hfpCache";
 import groupBy from "lodash/groupBy";
 import map from "lodash/map";
-import get from "lodash/get";
-import takeEveryNth from "../helpers/takeEveryNth";
 import HfpQuery from "../queries/HfpQuery";
+import takeEveryNth from "../helpers/takeEveryNth";
 
 const formatData = (hfpData) => {
   if (hfpData.length === 0) {
@@ -17,7 +16,7 @@ const formatData = (hfpData) => {
   const groupedData = groupBy(hfpData, "uniqueVehicleId");
   return map(groupedData, (positions, groupName) => ({
     vehicleId: groupName,
-    positions: takeEveryNth(positions, 3) // Take only every third item from the collection.
+    positions: takeEveryNth(positions, 2) // Take every other hfp item.
       // Some HFP items are null for one reason or another. Filter those out.
       .filter((pos) => !!pos && !!pos.lat && !!pos.long),
   }));
