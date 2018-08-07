@@ -9,9 +9,15 @@ export default (Component) =>
     const routeId = get(props, "route", get(props, "state.route", ""));
 
     // The route parameter might already be the full object. In that case,
-    // just render the component without doing a query.
-    if (!routeId || typeof routeId !== "string") {
+    // just render the component without doing a query. The route prop
+    // should also never come through as a string, so take care of that too.
+
+    if (!routeId) {
       return <Component {...props} route={{}} />;
+    }
+
+    if (typeof routeId !== "string") {
+      return <Component {...props} route={props.route} />;
     }
 
     return (

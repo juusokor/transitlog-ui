@@ -13,7 +13,6 @@ import {app} from "mobx-app";
 @observer
 class HfpLayer extends Component {
   mouseOver = false;
-  positions = this.getLine();
 
   getLine() {
     const {selectedVehicle: selectedVehiclePosition, positions} = this.props;
@@ -100,7 +99,7 @@ Delay: ${hfpItem.dl} sek.`;
 
   render() {
     const {name} = this.props;
-    const positions = this.positions;
+    const positions = this.getLine();
 
     return (
       <React.Fragment>

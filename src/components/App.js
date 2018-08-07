@@ -33,12 +33,12 @@ class App extends Component {
     const bounds = target.getBounds();
     const zoom = target.getZoom();
 
-    if (!bounds.isValid()) {
+    if (!bounds || !bounds.isValid()) {
       return;
     }
 
     this.setState({
-      map: {...this.state.map, zoom},
+      map: {...get(this, "state.map", defaultMapPosition), zoom},
       bbox: {
         minLat: bounds.getSouth(),
         minLon: bounds.getWest(),
@@ -52,7 +52,7 @@ class App extends Component {
     if (bounds) {
       this.setState({
         map: {
-          ...this.state.map,
+          ...get(this, "state.map", defaultMapPosition),
           bounds,
         },
       });
@@ -98,35 +98,27 @@ class App extends Component {
                 return null;
               }
 
-              const key = `${vehicleId}_${route}`;
+              const lineVehicleId = get(selectedVehicle, "uniqueVehicleId", "");
+              const journeyStartTime = get(selectedVehicle, "journeyStartTime", "");
+              const key = `${lineVehicleId}_${route}_${journeyStartTime}`;
 
-              const lineVehicleId =
-                vehicle || get(selectedVehicle, "uniqueVehicleId", "");
-
-              const lineKey = `${route}_${lineVehicleId}_${get(
-                selectedVehicle,
-                "journeyStartTime",
-                ""
-              )}`;
-
-              return (
-                <React.Fragment key={`hfp_group_${key}`}>
-                  {(vehicle || lineVehicleId === vehicleId) && (
-                    <HfpLayer
-                      key={`hfp_lines_${lineKey}`}
-                      selectedVehicle={selectedVehicle}
-                      positions={positions}
-                      name={vehicleId}
-                    />
-                  )}
-                  <HfpMarkerLayer
-                    onMarkerClick={this.selectVehicle}
+              return [
+                lineVehicleId === vehicleId ? (
+                  <HfpLayer
+                    key={`hfp_line_${key}`}
                     selectedVehicle={selectedVehicle}
                     positions={positions}
                     name={vehicleId}
                   />
-                </React.Fragment>
-              );
+                ) : null,
+                <HfpMarkerLayer
+                  key={`hfp_markers_${route}_${vehicleId}`}
+                  onMarkerClick={this.selectVehicle}
+                  selectedVehicle={selectedVehicle}
+                  positions={positions}
+                  name={vehicleId}
+                />,
+              ];
             })}
         </LeafletMap>
         <LoadingOverlay show={loading} message="Ladataan HFP-tietoja..." />

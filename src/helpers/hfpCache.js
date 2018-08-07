@@ -9,8 +9,6 @@ export async function cacheData(hfpData, date, route) {
     return;
   }
 
-  console.time("Cache HFP");
-
   const key = getCacheKey(date, route);
 
   if (await localforage.getItem(key)) {
@@ -25,8 +23,6 @@ export async function cacheData(hfpData, date, route) {
     await localforage.clear();
     await localforage.setItem(key, hfpData);
   }
-
-  console.timeEnd("Cache HFP");
 }
 
 export async function getCachedData(date, route) {
