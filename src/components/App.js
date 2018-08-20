@@ -90,9 +90,6 @@ class App extends Component {
 
               const lineVehicleId = get(selectedVehicle, "uniqueVehicleId", "");
               const journeyStartTime = get(selectedVehicle, "journeyStartTime", "");
-              const journeyDesc = get(selectedVehicle, "jrn", "");
-
-              console.log(journeyDesc);
 
               const key = `${lineVehicleId}_${route}_${journeyStartTime}`;
 
