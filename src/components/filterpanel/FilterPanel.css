@@ -45,3 +45,34 @@
 .filter-panel.visible {
   transform: translateX(0);
 }
+
+.journey-list {
+  margin: 1.5rem 0 0;
+}
+
+.journey-list-row {
+  color: white;
+  display: flex;
+  width: calc(100% + 2.5rem);
+  margin-left: -1.25rem;
+  background: rgba(0, 0, 0, 0.075);
+  padding: 0.5rem 1.25rem;
+  border: 0;
+  max-width: none;
+  font-size: 1rem;
+}
+
+.journey-list-row:nth-child(odd) {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.journey-list-row .start-time {
+  margin-right: 1rem;
+  display: block;
+}
+
+.journey-list-row .vehicle-id {
+  margin-left: auto;
+  align-self: flex-end;
+  display: block;
+}

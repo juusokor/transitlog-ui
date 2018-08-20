@@ -13,12 +13,34 @@ const formatData = (hfpData) => {
     return hfpData;
   }
 
+  return (
+    takeEveryNth(hfpData, 2) // Take every other hfp item.
+      // Some HFP items are null for one reason or another. Filter those out.
+      .filter((pos) => !!pos && !!pos.lat && !!pos.long)
+  );
+};
+
+const getGroupedByVehicle = (hfpData) => {
+  if (hfpData.length === 0) {
+    return hfpData;
+  }
+
   const groupedData = groupBy(hfpData, "uniqueVehicleId");
   return map(groupedData, (positions, groupName) => ({
     vehicleId: groupName,
-    positions: takeEveryNth(positions, 2) // Take every other hfp item.
-      // Some HFP items are null for one reason or another. Filter those out.
-      .filter((pos) => !!pos && !!pos.lat && !!pos.long),
+    positions,
+  }));
+};
+
+const getGroupedByJourney = (hfpData) => {
+  if (hfpData.length === 0) {
+    return hfpData;
+  }
+
+  const groupedData = groupBy(hfpData, "jrn");
+  return map(groupedData, (positions, groupName) => ({
+    jrn: groupName,
+    positions,
   }));
 };
 
@@ -30,17 +52,28 @@ class HfpLoader extends React.Component {
       <HfpQuery route={route} date={date}>
         {({hfpPositions, loading}) => {
           if (loading || hfpPositions.length === 0) {
-            return children({hfpPositions: [], loading});
+            return children({
+              positionsByVehicle: [],
+              positionsByJourney: [],
+              loading,
+            });
           }
 
           const formattedPositions = formatData(hfpPositions);
           cacheData(formattedPositions, date, route);
 
-          return children({hfpPositions: formattedPositions, loading});
+          const positionsByVehicle = getGroupedByVehicle(formattedPositions);
+          const positionsByJourney = getGroupedByJourney(formattedPositions);
+
+          return children({positionsByVehicle, positionsByJourney, loading});
         }}
       </HfpQuery>
     ) : (
-      children({hfpPositions: cachedHfp, loading: false})
+      children({
+        positionsByVehicle: getGroupedByVehicle(cachedHfp),
+        positionsByJourney: getGroupedByJourney(cachedHfp),
+        loading: false,
+      })
     );
   }
 }
@@ -95,11 +128,12 @@ export default (Component) => {
 
       return (
         <HfpLoader cachedHfp={cachedPositions} date={date} route={route}>
-          {({hfpPositions, loading}) => (
+          {({positionsByVehicle, positionsByJourney, loading}) => (
             <Component
               {...this.props}
               loading={loading}
-              hfpPositions={hfpPositions}
+              positionsByVehicle={positionsByVehicle}
+              positionsByJourney={positionsByJourney}
             />
           )}
         </HfpLoader>

@@ -16,7 +16,7 @@ import {inject, observer} from "mobx-react";
 
 const defaultMapPosition = {lat: 60.170988, lng: 24.940842, zoom: 13, bounds: null};
 
-@inject(app("UI"))
+@inject(app("Journey"))
 @withHfpData
 @observer
 class App extends Component {
@@ -57,9 +57,9 @@ class App extends Component {
 
   render() {
     const {map} = this.state;
-    const {hfpPositions, loading, state, UI} = this.props;
+    const {positionsByVehicle, loading, state, Journey} = this.props;
 
-    const {route, vehicle, stop, selectedVehicle} = state;
+    const {route, vehicle, stop, selectedJourney} = state;
 
     return (
       <div className="transitlog">
@@ -78,18 +78,18 @@ class App extends Component {
                 setMapBounds={this.setMapBounds}
                 mapBounds={map.bounds}
                 key={`route_line_${route}`}
-                hfpPositions={hfpPositions}
+                hfpPositions={positionsByVehicle}
               />
             )}
           </RouteQuery>
-          {hfpPositions.length > 0 &&
-            hfpPositions.map(({positions, vehicleId}) => {
+          {positionsByVehicle.length > 0 &&
+            positionsByVehicle.map(({positions, vehicleId}) => {
               if (vehicle && vehicleId !== vehicle) {
                 return null;
               }
 
-              const lineVehicleId = get(selectedVehicle, "uniqueVehicleId", "");
-              const journeyStartTime = get(selectedVehicle, "journeyStartTime", "");
+              const lineVehicleId = get(selectedJourney, "uniqueVehicleId", "");
+              const journeyStartTime = get(selectedJourney, "journeyStartTime", "");
 
               const key = `${lineVehicleId}_${route}_${journeyStartTime}`;
 
@@ -97,15 +97,15 @@ class App extends Component {
                 lineVehicleId === vehicleId ? (
                   <HfpLayer
                     key={`hfp_line_${key}`}
-                    selectedVehicle={selectedVehicle}
+                    selectedJourney={selectedJourney}
                     positions={positions}
                     name={vehicleId}
                   />
                 ) : null,
                 <HfpMarkerLayer
                   key={`hfp_markers_${route}_${vehicleId}`}
-                  onMarkerClick={UI.setSelectedVehicle}
-                  selectedVehicle={selectedVehicle}
+                  onMarkerClick={Journey.setSelectedJourney}
+                  selectedJourney={selectedJourney}
                   positions={positions}
                   name={vehicleId}
                 />,
