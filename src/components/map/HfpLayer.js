@@ -54,8 +54,8 @@ class HfpLayer extends Component {
       }, []);
   }
 
-  findHfpItem = (positions = [], latlng) => {
-    const hfpItem = positions.find((hfp) =>
+  findHfpItem = (chunk = [], latlng) => {
+    const hfpItem = get(chunk, "positions", []).find((hfp) =>
       latlng.equals(latLng(hfp.lat, hfp.long), 0.0001)
     );
 

@@ -12,6 +12,7 @@ const HfpFieldsFragment = gql`
     spd
     mode
     dl
+    jrn
     __typename
   }
 `;
