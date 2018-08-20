@@ -13,19 +13,12 @@ import AllLinesQuery from "../../queries/AllLinesQuery";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 
-@inject(app("Filters"))
+@inject(app("Filters", "UI"))
 @observer
 class FilterPanel extends Component {
-  state = {
-    visible: true,
-  };
-
   toggleVisibility = (e) => {
     e.preventDefault();
-
-    this.setState({
-      visible: !this.state.visible,
-    });
+    this.props.UI.toggleFilterPanel();
   };
 
   onChangeQueryVehicle = ({target}) => {
@@ -34,8 +27,7 @@ class FilterPanel extends Component {
 
   render() {
     const {state, Filters} = this.props;
-    const {visible} = this.state;
-    const {vehicle, stop, route, line, date} = state;
+    const {vehicle, stop, route, line, date, filterPanelVisible: visible} = state;
 
     return (
       <header
