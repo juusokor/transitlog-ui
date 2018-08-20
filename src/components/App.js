@@ -16,18 +16,14 @@ import {inject, observer} from "mobx-react";
 
 const defaultMapPosition = {lat: 60.170988, lng: 24.940842, zoom: 13, bounds: null};
 
-@inject(app("state"))
+@inject(app("UI"))
 @withHfpData
 @observer
 class App extends Component {
-  constructor() {
-    super();
-    this.state = {
-      selectedVehicle: null,
-      map: defaultMapPosition,
-      bbox: null,
-    };
-  }
+  state = {
+    map: defaultMapPosition,
+    bbox: null,
+  };
 
   onMapChanged = ({target}) => {
     const bounds = target.getBounds();
@@ -59,17 +55,11 @@ class App extends Component {
     }
   };
 
-  selectVehicle = (vehiclePosition = null) => {
-    this.setState({
-      selectedVehicle: vehiclePosition,
-    });
-  };
-
   render() {
-    const {map, selectedVehicle} = this.state;
-    const {hfpPositions, loading, state} = this.props;
+    const {map} = this.state;
+    const {hfpPositions, loading, state, UI} = this.props;
 
-    const {route, vehicle, stop} = state;
+    const {route, vehicle, stop, selectedVehicle} = state;
 
     return (
       <div className="transitlog">
@@ -113,7 +103,7 @@ class App extends Component {
                 ) : null,
                 <HfpMarkerLayer
                   key={`hfp_markers_${route}_${vehicleId}`}
-                  onMarkerClick={this.selectVehicle}
+                  onMarkerClick={UI.setSelectedVehicle}
                   selectedVehicle={selectedVehicle}
                   positions={positions}
                   name={vehicleId}

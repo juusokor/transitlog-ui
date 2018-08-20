@@ -7,6 +7,7 @@ import {AppContainer} from "react-hot-loader";
 import {createStore} from "mobx-app";
 import FilterStore from "./stores/FilterStore";
 import TimeStore from "./stores/TimeStore";
+import UIStore from "./stores/UIStore";
 import {Provider} from "mobx-react";
 
 const root = document.getElementById("root");
@@ -14,6 +15,7 @@ const root = document.getElementById("root");
 const {state, actions} = createStore({
   Filters: FilterStore,
   Time: TimeStore,
+  UI: UIStore,
 });
 
 const render = () => {

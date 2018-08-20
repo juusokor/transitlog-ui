@@ -1,16 +1,13 @@
-import React, {Component} from "react";
+import React from "react";
 import App from "./components/App";
 import {joreClient} from "./api";
 import {ApolloProvider} from "react-apollo";
+import {observer} from "mobx-react";
 
-class Root extends Component {
-  render() {
-    return (
-      <ApolloProvider client={joreClient}>
-        <App />
-      </ApolloProvider>
-    );
-  }
-}
+const Root = observer(() => (
+  <ApolloProvider client={joreClient}>
+    <App />
+  </ApolloProvider>
+));
 
 export default Root;

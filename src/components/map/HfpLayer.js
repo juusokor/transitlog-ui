@@ -26,27 +26,28 @@ class HfpLayer extends Component {
         const positionDelay = get(position, "dl", 0);
         const delayType = getDelayType(positionDelay); // "early", "late" or "on-time"
 
-        set(position, "_dlType", delayType); // Save the delay type on the position
-
         // If this is the first position, allChunks will be empty.
         // Add it as a new chunk to kick things off.
         if (allChunks.length === 0) {
-          allChunks.push([position]);
+          allChunks.push({delayType, positions: [position]});
           return allChunks;
         }
 
-        // Check the last element of the last chunk to determine if we want to push
-        // `position` onto the last chunk or start a new chunk for it.
-        const lastItem = last(last(allChunks));
-        const lastDelayType = get(lastItem, "_dlType", "on-time");
+        // Check the previous chunk to determine if we want to push
+        // `position` onto the previous chunk or start a new chunk for it.
+        const previousChunk = last(allChunks);
+        const previousDelayType = get(previousChunk, "delayType", "on-time");
 
         // If the delay types are the same, add the position to the last chunk.
-        if (delayType === lastDelayType) {
-          allChunks[allChunks.length - 1].push(position);
+        if (delayType === previousDelayType) {
+          previousChunk.positions.push(position);
         } else {
           // Otherwise start a new chunk. Include the last element from the
           // previous chunk to eliminate gaps in the line.
-          allChunks.push([lastItem, position]);
+          allChunks.push({
+            delayType,
+            positions: [last(previousChunk.positions), position],
+          });
         }
 
         return allChunks;
@@ -100,13 +101,11 @@ Delay: ${hfpItem.dl} sek.`;
   render() {
     const {name} = this.props;
     const positions = this.getLine();
-
     return (
       <React.Fragment>
         {positions.map((delayChunk, index) => {
-          // Check the SECOND array element for the delay type. The first
-          // element might be of the previous type, included to eliminate gaps.
-          const chunkDelayType = get(delayChunk, "[1]._dlType", "on-time");
+          const chunkDelayType = get(delayChunk, "delayType", "on-time");
+          const chunkPositions = get(delayChunk, "positions", []);
 
           // Render each chunk with a color that matches the delay.
           return (
@@ -124,7 +123,7 @@ Delay: ${hfpItem.dl} sek.`;
                     ? "yellow"
                     : "green"
               }
-              positions={delayChunk.map((pos) => [pos.lat, pos.long])}
+              positions={chunkPositions.map((pos) => [pos.lat, pos.long])}
             />
           );
         })}
