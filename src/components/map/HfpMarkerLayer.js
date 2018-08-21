@@ -5,20 +5,25 @@ import moment from "moment";
 import {divIcon} from "leaflet";
 import getDelayType from "../../helpers/getDelayType";
 import diffDates from "../../helpers/diffDates";
+import {observer, inject} from "mobx-react";
+import {app} from "mobx-app";
 
+@inject(app("state"))
+@observer
 class HfpMarkerLayer extends Component {
   prevQueryTime = "";
   prevHfpPosition = null;
   prevPositionIndex = 0;
 
   getHfpPosition = () => {
-    const {positions, queryDate, queryTime} = this.props;
+    const {positions, state} = this.props;
+    const {date, time} = state;
 
-    if (!queryTime || queryTime === this.prevQueryTime) {
+    if (!time || time === this.prevQueryTime) {
       return this.prevHfpPosition;
     }
 
-    const queryTimeDate = new Date(`${queryDate}T${queryTime}`);
+    const timeDate = new Date(`${date}T${time}`);
 
     let nextHfpPosition = null;
     const total = positions.length;
@@ -30,7 +35,7 @@ class HfpMarkerLayer extends Component {
 
       if (nextHfpPosition) {
         const nextHfpDate = new Date(nextHfpPosition.receivedAt);
-        prevDifference = Math.abs(diffDates(queryTimeDate, nextHfpDate));
+        prevDifference = Math.abs(diffDates(timeDate, nextHfpDate));
 
         if (prevDifference < 7) {
           break;
@@ -38,7 +43,7 @@ class HfpMarkerLayer extends Component {
       }
 
       const difference = Math.abs(
-        diffDates(queryTimeDate, new Date(position.receivedAt))
+        diffDates(timeDate, new Date(position.receivedAt))
       );
 
       if (difference < prevDifference) {
@@ -47,7 +52,7 @@ class HfpMarkerLayer extends Component {
     }
 
     this.prevHfpPosition = nextHfpPosition;
-    this.prevQueryTime = queryTime;
+    this.prevQueryTime = time;
 
     return nextHfpPosition;
   };

@@ -2,8 +2,8 @@ import React from "react";
 import SuggestionInput from "./SuggestionInput";
 import fuzzySearch from "../../helpers/fuzzySearch";
 import orderBy from "lodash/orderBy";
-import intersection from "lodash/intersection";
-import uniq from "lodash/uniq";
+import {observer} from "mobx-react";
+import withStop from "../../hoc/withStop";
 
 const getSuggestionValue = (suggestion) =>
   suggestion.stopId
@@ -56,16 +56,18 @@ const getSuggestions = (stops = []) => (value = "") => {
   );
 };
 
-export default ({stops, onSelect, stop}) => {
-  return (
-    <SuggestionInput
-      minimumInput={0}
-      placeholder="Hae pysäkkiä..."
-      value={getSuggestionValue(stop)}
-      onSelect={onSelect}
-      getValue={getSuggestionValue}
-      renderSuggestion={renderSuggestion}
-      getSuggestions={getSuggestions(stops)}
-    />
-  );
-};
+export default withStop(
+  observer(({stops, onSelect, stop}) => {
+    return (
+      <SuggestionInput
+        minimumInput={0}
+        placeholder="Hae pysäkkiä..."
+        value={getSuggestionValue(stop)}
+        onSelect={onSelect}
+        getValue={getSuggestionValue}
+        renderSuggestion={renderSuggestion}
+        getSuggestions={getSuggestions(stops)}
+      />
+    );
+  })
+);

@@ -1,36 +1,43 @@
 import React, {Component} from "react";
-import createRouteIdentifier from "../../helpers/createRouteIdentifier";
+import {observer, inject} from "mobx-react";
+import {app} from "mobx-app";
 
+@inject(app("Filters"))
+@observer
 export class RouteInput extends Component {
   onChange = (e) => {
-    const {routes, onRouteSelected} = this.props;
+    const {Filters} = this.props;
     const selectedValue = e.target.value;
 
     if (!selectedValue) {
-      return onRouteSelected(null);
+      return Filters.setRoute({});
     }
 
-    const route = routes.find(
-      (route) => createRouteIdentifier(route) === selectedValue
-    );
-
-    onRouteSelected(route);
+    Filters.setRoute(selectedValue);
   };
 
   render() {
     const {route, routes} = this.props;
 
     const options = routes.map(
-      ({routeId, direction, nameFi, dateBegin, dateEnd}) => ({
-        value: createRouteIdentifier({routeId, direction, dateBegin}),
-        label: `${routeId} - suunta ${direction}, ${nameFi}. ${dateBegin} - ${dateEnd}`,
+      ({
+        nodeId,
+        routeId,
+        direction,
+        originFi,
+        destinationFi,
+        dateBegin,
+        dateEnd,
+      }) => ({
+        value: nodeId,
+        label: `${routeId} - suunta ${direction}, ${originFi} - ${destinationFi} (${dateBegin} - ${dateEnd})`,
       })
     );
 
     options.unshift({value: "", label: "Valitse reitti..."});
 
     return (
-      <select value={createRouteIdentifier(route)} onChange={this.onChange}>
+      <select value={route} onChange={this.onChange}>
         {options.map(({value, label}) => (
           <option key={`route_select_${value}`} value={value}>
             {label}
