@@ -11,5 +11,5 @@ function utc(d) {
 }
 
 export default (date1, date2) => {
-  return Math.trunc((utc(date2) - utc(date1)) / 1000);
+  return Math.trunc((utc(date2) - utc(date1)) / 1000); // Returns seconds
 };

@@ -2,21 +2,35 @@ import React, {Component} from "react";
 import {Map, TileLayer, ZoomControl, Pane} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "./Map.css";
+import get from "lodash/get";
 
 export class LeafletMap extends Component {
+  mapRef = React.createRef();
+
+  onViewportChange = (cb = () => {}) => (viewport) => {
+    cb(get(this.mapRef, "current.leafletElement", null), viewport);
+  };
+
   render() {
-    const {children, position, onMapChanged} = this.props;
-    const center = [position.lat, position.lng];
+    const {
+      children,
+      center,
+      zoom,
+      bounds,
+      onMapChange = () => {},
+      onMapChanged = () => {},
+    } = this.props;
 
     return (
       <Map
-        center={center}
-        zoom={position.zoom}
-        bounds={position.bounds || undefined}
+        ref={this.mapRef}
+        center={!bounds ? center : undefined}
+        zoom={!bounds ? zoom : undefined}
+        bounds={bounds}
         maxZoom={18}
         zoomControl={false}
-        onDragend={onMapChanged}
-        onZoomend={onMapChanged}>
+        onViewportChanged={this.onViewportChange(onMapChanged)}
+        onViewportChange={this.onViewportChange(onMapChange)}>
         <Pane name="route-lines" style={{zIndex: 410}} />
         <Pane name="hfp-lines" style={{zIndex: 420}} />
         <Pane name="hfp-markers" style={{zIndex: 430}} />

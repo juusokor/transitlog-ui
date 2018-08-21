@@ -21,8 +21,8 @@ export default ({
 }) => {
   const timingStopIcon = icon({
     iconUrl: TimingStopIcon,
-    iconSize: [25, 25],
-    iconAnchor: [25 / 2, 25 / 2],
+    iconSize: [20, 20],
+    iconAnchor: [15, 20 / 2],
     popupAnchor: [3, -15],
   });
 
@@ -43,7 +43,7 @@ export default ({
       fillColor: stop.timingStopType ? "lime" : "white",
       fillOpacity: 1,
       strokeWeight: 3,
-      radius: firstTerminal || lastTerminal ? 12 : 10,
+      radius: firstTerminal || lastTerminal ? 8 : 8,
     },
     <Popup>
       <h4>
