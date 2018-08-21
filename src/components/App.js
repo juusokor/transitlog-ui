@@ -30,18 +30,18 @@ class App extends Component {
   static getDerivedStateFromProps(nextProps, prevState) {
     const {
       state: {selectedJourney, time, date},
-      positionsByVehicle,
+      positionsByJourney,
     } = nextProps;
 
     if (!selectedJourney) {
       return null;
     }
 
-    const {journeyStartTime, uniqueVehicleId} = selectedJourney;
-    const {
-      journeyStartTime: followingStartTime,
-      uniqueVehicleId: followingVehicleId,
-    } = prevState;
+    const journeyStartTime = get(selectedJourney, "journeyStartTime");
+    const uniqueVehicleId = get(selectedJourney, "uniqueVehicleId");
+
+    const followingStartTime = get(prevState, "following.journeyStartTime");
+    const followingVehicleId = get(prevState, "following.uniqueVehicleId");
 
     if (
       journeyStartTime !== followingStartTime ||
@@ -51,10 +51,12 @@ class App extends Component {
       let followPosition = null;
 
       let journeyPositions = get(
-        positionsByVehicle,
-        `${uniqueVehicleId}.positions`,
+        positionsByJourney.find((j) => j.journeyStartTime === journeyStartTime),
+        "positions",
         []
-      ).filter((pos) => pos.journeyStartTime === journeyStartTime);
+      );
+
+      console.log(positionsByJourney);
 
       if (journeyPositions.length === 0) {
         return null;
@@ -62,17 +64,19 @@ class App extends Component {
 
       for (const posIndex of journeyPositions) {
         const pos = journeyPositions[posIndex];
-        if (Math.abs(diffDates(new Date(pos.receivedAt), timeDate)) < 30) {
+        if (Math.abs(diffDates(new Date(pos.receivedAt), timeDate)) < 60) {
           followPosition = pos;
           break;
         }
       }
 
+      console.log(followPosition);
+
       return followPosition
         ? {
             following: followPosition,
             map: {
-              ...prevState.map,
+              bounds: null,
               lat: followPosition.lat,
               lng: followPosition.long,
               zoom: 16,

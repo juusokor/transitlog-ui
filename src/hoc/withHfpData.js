@@ -37,9 +37,9 @@ const getGroupedByJourney = (hfpData) => {
     return hfpData;
   }
 
-  const groupedData = groupBy(hfpData, "jrn");
+  const groupedData = groupBy(hfpData, "journeyStartTime");
   return map(groupedData, (positions, groupName) => ({
-    jrn: groupName,
+    journeyStartTime: groupName,
     positions,
   }));
 };
