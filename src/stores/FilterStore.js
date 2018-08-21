@@ -43,11 +43,23 @@ export default (state) => {
     state.route = get(route, "nodeId", route);
   });
 
+  const reset = action(() => {
+    state.stop = "";
+    state.vehicle = "";
+    state.line = {
+      lineId: "",
+      dateBegin: "",
+      dateEnd: "",
+    };
+    state.route = "";
+  });
+
   return {
     setDate,
     setStop,
     setVehicle,
     setLine,
     setRoute,
+    reset,
   };
 };
