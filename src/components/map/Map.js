@@ -7,7 +7,6 @@ import get from "lodash/get";
 import HfpLayer from "./HfpLayer";
 import HfpMarkerLayer from "./HfpMarkerLayer";
 import {LeafletMap} from "./LeafletMap";
-import withHfpData from "../../hoc/withHfpData";
 import {app} from "mobx-app";
 import invoke from "lodash/invoke";
 import map from "lodash/map";
@@ -15,7 +14,6 @@ import map from "lodash/map";
 const defaultMapPosition = {lat: 60.170988, lng: 24.940842, zoom: 13};
 
 @inject(app("Journey"))
-@withHfpData
 @observer
 class Map extends Component {
   static defaultProps = {
@@ -25,7 +23,14 @@ class Map extends Component {
 
   state = {
     bbox: null,
+    bounds: null,
     ...defaultMapPosition,
+  };
+
+  setMapBounds = (bounds = null) => {
+    if (bounds && invoke(bounds, "isValid")) {
+      this.setState({bounds});
+    }
   };
 
   onMapChanged = (map, viewport) => {
@@ -61,15 +66,17 @@ class Map extends Component {
   };
 
   render() {
-    const {positionsByVehicle, state, Journey, bounds, setMapBounds} = this.props;
-    const {bbox, lat, lng, zoom} = this.state;
+    const {positionsByVehicle, state, Journey, bounds: propBounds} = this.props;
+    const {bbox, lat, lng, zoom, bounds} = this.state;
     const {route, vehicle, stop, selectedJourney} = state;
+
+    const useBounds = propBounds || bounds || null;
 
     return (
       <LeafletMap
         center={[lat, lng]}
         zoom={zoom}
-        bounds={bounds}
+        bounds={useBounds}
         onMapChanged={this.onMapChanged}
         onMapChange={this.onMapChange}>
         {!route && map.zoom > 14 && <StopLayer selectedStop={stop} bounds={bbox} />}
@@ -79,7 +86,7 @@ class Map extends Component {
               route={route}
               routePositions={routePositions}
               stops={stops}
-              setMapBounds={setMapBounds}
+              setMapBounds={this.setMapBounds}
               mapBounds={map.bounds}
               key={`route_line_${route}`}
               hfpPositions={positionsByVehicle}
