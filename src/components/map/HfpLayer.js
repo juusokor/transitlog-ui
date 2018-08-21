@@ -2,7 +2,6 @@ import React, {Component} from "react";
 import {Polyline} from "react-leaflet";
 import {latLng} from "leaflet";
 import get from "lodash/get";
-import set from "lodash/set";
 import last from "lodash/last";
 import moment from "moment";
 import getDelayType from "../../helpers/getDelayType";

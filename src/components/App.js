@@ -13,6 +13,7 @@ import RouteQuery from "../queries/RouteQuery";
 import withHfpData from "../hoc/withHfpData";
 import {app} from "mobx-app";
 import {inject, observer} from "mobx-react";
+import diffDates from "../helpers/diffDates";
 
 const defaultMapPosition = {lat: 60.170988, lng: 24.940842, zoom: 13, bounds: null};
 
@@ -21,9 +22,67 @@ const defaultMapPosition = {lat: 60.170988, lng: 24.940842, zoom: 13, bounds: nu
 @observer
 class App extends Component {
   state = {
+    following: null,
     map: defaultMapPosition,
     bbox: null,
   };
+
+  static getDerivedStateFromProps(nextProps, prevState) {
+    const {
+      state: {selectedJourney, time, date},
+      positionsByVehicle,
+    } = nextProps;
+
+    if (!selectedJourney) {
+      return null;
+    }
+
+    const {journeyStartTime, uniqueVehicleId} = selectedJourney;
+    const {
+      journeyStartTime: followingStartTime,
+      uniqueVehicleId: followingVehicleId,
+    } = prevState;
+
+    if (
+      journeyStartTime !== followingStartTime ||
+      uniqueVehicleId !== followingVehicleId
+    ) {
+      const timeDate = new Date(`${date}T${time}`);
+      let followPosition = null;
+
+      let journeyPositions = get(
+        positionsByVehicle,
+        `${uniqueVehicleId}.positions`,
+        []
+      ).filter((pos) => pos.journeyStartTime === journeyStartTime);
+
+      if (journeyPositions.length === 0) {
+        return null;
+      }
+
+      for (const posIndex of journeyPositions) {
+        const pos = journeyPositions[posIndex];
+        if (Math.abs(diffDates(new Date(pos.receivedAt), timeDate)) < 30) {
+          followPosition = pos;
+          break;
+        }
+      }
+
+      return followPosition
+        ? {
+            following: followPosition,
+            map: {
+              ...prevState.map,
+              lat: followPosition.lat,
+              lng: followPosition.long,
+              zoom: 16,
+            },
+          }
+        : null;
+    }
+
+    return null;
+  }
 
   onMapChanged = ({target}) => {
     const bounds = target.getBounds();
