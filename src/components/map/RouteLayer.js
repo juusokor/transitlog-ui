@@ -24,7 +24,7 @@ class RouteLayer extends Component {
     });
   };
 
-  componentDidUpdate() {
+  componentDidMount() {
     const {mapBounds, stops, setMapBounds = () => {}} = this.props;
 
     if (stops.length === 0) {

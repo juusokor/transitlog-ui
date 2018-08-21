@@ -14,18 +14,19 @@ export class LeafletMap extends Component {
   render() {
     const {
       children,
-      position,
+      center,
+      zoom,
+      bounds,
       onMapChange = () => {},
       onMapChanged = () => {},
     } = this.props;
-    const center = [position.lat, position.lng];
 
     return (
       <Map
         ref={this.mapRef}
-        center={center}
-        zoom={position.zoom}
-        bounds={position.bounds || undefined}
+        center={!bounds ? center : undefined}
+        zoom={!bounds ? zoom : undefined}
+        bounds={bounds}
         maxZoom={18}
         zoomControl={false}
         onViewportChanged={this.onViewportChange(onMapChanged)}
