@@ -10,6 +10,9 @@ let prevPosition = {
   posIndex: 0,
 };
 
+// This function is not as precise as the ones used
+// for the HFP markers and stop drive-by times. But
+// it is a lot cheaper and more performant!
 function getCoarsePositionForTime(positionsByJourney, journeyStartTime, time) {
   const positions = get(
     positionsByJourney.find((j) => j.journeyStartTime === journeyStartTime),

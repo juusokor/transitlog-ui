@@ -25,7 +25,7 @@ class RouteLayer extends Component {
   };
 
   componentDidMount() {
-    const {mapBounds, stops, setMapBounds = () => {}} = this.props;
+    const {stops, setMapBounds = () => {}} = this.props;
 
     if (stops.length === 0) {
       return;
@@ -36,15 +36,10 @@ class RouteLayer extends Component {
       lon: 24.940842,
     });
 
-    if (
-      !mapBounds ||
-      (mapBounds && mapBounds.isValid() && !mapBounds.equals(bounds))
-    ) {
-      setMapBounds(bounds);
-    }
+    setMapBounds(bounds);
   }
 
-  // This method returns hfo positions for when a vehicle was at the requested stop
+  // This method returns hfp positions for when a vehicle was at the requested stop
   // grouped by journey.
   getHfpStopsForJourney = (positions, stopId) => {
     // Group the hfp data into distinct journeys

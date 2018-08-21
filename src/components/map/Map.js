@@ -11,20 +11,21 @@ import {app} from "mobx-app";
 import invoke from "lodash/invoke";
 import map from "lodash/map";
 
-const defaultMapPosition = {lat: 60.170988, lng: 24.940842, zoom: 13};
-
 @inject(app("Journey"))
 @observer
 class Map extends Component {
   static defaultProps = {
     onMapChanged: () => {},
     onMapChange: () => {},
+    bounds: null,
   };
 
   state = {
     bbox: null,
     bounds: null,
-    ...defaultMapPosition,
+    lat: 60.170988,
+    lng: 24.940842,
+    zoom: 13,
   };
 
   setMapBounds = (bounds = null) => {
@@ -49,6 +50,10 @@ class Map extends Component {
   };
 
   getBbox = (map) => {
+    if (!map) {
+      return;
+    }
+
     const bounds = map.getBounds();
 
     if (!bounds || !invoke(bounds, "isValid")) {
@@ -87,7 +92,6 @@ class Map extends Component {
               routePositions={routePositions}
               stops={stops}
               setMapBounds={this.setMapBounds}
-              mapBounds={map.bounds}
               key={`route_line_${route}`}
               hfpPositions={positionsByVehicle}
             />
