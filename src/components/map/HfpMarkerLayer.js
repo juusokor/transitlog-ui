@@ -2,26 +2,28 @@ import React, {Component} from "react";
 import {Tooltip, Marker} from "react-leaflet";
 import get from "lodash/get";
 import moment from "moment";
-import {getColor} from "../../helpers/vehicleColor";
 import {divIcon} from "leaflet";
+import getDelayType from "../../helpers/getDelayType";
+import diffDates from "../../helpers/diffDates";
+import {observer, inject} from "mobx-react";
+import {app} from "mobx-app";
 
+@inject(app("state"))
+@observer
 class HfpMarkerLayer extends Component {
   prevQueryTime = "";
   prevHfpPosition = null;
   prevPositionIndex = 0;
 
   getHfpPosition = () => {
-    const {positions, queryDate, queryTime} = this.props;
+    const {positions, state} = this.props;
+    const {date, time} = state;
 
-    if (!queryTime || queryTime === this.prevQueryTime) {
+    if (!time || time === this.prevQueryTime) {
       return this.prevHfpPosition;
     }
 
-    const queryTimeMoment = moment(
-      `${queryDate} ${queryTime}`,
-      "YYYY-MM-DD HH:mm:ss",
-      true
-    );
+    const timeDate = new Date(`${date}T${time}`);
 
     let nextHfpPosition = null;
     const total = positions.length;
@@ -32,17 +34,16 @@ class HfpMarkerLayer extends Component {
       let prevDifference = 30;
 
       if (nextHfpPosition) {
-        prevDifference = Math.abs(
-          queryTimeMoment.diff(moment(nextHfpPosition.receivedAt), "seconds")
-        );
+        const nextHfpDate = new Date(nextHfpPosition.receivedAt);
+        prevDifference = Math.abs(diffDates(timeDate, nextHfpDate));
 
-        if (prevDifference < 5) {
+        if (prevDifference < 7) {
           break;
         }
       }
 
       const difference = Math.abs(
-        queryTimeMoment.diff(moment(position.receivedAt), "seconds")
+        diffDates(timeDate, new Date(position.receivedAt))
       );
 
       if (difference < prevDifference) {
@@ -51,7 +52,7 @@ class HfpMarkerLayer extends Component {
     }
 
     this.prevHfpPosition = nextHfpPosition;
-    this.prevQueryTime = queryTime;
+    this.prevQueryTime = time;
 
     return nextHfpPosition;
   };
@@ -60,8 +61,10 @@ class HfpMarkerLayer extends Component {
     const {onMarkerClick, selectedVehicle} = this.props;
 
     onMarkerClick(
-      get(selectedVehicle, "uniqueVehicleId", null) !==
-      positionWhenClicked.uniqueVehicleId
+      get(selectedVehicle, "uniqueVehicleId", "") !==
+        positionWhenClicked.uniqueVehicleId ||
+      get(selectedVehicle, "journeyStartTime", "") !==
+        positionWhenClicked.journeyStartTime
         ? positionWhenClicked
         : null
     );
@@ -69,18 +72,20 @@ class HfpMarkerLayer extends Component {
 
   render() {
     const {name} = this.props;
-    const color = getColor(name);
-
     const position = this.getHfpPosition();
 
     if (!position) {
       return null;
     }
 
+    const delayType = getDelayType(position.dl);
+    const color =
+      delayType === "early" ? "red" : delayType === "late" ? "yellow" : "green";
+
     const markerIcon = divIcon({
       className: `hfp-icon`,
       iconSize: 25,
-      html: `<span class="hfp-marker-color" style="background-color: ${color}">
+      html: `<span class="hfp-marker-wrapper" style="background-color: ${color}">
 <span class="hfp-marker-icon ${get(position, "mode", "").toUpperCase()}" />
 ${position.drst ? `<span class="hfp-marker-drst" />` : ""}
 </span>`,
@@ -100,6 +105,8 @@ ${position.drst ? `<span class="hfp-marker-drst" />` : ""}
           Next stop: {position.nextStopId}
           <br />
           Speed: {position.spd}
+          <br />
+          Delay: {position.dl} sek.
         </Tooltip>
       </Marker>
     );

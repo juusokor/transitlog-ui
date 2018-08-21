@@ -8,7 +8,13 @@
 }
 
 .filter-panel {
-  max-width: 400px;
+  width: 350px;
+  position: absolute;
+  margin: 20px;
+  padding: 20px;
+  left: 0;
+  transition: transform 0.3s ease-out;
+  transform: translateX(calc(-100% - 20px));
 }
 
 .date-input {
@@ -21,4 +27,21 @@
 
 .date-input .calendar {
   width: 100px;
+}
+
+.toggle-filter-panel {
+  position: absolute;
+  top: 0;
+  right: -1.5em;
+  padding: 0.5rem 0.75rem;
+  background: #007ac9;
+  border: 0;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.filter-panel.visible {
+  transform: translateX(0);
 }

@@ -4,7 +4,19 @@ import {InMemoryCache, defaultDataIdFromObject} from "apollo-cache-inmemory";
 
 const joreClient = new ApolloClient({
   link: new HttpLink({uri: "https://kartat.hsldev.com/jore/graphql"}),
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({
+    dataIdFromObject: (obj) => {
+      if (typeof obj.nodeId !== "undefined") {
+        return obj.nodeId;
+      }
+
+      if (obj.__typename === "Line") {
+        return `${obj.lineId}:${obj.dateBegin}:${obj.dateEnd}`;
+      }
+
+      return defaultDataIdFromObject(obj);
+    },
+  }),
 });
 
 const digiTClient = new ApolloClient({

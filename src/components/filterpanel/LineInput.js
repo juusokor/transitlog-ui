@@ -2,6 +2,7 @@ import React from "react";
 import get from "lodash/get";
 import SuggestionInput from "./SuggestionInput";
 import getTransportType from "../../helpers/getTransportType";
+import {observer} from "mobx-react";
 
 const parseLineNumber = (lineId) =>
   // Remove 1st number, which represents the city
@@ -32,7 +33,7 @@ const getSuggestions = (lines) => (value = "") => {
       );
 };
 
-export default ({lines, line, onSelect}) => (
+export default observer(({lines, line, onSelect}) => (
   <SuggestionInput
     minimumInput={1}
     placeholder="Hae linjaa..."
@@ -42,4 +43,4 @@ export default ({lines, line, onSelect}) => (
     renderSuggestion={renderSuggestion}
     getSuggestions={getSuggestions(lines)}
   />
-);
+));

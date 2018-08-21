@@ -7,11 +7,13 @@ const allStopsQuery = gql`
   query allStopsQuery {
     allStops {
       nodes {
+        nodeId
         stopId
         shortId
         lat
         lon
         nameFi
+        __typename
       }
     }
   }
