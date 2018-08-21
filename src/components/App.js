@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import get from "lodash/get";
+import invoke from "lodash/invoke";
 import {LeafletMap} from "./map/LeafletMap";
 import FilterPanel from "./filterpanel/FilterPanel";
 import RouteLayer from "./map/RouteLayer";
@@ -14,27 +15,36 @@ import withHfpData from "../hoc/withHfpData";
 import {app} from "mobx-app";
 import {inject, observer} from "mobx-react";
 import diffDates from "../helpers/diffDates";
+import propify from "../hoc/propify";
 
 const defaultMapPosition = {lat: 60.170988, lng: 24.940842, zoom: 13, bounds: null};
 
 @inject(app("Journey"))
 @withHfpData
+@propify("time") // Make time from state into a React prop
 @observer
 class App extends Component {
   state = {
     following: null,
+    prevFollowingTime: "",
     map: defaultMapPosition,
     bbox: null,
   };
 
   static getDerivedStateFromProps(nextProps, prevState) {
     const {
-      state: {selectedJourney, time, date},
+      state: {selectedJourney, date},
+      time,
       positionsByJourney,
     } = nextProps;
 
     if (!selectedJourney) {
-      return null;
+      return prevState.following !== null
+        ? {
+            following: null,
+            prevFollowingTime: "",
+          }
+        : null;
     }
 
     const journeyStartTime = get(selectedJourney, "journeyStartTime");
@@ -42,62 +52,71 @@ class App extends Component {
 
     const followingStartTime = get(prevState, "following.journeyStartTime");
     const followingVehicleId = get(prevState, "following.uniqueVehicleId");
+    const followingLat = get(prevState, "following.lat");
+    const followingLong = get(prevState, "following.long");
+    const prevFollowingTime = get(prevState, "prevFollowingTime", "");
 
     if (
       journeyStartTime !== followingStartTime ||
-      uniqueVehicleId !== followingVehicleId
+      uniqueVehicleId !== followingVehicleId ||
+      time !== prevFollowingTime
     ) {
-      const timeDate = new Date(`${date}T${time}`);
-      let followPosition = null;
-
       let journeyPositions = get(
         positionsByJourney.find((j) => j.journeyStartTime === journeyStartTime),
         "positions",
         []
       );
 
-      console.log(positionsByJourney);
-
       if (journeyPositions.length === 0) {
         return null;
       }
 
-      for (const posIndex of journeyPositions) {
-        const pos = journeyPositions[posIndex];
-        if (Math.abs(diffDates(new Date(pos.receivedAt), timeDate)) < 60) {
+      let followPosition = null;
+      const timeDate = new Date(`${date}T${time}`);
+
+      for (const pos of journeyPositions) {
+        if (Math.abs(diffDates(new Date(pos.receivedAt), timeDate)) < 30) {
           followPosition = pos;
           break;
         }
       }
 
-      console.log(followPosition);
+      if (
+        !followPosition ||
+        (followPosition.lat === followingLat &&
+          followPosition.long === followingLong)
+      ) {
+        return null;
+      }
 
-      return followPosition
-        ? {
-            following: followPosition,
-            map: {
-              bounds: null,
-              lat: followPosition.lat,
-              lng: followPosition.long,
-              zoom: 16,
-            },
-          }
-        : null;
+      return {
+        prevFollowingTime: time,
+        following: followPosition,
+      };
     }
 
     return null;
   }
 
-  onMapChanged = ({target}) => {
-    const bounds = target.getBounds();
-    const zoom = target.getZoom();
+  updateMapState = (map, {center, zoom}) => {
+    this.setState({
+      map: {
+        ...this.state.map,
+        lat: center[0],
+        lng: center[1],
+        zoom,
+      },
+    });
+  };
 
-    if (!bounds || !bounds.isValid()) {
+  onMapChanged = (map) => {
+    const bounds = map.getBounds();
+
+    if (!bounds || !invoke(bounds, "isValid")) {
       return;
     }
 
     this.setState({
-      map: {...get(this, "state.map", defaultMapPosition), zoom},
       bbox: {
         minLat: bounds.getSouth(),
         minLon: bounds.getWest(),
@@ -108,26 +127,41 @@ class App extends Component {
   };
 
   setMapBounds = (bounds = null) => {
-    if (bounds) {
-      this.setState({
-        map: {
-          ...get(this, "state.map", defaultMapPosition),
-          bounds,
-        },
-      });
+    if (!bounds || !invoke(bounds, "isValid")) {
+      return;
     }
+
+    this.setState({
+      map: {
+        ...get(this, "state.map", defaultMapPosition),
+        bounds,
+      },
+    });
   };
 
   render() {
-    const {map} = this.state;
+    const {map, following} = this.state;
     const {positionsByVehicle, loading, state, Journey} = this.props;
 
     const {route, vehicle, stop, selectedJourney} = state;
 
+    const followingLat = get(following, "lat", null);
+    const followingLng = get(following, "long", null);
+
+    const position = {
+      ...map,
+      lat: followingLat ? followingLat : map.lat,
+      lng: followingLng ? followingLng : map.lng,
+      zoom: followingLat ? 16 : map.zoom,
+    };
+
     return (
       <div className="transitlog">
         <FilterPanel />
-        <LeafletMap position={map} onMapChanged={this.onMapChanged}>
+        <LeafletMap
+          position={position}
+          onMapChanged={this.onMapChanged}
+          onMapChange={this.updateMapState}>
           {!route &&
             map.zoom > 14 && (
               <StopLayer selectedStop={stop} bounds={this.state.bbox} />
