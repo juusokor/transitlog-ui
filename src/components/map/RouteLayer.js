@@ -39,8 +39,8 @@ class RouteLayer extends Component {
     setMapBounds(bounds);
   }
 
-  // This method returns hfp positions for when a vehicle was at the requested stop
-  // grouped by journey.
+  // This method returns hfp positions for when a vehicle
+  // was at the requested stop grouped by journey.
   getHfpStopsForJourney = (positions, stopId) => {
     // Group the hfp data into distinct journeys
     const journeyGroups = groupBy(positions, "journeyStartTime");

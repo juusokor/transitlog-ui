@@ -19,18 +19,21 @@ export default ({
   onChangeShowTime,
   onTimeClick,
 }) => {
+  const isTerminal = firstTerminal || lastTerminal;
+
   const timingStopIcon = icon({
     iconUrl: TimingStopIcon,
     iconSize: [30, 30],
     iconAnchor: [23, 25 / 2],
     popupAnchor: [3, -15],
+    className: "stop-marker timing-stop",
   });
 
   return React.createElement(
     stop.timingStopType ? Marker : CircleMarker,
     {
       pane: "stops",
-      icon: timingStopIcon,
+      icon: stop.timingStopType ? timingStopIcon : null,
       center: [stop.lat, stop.lon],
       position: [stop.lat, stop.lon],
       color: firstTerminal
@@ -42,8 +45,8 @@ export default ({
             : stopColor,
       fillColor: "white",
       fillOpacity: 1,
-      strokeWeight: 3,
-      radius: firstTerminal || lastTerminal ? 12 : 8,
+      strokeWeight: isTerminal ? 5 : 3,
+      radius: isTerminal ? 12 : 8,
     },
     <React.Fragment>
       <Tooltip>
