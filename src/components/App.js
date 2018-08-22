@@ -101,16 +101,15 @@ class App extends Component {
       <div className="transitlog">
         <FilterPanel />
         <Map onMapChanged={this.onMapChanged} bounds={journeyBounds}>
-          {!route &&
+          {!route.routeId &&
             map.zoom > 14 && <StopLayer selectedStop={stop} bounds={stopsBbox} />}
           <RouteQuery route={route}>
             {({routePositions, stops}) => (
               <RouteLayer
-                route={route}
                 routePositions={routePositions}
                 stops={stops}
                 setMapBounds={this.setMapBounds}
-                key={`route_line_${route}`}
+                key={`route_line_${route.routeId}`}
                 positionsByVehicle={positionsByVehicle}
                 positionsByJourney={positionsByJourney}
               />
@@ -128,7 +127,9 @@ class App extends Component {
 
               const journeyStartTime = get(selectedJourney, "journeyStartTime", "");
 
-              const key = `${vehicleId}_${route}_${journeyStartTime}`;
+              const key = `${vehicleId}_${route.routeId}_${
+                route.direction
+              }_${journeyStartTime}`;
 
               return [
                 isSelectedJourney ? (
@@ -140,7 +141,7 @@ class App extends Component {
                   />
                 ) : null,
                 <HfpMarkerLayer
-                  key={`hfp_markers_${route}_${vehicleId}`}
+                  key={`hfp_markers_${route.routeId}_${vehicleId}`}
                   onMarkerClick={this.onClickVehicleMarker}
                   positions={positions}
                   name={vehicleId}

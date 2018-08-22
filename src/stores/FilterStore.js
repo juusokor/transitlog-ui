@@ -11,7 +11,12 @@ export default (state) => {
       dateBegin: "",
       dateEnd: "",
     },
-    route: "",
+    route: {
+      routeId: "",
+      direction: "",
+      dateBegin: "",
+      dateEnd: "",
+    },
   });
 
   const actions = filterActions(state);

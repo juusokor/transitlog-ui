@@ -13,7 +13,8 @@ export class RouteInput extends Component {
       return Filters.setRoute({});
     }
 
-    Filters.setRoute(selectedValue);
+    const [routeId, direction, dateBegin, dateEnd] = selectedValue.split("/");
+    Filters.setRoute({routeId, direction, dateBegin, dateEnd});
   };
 
   render() {
@@ -29,7 +30,7 @@ export class RouteInput extends Component {
         dateBegin,
         dateEnd,
       }) => ({
-        value: nodeId,
+        value: `${routeId}/${direction}/${dateBegin}/${dateEnd}`,
         label: `${routeId} - suunta ${direction}, ${originFi} - ${destinationFi} (${dateBegin} - ${dateEnd})`,
       })
     );

@@ -44,7 +44,7 @@ class FilterPanel extends Component {
             onChange={this.onChangeQueryVehicle}
           />
         </p>
-        {!!route ? (
+        {!!route.routeId ? (
           <StopsByRouteQuery key="stop_input_by_route" route={route}>
             {({stops}) => (
               <StopInput onSelect={Filters.setStop} stop={stop} stops={stops} />
@@ -65,13 +65,7 @@ class FilterPanel extends Component {
         {line.lineId &&
           line.dateBegin && (
             <RoutesByLineQuery line={line}>
-              {({routes}) => (
-                <RouteInput
-                  route={route}
-                  onRouteSelected={Filters.setRoute}
-                  routes={routes}
-                />
-              )}
+              {({routes}) => <RouteInput route={route} routes={routes} />}
             </RoutesByLineQuery>
           )}
         <JourneyList />

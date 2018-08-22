@@ -26,10 +26,14 @@ const filterActions = (state) => {
     state.line.dateEnd = dateEnd || "";
   });
 
-  // Grab the nodeId from the passed route.
-  const setRoute = action((route = "") => {
-    state.route = get(route, "nodeId", route);
-  });
+  const setRoute = action(
+    ({routeId = "", direction = "", dateBegin = "", dateEnd = ""}) => {
+      state.route.routeId = routeId || "";
+      state.route.direction = direction || "";
+      state.route.dateBegin = dateBegin || "";
+      state.route.dateEnd = dateEnd || "";
+    }
+  );
 
   return {
     setDate,
