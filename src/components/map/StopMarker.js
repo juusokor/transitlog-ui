@@ -1,7 +1,7 @@
 import React from "react";
 import {darken} from "polished";
 import DriveByTimes from "./DriveByTimes";
-import {Popup, Marker, CircleMarker} from "react-leaflet";
+import {Popup, Marker, CircleMarker, Tooltip} from "react-leaflet";
 import {icon} from "leaflet";
 import TimingStopIcon from "../../icon-time1.svg";
 
@@ -21,8 +21,8 @@ export default ({
 }) => {
   const timingStopIcon = icon({
     iconUrl: TimingStopIcon,
-    iconSize: [20, 20],
-    iconAnchor: [15, 20 / 2],
+    iconSize: [30, 30],
+    iconAnchor: [23, 25 / 2],
     popupAnchor: [3, -15],
   });
 
@@ -40,47 +40,52 @@ export default ({
           : selected
             ? selectedStopColor
             : stopColor,
-      fillColor: stop.timingStopType ? "lime" : "white",
+      fillColor: "white",
       fillOpacity: 1,
       strokeWeight: 3,
-      radius: firstTerminal || lastTerminal ? 8 : 8,
+      radius: firstTerminal || lastTerminal ? 12 : 8,
     },
-    <Popup>
-      <h4>
+    <React.Fragment>
+      <Tooltip>
         {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
-      </h4>
-      {hfp.length > 0 && (
-        <React.Fragment>
-          <div>
-            <label>
-              <input
-                type="radio"
-                value="arrive"
-                checked={showTime === "arrive"}
-                name="showTime"
-                onChange={onChangeShowTime}
-              />{" "}
-              Arrive
-            </label>
-            <label>
-              <input
-                type="radio"
-                value="depart"
-                checked={showTime === "depart"}
-                name="showTime"
-                onChange={onChangeShowTime}
-              />{" "}
-              Depart
-            </label>
-          </div>
-          <DriveByTimes
-            showTime={showTime}
-            onTimeClick={onTimeClick}
-            queryTime={time}
-            positions={hfp}
-          />
-        </React.Fragment>
-      )}
-    </Popup>
+      </Tooltip>
+      <Popup>
+        <h4>
+          {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
+        </h4>
+        {hfp.length > 0 && (
+          <React.Fragment>
+            <div>
+              <label>
+                <input
+                  type="radio"
+                  value="arrive"
+                  checked={showTime === "arrive"}
+                  name="showTime"
+                  onChange={onChangeShowTime}
+                />{" "}
+                Arrive
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  value="depart"
+                  checked={showTime === "depart"}
+                  name="showTime"
+                  onChange={onChangeShowTime}
+                />{" "}
+                Depart
+              </label>
+            </div>
+            <DriveByTimes
+              showTime={showTime}
+              onTimeClick={onTimeClick}
+              queryTime={time}
+              positions={hfp}
+            />
+          </React.Fragment>
+        )}
+      </Popup>
+    </React.Fragment>
   );
 };

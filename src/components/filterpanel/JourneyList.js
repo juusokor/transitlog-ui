@@ -42,7 +42,7 @@ class JourneyList extends Component {
         {journeys.map((journey) => (
           <button
             className={`journey-list-row ${isSelected(journey) ? "selected" : ""}`}
-            key={journey.jrn}
+            key={`${journey.journeyStartTime}_${journey.oday}`}
             onClick={this.selectJourney(journey)}>
             <strong className="start-time">{journey.journeyStartTime}</strong>
             <span className="vehicle-id">{journey.uniqueVehicleId}</span>
