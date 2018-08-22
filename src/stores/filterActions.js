@@ -20,18 +20,18 @@ const filterActions = (state) => {
 
   // We need to save lineId, dateBegin and dateEnd to uniquely
   // identify the line and do further queries based on it.
-  const setLine = action(({lineId = "", dateBegin = "", dateEnd = ""}) => {
-    state.line.lineId = lineId || "";
-    state.line.dateBegin = dateBegin || "";
-    state.line.dateEnd = dateEnd || "";
+  const setLine = action(({lineId = null, dateBegin = null, dateEnd = null}) => {
+    state.line.lineId = lineId || null;
+    state.line.dateBegin = dateBegin || null;
+    state.line.dateEnd = dateEnd || null;
   });
 
   const setRoute = action(
-    ({routeId = "", direction = "", dateBegin = "", dateEnd = ""}) => {
-      state.route.routeId = routeId || "";
-      state.route.direction = direction || "";
-      state.route.dateBegin = dateBegin || "";
-      state.route.dateEnd = dateEnd || "";
+    ({routeId = null, direction = null, dateBegin = null, dateEnd = null}) => {
+      state.route.routeId = routeId || null;
+      state.route.direction = direction || null;
+      state.route.dateBegin = dateBegin || null;
+      state.route.dateEnd = dateEnd || null;
     }
   );
 

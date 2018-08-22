@@ -8,14 +8,14 @@ export default (state) => {
     vehicle: "",
     line: {
       lineId: "1006T",
-      dateBegin: "",
-      dateEnd: "",
+      dateBegin: null,
+      dateEnd: null,
     },
     route: {
-      routeId: "",
-      direction: "",
-      dateBegin: "",
-      dateEnd: "",
+      routeId: null,
+      direction: null,
+      dateBegin: null,
+      dateEnd: null,
     },
   });
 

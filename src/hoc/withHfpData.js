@@ -7,6 +7,7 @@ import groupBy from "lodash/groupBy";
 import map from "lodash/map";
 import HfpQuery from "../queries/HfpQuery";
 import takeEveryNth from "../helpers/takeEveryNth";
+import withRoute from "./withRoute";
 
 const formatData = (hfpData) => {
   if (hfpData.length === 0) {
@@ -84,6 +85,7 @@ class HfpLoader extends React.Component {
 
 export default (Component) => {
   @inject(app("state"))
+  @withRoute
   @observer
   class WithHfpData extends React.Component {
     constructor() {
@@ -101,19 +103,23 @@ export default (Component) => {
 
     async updateComponentCache() {
       const {
-        state: {date, route},
+        state: {date},
+        route,
       } = this.props;
 
-      if (!route) {
+      if (!route.routeId) {
         return;
       }
 
       const cacheKey = getCacheKey(date, route);
-      const existingCache = this.cachedHfp.get(cacheKey);
 
-      if (!existingCache) {
-        const cachedHfp = await getCachedData(date, route);
-        this.setCachedHfp(cachedHfp, cacheKey);
+      if (cacheKey) {
+        const existingCache = this.cachedHfp.get(cacheKey);
+
+        if (!existingCache) {
+          const cachedHfp = await getCachedData(date, route);
+          this.setCachedHfp(cachedHfp, cacheKey);
+        }
       }
     }
 
@@ -124,11 +130,12 @@ export default (Component) => {
 
     render() {
       const {
-        state: {date, route},
+        state: {date},
+        route,
       } = this.props;
 
       const cacheKey = getCacheKey(date, route);
-      const cachedPositions = this.cachedHfp.get(cacheKey);
+      const cachedPositions = !cacheKey ? [] : this.cachedHfp.get(cacheKey);
 
       return (
         <HfpLoader cachedHfp={cachedPositions} date={date} route={route}>

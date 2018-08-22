@@ -1,7 +1,13 @@
 import localforage from "localforage";
 
 export function getCacheKey(date, route) {
-  return `${date}.${route}`;
+  if (!route.routeId || !route.dateBegin) {
+    return false;
+  }
+
+  return `${date}.${route.routeId}.${route.direction}.${route.dateBegin}.${
+    route.dateEnd
+  }`;
 }
 
 export async function cacheData(hfpData, date, route) {
@@ -10,6 +16,10 @@ export async function cacheData(hfpData, date, route) {
   }
 
   const key = getCacheKey(date, route);
+
+  if (!key) {
+    return;
+  }
 
   if (await localforage.getItem(key)) {
     await localforage.removeItem(key);
