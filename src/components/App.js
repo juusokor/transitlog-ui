@@ -79,7 +79,13 @@ class App extends Component {
 
   render() {
     const {stopsBbox} = this.state;
-    const {loading, state, positionsByVehicle, Journey} = this.props;
+    const {
+      loading,
+      state,
+      positionsByVehicle,
+      positionsByJourney,
+      Journey,
+    } = this.props;
     const {route, vehicle, stop, selectedJourney} = state;
 
     const journeyBounds = this.getJourneyBounds();
@@ -98,7 +104,8 @@ class App extends Component {
                 stops={stops}
                 setMapBounds={this.setMapBounds}
                 key={`route_line_${route}`}
-                hfpPositions={positionsByVehicle}
+                positionsByVehicle={positionsByVehicle}
+                positionsByJourney={positionsByJourney}
               />
             )}
           </RouteQuery>

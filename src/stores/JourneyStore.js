@@ -7,13 +7,9 @@ export default (state) => {
   });
 
   const setSelectedJourney = action((journey = null) => {
-    state.selectedJourney = pick(
-      journey,
-      "jrn",
-      "oday",
-      "uniqueVehicleId",
-      "journeyStartTime"
-    );
+    state.selectedJourney = journey
+      ? pick(journey, "jrn", "oday", "uniqueVehicleId", "journeyStartTime")
+      : null;
   });
 
   return {

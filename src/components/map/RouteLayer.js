@@ -41,11 +41,8 @@ class RouteLayer extends Component {
 
   // This method returns hfp positions for when a vehicle
   // was at the requested stop grouped by journey.
-  getHfpStopsForJourney = (positions, stopId) => {
-    // Group the hfp data into distinct journeys
-    const journeyGroups = groupBy(positions, "journeyStartTime");
-
-    return map(journeyGroups, (journeyPositions) => {
+  getHfpStopPositions = (positions, stopId) => {
+    return map(positions, (journeyPositions) => {
       // Get the hfp positions we're interested in. Now we are working with
       // hfp data that happens before or at the requested stop.
       const stopPos = filter(journeyPositions, (pos) => pos.nextStopId === stopId);
@@ -84,7 +81,44 @@ class RouteLayer extends Component {
     });
   };
 
-  getStopTimes = (stop) => {
+  getArriveDepartTimes = (stopJourneys) => {
+    return stopJourneys.map((journeyPositions) => {
+      // The last array element is when the vehicle left the stop, ie the
+      // moment before the nextStopId prop changed to the next stop.
+      const departHfp = journeyPositions[journeyPositions.length - 1];
+      const arriveHfp = journeyPositions[0];
+
+      return {arrive: arriveHfp, depart: departHfp};
+    });
+  };
+
+  getStopTimesForJourney = (stop) => {
+    const {
+      positionsByJourney,
+      state: {selectedJourney},
+    } = this.props;
+
+    const selectedJourneyPositions = get(
+      positionsByJourney.find(
+        (j) => j.journeyStartTime === selectedJourney.journeyStartTime
+      ),
+      "positions",
+      []
+    );
+
+    // Get the hfp positions for when this vehicle was at this stop.
+    const stopJourneys = this.getHfpStopPositions(
+      [selectedJourneyPositions],
+      stop.stopId
+    );
+
+    const journeys = this.getArriveDepartTimes(stopJourneys);
+    return [{vehicleId: selectedJourney.uniqueVehicleId, journeys}];
+  };
+
+  getAllStopTimes = (stop) => {
+    const {positionsByVehicle} = this.props;
+
     // Get existing times from the cache.
     if (Object.keys(this.stopTimes).length > 0) {
       const cachedHfp = get(this, `stopTimes.${stop.stopId}`);
@@ -94,19 +128,12 @@ class RouteLayer extends Component {
       }
     }
 
-    // Hfp positions are delivered grouped by the vehicle ID,
-    // which suits this component splendidly.
-    const stopHfpGroups = this.props.hfpPositions.map(({vehicleId, positions}) => {
+    // Hfp positions grouped by the vehicle ID
+    const stopHfpGroups = positionsByVehicle.map(({vehicleId, positions}) => {
+      const vehicleJourneys = groupBy(positions, "journeyStartTime");
       // Get the hfp positions for when this vehicle was at this stop.
-      const stopJourneys = this.getHfpStopsForJourney(positions, stop.stopId);
-      const journeys = stopJourneys.map((journeyPositions) => {
-        // The last array element is when the vehicle left the stop, ie the
-        // moment before the nextStopId prop changed to the next stop.
-        const departHfp = journeyPositions[journeyPositions.length - 1];
-        const arriveHfp = journeyPositions[0];
-
-        return {arrive: arriveHfp, depart: departHfp};
-      });
+      const stopJourneys = this.getHfpStopPositions(vehicleJourneys, stop.stopId);
+      const journeys = this.getArriveDepartTimes(stopJourneys);
 
       // Return the journeys, grouped by the vehicle ID.
       return {vehicleId, journeys};
@@ -125,7 +152,7 @@ class RouteLayer extends Component {
     const {showTime} = this.state;
 
     const {state, routePositions, stops} = this.props;
-    const {stop: selectedStop, time, date} = state;
+    const {stop: selectedStop, time, date, selectedJourney} = state;
 
     const timeMoment = moment(`${date} ${time}`, "YYYY-MM-DD HH:mm:ss", true);
 
@@ -141,7 +168,9 @@ class RouteLayer extends Component {
           // ...and the last stop is first.
           const isLast = index === 0;
 
-          const hfp = this.getStopTimes(stop);
+          const hfp = selectedJourney
+            ? this.getStopTimesForJourney(stop)
+            : this.getAllStopTimes(stop);
 
           return (
             <StopMarker

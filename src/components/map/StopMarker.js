@@ -4,6 +4,9 @@ import DriveByTimes from "./DriveByTimes";
 import {Popup, Marker, CircleMarker, Tooltip} from "react-leaflet";
 import {icon} from "leaflet";
 import TimingStopIcon from "../../icon-time1.svg";
+import get from "lodash/get";
+import reverse from "lodash/reverse";
+import diffDates from "../../helpers/diffDates";
 
 const stopColor = "#3388ff";
 const selectedStopColor = darken(0.2, stopColor);
@@ -29,6 +32,18 @@ export default ({
     className: "stop-marker timing-stop",
   });
 
+  let journeyStartedOnTime;
+
+  if (firstTerminal && hfp.length === 1) {
+    const date = time.format("YYYY-MM-DD");
+    const journeyStartHfp = get(reverse(hfp), `[0].journeys[0].depart`, "");
+
+    const startedDate = new Date(journeyStartHfp.receivedAt);
+    const journeyStartDate = new Date(`${date}T${journeyStartHfp.journeyStartTime}`);
+
+    journeyStartedOnTime = Math.abs(diffDates(startedDate, journeyStartDate)) <= 60;
+  }
+
   return React.createElement(
     stop.timingStopType ? Marker : CircleMarker,
     {
@@ -36,14 +51,13 @@ export default ({
       icon: stop.timingStopType ? timingStopIcon : null,
       center: [stop.lat, stop.lon],
       position: [stop.lat, stop.lon],
-      color: firstTerminal
-        ? "green"
-        : lastTerminal
-          ? "red"
-          : selected
-            ? selectedStopColor
-            : stopColor,
-      fillColor: "white",
+      color: selected ? selectedStopColor : stopColor,
+      fillColor:
+        journeyStartedOnTime === true
+          ? "lime"
+          : journeyStartedOnTime === false
+            ? "hotpink"
+            : "white",
       fillOpacity: 1,
       strokeWeight: isTerminal ? 5 : 3,
       radius: isTerminal ? 12 : 8,
