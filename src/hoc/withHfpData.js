@@ -14,7 +14,7 @@ const formatData = (hfpData) => {
   }
 
   return (
-    takeEveryNth(hfpData, 2) // Take every other hfp item.
+    takeEveryNth(hfpData, 3) // Take every other hfp item.
       // Some HFP items are null for one reason or another. Filter those out.
       .filter((pos) => !!pos && !!pos.lat && !!pos.long)
   );

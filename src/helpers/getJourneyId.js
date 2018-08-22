@@ -1,4 +1,3 @@
-import get from "lodash/get";
 import {pickJourneyProps} from "../stores/JourneyStore";
 
 export default (journey = null) => {
