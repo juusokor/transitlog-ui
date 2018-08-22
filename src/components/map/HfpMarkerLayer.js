@@ -65,16 +65,8 @@ class HfpMarkerLayer extends Component {
   };
 
   onMarkerClick = (positionWhenClicked) => () => {
-    const {onMarkerClick, selectedJourney} = this.props;
-
-    onMarkerClick(
-      get(selectedJourney, "uniqueVehicleId", "") !==
-        positionWhenClicked.uniqueVehicleId ||
-      get(selectedJourney, "journeyStartTime", "") !==
-        positionWhenClicked.journeyStartTime
-        ? positionWhenClicked
-        : null
-    );
+    const {onMarkerClick} = this.props;
+    onMarkerClick(positionWhenClicked);
   };
 
   render() {

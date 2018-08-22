@@ -17,8 +17,9 @@ import RouteLayer from "./map/RouteLayer";
 import HfpLayer from "./map/HfpLayer";
 import HfpMarkerLayer from "./map/HfpMarkerLayer";
 import invoke from "lodash/invoke";
+import getJourneyId from "../helpers/getJourneyId";
 
-@inject(app("Journey"))
+@inject(app("Journey", "Filters"))
 @withHfpData
 @observer
 class App extends Component {
@@ -77,15 +78,21 @@ class App extends Component {
     return journeyBounds;
   };
 
+  onClickVehicleMarker = (journey) => {
+    const {Journey, Filters, state} = this.props;
+
+    if (journey && getJourneyId(state.selectedJourney) !== getJourneyId(journey)) {
+      Filters.setVehicle(journey.uniqueVehicleId);
+    } else {
+      Filters.setVehicle("");
+    }
+
+    Journey.setSelectedJourney(journey);
+  };
+
   render() {
     const {stopsBbox} = this.state;
-    const {
-      loading,
-      state,
-      positionsByVehicle,
-      positionsByJourney,
-      Journey,
-    } = this.props;
+    const {loading, state, positionsByVehicle, positionsByJourney} = this.props;
     const {route, vehicle, stop, selectedJourney} = state;
 
     const journeyBounds = this.getJourneyBounds();
@@ -131,8 +138,7 @@ class App extends Component {
                 ) : null,
                 <HfpMarkerLayer
                   key={`hfp_markers_${route}_${vehicleId}`}
-                  onMarkerClick={Journey.setSelectedJourney}
-                  selectedJourney={selectedJourney}
+                  onMarkerClick={this.onClickVehicleMarker}
                   positions={positions}
                   name={vehicleId}
                 />,

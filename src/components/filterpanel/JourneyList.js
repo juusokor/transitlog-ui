@@ -4,6 +4,7 @@ import withHfpData from "../../hoc/withHfpData";
 import map from "lodash/map";
 import get from "lodash/get";
 import {app} from "mobx-app";
+import getJourneyId from "../../helpers/getJourneyId";
 
 @inject(app("Journey", "Time", "Filters"))
 @withHfpData
@@ -11,31 +12,28 @@ import {app} from "mobx-app";
 class JourneyList extends Component {
   selectJourney = (journey) => (e) => {
     e.preventDefault();
-    const {Time, Journey, Filters} = this.props;
+    const {Time, Journey, Filters, state} = this.props;
+
+    // Only set these if the journey is truthy and was not already selected
+    if (journey && getJourneyId(state.selectedJourney) !== getJourneyId(journey)) {
+      Time.setTime(journey.journeyStartTime);
+      Filters.setVehicle(journey.uniqueVehicleId);
+    } else {
+      Filters.setVehicle("");
+    }
 
     Journey.setSelectedJourney(journey);
-    Time.setTime(journey.journeyStartTime);
-    Filters.setVehicle(journey.uniqueVehicleId);
   };
 
   render() {
     const {positionsByJourney, state} = this.props;
 
-    const journeys = map(positionsByJourney, ({positions, journeyStartTime}) => {
-      const pos = positions[0];
-
-      return {
-        jrn: pos.jrn,
-        journeyStartTime: journeyStartTime,
-        uniqueVehicleId: pos.uniqueVehicleId,
-        oday: pos.oday,
-      };
-    });
+    const journeys = map(positionsByJourney, ({positions}) => positions[0]);
 
     const selectedJourney = get(state, "selectedJourney");
+
     const isSelected = (journey) =>
-      get(selectedJourney, "oday") === get(journey, "oday") &&
-      get(selectedJourney, "jrn") === get(journey, "jrn");
+      selectedJourney && getJourneyId(selectedJourney) === getJourneyId(journey);
 
     return (
       <div className="journey-list">

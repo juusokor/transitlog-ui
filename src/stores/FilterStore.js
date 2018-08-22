@@ -27,15 +27,15 @@ export default (state) => {
 
   // The uniqueVehicleId we're interested in.
   const setVehicle = action((vehicleId) => {
-    state.vehicle = vehicleId;
+    state.vehicle = vehicleId || "";
   });
 
   // We need to save lineId, dateBegin and dateEnd to uniquely
   // identify the line and do further queries based on it.
   const setLine = action(({lineId = "", dateBegin = "", dateEnd = ""}) => {
-    state.line.lineId = lineId;
-    state.line.dateBegin = dateBegin;
-    state.line.dateEnd = dateEnd;
+    state.line.lineId = lineId || "";
+    state.line.dateBegin = dateBegin || "";
+    state.line.dateEnd = dateEnd || "";
   });
 
   // Grab the nodeId from the passed route.
