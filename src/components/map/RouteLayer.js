@@ -106,14 +106,16 @@ class RouteLayer extends Component {
       []
     );
 
-    // Get the hfp positions for when this vehicle was at this stop.
-    const stopJourneys = this.getHfpStopPositions(
-      [selectedJourneyPositions],
-      stop.stopId
-    );
+    return map(
+      groupBy(selectedJourneyPositions, "uniqueVehicleId"),
+      (positions, uniqueVehicleId) => {
+        // Get the hfp positions for when this vehicle was at this stop.
+        const stopJourneys = this.getHfpStopPositions([positions], stop.stopId);
 
-    const journeys = this.getArriveDepartTimes(stopJourneys);
-    return [{vehicleId: selectedJourney.uniqueVehicleId, journeys}];
+        const journeys = this.getArriveDepartTimes(stopJourneys);
+        return {vehicleId: uniqueVehicleId, journeys};
+      }
+    );
   };
 
   getAllStopTimes = (stop) => {

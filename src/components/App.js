@@ -122,13 +122,16 @@ class App extends Component {
                 return null;
               }
 
-              const lineVehicleId = get(selectedJourney, "uniqueVehicleId", "");
+              const isSelectedJourney =
+                selectedJourney &&
+                getJourneyId(selectedJourney) === getJourneyId(positions[0]);
+
               const journeyStartTime = get(selectedJourney, "journeyStartTime", "");
 
-              const key = `${lineVehicleId}_${route}_${journeyStartTime}`;
+              const key = `${vehicleId}_${route}_${journeyStartTime}`;
 
               return [
-                lineVehicleId === vehicleId ? (
+                isSelectedJourney ? (
                   <HfpLayer
                     key={`hfp_line_${key}`}
                     selectedJourney={selectedJourney}

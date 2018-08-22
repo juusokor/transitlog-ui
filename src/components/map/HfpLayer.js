@@ -100,6 +100,7 @@ Delay: ${hfpItem.dl} sek.`;
   render() {
     const {name} = this.props;
     const positions = this.getLine();
+
     return (
       <React.Fragment>
         {positions.map((delayChunk, index) => {
