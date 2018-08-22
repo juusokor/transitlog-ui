@@ -34,6 +34,7 @@ class FilterPanel extends Component {
       <header
         className={`transitlog-header filter-panel ${visible ? "visible" : ""}`}>
         <Header />
+        <button onClick={Filters.reset}>Reset</button>
         <DateSettings />
         <TimeSettings />
         <p>
