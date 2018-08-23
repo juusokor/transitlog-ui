@@ -37,8 +37,6 @@ const filterActions = (state) => {
 
       // When the route changes, also reset the vehicle.
       state.vehicle = "";
-      // Also clear the journey selection
-      journeyActions.setSelectedJourney(null);
     }
   );
 
