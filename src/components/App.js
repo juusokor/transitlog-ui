@@ -10,7 +10,6 @@ import {inject, observer} from "mobx-react";
 import Map from "./map/Map";
 import {latLng} from "leaflet";
 import getCoarsePositionForTime from "../helpers/getCoarsePositionForTime";
-import map from "lodash/map";
 import StopLayer from "./map/StopLayer";
 import RouteQuery from "../queries/RouteQuery";
 import RouteLayer from "./map/RouteLayer";
@@ -43,7 +42,7 @@ class App extends Component {
     }
 
     this.setState({
-      bbox: {
+      stopsBbox: {
         minLat: bounds.getSouth(),
         minLon: bounds.getWest(),
         maxLat: bounds.getNorth(),
@@ -101,49 +100,57 @@ class App extends Component {
       <div className="transitlog">
         <FilterPanel />
         <Map onMapChanged={this.onMapChanged} bounds={journeyBounds}>
-          {!route &&
-            map.zoom > 14 && <StopLayer selectedStop={stop} bounds={stopsBbox} />}
-          <RouteQuery route={route}>
-            {({routePositions, stops}) => (
-              <RouteLayer
-                route={route}
-                routePositions={routePositions}
-                stops={stops}
-                setMapBounds={this.setMapBounds}
-                key={`route_line_${route}`}
-                positionsByVehicle={positionsByVehicle}
-                positionsByJourney={positionsByJourney}
-              />
-            )}
-          </RouteQuery>
-          {positionsByVehicle.length > 0 &&
-            positionsByVehicle.map(({positions, vehicleId}) => {
-              if (vehicle && vehicleId !== vehicle) {
-                return null;
-              }
-
-              const lineVehicleId = get(selectedJourney, "uniqueVehicleId", "");
-              const journeyStartTime = get(selectedJourney, "journeyStartTime", "");
-
-              const key = `${lineVehicleId}_${route}_${journeyStartTime}`;
-
-              return [
-                lineVehicleId === vehicleId ? (
-                  <HfpLayer
-                    key={`hfp_line_${key}`}
-                    selectedJourney={selectedJourney}
-                    positions={positions}
-                    name={vehicleId}
+          {(lat, lng, zoom) => (
+            <React.Fragment>
+              {!route &&
+                zoom > 14 && <StopLayer selectedStop={stop} bounds={stopsBbox} />}
+              <RouteQuery route={route}>
+                {({routePositions, stops}) => (
+                  <RouteLayer
+                    route={route}
+                    routePositions={routePositions}
+                    stops={stops}
+                    setMapBounds={this.setMapBounds}
+                    key={`route_line_${route}`}
+                    positionsByVehicle={positionsByVehicle}
+                    positionsByJourney={positionsByJourney}
                   />
-                ) : null,
-                <HfpMarkerLayer
-                  key={`hfp_markers_${route}_${vehicleId}`}
-                  onMarkerClick={this.onClickVehicleMarker}
-                  positions={positions}
-                  name={vehicleId}
-                />,
-              ];
-            })}
+                )}
+              </RouteQuery>
+              {positionsByVehicle.length > 0 &&
+                positionsByVehicle.map(({positions, vehicleId}) => {
+                  if (vehicle && vehicleId !== vehicle) {
+                    return null;
+                  }
+
+                  const lineVehicleId = get(selectedJourney, "uniqueVehicleId", "");
+                  const journeyStartTime = get(
+                    selectedJourney,
+                    "journeyStartTime",
+                    ""
+                  );
+
+                  const key = `${lineVehicleId}_${route}_${journeyStartTime}`;
+
+                  return [
+                    lineVehicleId === vehicleId ? (
+                      <HfpLayer
+                        key={`hfp_line_${key}`}
+                        selectedJourney={selectedJourney}
+                        positions={positions}
+                        name={vehicleId}
+                      />
+                    ) : null,
+                    <HfpMarkerLayer
+                      key={`hfp_markers_${route}_${vehicleId}`}
+                      onMarkerClick={this.onClickVehicleMarker}
+                      positions={positions}
+                      name={vehicleId}
+                    />,
+                  ];
+                })}
+            </React.Fragment>
+          )}
         </Map>
         <LoadingOverlay show={loading} message="Ladataan HFP-tietoja..." />
       </div>

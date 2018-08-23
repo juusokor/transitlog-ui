@@ -53,7 +53,7 @@ class Map extends Component {
         bounds={useBounds}
         onMapChanged={this.onMapChanged}
         onMapChange={this.onMapChange}>
-        {children}
+        {typeof children === "function" ? children(lat, lng, zoom) : children}
       </LeafletMap>
     );
   }
