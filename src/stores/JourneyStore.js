@@ -1,26 +1,10 @@
 import {extendObservable, action} from "mobx";
-import {pick} from "lodash";
 import getJourneyId from "../helpers/getJourneyId";
 import createHistory from "history/createBrowserHistory";
 import TimeActions from "./timeActions";
 import FilterActions from "./filterActions";
 import moment from "moment";
-
-export function pickJourneyProps(hfp) {
-  return pick(hfp, "oday", "journeyStartTime", "directionId", "routeId");
-}
-
-function createJourneyPath(journey) {
-  const date = new Date(`${journey.oday}T${journey.journeyStartTime}`);
-  // ensure double.digit date and month
-  const dateStr = `${date.getFullYear()}${("0" + (date.getMonth() + 1)).slice(-2)}${(
-    "0" + date.getDate()
-  ).slice(-2)}`;
-
-  const timeStr = `${date.getHours()}${date.getMinutes()}`;
-
-  return `/journey/${dateStr}/${journey.routeId}/${journey.directionId}/${timeStr}`;
-}
+import journeyActions, {pickJourneyProps} from "./journeyActions";
 
 export default (state) => {
   const history = createHistory();
@@ -31,19 +15,7 @@ export default (state) => {
 
   const timeActions = TimeActions(state);
   const filterActions = FilterActions(state);
-
-  const setSelectedJourney = action((journey = null) => {
-    if (
-      !journey ||
-      (state.selectedJourney &&
-        getJourneyId(state.selectedJourney) === getJourneyId(journey))
-    ) {
-      state.selectedJourney = null;
-    } else {
-      state.selectedJourney = pickJourneyProps(journey);
-      history.push(createJourneyPath(journey));
-    }
-  });
+  const actions = journeyActions(state);
 
   const selectJourneyFromUrl = action((location) => {
     if (location.pathname.includes("journey")) {
@@ -89,11 +61,7 @@ export default (state) => {
 
   selectJourneyFromUrl(history.location);
 
-  history.listen((location) => {
-    selectJourneyFromUrl(location);
-  });
-
   return {
-    setSelectedJourney,
+    ...actions,
   };
 };

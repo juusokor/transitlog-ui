@@ -1,6 +1,7 @@
 import {action} from "mobx";
 import moment from "moment";
 import get from "lodash/get";
+import mergeWithObservable from "../helpers/mergeWithObservable";
 
 const filterActions = (state) => {
   // Make sure all dates are correctly formed.
@@ -18,22 +19,13 @@ const filterActions = (state) => {
     state.vehicle = vehicleId || "";
   });
 
-  // We need to save lineId, dateBegin and dateEnd to uniquely
-  // identify the line and do further queries based on it.
-  const setLine = action(({lineId = null, dateBegin = null, dateEnd = null}) => {
-    state.line.lineId = lineId || null;
-    state.line.dateBegin = dateBegin || null;
-    state.line.dateEnd = dateEnd || null;
+  const setLine = action((line) => {
+    mergeWithObservable(state.line, line);
   });
 
-  const setRoute = action(
-    ({routeId = null, direction = null, dateBegin = null, dateEnd = null}) => {
-      state.route.routeId = routeId || null;
-      state.route.direction = direction || null;
-      state.route.dateBegin = dateBegin || null;
-      state.route.dateEnd = dateEnd || null;
-    }
-  );
+  const setRoute = action((route) => {
+    mergeWithObservable(state.route, route);
+  });
 
   return {
     setDate,

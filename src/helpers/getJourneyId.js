@@ -1,4 +1,4 @@
-import {pickJourneyProps} from "../stores/JourneyStore";
+import {pickJourneyProps} from "../stores/journeyActions";
 
 export default (journey = null) => {
   const {

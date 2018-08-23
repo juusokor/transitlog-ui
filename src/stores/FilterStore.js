@@ -1,35 +1,34 @@
 import {extendObservable, action} from "mobx";
 import filterActions from "./filterActions";
+import mergeWithObservable from "../helpers/mergeWithObservable";
+import JourneyActions from "./journeyActions";
+
+const emptyState = {
+  date: "2018-05-06",
+  stop: "",
+  vehicle: "",
+  line: {
+    lineId: "1006T",
+    dateBegin: "",
+    dateEnd: "",
+  },
+  route: {
+    routeId: "",
+    direction: "",
+    dateBegin: "",
+    dateEnd: "",
+  },
+};
 
 export default (state) => {
-  extendObservable(state, {
-    date: "2018-05-06",
-    stop: "",
-    vehicle: "",
-    line: {
-      lineId: "1006T",
-      dateBegin: null,
-      dateEnd: null,
-    },
-    route: {
-      routeId: null,
-      direction: null,
-      dateBegin: null,
-      dateEnd: null,
-    },
-  });
+  extendObservable(state, emptyState);
 
+  const journeyActions = JourneyActions(state);
   const actions = filterActions(state);
 
   const reset = action(() => {
-    state.stop = "";
-    state.vehicle = "";
-    state.line = {
-      lineId: "",
-      dateBegin: "",
-      dateEnd: "",
-    };
-    state.route = "";
+    mergeWithObservable(state, emptyState);
+    journeyActions.setSelectedJourney(null);
   });
 
   return {

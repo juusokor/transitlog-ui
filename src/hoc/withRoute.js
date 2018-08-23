@@ -14,7 +14,13 @@ export default (Component) =>
 
     return (
       <SingleRouteQuery route={route}>
-        {({route: routeObj}) => <Component {...props} route={routeObj} />}
+        {({route: routeObj, loading, error}) => {
+          if (error || loading) {
+            return null;
+          }
+
+          return <Component {...props} route={routeObj} />;
+        }}
       </SingleRouteQuery>
     );
   });
