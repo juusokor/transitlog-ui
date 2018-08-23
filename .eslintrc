@@ -1,6 +1,3 @@
 {
-  "extends": ["react-app", "plugin:prettier/recommended"],
-  "rules": {
-    "no-alert": "error"
-  }
+  "extends": ["react-app", "plugin:prettier/recommended"]
 }
