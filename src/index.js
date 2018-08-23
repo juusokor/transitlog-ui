@@ -1,9 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
-// eslint-disable-next-line
-import Root from "./Root";
-import {AppContainer} from "react-hot-loader";
 import {createStore} from "mobx-app";
 import FilterStore from "./stores/FilterStore";
 import TimeStore from "./stores/TimeStore";
@@ -24,19 +21,11 @@ const render = () => {
   const Root = require("./Root").default;
 
   ReactDOM.render(
-    <AppContainer>
-      <Provider state={state} actions={actions}>
-        <Root />
-      </Provider>
-    </AppContainer>,
+    <Provider state={state} actions={actions}>
+      <Root />
+    </Provider>,
     root
   );
 };
 
 render();
-
-if (module.hot) {
-  module.hot.accept("./Root", () => {
-    render();
-  });
-}
