@@ -66,7 +66,7 @@ export default ({
       <Tooltip>
         {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
       </Tooltip>
-      <Popup>
+      <Popup keepInView={false} autoPan={false}>
         <h4>
           {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
         </h4>

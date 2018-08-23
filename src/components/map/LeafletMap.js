@@ -26,7 +26,7 @@ export class LeafletMap extends Component {
         ref={this.mapRef}
         center={center}
         zoom={zoom}
-        bounds={!center ? bounds : undefined}
+        bounds={bounds}
         maxZoom={20}
         zoomControl={false}
         onViewportChanged={this.onViewportChange(onMapChanged)}
