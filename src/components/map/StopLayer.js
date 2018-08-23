@@ -3,6 +3,9 @@ import {CircleMarker, Popup} from "react-leaflet";
 import get from "lodash/get";
 import gql from "graphql-tag";
 import {Query} from "react-apollo";
+import {observer, inject} from "mobx-react";
+import {app} from "mobx-app";
+import withRoute from "../../hoc/withRoute";
 
 const stopsByBboxQuery = gql`
   query stopsByBboxQuery(
@@ -16,7 +19,7 @@ const stopsByBboxQuery = gql`
         stopId
         lat
         lon
-        routeSegmentsForDate(date: "2018-30-08") {
+        routeSegmentsForDate(date: "2018-08-08") {
           nodes {
             routeId
             dateBegin
@@ -32,17 +35,35 @@ const stopsByBboxQuery = gql`
 const stopColor = "#3388ff";
 const selectedStopColor = "#33ff88";
 
+@inject(app("Filters"))
+@withRoute
+@observer
 class StopLayer extends Component {
   constructor(props) {
     super(props);
     this.state = {selectedStop: null};
   }
 
+  selectRoute = (route) => (e) => {
+    const getRouteValue = (route) =>
+      `${route.routeId}/${route.direction}/${route.dateBegin}/${route.dateEnd}`;
+    const {Filters} = this.props;
+    const selectedValue = getRouteValue(route);
+    console.log("foo", selectedValue);
+    if (!selectedValue) {
+      return Filters.setRoute({});
+    }
+
+    const [routeId, direction, dateBegin, dateEnd] = selectedValue.split("/");
+    Filters.setRoute({routeId, direction, dateBegin, dateEnd});
+    console.log(routeId);
+  };
+
   render() {
-    const {selectedStop} = this.props;
+    const {selectedStop, bounds} = this.props;
 
     return (
-      <Query query={stopsByBboxQuery} variables={this.props.bounds}>
+      <Query query={stopsByBboxQuery} variables={bounds}>
         {({loading, data, error}) => {
           if (loading) return "Loading...";
           if (error) return "Error!";
@@ -56,17 +77,17 @@ class StopLayer extends Component {
                   pane="stops"
                   center={[stop.lat, stop.lon]}
                   color={stopColor}
-                  fillColor={
-                    selectedStop === stop.stopId ? selectedStopColor : stopColor
-                  }
+                  fillColor={"white"}
                   fillOpacity={1}
-                  radius={selectedStop === stop.stopId ? 10 : 6}
+                  radius={selectedStop === stop.stopId ? 10 : 8}
                   onPopupopen={() => this.setState({selectedStop: stop.stopId})}
                   onPopupclose={() => this.setState({selectedStop: null})}>
                   {this.state.selectedStop === stop.stopId ? (
                     <Popup>
                       {stop.routeSegmentsForDate.nodes.map((route) => (
-                        <button key={`route_${route.routeId}`}>
+                        <button
+                          key={`route_${route.routeId}`}
+                          onClick={this.selectRoute(route)}>
                           {route.routeId.substring(1).replace(/^0+/, "")}
                         </button>
                       ))}
