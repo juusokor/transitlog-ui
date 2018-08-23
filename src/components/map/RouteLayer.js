@@ -131,7 +131,6 @@ class RouteLayer extends Component {
       }
     }
 
-    // Hfp positions grouped by the vehicle ID
     const stopHfpGroups = positionsByVehicle.map(({vehicleId, positions}) => {
       const vehicleJourneys = groupBy(positions, "journeyStartTime");
       // Get the hfp positions for when this vehicle was at this stop.

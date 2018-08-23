@@ -1,23 +1,12 @@
 import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
+import withRoute from "../../hoc/withRoute";
 
 @inject(app("Filters"))
+@withRoute
 @observer
 export class RouteInput extends Component {
-  componentDidMount() {
-    const {Filters, route, routes} = this.props;
-
-    // If there is a preset routeId, find the rest of the route data from routes.
-    if (route.routeId && !route.dateBegin) {
-      const routeData = routes.find((r) => r.routeId === route.routeId);
-
-      if (routeData) {
-        Filters.setRoute(routeData);
-      }
-    }
-  }
-
   onChange = (e) => {
     const {Filters} = this.props;
     const selectedValue = e.target.value;

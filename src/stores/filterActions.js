@@ -2,8 +2,11 @@ import {action} from "mobx";
 import moment from "moment";
 import get from "lodash/get";
 import mergeWithObservable from "../helpers/mergeWithObservable";
+import JourneyActions from "./journeyActions";
 
 const filterActions = (state) => {
+  const journeyActions = JourneyActions(state);
+
   // Make sure all dates are correctly formed.
   const setDate = action((dateValue) => {
     state.date = moment(dateValue).format("YYYY-MM-DD");
@@ -34,6 +37,8 @@ const filterActions = (state) => {
 
       // When the route changes, also reset the vehicle.
       state.vehicle = "";
+      // Also clear the journey selection
+      journeyActions.setSelectedJourney(null);
     }
   );
 

@@ -24,7 +24,7 @@ export default (Component) =>
       <SingleRouteQuery route={route}>
         {({route: routeObj, loading, error}) => {
           if (error || loading) {
-            return null;
+            return <Component {...props} route={route} />;
           }
 
           return <Component {...props} route={routeObj} />;

@@ -101,16 +101,18 @@ class App extends Component {
               {!route.routeId &&
                 zoom > 14 && <StopLayer selectedStop={stop} bounds={stopsBbox} />}
               <RouteQuery route={route}>
-                {({routePositions, stops}) => (
-                  <RouteLayer
-                    routePositions={routePositions}
-                    stops={stops}
-                    setMapBounds={setMapBounds}
-                    key={`route_line_${route.routeId}`}
-                    positionsByVehicle={positionsByVehicle}
-                    positionsByJourney={positionsByJourney}
-                  />
-                )}
+                {({routePositions, stops}) =>
+                  routePositions.length !== 0 ? (
+                    <RouteLayer
+                      routePositions={routePositions}
+                      stops={stops}
+                      setMapBounds={setMapBounds}
+                      key={`route_line_${route.routeId}`}
+                      positionsByVehicle={positionsByVehicle}
+                      positionsByJourney={positionsByJourney}
+                    />
+                  ) : null
+                }
               </RouteQuery>
               {positionsByJourney.length > 0 &&
                 positionsByJourney.map(({positions, journeyId}) => {
