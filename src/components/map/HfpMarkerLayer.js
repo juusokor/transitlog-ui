@@ -65,16 +65,8 @@ class HfpMarkerLayer extends Component {
   };
 
   onMarkerClick = (positionWhenClicked) => () => {
-    const {onMarkerClick, selectedJourney} = this.props;
-
-    onMarkerClick(
-      get(selectedJourney, "uniqueVehicleId", "") !==
-        positionWhenClicked.uniqueVehicleId ||
-      get(selectedJourney, "journeyStartTime", "") !==
-        positionWhenClicked.journeyStartTime
-        ? positionWhenClicked
-        : null
-    );
+    const {onMarkerClick} = this.props;
+    onMarkerClick(positionWhenClicked);
   };
 
   render() {
@@ -111,7 +103,7 @@ ${position.drst ? `<span class="hfp-marker-drst" />` : ""}
           <br />
           Next stop: {position.nextStopId}
           <br />
-          Speed: {position.spd}
+          Speed: {Math.round((position.spd * 18) / 5)} km/h
           <br />
           Delay: {position.dl} sek.
         </Tooltip>

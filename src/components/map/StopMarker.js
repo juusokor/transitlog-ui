@@ -1,9 +1,12 @@
 import React from "react";
 import {darken} from "polished";
 import DriveByTimes from "./DriveByTimes";
-import {Popup, Marker, CircleMarker} from "react-leaflet";
+import {Popup, Marker, CircleMarker, Tooltip} from "react-leaflet";
 import {icon} from "leaflet";
 import TimingStopIcon from "../../icon-time1.svg";
+import get from "lodash/get";
+import reverse from "lodash/reverse";
+import diffDates from "../../helpers/diffDates";
 
 const stopColor = "#3388ff";
 const selectedStopColor = darken(0.2, stopColor);
@@ -19,68 +22,87 @@ export default ({
   onChangeShowTime,
   onTimeClick,
 }) => {
+  const isTerminal = firstTerminal || lastTerminal;
+
   const timingStopIcon = icon({
     iconUrl: TimingStopIcon,
-    iconSize: [20, 20],
-    iconAnchor: [15, 20 / 2],
+    iconSize: [30, 30],
+    iconAnchor: [23, 25 / 2],
     popupAnchor: [3, -15],
+    className: "stop-marker timing-stop",
   });
+
+  let journeyStartedOnTime;
+
+  if (firstTerminal && hfp.length === 1) {
+    const date = time.format("YYYY-MM-DD");
+    const journeyStartHfp = get(reverse(hfp), `[0].journeys[0].depart`, "");
+
+    const startedDate = new Date(journeyStartHfp.receivedAt);
+    const journeyStartDate = new Date(`${date}T${journeyStartHfp.journeyStartTime}`);
+
+    journeyStartedOnTime = Math.abs(diffDates(startedDate, journeyStartDate)) <= 60;
+  }
 
   return React.createElement(
     stop.timingStopType ? Marker : CircleMarker,
     {
       pane: "stops",
-      icon: timingStopIcon,
+      icon: stop.timingStopType ? timingStopIcon : null,
       center: [stop.lat, stop.lon],
       position: [stop.lat, stop.lon],
-      color: firstTerminal
-        ? "green"
-        : lastTerminal
-          ? "red"
-          : selected
-            ? selectedStopColor
-            : stopColor,
-      fillColor: stop.timingStopType ? "lime" : "white",
+      color: selected ? selectedStopColor : stopColor,
+      fillColor:
+        journeyStartedOnTime === true
+          ? "lime"
+          : journeyStartedOnTime === false
+            ? "hotpink"
+            : "white",
       fillOpacity: 1,
-      strokeWeight: 3,
-      radius: firstTerminal || lastTerminal ? 8 : 8,
+      strokeWeight: isTerminal ? 5 : 3,
+      radius: isTerminal ? 12 : 8,
     },
-    <Popup>
-      <h4>
+    <React.Fragment>
+      <Tooltip>
         {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
-      </h4>
-      {hfp.length > 0 && (
-        <React.Fragment>
-          <div>
-            <label>
-              <input
-                type="radio"
-                value="arrive"
-                checked={showTime === "arrive"}
-                name="showTime"
-                onChange={onChangeShowTime}
-              />{" "}
-              Arrive
-            </label>
-            <label>
-              <input
-                type="radio"
-                value="depart"
-                checked={showTime === "depart"}
-                name="showTime"
-                onChange={onChangeShowTime}
-              />{" "}
-              Depart
-            </label>
-          </div>
-          <DriveByTimes
-            showTime={showTime}
-            onTimeClick={onTimeClick}
-            queryTime={time}
-            positions={hfp}
-          />
-        </React.Fragment>
-      )}
-    </Popup>
+      </Tooltip>
+      <Popup>
+        <h4>
+          {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
+        </h4>
+        {hfp.length > 0 && (
+          <React.Fragment>
+            <div>
+              <label>
+                <input
+                  type="radio"
+                  value="arrive"
+                  checked={showTime === "arrive"}
+                  name="showTime"
+                  onChange={onChangeShowTime}
+                />{" "}
+                Arrive
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  value="depart"
+                  checked={showTime === "depart"}
+                  name="showTime"
+                  onChange={onChangeShowTime}
+                />{" "}
+                Depart
+              </label>
+            </div>
+            <DriveByTimes
+              showTime={showTime}
+              onTimeClick={onTimeClick}
+              queryTime={time}
+              positions={hfp}
+            />
+          </React.Fragment>
+        )}
+      </Popup>
+    </React.Fragment>
   );
 };

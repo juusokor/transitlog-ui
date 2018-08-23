@@ -1,5 +1,6 @@
 import {extendObservable, action} from "mobx";
 import {pick} from "lodash";
+import getJourneyId from "../helpers/getJourneyId";
 
 export default (state) => {
   extendObservable(state, {
@@ -7,13 +8,22 @@ export default (state) => {
   });
 
   const setSelectedJourney = action((journey = null) => {
-    state.selectedJourney = pick(
-      journey,
-      "jrn",
-      "oday",
-      "uniqueVehicleId",
-      "journeyStartTime"
-    );
+    if (
+      !journey ||
+      (state.selectedJourney &&
+        getJourneyId(state.selectedJourney) === getJourneyId(journey))
+    ) {
+      state.selectedJourney = null;
+    } else {
+      state.selectedJourney = pick(
+        journey,
+        "oday",
+        "uniqueVehicleId",
+        "journeyStartTime",
+        "directionId",
+        "routeId"
+      );
+    }
   });
 
   return {

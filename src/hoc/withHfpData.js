@@ -26,10 +26,12 @@ const getGroupedByVehicle = (hfpData) => {
   }
 
   const groupedData = groupBy(hfpData, "uniqueVehicleId");
-  return map(groupedData, (positions, groupName) => ({
+  const vehicleGroups = map(groupedData, (positions, groupName) => ({
     vehicleId: groupName,
     positions,
   }));
+
+  return vehicleGroups;
 };
 
 const getGroupedByJourney = (hfpData) => {
@@ -38,10 +40,12 @@ const getGroupedByJourney = (hfpData) => {
   }
 
   const groupedData = groupBy(hfpData, "journeyStartTime");
-  return map(groupedData, (positions, groupName) => ({
+  const journeyGroups = map(groupedData, (positions, groupName) => ({
     journeyStartTime: groupName,
     positions,
   }));
+
+  return journeyGroups;
 };
 
 class HfpLoader extends React.Component {
