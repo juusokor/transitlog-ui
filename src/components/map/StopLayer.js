@@ -16,7 +16,7 @@ const stopsByBboxQuery = gql`
         stopId
         lat
         lon
-        routeSegmentsForDate(date: "2018-05-06") {
+        routeSegmentsForDate(date: "2018-30-08") {
           nodes {
             routeId
             dateBegin

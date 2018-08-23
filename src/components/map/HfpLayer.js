@@ -2,7 +2,6 @@ import React, {Component} from "react";
 import {Polyline} from "react-leaflet";
 import {latLng} from "leaflet";
 import get from "lodash/get";
-import set from "lodash/set";
 import last from "lodash/last";
 import moment from "moment";
 import getDelayType from "../../helpers/getDelayType";
@@ -15,8 +14,8 @@ class HfpLayer extends Component {
   mouseOver = false;
 
   getLine() {
-    const {selectedVehicle: selectedVehiclePosition, positions} = this.props;
-    const journeyStartTime = get(selectedVehiclePosition, "journeyStartTime", null);
+    const {selectedJourney, positions} = this.props;
+    const journeyStartTime = get(selectedJourney, "journeyStartTime", null);
 
     // Get only the positions from the same journey and create latNg items for Leaflet.
     // Additional data can be passed as the third array element which Leaflet won't touch.
@@ -85,7 +84,7 @@ class HfpLayer extends Component {
       const line = event.target;
       const tooltipContent = `${moment(hfpItem.receivedAt).format("HH:mm:ss")}<br />
 ${hfpItem.uniqueVehicleId}<br />
-Speed: ${hfpItem.spd} km/h<br />
+Speed: ${Math.round((hfpItem.spd * 18) / 5)} km/h<br />
 Delay: ${hfpItem.dl} sek.`;
 
       const lineTooltip = line.getTooltip();

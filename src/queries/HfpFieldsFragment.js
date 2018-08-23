@@ -13,6 +13,9 @@ const HfpFieldsFragment = gql`
     mode
     dl
     jrn
+    oday
+    directionId
+    routeId
     __typename
   }
 `;

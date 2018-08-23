@@ -15,6 +15,7 @@ class HfpMarkerLayer extends Component {
   prevHfpPosition = null;
   prevPositionIndex = 0;
 
+  // Matches the current time setting with a HFP position from this journey.
   getHfpPosition = () => {
     const {positions, state} = this.props;
     const {date, time} = state;
@@ -31,12 +32,18 @@ class HfpMarkerLayer extends Component {
 
     for (; posIdx < total; posIdx++) {
       const position = positions[posIdx];
-      let prevDifference = 30;
+      // This acts as the upper limit for when a time matches a marker.
+      // If it is too low, markers for selected journeys might not match.
+      let prevDifference = 180;
 
       if (nextHfpPosition) {
         const nextHfpDate = new Date(nextHfpPosition.receivedAt);
-        prevDifference = Math.abs(diffDates(timeDate, nextHfpDate));
+        const diff = Math.abs(diffDates(timeDate, nextHfpDate));
+        prevDifference = diff < prevDifference ? diff : prevDifference;
 
+        // A diff of under 7 seconds is "good enough" and will break the loop.
+        // Increase this number to get faster but less precise performance. Do not
+        // decrease below the time resolution of the HFP data the app uses (as of writing 2 seconds).
         if (prevDifference < 7) {
           break;
         }
@@ -58,16 +65,8 @@ class HfpMarkerLayer extends Component {
   };
 
   onMarkerClick = (positionWhenClicked) => () => {
-    const {onMarkerClick, selectedVehicle} = this.props;
-
-    onMarkerClick(
-      get(selectedVehicle, "uniqueVehicleId", "") !==
-        positionWhenClicked.uniqueVehicleId ||
-      get(selectedVehicle, "journeyStartTime", "") !==
-        positionWhenClicked.journeyStartTime
-        ? positionWhenClicked
-        : null
-    );
+    const {onMarkerClick} = this.props;
+    onMarkerClick(positionWhenClicked);
   };
 
   render() {
@@ -84,7 +83,7 @@ class HfpMarkerLayer extends Component {
 
     const markerIcon = divIcon({
       className: `hfp-icon`,
-      iconSize: 25,
+      iconSize: 32,
       html: `<span class="hfp-marker-wrapper" style="background-color: ${color}">
 <span class="hfp-marker-icon ${get(position, "mode", "").toUpperCase()}" />
 ${position.drst ? `<span class="hfp-marker-drst" />` : ""}
@@ -104,7 +103,7 @@ ${position.drst ? `<span class="hfp-marker-drst" />` : ""}
           <br />
           Next stop: {position.nextStopId}
           <br />
-          Speed: {position.spd}
+          Speed: {Math.round((position.spd * 18) / 5)} km/h
           <br />
           Delay: {position.dl} sek.
         </Tooltip>

@@ -12,6 +12,7 @@ import TimeSettings from "./TimeSettings";
 import AllLinesQuery from "../../queries/AllLinesQuery";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
+import JourneyList from "./JourneyList";
 
 @inject(app("Filters", "UI"))
 @observer
@@ -33,6 +34,7 @@ class FilterPanel extends Component {
       <header
         className={`transitlog-header filter-panel ${visible ? "visible" : ""}`}>
         <Header />
+        <button onClick={Filters.reset}>Reset</button>
         <DateSettings />
         <TimeSettings />
         <p>
@@ -73,6 +75,7 @@ class FilterPanel extends Component {
               )}
             </RoutesByLineQuery>
           )}
+        <JourneyList />
         <button className="toggle-filter-panel" onClick={this.toggleVisibility}>
           {visible ? "<" : ">"}
         </button>
