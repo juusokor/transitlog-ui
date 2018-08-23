@@ -48,7 +48,11 @@ export default (state) => {
   const selectJourneyFromUrl = action((location) => {
     if (location.pathname.includes("journey")) {
       const [
+        // The first two array elements are an empty string and the word "journey".
+        // We're not interested in those.
+        // eslint-disable-next-line no-unused-vars
         _,
+        // eslint-disable-next-line no-unused-vars
         __,
         oday,
         routeId,

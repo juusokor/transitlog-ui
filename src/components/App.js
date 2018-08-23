@@ -101,53 +101,61 @@ class App extends Component {
       <div className="transitlog">
         <FilterPanel />
         <Map onMapChanged={this.onMapChanged} bounds={journeyBounds}>
-          {!route.routeId &&
-            map.zoom > 14 && <StopLayer selectedStop={stop} bounds={stopsBbox} />}
-          <RouteQuery route={route}>
-            {({routePositions, stops}) => (
-              <RouteLayer
-                routePositions={routePositions}
-                stops={stops}
-                setMapBounds={this.setMapBounds}
-                key={`route_line_${route.routeId}`}
-                positionsByVehicle={positionsByVehicle}
-                positionsByJourney={positionsByJourney}
-              />
-            )}
-          </RouteQuery>
-          {positionsByVehicle.length > 0 &&
-            positionsByVehicle.map(({positions, vehicleId}) => {
-              if (vehicle && vehicleId !== vehicle) {
-                return null;
-              }
-
-              const isSelectedJourney =
-                selectedJourney &&
-                getJourneyId(selectedJourney) === getJourneyId(positions[0]);
-
-              const journeyStartTime = get(selectedJourney, "journeyStartTime", "");
-
-              const key = `${vehicleId}_${route.routeId}_${
-                route.direction
-              }_${journeyStartTime}`;
-
-              return [
-                isSelectedJourney ? (
-                  <HfpLayer
-                    key={`hfp_line_${key}`}
-                    selectedJourney={selectedJourney}
-                    positions={positions}
-                    name={vehicleId}
+          {(lat, lng, zoom) => (
+            <React.Fragment>
+              {!route.routeId &&
+                zoom > 14 && <StopLayer selectedStop={stop} bounds={stopsBbox} />}
+              <RouteQuery route={route}>
+                {({routePositions, stops}) => (
+                  <RouteLayer
+                    routePositions={routePositions}
+                    stops={stops}
+                    setMapBounds={this.setMapBounds}
+                    key={`route_line_${route.routeId}`}
+                    positionsByVehicle={positionsByVehicle}
+                    positionsByJourney={positionsByJourney}
                   />
-                ) : null,
-                <HfpMarkerLayer
-                  key={`hfp_markers_${route.routeId}_${vehicleId}`}
-                  onMarkerClick={this.onClickVehicleMarker}
-                  positions={positions}
-                  name={vehicleId}
-                />,
-              ];
-            })}
+                )}
+              </RouteQuery>
+              {positionsByVehicle.length > 0 &&
+                positionsByVehicle.map(({positions, vehicleId}) => {
+                  if (vehicle && vehicleId !== vehicle) {
+                    return null;
+                  }
+
+                  const isSelectedJourney =
+                    selectedJourney &&
+                    getJourneyId(selectedJourney) === getJourneyId(positions[0]);
+
+                  const journeyStartTime = get(
+                    selectedJourney,
+                    "journeyStartTime",
+                    ""
+                  );
+
+                  const key = `${vehicleId}_${route.routeId}_${
+                    route.direction
+                  }_${journeyStartTime}`;
+
+                  return [
+                    isSelectedJourney ? (
+                      <HfpLayer
+                        key={`hfp_line_${key}`}
+                        selectedJourney={selectedJourney}
+                        positions={positions}
+                        name={vehicleId}
+                      />
+                    ) : null,
+                    <HfpMarkerLayer
+                      key={`hfp_markers_${route.routeId}_${vehicleId}`}
+                      onMarkerClick={this.onClickVehicleMarker}
+                      positions={positions}
+                      name={vehicleId}
+                    />,
+                  ];
+                })}
+            </React.Fragment>
+          )}
         </Map>
         <LoadingOverlay show={loading} message="Ladataan HFP-tietoja..." />
       </div>
