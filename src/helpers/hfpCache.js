@@ -21,23 +21,26 @@ export async function cacheData(hfpData, date, route) {
     return;
   }
 
-  if (await localforage.getItem(key)) {
-    await localforage.removeItem(key);
-  }
-
   try {
+    if (await localforage.getItem(key)) {
+      await localforage.removeItem(key);
+    }
+
     await localforage.setItem(key, hfpData);
   } catch (e) {
-    // Take a blind guess that the error happened because
-    // the storage quota was reached. Clear and try again.
-    await localforage.clear();
-    await localforage.setItem(key, hfpData);
+    console.log(e);
   }
 }
 
 export async function getCachedData(date, route) {
   const key = getCacheKey(date, route);
-  const stored = await localforage.getItem(key);
+  let stored = null;
+
+  try {
+    stored = await localforage.getItem(key);
+  } catch (err) {
+    console.log(err);
+  }
 
   if (!stored) {
     return [];
