@@ -59,14 +59,26 @@ class FilterPanel extends Component {
           </AllStopsQuery>
         )}
         <AllLinesQuery date={date}>
-          {({lines}) => (
-            <LineInput line={line} onSelect={Filters.setLine} lines={lines} />
-          )}
+          {({lines, loading, error}) => {
+            if (loading || error) {
+              return null;
+            }
+
+            return (
+              <LineInput line={line} onSelect={Filters.setLine} lines={lines} />
+            );
+          }}
         </AllLinesQuery>
         {line.lineId &&
           line.dateBegin && (
             <RoutesByLineQuery line={line}>
-              {({routes}) => <RouteInput route={route} routes={routes} />}
+              {({routes, loading, error}) => {
+                if (loading || error) {
+                  return null;
+                }
+
+                return <RouteInput route={route} routes={routes} />;
+              }}
             </RoutesByLineQuery>
           )}
         <JourneyList />

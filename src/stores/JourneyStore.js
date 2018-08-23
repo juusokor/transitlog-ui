@@ -40,8 +40,9 @@ export default (state) => {
         const dateStr = date.format("YYYY-MM-DD");
         const timeStr = time.format("HH:mm:ss");
 
-        // The pick is a bit redundant here, but I want to make sure that everything
-        // assigned to selectedJourney always looks the same. It might change in the future...
+        // The pick is a bit redundant here, but I want to make sure
+        // that everything assigned to selectedJourney always looks
+        // the same. What the pick returns may change in the future...
         const journey = pickJourneyProps({
           oday: dateStr,
           routeId,

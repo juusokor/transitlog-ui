@@ -5,9 +5,11 @@ import React from "react";
 import {getCachedData, cacheData, getCacheKey} from "../helpers/hfpCache";
 import groupBy from "lodash/groupBy";
 import map from "lodash/map";
+import get from "lodash/get";
 import HfpQuery from "../queries/HfpQuery";
 import takeEveryNth from "../helpers/takeEveryNth";
 import withRoute from "./withRoute";
+import getJourneyId from "../helpers/getJourneyId";
 
 const formatData = (hfpData) => {
   if (hfpData.length === 0) {
@@ -40,15 +42,16 @@ const getGroupedByJourney = (hfpData) => {
     return hfpData;
   }
 
-  const groupedData = groupBy(hfpData, "journeyStartTime");
-  const journeyGroups = map(groupedData, (positions, groupName) => ({
-    journeyStartTime: groupName,
+  const groupedData = groupBy(hfpData, getJourneyId);
+  const journeyGroups = map(groupedData, (positions, journeyId) => ({
+    journeyId: journeyId,
     positions,
   }));
 
   return journeyGroups;
 };
 
+@observer
 class HfpLoader extends React.Component {
   render() {
     const {children, route, date, cachedHfp = []} = this.props;
@@ -107,7 +110,7 @@ export default (Component) => {
         route,
       } = this.props;
 
-      if (!route.routeId) {
+      if (!get(route, "routeId", "")) {
         return;
       }
 

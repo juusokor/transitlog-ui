@@ -19,13 +19,23 @@ const filterActions = (state) => {
     state.vehicle = vehicleId || "";
   });
 
-  const setLine = action((line) => {
-    mergeWithObservable(state.line, line);
+  const setLine = action(({lineId = "", dateBegin = "", dateEnd = ""}) => {
+    mergeWithObservable(state.line, {lineId, dateBegin, dateEnd});
   });
 
-  const setRoute = action((route) => {
-    mergeWithObservable(state.route, route);
-  });
+  const setRoute = action(
+    ({routeId = "", direction = "", dateBegin = "", dateEnd = ""}) => {
+      mergeWithObservable(state.route, {
+        routeId,
+        direction,
+        dateBegin,
+        dateEnd,
+      });
+
+      // When the route changes, also reset the vehicle.
+      state.vehicle = "";
+    }
+  );
 
   return {
     setDate,

@@ -11,9 +11,9 @@ export function pickJourneyProps(hfp) {
 export function createJourneyPath(journey) {
   const date = new Date(`${journey.oday}T${journey.journeyStartTime}`);
 
-  const dateStr = `${date.getFullYear()}${doubleDigit(date.getMonth())}${doubleDigit(
-    date.getDate()
-  )}`;
+  const dateStr = `${date.getFullYear()}${doubleDigit(
+    date.getMonth() + 1
+  )}${doubleDigit(date.getDate())}`;
 
   const timeStr = `${doubleDigit(date.getHours())}${doubleDigit(date.getMinutes())}`;
 

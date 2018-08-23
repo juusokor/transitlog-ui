@@ -9,6 +9,7 @@ import calculateBoundsFromPositions from "../../helpers/calculateBoundsFromPosit
 import StopMarker from "./StopMarker";
 import {inject, observer} from "mobx-react";
 import {app} from "mobx-app";
+import getJourneyId from "../../helpers/getJourneyId";
 
 @inject(app("Time"))
 @observer
@@ -98,10 +99,10 @@ class RouteLayer extends Component {
       state: {selectedJourney},
     } = this.props;
 
+    const selectedJourneyId = getJourneyId(selectedJourney);
+
     const selectedJourneyPositions = get(
-      positionsByJourney.find(
-        (j) => j.journeyStartTime === selectedJourney.journeyStartTime
-      ),
+      positionsByJourney.find((j) => j.journeyId === selectedJourneyId),
       "positions",
       []
     );

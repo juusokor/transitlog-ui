@@ -6,10 +6,18 @@ import get from "lodash/get";
 export default (Component) =>
   observer((props) => {
     // Get the route id from the immediate props or from state.
-    const route = get(props, "route", get(props, "state.route", ""));
+    const route = get(
+      props,
+      "route",
+      get(props, "state.route", {routeId: "", direction: ""})
+    );
 
-    if (!route.routeId) {
-      return <Component {...props} route={{}} />;
+    if (!get(route, "routeId", "")) {
+      return <Component {...props} route={route} />;
+    }
+
+    if (route && route.routeId && route.direction && route.dateBegin) {
+      return <Component {...props} route={route} />;
     }
 
     return (
