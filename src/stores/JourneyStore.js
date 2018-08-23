@@ -27,19 +27,33 @@ export default (state) => {
         // eslint-disable-next-line no-unused-vars
         __,
         oday,
+        journeyStartTime,
         routeId,
         directionId,
-        journeyStartTime,
       ] = location.pathname.split("/");
 
       const date = moment(oday, "YYYYMMDD");
       const time = moment(journeyStartTime, "HHmmss");
 
-      // Validate the data from the url
-      if (date.isValid() && time.isValid() && ["1", "2"].includes(directionId)) {
-        const dateStr = date.format("YYYY-MM-DD");
-        const timeStr = time.format("HH:mm:ss");
+      let dateStr = "";
+      let timeStr = "";
 
+      if (date.isValid()) {
+        dateStr = date.format("YYYY-MM-DD");
+        filterActions.setDate(dateStr);
+      }
+
+      if (time.isValid()) {
+        timeStr = time.format("HH:mm:ss");
+        timeActions.setTime(timeStr);
+      }
+
+      if (routeId && directionId) {
+        filterActions.setRoute({routeId, direction: directionId});
+      }
+
+      // Validate the data from the url
+      if (dateStr && timeStr && routeId && directionId) {
         // The pick is a bit redundant here, but I want to make sure
         // that everything assigned to selectedJourney always looks
         // the same. What the pick returns may change in the future...
@@ -52,9 +66,6 @@ export default (state) => {
 
         if (getJourneyId(state.selectedJourney) !== getJourneyId(journey)) {
           state.selectedJourney = journey;
-          timeActions.setTime(timeStr);
-          filterActions.setDate(dateStr);
-          filterActions.setRoute({routeId, direction: directionId});
         }
       }
     }

@@ -110,7 +110,7 @@ export default (Component) => {
         route,
       } = this.props;
 
-      if (!get(route, "routeId", "")) {
+      if (!route || !get(route, "routeId", "")) {
         return;
       }
 

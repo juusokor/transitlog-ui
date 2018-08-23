@@ -1,7 +1,7 @@
 import localforage from "localforage";
 
 export function getCacheKey(date, route) {
-  if (!route.routeId || !route.dateBegin) {
+  if (!route || !route.routeId || !route.dateBegin) {
     return false;
   }
 
