@@ -27,7 +27,11 @@ class App extends Component {
   };
 
   onMapChanged = (map) => {
-    this.setStopsBbox(map);
+    const {route} = this.props.state;
+
+    if (!route.routeId && map.getZoom() > 14) {
+      this.setStopsBbox(map);
+    }
   };
 
   setStopsBbox = (map) => {
