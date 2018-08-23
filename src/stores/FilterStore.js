@@ -1,4 +1,4 @@
-import {extendObservable} from "mobx";
+import {extendObservable, action} from "mobx";
 import filterActions from "./filterActions";
 
 export default (state) => {
@@ -21,5 +21,19 @@ export default (state) => {
 
   const actions = filterActions(state);
 
-  return {...actions};
+  const reset = action(() => {
+    state.stop = "";
+    state.vehicle = "";
+    state.line = {
+      lineId: "",
+      dateBegin: "",
+      dateEnd: "",
+    };
+    state.route = "";
+  });
+
+  return {
+    ...actions,
+    reset,
+  };
 };
