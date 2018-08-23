@@ -1,4 +1,5 @@
 import React from "react";
+import {hot} from "react-hot-loader";
 import App from "./components/App";
 import {joreClient} from "./api";
 import {ApolloProvider} from "react-apollo";
@@ -10,4 +11,4 @@ const Root = observer(() => (
   </ApolloProvider>
 ));
 
-export default Root;
+export default hot(module)(Root);
