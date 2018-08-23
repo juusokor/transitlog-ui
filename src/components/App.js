@@ -10,7 +10,6 @@ import {inject, observer} from "mobx-react";
 import Map from "./map/Map";
 import {latLng} from "leaflet";
 import getCoarsePositionForTime from "../helpers/getCoarsePositionForTime";
-import map from "lodash/map";
 import StopLayer from "./map/StopLayer";
 import RouteQuery from "../queries/RouteQuery";
 import RouteLayer from "./map/RouteLayer";
