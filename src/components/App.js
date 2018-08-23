@@ -42,7 +42,7 @@ class App extends Component {
     }
 
     this.setState({
-      bbox: {
+      stopsBbox: {
         minLat: bounds.getSouth(),
         minLon: bounds.getWest(),
         maxLat: bounds.getNorth(),
