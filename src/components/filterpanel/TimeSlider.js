@@ -27,7 +27,7 @@ class TimeSlider extends Component {
   };
 
   getTimeValue = (value) => {
-    const nextDate = addSeconds(startOfToday(), parseInt(value));
+    const nextDate = addSeconds(startOfToday(), parseInt(value, 10));
     return format(nextDate, "HH:mm:ss");
   };
 
