@@ -86,7 +86,7 @@ class StopLayer extends Component {
                     <Popup>
                       {stop.routeSegmentsForDate.nodes.map((route) => (
                         <button
-                          key={`route_${route.routeId}`}
+                          key={`route_${route.routeId}_${route.direction}`}
                           onClick={this.selectRoute(route)}>
                           {route.routeId.substring(1).replace(/^0+/, "")}
                         </button>
