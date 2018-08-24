@@ -31,8 +31,6 @@ const enhance = flow(
   inject(app("state"))
 );
 
-// TODO: Fix this
-
 export default enhance(
   ({vehicle = "", onChange, onSelect, state, positionsByVehicle}) => {
     const options = positionsByVehicle.map((p) => p.vehicleId);
