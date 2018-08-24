@@ -37,6 +37,7 @@ export default enhance(
 
     return (
       <SuggestionInput
+        minimumInput={0}
         placeholder="Rajaa kulkuneuvoa"
         value={vehicle}
         onSelect={onSelect}
