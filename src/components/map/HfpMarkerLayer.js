@@ -4,7 +4,7 @@ import get from "lodash/get";
 import moment from "moment";
 import {divIcon} from "leaflet";
 import getDelayType from "../../helpers/getDelayType";
-import diffDates from "../../helpers/diffDates";
+import diffDates from "date-fns/difference_in_seconds";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 

@@ -3,8 +3,24 @@ import TimeSlider from "./TimeSlider";
 import moment from "moment";
 import {app} from "mobx-app";
 import {inject, observer} from "mobx-react";
+import withSelectedJourneyHfp from "../../hoc/withSelectedJourneyHfp";
+import get from "lodash/get";
+import last from "lodash/last";
+import parse from "date-fns/parse";
+import diffSeconds from "date-fns/difference_in_seconds";
+import startOfDay from "date-fns/start_of_day";
+import isValid from "date-fns/is_valid";
+
+const dateToSeconds = (date) => {
+  if (!isValid(date)) {
+    return;
+  }
+
+  return Math.abs(diffSeconds(startOfDay(date), date));
+};
 
 @inject(app("Time"))
+@withSelectedJourneyHfp
 @observer
 class TimeSettings extends Component {
   onTimeButtonClick = (modifier) => (e) => {
@@ -21,7 +37,7 @@ class TimeSettings extends Component {
   };
 
   render() {
-    const {state, Time} = this.props;
+    const {state, Time, selectedJourneyHfp = []} = this.props;
     const {time, timeIncrement, playing} = state;
 
     return (
@@ -30,7 +46,22 @@ class TimeSettings extends Component {
           <label>Choose time</label>
         </p>
         <p>
-          <TimeSlider value={time} onChange={Time.setTime} />
+          <TimeSlider
+            value={time}
+            onChange={Time.setTime}
+            min={
+              selectedJourneyHfp.length !== 0
+                ? dateToSeconds(parse(get(selectedJourneyHfp, "[0].receivedAt", 0)))
+                : undefined
+            }
+            max={
+              selectedJourneyHfp.length !== 0
+                ? dateToSeconds(
+                    parse(get(last(selectedJourneyHfp), "receivedAt", 0))
+                  )
+                : undefined
+            }
+          />
         </p>
         <p className="control-group">
           <button onClick={this.onTimeButtonClick(-timeIncrement)}>

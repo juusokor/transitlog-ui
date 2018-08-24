@@ -1,11 +1,12 @@
 import {observer, inject} from "mobx-react";
-import {observable, action} from "mobx";
+import {observable, computed, runInAction} from "mobx";
 import {app} from "mobx-app";
 import React from "react";
 import {getCachedData, cacheData, getCacheKey} from "../helpers/hfpCache";
 import groupBy from "lodash/groupBy";
 import map from "lodash/map";
 import get from "lodash/get";
+import set from "lodash/set";
 import HfpQuery from "../queries/HfpQuery";
 import takeEveryNth from "../helpers/takeEveryNth";
 import withRoute from "./withRoute";
@@ -17,119 +18,118 @@ const formatData = (hfpData) => {
   }
 
   return (
-    takeEveryNth(hfpData, 3) // Take every other hfp item.
+    takeEveryNth(hfpData, 2) // Take every other hfp item.
       // Some HFP items are null for one reason or another. Filter those out.
       .filter((pos) => !!pos && !!pos.lat && !!pos.long)
   );
 };
 
-const getGroupedByVehicle = (hfpData) => {
-  if (hfpData.length === 0) {
-    return hfpData;
+const getGrouped = (hfpData, groupKey, groupNameKey) => {
+  if (!hfpData || hfpData.length === 0) {
+    return [];
   }
 
-  const groupedData = groupBy(hfpData, "uniqueVehicleId");
+  const groupedData = groupBy(hfpData, groupKey);
   const vehicleGroups = map(groupedData, (positions, groupName) => ({
-    vehicleId: groupName,
+    [groupNameKey]: groupName,
     positions,
   }));
 
   return vehicleGroups;
 };
 
-const getGroupedByJourney = (hfpData) => {
-  if (hfpData.length === 0) {
-    return hfpData;
-  }
-
-  const groupedData = groupBy(hfpData, getJourneyId);
-  const journeyGroups = map(groupedData, (positions, journeyId) => ({
-    journeyId: journeyId,
-    positions,
-  }));
-
-  return journeyGroups;
-};
-
-@observer
-class HfpLoader extends React.Component {
-  render() {
-    const {children, route, date, cachedHfp = []} = this.props;
-
-    return cachedHfp.length === 0 ? (
-      <HfpQuery route={route} date={date}>
-        {({hfpPositions, loading}) => {
-          if (loading || hfpPositions.length === 0) {
-            return children({
-              positionsByVehicle: [],
-              positionsByJourney: [],
-              loading,
-            });
-          }
-
-          const formattedPositions = formatData(hfpPositions);
-          cacheData(formattedPositions, date, route);
-
-          const positionsByVehicle = getGroupedByVehicle(formattedPositions);
-          const positionsByJourney = getGroupedByJourney(formattedPositions);
-
-          return children({positionsByVehicle, positionsByJourney, loading});
-        }}
-      </HfpQuery>
-    ) : (
-      children({
-        positionsByVehicle: getGroupedByVehicle(cachedHfp),
-        positionsByJourney: getGroupedByJourney(cachedHfp),
-        loading: false,
-      })
-    );
-  }
-}
+const groupCache = {};
+const hfpCache = observable.map({}, {deep: false});
 
 export default (Component) => {
   @inject(app("state"))
   @withRoute
   @observer
   class WithHfpData extends React.Component {
-    constructor() {
-      super();
-      this.cachedHfp = observable.map({}, {deep: false});
-    }
+    getGroupedByVehicle = (positions) =>
+      this.groupCache("vehicles", () =>
+        getGrouped(positions, "uniqueVehicleId", "vehicleId")
+      );
 
-    componentDidMount() {
-      this.updateComponentCache();
-    }
+    getGroupedByJourney = (positions) =>
+      this.groupCache("journeys", () =>
+        getGrouped(positions, getJourneyId, "journeyId")
+      );
 
-    componentDidUpdate() {
-      this.updateComponentCache();
-    }
+    groupCache = (cacheKey, cacheFunc) => {
+      const hfpCacheKey = this.getCacheKey();
 
-    async updateComponentCache() {
+      if (!hfpCacheKey) {
+        return [];
+      }
+
+      const cachedGroup = get(groupCache, `${hfpCacheKey}.${cacheKey}`, []);
+
+      if (!cachedGroup || cachedGroup.length === 0) {
+        const dataToCache = cacheFunc();
+
+        if (dataToCache && dataToCache.length !== 0) {
+          set(groupCache, `${hfpCacheKey}.${cacheKey}`, dataToCache);
+        }
+
+        return dataToCache;
+      }
+
+      return cachedGroup;
+    };
+
+    getCacheKey = () => {
       const {
         state: {date},
         route,
       } = this.props;
 
-      if (!route || !get(route, "routeId", "")) {
-        return;
+      if (
+        !get(route, "routeId", "") ||
+        !get(route, "direction", "") ||
+        !get(route, "dateBegin", "")
+      ) {
+        return false;
       }
 
-      const cacheKey = getCacheKey(date, route);
+      return getCacheKey(date, route);
+    };
+
+    @computed
+    get cachedHfp() {
+      const cacheKey = this.getCacheKey();
 
       if (cacheKey) {
-        const existingCache = this.cachedHfp.get(cacheKey);
+        const existingCache = hfpCache.get(cacheKey);
 
         if (!existingCache) {
-          const cachedHfp = await getCachedData(date, route);
-          this.setCachedHfp(cachedHfp, cacheKey);
+          getCachedData(cacheKey).then((cachedHfp) => {
+            if (
+              cachedHfp &&
+              cachedHfp.length !== 0 &&
+              !hfpCache.get(cacheKey) // Make sure the cache is not set already
+            ) {
+              runInAction(() => hfpCache.set(cacheKey, cachedHfp));
+            }
+          });
+
+          return [];
         }
+
+        return existingCache;
       }
+
+      return [];
     }
 
-    @action
-    setCachedHfp(data, key) {
-      this.cachedHfp.set(key, data);
-    }
+    getComponent = (positions, loading) => (
+      <Component
+        {...this.props}
+        loading={loading}
+        positionsByVehicle={this.getGroupedByVehicle(positions)}
+        positionsByJourney={this.getGroupedByJourney(positions)}
+      />
+    );
 
     render() {
       const {
@@ -137,20 +137,23 @@ export default (Component) => {
         route,
       } = this.props;
 
-      const cacheKey = getCacheKey(date, route);
-      const cachedPositions = !cacheKey ? [] : this.cachedHfp.get(cacheKey);
+      const cachedHfp = this.cachedHfp;
 
-      return (
-        <HfpLoader cachedHfp={cachedPositions} date={date} route={route}>
-          {({positionsByVehicle, positionsByJourney, loading}) => (
-            <Component
-              {...this.props}
-              loading={loading}
-              positionsByVehicle={positionsByVehicle}
-              positionsByJourney={positionsByJourney}
-            />
-          )}
-        </HfpLoader>
+      return !cachedHfp || cachedHfp.length === 0 ? (
+        <HfpQuery route={route} date={date}>
+          {({hfpPositions, loading}) => {
+            if (loading || hfpPositions.length === 0) {
+              return this.getComponent([], loading);
+            }
+
+            const formattedPositions = formatData(hfpPositions);
+            cacheData(formattedPositions, date, route);
+
+            return this.getComponent(formattedPositions, loading);
+          }}
+        </HfpQuery>
+      ) : (
+        this.getComponent(cachedHfp, false)
       );
     }
   }

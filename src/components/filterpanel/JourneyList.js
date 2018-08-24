@@ -29,7 +29,6 @@ class JourneyList extends Component {
     const {positionsByJourney, state} = this.props;
 
     const journeys = map(positionsByJourney, ({positions}) => positions[0]);
-
     const selectedJourney = get(state, "selectedJourney");
 
     const isSelected = (journey) =>
@@ -40,10 +39,22 @@ class JourneyList extends Component {
         {journeys.map((journey) => (
           <button
             className={`journey-list-row ${isSelected(journey) ? "selected" : ""}`}
-            key={`${journey.journeyStartTime}_${journey.oday}`}
+            key={`journey_row_${getJourneyId(journey)}`}
             onClick={this.selectJourney(journey)}>
             <strong className="start-time">{journey.journeyStartTime}</strong>
-            <span className="vehicle-id">{journey.uniqueVehicleId}</span>
+            <span style={{width: 32, height: 32}}>
+              <span
+                className="hfp-marker-wrapper"
+                style={{backgroundColor: "white"}}>
+                <span
+                  className={`hfp-marker-icon ${get(
+                    journey,
+                    "mode",
+                    ""
+                  ).toUpperCase()}`}
+                />
+              </span>
+            </span>
           </button>
         ))}
       </div>

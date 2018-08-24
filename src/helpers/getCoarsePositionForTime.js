@@ -1,4 +1,4 @@
-import diffDates from "./diffDates";
+import diffDates from "date-fns/difference_in_seconds";
 import get from "lodash/get";
 
 // getJourneyFollowBounds caches the previously matched index so that
