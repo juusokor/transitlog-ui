@@ -3,10 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "apollo-boost": "^0.1.7",
     "apollo-cache-inmemory": "^1.2.5",
     "apollo-client": "^2.3.5",
-    "apollo-client-preset": "^1.0.8",
     "apollo-link-http": "^1.5.4",
     "autosuggest-highlight": "^3.1.1",
     "date-fns": "^1.29.0",

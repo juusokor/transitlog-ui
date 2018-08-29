@@ -40,64 +40,103 @@ const getGrouped = (hfpData, groupKey, groupNameKey) => {
 
 const groupCache = {};
 const hfpCache = observable.map({}, {deep: false});
+let cachingInProgress = false;
+
+@observer
+class HfpCacheHelper extends React.Component {
+  getGroupedByVehicle = (positions) =>
+    this.groupCache("vehicles", () =>
+      getGrouped(positions, "uniqueVehicleId", "vehicleId")
+    );
+
+  getGroupedByJourney = (positions) =>
+    this.groupCache("journeys", () =>
+      getGrouped(positions, getJourneyId, "journeyId")
+    );
+
+  groupCache = (cacheKey, cacheFunc) => {
+    const {
+      state: {date},
+      route,
+    } = this.props;
+    const hfpCacheKey = getCacheKey(route, date);
+
+    if (!hfpCacheKey) {
+      return [];
+    }
+
+    const cachedGroup = get(groupCache, `${hfpCacheKey}.${cacheKey}`, []);
+
+    if (!cachedGroup || cachedGroup.length === 0) {
+      const dataToCache = cacheFunc();
+
+      if (dataToCache && dataToCache.length !== 0) {
+        set(groupCache, `${hfpCacheKey}.${cacheKey}`, dataToCache);
+      }
+
+      return dataToCache;
+    }
+
+    return cachedGroup;
+  };
+
+  componentDidMount() {
+    this.cachePositions();
+  }
+
+  componentDidUpdate() {
+    this.cachePositions();
+  }
+
+  async cachePositions() {
+    const {
+      cache,
+      positions,
+      route,
+      state: {date},
+    } = this.props;
+
+    if (cache && !cachingInProgress && positions.length !== 0) {
+      cachingInProgress = true;
+      const formattedPositions = formatData(positions);
+
+      // Preload the reactive cache
+      const cacheKey = getCacheKey(route, date);
+      runInAction(() => hfpCache.set(cacheKey, formattedPositions));
+
+      await cacheData(formattedPositions, route, date);
+
+      cachingInProgress = false;
+    }
+  }
+
+  render() {
+    const {cache, positions, component: Component, ...props} = this.props;
+    const renderPositions = cache ? [] : positions;
+
+    return (
+      <Component
+        {...props}
+        positionsByVehicle={this.getGroupedByVehicle(renderPositions)}
+        positionsByJourney={this.getGroupedByJourney(renderPositions)}
+      />
+    );
+  }
+}
 
 export default (Component) => {
   @inject(app("state"))
   @withRoute
   @observer
   class WithHfpData extends React.Component {
-    getGroupedByVehicle = (positions) =>
-      this.groupCache("vehicles", () =>
-        getGrouped(positions, "uniqueVehicleId", "vehicleId")
-      );
-
-    getGroupedByJourney = (positions) =>
-      this.groupCache("journeys", () =>
-        getGrouped(positions, getJourneyId, "journeyId")
-      );
-
-    groupCache = (cacheKey, cacheFunc) => {
-      const hfpCacheKey = this.getCacheKey();
-
-      if (!hfpCacheKey) {
-        return [];
-      }
-
-      const cachedGroup = get(groupCache, `${hfpCacheKey}.${cacheKey}`, []);
-
-      if (!cachedGroup || cachedGroup.length === 0) {
-        const dataToCache = cacheFunc();
-
-        if (dataToCache && dataToCache.length !== 0) {
-          set(groupCache, `${hfpCacheKey}.${cacheKey}`, dataToCache);
-        }
-
-        return dataToCache;
-      }
-
-      return cachedGroup;
-    };
-
-    getCacheKey = () => {
+    @computed
+    get cachedHfp() {
       const {
         state: {date},
         route,
       } = this.props;
 
-      if (
-        !get(route, "routeId", "") ||
-        !get(route, "direction", "") ||
-        !get(route, "dateBegin", "")
-      ) {
-        return false;
-      }
-
-      return getCacheKey(date, route);
-    };
-
-    @computed
-    get cachedHfp() {
-      const cacheKey = this.getCacheKey();
+      const cacheKey = getCacheKey(route, date);
 
       if (cacheKey) {
         const existingCache = hfpCache.get(cacheKey);
@@ -122,12 +161,13 @@ export default (Component) => {
       return [];
     }
 
-    getComponent = (positions, loading) => (
-      <Component
+    getComponent = (positions, loading, cache = true) => (
+      <HfpCacheHelper
         {...this.props}
+        cache={cache}
         loading={loading}
-        positionsByVehicle={this.getGroupedByVehicle(positions)}
-        positionsByJourney={this.getGroupedByJourney(positions)}
+        positions={positions}
+        component={Component}
       />
     );
 
@@ -143,17 +183,14 @@ export default (Component) => {
         <HfpQuery route={route} date={date}>
           {({hfpPositions, loading}) => {
             if (loading || hfpPositions.length === 0) {
-              return this.getComponent([], loading);
+              return this.getComponent([], loading, false);
             }
 
-            const formattedPositions = formatData(hfpPositions);
-            cacheData(formattedPositions, date, route);
-
-            return this.getComponent(formattedPositions, loading);
+            return this.getComponent(hfpPositions, loading, true);
           }}
         </HfpQuery>
       ) : (
-        this.getComponent(cachedHfp, false)
+        this.getComponent(cachedHfp, false, false)
       );
     }
   }
