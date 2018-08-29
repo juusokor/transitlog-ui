@@ -18,6 +18,7 @@
     "mobx": "^5.0.3",
     "mobx-app": "^1.0.3",
     "mobx-react": "^5.2.3",
+    "mobx-utils": "^5.0.1",
     "moment": "^2.22.2",
     "pako": "^1.0.6",
     "polished": "^1.9.3",

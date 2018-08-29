@@ -35,6 +35,8 @@ export async function cacheData(hfpData, route, date) {
   } catch (e) {
     console.log(e);
   }
+
+  return hfpData;
 }
 
 export async function getCachedData(key) {
