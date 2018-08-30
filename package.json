@@ -46,7 +46,7 @@
     "codestyle": "prettier \"src/**/*.{css,js}\" --write",
     "lint": "eslint \"src/**/*.js\" --fix",
     "precommit": "lint-staged",
-    "production": "forever start -c \"yarn run serve -l 3000\" build && forever logs -f 0"
+    "production": "forever start -c \"yarn run serve -s -l 3000\" build && forever logs -f 0"
   },
   "devDependencies": {
     "babel-plugin-transform-class-properties": "^6.24.1",
