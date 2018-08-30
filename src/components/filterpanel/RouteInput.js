@@ -40,8 +40,7 @@ export class RouteInput extends Component {
     const currentValue = getRouteValue(route);
 
     if (
-      !routes ||
-      routes.length === 0 ||
+      routes.length !== 0 &&
       routes.every((routeListItem) => getRouteValue(routeListItem) !== currentValue)
     ) {
       this.onChange(false);
