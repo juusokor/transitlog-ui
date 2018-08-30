@@ -1,5 +1,5 @@
-import {observer, inject} from "mobx-react";
-import {observable, computed, runInAction, action} from "mobx";
+import {observer, inject, Observer} from "mobx-react";
+import {observable, action, runInAction} from "mobx";
 import {app} from "mobx-app";
 import React from "react";
 import {getCachedData, cacheData, getCacheKey} from "../helpers/hfpCache";
@@ -19,7 +19,7 @@ const formatData = (hfpData) => {
   }
 
   return (
-    takeEveryNth(hfpData, 3) // Take every other hfp item.
+    takeEveryNth(hfpData, 2) // Take every other hfp item.
       // Some HFP items are null for one reason or another. Filter those out.
       .filter((pos) => !!pos && !!pos.lat && !!pos.long)
   );
@@ -51,14 +51,14 @@ const getCachePromise = (route, date) => {
   const getData = async () => {
     // If cachekey is false then we don't have a route selection yet
     if (!cacheKey) {
-      return [];
+      return {positions: [], cacheKey};
     }
 
     // If we have cached data for this cache key, that's it, we're done.
     const cachedData = await getCachedData(cacheKey);
 
     if (cachedData && cachedData.length !== 0) {
-      return cachedData;
+      return {positions: cachedData, cacheKey};
     }
 
     // All fetching and caching promises are recorded in the cachingInProgress object.
@@ -80,10 +80,10 @@ const getCachePromise = (route, date) => {
 
     // Await the caching promise we got
     const cachedResult = await cachingPromise;
-    // When done, clear the promise so that future fetches might take place.
+    // When done, clear the promise so that future fetches may take place.
     set(cachingInProgress, cacheKey, null);
 
-    return cachedResult;
+    return {positions: cachedResult, cacheKey};
   };
 
   // Mobxify the promise. This will give it an observable .value property and
@@ -91,15 +91,25 @@ const getCachePromise = (route, date) => {
   return fromPromise(getData());
 };
 
+const emptyCachePromise = () =>
+  fromPromise.resolve({
+    positions: [],
+    cacheKey: false,
+  });
+
 export default (Component) => {
   @inject(app("state"))
   @withRoute
-  @observer
   class WithHfpData extends React.Component {
-    currentCacheKey = ""; // Keep track of the current cachekey to prevent update loops.
-
-    @observable.ref
-    cachePromise = fromPromise.resolve([]); // Initially an empty array
+    cacheState = observable(
+      {
+        currentCacheKey: false,
+        promise: emptyCachePromise(),
+      },
+      {
+        promise: observable.ref,
+      }
+    );
 
     componentDidMount() {
       this.updateCachePromise();
@@ -109,7 +119,6 @@ export default (Component) => {
       this.updateCachePromise();
     }
 
-    @action
     updateCachePromise() {
       const {
         route,
@@ -117,34 +126,35 @@ export default (Component) => {
       } = this.props;
 
       const cacheKey = getCacheKey(route, date);
+      let setPromise = emptyCachePromise();
 
-      // If we have a valid cachekey (ie there is a route selected), and the key is
+      // If we have a valid cacheKey (ie there is a route selected), and the key is
       // currently not in use, update the cache promise to fetch the current route.
-      if (cacheKey && cacheKey !== this.currentCacheKey) {
-        this.currentCacheKey = cacheKey;
-        this.cachePromise = getCachePromise(route, date);
+      if (cacheKey && cacheKey !== this.cacheState.currentCacheKey) {
+        setPromise = getCachePromise(route, date);
+      }
+
+      if (cacheKey !== this.currentCacheKey) {
+        runInAction(() => {
+          this.cacheState.currentCacheKey = cacheKey;
+          this.cacheState.promise = setPromise;
+        });
       }
     }
 
-    getGroupedByVehicle = (positions) =>
-      this.groupCache("vehicles", () =>
+    getGroupedByVehicle = (positions, cacheKey) =>
+      this.groupCache("vehicles", cacheKey, () =>
         getGrouped(positions, "uniqueVehicleId", "vehicleId")
       );
 
-    getGroupedByJourney = (positions) =>
-      this.groupCache("journeys", () =>
+    getGroupedByJourney = (positions, cacheKey) =>
+      this.groupCache("journeys", cacheKey, () =>
         getGrouped(positions, getJourneyId, "journeyId")
       );
 
     // This cache is separate from the hfp stuff above. It caches the computed
     // hfp data groupings, by journey or by vehicle.
-    groupCache = (cacheKey, cacheFunc) => {
-      const {
-        state: {date},
-        route,
-      } = this.props;
-      const hfpCacheKey = getCacheKey(route, date);
-
+    groupCache = (cacheKey, hfpCacheKey, cacheFunc) => {
       if (!hfpCacheKey) {
         return [];
       }
@@ -164,25 +174,32 @@ export default (Component) => {
       return cachedGroup;
     };
 
-    getComponent = (positions, loading) => (
+    getComponent = (positions, cacheKey, loading) => (
       <Component
         {...this.props}
         loading={loading}
-        positionsByVehicle={this.getGroupedByVehicle(positions)}
-        positionsByJourney={this.getGroupedByJourney(positions)}
+        positionsByVehicle={this.getGroupedByVehicle(positions, cacheKey)}
+        positionsByJourney={this.getGroupedByJourney(positions, cacheKey)}
       />
     );
 
     render() {
       // Use the mobxified promise
-      return this.cachePromise.case({
-        pending: () => this.getComponent([], true),
-        rejected: (error) => {
-          console.error(error);
-          return this.getComponent([], false);
-        },
-        fulfilled: (positions) => this.getComponent(positions, false),
-      });
+      return (
+        <Observer>
+          {() => {
+            return this.cacheState.promise.case({
+              pending: () => this.getComponent([], false, true),
+              rejected: (error) => {
+                console.error(error);
+                return this.getComponent([], false, false);
+              },
+              fulfilled: ({positions, cacheKey}) =>
+                this.getComponent(positions, cacheKey, false),
+            });
+          }}
+        </Observer>
+      );
     }
   }
 
