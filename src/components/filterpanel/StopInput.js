@@ -35,7 +35,10 @@ const suggestionFitness = (inputValue) => (stop) => {
   //return fitnessScore;
   if (stop.shortId.slice(2).startsWith(inputValue)) return 3;
   if (stop.shortId.includes(inputValue)) return 2;
-  if (stop.stopId.startsWith(inputValue) || stop.nameFi.startsWith(inputValue))
+  if (
+    stop.stopId.startsWith(inputValue) ||
+    stop.nameFi.toLowerCase().startsWith(inputValue)
+  )
     return 1;
 
   return 0;
@@ -59,7 +62,7 @@ const getSuggestions = (stops = []) => (value = "") => {
     suggestionStops,
     [inputLength ? suggestionFitness(inputValue) : (x) => 0, "stopId"],
     ["desc", "asc"]
-  );
+  ).slice(0, 100);
 };
 
 export default withStop(
