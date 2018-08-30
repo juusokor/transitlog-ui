@@ -1,33 +1,42 @@
 import React from "react";
 import SingleRouteQuery from "../queries/SingleRouteQuery";
-import {observer} from "mobx-react";
+import {observer, inject} from "mobx-react";
 import get from "lodash/get";
+import flow from "lodash/flow";
+import {app} from "mobx-app";
+
+const enhance = flow(
+  observer,
+  inject(app("state"))
+);
 
 export default (Component) =>
-  observer((props) => {
+  enhance((props) => {
     // Get the route id from the immediate props or from state.
-    const route = get(
-      props,
-      "route",
-      get(props, "state.route", {routeId: "", direction: ""})
-    );
+    const {
+      state: {route: stateRoute = {}},
+      route = stateRoute,
+    } = props;
 
-    if (!get(route, "routeId", "")) {
-      return <Component {...props} route={route} />;
+    const getComponent = (routeProp) => <Component {...props} route={routeProp} />;
+
+    // Can't do anything without a routeId. Or if we have the route, there is no need to fetch it.
+    if (
+      !get(route, "routeId", "") ||
+      (route && route.routeId && route.direction && route.dateBegin)
+    ) {
+      return getComponent(route);
     }
 
-    if (route && route.routeId && route.direction && route.dateBegin) {
-      return <Component {...props} route={route} />;
-    }
-
+    // Else, fetch the route.
     return (
       <SingleRouteQuery route={route}>
         {({route: routeObj, loading, error}) => {
           if (error || loading) {
-            return <Component {...props} route={route} />;
+            return getComponent(route);
           }
 
-          return <Component {...props} route={routeObj} />;
+          return getComponent(routeObj);
         }}
       </SingleRouteQuery>
     );

@@ -23,6 +23,22 @@ export const hfpQuery = gql`
   ${HfpFieldsFragment}
 `;
 
+export const fetchHfpQuery = ({route, date}) => {
+  const {routeId, direction} = route;
+
+  return hfpClient
+    .query({
+      fetchPolicy: "cache-first",
+      query: hfpQuery,
+      variables: {
+        routeId,
+        direction: parseInt(direction, 10),
+        date,
+      },
+    })
+    .then(({data}) => get(data, "allVehicles.nodes", []));
+};
+
 @inject(app("Filters"))
 @withRoute
 @observer

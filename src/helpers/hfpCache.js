@@ -1,7 +1,12 @@
 import localforage from "localforage";
+import get from "lodash/get";
 
-export function getCacheKey(date, route) {
-  if (!route || !route.routeId || !route.dateBegin) {
+export function getCacheKey(route, date) {
+  if (
+    !get(route, "routeId", "") ||
+    !get(route, "direction", "") ||
+    !get(route, "dateBegin", "")
+  ) {
     return false;
   }
 
@@ -10,12 +15,12 @@ export function getCacheKey(date, route) {
   }`;
 }
 
-export async function cacheData(hfpData, date, route) {
+export async function cacheData(hfpData, route, date) {
   if (!hfpData || hfpData.length === 0) {
     return;
   }
 
-  const key = getCacheKey(date, route);
+  const key = getCacheKey(route, date);
 
   if (!key) {
     return;
@@ -30,6 +35,8 @@ export async function cacheData(hfpData, date, route) {
   } catch (e) {
     console.log(e);
   }
+
+  return hfpData;
 }
 
 export async function getCachedData(key) {
