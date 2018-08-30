@@ -32,8 +32,7 @@ export async function cacheData(hfpData, date, route) {
   }
 }
 
-export async function getCachedData(date, route) {
-  const key = getCacheKey(date, route);
+export async function getCachedData(key) {
   let stored = null;
 
   try {

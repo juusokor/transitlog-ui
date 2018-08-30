@@ -6,7 +6,7 @@ import {icon} from "leaflet";
 import TimingStopIcon from "../../icon-time1.svg";
 import get from "lodash/get";
 import reverse from "lodash/reverse";
-import diffDates from "../../helpers/diffDates";
+import diffDates from "date-fns/difference_in_seconds";
 
 const stopColor = "#3388ff";
 const selectedStopColor = darken(0.2, stopColor);

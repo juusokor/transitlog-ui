@@ -13,6 +13,7 @@ import AllLinesQuery from "../../queries/AllLinesQuery";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import JourneyList from "./JourneyList";
+import VehicleInput from "./VehicleInput";
 
 @inject(app("Filters", "UI"))
 @observer
@@ -22,8 +23,8 @@ class FilterPanel extends Component {
     this.props.UI.toggleFilterPanel();
   };
 
-  onChangeQueryVehicle = ({target}) => {
-    this.props.Filters.setVehicle(target.value);
+  onChangeQueryVehicle = (value) => {
+    this.props.Filters.setVehicle(value);
   };
 
   render() {
@@ -37,14 +38,11 @@ class FilterPanel extends Component {
         <button onClick={Filters.reset}>Reset</button>
         <DateSettings />
         <TimeSettings />
-        <p>
-          <input
-            type="text"
-            name="vehicle"
-            value={vehicle}
-            onChange={this.onChangeQueryVehicle}
-          />
-        </p>
+        <VehicleInput
+          value={vehicle}
+          onChange={this.onChangeQueryVehicle}
+          onSelect={this.onChangeQueryVehicle}
+        />
         {!!route.routeId ? (
           <StopsByRouteQuery key="stop_input_by_route" route={route}>
             {({stops}) => (

@@ -53,6 +53,8 @@
 .journey-list-row {
   color: white;
   display: flex;
+  align-items: center;
+  justify-content: space-between;
   width: calc(100% + 2.5rem);
   margin-left: -1.25rem;
   background: rgba(0, 0, 0, 0.025);
@@ -73,11 +75,5 @@
 
 .journey-list-row .start-time {
   margin-right: 1rem;
-  display: block;
-}
-
-.journey-list-row .vehicle-id {
-  margin-left: auto;
-  align-self: flex-end;
   display: block;
 }
