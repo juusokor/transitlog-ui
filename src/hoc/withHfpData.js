@@ -101,15 +101,10 @@ export default (Component) => {
   @inject(app("state"))
   @withRoute
   class WithHfpData extends React.Component {
-    cacheState = observable(
-      {
-        currentCacheKey: false,
-        promise: emptyCachePromise(),
-      },
-      {
-        promise: observable.ref,
-      }
-    );
+    currentCacheKey = false;
+
+    @observable.ref
+    cachePromise = emptyCachePromise();
 
     componentDidMount() {
       this.updateCachePromise();
@@ -130,14 +125,14 @@ export default (Component) => {
 
       // If we have a valid cacheKey (ie there is a route selected), and the key is
       // currently not in use, update the cache promise to fetch the current route.
-      if (cacheKey && cacheKey !== this.cacheState.currentCacheKey) {
+      if (cacheKey && cacheKey !== this.currentCacheKey) {
         setPromise = getCachePromise(route, date);
       }
 
       if (cacheKey !== this.currentCacheKey) {
         runInAction(() => {
-          this.cacheState.currentCacheKey = cacheKey;
-          this.cacheState.promise = setPromise;
+          this.currentCacheKey = cacheKey;
+          this.cachePromise = setPromise;
         });
       }
     }
@@ -188,7 +183,7 @@ export default (Component) => {
       return (
         <Observer>
           {() => {
-            return this.cacheState.promise.case({
+            return this.cachePromise.case({
               pending: () => this.getComponent([], false, true),
               rejected: (error) => {
                 console.error(error);
