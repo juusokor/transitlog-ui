@@ -16,15 +16,18 @@ const getRouteValue = ({
 @observer
 export class RouteInput extends Component {
   onChange = (e) => {
-    const {Filters} = this.props;
+    const {Filters, routes} = this.props;
     const selectedValue = get(e, "target.value", false);
 
     if (!selectedValue || selectedValue === "///") {
       return Filters.setRoute({});
     }
 
-    const [routeId, direction, dateBegin, dateEnd] = selectedValue.split("/");
-    Filters.setRoute({routeId, direction, dateBegin, dateEnd});
+    const selectedRoute = routes.find((r) => getRouteValue(r) === selectedValue);
+
+    if (selectedRoute) {
+      Filters.setRoute(selectedRoute);
+    }
   };
 
   componentDidMount() {
