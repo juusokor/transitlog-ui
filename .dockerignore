@@ -2,7 +2,6 @@
 .dockerignore
 .git
 .travis.yml
-Dockerfile
 node_modules
 LICENSE
 graphql.config.json

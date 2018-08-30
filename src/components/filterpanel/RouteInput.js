@@ -1,7 +1,15 @@
 import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
+import get from "lodash/get";
 import withRoute from "../../hoc/withRoute";
+
+const getRouteValue = ({
+  routeId = "",
+  direction = "",
+  dateBegin = "",
+  dateEnd = "",
+}) => `${routeId}/${direction}/${dateBegin}/${dateEnd}`;
 
 @inject(app("Filters"))
 @withRoute
@@ -9,9 +17,9 @@ import withRoute from "../../hoc/withRoute";
 export class RouteInput extends Component {
   onChange = (e) => {
     const {Filters} = this.props;
-    const selectedValue = e.target.value;
+    const selectedValue = get(e, "target.value", false);
 
-    if (!selectedValue) {
+    if (!selectedValue || selectedValue === "///") {
       return Filters.setRoute({});
     }
 
@@ -19,10 +27,28 @@ export class RouteInput extends Component {
     Filters.setRoute({routeId, direction, dateBegin, dateEnd});
   };
 
+  componentDidMount() {
+    this.resetRoute();
+  }
+
+  componentDidUpdate() {
+    this.resetRoute();
+  }
+
+  resetRoute() {
+    const {routes, route} = this.props;
+    const currentValue = getRouteValue(route);
+
+    if (
+      routes.length !== 0 &&
+      routes.every((routeListItem) => getRouteValue(routeListItem) !== currentValue)
+    ) {
+      this.onChange(false);
+    }
+  }
+
   render() {
     const {route, routes} = this.props;
-    const getRouteValue = (route) =>
-      `${route.routeId}/${route.direction}/${route.dateBegin}/${route.dateEnd}`;
 
     const options = routes.map((route) => {
       const {
