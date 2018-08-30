@@ -1,6 +1,5 @@
 import React from "react";
 import SuggestionInput from "./SuggestionInput";
-import fuzzySearch from "../../helpers/fuzzySearch";
 import orderBy from "lodash/orderBy";
 import {observer} from "mobx-react";
 import withStop from "../../hoc/withStop";
