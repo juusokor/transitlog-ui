@@ -71,6 +71,7 @@ class FilterPanel extends Component {
           line.dateBegin && (
             <RoutesByLineQuery
               key={`line_route_${Object.values(line).join("_")}`}
+              date={date}
               line={line}>
               {({routes, loading, error}) => {
                 if (loading || error) {

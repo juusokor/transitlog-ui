@@ -17,9 +17,11 @@ import HfpLayer from "./map/HfpLayer";
 import HfpMarkerLayer from "./map/HfpMarkerLayer";
 import invoke from "lodash/invoke";
 import getJourneyId from "../helpers/getJourneyId";
+import withRoute from "../hoc/withRoute";
 
 @inject(app("Journey", "Filters"))
 @withHfpData
+@withRoute
 @observer
 class App extends Component {
   state = {

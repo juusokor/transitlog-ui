@@ -3,7 +3,8 @@ import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import get from "lodash/get";
 import orderBy from "lodash/orderBy";
-import moment from "moment";
+import parse from "date-fns/parse";
+import isWithinRange from "date-fns/is_within_range";
 import {observer} from "mobx-react";
 
 const allLinesQuery = gql`
@@ -31,19 +32,17 @@ export default observer(({children, date}) => (
       if (loading) return "Loading...";
       if (error) return "Error!";
 
-      const queryMoment = moment(date);
+      const queryDate = parse(date);
 
       const lines = orderBy(
         get(data, "allLines.nodes", [])
           .filter((node) => node.routes.totalCount !== 0)
           .filter(removeFerryFilter)
           .filter(({dateBegin, dateEnd}) => {
-            const beginMoment = moment(dateBegin);
-            const endMoment = moment(dateEnd);
+            const begin = parse(dateBegin);
+            const end = parse(dateEnd);
 
-            return (
-              beginMoment.isBefore(queryMoment) && endMoment.isAfter(queryMoment)
-            );
+            return isWithinRange(queryDate, begin, end);
           }),
         "lineId"
       );

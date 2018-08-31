@@ -1,7 +1,6 @@
 import {action} from "mobx";
 import moment from "moment";
 import get from "lodash/get";
-import mergeWithObservable from "../helpers/mergeWithObservable";
 
 const filterActions = (state) => {
   // Make sure all dates are correctly formed.
@@ -20,18 +19,25 @@ const filterActions = (state) => {
   });
 
   const setLine = action(({lineId = "", dateBegin = "", dateEnd = ""}) => {
-    mergeWithObservable(state.line, {lineId, dateBegin, dateEnd});
+    state.line.lineId = lineId;
+    state.line.dateBegin = dateBegin;
+    state.line.dateEnd = dateEnd;
+
     setVehicle("");
   });
 
   const setRoute = action(
-    ({routeId = "", direction = "", dateBegin = "", dateEnd = ""}) => {
-      mergeWithObservable(state.route, {
-        routeId,
-        direction,
-        dateBegin,
-        dateEnd,
-      });
+    ({routeId = "", direction = "", dateBegin = "", dateEnd = "", line}) => {
+      state.route.routeId = routeId;
+      state.route.direction = direction;
+      state.route.dateBegin = dateBegin;
+      state.route.dateEnd = dateEnd;
+
+      const routeLine = get(line, "nodes[0]", null);
+
+      if (routeLine) {
+        setLine(routeLine);
+      }
 
       // When the route changes, also reset the vehicle and journey.
       setVehicle("");
