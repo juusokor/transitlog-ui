@@ -32,12 +32,17 @@ export class RouteInput extends Component {
 
   componentDidMount() {
     this.resetRoute();
+    this.ensureFullRouteData();
   }
 
   componentDidUpdate() {
     this.resetRoute();
   }
 
+  /**
+   * Reset the selected route if none of the route options match. This means
+   * the line has changed and the routes should be refetched.
+   */
   resetRoute() {
     const {routes, route} = this.props;
     const currentValue = getRouteValue(route);
@@ -47,6 +52,27 @@ export class RouteInput extends Component {
       routes.every((routeListItem) => getRouteValue(routeListItem) !== currentValue)
     ) {
       this.onChange(false);
+    }
+  }
+
+  /**
+   * Ensure that the pre-selected route has full data
+   */
+  ensureFullRouteData() {
+    const {Filters, route, routes} = this.props;
+
+    // If there is a preset routeId, find the rest of the route data from routes.
+    if (route.routeId && route.direction && !route.dateBegin) {
+      const currentValue = getRouteValue(route);
+
+      const routeData = routes.find((r) => {
+        const {routeId, direction} = r;
+        return getRouteValue({routeId, direction}) === currentValue;
+      });
+
+      if (routeData) {
+        Filters.setRoute(routeData);
+      }
     }
   }
 

@@ -49,6 +49,7 @@ export default (state) => {
       }
 
       if (routeId && directionId) {
+        filterActions.setLine({lineId: ""});
         filterActions.setRoute({routeId, direction: directionId});
       }
 
