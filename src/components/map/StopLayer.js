@@ -13,14 +13,24 @@ const stopsByBboxQuery = gql`
     $minLon: Float!
     $maxLat: Float!
     $maxLon: Float!
+    $date: Date!
   ) {
     stopsByBbox(minLat: $minLat, minLon: $minLon, maxLat: $maxLat, maxLon: $maxLon) {
       nodes {
         stopId
+        shortId
+        nameFi
         lat
         lon
-        routeSegmentsForDate(date: "2018-08-08") {
+        routeSegmentsForDate(date: $date) {
           nodes {
+            line {
+              nodes {
+                lineId
+                dateBegin
+                dateEnd
+              }
+            }
             routeId
             dateBegin
             dateEnd
@@ -45,25 +55,15 @@ class StopLayer extends Component {
   }
 
   selectRoute = (route) => (e) => {
-    const getRouteValue = (route) =>
-      `${route.routeId}/${route.direction}/${route.dateBegin}/${route.dateEnd}`;
-    const {Filters} = this.props;
-    const selectedValue = getRouteValue(route);
-    console.log("foo", selectedValue);
-    if (!selectedValue) {
-      return Filters.setRoute({});
-    }
-
-    const [routeId, direction, dateBegin, dateEnd] = selectedValue.split("/");
-    Filters.setRoute({routeId, direction, dateBegin, dateEnd});
-    console.log(routeId);
+    this.props.Filters.setRoute(route);
   };
 
   render() {
-    const {selectedStop, bounds} = this.props;
+    const {selectedStop, bounds, state} = this.props;
+    const {date} = state;
 
     return (
-      <Query query={stopsByBboxQuery} variables={bounds}>
+      <Query query={stopsByBboxQuery} variables={{...bounds, date}}>
         {({loading, data, error}) => {
           if (loading) return "Loading...";
           if (error) return "Error!";
@@ -84,9 +84,15 @@ class StopLayer extends Component {
                   onPopupclose={() => this.setState({selectedStop: null})}>
                   {this.state.selectedStop === stop.stopId ? (
                     <Popup>
+                      <h4>
+                        {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({
+                          stop.stopId
+                        })
+                      </h4>
                       {stop.routeSegmentsForDate.nodes.map((route) => (
                         <button
                           key={`route_${route.routeId}_${route.direction}`}
+                          className={"stop-route-list"}
                           onClick={this.selectRoute(route)}>
                           {route.routeId.substring(1).replace(/^0+/, "")}
                         </button>
