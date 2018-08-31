@@ -35,6 +35,10 @@ export class RouteInput extends Component {
     this.resetRoute();
   }
 
+  /**
+   * Reset the selected route if none of the route options match. This means
+   * the line has changed and the routes should be refetched.
+   */
   resetRoute() {
     const {routes, route} = this.props;
     const currentValue = getRouteValue(route);
