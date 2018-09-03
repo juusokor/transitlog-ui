@@ -10,16 +10,37 @@ import getJourneyId from "../../helpers/getJourneyId";
 @withHfpData
 @observer
 class JourneyList extends Component {
+  componentDidMount() {
+    this.ensureSelectedVehicle();
+  }
+
+  componentDidUpdate() {
+    this.ensureSelectedVehicle();
+  }
+
+  ensureSelectedVehicle = () => {
+    const {Filters, state, positionsByJourney} = this.props;
+    const {vehicle, selectedJourney} = state;
+
+    const selectedJourneyId = getJourneyId(selectedJourney);
+    const journeys = map(positionsByJourney, ({positions}) => positions[0]);
+    const journey = journeys.find((j) => getJourneyId(j) === selectedJourneyId);
+
+    // Only set these if the journey is truthy and was not already selected
+    if (journey && journey.uniqueVehicleId !== vehicle) {
+      Filters.setVehicle(journey.uniqueVehicleId);
+    } else if (!journey && vehicle !== "") {
+      Filters.setVehicle("");
+    }
+  };
+
   selectJourney = (journey) => (e) => {
     e.preventDefault();
-    const {Time, Journey, Filters, state} = this.props;
+    const {Time, Journey, state} = this.props;
 
     // Only set these if the journey is truthy and was not already selected
     if (journey && getJourneyId(state.selectedJourney) !== getJourneyId(journey)) {
       Time.setTime(journey.journeyStartTime);
-      Filters.setVehicle(journey.uniqueVehicleId);
-    } else {
-      Filters.setVehicle("");
     }
 
     Journey.setSelectedJourney(journey);
