@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import {Map, TileLayer, ZoomControl, Pane, LayersControl} from "react-leaflet";
-import {ReactLeafletGoogle} from "../../lib/react-leaflet-google/ReactLeafletGoogle";
+import {GoogleLayer} from "react-leaflet-google";
 import "leaflet/dist/leaflet.css";
 import "./Map.css";
 import get from "lodash/get";
@@ -46,7 +46,7 @@ export class LeafletMap extends Component {
             />
           </LayersControl.BaseLayer>
           <LayersControl.BaseLayer name="Google Hybrid">
-            <ReactLeafletGoogle
+            <GoogleLayer
               googlekey={googleKey}
               maptype="HYBRID"
               libraries={["geometry", "places"]}
