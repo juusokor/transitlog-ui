@@ -5,6 +5,7 @@ import map from "lodash/map";
 import get from "lodash/get";
 import {app} from "mobx-app";
 import getJourneyId from "../../helpers/getJourneyId";
+import {format, parse} from "date-fns";
 
 @inject(app("Journey", "Time", "Filters"))
 @withHfpData
@@ -36,25 +37,17 @@ class JourneyList extends Component {
 
     return (
       <div className="journey-list">
+        <div className="journey-list-row header">
+          <strong className="start-time">Planned start time</strong>
+          <span>Real start time</span>
+        </div>
         {journeys.map((journey) => (
           <button
             className={`journey-list-row ${isSelected(journey) ? "selected" : ""}`}
             key={`journey_row_${getJourneyId(journey)}`}
             onClick={this.selectJourney(journey)}>
             <strong className="start-time">{journey.journeyStartTime}</strong>
-            <span style={{width: 32, height: 32}}>
-              <span
-                className="hfp-marker-wrapper"
-                style={{backgroundColor: "white"}}>
-                <span
-                  className={`hfp-marker-icon ${get(
-                    journey,
-                    "mode",
-                    ""
-                  ).toUpperCase()}`}
-                />
-              </span>
-            </span>
+            <span>{format(parse(journey.receivedAt), "HH:mm:ss")}</span>
           </button>
         ))}
       </div>
