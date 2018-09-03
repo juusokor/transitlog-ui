@@ -5084,6 +5084,10 @@ methods@~1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/methods/-/methods-1.1.2.tgz#5529a4d67654134edcc5266656835b0f851afcee"
 
+mgrs@1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/mgrs/-/mgrs-1.0.0.tgz#fb91588e78c90025672395cb40b25f7cd6ad1829"
+
 micromatch@^2.1.5, micromatch@^2.3.11:
   version "2.3.11"
   resolved "https://registry.yarnpkg.com/micromatch/-/micromatch-2.3.11.tgz#86677c97d1720b363431d04d0d15293bd38c1565"
@@ -6251,6 +6255,19 @@ progress@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/progress/-/progress-2.0.0.tgz#8a1be366bf8fc23db2bd23f10c6fe920b4389d1f"
 
+proj4@^2.3.14:
+  version "2.5.0"
+  resolved "https://registry.yarnpkg.com/proj4/-/proj4-2.5.0.tgz#e3a88ce7e7a07221aaccbc6760dd2eafee745f03"
+  dependencies:
+    mgrs "1.0.0"
+    wkt-parser "^1.2.0"
+
+proj4leaflet@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/proj4leaflet/-/proj4leaflet-1.0.2.tgz#dec59f1e8a77a1682e320673e1e56f4161714d2a"
+  dependencies:
+    proj4 "^2.3.14"
+
 promise-polyfill@^7.1.1:
   version "7.1.2"
   resolved "https://registry.yarnpkg.com/promise-polyfill/-/promise-polyfill-7.1.2.tgz#ab05301d8c28536301622d69227632269a70ca3b"
@@ -6509,10 +6526,6 @@ react-hot-loader@^4.3.3:
 react-is@^16.3.2:
   version "16.4.2"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.4.2.tgz#84891b56c2b6d9efdee577cc83501dfc5ecead88"
-
-"react-leaflet-google@github:danieldunderfelt/react-leaflet-google":
-  version "3.3.1"
-  resolved "https://codeload.github.com/danieldunderfelt/react-leaflet-google/tar.gz/7c7590470ba4b2214be243cc313e6d58bd649a64"
 
 react-leaflet@^2.0.0:
   version "2.0.1"
@@ -8248,6 +8261,10 @@ winston@0.8.x, winston@~0.8.1:
     isstream "0.1.x"
     pkginfo "0.3.x"
     stack-trace "0.0.x"
+
+wkt-parser@^1.2.0:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/wkt-parser/-/wkt-parser-1.2.2.tgz#fe8d87be682e299f76c9af6f6456bbbd7abbfd3a"
 
 wordwrap@0.0.2:
   version "0.0.2"
