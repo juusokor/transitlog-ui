@@ -22,6 +22,14 @@ class JourneyList extends Component {
     const {Filters, state, positionsByJourney} = this.props;
     const {vehicle, selectedJourney} = state;
 
+    if (!selectedJourney) {
+      if (vehicle !== "") {
+        Filters.setVehicle("");
+      }
+
+      return;
+    }
+
     const selectedJourneyId = getJourneyId(selectedJourney);
     const journeys = map(positionsByJourney, ({positions}) => positions[0]);
     const journey = journeys.find((j) => getJourneyId(j) === selectedJourneyId);
@@ -29,8 +37,6 @@ class JourneyList extends Component {
     // Only set these if the journey is truthy and was not already selected
     if (journey && journey.uniqueVehicleId !== vehicle) {
       Filters.setVehicle(journey.uniqueVehicleId);
-    } else if (!journey && vehicle !== "") {
-      Filters.setVehicle("");
     }
   };
 
