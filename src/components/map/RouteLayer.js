@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import {Polyline} from "react-leaflet";
-import moment from "moment";
+import format from "date-fns/format";
 import get from "lodash/get";
 import groupBy from "lodash/groupBy";
 import filter from "lodash/filter";
@@ -145,18 +145,16 @@ class RouteLayer extends Component {
     return stopHfpGroups;
   };
 
-  onTimeClick = (receivedAtMoment) => (e) => {
+  onTimeClick = (receivedAtDate) => (e) => {
     e.preventDefault();
-    this.props.Time.setTime(receivedAtMoment.format("HH:mm:ss"));
+    this.props.Time.setTime(format(receivedAtDate, "HH:mm:ss"));
   };
 
   render() {
     const {showTime} = this.state;
 
     const {state, routePositions, stops} = this.props;
-    const {stop: selectedStop, time, date, selectedJourney} = state;
-
-    const timeMoment = moment(`${date} ${time}`, "YYYY-MM-DD HH:mm:ss", true);
+    const {stop: selectedStop, selectedJourney} = state;
 
     const coords = routePositions.map(([lon, lat]) => [lat, lon]);
 
@@ -180,7 +178,6 @@ class RouteLayer extends Component {
               onChangeShowTime={this.onChangeShowTime}
               key={`stop_marker_${stop.stopId}`}
               showTime={showTime}
-              time={timeMoment}
               selected={isSelected}
               firstTerminal={isFirst}
               lastTerminal={isLast}
