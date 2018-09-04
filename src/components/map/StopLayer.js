@@ -43,7 +43,6 @@ const stopsByBboxQuery = gql`
 `;
 
 const stopColor = "#3388ff";
-const selectedStopColor = "#33ff88";
 
 @inject(app("Filters"))
 @withRoute
@@ -80,9 +79,8 @@ class StopLayer extends Component {
                   {this.state.selectedStop === stop.stopId ? (
                     <Popup>
                       <h4>
-                        {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({
-                          stop.stopId
-                        })
+                        {stop.nameFi}, {stop.shortId.replace(/ /g, "")} (
+                        {stop.stopId})
                       </h4>
                       {stop.routeSegmentsForDate.nodes.map((route) => (
                         <button
