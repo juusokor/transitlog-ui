@@ -99,7 +99,7 @@ ${position.drst ? `<span class="hfp-marker-drst" />` : ""}
         <Tooltip>
           {moment(position.receivedAt).format("HH:mm:ss")}
           <br />
-          {name}
+          {position.uniqueVehicleId}
           <br />
           Next stop: {position.nextStopId}
           <br />

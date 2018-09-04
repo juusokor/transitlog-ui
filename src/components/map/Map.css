@@ -50,3 +50,8 @@
   height: 12px;
   border-radius: 50%;
 }
+
+.timing-stop.early {
+  background: hotpink;
+  border-radius: 50%;
+}

@@ -1,4 +1,4 @@
-import {inject, Observer} from "mobx-react";
+import {inject, Observer, observer} from "mobx-react";
 import {observable, runInAction} from "mobx";
 import {app} from "mobx-app";
 import React from "react";
@@ -100,19 +100,10 @@ const emptyCachePromise = () =>
 export default (Component) => {
   @inject(app("state"))
   @withRoute
+  @observer
   class WithHfpData extends React.Component {
     currentCacheKey = false;
-
-    @observable.ref
     cachePromise = emptyCachePromise();
-
-    componentDidMount() {
-      this.updateCachePromise();
-    }
-
-    componentDidUpdate() {
-      this.updateCachePromise();
-    }
 
     updateCachePromise() {
       const {
@@ -129,11 +120,11 @@ export default (Component) => {
         setPromise = getCachePromise(route, date);
       }
 
+      // Always update the promise if the current cache key doesn't match the new one.
+      // This allows for empty cache promises to be set, even if the above if doesn't run.
       if (cacheKey !== this.currentCacheKey) {
-        runInAction(() => {
-          this.currentCacheKey = cacheKey;
-          this.cachePromise = setPromise;
-        });
+        this.currentCacheKey = cacheKey;
+        this.cachePromise = setPromise;
       }
     }
 
@@ -179,22 +170,18 @@ export default (Component) => {
     );
 
     render() {
+      this.updateCachePromise();
+
       // Use the mobxified promise
-      return (
-        <Observer>
-          {() => {
-            return this.cachePromise.case({
-              pending: () => this.getComponent([], false, true),
-              rejected: (error) => {
-                console.error(error);
-                return this.getComponent([], false, false);
-              },
-              fulfilled: ({positions, cacheKey}) =>
-                this.getComponent(positions, cacheKey, false),
-            });
-          }}
-        </Observer>
-      );
+      return this.cachePromise.case({
+        pending: () => this.getComponent([], false, true),
+        rejected: (error) => {
+          console.error(error);
+          return this.getComponent([], false, false);
+        },
+        fulfilled: ({positions, cacheKey}) =>
+          this.getComponent(positions, cacheKey, false),
+      });
     }
   }
 
