@@ -5,11 +5,34 @@ import {observer} from "mobx-react";
 
 @observer
 class SuggestionInput extends Component {
+  static getDerivedStateFromProps({value}, {value: currentValue, _lastValue}) {
+    if (value && value !== currentValue && value !== _lastValue) {
+      return {
+        _lastValue: value,
+        value,
+      };
+    }
+
+    if (value !== _lastValue) {
+      return {
+        _lastValue: value,
+      };
+    }
+
+    return null;
+  }
+
   state = {
+    _lastValue: this.props.value.toString(),
+    value: this.props.value.toString(),
     suggestions: [],
   };
 
   onChange = (event, {newValue}) => {
+    this.setState({
+      value: newValue.toString(),
+    });
+
     const {onChange = () => {}} = this.props;
     onChange(newValue.toString());
   };
@@ -37,14 +60,8 @@ class SuggestionInput extends Component {
   };
 
   render() {
-    const {suggestions} = this.state;
-    const {
-      value,
-      placeholder,
-      getValue,
-      renderSuggestion,
-      minimumInput = 3,
-    } = this.props;
+    const {suggestions, value} = this.state;
+    const {placeholder, getValue, renderSuggestion, minimumInput = 3} = this.props;
 
     const inputProps = {
       placeholder,
