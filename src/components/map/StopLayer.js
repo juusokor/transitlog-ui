@@ -49,11 +49,7 @@ const selectedStopColor = "#33ff88";
 @withRoute
 @observer
 class StopLayer extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {selectedStop: null};
-  }
-
+  state = {selectedStop: null};
   selectRoute = (route) => (e) => {
     this.props.Filters.setRoute(route);
   };
@@ -68,7 +64,6 @@ class StopLayer extends Component {
           if (loading) return "Loading...";
           if (error) return "Error!";
           const stops = get(data, "stopsByBbox.nodes", []);
-          console.log(stops);
           return (
             <React.Fragment>
               {stops.map((stop) => (
