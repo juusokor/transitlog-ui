@@ -45,7 +45,6 @@ class StopMarker extends React.Component {
     // TODO: Compare timing stops with real schedules
 
     if ((firstTerminal || stop.timingStopType) && hfp.length === 1) {
-      const date = time.format("YYYY-MM-DD");
       const stopDepartHfp = get(hfp, `[0].journeys[0].depart`, "");
 
       const departedDate = parse(stopDepartHfp.receivedAt);
@@ -55,7 +54,7 @@ class StopMarker extends React.Component {
       // dl is not reliable at terminals
       if (firstTerminal) {
         const journeyStartDate = new Date(
-          `${date}T${stopDepartHfp.journeyStartTime}`
+          `${state.date}T${stopDepartHfp.journeyStartTime}`
         );
         delay = diffDates(journeyStartDate, departedDate);
       } else {
