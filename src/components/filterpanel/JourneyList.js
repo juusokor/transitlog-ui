@@ -53,14 +53,47 @@ class JourneyList extends Component {
     Journey.setSelectedJourney(journey);
   };
 
+  getJourneyStartPosition(journeyId) {
+    const {positionsByJourney} = this.props;
+
+    // Get the hfp data for this journey
+    const journeyPositions = get(
+      positionsByJourney.find(({journeyId: jid}) => jid === journeyId),
+      "positions",
+      []
+    );
+
+    // Default to the first hfp event, ie when the data stream from this vehicle started
+    let journeyStartHfp = journeyPositions[0];
+
+    if (!journeyStartHfp) {
+      return null;
+    }
+
+    for (let i = 1; i < journeyPositions.length; i++) {
+      const current = journeyPositions[i];
+
+      // Loop through the positions and find when the nextStopId prop changes.
+      // The hfp event BEFORE this is when the journey started, ie when
+      // the vehicle departed the first terminal.
+      if (current && current.nextStopId !== journeyStartHfp.nextStopId) {
+        journeyStartHfp = journeyPositions[i - 1];
+        break;
+      }
+    }
+
+    return journeyStartHfp;
+  }
+
   render() {
     const {positionsByJourney, state} = this.props;
 
     const journeys = map(positionsByJourney, ({positions}) => positions[0]);
     const selectedJourney = get(state, "selectedJourney");
+    const selectedJourneyId = getJourneyId(selectedJourney);
 
     const isSelected = (journey) =>
-      selectedJourney && getJourneyId(selectedJourney) === getJourneyId(journey);
+      selectedJourney && selectedJourneyId === getJourneyId(journey);
 
     return (
       <div className="journey-list">
@@ -68,15 +101,23 @@ class JourneyList extends Component {
           <strong className="start-time">Planned start time</strong>
           <span>Real start time</span>
         </div>
-        {journeys.map((journey) => (
-          <button
-            className={`journey-list-row ${isSelected(journey) ? "selected" : ""}`}
-            key={`journey_row_${getJourneyId(journey)}`}
-            onClick={this.selectJourney(journey)}>
-            <strong className="start-time">{journey.journeyStartTime}</strong>
-            <span>{format(parse(journey.receivedAt), "HH:mm:ss")}</span>
-          </button>
-        ))}
+        {journeys.map((journey) => {
+          const journeyStartHfp = this.getJourneyStartPosition(
+            getJourneyId(journey)
+          );
+
+          return (
+            <button
+              className={`journey-list-row ${isSelected(journey) ? "selected" : ""}`}
+              key={`journey_row_${getJourneyId(journey)}`}
+              onClick={this.selectJourney(journey)}>
+              <strong className="start-time">{journey.journeyStartTime}</strong>
+              {journeyStartHfp && (
+                <span>{format(parse(journeyStartHfp.receivedAt), "HH:mm:ss")}</span>
+              )}
+            </button>
+          );
+        })}
       </div>
     );
   }
