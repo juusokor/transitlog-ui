@@ -1,9 +1,10 @@
 import React, {Component} from "react";
 import {Polyline} from "react-leaflet";
-import moment from "moment";
+import format from "date-fns/format";
 import get from "lodash/get";
 import groupBy from "lodash/groupBy";
 import filter from "lodash/filter";
+import set from "lodash/set";
 import map from "lodash/map";
 import calculateBoundsFromPositions from "../../helpers/calculateBoundsFromPositions";
 import StopMarker from "./StopMarker";
@@ -120,11 +121,18 @@ class RouteLayer extends Component {
   };
 
   getAllStopTimes = (stop) => {
-    const {positionsByVehicle} = this.props;
+    const {
+      positionsByVehicle,
+      state: {date},
+    } = this.props;
+
+    const cacheKey = `${date}.${stop.stopId}`;
 
     // Get existing times from the cache.
-    if (Object.keys(this.stopTimes).length > 0) {
-      const cachedHfp = get(this, `stopTimes.${stop.stopId}`);
+    let cachedHfp = get(this.stopTimes, cacheKey, {});
+
+    if (Object.keys(cachedHfp).length > 0) {
+      cachedHfp = get(this, `stopTimes.${stop.stopId}`);
 
       if (cachedHfp && cachedHfp.length > 0) {
         return cachedHfp;
@@ -141,22 +149,20 @@ class RouteLayer extends Component {
       return {vehicleId, journeys};
     });
 
-    this.stopTimes[stop.stopId] = stopHfpGroups;
+    set(this.stopTimes, cacheKey, stopHfpGroups);
     return stopHfpGroups;
   };
 
-  onTimeClick = (receivedAtMoment) => (e) => {
+  onTimeClick = (receivedAtDate) => (e) => {
     e.preventDefault();
-    this.props.Time.setTime(receivedAtMoment.format("HH:mm:ss"));
+    this.props.Time.setTime(format(receivedAtDate, "HH:mm:ss"));
   };
 
   render() {
     const {showTime} = this.state;
 
     const {state, routePositions, stops} = this.props;
-    const {stop: selectedStop, time, date, selectedJourney} = state;
-
-    const timeMoment = moment(`${date} ${time}`, "YYYY-MM-DD HH:mm:ss", true);
+    const {stop: selectedStop, selectedJourney} = state;
 
     const coords = routePositions.map(([lon, lat]) => [lat, lon]);
 
@@ -180,7 +186,6 @@ class RouteLayer extends Component {
               onChangeShowTime={this.onChangeShowTime}
               key={`stop_marker_${stop.stopId}`}
               showTime={showTime}
-              time={timeMoment}
               selected={isSelected}
               firstTerminal={isFirst}
               lastTerminal={isLast}
