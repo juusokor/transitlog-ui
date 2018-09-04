@@ -1,22 +1,15 @@
 import React, {Component} from "react";
 import Autosuggest from "react-autosuggest";
 import "./SuggestionInput.css";
+import {observer} from "mobx-react";
 
+@observer
 class SuggestionInput extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      value: this.props.value.toString(),
-      suggestions: [],
-    };
-  }
+  state = {
+    suggestions: [],
+  };
 
   onChange = (event, {newValue}) => {
-    this.setState({
-      value: newValue.toString(),
-    });
-
     const {onChange = () => {}} = this.props;
     onChange(newValue.toString());
   };
@@ -44,8 +37,14 @@ class SuggestionInput extends Component {
   };
 
   render() {
-    const {value, suggestions} = this.state;
-    const {placeholder, getValue, renderSuggestion, minimumInput = 3} = this.props;
+    const {suggestions} = this.state;
+    const {
+      value,
+      placeholder,
+      getValue,
+      renderSuggestion,
+      minimumInput = 3,
+    } = this.props;
 
     const inputProps = {
       placeholder,

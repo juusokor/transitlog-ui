@@ -3,7 +3,7 @@ import {HttpLink} from "apollo-link-http";
 import {InMemoryCache, defaultDataIdFromObject} from "apollo-cache-inmemory";
 
 const joreClient = new ApolloClient({
-  link: new HttpLink({uri: "https://kartat.hsldev.com/jore/graphql"}),
+  link: new HttpLink({uri: "https://dev-kartat.hsldev.com/jore-history/graphql"}),
   cache: new InMemoryCache({
     dataIdFromObject: (obj) => {
       if (typeof obj.nodeId !== "undefined") {
