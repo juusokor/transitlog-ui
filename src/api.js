@@ -3,7 +3,7 @@ import {HttpLink} from "apollo-link-http";
 import {InMemoryCache, defaultDataIdFromObject} from "apollo-cache-inmemory";
 
 const joreClient = new ApolloClient({
-  link: new HttpLink({uri: "https://kartat.hsldev.com/jore/graphql"}),
+  link: new HttpLink({uri: "http://dev-kartat.hsldev.com/jore-history/graphql"}),
   cache: new InMemoryCache({
     dataIdFromObject: (obj) => {
       if (typeof obj.nodeId !== "undefined") {
@@ -17,11 +17,6 @@ const joreClient = new ApolloClient({
       return defaultDataIdFromObject(obj);
     },
   }),
-});
-
-const digiTClient = new ApolloClient({
-  link: new HttpLink({uri: "https://api.digitransit.fi/graphql"}),
-  cache: new InMemoryCache(),
 });
 
 const hfpClient = new ApolloClient({
@@ -40,4 +35,4 @@ const hfpClient = new ApolloClient({
   }),
 });
 
-export {joreClient, digiTClient, hfpClient};
+export {joreClient, hfpClient};
