@@ -18,7 +18,7 @@ class HfpLayer extends Component {
     const {selectedJourney, positions} = this.props;
     const journeyId = getJourneyId(selectedJourney);
 
-    // Get only the positions from the same journey and create latNg items for Leaflet.
+    // Get only the positions from the same journey and create latLng items for Leaflet.
     // Additional data can be passed as the third array element which Leaflet won't touch.
     return positions
       .filter((pos) => getJourneyId(pos) === journeyId)
