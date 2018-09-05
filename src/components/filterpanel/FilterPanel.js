@@ -38,11 +38,7 @@ class FilterPanel extends Component {
         <button onClick={Filters.reset}>Reset</button>
         <DateSettings />
         <TimeSettings />
-        <VehicleInput
-          value={vehicle}
-          onChange={this.onChangeQueryVehicle}
-          onSelect={this.onChangeQueryVehicle}
-        />
+        <VehicleInput value={vehicle} onSelect={this.onChangeQueryVehicle} />
         {!!route.routeId ? (
           <StopsByRouteQuery key="stop_input_by_route" route={route}>
             {({stops}) => (
