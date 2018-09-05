@@ -129,14 +129,10 @@ class RouteLayer extends Component {
     const cacheKey = `${date}.${stop.stopId}`;
 
     // Get existing times from the cache.
-    let cachedHfp = get(this.stopTimes, cacheKey, {});
+    let cachedHfp = get(this.stopTimes, cacheKey, []);
 
-    if (Object.keys(cachedHfp).length > 0) {
-      cachedHfp = get(this, `stopTimes.${stop.stopId}`);
-
-      if (cachedHfp && cachedHfp.length > 0) {
-        return cachedHfp;
-      }
+    if (cachedHfp && cachedHfp.length > 0) {
+      return cachedHfp;
     }
 
     const stopHfpGroups = positionsByVehicle.map(({vehicleId, positions}) => {
