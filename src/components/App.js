@@ -18,6 +18,7 @@ import HfpMarkerLayer from "./map/HfpMarkerLayer";
 import invoke from "lodash/invoke";
 import getJourneyId from "../helpers/getJourneyId";
 import withRoute from "../hoc/withRoute";
+import createRouteIdentifier from "../helpers/createRouteIdentifier";
 
 @inject(app("Journey", "Filters"))
 @withHfpData
@@ -106,7 +107,9 @@ class App extends Component {
             <React.Fragment>
               {!route.routeId &&
                 zoom > 14 && <StopLayer selectedStop={stop} bounds={stopsBbox} />}
-              <RouteQuery route={route}>
+              <RouteQuery
+                key={`route_query_${createRouteIdentifier(route)}`}
+                route={route}>
                 {({routePositions, stops}) =>
                   routePositions.length !== 0 ? (
                     <RouteLayer
