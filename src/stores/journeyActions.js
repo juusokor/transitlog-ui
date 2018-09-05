@@ -4,6 +4,8 @@ import doubleDigit from "../helpers/doubleDigit";
 import pick from "lodash/pick";
 import createHistory from "history/createBrowserHistory";
 
+const history = createHistory();
+
 export function pickJourneyProps(hfp) {
   return pick(hfp, "oday", "journeyStartTime", "directionId", "routeId");
 }
@@ -21,8 +23,6 @@ export function createJourneyPath(journey) {
 }
 
 export default (state) => {
-  const history = createHistory();
-
   const setSelectedJourney = action((journey = null) => {
     if (
       !journey ||

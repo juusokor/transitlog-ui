@@ -41,7 +41,6 @@ export default enhance(
         placeholder="Rajaa kulkuneuvoa"
         value={vehicle}
         onSelect={onSelect}
-        onChange={onChange}
         getValue={getSuggestionValue}
         renderSuggestion={renderSuggestion}
         getSuggestions={getSuggestions(options)}
