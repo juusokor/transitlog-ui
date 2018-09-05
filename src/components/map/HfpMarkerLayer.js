@@ -70,7 +70,6 @@ class HfpMarkerLayer extends Component {
   };
 
   render() {
-    const {name} = this.props;
     const position = this.getHfpPosition();
 
     if (!position) {
