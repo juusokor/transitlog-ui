@@ -21,7 +21,7 @@ const joreClient = new ApolloClient({
 
 const hfpClient = new ApolloClient({
   link: new HttpLink({
-    uri: "https://sandbox-1.hsldev.com/transitlog-timescaledb/graphql",
+    uri: "https://sandbox-1.hsldev.com/v1alpha1/graphql",
   }),
   cache: new InMemoryCache({
     dataIdFromObject: (obj) => {
