@@ -4,16 +4,15 @@ import get from "lodash/get";
 import moment from "moment";
 import {divIcon} from "leaflet";
 import getDelayType from "../../helpers/getDelayType";
-import diffDates from "date-fns/difference_in_seconds";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
+import {getPrecisePositionForTime} from "../../helpers/getPrecisePositionForTime";
 
 @inject(app("state"))
 @observer
 class HfpMarkerLayer extends Component {
   prevQueryTime = "";
   prevHfpPosition = null;
-  prevPositionIndex = 0;
 
   // Matches the current time setting with a HFP position from this journey.
   getHfpPosition = () => {
@@ -26,37 +25,7 @@ class HfpMarkerLayer extends Component {
 
     const timeDate = new Date(`${date}T${time}`);
 
-    let nextHfpPosition = null;
-    const total = positions.length;
-    let posIdx = this.prevPositionIndex < total ? this.prevPositionIndex : 0;
-
-    for (; posIdx < total; posIdx++) {
-      const position = positions[posIdx];
-      // This acts as the upper limit for when a time matches a marker.
-      // If it is too low, markers for selected journeys might not match.
-      let prevDifference = 180;
-
-      if (nextHfpPosition) {
-        const nextHfpDate = new Date(nextHfpPosition.receivedAt);
-        const diff = Math.abs(diffDates(timeDate, nextHfpDate));
-        prevDifference = diff < prevDifference ? diff : prevDifference;
-
-        // A diff of under 7 seconds is "good enough" and will break the loop.
-        // Increase this number to get faster but less precise performance. Do not
-        // decrease below the time resolution of the HFP data the app uses (as of writing 2 seconds).
-        if (prevDifference < 7) {
-          break;
-        }
-      }
-
-      const difference = Math.abs(
-        diffDates(timeDate, new Date(position.receivedAt))
-      );
-
-      if (difference < prevDifference) {
-        nextHfpPosition = position;
-      }
-    }
+    const nextHfpPosition = getPrecisePositionForTime(positions, timeDate);
 
     this.prevHfpPosition = nextHfpPosition;
     this.prevQueryTime = time;
