@@ -67,6 +67,7 @@
     "*.js": [
       "prettier --write",
       "eslint --fix",
+      "npm run test",
       "git add"
     ],
     "*.css": [
