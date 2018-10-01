@@ -1,14 +1,10 @@
 import {action} from "mobx";
 import getJourneyId from "../helpers/getJourneyId";
 import doubleDigit from "../helpers/doubleDigit";
-import pick from "lodash/pick";
 import createHistory from "history/createBrowserHistory";
+import {pickJourneyProps} from "../helpers/pickJourneyProps";
 
 const history = createHistory();
-
-export function pickJourneyProps(hfp) {
-  return pick(hfp, "oday", "journeyStartTime", "directionId", "routeId");
-}
 
 export function createJourneyPath(journey) {
   const date = new Date(`${journey.oday}T${journey.journeyStartTime}`);

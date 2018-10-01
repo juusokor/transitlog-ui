@@ -4,7 +4,8 @@ import createHistory from "history/createBrowserHistory";
 import TimeActions from "./timeActions";
 import FilterActions from "./filterActions";
 import moment from "moment";
-import journeyActions, {pickJourneyProps} from "./journeyActions";
+import journeyActions from "./journeyActions";
+import {pickJourneyProps} from "../helpers/pickJourneyProps";
 
 export default (state) => {
   const history = createHistory();
