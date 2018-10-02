@@ -12,7 +12,6 @@ import {app} from "mobx-app";
 export const hfpQuery = gql`
   query hfpQuery($route_id: String, $direction: smallint, $date: date) {
     vehicles(
-      limit: 100
       order_by: received_at_asc
       where: {
         route_id: {_eq: $route_id}
@@ -39,7 +38,7 @@ export const fetchHfpQuery = ({route, date}) => {
         date,
       },
     })
-    .then(({data}) => get(data, "allVehicles.nodes", []));
+    .then(({data}) => get(data, "vehicles", []));
 };
 
 @inject(app("Filters"))
@@ -73,7 +72,7 @@ class HfpQuery extends Component {
           date,
         }}>
         {({loading, error, data}) => {
-          let hfpPositions = get(data, "allVehicles.nodes", []);
+          let hfpPositions = get(data, "vehicles", []);
           return children({hfpPositions, loading, error});
         }}
       </Query>

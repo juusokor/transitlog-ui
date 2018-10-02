@@ -19,7 +19,9 @@ export function createJourneyPath(journey) {
 
   const timeStr = `${doubleDigit(date.getHours())}${doubleDigit(date.getMinutes())}`;
 
-  return `/journey/${dateStr}/${timeStr}/${journey.route_id}/${journey.direction_id}`;
+  return `/journey/${dateStr}/${timeStr}/${journey.route_id}/${
+    journey.direction_id
+  }`;
 }
 
 export default (state) => {

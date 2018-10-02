@@ -7,7 +7,6 @@ import map from "lodash/map";
 import get from "lodash/get";
 import set from "lodash/set";
 import {fetchHfpQuery} from "../queries/HfpQuery";
-import takeEveryNth from "../helpers/takeEveryNth";
 import withRoute from "./withRoute";
 import getJourneyId from "../helpers/getJourneyId";
 import {fromPromise} from "mobx-utils";
@@ -17,11 +16,8 @@ const formatData = (hfpData) => {
     return hfpData;
   }
 
-  return (
-    takeEveryNth(hfpData, 2) // Take every other hfp item.
-      // Some HFP items are null for one reason or another. Filter those out.
-      .filter((pos) => !!pos && !!pos.lat && !!pos.long)
-  );
+  // Some HFP items are null for one reason or another. Filter those out.
+  return hfpData.filter((pos) => !!pos && !!pos.lat && !!pos.long);
 };
 
 const getGrouped = (hfpData, groupKey, groupNameKey) => {
