@@ -7,11 +7,11 @@ import createHistory from "history/createBrowserHistory";
 const history = createHistory();
 
 export function pickJourneyProps(hfp) {
-  return pick(hfp, "oday", "journeyStartTime", "directionId", "routeId");
+  return pick(hfp, "oday", "journey_start_time", "direction_id", "route_id");
 }
 
 export function createJourneyPath(journey) {
-  const date = new Date(`${journey.oday}T${journey.journeyStartTime}`);
+  const date = new Date(`${journey.oday}T${journey.journey_start_time}`);
 
   const dateStr = `${date.getFullYear()}${doubleDigit(
     date.getMonth() + 1
@@ -19,7 +19,7 @@ export function createJourneyPath(journey) {
 
   const timeStr = `${doubleDigit(date.getHours())}${doubleDigit(date.getMinutes())}`;
 
-  return `/journey/${dateStr}/${timeStr}/${journey.routeId}/${journey.directionId}`;
+  return `/journey/${dateStr}/${timeStr}/${journey.route_id}/${journey.direction_id}`;
 }
 
 export default (state) => {

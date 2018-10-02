@@ -27,7 +27,7 @@ function getCoarsePositionForTime(positionsByJourney, journeyId, time) {
   for (let posIdx = prevPosIdx; posIdx < positions.length; posIdx++) {
     const pos = positions[posIdx];
 
-    if (pos && Math.abs(diffDates(new Date(pos.receivedAt), time)) <= 15) {
+    if (pos && Math.abs(diffDates(new Date(pos.received_at), time)) <= 15) {
       followPosition = pos;
       prevPosition = {
         journey: journeyId,

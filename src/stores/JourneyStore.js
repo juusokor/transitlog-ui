@@ -27,13 +27,13 @@ export default (state) => {
         // eslint-disable-next-line no-unused-vars
         __,
         oday,
-        journeyStartTime,
-        routeId,
-        directionId,
+        journey_start_time,
+        route_id,
+        direction_id,
       ] = location.pathname.split("/");
 
       const date = moment(oday, "YYYYMMDD");
-      const time = moment(journeyStartTime, "HHmmss");
+      const time = moment(journey_start_time, "HHmmss");
 
       let dateStr = "";
       let timeStr = "";
@@ -48,20 +48,20 @@ export default (state) => {
         timeActions.setTime(timeStr);
       }
 
-      if (routeId && directionId) {
-        filterActions.setRoute({routeId, direction: directionId});
+      if (route_id && direction_id) {
+        filterActions.setRoute({routeId: route_id, direction: direction_id});
       }
 
       // Validate the data from the url
-      if (dateStr && timeStr && routeId && directionId) {
+      if (dateStr && timeStr && route_id && direction_id) {
         // The pick is a bit redundant here, but I want to make sure
         // that everything assigned to selectedJourney always looks
         // the same. What the pick returns may change in the future...
         const journey = pickJourneyProps({
           oday: dateStr,
-          routeId,
-          directionId,
-          journeyStartTime: timeStr,
+          route_id,
+          direction_id,
+          journey_start_time: timeStr,
         });
 
         if (getJourneyId(state.selectedJourney) !== getJourneyId(journey)) {

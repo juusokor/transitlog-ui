@@ -1,6 +1,7 @@
 import {ApolloClient} from "apollo-client";
 import {HttpLink} from "apollo-link-http";
 import {InMemoryCache, defaultDataIdFromObject} from "apollo-cache-inmemory";
+import getJourneyId from "./helpers/getJourneyId";
 
 const joreClient = new ApolloClient({
   link: new HttpLink({uri: "https://dev-kartat.hsldev.com/jore-history/graphql"}),
@@ -26,8 +27,8 @@ const hfpClient = new ApolloClient({
   cache: new InMemoryCache({
     dataIdFromObject: (obj) => {
       switch (obj.__typename) {
-        case "Vehicle":
-          return `${obj.receivedAt}:${obj.routeId}:${obj.directionId}`;
+        case "vehicles":
+          return getJourneyId(obj);
         default:
           return defaultDataIdFromObject(obj);
       }

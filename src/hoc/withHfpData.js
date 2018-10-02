@@ -129,7 +129,7 @@ export default (Component) => {
 
     getGroupedByVehicle = (positions, cacheKey) =>
       this.groupCache("vehicles", cacheKey, () =>
-        getGrouped(positions, "uniqueVehicleId", "vehicleId")
+        getGrouped(positions, "unique_vehicle_id", "vehicleId")
       );
 
     getGroupedByJourney = (positions, cacheKey) =>

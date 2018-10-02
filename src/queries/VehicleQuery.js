@@ -9,7 +9,7 @@ const vehiclesQuery = gql`
   query vehiclesQuery($vehicleId: String, $date: Date) {
     allVehicles(
       orderBy: RECEIVED_AT_ASC
-      condition: {uniqueVehicleId: $vehicleId, oday: $date, geohashLevel: 0}
+      condition: {unique_vehicle_id: $vehicleId, oday: $date, geohashLevel: 0}
     ) {
       nodes {
         ...HfpFieldsFragment

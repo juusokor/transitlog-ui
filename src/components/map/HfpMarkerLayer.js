@@ -37,7 +37,7 @@ class HfpMarkerLayer extends Component {
       let prevDifference = 180;
 
       if (nextHfpPosition) {
-        const nextHfpDate = new Date(nextHfpPosition.receivedAt);
+        const nextHfpDate = new Date(nextHfpPosition.received_at);
         const diff = Math.abs(diffDates(timeDate, nextHfpDate));
         prevDifference = diff < prevDifference ? diff : prevDifference;
 
@@ -50,7 +50,7 @@ class HfpMarkerLayer extends Component {
       }
 
       const difference = Math.abs(
-        diffDates(timeDate, new Date(position.receivedAt))
+        diffDates(timeDate, new Date(position.received_at))
       );
 
       if (difference < prevDifference) {
@@ -96,11 +96,11 @@ ${position.drst ? `<span class="hfp-marker-drst" />` : ""}
         icon={markerIcon}
         pane="hfp-markers">
         <Tooltip>
-          {moment(position.receivedAt).format("HH:mm:ss")}
+          {moment(position.received_at).format("HH:mm:ss")}
           <br />
-          {position.uniqueVehicleId}
+          {position.unique_vehicle_id}
           <br />
-          Next stop: {position.nextStopId}
+          Next stop: {position.next_stop_id}
           <br />
           Speed: {Math.round((position.spd * 18) / 5)} km/h
           <br />

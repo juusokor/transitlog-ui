@@ -10,10 +10,10 @@ import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 
 export const hfpQuery = gql`
-  query hfpQuery($routeId: String, $direction: Int, $date: Date) {
+  query hfpQuery($route_id: String, $direction: Int, $date: Date) {
     allVehicles(
       orderBy: RECEIVED_AT_ASC
-      condition: {routeId: $routeId, directionId: $direction, oday: $date}
+      condition: {route_id: $route_id, direction_id: $direction, oday: $date}
     ) {
       nodes {
         ...HfpFieldsFragment
@@ -31,7 +31,7 @@ export const fetchHfpQuery = ({route, date}) => {
       fetchPolicy: "cache-first",
       query: hfpQuery,
       variables: {
-        routeId,
+        route_id: routeId,
         direction: parseInt(direction, 10),
         date,
       },
@@ -65,7 +65,7 @@ class HfpQuery extends Component {
         query={hfpQuery}
         fetchPolicy="cache-first"
         variables={{
-          routeId,
+          route_id: routeId,
           direction: parseInt(direction, 10),
           date,
         }}>

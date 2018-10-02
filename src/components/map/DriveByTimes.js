@@ -25,9 +25,9 @@ class DriveByTimes extends React.Component {
           }
 
           const useTime = showTime === "arrive" ? arrive : depart;
-          const receivedAtDate = parse(useTime.receivedAt);
+          const receivedAtDate = parse(useTime.received_at);
 
-          // How far the receivedAt time is from the queried time,
+          // How far the received_at time is from the queried time,
           // divided a bit to fit into the darken() function.
           const diffFromQuery = Math.min(
             Math.abs(diffSeconds(queryTime, receivedAtDate, "seconds")) / 100,
@@ -38,12 +38,12 @@ class DriveByTimes extends React.Component {
           // If arrive and depart are the same, it means the stop times algorithm
           // didn't find an open door at this stop and it's safe to say that
           // the vehicle didn't stop here.
-          const didntStop = arrive.receivedAt === depart.receivedAt && !depart.drst;
+          const didntStop = arrive.received_at === depart.received_at && !depart.drst;
 
           return (
             <button
               onClick={onTimeClick(receivedAtDate)}
-              key={`time_tag_${useTime.receivedAt}_${useTime.uniqueVehicleId}`}
+              key={`time_tag_${useTime.received_at}_${useTime.unique_vehicle_id}`}
               style={{
                 borderColor: didntStop ? "red" : isMatch ? "green" : "transparent",
                 color: isMatch ? "#444" : "#fff",

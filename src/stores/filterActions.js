@@ -13,7 +13,7 @@ const filterActions = (state) => {
     state.stop = get(stop, "nodeId", stop);
   });
 
-  // The uniqueVehicleId we're interested in.
+  // The unique_vehicle_id we're interested in.
   const setVehicle = action((vehicleId) => {
     state.vehicle = vehicleId || "";
   });

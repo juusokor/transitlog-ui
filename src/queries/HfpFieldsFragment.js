@@ -1,21 +1,21 @@
 import gql from "graphql-tag";
 
 const HfpFieldsFragment = gql`
-  fragment HfpFieldsFragment on Vehicle {
-    journeyStartTime
-    nextStopId
-    receivedAt
+  fragment HfpFieldsFragment on vehicle {
+    journey_start_time
+    next_stop_id
+    received_at
     lat
     long
-    uniqueVehicleId
+    unique_vehicle_id
     drst
     spd
     mode
     dl
     jrn
     oday
-    directionId
-    routeId
+    direction_id
+    route_id
     __typename
   }
 `;
