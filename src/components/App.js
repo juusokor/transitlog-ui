@@ -94,7 +94,7 @@ class App extends Component {
 
   render() {
     const {stopsBbox} = this.state;
-    const {loading, state, positions} = this.props;
+    const {loading, state, positions = []} = this.props;
     const {route, vehicle, stop, selectedJourney} = state;
 
     const journeyPosition = this.getJourneyPosition();
@@ -154,7 +154,7 @@ class App extends Component {
             </React.Fragment>
           )}
         </Map>
-        <LoadingOverlay show={loading} message="Ladataan HFP-tietoja..." />
+        {/*<LoadingOverlay show={loading} message="Ladataan HFP-tietoja..." />*/}
       </div>
     );
   }

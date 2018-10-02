@@ -10,6 +10,7 @@ export default (state) => {
     time: "12:30:00",
     playing: false,
     timeIncrement: 5,
+    marginMinutes: 5,
   });
 
   const actions = timeActions(state);
