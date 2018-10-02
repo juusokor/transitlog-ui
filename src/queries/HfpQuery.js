@@ -1,22 +1,26 @@
-import React, {Component} from "react";
 import {hfpClient} from "../api";
 import get from "lodash/get";
-import {Query} from "react-apollo";
-import PropTypes from "prop-types";
 import gql from "graphql-tag";
 import HfpFieldsFragment from "./HfpFieldsFragment";
-import withRoute from "../hoc/withRoute";
-import {observer, inject} from "mobx-react";
-import {app} from "mobx-app";
+import subHours from "date-fns/sub_hours";
+import addHours from "date-fns/add_hours";
+import format from "date-fns/format";
 
 export const hfpQuery = gql`
-  query hfpQuery($route_id: String, $direction: smallint, $date: date) {
+  query hfpQuery(
+    $route_id: String
+    $direction: smallint
+    $date: date
+    $time_min: time
+    $time_max: time
+  ) {
     vehicles(
       order_by: received_at_asc
       where: {
         route_id: {_eq: $route_id}
         direction_id: {_eq: $direction}
         oday: {_eq: $date}
+        journey_start_time: {_gte: $time_min, _lte: $time_max}
       }
     ) {
       ...HfpFieldsFragment
@@ -25,8 +29,12 @@ export const hfpQuery = gql`
   ${HfpFieldsFragment}
 `;
 
-export const fetchHfpQuery = ({route, date}) => {
+export const queryHfp = (route, date, time) => {
   const {routeId, direction} = route;
+
+  const queryDateTime = new Date(`${date}T${time}`);
+  const timeMin = subHours(queryDateTime, 1);
+  const timeMax = addHours(queryDateTime, 1);
 
   return hfpClient
     .query({
@@ -36,48 +44,9 @@ export const fetchHfpQuery = ({route, date}) => {
         route_id: routeId,
         direction: parseInt(direction, 10),
         date,
+        time_min: format(timeMin, "HH:mm:ss"),
+        time_max: format(timeMax, "HH:mm:ss"),
       },
     })
     .then(({data}) => get(data, "vehicles", []));
 };
-
-@inject(app("Filters"))
-@withRoute
-@observer
-class HfpQuery extends Component {
-  static propTypes = {
-    route: PropTypes.shape({
-      routeId: PropTypes.string,
-      direction: PropTypes.string,
-      dateBegin: PropTypes.string,
-      dateEnd: PropTypes.string,
-    }).isRequired,
-    stopId: PropTypes.string,
-    date: PropTypes.string,
-    children: PropTypes.func.isRequired,
-  };
-
-  render() {
-    const {route, children, date} = this.props;
-    const {routeId, direction} = route;
-
-    return (
-      <Query
-        client={hfpClient}
-        query={hfpQuery}
-        fetchPolicy="cache-first"
-        variables={{
-          route_id: routeId,
-          direction: parseInt(direction, 10),
-          date,
-        }}>
-        {({loading, error, data}) => {
-          let hfpPositions = get(data, "vehicles", []);
-          return children({hfpPositions, loading, error});
-        }}
-      </Query>
-    );
-  }
-}
-
-export default HfpQuery;
