@@ -22,7 +22,7 @@ function getCoarsePositionForTime(positions, time, cacheKey, tolerance = TOLERAN
   for (let posIdx = prevPosIdx; posIdx < positions.length; posIdx++) {
     const pos = positions[posIdx];
 
-    if (pos && Math.abs(diffDates(new Date(pos.receivedAt), time)) <= tolerance) {
+    if (pos && Math.abs(diffDates(new Date(pos.received_at), time)) <= tolerance) {
       followPosition = pos;
       prevPosition = {
         key: cacheKey,

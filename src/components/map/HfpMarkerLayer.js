@@ -65,11 +65,11 @@ ${position.drst ? `<span class="hfp-marker-drst" />` : ""}
         icon={markerIcon}
         pane="hfp-markers">
         <Tooltip>
-          {moment(position.receivedAt).format("HH:mm:ss")}
+          {moment(position.received_at).format("HH:mm:ss")}
           <br />
-          {position.uniqueVehicleId}
+          {position.unique_vehicle_id}
           <br />
-          Next stop: {position.nextStopId}
+          Next stop: {position.next_stop_id}
           <br />
           Speed: {Math.round((position.spd * 18) / 5)} km/h
           <br />

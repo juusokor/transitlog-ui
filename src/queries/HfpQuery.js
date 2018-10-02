@@ -10,14 +10,16 @@ import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 
 export const hfpQuery = gql`
-  query hfpQuery($routeId: String, $direction: Int, $date: Date) {
-    allVehicles(
-      orderBy: RECEIVED_AT_ASC
-      condition: {routeId: $routeId, directionId: $direction, oday: $date}
-    ) {
-      nodes {
-        ...HfpFieldsFragment
+  query hfpQuery($route_id: String, $direction: smallint, $date: date) {
+    vehicles(
+      order_by: received_at_asc
+      where: {
+        route_id: {_eq: $route_id}
+        direction_id: {_eq: $direction}
+        oday: {_eq: $date}
       }
+    ) {
+      ...HfpFieldsFragment
     }
   }
   ${HfpFieldsFragment}
@@ -31,12 +33,12 @@ export const fetchHfpQuery = ({route, date}) => {
       fetchPolicy: "cache-first",
       query: hfpQuery,
       variables: {
-        routeId,
+        route_id: routeId,
         direction: parseInt(direction, 10),
         date,
       },
     })
-    .then(({data}) => get(data, "allVehicles.nodes", []));
+    .then(({data}) => get(data, "vehicles", []));
 };
 
 @inject(app("Filters"))
@@ -65,12 +67,12 @@ class HfpQuery extends Component {
         query={hfpQuery}
         fetchPolicy="cache-first"
         variables={{
-          routeId,
+          route_id: routeId,
           direction: parseInt(direction, 10),
           date,
         }}>
         {({loading, error, data}) => {
-          let hfpPositions = get(data, "allVehicles.nodes", []);
+          let hfpPositions = get(data, "vehicles", []);
           return children({hfpPositions, loading, error});
         }}
       </Query>

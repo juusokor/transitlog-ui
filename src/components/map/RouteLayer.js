@@ -47,7 +47,7 @@ class RouteLayer extends Component {
     return map(positions, (journeyPositions) => {
       // Get the hfp positions we're interested in. Now we are working with
       // hfp data that happens before or at the requested stop.
-      const stopPos = filter(journeyPositions, (pos) => pos.nextStopId === stopId);
+      const stopPos = filter(journeyPositions, (pos) => pos.next_stop_id === stopId);
 
       if (stopPos.length === 0) {
         return [];
@@ -75,7 +75,7 @@ class RouteLayer extends Component {
 
       // Cut a slice of the hfp data for when the vehicle was at the stop.
       // If the doors were never opened, just return an array of length 1
-      // containing the moment before nextStopId was changed to the next stop.
+      // containing the moment before next_stop_id was changed to the next stop.
       const sliceStart =
         firstDoorOpenPos !== -1 ? firstDoorOpenPos : stopPos.length - 1;
 
@@ -86,7 +86,7 @@ class RouteLayer extends Component {
   getArriveDepartTimes = (stopJourneys) => {
     return stopJourneys.map((journeyPositions) => {
       // The last array element is when the vehicle left the stop, ie the
-      // moment before the nextStopId prop changed to the next stop.
+      // moment before the next_stop_id prop changed to the next stop.
       const departHfp = journeyPositions[journeyPositions.length - 1];
       const arriveHfp = journeyPositions[0];
 
@@ -109,13 +109,13 @@ class RouteLayer extends Component {
     );
 
     return map(
-      groupBy(selectedJourneyPositions, "uniqueVehicleId"),
-      (positions, uniqueVehicleId) => {
+      groupBy(selectedJourneyPositions, "unique_vehicle_id"),
+      (positions, unique_vehicle_id) => {
         // Get the hfp positions for when this vehicle was at this stop.
         const stopJourneys = this.getHfpStopPositions([positions], stop.stopId);
 
         const journeys = this.getArriveDepartTimes(stopJourneys);
-        return {vehicleId: uniqueVehicleId, journeys};
+        return {vehicleId: unique_vehicle_id, journeys};
       }
     );
   };
@@ -136,7 +136,7 @@ class RouteLayer extends Component {
     }
 
     const stopHfpGroups = positionsByVehicle.map(({vehicleId, positions}) => {
-      const vehicleJourneys = groupBy(positions, "journeyStartTime");
+      const vehicleJourneys = groupBy(positions, "journey_start_time");
       // Get the hfp positions for when this vehicle was at this stop.
       const stopJourneys = this.getHfpStopPositions(vehicleJourneys, stop.stopId);
       const journeys = this.getArriveDepartTimes(stopJourneys);

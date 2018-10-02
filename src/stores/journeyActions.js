@@ -7,7 +7,7 @@ import {pickJourneyProps} from "../helpers/pickJourneyProps";
 const history = createHistory();
 
 export function createJourneyPath(journey) {
-  const date = new Date(`${journey.oday}T${journey.journeyStartTime}`);
+  const date = new Date(`${journey.oday}T${journey.journey_start_time}`);
 
   const dateStr = `${date.getFullYear()}${doubleDigit(
     date.getMonth() + 1
@@ -15,7 +15,9 @@ export function createJourneyPath(journey) {
 
   const timeStr = `${doubleDigit(date.getHours())}${doubleDigit(date.getMinutes())}`;
 
-  return `/journey/${dateStr}/${timeStr}/${journey.routeId}/${journey.directionId}`;
+  return `/journey/${dateStr}/${timeStr}/${journey.route_id}/${
+    journey.direction_id
+  }`;
 }
 
 export default (state) => {

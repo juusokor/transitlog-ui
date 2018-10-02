@@ -80,8 +80,8 @@ class HfpLayer extends Component {
 
     if (hfpItem) {
       const line = event.target;
-      const tooltipContent = `${moment(hfpItem.receivedAt).format("HH:mm:ss")}<br />
-${hfpItem.uniqueVehicleId}<br />
+      const tooltipContent = `${moment(hfpItem.received_at).format("HH:mm:ss")}<br />
+${hfpItem.unique_vehicle_id}<br />
 Speed: ${Math.round((hfpItem.spd * 18) / 5)} km/h<br />
 Delay: ${hfpItem.dl} sek.`;
 
