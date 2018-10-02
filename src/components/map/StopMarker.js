@@ -47,14 +47,14 @@ class StopMarker extends React.Component {
     if ((firstTerminal || stop.timingStopType) && hfp.length === 1) {
       const stopDepartHfp = get(hfp, `[0].journeys[0].depart`, "");
 
-      const departedDate = parse(stopDepartHfp.receivedAt);
+      const departedDate = parse(stopDepartHfp.received_at);
 
       let delay = 0;
 
       // dl is not reliable at terminals
       if (firstTerminal) {
         const journeyStartDate = new Date(
-          `${state.date}T${stopDepartHfp.journeyStartTime}`
+          `${state.date}T${stopDepartHfp.journey_start_time}`
         );
         delay = diffDates(journeyStartDate, departedDate);
       } else {

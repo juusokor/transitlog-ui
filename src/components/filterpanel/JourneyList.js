@@ -36,8 +36,8 @@ class JourneyList extends Component {
     const journey = journeys.find((j) => getJourneyId(j) === selectedJourneyId);
 
     // Only set these if the journey is truthy and was not already selected
-    if (journey && journey.uniqueVehicleId !== vehicle) {
-      Filters.setVehicle(journey.uniqueVehicleId);
+    if (journey && journey.unique_vehicle_id !== vehicle) {
+      Filters.setVehicle(journey.unique_vehicle_id);
     }
   };
 
@@ -47,7 +47,7 @@ class JourneyList extends Component {
 
     // Only set these if the journey is truthy and was not already selected
     if (journey && getJourneyId(state.selectedJourney) !== getJourneyId(journey)) {
-      Time.setTime(journey.journeyStartTime);
+      Time.setTime(journey.journey_start_time);
     }
 
     Journey.setSelectedJourney(journey);
@@ -73,10 +73,10 @@ class JourneyList extends Component {
     for (let i = 1; i < journeyPositions.length; i++) {
       const current = journeyPositions[i];
 
-      // Loop through the positions and find when the nextStopId prop changes.
+      // Loop through the positions and find when the next_stop_id prop changes.
       // The hfp event BEFORE this is when the journey started, ie when
       // the vehicle departed the first terminal.
-      if (current && current.nextStopId !== journeyStartHfp.nextStopId) {
+      if (current && current.next_stop_id !== journeyStartHfp.next_stop_id) {
         journeyStartHfp = journeyPositions[i - 1];
         break;
       }
@@ -111,9 +111,9 @@ class JourneyList extends Component {
               className={`journey-list-row ${isSelected(journey) ? "selected" : ""}`}
               key={`journey_row_${getJourneyId(journey)}`}
               onClick={this.selectJourney(journey)}>
-              <strong className="start-time">{journey.journeyStartTime}</strong>
+              <strong className="start-time">{journey.journey_start_time}</strong>
               {journeyStartHfp && (
-                <span>{format(parse(journeyStartHfp.receivedAt), "HH:mm:ss")}</span>
+                <span>{format(parse(journeyStartHfp.received_at), "HH:mm:ss")}</span>
               )}
             </button>
           );

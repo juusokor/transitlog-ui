@@ -84,7 +84,7 @@ class App extends Component {
     const {Journey, Filters, state} = this.props;
 
     if (journey && getJourneyId(state.selectedJourney) !== getJourneyId(journey)) {
-      Filters.setVehicle(journey.uniqueVehicleId);
+      Filters.setVehicle(journey.unique_vehicle_id);
     } else {
       Filters.setVehicle("");
     }
@@ -127,7 +127,7 @@ class App extends Component {
                 positionsByJourney.map(({positions, journeyId}) => {
                   if (
                     vehicle &&
-                    get(positions, "[0].uniqueVehicleId", "") !== vehicle
+                    get(positions, "[0].unique_vehicle_id", "") !== vehicle
                   ) {
                     return null;
                   }

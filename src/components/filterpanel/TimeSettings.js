@@ -51,13 +51,13 @@ class TimeSettings extends Component {
             onChange={Time.setTime}
             min={
               selectedJourneyHfp.length !== 0
-                ? dateToSeconds(parse(get(selectedJourneyHfp, "[0].receivedAt", 0)))
+                ? dateToSeconds(parse(get(selectedJourneyHfp, "[0].received_at", 0)))
                 : undefined
             }
             max={
               selectedJourneyHfp.length !== 0
                 ? dateToSeconds(
-                    parse(get(last(selectedJourneyHfp), "receivedAt", 0))
+                    parse(get(last(selectedJourneyHfp), "received_at", 0))
                   )
                 : undefined
             }
