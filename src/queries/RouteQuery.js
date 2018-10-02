@@ -97,7 +97,7 @@ class RouteQuery extends Component {
             (segment) => ({...segment.stop, timingStopType: segment.timingStopType})
           );
 
-          return children({routePositions: positions, stops});
+          return children({routeGeometry: positions, stops});
         }}
       </Query>
     );

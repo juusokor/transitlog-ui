@@ -20,7 +20,7 @@ const formatData = (hfpData) => {
   return hfpData.filter((pos) => !!pos && !!pos.lat && !!pos.long);
 };
 
-const getGrouped = (hfpData, groupKey, groupNameKey) => {
+export const getGrouped = (hfpData, groupKey, groupNameKey) => {
   if (!hfpData || hfpData.length === 0) {
     return [];
   }
@@ -34,7 +34,6 @@ const getGrouped = (hfpData, groupKey, groupNameKey) => {
   return vehicleGroups;
 };
 
-const groupCache = {};
 let cachingInProgress = {};
 
 // Returns a mobxified promise that resolves to
@@ -65,8 +64,12 @@ const getCachePromise = (route, date) => {
       cachingPromise = fetchHfpQuery({route, date})
         // Format the data...
         .then((result) => formatData(result))
-        // Cache the data...
-        .then((formattedData) => cacheData(formattedData, route, date));
+        // ...group the data by journey
+        .then((formattedData) =>
+          getGrouped(formattedData, getJourneyId, "journeyId")
+        )
+        // ...and cache the data.
+        .then((journeyGroups) => cacheData(journeyGroups, route, date));
 
       // Without awaiting it, set the pending promise in the cachingInProgress object
       // so that other instances of this component can await it.
@@ -123,45 +126,8 @@ export default (Component) => {
       }
     }
 
-    getGroupedByVehicle = (positions, cacheKey) =>
-      this.groupCache("vehicles", cacheKey, () =>
-        getGrouped(positions, "unique_vehicle_id", "vehicleId")
-      );
-
-    getGroupedByJourney = (positions, cacheKey) =>
-      this.groupCache("journeys", cacheKey, () =>
-        getGrouped(positions, getJourneyId, "journeyId")
-      );
-
-    // This cache is separate from the hfp stuff above. It caches the computed
-    // hfp data groupings, by journey or by vehicle.
-    groupCache = (cacheKey, hfpCacheKey, cacheFunc) => {
-      if (!hfpCacheKey) {
-        return [];
-      }
-
-      const cachedGroup = get(groupCache, `${hfpCacheKey}.${cacheKey}`, []);
-
-      if (!cachedGroup || cachedGroup.length === 0) {
-        const dataToCache = cacheFunc();
-
-        if (dataToCache && dataToCache.length !== 0) {
-          set(groupCache, `${hfpCacheKey}.${cacheKey}`, dataToCache);
-        }
-
-        return dataToCache;
-      }
-
-      return cachedGroup;
-    };
-
     getComponent = (positions, cacheKey, loading) => (
-      <Component
-        {...this.props}
-        loading={loading}
-        positionsByVehicle={this.getGroupedByVehicle(positions, cacheKey)}
-        positionsByJourney={this.getGroupedByJourney(positions, cacheKey)}
-      />
+      <Component {...this.props} loading={loading} positions={positions} />
     );
 
     render() {
@@ -169,13 +135,12 @@ export default (Component) => {
 
       // Use the mobxified promise
       return this.cachePromise.case({
-        pending: () => this.getComponent([], false, true),
+        pending: () => this.getComponent([], true),
         rejected: (error) => {
           console.error(error);
-          return this.getComponent([], false, false);
+          return this.getComponent([], false);
         },
-        fulfilled: ({positions, cacheKey}) =>
-          this.getComponent(positions, cacheKey, false),
+        fulfilled: ({positions, cacheKey}) => this.getComponent(positions, false),
       });
     }
   }

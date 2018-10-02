@@ -6,11 +6,13 @@ import groupBy from "lodash/groupBy";
 import filter from "lodash/filter";
 import set from "lodash/set";
 import map from "lodash/map";
+import flatMap from "lodash/flatMap";
 import calculateBoundsFromPositions from "../../helpers/calculateBoundsFromPositions";
 import StopMarker from "./StopMarker";
 import {inject, observer} from "mobx-react";
 import {app} from "mobx-app";
 import getJourneyId from "../../helpers/getJourneyId";
+import {getGrouped} from "../../hoc/withHfpData";
 
 @inject(app("Time"))
 @observer
@@ -96,14 +98,14 @@ class RouteLayer extends Component {
 
   getStopTimesForJourney = (stop) => {
     const {
-      positionsByJourney,
+      positions,
       state: {selectedJourney},
     } = this.props;
 
     const selectedJourneyId = getJourneyId(selectedJourney);
 
     const selectedJourneyPositions = get(
-      positionsByJourney.find((j) => j.journeyId === selectedJourneyId),
+      positions.find((j) => j.journeyId === selectedJourneyId),
       "positions",
       []
     );
@@ -122,10 +124,9 @@ class RouteLayer extends Component {
 
   getAllStopTimes = (stop) => {
     const {
-      positionsByVehicle,
+      positions,
       state: {date},
     } = this.props;
-
     const cacheKey = `${date}.${stop.stopId}`;
 
     // Get existing times from the cache.
@@ -134,6 +135,14 @@ class RouteLayer extends Component {
     if (cachedHfp && cachedHfp.length > 0) {
       return cachedHfp;
     }
+
+    // Map the journey-groups back to a flat array of positions
+    // and re-group into vehicle groups.
+    const positionsByVehicle = getGrouped(
+      flatMap(positions, (group) => group.positions),
+      "unique_vehicle_id",
+      "vehicleId"
+    );
 
     const stopHfpGroups = positionsByVehicle.map(({vehicleId, positions}) => {
       const vehicleJourneys = groupBy(positions, "journey_start_time");
@@ -157,10 +166,10 @@ class RouteLayer extends Component {
   render() {
     const {showTime} = this.state;
 
-    const {state, routePositions, stops} = this.props;
+    const {state, routeGeometry, stops} = this.props;
     const {stop: selectedStop, selectedJourney} = state;
 
-    const coords = routePositions.map(([lon, lat]) => [lat, lon]);
+    const coords = routeGeometry.map(([lon, lat]) => [lat, lon]);
 
     return (
       <React.Fragment>

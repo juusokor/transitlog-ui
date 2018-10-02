@@ -20,6 +20,7 @@
     "mobx-react": "^5.2.3",
     "mobx-utils": "^5.0.1",
     "moment": "^2.22.2",
+    "p-map": "^2.0.0",
     "pako": "^1.0.6",
     "polished": "^1.9.3",
     "prop-types": "^15.6.1",

@@ -61,7 +61,7 @@ class App extends Component {
   getJourneyPosition = () => {
     const {
       state: {selectedJourney, date, time},
-      positionsByJourney,
+      positions,
     } = this.props;
 
     let journeyPosition = null;
@@ -70,7 +70,7 @@ class App extends Component {
       const journeyId = getJourneyId(selectedJourney);
       const timeDate = new Date(`${date}T${time}`);
 
-      const pos = getCoarsePositionForTime(positionsByJourney, journeyId, timeDate);
+      const pos = getCoarsePositionForTime(positions, journeyId, timeDate);
 
       if (pos) {
         journeyPosition = latLng([pos.lat, pos.long]);
@@ -94,7 +94,7 @@ class App extends Component {
 
   render() {
     const {stopsBbox} = this.state;
-    const {loading, state, positionsByVehicle, positionsByJourney} = this.props;
+    const {loading, state, positions} = this.props;
     const {route, vehicle, stop, selectedJourney} = state;
 
     const journeyPosition = this.getJourneyPosition();
@@ -110,21 +110,20 @@ class App extends Component {
               <RouteQuery
                 key={`route_query_${createRouteIdentifier(route)}`}
                 route={route}>
-                {({routePositions, stops}) =>
-                  routePositions.length !== 0 ? (
+                {({routeGeometry, stops}) =>
+                  routeGeometry.length !== 0 ? (
                     <RouteLayer
-                      routePositions={routePositions}
+                      routeGeometry={routeGeometry}
                       stops={stops}
                       setMapBounds={setMapBounds}
                       key={`route_line_${route.routeId}`}
-                      positionsByVehicle={positionsByVehicle}
-                      positionsByJourney={positionsByJourney}
+                      positions={positions}
                     />
                   ) : null
                 }
               </RouteQuery>
-              {positionsByJourney.length > 0 &&
-                positionsByJourney.map(({positions, journeyId}) => {
+              {positions.length > 0 &&
+                positions.map(({positions, journeyId}) => {
                   if (
                     vehicle &&
                     get(positions, "[0].unique_vehicle_id", "") !== vehicle
