@@ -10,14 +10,17 @@ import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 
 export const hfpQuery = gql`
-  query hfpQuery($route_id: String, $direction: Int, $date: Date) {
-    allVehicles(
-      orderBy: RECEIVED_AT_ASC
-      condition: {route_id: $route_id, direction_id: $direction, oday: $date}
-    ) {
-      nodes {
-        ...HfpFieldsFragment
+  query hfpQuery($route_id: String, $direction: smallint, $date: date) {
+    vehicles(
+      limit: 100
+      order_by: received_at_asc
+      where: {
+        route_id: {_eq: $route_id}
+        direction_id: {_eq: $direction}
+        oday: {_eq: $date}
       }
+    ) {
+      ...HfpFieldsFragment
     }
   }
   ${HfpFieldsFragment}

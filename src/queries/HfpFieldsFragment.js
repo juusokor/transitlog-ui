@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 
 const HfpFieldsFragment = gql`
-  fragment HfpFieldsFragment on vehicle {
+  fragment HfpFieldsFragment on vehicles {
     journey_start_time
     next_stop_id
     received_at
