@@ -10,6 +10,7 @@ import {fetchHfpQuery} from "../queries/HfpQuery";
 import withRoute from "./withRoute";
 import getJourneyId from "../helpers/getJourneyId";
 import {fromPromise} from "mobx-utils";
+import {groupHfpPositions} from "../helpers/groupHfpPositions";
 
 const formatData = (hfpData) => {
   if (hfpData.length === 0) {
@@ -18,20 +19,6 @@ const formatData = (hfpData) => {
 
   // Some HFP items are null for one reason or another. Filter those out.
   return hfpData.filter((pos) => !!pos && !!pos.lat && !!pos.long);
-};
-
-export const getGrouped = (hfpData, groupKey, groupNameKey) => {
-  if (!hfpData || hfpData.length === 0) {
-    return [];
-  }
-
-  const groupedData = groupBy(hfpData, groupKey);
-  const vehicleGroups = map(groupedData, (positions, groupName) => ({
-    [groupNameKey]: groupName,
-    positions,
-  }));
-
-  return vehicleGroups;
 };
 
 let cachingInProgress = {};
@@ -45,14 +32,13 @@ const getCachePromise = (route, date) => {
   const getData = async () => {
     // If cachekey is false then we don't have a route selection yet
     if (!cacheKey) {
-      return {positions: [], cacheKey};
+      return [];
     }
 
     // If we have cached data for this cache key, that's it, we're done.
     const cachedData = await getCachedData(cacheKey);
-
     if (cachedData && cachedData.length !== 0) {
-      return {positions: cachedData, cacheKey};
+      return cachedData;
     }
 
     // All fetching and caching promises are recorded in the cachingInProgress object.
@@ -66,7 +52,7 @@ const getCachePromise = (route, date) => {
         .then((result) => formatData(result))
         // ...group the data by journey
         .then((formattedData) =>
-          getGrouped(formattedData, getJourneyId, "journeyId")
+          groupHfpPositions(formattedData, getJourneyId, "journeyId")
         )
         // ...and cache the data.
         .then((journeyGroups) => cacheData(journeyGroups, route, date));
@@ -81,7 +67,7 @@ const getCachePromise = (route, date) => {
     // When done, clear the promise so that future fetches may take place.
     set(cachingInProgress, cacheKey, null);
 
-    return {positions: cachedResult, cacheKey};
+    return cachedResult;
   };
 
   // Mobxify the promise. This will give it an observable .value property and
@@ -89,11 +75,7 @@ const getCachePromise = (route, date) => {
   return fromPromise(getData());
 };
 
-const emptyCachePromise = () =>
-  fromPromise.resolve({
-    positions: [],
-    cacheKey: false,
-  });
+const emptyCachePromise = () => fromPromise.resolve([]);
 
 export default (Component) => {
   @inject(app("state"))
@@ -126,7 +108,7 @@ export default (Component) => {
       }
     }
 
-    getComponent = (positions, cacheKey, loading) => (
+    getComponent = (positions, loading) => (
       <Component {...this.props} loading={loading} positions={positions} />
     );
 
@@ -140,7 +122,7 @@ export default (Component) => {
           console.error(error);
           return this.getComponent([], false);
         },
-        fulfilled: ({positions, cacheKey}) => this.getComponent(positions, false),
+        fulfilled: (positions) => this.getComponent(positions, false),
       });
     }
   }

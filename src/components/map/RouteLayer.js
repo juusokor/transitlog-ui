@@ -12,7 +12,7 @@ import StopMarker from "./StopMarker";
 import {inject, observer} from "mobx-react";
 import {app} from "mobx-app";
 import getJourneyId from "../../helpers/getJourneyId";
-import {getGrouped} from "../../hoc/withHfpData";
+import {groupHfpPositions} from "../../helpers/groupHfpPositions";
 
 @inject(app("Time"))
 @observer
@@ -138,7 +138,7 @@ class RouteLayer extends Component {
 
     // Map the journey-groups back to a flat array of positions
     // and re-group into vehicle groups.
-    const positionsByVehicle = getGrouped(
+    const positionsByVehicle = groupHfpPositions(
       flatMap(positions, (group) => group.positions),
       "unique_vehicle_id",
       "vehicleId"
