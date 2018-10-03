@@ -36,7 +36,7 @@ export function canFetchHfp(route, date) {
 
 export async function cacheData(hfpData) {
   if (!hfpData || hfpData.length === 0) {
-    return;
+    return [];
   }
 
   for (const hfpItem of hfpData) {

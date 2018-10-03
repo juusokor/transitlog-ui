@@ -25,36 +25,26 @@ export default (Component) => {
   @observer
   class WithHfpData extends React.Component {
     currentFetchKey = false;
-    cachedPositions = {};
+    cachePromise = emptyCachePromise();
 
     async updateCachePromise() {
       const {
         route,
-        state: {date, time, marginMinutes},
+        state: {date, time},
       } = this.props;
 
-      const canFetch = canFetchHfp(route, date);
+      const fetchKey = createFetchKey(route, date, getTimeRange(date, time));
       let setPromise = emptyCachePromise();
-
-      let fetchKey = false;
 
       // If we have a valid cacheKey (ie there is a route selected), and the key is
       // currently not in use, update the cache promise to fetch the current route.
-      if (canFetch) {
-        fetchKey = createFetchKey(
-          route,
-          date,
-          getTimeRange(date, time, marginMinutes)
-        );
-
-        if (fetchKey && fetchKey !== this.currentFetchKey) {
-          setPromise = getCachePromise(route, date, time, marginMinutes);
-        }
+      if (fetchKey && fetchKey !== this.currentFetchKey) {
+        setPromise = getCachePromise(route, date, time);
       }
 
       // Always update the promise if the current cache key doesn't match the new one.
       // This allows for empty cache promises to be set, even if the above condition doesn't run.
-      if (!canFetch || fetchKey !== this.currentFetchKey) {
+      if (fetchKey !== this.currentFetchKey) {
         this.currentFetchKey = fetchKey;
         this.cachePromise = setPromise;
       }

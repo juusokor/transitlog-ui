@@ -4,8 +4,10 @@ import {
   canFetchHfp,
   createFetchKey,
 } from "../helpers/hfpCache";
-import get from "lodash/get";
-import set from "lodash/set";
+import pick from "lodash/pick";
+import flatten from "lodash/flatten";
+import uniqBy from "lodash/uniqBy";
+import orderBy from "lodash/orderBy";
 import {queryHfp} from "../queries/HfpQuery";
 import getJourneyId from "../helpers/getJourneyId";
 import {groupHfpPositions} from "../helpers/groupHfpPositions";
@@ -16,7 +18,7 @@ import setSeconds from "date-fns/set_seconds";
 import isWithinRange from "date-fns/is_within_range";
 import {roundTime} from "./roundTime";
 
-let cachingInProgress = {};
+let promiseCache = new Map();
 
 const queryRange = 15;
 
@@ -83,50 +85,87 @@ export async function getCachedJourneyIds(route, date, timeRange) {
   }, []);
 }
 
-export async function fetchHfp(route, date, time) {
-  const canFetch = canFetchHfp(route, date);
+function getCachePromisesForDate(route, date) {
+  const allPromiseKeys = Array.from(promiseCache.keys());
 
-  // If cacheKey is false then we don't have a route selection yet
-  if (!canFetch) {
+  if (allPromiseKeys.length === 0) {
     return [];
   }
 
-  const timeRange = getTimeRange(date, time);
-  const cachedJourneyIds = await getCachedJourneyIds(route, date, timeRange);
+  const {routeId, direction} = route;
 
-  // If we have cached data for this cache key, that's it, we're done.
-  if (cachedJourneyIds.length !== 0) {
-    const cachedData = await getCachedData(cachedJourneyIds);
-    return cachedData;
+  const promiseKeys = allPromiseKeys.filter((key) => {
+    const keyParts = key.split("_");
+
+    return (
+      keyParts[0] === routeId && keyParts[1] === direction && keyParts[4] === date
+    );
+  });
+
+  if (promiseKeys.length === 0) {
+    return [];
   }
 
+  const pickedPromises = [];
+
+  for (const promiseKey of promiseKeys) {
+    pickedPromises.push(promiseCache.get(promiseKey));
+  }
+
+  return pickedPromises;
+}
+
+export async function fetchHfp(route, date, time) {
+  const timeRange = getTimeRange(date, time);
   const fetchKey = createFetchKey(route, date, timeRange);
+
+  // If fetchKey is false then we don't have all required data yet
+  if (!fetchKey) {
+    return [];
+  }
 
   // All fetching and caching promises are recorded in the cachingInProgress object.
   // Look for a fetch-in-progress by the cache key.
-  let cachingPromise = get(cachingInProgress, fetchKey, null);
+  let cachingPromise = promiseCache.get(fetchKey);
 
   if (!cachingPromise) {
     // Start a new fetch if one isn't already in progress
-    cachingPromise = queryHfp(route, date, timeRange)
-      // Format the data...
-      .then((result) => result.filter((pos) => !!pos && !!pos.lat && !!pos.long))
-      // ...group the data by journey
-      .then((formattedData) =>
-        groupHfpPositions(formattedData, getJourneyId, "journeyId")
-      )
-      // ...and cache the data.
-      .then((journeyGroups) => cacheData(journeyGroups, route, date));
+    const cachingPromise = getCachedJourneyIds(route, date, timeRange).then(
+      (cachedJourneyIds) => {
+        if (cachedJourneyIds.length !== 0) {
+          return getCachedData(cachedJourneyIds);
+        }
+
+        return (
+          queryHfp(route, date, timeRange) // Format the data...
+            .then((result) =>
+              result.filter((pos) => !!pos && !!pos.lat && !!pos.long)
+            )
+            // ...group the data by journey
+            .then((formattedData) =>
+              groupHfpPositions(formattedData, getJourneyId, "journeyId")
+            )
+            // ...and cache the data.
+            .then((journeyGroups) => cacheData(journeyGroups, route, date))
+        );
+      }
+    );
 
     // Without awaiting it, set the pending promise in the cachingInProgress object
     // so that other instances of this component can await it.
-    set(cachingInProgress, fetchKey, cachingPromise);
+    promiseCache.set(fetchKey, cachingPromise);
   }
 
-  // Await the caching promise we got
-  const cachedResult = await cachingPromise;
-  // When done, clear the promise so that future fetches may take place.
-  set(cachingInProgress, fetchKey, null);
+  // Await the caching promise we got, as well as all the other ones for this date.
+  const cachePromisesForDate = getCachePromisesForDate(route, date);
+  const allItemsForDate = await Promise.all(cachePromisesForDate);
 
-  return cachedResult;
+  if (allItemsForDate.length === 0) {
+    return [];
+  }
+
+  return orderBy(uniqBy(flatten(allItemsForDate), "journeyId"), ({journeyId}) => {
+    const keyParts = journeyId.slice(8).split("_");
+    return keyParts[1];
+  });
 }
