@@ -1,37 +1,38 @@
 import localforage from "localforage";
 import get from "lodash/get";
+import compact from "lodash/compact";
 import format from "date-fns/format";
 import isValid from "date-fns/is_valid";
 
-export function createFetchKey(route, date, timeRange) {
+export function createFetchKey(route, date, timeRange, allowPartial = false) {
+  const range =
+    timeRange && isValid(timeRange.min) && isValid(timeRange.max)
+      ? `${format(timeRange.min, "HH:mm")}_${format(timeRange.max, "HH:mm")}`
+      : "";
+
+  const keyParts = [date, createRouteKey(route), range];
+
+  if (!allowPartial && keyParts.some((p) => !p)) {
+    return "";
+  }
+
+  return compact(keyParts).join(".");
+}
+
+export function createRouteKey(route) {
   const keyParts = [
-    route.routeId,
-    route.direction,
-    route.dateBegin,
-    route.dateEnd,
-    date,
-    isValid(timeRange.min) ? format(timeRange.min, "HH:mm") : "",
-    isValid(timeRange.max) ? format(timeRange.max, "HH:mm") : "",
+    get(route, "routeId", ""),
+    get(route, "direction", ""),
+    get(route, "dateBegin", ""),
+    get(route, "dateEnd", ""),
   ];
 
   if (keyParts.some((p) => !p)) {
     return "";
   }
 
-  return keyParts.join("_");
-}
-
-export function canFetchHfp(route, date) {
-  if (
-    !get(route, "routeId", "") ||
-    !get(route, "direction", "") ||
-    !get(route, "dateBegin", "") ||
-    !date
-  ) {
-    return false;
-  }
-
-  return true;
+  // Join into string and ensure no dots
+  return keyParts.join("_").replace(".", "-");
 }
 
 export async function cacheData(hfpData) {

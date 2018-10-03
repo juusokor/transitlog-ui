@@ -1,13 +1,11 @@
-import {
-  getCachedData,
-  cacheData,
-  canFetchHfp,
-  createFetchKey,
-} from "../helpers/hfpCache";
+import {getCachedData, cacheData, createFetchKey} from "../helpers/hfpCache";
 import pick from "lodash/pick";
+import get from "lodash/get";
+import set from "lodash/set";
 import flatten from "lodash/flatten";
 import uniqBy from "lodash/uniqBy";
 import orderBy from "lodash/orderBy";
+import compact from "lodash/compact";
 import {queryHfp} from "../queries/HfpQuery";
 import getJourneyId from "../helpers/getJourneyId";
 import {groupHfpPositions} from "../helpers/groupHfpPositions";
@@ -18,7 +16,7 @@ import setSeconds from "date-fns/set_seconds";
 import isWithinRange from "date-fns/is_within_range";
 import {roundTime} from "./roundTime";
 
-let promiseCache = new Map();
+let promiseCache = {};
 
 const queryRange = 15;
 
@@ -34,12 +32,6 @@ export function getTimeRange(date, time) {
 }
 
 export async function getCachedJourneyIds(route, date, timeRange) {
-  const canFetch = canFetchHfp(route, date);
-
-  if (!canFetch) {
-    return false;
-  }
-
   let cachedKeys = null;
 
   try {
@@ -86,21 +78,10 @@ export async function getCachedJourneyIds(route, date, timeRange) {
 }
 
 function getCachePromisesForDate(route, date) {
-  const allPromiseKeys = Array.from(promiseCache.keys());
+  console.log(promiseCache);
 
-  if (allPromiseKeys.length === 0) {
-    return [];
-  }
-
-  const {routeId, direction} = route;
-
-  const promiseKeys = allPromiseKeys.filter((key) => {
-    const keyParts = key.split("_");
-
-    return (
-      keyParts[0] === routeId && keyParts[1] === direction && keyParts[4] === date
-    );
-  });
+  const cacheSlice = get(promiseCache, createFetchKey(route, date, false, true), {});
+  const promiseKeys = Object.keys(cacheSlice);
 
   if (promiseKeys.length === 0) {
     return [];
@@ -109,10 +90,10 @@ function getCachePromisesForDate(route, date) {
   const pickedPromises = [];
 
   for (const promiseKey of promiseKeys) {
-    pickedPromises.push(promiseCache.get(promiseKey));
+    pickedPromises.push(get(cacheSlice, promiseKey));
   }
 
-  return pickedPromises;
+  return compact(pickedPromises);
 }
 
 export async function fetchHfp(route, date, time) {
@@ -126,7 +107,7 @@ export async function fetchHfp(route, date, time) {
 
   // All fetching and caching promises are recorded in the cachingInProgress object.
   // Look for a fetch-in-progress by the cache key.
-  let cachingPromise = promiseCache.get(fetchKey);
+  let cachingPromise = get(promiseCache, fetchKey);
 
   if (!cachingPromise) {
     // Start a new fetch if one isn't already in progress
@@ -153,7 +134,7 @@ export async function fetchHfp(route, date, time) {
 
     // Without awaiting it, set the pending promise in the cachingInProgress object
     // so that other instances of this component can await it.
-    promiseCache.set(fetchKey, cachingPromise);
+    set(promiseCache, fetchKey, cachingPromise);
   }
 
   // Await the caching promise we got, as well as all the other ones for this date.

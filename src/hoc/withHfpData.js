@@ -1,7 +1,7 @@
 import {inject, observer} from "mobx-react";
 import {app} from "mobx-app";
 import React from "react";
-import {canFetchHfp, createFetchKey} from "../helpers/hfpCache";
+import {createFetchKey} from "../helpers/hfpCache";
 import {fromPromise} from "mobx-utils";
 import withRoute from "./withRoute";
 import {fetchHfp, getTimeRange} from "../helpers/hfpQueryManager";
