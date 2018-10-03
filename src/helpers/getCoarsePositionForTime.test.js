@@ -11,7 +11,7 @@ function createPositions() {
   // Represent a full minute with 5 seconds intervals
   while (positions.length < 13) {
     positions.push({
-      receivedAt: positionDate.toISOString(),
+      received_at: positionDate.toISOString(),
     });
 
     positionDate = addSeconds(positionDate, 5);
@@ -32,7 +32,7 @@ describe("getCoarsePositionForTime", () => {
 
     // With a tolerance of 15, 11:30:15 should be returned as close enough.
     const expected = addSeconds(START_DATE, 15).toISOString();
-    expect(foundPosition.receivedAt).toBe(expected);
+    expect(foundPosition.received_at).toBe(expected);
   });
 
   test("Returns null if no position is found within the tolerance.", () => {

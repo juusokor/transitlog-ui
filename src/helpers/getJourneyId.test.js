@@ -1,13 +1,13 @@
 import getJourneyId from "./getJourneyId";
 
-const journey = {
-  oday: "date",
-  journeyStartTime: "starttime",
-  routeId: "routeid",
-  directionId: "direction",
-};
-
 describe("getJourneyId", () => {
+  const journey = {
+    oday: "date",
+    journey_start_time: "starttime",
+    route_id: "routeid",
+    direction_id: "direction",
+  };
+
   test("Returns a string that uniquely identifies the journey.", () => {
     const journeyId = getJourneyId(journey);
     expect(journeyId).toBe("journey:date_starttime_routeid_direction");

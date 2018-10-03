@@ -1,30 +1,30 @@
 import {getLineChunksByDelay} from "./HfpLayer";
 import getJourneyId from "../../helpers/getJourneyId";
 
-const defaultPosition = {
-  oday: "date",
-  journeyStartTime: "starttime",
-  routeId: "routeid",
-  directionId: "direction",
-  dl: 0,
-};
+describe("HfpLayer", () => {
+  const defaultPosition = {
+    oday: "date",
+    journey_start_time: "starttime",
+    route_id: "routeid",
+    direction_id: "direction",
+    dl: 0,
+  };
 
-function createPositions() {
-  const positions = [];
+  function createPositions() {
+    const positions = [];
 
-  while (positions.length < 10) {
-    const i = positions.length;
+    while (positions.length < 10) {
+      const i = positions.length;
 
-    positions.push({
-      ...defaultPosition,
-      dl: i > 6 ? 40 : i > 3 ? 0 : -300, // Create three chunks
-    });
+      positions.push({
+        ...defaultPosition,
+        dl: i > 6 ? 40 : i > 3 ? 0 : -300, // Create three chunks
+      });
+    }
+
+    return positions;
   }
 
-  return positions;
-}
-
-describe("HfpLayer", () => {
   test("Cut the hfp positions array into chunks by delayType", () => {
     const positions = createPositions();
     // The function matches the journey to a journeyId

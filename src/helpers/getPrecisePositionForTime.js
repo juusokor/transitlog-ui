@@ -17,7 +17,7 @@ export function getPrecisePositionForTime(
     let prevDifference = maxDifference;
 
     if (nextHfpPosition) {
-      const nextHfpDate = new Date(nextHfpPosition.receivedAt);
+      const nextHfpDate = new Date(nextHfpPosition.received_at);
       const diff = Math.abs(diffDates(time, nextHfpDate));
       prevDifference = diff < prevDifference ? diff : prevDifference;
 
@@ -29,7 +29,7 @@ export function getPrecisePositionForTime(
       }
     }
 
-    const difference = Math.abs(diffDates(time, new Date(position.receivedAt)));
+    const difference = Math.abs(diffDates(time, new Date(position.received_at)));
 
     if (difference < prevDifference) {
       nextHfpPosition = position;
