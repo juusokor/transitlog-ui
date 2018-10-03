@@ -25,7 +25,7 @@ export default (Component) => {
   @observer
   class WithHfpData extends React.Component {
     currentFetchKey = false;
-    cachePromise = emptyCachePromise();
+    cachedPositions = {};
 
     async updateCachePromise() {
       const {

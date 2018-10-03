@@ -61,7 +61,7 @@ class App extends Component {
   getJourneyPosition = () => {
     const {
       state: {selectedJourney, date, time},
-      positions,
+      positions = [],
     } = this.props;
 
     let journeyPosition = null;
@@ -94,7 +94,7 @@ class App extends Component {
 
   render() {
     const {stopsBbox} = this.state;
-    const {loading, state, positions = []} = this.props;
+    const {state, positions = []} = this.props;
     const {route, vehicle, stop, selectedJourney} = state;
 
     const journeyPosition = this.getJourneyPosition();

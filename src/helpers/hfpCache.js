@@ -1,12 +1,24 @@
 import localforage from "localforage";
 import get from "lodash/get";
 import format from "date-fns/format";
+import isValid from "date-fns/is_valid";
 
 export function createFetchKey(route, date, timeRange) {
-  return `${route.routeId}_${date}_${format(timeRange.min, "HH:mm:ss")}_${format(
-    timeRange.max,
-    "HH:mm:ss"
-  )}`;
+  const keyParts = [
+    route.routeId,
+    route.direction,
+    route.dateBegin,
+    route.dateEnd,
+    date,
+    isValid(timeRange.min) ? format(timeRange.min, "HH:mm") : "",
+    isValid(timeRange.max) ? format(timeRange.max, "HH:mm") : "",
+  ];
+
+  if (keyParts.some((p) => !p)) {
+    return "";
+  }
+
+  return keyParts.join("_");
 }
 
 export function canFetchHfp(route, date) {

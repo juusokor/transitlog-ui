@@ -14,15 +14,19 @@ import subMinutes from "date-fns/sub_minutes";
 import addMinutes from "date-fns/add_minutes";
 import setSeconds from "date-fns/set_seconds";
 import isWithinRange from "date-fns/is_within_range";
+import {roundTime} from "./roundTime";
 
 let cachingInProgress = {};
 
-export function getTimeRange(date, time, marginMinutes = 5) {
-  const margin = Math.min(Math.max(5, marginMinutes), 60);
+const queryRange = 15;
 
+export function getTimeRange(date, time) {
   const queryDateTime = setSeconds(new Date(`${date}T${time}`), 0);
-  const min = subMinutes(queryDateTime, margin);
-  const max = addMinutes(queryDateTime, margin);
+  let min = subMinutes(queryDateTime, queryRange / 2);
+  let max = addMinutes(queryDateTime, queryRange / 2);
+
+  min = roundTime(min, true);
+  max = roundTime(max);
 
   return {max, min};
 }
@@ -79,7 +83,7 @@ export async function getCachedJourneyIds(route, date, timeRange) {
   }, []);
 }
 
-export async function fetchHfp(route, date, time, marginMinutes) {
+export async function fetchHfp(route, date, time) {
   const canFetch = canFetchHfp(route, date);
 
   // If cacheKey is false then we don't have a route selection yet
@@ -87,7 +91,7 @@ export async function fetchHfp(route, date, time, marginMinutes) {
     return [];
   }
 
-  const timeRange = getTimeRange(date, time, marginMinutes);
+  const timeRange = getTimeRange(date, time);
   const cachedJourneyIds = await getCachedJourneyIds(route, date, timeRange);
 
   // If we have cached data for this cache key, that's it, we're done.
