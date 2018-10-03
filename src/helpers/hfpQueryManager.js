@@ -78,8 +78,6 @@ export async function getCachedJourneyIds(route, date, timeRange) {
 }
 
 function getCachePromisesForDate(route, date) {
-  console.log(promiseCache);
-
   const cacheSlice = get(promiseCache, createFetchKey(route, date, false, true), {});
   const promiseKeys = Object.keys(cacheSlice);
 

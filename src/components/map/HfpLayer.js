@@ -9,50 +9,47 @@ import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import getJourneyId from "../../helpers/getJourneyId";
 
+export function getLineChunksByDelay(positions, journeyId) {
+  // Get only the positions from the same journey and create latLng items for Leaflet.
+  // Additional data can be passed as the third array element which Leaflet won't touch.
+  return positions
+    .filter((pos) => getJourneyId(pos) === journeyId)
+    .reduce((allChunks, position) => {
+      const positionDelay = get(position, "dl", 0);
+      const delayType = getDelayType(positionDelay); // "early", "late" or "on-time"
+
+      // If this is the first position, allChunks will be empty.
+      // Add it as a new chunk to kick things off.
+      if (allChunks.length === 0) {
+        allChunks.push({delayType, positions: [position]});
+        return allChunks;
+      }
+
+      // Check the previous chunk to determine if we want to push
+      // `position` onto the previous chunk or start a new chunk for it.
+      const previousChunk = last(allChunks);
+      const previousDelayType = get(previousChunk, "delayType", "on-time");
+
+      // If the delay types are the same, add the position to the last chunk.
+      if (delayType === previousDelayType) {
+        previousChunk.positions.push(position);
+      } else {
+        // Otherwise start a new chunk. Include the last element from the
+        // previous chunk to eliminate gaps in the line.
+        allChunks.push({
+          delayType,
+          positions: [last(previousChunk.positions), position],
+        });
+      }
+
+      return allChunks;
+    }, []);
+}
+
 @inject(app("state"))
 @observer
 class HfpLayer extends Component {
   mouseOver = false;
-
-  getLine() {
-    const {selectedJourney, positions} = this.props;
-    const journeyId = getJourneyId(selectedJourney);
-
-    // Get only the positions from the same journey and create latLng items for Leaflet.
-    // Additional data can be passed as the third array element which Leaflet won't touch.
-    return positions
-      .filter((pos) => getJourneyId(pos) === journeyId)
-      .reduce((allChunks, position) => {
-        const positionDelay = get(position, "dl", 0);
-        const delayType = getDelayType(positionDelay); // "early", "late" or "on-time"
-
-        // If this is the first position, allChunks will be empty.
-        // Add it as a new chunk to kick things off.
-        if (allChunks.length === 0) {
-          allChunks.push({delayType, positions: [position]});
-          return allChunks;
-        }
-
-        // Check the previous chunk to determine if we want to push
-        // `position` onto the previous chunk or start a new chunk for it.
-        const previousChunk = last(allChunks);
-        const previousDelayType = get(previousChunk, "delayType", "on-time");
-
-        // If the delay types are the same, add the position to the last chunk.
-        if (delayType === previousDelayType) {
-          previousChunk.positions.push(position);
-        } else {
-          // Otherwise start a new chunk. Include the last element from the
-          // previous chunk to eliminate gaps in the line.
-          allChunks.push({
-            delayType,
-            positions: [last(previousChunk.positions), position],
-          });
-        }
-
-        return allChunks;
-      }, []);
-  }
 
   findHfpItem = (chunk = [], latlng) => {
     const hfpItem = get(chunk, "positions", []).find((hfp) =>
@@ -99,8 +96,11 @@ Delay: ${hfpItem.dl} sek.`;
   };
 
   render() {
-    const {name} = this.props;
-    const positions = this.getLine();
+    const {name, selectedJourney, positions: hfpPositions} = this.props;
+    const positions = getLineChunksByDelay(
+      hfpPositions,
+      getJourneyId(selectedJourney)
+    );
 
     return (
       <React.Fragment>
