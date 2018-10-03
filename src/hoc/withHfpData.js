@@ -1,4 +1,5 @@
 import {inject, observer} from "mobx-react";
+import {observable, runInAction} from "mobx";
 import {app} from "mobx-app";
 import React from "react";
 import {createFetchKey} from "../helpers/hfpCache";
@@ -27,7 +28,7 @@ export default (Component) => {
     currentFetchKey = false;
     cachePromise = emptyCachePromise();
 
-    async updateCachePromise() {
+    updateCachePromise = () => {
       const {
         route,
         state: {date, time},
@@ -45,10 +46,12 @@ export default (Component) => {
       // Always update the promise if the current cache key doesn't match the new one.
       // This allows for empty cache promises to be set, even if the above condition doesn't run.
       if (fetchKey !== this.currentFetchKey) {
-        this.currentFetchKey = fetchKey;
-        this.cachePromise = setPromise;
+        runInAction(() => {
+          this.currentFetchKey = fetchKey;
+          this.cachePromise = setPromise;
+        });
       }
-    }
+    };
 
     getComponent = (positions, loading) => (
       <Component {...this.props} loading={loading} positions={positions} />

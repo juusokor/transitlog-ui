@@ -1,7 +1,6 @@
 import React, {Component} from "react";
 import get from "lodash/get";
 import FilterPanel from "./filterpanel/FilterPanel";
-import LoadingOverlay from "./LoadingOverlay";
 import "./App.css";
 import "./Form.css";
 import withHfpData from "../hoc/withHfpData";
