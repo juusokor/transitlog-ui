@@ -116,7 +116,7 @@ export default (Component) => {
       }
 
       // Always update the promise if the current cache key doesn't match the new one.
-      // This allows for empty cache promises to be set, even if the above if doesn't run.
+      // This allows for empty cache promises to be set, even if the above conditional doesn't run.
       if (cacheKey !== this.currentCacheKey) {
         this.currentCacheKey = cacheKey;
         this.cachePromise = setPromise;
@@ -166,7 +166,6 @@ export default (Component) => {
 
     render() {
       this.updateCachePromise();
-
       // Use the mobxified promise
       return this.cachePromise.case({
         pending: () => this.getComponent([], false, true),

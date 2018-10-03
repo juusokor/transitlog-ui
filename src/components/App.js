@@ -70,7 +70,13 @@ class App extends Component {
       const journeyId = getJourneyId(selectedJourney);
       const timeDate = new Date(`${date}T${time}`);
 
-      const pos = getCoarsePositionForTime(positionsByJourney, journeyId, timeDate);
+      const positions = get(
+        positionsByJourney.find((j) => j.journeyId === journeyId),
+        "positions",
+        []
+      );
+
+      const pos = getCoarsePositionForTime(positions, timeDate, journeyId);
 
       if (pos) {
         journeyPosition = latLng([pos.lat, pos.long]);
