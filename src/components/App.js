@@ -99,15 +99,13 @@ class App extends Component {
 
   render() {
     const {stopsBbox} = this.state;
-    const {state, positions = []} = this.props;
+    const {state, positions = [], loading} = this.props;
     const {route, vehicle, stop, selectedJourney} = state;
-
-    const journeyPosition = this.getJourneyPosition();
 
     return (
       <div className="transitlog">
-        <FilterPanel />
-        <Map onMapChanged={this.onMapChanged} center={journeyPosition}>
+        <FilterPanel loading={loading} />
+        <Map onMapChanged={this.onMapChanged}>
           {({lat, lng, zoom, setMapBounds}) => (
             <React.Fragment>
               {!route.routeId &&
@@ -159,7 +157,6 @@ class App extends Component {
             </React.Fragment>
           )}
         </Map>
-        {/*<LoadingOverlay show={loading} message="Ladataan HFP-tietoja..." />*/}
       </div>
     );
   }
