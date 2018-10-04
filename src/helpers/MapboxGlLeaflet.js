@@ -5,7 +5,6 @@ const MapboxLeaflet = L.Layer.extend({
   options: {},
 
   initialize(options) {
-    // @ts-ignore
     L.setOptions(this, options);
 
     if (options.accessToken) {
@@ -107,7 +106,6 @@ const MapboxLeaflet = L.Layer.extend({
   _initGL() {
     const center = this._map.getCenter();
 
-    // @ts-ignore
     const options = L.extend({}, this.options, {
       container: this._glContainer,
       interactive: false,
@@ -211,32 +209,29 @@ const MapboxLeaflet = L.Layer.extend({
 
   _transitionEnd(e) {
     L.Util.requestAnimFrame(function() {
-      // @ts-ignore
+      // The map might be dismounted
+      if (!this._map) {
+        return;
+      }
+
       const zoom = this._map.getZoom(),
-        // @ts-ignore
         center = this._map.getCenter(),
-        // @ts-ignore
         offset = this._map.latLngToContainerPoint(
           this._map.getBounds().getNorthWest()
         );
 
       // reset the scale and offset
-      // @ts-ignore
       L.DomUtil.setTransform(this._glMap._actualCanvas, offset, 1);
 
       // enable panning once the gl map is ready again
-      // @ts-ignore
       this._glMap.once(
         "moveend",
         L.Util.bind(function() {
-          // @ts-ignore
           this._zoomEnd();
-          // @ts-ignore
         }, this)
       );
 
       // update the map position
-      // @ts-ignore
       this._glMap.jumpTo({
         center,
         zoom: zoom - 1,
@@ -246,6 +241,5 @@ const MapboxLeaflet = L.Layer.extend({
 });
 
 export default function(options) {
-  // @ts-ignore
   return new MapboxLeaflet(options);
 }

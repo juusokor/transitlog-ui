@@ -117,8 +117,6 @@ class MapillaryLayer extends MapLayer {
   }
 
   onHover = (leafletMap, glMap) => (e) => {
-    console.log("mousemove");
-
     if (!glMap || !glMap.loaded()) {
       return;
     }
