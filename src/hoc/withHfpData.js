@@ -1,7 +1,7 @@
 import {inject, observer} from "mobx-react";
-import {observable, runInAction} from "mobx";
 import {app} from "mobx-app";
 import React from "react";
+import get from "lodash/get";
 import {createFetchKey} from "../helpers/hfpCache";
 import {fromPromise} from "mobx-utils";
 import withRoute from "./withRoute";
@@ -31,25 +31,29 @@ export default (Component) => {
     updateCachePromise = () => {
       const {
         route,
-        state: {date, time},
+        state: {date, time, selectedJourney},
       } = this.props;
 
-      const fetchKey = createFetchKey(route, date, getTimeRange(date, time));
-      let setPromise = emptyCachePromise();
+      const useTime = get(selectedJourney, "journey_start_time", time);
+
+      const timeRange = getTimeRange(date, useTime);
+      const fetchKey = createFetchKey(route, date, timeRange);
+      let setPromise;
 
       // If we have a valid cacheKey (ie there is a route selected), and the key is
       // currently not in use, update the cache promise to fetch the current route.
       if (fetchKey && fetchKey !== this.currentFetchKey) {
-        setPromise = getCachePromise(route, date, time);
+        setPromise = getCachePromise(route, date, timeRange);
+      } else if (fetchKey !== this.currentFetchKey) {
+        setPromise = emptyCachePromise();
       }
 
       // Always update the promise if the current cache key doesn't match the new one.
       // This allows for empty cache promises to be set, even if the above condition doesn't run.
+      // This is needed to update the view when the route changes or filters reset.
       if (fetchKey !== this.currentFetchKey) {
-        runInAction(() => {
-          this.currentFetchKey = fetchKey;
-          this.cachePromise = setPromise;
-        });
+        this.currentFetchKey = fetchKey;
+        this.cachePromise = setPromise;
       }
     };
 

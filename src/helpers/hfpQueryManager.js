@@ -1,5 +1,4 @@
 import {getCachedData, cacheData, createFetchKey} from "../helpers/hfpCache";
-import pick from "lodash/pick";
 import get from "lodash/get";
 import set from "lodash/set";
 import flatten from "lodash/flatten";
@@ -94,8 +93,7 @@ function getCachePromisesForDate(route, date) {
   return compact(pickedPromises);
 }
 
-export async function fetchHfp(route, date, time) {
-  const timeRange = getTimeRange(date, time);
+export async function fetchHfp(route, date, timeRange) {
   const fetchKey = createFetchKey(route, date, timeRange);
 
   // If fetchKey is false then we don't have all required data yet
@@ -103,36 +101,38 @@ export async function fetchHfp(route, date, time) {
     return [];
   }
 
-  // All fetching and caching promises are recorded in the cachingInProgress object.
-  // Look for a fetch-in-progress by the cache key.
   let cachingPromise = get(promiseCache, fetchKey);
 
   if (!cachingPromise) {
-    // Start a new fetch if one isn't already in progress
-    const cachingPromise = getCachedJourneyIds(route, date, timeRange).then(
-      (cachedJourneyIds) => {
-        if (cachedJourneyIds.length !== 0) {
-          return getCachedData(cachedJourneyIds);
+    try {
+      // Start a new fetch if one isn't already in progress
+      cachingPromise = getCachedJourneyIds(route, date, timeRange).then(
+        (cachedJourneyIds) => {
+          if (cachedJourneyIds.length !== 0) {
+            return getCachedData(cachedJourneyIds);
+          }
+
+          return (
+            queryHfp(route, date, timeRange) // Format the data...
+              .then((result) =>
+                result.filter((pos) => !!pos && !!pos.lat && !!pos.long)
+              )
+              // ...group the data by journey
+              .then((formattedData) =>
+                groupHfpPositions(formattedData, getJourneyId, "journeyId")
+              )
+              // ...and cache the data.
+              .then((journeyGroups) => cacheData(journeyGroups, route, date))
+          );
         }
+      );
 
-        return (
-          queryHfp(route, date, timeRange) // Format the data...
-            .then((result) =>
-              result.filter((pos) => !!pos && !!pos.lat && !!pos.long)
-            )
-            // ...group the data by journey
-            .then((formattedData) =>
-              groupHfpPositions(formattedData, getJourneyId, "journeyId")
-            )
-            // ...and cache the data.
-            .then((journeyGroups) => cacheData(journeyGroups, route, date))
-        );
-      }
-    );
-
-    // Without awaiting it, set the pending promise in the cachingInProgress object
-    // so that other instances of this component can await it.
-    set(promiseCache, fetchKey, cachingPromise);
+      // Without awaiting it, save the promise in the promiseCache.
+      set(promiseCache, fetchKey, cachingPromise);
+    } catch (err) {
+      console.log(err);
+      return [];
+    }
   }
 
   // Await the caching promise we got, as well as all the other ones for this date.
