@@ -17,6 +17,12 @@ class MapillaryLayer extends MapLayer {
       accessToken: "none",
     });
 
+    const onClick = () => {
+      props.onSelectLocation(this.highlightedLocation);
+    };
+
+    let onHover = null;
+
     this.gl.on("add", ({target}) => {
       const leafletMap = target._map;
 
@@ -24,11 +30,9 @@ class MapillaryLayer extends MapLayer {
       setTimeout(() => {
         const map = target._glMap;
 
-        leafletMap.on("mousemove", this.onHover(leafletMap, map));
-
-        leafletMap.on("click", () => {
-          props.onSelectLocation(this.highlightedLocation);
-        });
+        onHover = this.onHover(leafletMap, map);
+        leafletMap.on("mousemove", onHover);
+        leafletMap.on("click", onClick);
 
         // ...and wait for the gl stuff to load
         map.on("load", () => {
@@ -38,12 +42,26 @@ class MapillaryLayer extends MapLayer {
       }, 0);
     });
 
+    this.gl.on("remove", ({target}) => {
+      const leafletMap = target._map;
+
+      if (typeof onHover === "function") {
+        leafletMap.off("mousemove", onHover);
+      }
+
+      leafletMap.off("click", onClick);
+    });
+
     return this.gl;
   }
 
   updateLeafletElement(prevProps, props) {
-    const {location, leaflet} = props;
+    const {location, leaflet, layerIsActive} = props;
     const {location: prevLocation} = prevProps;
+
+    if (!layerIsActive) {
+      return;
+    }
 
     // For some reason this.gl is null here. Wrong context?
     // There should be a better way of finding a specific layer...
@@ -99,6 +117,12 @@ class MapillaryLayer extends MapLayer {
   }
 
   onHover = (leafletMap, glMap) => (e) => {
+    console.log("mousemove");
+
+    if (!glMap || !glMap.loaded()) {
+      return;
+    }
+
     const {containerPoint, latlng} = e;
 
     const pointX = containerPoint.x;

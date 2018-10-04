@@ -11,7 +11,7 @@ export class LeafletMap extends Component {
   mapRef = React.createRef();
 
   state = {
-    currentBaseLayer: this.props.defaultLayer,
+    currentBaseLayer: "Digitransit",
     currentMapillaryViewerLocation: false,
     currentMapillaryMapLocation: false,
   };
@@ -69,7 +69,9 @@ export class LeafletMap extends Component {
           onViewportChanged={this.onViewportChange(onMapChanged)}
           onViewportChange={this.onViewportChange(onMapChange)}>
           <LayersControl position="topright">
-            <LayersControl.BaseLayer name="Digitransit" checked={true}>
+            <LayersControl.BaseLayer
+              name="Digitransit"
+              checked={currentBaseLayer === "Digitransit"}>
               <TileLayer
                 attribution={
                   'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors '
@@ -79,7 +81,9 @@ export class LeafletMap extends Component {
                 zoomOffset={-1}
               />
             </LayersControl.BaseLayer>
-            <LayersControl.BaseLayer name="Aerial">
+            <LayersControl.BaseLayer
+              name="Aerial"
+              checked={currentBaseLayer === "Aerial"}>
               <TileLayer
                 attribution="MML/LUKE"
                 url="http://tiles.kartat.kapsi.fi/ortokuva/{z}/{x}/{y}.jpg"
