@@ -13,6 +13,7 @@
   margin: 20px;
   padding: 20px;
   left: 0;
+  z-index: 10;
   transition: transform 0.3s ease-out;
   transform: translateX(calc(-100% - 20px));
 }
