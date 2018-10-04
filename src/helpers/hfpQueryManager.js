@@ -11,7 +11,7 @@ import {groupHfpPositions} from "../helpers/groupHfpPositions";
 import * as localforage from "localforage";
 import isWithinRange from "date-fns/is_within_range";
 import {createDateTime} from "./createDateTime";
-import pQueue from "p-queue";
+import pQueue from "./pQueue";
 
 let promiseCache = {};
 
