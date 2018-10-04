@@ -1,6 +1,8 @@
 import React from "react";
 import SuggestionInput from "./SuggestionInput";
 import flow from "lodash/flow";
+import flatMap from "lodash/flatMap";
+import unionBy from "lodash/unionBy";
 import {observer, inject} from "mobx-react";
 import withHfpData from "../../hoc/withHfpData";
 import {app} from "mobx-app";
@@ -31,20 +33,21 @@ const enhance = flow(
   inject(app("state"))
 );
 
-export default enhance(
-  ({vehicle = "", onChange, onSelect, state, positionsByVehicle}) => {
-    const options = positionsByVehicle.map((p) => p.vehicleId);
+export default enhance(({vehicle = "", onChange, onSelect, state, positions}) => {
+  const options = unionBy(
+    flatMap(positions, (group) => group.positions),
+    "unique_vehicle_id"
+  ).map((pos) => pos.unique_vehicle_id);
 
-    return (
-      <SuggestionInput
-        minimumInput={0}
-        placeholder="Rajaa kulkuneuvoa"
-        value={vehicle}
-        onSelect={onSelect}
-        getValue={getSuggestionValue}
-        renderSuggestion={renderSuggestion}
-        getSuggestions={getSuggestions(options)}
-      />
-    );
-  }
-);
+  return (
+    <SuggestionInput
+      minimumInput={0}
+      placeholder="Rajaa kulkuneuvoa"
+      value={vehicle}
+      onSelect={onSelect}
+      getValue={getSuggestionValue}
+      renderSuggestion={renderSuggestion}
+      getSuggestions={getSuggestions(options)}
+    />
+  );
+});

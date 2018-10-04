@@ -6,19 +6,23 @@ import groupBy from "lodash/groupBy";
 import filter from "lodash/filter";
 import set from "lodash/set";
 import map from "lodash/map";
+import flatMap from "lodash/flatMap";
 import calculateBoundsFromPositions from "../../helpers/calculateBoundsFromPositions";
 import StopMarker from "./StopMarker";
 import {inject, observer} from "mobx-react";
 import {app} from "mobx-app";
 import getJourneyId from "../../helpers/getJourneyId";
+import {groupHfpPositions} from "../../helpers/groupHfpPositions";
 
 @inject(app("Time"))
 @observer
 class RouteLayer extends Component {
-  stopTimes = {};
   state = {
     showTime: "arrive",
   };
+
+  cachedPositionsByVehicle = [];
+  prevPositionsLength = 0;
 
   onChangeShowTime = (e) => {
     this.setState({
@@ -41,9 +45,9 @@ class RouteLayer extends Component {
     setMapBounds(bounds);
   }
 
-  // This method returns hfp positions for when a vehicle
-  // was at the requested stop grouped by journey.
-  getHfpStopPositions = (positions, stopId) => {
+  // This method returns hfp positions for when a vehicle was at a stop.
+  // The beginning of the returned array is the arrival, and the end is the departure.
+  getStopPositions = (positions, stopId) => {
     return map(positions, (journeyPositions) => {
       // Get the hfp positions we're interested in. Now we are working with
       // hfp data that happens before or at the requested stop.
@@ -94,16 +98,16 @@ class RouteLayer extends Component {
     });
   };
 
-  getStopTimesForJourney = (stop) => {
+  // Returns the stop times for the currently selected journey.
+  getSelectedJourneyStopTimes = (stop, positions) => {
     const {
-      positionsByJourney,
       state: {selectedJourney},
     } = this.props;
 
     const selectedJourneyId = getJourneyId(selectedJourney);
 
     const selectedJourneyPositions = get(
-      positionsByJourney.find((j) => j.journeyId === selectedJourneyId),
+      positions.find((j) => j.journeyId === selectedJourneyId),
       "positions",
       []
     );
@@ -112,7 +116,7 @@ class RouteLayer extends Component {
       groupBy(selectedJourneyPositions, "unique_vehicle_id"),
       (positions, unique_vehicle_id) => {
         // Get the hfp positions for when this vehicle was at this stop.
-        const stopJourneys = this.getHfpStopPositions([positions], stop.stopId);
+        const stopJourneys = this.getStopPositions([positions], stop.stopId);
 
         const journeys = this.getArriveDepartTimes(stopJourneys);
         return {vehicleId: unique_vehicle_id, journeys};
@@ -120,33 +124,41 @@ class RouteLayer extends Component {
     );
   };
 
-  getAllStopTimes = (stop) => {
-    const {
-      positionsByVehicle,
-      state: {date},
-    } = this.props;
-
-    const cacheKey = `${date}.${stop.stopId}`;
-
-    // Get existing times from the cache.
-    let cachedHfp = get(this.stopTimes, cacheKey, []);
-
-    if (cachedHfp && cachedHfp.length > 0) {
-      return cachedHfp;
-    }
-
-    const stopHfpGroups = positionsByVehicle.map(({vehicleId, positions}) => {
+  // Returns the stop times for all journeys.
+  getAllJourneysStopTimes = (stop, positions) => {
+    const stopHfpGroups = positions.map(({vehicleId, positions}) => {
       const vehicleJourneys = groupBy(positions, "journey_start_time");
       // Get the hfp positions for when this vehicle was at this stop.
-      const stopJourneys = this.getHfpStopPositions(vehicleJourneys, stop.stopId);
+      const stopJourneys = this.getStopPositions(vehicleJourneys, stop.stopId);
       const journeys = this.getArriveDepartTimes(stopJourneys);
 
       // Return the journeys, grouped by the vehicle ID.
       return {vehicleId, journeys};
     });
 
-    set(this.stopTimes, cacheKey, stopHfpGroups);
     return stopHfpGroups;
+  };
+
+  getPositionsByVehicle = (positions) => {
+    const length = positions.length;
+    const prevLength = this.prevPositionsLength;
+
+    if (length === prevLength) {
+      return this.cachedPositionsByVehicle;
+    }
+
+    const dataToCache = groupHfpPositions(
+      flatMap(positions, (group) => group.positions),
+      "unique_vehicle_id",
+      "vehicleId"
+    );
+
+    if (dataToCache && dataToCache.length !== 0) {
+      this.prevPositionsLength = positions.length;
+      this.cachedPositionsByVehicle = dataToCache;
+    }
+
+    return dataToCache;
   };
 
   onTimeClick = (receivedAtDate) => (e) => {
@@ -154,13 +166,34 @@ class RouteLayer extends Component {
     this.props.Time.setTime(format(receivedAtDate, "HH:mm:ss"));
   };
 
+  onTogglePopup = (setTo) => (stopId) => () => {
+    this.setState({
+      selectedStop: setTo ? stopId : false,
+    });
+  };
+
   render() {
-    const {showTime} = this.state;
+    const {showTime, selectedStop: selectedRouteStop} = this.state;
 
-    const {state, routePositions, stops} = this.props;
-    const {stop: selectedStop, selectedJourney} = state;
+    const {state, positions, routeGeometry, stops} = this.props;
+    const {stop: queriedStop, selectedJourney} = state;
 
-    const coords = routePositions.map(([lon, lat]) => [lat, lon]);
+    const selectedStop = selectedRouteStop ? selectedRouteStop : queriedStop;
+
+    const coords = routeGeometry.map(([lon, lat]) => [lat, lon]);
+
+    let hfp = [];
+
+    if (selectedStop) {
+      const selectedStopObj = stops.find((s) => s.nodeId === selectedStop);
+
+      if (selectedJourney) {
+        hfp = this.getSelectedJourneyStopTimes(selectedStopObj, positions);
+      } else {
+        const positionsByVehicle = this.getPositionsByVehicle(positions);
+        hfp = this.getAllJourneysStopTimes(selectedStopObj, positionsByVehicle);
+      }
+    }
 
     return (
       <React.Fragment>
@@ -171,10 +204,6 @@ class RouteLayer extends Component {
           const isFirst = index === stops.length - 1;
           // ...and the last stop is first.
           const isLast = index === 0;
-
-          const hfp = selectedJourney
-            ? this.getStopTimesForJourney(stop)
-            : this.getAllStopTimes(stop);
 
           return (
             <StopMarker
@@ -187,6 +216,8 @@ class RouteLayer extends Component {
               lastTerminal={isLast}
               hfp={hfp}
               stop={stop}
+              onPopupOpen={this.onTogglePopup(true)}
+              onPopupClose={this.onTogglePopup(false)}
             />
           );
         })}

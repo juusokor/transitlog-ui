@@ -3,11 +3,12 @@ import getJourneyId from "../helpers/getJourneyId";
 import doubleDigit from "../helpers/doubleDigit";
 import createHistory from "history/createBrowserHistory";
 import {pickJourneyProps} from "../helpers/pickJourneyProps";
+import {createDateTime} from "../helpers/createDateTime";
 
 const history = createHistory();
 
 export function createJourneyPath(journey) {
-  const date = new Date(`${journey.oday}T${journey.journey_start_time}`);
+  const date = createDateTime(journey.oday, journey.journey_start_time);
 
   const dateStr = `${date.getFullYear()}${doubleDigit(
     date.getMonth() + 1

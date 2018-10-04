@@ -11,7 +11,7 @@ export default (Component) => {
   @observer
   class WithSelectedJourneyHfp extends React.Component {
     render() {
-      const {state, positionsByJourney} = this.props;
+      const {state, positions} = this.props;
 
       if (!state.selectedJourney) {
         return <Component {...this.props} selectedJourneyHfp={[]} />;
@@ -19,7 +19,7 @@ export default (Component) => {
 
       const selectedJourneyId = getJourneyId(state.selectedJourney);
 
-      const journeyHfp = positionsByJourney.find(
+      const journeyHfp = positions.find(
         ({journeyId}) => journeyId === selectedJourneyId
       );
 

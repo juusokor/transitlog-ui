@@ -1,7 +1,6 @@
 import React, {Component} from "react";
 import get from "lodash/get";
 import FilterPanel from "./filterpanel/FilterPanel";
-import LoadingOverlay from "./LoadingOverlay";
 import "./App.css";
 import "./Form.css";
 import withHfpData from "../hoc/withHfpData";
@@ -19,6 +18,7 @@ import invoke from "lodash/invoke";
 import getJourneyId from "../helpers/getJourneyId";
 import withRoute from "../hoc/withRoute";
 import createRouteIdentifier from "../helpers/createRouteIdentifier";
+import {createDateTime} from "../helpers/createDateTime";
 
 @inject(app("Journey", "Filters"))
 @withHfpData
@@ -61,22 +61,22 @@ class App extends Component {
   getJourneyPosition = () => {
     const {
       state: {selectedJourney, date, time},
-      positionsByJourney,
+      positions = [],
     } = this.props;
 
     let journeyPosition = null;
 
     if (selectedJourney) {
       const journeyId = getJourneyId(selectedJourney);
-      const timeDate = new Date(`${date}T${time}`);
+      const timeDate = createDateTime(date, time);
 
-      const positions = get(
-        positionsByJourney.find((j) => j.journeyId === journeyId),
+      const journeyPositions = get(
+        positions.find((j) => j.journeyId === journeyId),
         "positions",
         []
       );
 
-      const pos = getCoarsePositionForTime(positions, timeDate, journeyId);
+      const pos = getCoarsePositionForTime(journeyPositions, timeDate, journeyId);
 
       if (pos) {
         journeyPosition = latLng([pos.lat, pos.long]);
@@ -100,15 +100,13 @@ class App extends Component {
 
   render() {
     const {stopsBbox} = this.state;
-    const {loading, state, positionsByVehicle, positionsByJourney} = this.props;
+    const {state, positions = [], loading} = this.props;
     const {route, vehicle, stop, selectedJourney} = state;
-
-    const journeyPosition = this.getJourneyPosition();
 
     return (
       <div className="transitlog">
-        <FilterPanel />
-        <Map onMapChanged={this.onMapChanged} center={journeyPosition}>
+        <FilterPanel loading={loading} />
+        <Map onMapChanged={this.onMapChanged}>
           {({lat, lng, zoom, setMapBounds}) => (
             <React.Fragment>
               {!route.routeId &&
@@ -116,21 +114,20 @@ class App extends Component {
               <RouteQuery
                 key={`route_query_${createRouteIdentifier(route)}`}
                 route={route}>
-                {({routePositions, stops}) =>
-                  routePositions.length !== 0 ? (
+                {({routeGeometry, stops}) =>
+                  routeGeometry.length !== 0 ? (
                     <RouteLayer
-                      routePositions={routePositions}
+                      routeGeometry={routeGeometry}
                       stops={stops}
                       setMapBounds={setMapBounds}
                       key={`route_line_${route.routeId}`}
-                      positionsByVehicle={positionsByVehicle}
-                      positionsByJourney={positionsByJourney}
+                      positions={positions}
                     />
                   ) : null
                 }
               </RouteQuery>
-              {positionsByJourney.length > 0 &&
-                positionsByJourney.map(({positions, journeyId}) => {
+              {positions.length > 0 &&
+                positions.map(({positions, journeyId}) => {
                   if (
                     vehicle &&
                     get(positions, "[0].unique_vehicle_id", "") !== vehicle
@@ -161,7 +158,6 @@ class App extends Component {
             </React.Fragment>
           )}
         </Map>
-        <LoadingOverlay show={loading} message="Ladataan HFP-tietoja..." />
       </div>
     );
   }

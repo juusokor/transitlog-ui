@@ -2,6 +2,7 @@ import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import get from "lodash/get";
+import compact from "lodash/compact";
 import withRoute from "../../hoc/withRoute";
 
 const getRouteValue = ({
@@ -9,7 +10,15 @@ const getRouteValue = ({
   direction = "",
   dateBegin = "",
   dateEnd = "",
-}) => `${routeId}/${direction}/${dateBegin}/${dateEnd}`;
+}) => {
+  const valueParts = compact([routeId, direction, dateBegin, dateEnd]);
+
+  if (valueParts.length !== 0) {
+    return valueParts.join("/");
+  }
+
+  return "";
+};
 
 @inject(app("Filters"))
 @withRoute
@@ -19,17 +28,13 @@ export class RouteInput extends Component {
     const {Filters} = this.props;
     const selectedValue = get(e, "target.value", false);
 
-    if (!selectedValue || selectedValue === "///") {
+    if (!selectedValue) {
       return Filters.setRoute({});
     }
 
     const [routeId, direction, dateBegin, dateEnd] = selectedValue.split("/");
     Filters.setRoute({routeId, direction, dateBegin, dateEnd});
   };
-
-  componentDidMount() {
-    this.resetRoute();
-  }
 
   componentDidUpdate() {
     this.resetRoute();
@@ -54,7 +59,7 @@ export class RouteInput extends Component {
   render() {
     const {route, routes} = this.props;
 
-    const options = routes.map((route) => {
+    const options = routes.map((routeOption) => {
       const {
         nodeId,
         routeId,
@@ -63,19 +68,20 @@ export class RouteInput extends Component {
         destinationFi,
         dateBegin,
         dateEnd,
-      } = route;
+      } = routeOption;
 
       return {
         key: nodeId,
-        value: getRouteValue(route),
+        value: getRouteValue(routeOption),
         label: `${routeId} - suunta ${direction}, ${originFi} - ${destinationFi} (${dateBegin} - ${dateEnd})`,
       };
     });
 
     options.unshift({value: "", label: "Valitse reitti..."});
+    const currentValue = getRouteValue(route);
 
     return (
-      <select value={getRouteValue(route)} onChange={this.onChange}>
+      <select value={currentValue} onChange={this.onChange}>
         {options.map(({key, value, label}) => (
           <option key={`route_select_${key}`} value={value}>
             {label}

@@ -26,8 +26,11 @@ export default (Component) => {
      * data, so this method also ensures that the line matches the route.
      */
     ensureRouteIsSelected = () => {
-      const {Filters} = this.props;
-      const route = this.getRoute();
+      const {
+        state: {route: stateRoute = {routeId: ""}},
+        route = stateRoute,
+        Filters,
+      } = this.props;
 
       if (
         route &&
@@ -41,8 +44,6 @@ export default (Component) => {
       }
     };
 
-    getComponent = (routeProp) => <Component {...this.props} route={routeProp} />;
-
     componentDidMount() {
       this.ensureRouteIsSelected();
     }
@@ -52,8 +53,10 @@ export default (Component) => {
     }
 
     render() {
-      // Get the route id from the immediate props or from state.
-      const route = this.getRoute();
+      const {
+        state: {route: stateRoute = {routeId: ""}, date},
+        route = stateRoute,
+      } = this.props;
 
       // Can't do anything without a routeId. Or if we have the route,
       // there is no need to fetch it.
@@ -61,7 +64,7 @@ export default (Component) => {
         !get(route, "routeId", "") ||
         (route && route.routeId && route.direction && route.dateBegin)
       ) {
-        return this.getComponent(route);
+        return <Component {...this.props} route={route} />;
       }
 
       // Allow fetched route to be ensured.
@@ -69,13 +72,13 @@ export default (Component) => {
 
       // Else, fetch the full route data.
       return (
-        <SingleRouteQuery route={route}>
+        <SingleRouteQuery route={route} date={date}>
           {({route: routeObj, loading, error}) => {
             if (error || loading) {
-              return this.getComponent(route);
+              return <Component {...this.props} route={route} />;
             }
 
-            return this.getComponent(routeObj);
+            return <Component {...this.props} route={routeObj} />;
           }}
         </SingleRouteQuery>
       );

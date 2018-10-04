@@ -28,6 +28,8 @@ class StopMarker extends React.Component {
       onChangeShowTime,
       onTimeClick,
       state,
+      onPopupOpen,
+      onPopupClose,
     } = this.props;
 
     const isTerminal = firstTerminal || lastTerminal;
@@ -84,6 +86,8 @@ class StopMarker extends React.Component {
         fillOpacity: 1,
         strokeWeight: isTerminal ? 5 : 3,
         radius: isTerminal ? 12 : 8,
+        onPopupopen: onPopupOpen(stop.nodeId),
+        onPopupclose: onPopupClose(stop.nodeId),
       },
       <React.Fragment>
         <Tooltip>
