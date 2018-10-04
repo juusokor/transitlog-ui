@@ -7,7 +7,7 @@ let timerHandle = null;
 
 export default (state) => {
   extendObservable(state, {
-    time: "12:30:00",
+    time: "13:00:00",
     playing: false,
     timeIncrement: 5,
     marginMinutes: 5,
