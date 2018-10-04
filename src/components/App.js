@@ -18,6 +18,7 @@ import invoke from "lodash/invoke";
 import getJourneyId from "../helpers/getJourneyId";
 import withRoute from "../hoc/withRoute";
 import createRouteIdentifier from "../helpers/createRouteIdentifier";
+import {createDateTime} from "../helpers/createDateTime";
 
 @inject(app("Journey", "Filters"))
 @withHfpData
@@ -67,7 +68,7 @@ class App extends Component {
 
     if (selectedJourney) {
       const journeyId = getJourneyId(selectedJourney);
-      const timeDate = new Date(`${date}T${time}`);
+      const timeDate = createDateTime(date, time);
 
       const journeyPositions = get(
         positions.find((j) => j.journeyId === journeyId),

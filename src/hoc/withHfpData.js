@@ -5,15 +5,8 @@ import get from "lodash/get";
 import {createFetchKey} from "../helpers/hfpCache";
 import {fromPromise} from "mobx-utils";
 import withRoute from "./withRoute";
-import {fetchHfp, getTimeRange} from "../helpers/hfpQueryManager";
-
-// Returns a mobxified promise that resolves to
-// either cached hfp data or fetched hfp data.
-const getCachePromise = (route, date, time, marginMinutes) => {
-  // Mobxify the promise. This will give it an observable .value property and
-  // the case() method that we use in the render function below.
-  return fromPromise(fetchHfp(route, date, time, marginMinutes));
-};
+import {fetchHfp} from "../helpers/hfpQueryManager";
+import {getTimeRange} from "../helpers/getTimeRange";
 
 const emptyCachePromise = () => fromPromise.resolve([]);
 
@@ -28,11 +21,20 @@ export default (Component) => {
     currentFetchKey = false;
     cachePromise = emptyCachePromise();
 
+    // Creates a promise for awaiting the hfp result from the API or the cache.
+    // React can't render async yet, so some mechanism to update the view when
+    // an async result comes back is required. Remember that this runs *per instance*,
+    // so the vast majority of work should be done in the `fetchHfp` method that runs
+    // once for all instances when required.
     updateCachePromise = () => {
       const {
         route,
         state: {date, time, selectedJourney},
       } = this.props;
+
+      if (this.cachePromise.state === "pending") {
+        return;
+      }
 
       const useTime = get(selectedJourney, "journey_start_time", time);
 
@@ -43,7 +45,7 @@ export default (Component) => {
       // If we have a valid cacheKey (ie there is a route selected), and the key is
       // currently not in use, update the cache promise to fetch the current route.
       if (fetchKey && fetchKey !== this.currentFetchKey) {
-        setPromise = getCachePromise(route, date, timeRange);
+        setPromise = fromPromise(fetchHfp(route, date, timeRange));
       } else if (fetchKey !== this.currentFetchKey) {
         setPromise = emptyCachePromise();
       }

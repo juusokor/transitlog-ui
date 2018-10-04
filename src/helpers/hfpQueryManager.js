@@ -9,26 +9,13 @@ import {queryHfp} from "../queries/HfpQuery";
 import getJourneyId from "../helpers/getJourneyId";
 import {groupHfpPositions} from "../helpers/groupHfpPositions";
 import * as localforage from "localforage";
-import subMinutes from "date-fns/sub_minutes";
-import addMinutes from "date-fns/add_minutes";
-import setSeconds from "date-fns/set_seconds";
 import isWithinRange from "date-fns/is_within_range";
-import {roundTime} from "./roundTime";
+import {createDateTime} from "./createDateTime";
+import pQueue from "p-queue";
 
 let promiseCache = {};
 
-const queryRange = 15;
-
-export function getTimeRange(date, time) {
-  const queryDateTime = setSeconds(new Date(`${date}T${time}`), 0);
-  let min = subMinutes(queryDateTime, queryRange / 2);
-  let max = addMinutes(queryDateTime, queryRange / 2);
-
-  min = roundTime(min, true);
-  max = roundTime(max);
-
-  return {max, min};
-}
+const concurrentQueries = 3;
 
 export async function getCachedJourneyIds(route, date, timeRange) {
   let cachedKeys = null;
@@ -66,7 +53,7 @@ export async function getCachedJourneyIds(route, date, timeRange) {
   return cachedJourneyIds.reduce((matchingJourneys, cachedId) => {
     const idTime = cachedId.slice(8).split("_")[1];
 
-    const cachedTimeDate = new Date(`${date}T${idTime}`);
+    const cachedTimeDate = createDateTime(date, idTime);
 
     if (isWithinRange(cachedTimeDate, min, max)) {
       matchingJourneys.push(cachedId);
@@ -113,7 +100,7 @@ export async function fetchHfp(route, date, timeRange) {
           }
 
           return (
-            queryHfp(route, date, timeRange) // Format the data...
+            queuedQueryHfp(route, date, timeRange) // Format the data...
               .then((result) =>
                 result.filter((pos) => !!pos && !!pos.lat && !!pos.long)
               )
@@ -126,7 +113,6 @@ export async function fetchHfp(route, date, timeRange) {
           );
         }
       );
-
       // Without awaiting it, save the promise in the promiseCache.
       set(promiseCache, fetchKey, cachingPromise);
     } catch (err) {
@@ -147,4 +133,11 @@ export async function fetchHfp(route, date, timeRange) {
     const keyParts = journeyId.slice(8).split("_");
     return keyParts[1];
   });
+}
+
+const queryQueue = new pQueue({concurrency: concurrentQueries});
+
+function queuedQueryHfp(route, date, timeRange) {
+  const fetcher = () => queryHfp(route, date, timeRange);
+  return queryQueue.add(fetcher);
 }

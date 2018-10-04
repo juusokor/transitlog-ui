@@ -10,6 +10,7 @@ import format from "date-fns/format";
 import {observer} from "mobx-react";
 import withRoute from "../hoc/withRoute";
 import {Query} from "react-apollo";
+import {createDateTime} from "../helpers/createDateTime";
 
 export const hfpQuery = gql`
   query hfpQuery(
@@ -72,7 +73,7 @@ class HfpQuery extends Component {
     const {route, children, date, time} = this.props;
     const {routeId, direction} = route;
 
-    const queryDateTime = new Date(`${date}T${time}`);
+    const queryDateTime = createDateTime(date, time);
     const timeMin = subMinutes(queryDateTime, 5);
     const timeMax = addMinutes(queryDateTime, 5);
 
