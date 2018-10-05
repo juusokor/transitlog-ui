@@ -3,7 +3,7 @@ import getJourneyId from "../helpers/getJourneyId";
 import createHistory from "history/createBrowserHistory";
 import TimeActions from "./timeActions";
 import FilterActions from "./filterActions";
-import moment from "moment";
+import moment from "moment-timezone";
 import journeyActions from "./journeyActions";
 import {pickJourneyProps} from "../helpers/pickJourneyProps";
 
@@ -33,8 +33,7 @@ export default (state) => {
         direction_id,
       ] = location.pathname.split("/");
 
-      const date = moment(oday, "YYYYMMDD");
-      const time = moment(journey_start_time, "HHmmss");
+      const date = moment.tz(oday, "YYYYMMDD", "Europe/Helsinki");
 
       let dateStr = "";
       let timeStr = "";
@@ -44,9 +43,17 @@ export default (state) => {
         filterActions.setDate(dateStr);
       }
 
-      if (time.isValid()) {
-        timeStr = time.format("HH:mm:ss");
-        timeActions.setTime(timeStr);
+      if (date.isValid()) {
+        const time = moment.tz(
+          `${oday} ${journey_start_time}`,
+          "YYYYMMDD HHmmss",
+          "Europe/Helsinki"
+        );
+
+        if (time.isValid()) {
+          timeStr = time.format("HH:mm:ss");
+          timeActions.setTime(timeStr);
+        }
       }
 
       if (route_id && direction_id) {

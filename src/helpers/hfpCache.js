@@ -1,14 +1,11 @@
 import localforage from "localforage";
 import get from "lodash/get";
 import compact from "lodash/compact";
-import format from "date-fns/format";
-import isValid from "date-fns/is_valid";
 
 export function createFetchKey(route, date, timeRange, allowPartial = false) {
-  const range =
-    timeRange && isValid(timeRange.min) && isValid(timeRange.max)
-      ? `${format(timeRange.min, "HH:mm")}_${format(timeRange.max, "HH:mm")}`
-      : "";
+  const range = timeRange
+    ? `${timeRange.min.format("HH:mm")}_${timeRange.max.format("HH:mm")}`
+    : "";
 
   const keyParts = [date, createRouteKey(route), range];
 

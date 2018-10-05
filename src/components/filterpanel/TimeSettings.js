@@ -1,22 +1,15 @@
 import React, {Component} from "react";
 import TimeSlider from "./TimeSlider";
-import moment from "moment";
 import {app} from "mobx-app";
 import {inject, observer} from "mobx-react";
 import withSelectedJourneyHfp from "../../hoc/withSelectedJourneyHfp";
 import get from "lodash/get";
 import last from "lodash/last";
-import parse from "date-fns/parse";
-import diffSeconds from "date-fns/difference_in_seconds";
-import startOfDay from "date-fns/start_of_day";
-import isValid from "date-fns/is_valid";
+import {combineDateAndTime} from "../../helpers/time";
+import moment from "moment-timezone";
 
 const dateToSeconds = (date) => {
-  if (!isValid(date)) {
-    return;
-  }
-
-  return Math.abs(diffSeconds(startOfDay(date), date));
+  return Math.abs(date.diff(moment(date).startOf("day"), "seconds"));
 };
 
 @inject(app("Time"))
@@ -25,13 +18,12 @@ const dateToSeconds = (date) => {
 class TimeSettings extends Component {
   onTimeButtonClick = (modifier) => (e) => {
     const {
-      state: {time},
+      state: {date, time},
       Time,
     } = this.props;
 
-    const nextTime = moment(time, "HH:mm:ss")
-      .add(modifier, "seconds")
-      .format("HH:mm:ss");
+    const currentTime = combineDateAndTime(date, time, "Europe/Helsinki");
+    const nextTime = currentTime.add(modifier, "seconds").format("HH:mm:ss");
 
     Time.setTime(nextTime);
   };
@@ -51,13 +43,19 @@ class TimeSettings extends Component {
             onChange={Time.setTime}
             min={
               selectedJourneyHfp.length !== 0
-                ? dateToSeconds(parse(get(selectedJourneyHfp, "[0].received_at", 0)))
+                ? dateToSeconds(
+                    moment(get(selectedJourneyHfp, "[0].received_at", 0)).tz(
+                      "Europe/Helsinki"
+                    )
+                  )
                 : undefined
             }
             max={
               selectedJourneyHfp.length !== 0
                 ? dateToSeconds(
-                    parse(get(last(selectedJourneyHfp), "received_at", 0))
+                    moment(get(last(selectedJourneyHfp), "received_at", 0)).tz(
+                      "Europe/Helsinki"
+                    )
                   )
                 : undefined
             }
