@@ -24,14 +24,6 @@ export function combineDateAndTime(date, time, timezone, toTimezone) {
   }
 }
 
-export function createDateTime(date, time, timezone = "Europe/Helsinki") {
-  if (!date) {
-    return false;
-  }
-
-  return moment.tz(`${date} ${time}`, timezone);
-}
-
 export function getTimeRange(date) {
   const queryMoment = moment(date).seconds(0);
 

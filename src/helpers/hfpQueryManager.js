@@ -9,8 +9,7 @@ import {queryHfp} from "../queries/HfpQuery";
 import getJourneyId from "../helpers/getJourneyId";
 import {groupHfpPositions} from "../helpers/groupHfpPositions";
 import * as localforage from "localforage";
-import isWithinRange from "date-fns/is_within_range";
-import {createDateTime, combineDateAndTime} from "./time";
+import {combineDateAndTime} from "./time";
 import pQueue from "p-queue";
 
 let promiseCache = {};
@@ -66,7 +65,7 @@ export async function getCachedJourneyIds(route, date, timeRange) {
   return cachedJourneyIds.reduce((matchingJourneys, cachedId) => {
     const idTime = cachedId.slice(8).split("_")[1];
 
-    const cachedTimeMoment = createDateTime(date, idTime, "Europe/Helsinki");
+    const cachedTimeMoment = combineDateAndTime(date, idTime, "Europe/Helsinki");
 
     if (cachedTimeMoment.isBetween(min, max)) {
       matchingJourneys.push(cachedId);
