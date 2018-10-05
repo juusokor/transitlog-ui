@@ -1,7 +1,6 @@
 import React from "react";
 import map from "lodash/map";
 import parse from "date-fns/parse";
-import format from "date-fns/format";
 import diffSeconds from "date-fns/difference_in_seconds";
 import {darken} from "polished";
 import {observer} from "mobx-react";

@@ -5,10 +5,10 @@ const MAX = 86399;
 const MIN = 15000;
 
 class TimeSlider extends Component {
-  getNumericValue = (value = "") => {
+  getNumericValue = (value = "", date) => {
     const {max = MAX} = this.props;
 
-    const val = moment.tz("Europe/Helsinki").startOf("day");
+    const val = moment.tz(date, "Europe/Helsinki").startOf("day");
 
     if (value) {
       const [hours = 23, minutes = 59, seconds = 0] = value.split(":");
@@ -21,15 +21,17 @@ class TimeSlider extends Component {
 
     return Math.abs(
       moment
-        .tz("Europe/Helsinki")
+        .tz(date, "Europe/Helsinki")
         .startOf("day")
         .diff(val, "seconds")
     );
   };
 
   getTimeValue = (value) => {
+    const {date} = this.props;
+
     const nextDate = moment
-      .tz("Europe/Helsinki")
+      .tz(date, "Europe/Helsinki")
       .startOf("day")
       .add(parseInt(value, 10), "seconds");
 
@@ -42,7 +44,7 @@ class TimeSlider extends Component {
   };
 
   render() {
-    const {value, min = MIN, max = MAX} = this.props;
+    const {value, date, min = MIN, max = MAX} = this.props;
 
     return (
       <input
@@ -51,7 +53,7 @@ class TimeSlider extends Component {
         min={min}
         max={max}
         step={1}
-        value={this.getNumericValue(value)}
+        value={this.getNumericValue(value, date)}
         onChange={this.onChange}
       />
     );

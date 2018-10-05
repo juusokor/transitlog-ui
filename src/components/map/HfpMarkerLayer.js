@@ -25,7 +25,7 @@ class HfpMarkerLayer extends Component {
     }
 
     const dateTime = combineDateAndTime(date, time, "Europe/Helsinki").toISOString();
-    const nextHfpPosition = getPrecisePositionForTime(positions, new Date(dateTime));
+    const nextHfpPosition = getPrecisePositionForTime(positions, dateTime);
 
     this.prevHfpPosition = nextHfpPosition;
     this.prevQueryTime = time;

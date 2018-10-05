@@ -30,7 +30,7 @@ class TimeSettings extends Component {
 
   render() {
     const {state, Time, selectedJourneyHfp = []} = this.props;
-    const {time, timeIncrement, playing} = state;
+    const {time, date, timeIncrement, playing} = state;
 
     return (
       <div>
@@ -40,6 +40,7 @@ class TimeSettings extends Component {
         <p>
           <TimeSlider
             value={time}
+            date={date}
             onChange={Time.setTime}
             min={
               selectedJourneyHfp.length !== 0
