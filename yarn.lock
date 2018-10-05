@@ -1178,8 +1178,8 @@ anymatch@^2.0.0:
     normalize-path "^2.1.1"
 
 apollo-cache-inmemory@^1.3.0:
-  version "1.3.3"
-  resolved "https://registry.yarnpkg.com/apollo-cache-inmemory/-/apollo-cache-inmemory-1.3.3.tgz#0d6642e332c108b042758d51880809c728ef1228"
+  version "1.3.4"
+  resolved "https://registry.yarnpkg.com/apollo-cache-inmemory/-/apollo-cache-inmemory-1.3.4.tgz#1f75b51f4c2f4c5ccba3c078c8f88ed4572eb161"
   dependencies:
     apollo-cache "^1.1.17"
     apollo-utilities "^1.0.21"
@@ -1435,12 +1435,6 @@ autoprefixer@^9.1.5:
     num2fraction "^1.2.2"
     postcss "^7.0.2"
     postcss-value-parser "^3.2.3"
-
-autosuggest-highlight@^3.1.1:
-  version "3.1.1"
-  resolved "https://registry.yarnpkg.com/autosuggest-highlight/-/autosuggest-highlight-3.1.1.tgz#70bb4f9125fe8a849e85f825f7bb2a1a4806743d"
-  dependencies:
-    diacritic "0.0.2"
 
 aws-sign2@~0.7.0:
   version "0.7.0"
@@ -2949,10 +2943,6 @@ detect-port-alt@1.1.6:
   dependencies:
     address "^1.0.1"
     debug "^2.6.0"
-
-diacritic@0.0.2:
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/diacritic/-/diacritic-0.0.2.tgz#fc2a887b5a5bc0a0a854fb614c7c2f209061ee04"
 
 diff@^3.2.0:
   version "3.5.0"
@@ -5064,7 +5054,7 @@ isobject@^3.0.0, isobject@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/isobject/-/isobject-3.0.1.tgz#4e431e92b11a9731636aa1f9c8d1ccbcfdab78df"
 
-isomorphic-fetch@^2.1.1, isomorphic-fetch@^2.2.1:
+isomorphic-fetch@^2.1.1:
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/isomorphic-fetch/-/isomorphic-fetch-2.2.1.tgz#611ae1acf14f5e81f729507472819fe9733558a9"
   dependencies:
@@ -5244,13 +5234,6 @@ jest-environment-node@^23.4.0:
   dependencies:
     jest-mock "^23.2.0"
     jest-util "^23.4.0"
-
-jest-fetch-mock@^1.6.6:
-  version "1.6.6"
-  resolved "https://registry.yarnpkg.com/jest-fetch-mock/-/jest-fetch-mock-1.6.6.tgz#f07d80912689c21fb01199f313abd121beff5558"
-  dependencies:
-    isomorphic-fetch "^2.2.1"
-    promise-polyfill "^7.1.1"
 
 jest-get-type@^22.1.0:
   version "22.4.3"
@@ -6831,7 +6814,7 @@ p-try@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/p-try/-/p-try-2.0.0.tgz#85080bb87c64688fa47996fe8f7dfbe8211760b1"
 
-pako@^1.0.6, pako@~1.0.5:
+pako@~1.0.5:
   version "1.0.6"
   resolved "https://registry.yarnpkg.com/pako/-/pako-1.0.6.tgz#0101211baa70c4bca4a0f63f2206e97b7dfaf258"
 
@@ -7685,10 +7668,6 @@ promise-inflight@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/promise-inflight/-/promise-inflight-1.0.1.tgz#98472870bf228132fcbdd868129bad12c3c029e3"
 
-promise-polyfill@^7.1.1:
-  version "7.1.2"
-  resolved "https://registry.yarnpkg.com/promise-polyfill/-/promise-polyfill-7.1.2.tgz#ab05301d8c28536301622d69227632269a70ca3b"
-
 promise@7.0.4:
   version "7.0.4"
   resolved "http://registry.npmjs.org/promise/-/promise-7.0.4.tgz#363e84a4c36c8356b890fed62c91ce85d02ed539"
@@ -7916,10 +7895,6 @@ react-app-polyfill@^0.1.3:
     promise "8.0.2"
     raf "3.4.0"
     whatwg-fetch "3.0.0"
-
-react-app-rewire-hot-loader@^1.0.1:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/react-app-rewire-hot-loader/-/react-app-rewire-hot-loader-1.0.2.tgz#acdb006946468a188b49cb578a8bbf42a00fa785"
 
 react-app-rewired@^1.6.2:
   version "1.6.2"
