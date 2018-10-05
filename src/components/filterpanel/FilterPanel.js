@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import "./FilterPanel.css";
 import LineInput from "./LineInput";
 import StopInput from "./StopInput";
-import {RouteInput} from "./RouteInput";
+import RouteInput from "./RouteInput";
 import RoutesByLineQuery from "../../queries/RoutesByLineQuery";
 import AllStopsQuery from "../../queries/AllStopsQuery";
 import StopsByRouteQuery from "../../queries/StopsByRouteQuery";
