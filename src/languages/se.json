@@ -15,6 +15,11 @@
   "map.stops.arrive": "Anländningstid",
   "map.stops.depart": "Avgångstid",
 
+  "vehicle.next_stop": "Nästa hållplats",
+  "vehicle.speed": "Hastighet",
+  "vehicle.delay.late": "Försenad",
+  "vehicle.delay.early": "Tidig",
+
   "general.day": "dag",
   "general.week": "vecka",
   "general.seconds.short": "sek."

@@ -15,6 +15,11 @@
   "map.stops.arrive": "Arrive",
   "map.stops.depart": "Depart",
 
+  "vehicle.next_stop": "Next stop",
+  "vehicle.speed": "Speed",
+  "vehicle.delay.late": "Late",
+  "vehicle.delay.early": "Early",
+
   "general.day": "day",
   "general.week": "week",
   "general.seconds.short": "sec."

@@ -8,6 +8,7 @@ import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import {getPrecisePositionForTime} from "../../helpers/getPrecisePositionForTime";
 import {createDateTime} from "../../helpers/createDateTime";
+import {Text} from "../../helpers/text";
 
 @inject(app("state"))
 @observer
@@ -70,11 +71,17 @@ ${position.drst ? `<span class="hfp-marker-drst" />` : ""}
           <br />
           {position.unique_vehicle_id}
           <br />
-          Next stop: {position.next_stop_id}
+          <Text>vehicle.next_stop</Text>: {position.next_stop_id}
           <br />
-          Speed: {Math.round((position.spd * 18) / 5)} km/h
+          <Text>vehicle.speed</Text>: {Math.round((position.spd * 18) / 5)} km/h
+          {position.dl !== 0 && <></>}
           <br />
-          Delay: {position.dl} sek.
+          {position.dl < 0 ? (
+            <Text>vehicle.delay.late</Text>
+          ) : (
+            <Text>vehicle.delay.early</Text>
+          )}{" "}
+          {Math.abs(position.dl)} <Text>general.seconds.short</Text>
         </Tooltip>
       </Marker>
     );
