@@ -12,6 +12,9 @@
   "filterpanel.planned_start_time": "Planerad starttid",
   "filterpanel.real_start_time": "Realiserad starttid",
 
+  "map.stops.arrive": "Anländningstid",
+  "map.stops.depart": "Avgångstid",
+
   "general.day": "dag",
   "general.week": "vecka",
   "general.seconds.short": "sek."

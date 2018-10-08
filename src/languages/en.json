@@ -12,6 +12,9 @@
   "filterpanel.planned_start_time": "Planned start time",
   "filterpanel.real_start_time": "Real start time",
 
+  "map.stops.arrive": "Arrive",
+  "map.stops.depart": "Depart",
+
   "general.day": "day",
   "general.week": "week",
   "general.seconds.short": "sec."

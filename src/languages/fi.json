@@ -12,6 +12,9 @@
   "filterpanel.planned_start_time": "Suunniteltu lähtöaika",
   "filterpanel.real_start_time": "Toteutettu lähtöaika",
 
+  "map.stops.arrive": "Saapumisaika",
+  "map.stops.depart": "Lähtöaika",
+
   "general.day": "päivä",
   "general.week": "viikko",
   "general.seconds.short": "sek."

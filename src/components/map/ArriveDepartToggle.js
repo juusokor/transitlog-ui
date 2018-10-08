@@ -1,5 +1,6 @@
 import React from "react";
 import {observer} from "mobx-react";
+import {Text} from "../../helpers/text";
 
 export default observer(({value, onChange}) => {
   return (
@@ -12,7 +13,7 @@ export default observer(({value, onChange}) => {
           name="showTime"
           onChange={onChange}
         />{" "}
-        Arrive
+        <Text>map.stops.arrive</Text>
       </label>
       <label>
         <input
@@ -22,7 +23,7 @@ export default observer(({value, onChange}) => {
           name="showTime"
           onChange={onChange}
         />{" "}
-        Depart
+        <Text>map.stops.depart</Text>
       </label>
     </div>
   );
