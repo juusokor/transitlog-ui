@@ -5,6 +5,7 @@ import {app} from "mobx-app";
 import DatePicker from "react-datepicker";
 import "./DateInput.css";
 import "react-datepicker/dist/react-datepicker.css";
+import {Text} from "../../helpers/text";
 
 @inject(app("Filters"))
 @observer
@@ -22,11 +23,17 @@ class DateSettings extends Component {
     return (
       <div>
         <p>
-          <label>Choose date</label>
+          <label>
+            <Text>filterpanel.choose_date</Text>
+          </label>
         </p>
         <div className="date-input">
-          <button onClick={this.onDateButtonClick(-7)}>&laquo; 1 viikko</button>
-          <button onClick={this.onDateButtonClick(-1)}>&lsaquo; 1 päivä</button>
+          <button onClick={this.onDateButtonClick(-7)}>
+            &laquo; 1 <Text>general.week</Text>
+          </button>
+          <button onClick={this.onDateButtonClick(-1)}>
+            &lsaquo; 1 <Text>general.day</Text>
+          </button>
           <DatePicker
             locale="fi-FI"
             dateFormat="YYYY-MM-DD"
@@ -34,8 +41,12 @@ class DateSettings extends Component {
             onChange={Filters.setDate}
             className="calendar"
           />
-          <button onClick={this.onDateButtonClick(1)}>1 päivä &rsaquo;</button>
-          <button onClick={this.onDateButtonClick(7)}>1 viikko &raquo;</button>
+          <button onClick={this.onDateButtonClick(1)}>
+            1 <Text>general.day</Text> &rsaquo;
+          </button>
+          <button onClick={this.onDateButtonClick(7)}>
+            1 <Text>general.week</Text> &raquo;
+          </button>
         </div>
       </div>
     );

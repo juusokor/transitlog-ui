@@ -7,6 +7,7 @@ import get from "lodash/get";
 import last from "lodash/last";
 import {combineDateAndTime} from "../../helpers/time";
 import moment from "moment-timezone";
+import {Text, text} from "../../helpers/text";
 
 const dateToSeconds = (date) => {
   return Math.abs(date.diff(moment(date).startOf("day"), "seconds"));
@@ -35,7 +36,9 @@ class TimeSettings extends Component {
     return (
       <div>
         <p>
-          <label>Choose time</label>
+          <label>
+            <Text>filterpanel.choose_time</Text>
+          </label>
         </p>
         <p>
           <TimeSlider
@@ -64,11 +67,11 @@ class TimeSettings extends Component {
         </p>
         <p className="control-group">
           <button onClick={this.onTimeButtonClick(-timeIncrement)}>
-            &lsaquo; {timeIncrement} sek.
+            &lsaquo; {timeIncrement} <Text>general.seconds.short</Text>
           </button>
           <input value={time} onChange={(e) => Time.setTime(e.target.value)} />
           <button onClick={this.onTimeButtonClick(timeIncrement)}>
-            &rsaquo; {timeIncrement} sek.
+            &rsaquo; {timeIncrement} <Text>general.seconds.short</Text>
           </button>
           <input
             type="number"
@@ -80,7 +83,9 @@ class TimeSettings extends Component {
         </p>
         <p>
           <button onClick={Time.toggleAutoplay}>
-            {playing ? "Pysäytä simulaatio" : "Simuloi"}
+            {playing
+              ? text("filterpanel.simulate.stop")
+              : text("filterpanel.simulate.start")}
           </button>
         </p>
       </div>

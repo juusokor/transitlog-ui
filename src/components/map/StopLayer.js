@@ -6,6 +6,7 @@ import {Query} from "react-apollo";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import withRoute from "../../hoc/withRoute";
+import {Text} from "../../helpers/text";
 
 const stopsByBboxQuery = gql`
   query stopsByBboxQuery(
@@ -60,8 +61,8 @@ class StopLayer extends Component {
     return (
       <Query query={stopsByBboxQuery} variables={{...bounds, date}}>
         {({loading, data, error}) => {
-          if (loading) return "Loading...";
-          if (error) return "Error!";
+          if (loading) return <Text>general.loading</Text>;
+          if (error) return <Text>general.error</Text>;
           const stops = get(data, "stopsByBbox.nodes", []);
           return (
             <React.Fragment>
@@ -92,7 +93,9 @@ class StopLayer extends Component {
                       ))}
                     </Popup>
                   ) : (
-                    <Popup>Loading..</Popup>
+                    <Popup>
+                      <Text>general.loading</Text>
+                    </Popup>
                   )}
                 </CircleMarker>
               ))}
