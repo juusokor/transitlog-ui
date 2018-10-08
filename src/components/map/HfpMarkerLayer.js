@@ -81,7 +81,7 @@ ${position.drst ? `<span class="hfp-marker-drst" />` : ""}
           ) : (
             <Text>vehicle.delay.early</Text>
           )}{" "}
-          {Math.abs(position.dl)} <Text>general.seconds.short</Text>
+          {Math.abs(position.dl)}: <Text>general.seconds.short</Text>
         </Tooltip>
       </Marker>
     );

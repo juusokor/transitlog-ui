@@ -8,6 +8,7 @@ import getDelayType from "../../helpers/getDelayType";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import getJourneyId from "../../helpers/getJourneyId";
+import {text} from "../../helpers/text";
 
 export function getLineChunksByDelay(positions, journeyId) {
   // Get only the positions from the same journey and create latLng items for Leaflet.
@@ -82,8 +83,16 @@ class HfpLayer extends Component {
       const line = event.target;
       const tooltipContent = `${moment(hfpItem.received_at).format("HH:mm:ss")}<br />
 ${hfpItem.unique_vehicle_id}<br />
-Speed: ${Math.round((hfpItem.spd * 18) / 5)} km/h<br />
-Delay: ${hfpItem.dl} sek.`;
+${text("vehicle.speed")}: ${Math.round((hfpItem.spd * 18) / 5)} km/h<br />
+${
+        hfpItem.dl !== 0
+          ? `${
+              hfpItem.dl < 0
+                ? text("vehicle.delay.late")
+                : text("vehicle.delay.early")
+            }: ${Math.abs(hfpItem.dl)} ${text("general.seconds.short")}`
+          : ""
+      }`;
 
       const lineTooltip = line.getTooltip();
 
