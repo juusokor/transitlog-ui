@@ -9,13 +9,25 @@ import {queryHfp} from "../queries/HfpQuery";
 import getJourneyId from "../helpers/getJourneyId";
 import {groupHfpPositions} from "../helpers/groupHfpPositions";
 import * as localforage from "localforage";
-import isWithinRange from "date-fns/is_within_range";
-import {createDateTime} from "./createDateTime";
+import {combineDateAndTime} from "./time";
 import pQueue from "p-queue";
 
 let promiseCache = {};
 
 const concurrentQueries = 3;
+
+function createHfpItem(rawHfp) {
+  const journeyStartMoment = combineDateAndTime(
+    rawHfp.oday,
+    rawHfp.journey_start_time,
+    "Europe/Helsinki"
+  );
+
+  return {
+    ...rawHfp,
+    journey_start_timestamp: journeyStartMoment.toISOString(),
+  };
+}
 
 export async function getCachedJourneyIds(route, date, timeRange) {
   let cachedKeys = null;
@@ -53,9 +65,9 @@ export async function getCachedJourneyIds(route, date, timeRange) {
   return cachedJourneyIds.reduce((matchingJourneys, cachedId) => {
     const idTime = cachedId.slice(8).split("_")[1];
 
-    const cachedTimeDate = createDateTime(date, idTime);
+    const cachedTimeMoment = combineDateAndTime(date, idTime, "Europe/Helsinki");
 
-    if (isWithinRange(cachedTimeDate, min, max)) {
+    if (cachedTimeMoment.isBetween(min, max)) {
       matchingJourneys.push(cachedId);
     }
 
@@ -104,6 +116,7 @@ export async function fetchHfp(route, date, timeRange) {
               .then((result) =>
                 result.filter((pos) => !!pos && !!pos.lat && !!pos.long)
               )
+              .then((filteredData) => filteredData.map(createHfpItem))
               // ...group the data by journey
               .then((formattedData) =>
                 groupHfpPositions(formattedData, getJourneyId, "journeyId")

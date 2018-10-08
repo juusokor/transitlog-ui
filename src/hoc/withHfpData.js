@@ -6,7 +6,9 @@ import {createFetchKey} from "../helpers/hfpCache";
 import {fromPromise} from "mobx-utils";
 import withRoute from "./withRoute";
 import {fetchHfp} from "../helpers/hfpQueryManager";
-import {getTimeRange} from "../helpers/getTimeRange";
+import {getTimeRange} from "../helpers/time";
+import {combineDateAndTime} from "../helpers/time";
+import parse from "date-fns/parse";
 
 const emptyCachePromise = () => fromPromise.resolve([]);
 
@@ -37,8 +39,9 @@ export default (Component) => {
       }
 
       const useTime = get(selectedJourney, "journey_start_time", time);
+      const timeMoment = combineDateAndTime(date, useTime, "Europe/Helsinki");
 
-      const timeRange = getTimeRange(date, useTime);
+      const timeRange = getTimeRange(timeMoment);
       const fetchKey = createFetchKey(route, date, timeRange);
       let setPromise;
 

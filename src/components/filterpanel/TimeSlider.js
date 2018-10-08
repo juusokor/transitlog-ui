@@ -1,34 +1,41 @@
 import React, {Component} from "react";
-import addSeconds from "date-fns/add_seconds";
-import startOfToday from "date-fns/start_of_today";
-import format from "date-fns/format";
-import diffSeconds from "date-fns/difference_in_seconds";
+import moment from "moment-timezone";
 
 const MAX = 86399;
 const MIN = 15000;
 
 class TimeSlider extends Component {
-  getNumericValue = (value = "") => {
+  getNumericValue = (value = "", date) => {
     const {max = MAX} = this.props;
 
-    let val;
+    const val = moment.tz(date, "Europe/Helsinki").startOf("day");
 
     if (value) {
       const [hours = 23, minutes = 59, seconds = 0] = value.split(":");
-      val = startOfToday();
-      val.setHours(hours);
-      val.setMinutes(minutes);
-      val.setSeconds(seconds);
+      val.hours(hours);
+      val.minutes(minutes);
+      val.seconds(seconds);
     } else {
-      val = addSeconds(startOfToday(), max);
+      val.add(max, "seconds");
     }
 
-    return Math.abs(diffSeconds(val, startOfToday()));
+    return Math.abs(
+      moment
+        .tz(date, "Europe/Helsinki")
+        .startOf("day")
+        .diff(val, "seconds")
+    );
   };
 
   getTimeValue = (value) => {
-    const nextDate = addSeconds(startOfToday(), parseInt(value, 10));
-    return format(nextDate, "HH:mm:ss");
+    const {date} = this.props;
+
+    const nextDate = moment
+      .tz(date, "Europe/Helsinki")
+      .startOf("day")
+      .add(parseInt(value, 10), "seconds");
+
+    return nextDate.format("HH:mm:ss");
   };
 
   onChange = (e) => {
@@ -37,7 +44,7 @@ class TimeSlider extends Component {
   };
 
   render() {
-    const {value, min = MIN, max = MAX} = this.props;
+    const {value, date, min = MIN, max = MAX} = this.props;
 
     return (
       <input
@@ -46,7 +53,7 @@ class TimeSlider extends Component {
         min={min}
         max={max}
         step={1}
-        value={this.getNumericValue(value)}
+        value={this.getNumericValue(value, date)}
         onChange={this.onChange}
       />
     );
