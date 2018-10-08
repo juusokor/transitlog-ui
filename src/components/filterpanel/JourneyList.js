@@ -102,6 +102,8 @@ class JourneyList extends Component {
     const isSelected = (journey) =>
       selectedJourney && selectedJourneyId === getJourneyId(journey);
 
+    // TODO: Show planned but unfetched journeys
+
     return (
       <div className="journey-list">
         <div className="journey-list-row header">

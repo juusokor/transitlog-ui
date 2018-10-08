@@ -4,7 +4,8 @@ import React from "react";
 import withRoute from "./withRoute";
 import gql from "graphql-tag";
 import {Query} from "react-apollo";
-import {get, compact} from "lodash";
+import {get} from "lodash";
+import getDay from "date-fns/get_day";
 
 const departuresQuery = gql`
   query routeDepartures(
@@ -22,7 +23,6 @@ const departuresQuery = gql`
     ) {
       nodeId
       routeId
-      # sic
       departuresGropuped(date: $queryDate) {
         nodes {
           dayType
@@ -36,6 +36,8 @@ const departuresQuery = gql`
   }
 `;
 
+const dayTypes = ["Su", "Ma", "Ti", "Ke", "To", "Pe", "La"];
+
 export default (Component) => {
   @inject(app("state"))
   @withRoute
@@ -46,8 +48,6 @@ export default (Component) => {
         route: {routeId, direction, dateBegin, dateEnd},
         state: {date},
       } = this.props;
-
-      console.log(date, this.props.route);
 
       // Make sure none if these are falsy
       if ([date, routeId, direction, dateBegin, dateEnd].some((i) => !i)) {
@@ -66,10 +66,13 @@ export default (Component) => {
           }}>
           {({loading, error, data}) => {
             const departures = get(data, "route.departuresGropuped.nodes", []); // sic
+            const queryDayType = dayTypes[getDay(date)];
 
-            console.log(departures);
+            const chosenDayDepartures = departures.filter((departure) => {
+              return departure.dayType.indexOf(queryDayType) !== -1;
+            });
 
-            return <Component departures={departures} {...this.props} />;
+            return <Component departures={chosenDayDepartures} {...this.props} />;
           }}
         </Query>
       );
