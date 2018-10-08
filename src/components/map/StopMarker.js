@@ -10,6 +10,7 @@ import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import parse from "date-fns/parse";
 import ArriveDepartToggle from "./ArriveDepartToggle";
+import {combineDateAndTime} from "../../helpers/time";
 
 const stopColor = "#3388ff";
 const selectedStopColor = darken(0.2, stopColor);
@@ -28,6 +29,8 @@ class StopMarker extends React.Component {
       onChangeShowTime,
       onTimeClick,
       state,
+      onPopupOpen,
+      onPopupClose,
     } = this.props;
 
     const isTerminal = firstTerminal || lastTerminal;
@@ -65,7 +68,11 @@ class StopMarker extends React.Component {
       journeyStartedOnTime = delay < 10;
     }
 
-    const time = parse(`${state.date}T${state.time}`);
+    const time = combineDateAndTime(
+      state.date,
+      state.time,
+      "Europe/Helsinki"
+    ).toISOString();
 
     return React.createElement(
       stop.timingStopType ? Marker : CircleMarker,
@@ -84,6 +91,8 @@ class StopMarker extends React.Component {
         fillOpacity: 1,
         strokeWeight: isTerminal ? 5 : 3,
         radius: isTerminal ? 12 : 8,
+        onPopupopen: onPopupOpen(stop.nodeId),
+        onPopupclose: onPopupClose(stop.nodeId),
       },
       <React.Fragment>
         <Tooltip>

@@ -1,10 +1,10 @@
 import React from "react";
 import map from "lodash/map";
 import parse from "date-fns/parse";
-import format from "date-fns/format";
 import diffSeconds from "date-fns/difference_in_seconds";
 import {darken} from "polished";
 import {observer} from "mobx-react";
+import {timeToFormat} from "../../helpers/time";
 
 @observer
 class DriveByTimes extends React.Component {
@@ -43,7 +43,9 @@ class DriveByTimes extends React.Component {
 
           return (
             <button
-              onClick={onTimeClick(receivedAtDate)}
+              onClick={onTimeClick(
+                timeToFormat(receivedAtDate, "HH:mm:ss", "Europe/Helsinki")
+              )}
               key={`time_tag_${useTime.received_at}_${useTime.unique_vehicle_id}`}
               style={{
                 borderColor: didntStop ? "red" : isMatch ? "green" : "transparent",
@@ -54,7 +56,7 @@ class DriveByTimes extends React.Component {
                 ),
               }}
               className="hfp-time-tag">
-              {format(receivedAtDate, "HH:mm:ss")}{" "}
+              {timeToFormat(receivedAtDate, "HH:mm:ss", "Europe/Helsinki")}{" "}
             </button>
           );
         })}

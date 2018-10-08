@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import "./FilterPanel.css";
 import LineInput from "./LineInput";
 import StopInput from "./StopInput";
-import {RouteInput} from "./RouteInput";
+import RouteInput from "./RouteInput";
 import RoutesByLineQuery from "../../queries/RoutesByLineQuery";
 import AllStopsQuery from "../../queries/AllStopsQuery";
 import StopsByRouteQuery from "../../queries/StopsByRouteQuery";
@@ -14,6 +14,7 @@ import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import JourneyList from "./JourneyList";
 import VehicleInput from "./VehicleInput";
+import Loading from "../Loading";
 
 @inject(app("Filters", "UI"))
 @observer
@@ -28,7 +29,7 @@ class FilterPanel extends Component {
   };
 
   render() {
-    const {state, Filters} = this.props;
+    const {state, Filters, loading} = this.props;
     const {vehicle, stop, route, line, date, filterPanelVisible: visible} = state;
 
     return (
@@ -78,6 +79,7 @@ class FilterPanel extends Component {
               }}
             </RoutesByLineQuery>
           )}
+        <div className="LoadingContainer">{loading && <Loading />}</div>
         <JourneyList />
         <button className="toggle-filter-panel" onClick={this.toggleVisibility}>
           {visible ? "<" : ">"}

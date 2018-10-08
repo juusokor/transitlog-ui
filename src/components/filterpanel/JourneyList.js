@@ -5,7 +5,9 @@ import map from "lodash/map";
 import get from "lodash/get";
 import {app} from "mobx-app";
 import getJourneyId from "../../helpers/getJourneyId";
-import {format, parse} from "date-fns";
+import format from "date-fns/format";
+import parse from "date-fns/parse";
+import {timeToFormat} from "../../helpers/time";
 
 @inject(app("Journey", "Time", "Filters"))
 @withHfpData
@@ -20,7 +22,7 @@ class JourneyList extends Component {
   }
 
   ensureSelectedVehicle = () => {
-    const {Filters, state, positionsByJourney} = this.props;
+    const {Filters, state, positions} = this.props;
     const {vehicle, selectedJourney} = state;
 
     if (!selectedJourney) {
@@ -32,7 +34,7 @@ class JourneyList extends Component {
     }
 
     const selectedJourneyId = getJourneyId(selectedJourney);
-    const journeys = map(positionsByJourney, ({positions}) => positions[0]);
+    const journeys = map(positions, ({positions}) => positions[0]);
     const journey = journeys.find((j) => getJourneyId(j) === selectedJourneyId);
 
     // Only set these if the journey is truthy and was not already selected
@@ -47,18 +49,20 @@ class JourneyList extends Component {
 
     // Only set these if the journey is truthy and was not already selected
     if (journey && getJourneyId(state.selectedJourney) !== getJourneyId(journey)) {
-      Time.setTime(journey.journey_start_time);
+      Time.setTime(
+        timeToFormat(journey.journey_start_timestamp, "HH:mm:ss", "Europe/Helsinki")
+      );
     }
 
     Journey.setSelectedJourney(journey);
   };
 
   getJourneyStartPosition(journeyId) {
-    const {positionsByJourney} = this.props;
+    const {positions} = this.props;
 
     // Get the hfp data for this journey
     const journeyPositions = get(
-      positionsByJourney.find(({journeyId: jid}) => jid === journeyId),
+      positions.find(({journeyId: jid}) => jid === journeyId),
       "positions",
       []
     );
@@ -86,9 +90,9 @@ class JourneyList extends Component {
   }
 
   render() {
-    const {positionsByJourney, state} = this.props;
+    const {positions, state} = this.props;
 
-    const journeys = map(positionsByJourney, ({positions}) => positions[0]);
+    const journeys = map(positions, ({positions}) => positions[0]);
     const selectedJourney = get(state, "selectedJourney");
     const selectedJourneyId = getJourneyId(selectedJourney);
 
@@ -111,9 +115,21 @@ class JourneyList extends Component {
               className={`journey-list-row ${isSelected(journey) ? "selected" : ""}`}
               key={`journey_row_${getJourneyId(journey)}`}
               onClick={this.selectJourney(journey)}>
-              <strong className="start-time">{journey.journey_start_time}</strong>
+              <strong className="start-time">
+                {timeToFormat(
+                  journey.journey_start_timestamp,
+                  "HH:mm:ss",
+                  "Europe/Helsinki"
+                )}
+              </strong>
               {journeyStartHfp && (
-                <span>{format(parse(journeyStartHfp.received_at), "HH:mm:ss")}</span>
+                <span>
+                  {timeToFormat(
+                    journeyStartHfp.received_at,
+                    "HH:mm:ss",
+                    "Europe/Helsinki"
+                  )}
+                </span>
               )}
             </button>
           );

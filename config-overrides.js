@@ -1,12 +1,14 @@
-const rewireReactHotLoader = require("react-app-rewire-hot-loader");
-const {injectBabelPlugin} = require("react-app-rewired");
+const {
+  override,
+  addDecoratorsLegacy,
+  disableEsLint,
+  addBundleVisualizer,
+  addBabelPlugin,
+} = require("customize-cra");
 
-module.exports = function(config, env) {
-  config = injectBabelPlugin("transform-class-properties", config);
-  config = injectBabelPlugin("transform-decorators-legacy", config);
-
-  // React Hot Loader
-  config = rewireReactHotLoader(config, env);
-
-  return config;
-};
+module.exports = override(
+  addDecoratorsLegacy(),
+  disableEsLint(),
+  addBabelPlugin("react-hot-loader/babel"),
+  process.env.BUNDLE_VISUALIZE == 1 && addBundleVisualizer()
+);
