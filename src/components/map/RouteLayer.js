@@ -4,7 +4,6 @@ import format from "date-fns/format";
 import get from "lodash/get";
 import groupBy from "lodash/groupBy";
 import filter from "lodash/filter";
-import set from "lodash/set";
 import map from "lodash/map";
 import flatMap from "lodash/flatMap";
 import calculateBoundsFromPositions from "../../helpers/calculateBoundsFromPositions";

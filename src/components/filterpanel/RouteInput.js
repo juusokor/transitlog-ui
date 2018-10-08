@@ -23,7 +23,7 @@ const getRouteValue = ({
 @inject(app("Filters"))
 @withRoute
 @observer
-export class RouteInput extends Component {
+class RouteInput extends Component {
   onChange = (e) => {
     const {Filters} = this.props;
     const selectedValue = get(e, "target.value", false);
@@ -91,3 +91,5 @@ export class RouteInput extends Component {
     );
   }
 }
+
+export default RouteInput;

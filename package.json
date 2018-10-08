@@ -6,7 +6,7 @@
     "apollo-cache-inmemory": "^1.3.0",
     "apollo-client": "^2.4.2",
     "apollo-link-http": "^1.5.5",
-    "autosuggest-highlight": "^3.1.1",
+    "customize-cra": "^0.1.0-beta5",
     "date-fns": "^1.29.0",
     "forever": "^0.15.3",
     "graphql": "^14.0.2",
@@ -22,19 +22,18 @@
     "mobx-react": "^5.2.8",
     "mobx-utils": "^5.0.2",
     "moment": "^2.22.2",
-    "pako": "^1.0.6",
+    "p-queue": "^3.0.0",
     "polished": "^2.2.0",
     "prop-types": "^15.6.1",
     "react": "^16.5.2",
     "react-apollo": "^2.2.3",
-    "react-app-rewire-hot-loader": "^1.0.1",
-    "react-app-rewired": "^1.5.2",
+    "react-app-rewired": "^1.6.2",
     "react-autosuggest": "^9.4.2",
     "react-datepicker": "^1.5.0",
     "react-dom": "^16.5.2",
     "react-hot-loader": "^4.3.11",
     "react-leaflet": "^2.0.0",
-    "react-scripts": "^1.1.4",
+    "react-scripts": "^2.0.4",
     "react-spinkit": "^3.0.0",
     "serve": "^10.0.2"
   },
@@ -43,23 +42,22 @@
     "docker:run": "docker run -d -p 3000:3000 hsldevcom/transitlog-ui",
     "start": "react-app-rewired start",
     "build": "react-app-rewired build",
-    "test": "react-app-rewired test --env=jsdom",
-    "test:ci": "CI=true npm run test",
+    "test": "react-app-rewired test",
+    "test:ci": "CI=true react-app-rewired test",
+    "test:staged": "CI=true react-app-rewired test --bail --findRelatedTests",
     "eject": "react-app-rewired eject",
     "codestyle": "prettier \"src/**/*.{css,js}\" --write",
     "lint": "eslint \"src/**/*.js\" --fix",
     "production": "forever start -c \"yarn run serve -s -l 3000\" build && forever logs -f 0"
   },
   "devDependencies": {
-    "babel-core": "^6.26.3",
-    "babel-plugin-transform-class-properties": "^6.24.1",
-    "babel-plugin-transform-decorators-legacy": "^1.3.5",
-    "babel-preset-env": "^1.7.0",
-    "babel-preset-react": "^6.24.1",
+    "@babel/core": "^7.1.2",
+    "@babel/plugin-proposal-class-properties": "^7.1.0",
+    "@babel/plugin-proposal-decorators": "^7.1.2",
     "eslint-config-prettier": "^3.1.0",
+    "eslint-config-react-app": "^3.0.3",
     "eslint-plugin-prettier": "^3.0.0",
     "husky": "^1.0.1",
-    "jest-fetch-mock": "^1.6.6",
     "lint-staged": "^7.3.0",
     "prettier": "^1.14.3",
     "react-test-renderer": "^16.5.2",
@@ -69,8 +67,8 @@
     "*.js": [
       "prettier --write",
       "eslint --fix",
-      "npm run test:ci",
-      "git add"
+      "git add",
+      "npm run test:staged --"
     ],
     "*.css": [
       "prettier --write",
@@ -81,5 +79,11 @@
     "hooks": {
       "pre-commit": "lint-staged"
     }
-  }
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
 }
