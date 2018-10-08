@@ -22,5 +22,7 @@
 
   "general.day": "dag",
   "general.week": "vecka",
-  "general.seconds.short": "sek."
+  "general.seconds.short": "sek.",
+  "general.loading": "Laddar",
+  "general.error": "Fel"
 }

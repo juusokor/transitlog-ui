@@ -22,5 +22,7 @@
 
   "general.day": "päivä",
   "general.week": "viikko",
-  "general.seconds.short": "sek."
+  "general.seconds.short": "sek.",
+  "general.loading": "Ladataan",
+  "general.error": "Virhe"
 }

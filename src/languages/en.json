@@ -22,5 +22,7 @@
 
   "general.day": "day",
   "general.week": "week",
-  "general.seconds.short": "sec."
+  "general.seconds.short": "sec.",
+  "general.loading": "Loading",
+  "general.error": "Error"
 }
