@@ -9,9 +9,11 @@ import format from "date-fns/format";
 import parse from "date-fns/parse";
 import {timeToFormat} from "../../helpers/time";
 import {Text} from "../../helpers/text";
+import withDepartures from "../../hoc/withDepartures";
 
 @inject(app("Journey", "Time", "Filters"))
 @withHfpData
+@withDepartures
 @observer
 class JourneyList extends Component {
   componentDidMount() {
