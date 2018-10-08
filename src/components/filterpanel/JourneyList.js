@@ -5,7 +5,9 @@ import map from "lodash/map";
 import get from "lodash/get";
 import {app} from "mobx-app";
 import getJourneyId from "../../helpers/getJourneyId";
-import {format, parse} from "date-fns";
+import format from "date-fns/format";
+import parse from "date-fns/parse";
+import {timeToFormat} from "../../helpers/time";
 
 @inject(app("Journey", "Time", "Filters"))
 @withHfpData
@@ -47,7 +49,9 @@ class JourneyList extends Component {
 
     // Only set these if the journey is truthy and was not already selected
     if (journey && getJourneyId(state.selectedJourney) !== getJourneyId(journey)) {
-      Time.setTime(journey.journey_start_time);
+      Time.setTime(
+        timeToFormat(journey.journey_start_timestamp, "HH:mm:ss", "Europe/Helsinki")
+      );
     }
 
     Journey.setSelectedJourney(journey);
@@ -111,9 +115,21 @@ class JourneyList extends Component {
               className={`journey-list-row ${isSelected(journey) ? "selected" : ""}`}
               key={`journey_row_${getJourneyId(journey)}`}
               onClick={this.selectJourney(journey)}>
-              <strong className="start-time">{journey.journey_start_time}</strong>
+              <strong className="start-time">
+                {timeToFormat(
+                  journey.journey_start_timestamp,
+                  "HH:mm:ss",
+                  "Europe/Helsinki"
+                )}
+              </strong>
               {journeyStartHfp && (
-                <span>{format(parse(journeyStartHfp.received_at), "HH:mm:ss")}</span>
+                <span>
+                  {timeToFormat(
+                    journeyStartHfp.received_at,
+                    "HH:mm:ss",
+                    "Europe/Helsinki"
+                  )}
+                </span>
               )}
             </button>
           );

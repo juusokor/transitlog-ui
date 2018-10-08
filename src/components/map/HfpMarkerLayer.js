@@ -7,7 +7,7 @@ import getDelayType from "../../helpers/getDelayType";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import {getPrecisePositionForTime} from "../../helpers/getPrecisePositionForTime";
-import {createDateTime} from "../../helpers/createDateTime";
+import {combineDateAndTime} from "../../helpers/time";
 
 @inject(app("state"))
 @observer
@@ -24,9 +24,8 @@ class HfpMarkerLayer extends Component {
       return this.prevHfpPosition;
     }
 
-    const timeDate = createDateTime(date, time);
-
-    const nextHfpPosition = getPrecisePositionForTime(positions, timeDate);
+    const dateTime = combineDateAndTime(date, time, "Europe/Helsinki").toISOString();
+    const nextHfpPosition = getPrecisePositionForTime(positions, dateTime);
 
     this.prevHfpPosition = nextHfpPosition;
     this.prevQueryTime = time;
