@@ -10,6 +10,7 @@ import parse from "date-fns/parse";
 import diffSeconds from "date-fns/difference_in_seconds";
 import startOfDay from "date-fns/start_of_day";
 import isValid from "date-fns/is_valid";
+import {Text, text} from "../../helpers/text";
 
 const dateToSeconds = (date) => {
   if (!isValid(date)) {
@@ -43,7 +44,9 @@ class TimeSettings extends Component {
     return (
       <div>
         <p>
-          <label>Choose time</label>
+          <label>
+            <Text>filterpanel.choose_time</Text>
+          </label>
         </p>
         <p>
           <TimeSlider
@@ -65,11 +68,11 @@ class TimeSettings extends Component {
         </p>
         <p className="control-group">
           <button onClick={this.onTimeButtonClick(-timeIncrement)}>
-            &lsaquo; {timeIncrement} sek.
+            &lsaquo; {timeIncrement} <Text>general.seconds.short</Text>
           </button>
           <input value={time} onChange={(e) => Time.setTime(e.target.value)} />
           <button onClick={this.onTimeButtonClick(timeIncrement)}>
-            &rsaquo; {timeIncrement} sek.
+            &rsaquo; {timeIncrement} <Text>general.seconds.short</Text>
           </button>
           <input
             type="number"
@@ -81,7 +84,9 @@ class TimeSettings extends Component {
         </p>
         <p>
           <button onClick={Time.toggleAutoplay}>
-            {playing ? "Pysäytä simulaatio" : "Simuloi"}
+            {playing
+              ? text("filterpanel.simulate.stop")
+              : text("filterpanel.simulate.start")}
           </button>
         </p>
       </div>

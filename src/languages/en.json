@@ -3,7 +3,8 @@
   "filterpanel.reset": "Reset",
   "filterpanel.choose_date": "Choose date",
   "filterpanel.choose_time": "Choose time",
-  "filterpanel.simulate": "Simulate",
+  "filterpanel.simulate.start": "Simulate",
+  "filterpanel.simulate.stop": "Stop simulation",
   "filterpanel.filter_by_vehicle": "Filter by vehicle",
   "filterpanel.filter_by_stop": "Search stops",
   "filterpanel.filter_by_line": "Search line",
@@ -12,5 +13,6 @@
   "filterpanel.real_start_time": "Real start time",
 
   "general.day": "day",
-  "general.week": "week"
+  "general.week": "week",
+  "general.seconds.short": "sec."
 }

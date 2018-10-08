@@ -3,7 +3,8 @@
   "filterpanel.reset": "Tyhjää",
   "filterpanel.choose_date": "Valitse päivä",
   "filterpanel.choose_time": "Valitse aika",
-  "filterpanel.simulate": "Simuloi",
+  "filterpanel.simulate.start": "Simuloi",
+  "filterpanel.simulate.stop": "Pysäytä simulaatio",
   "filterpanel.filter_by_vehicle": "Rajaa kulkuneuvoa",
   "filterpanel.filter_by_stop": "Hae pysäkkiä",
   "filterpanel.filter_by_line": "Hae linjaa",
@@ -12,5 +13,6 @@
   "filterpanel.real_start_time": "Toteutettu lähtöaika",
 
   "general.day": "päivä",
-  "general.week": "viikko"
+  "general.week": "viikko",
+  "general.seconds.short": "sek."
 }

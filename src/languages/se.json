@@ -3,7 +3,8 @@
   "filterpanel.reset": "Återställ",
   "filterpanel.choose_date": "Välj datum",
   "filterpanel.choose_time": "Välj tid",
-  "filterpanel.simulate": "Simulera",
+  "filterpanel.simulate.start": "Simulera",
+  "filterpanel.simulate.stop": "Sluta simulera",
   "filterpanel.filter_by_vehicle": "Filtrera enligt fordon",
   "filterpanel.filter_by_stop": "Sök hållplatser",
   "filterpanel.filter_by_line": "Sök linjer",
@@ -12,5 +13,6 @@
   "filterpanel.real_start_time": "Realiserad starttid",
 
   "general.day": "dag",
-  "general.week": "vecka"
+  "general.week": "vecka",
+  "general.seconds.short": "sek."
 }

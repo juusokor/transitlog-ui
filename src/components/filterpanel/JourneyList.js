@@ -6,6 +6,7 @@ import get from "lodash/get";
 import {app} from "mobx-app";
 import getJourneyId from "../../helpers/getJourneyId";
 import {format, parse} from "date-fns";
+import {Text} from "../../helpers/text";
 
 @inject(app("Journey", "Time", "Filters"))
 @withHfpData
@@ -98,8 +99,12 @@ class JourneyList extends Component {
     return (
       <div className="journey-list">
         <div className="journey-list-row header">
-          <strong className="start-time">Planned start time</strong>
-          <span>Real start time</span>
+          <strong className="start-time">
+            <Text>filterpanel.planned_start_time</Text>
+          </strong>
+          <span>
+            <Text>filterpanel.real_start_time</Text>
+          </span>
         </div>
         {journeys.map((journey) => {
           const journeyStartHfp = this.getJourneyStartPosition(

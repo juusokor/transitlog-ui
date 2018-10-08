@@ -48,7 +48,7 @@
 }
 
 .journey-list {
-  margin: 1.5rem 0 0;
+  margin: 0;
 }
 
 .journey-list-row {
@@ -69,6 +69,12 @@
 .header {
   background: transparent;
   font-size: 0.9em;
+  padding-top: 0;
+}
+
+.header > *:last-child {
+  align-self: flex-end;
+  text-align: right;
 }
 
 .journey-list-row:nth-child(odd) {

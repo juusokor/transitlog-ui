@@ -7,7 +7,7 @@ export default () => {
     <div>
       <img src={logo} className="App-logo" alt="logo" />
       <h1 className="App-title">
-        <Text text="filterpanel.heading" />
+        <Text>filterpanel.heading</Text>
       </h1>
     </div>
   );

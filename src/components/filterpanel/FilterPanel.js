@@ -16,6 +16,7 @@ import JourneyList from "./JourneyList";
 import VehicleInput from "./VehicleInput";
 import Loading from "../Loading";
 import LanguageSelect from "./LanguageSelect";
+import {Text} from "../../helpers/text";
 
 @inject(app("Filters", "UI"))
 @observer
@@ -38,7 +39,9 @@ class FilterPanel extends Component {
         className={`transitlog-header filter-panel ${visible ? "visible" : ""}`}>
         <LanguageSelect />
         <Header />
-        <button onClick={Filters.reset}>Reset</button>
+        <button onClick={Filters.reset}>
+          <Text>filterpanel.reset</Text>
+        </button>
         <DateSettings />
         <TimeSettings />
         <VehicleInput value={vehicle} onSelect={this.onChangeQueryVehicle} />

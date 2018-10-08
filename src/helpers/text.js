@@ -25,7 +25,7 @@ export function text(token) {
   return languageStr;
 }
 
-export const Text = observer((props) => {
-  const str = text(props.text);
+export const Text = observer(({children, text: textToken = children}) => {
+  const str = text(textToken);
   return str;
 });
