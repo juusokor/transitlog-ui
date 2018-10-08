@@ -6,9 +6,11 @@ import get from "lodash/get";
 import {app} from "mobx-app";
 import getJourneyId from "../../helpers/getJourneyId";
 import {format, parse} from "date-fns";
+import withDepartures from "../../hoc/withDepartures";
 
 @inject(app("Journey", "Time", "Filters"))
 @withHfpData
+@withDepartures
 @observer
 class JourneyList extends Component {
   componentDidMount() {
