@@ -1,9 +1,10 @@
 import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
-import get from "lodash/get";
+import {get} from "lodash";
 import compact from "lodash/compact";
 import withRoute from "../../hoc/withRoute";
+import {text} from "../../helpers/text";
 
 const getRouteValue = ({
   routeId = "",
@@ -77,7 +78,7 @@ class RouteInput extends Component {
       };
     });
 
-    options.unshift({value: "", label: "Valitse reitti..."});
+    options.unshift({value: "", label: text("filterpanel.select_route")});
     const currentValue = getRouteValue(route);
 
     return (

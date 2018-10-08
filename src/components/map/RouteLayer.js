@@ -160,9 +160,9 @@ class RouteLayer extends Component {
     return dataToCache;
   };
 
-  onTimeClick = (receivedAtDate) => (e) => {
+  onTimeClick = (receivedAtTime) => (e) => {
     e.preventDefault();
-    this.props.Time.setTime(format(receivedAtDate, "HH:mm:ss"));
+    this.props.Time.setTime(receivedAtTime);
   };
 
   onTogglePopup = (setTo) => (stopId) => () => {

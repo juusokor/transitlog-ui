@@ -6,6 +6,7 @@ import unionBy from "lodash/unionBy";
 import {observer, inject} from "mobx-react";
 import withHfpData from "../../hoc/withHfpData";
 import {app} from "mobx-app";
+import {text} from "../../helpers/text";
 
 const getSuggestionValue = (suggestion) => suggestion;
 
@@ -42,7 +43,7 @@ export default enhance(({vehicle = "", onChange, onSelect, state, positions}) =>
   return (
     <SuggestionInput
       minimumInput={0}
-      placeholder="Rajaa kulkuneuvoa"
+      placeholder={text("filterpanel.filter_by_vehicle")}
       value={vehicle}
       onSelect={onSelect}
       getValue={getSuggestionValue}

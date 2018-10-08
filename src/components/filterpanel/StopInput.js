@@ -3,6 +3,7 @@ import SuggestionInput from "./SuggestionInput";
 import orderBy from "lodash/orderBy";
 import {observer} from "mobx-react";
 import withStop from "../../hoc/withStop";
+import {text} from "../../helpers/text";
 
 const getSuggestionValue = (suggestion) =>
   suggestion.stopId
@@ -55,7 +56,7 @@ export default withStop(
     return (
       <SuggestionInput
         minimumInput={0}
-        placeholder="Hae pysäkkiä..."
+        placeholder={text("filterpanel.filter_by_stop")}
         value={getSuggestionValue(stop)}
         onSelect={onSelect}
         getValue={getSuggestionValue}

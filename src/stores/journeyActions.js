@@ -1,20 +1,16 @@
 import {action} from "mobx";
 import getJourneyId from "../helpers/getJourneyId";
-import doubleDigit from "../helpers/doubleDigit";
 import createHistory from "history/createBrowserHistory";
 import {pickJourneyProps} from "../helpers/pickJourneyProps";
-import {createDateTime} from "../helpers/createDateTime";
+import moment from "moment-timezone";
 
 const history = createHistory();
 
 export function createJourneyPath(journey) {
-  const date = createDateTime(journey.oday, journey.journey_start_time);
+  const date = moment(journey.journey_start_timestamp).tz("Europe/Helsinki");
 
-  const dateStr = `${date.getFullYear()}${doubleDigit(
-    date.getMonth() + 1
-  )}${doubleDigit(date.getDate())}`;
-
-  const timeStr = `${doubleDigit(date.getHours())}${doubleDigit(date.getMinutes())}`;
+  const dateStr = date.format("YYYY-MM-DD");
+  const timeStr = date.format("HHmm");
 
   return `/journey/${dateStr}/${timeStr}/${journey.route_id}/${
     journey.direction_id

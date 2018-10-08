@@ -7,7 +7,8 @@ import getDelayType from "../../helpers/getDelayType";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import {getPrecisePositionForTime} from "../../helpers/getPrecisePositionForTime";
-import {createDateTime} from "../../helpers/createDateTime";
+import {combineDateAndTime} from "../../helpers/time";
+import {Text} from "../../helpers/text";
 
 @inject(app("state"))
 @observer
@@ -24,9 +25,8 @@ class HfpMarkerLayer extends Component {
       return this.prevHfpPosition;
     }
 
-    const timeDate = createDateTime(date, time);
-
-    const nextHfpPosition = getPrecisePositionForTime(positions, timeDate);
+    const dateTime = combineDateAndTime(date, time, "Europe/Helsinki").toISOString();
+    const nextHfpPosition = getPrecisePositionForTime(positions, dateTime);
 
     this.prevHfpPosition = nextHfpPosition;
     this.prevQueryTime = time;
@@ -70,11 +70,17 @@ ${position.drst ? `<span class="hfp-marker-drst" />` : ""}
           <br />
           {position.unique_vehicle_id}
           <br />
-          Next stop: {position.next_stop_id}
+          <Text>vehicle.next_stop</Text>: {position.next_stop_id}
           <br />
-          Speed: {Math.round((position.spd * 18) / 5)} km/h
+          <Text>vehicle.speed</Text>: {Math.round((position.spd * 18) / 5)} km/h
+          {position.dl !== 0 && <></>}
           <br />
-          Delay: {position.dl} sek.
+          {position.dl < 0 ? (
+            <Text>vehicle.delay.late</Text>
+          ) : (
+            <Text>vehicle.delay.early</Text>
+          )}{" "}
+          {Math.abs(position.dl)}: <Text>general.seconds.short</Text>
         </Tooltip>
       </Marker>
     );

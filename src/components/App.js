@@ -7,8 +7,6 @@ import withHfpData from "../hoc/withHfpData";
 import {app} from "mobx-app";
 import {inject, observer} from "mobx-react";
 import Map from "./map/Map";
-import {latLng} from "leaflet";
-import getCoarsePositionForTime from "../helpers/getCoarsePositionForTime";
 import StopLayer from "./map/StopLayer";
 import RouteQuery from "../queries/RouteQuery";
 import RouteLayer from "./map/RouteLayer";
@@ -18,7 +16,6 @@ import invoke from "lodash/invoke";
 import getJourneyId from "../helpers/getJourneyId";
 import withRoute from "../hoc/withRoute";
 import createRouteIdentifier from "../helpers/createRouteIdentifier";
-import {createDateTime} from "../helpers/createDateTime";
 
 @inject(app("Journey", "Filters"))
 @withHfpData
@@ -56,34 +53,6 @@ class App extends Component {
         maxLon: bounds.getEast(),
       },
     });
-  };
-
-  getJourneyPosition = () => {
-    const {
-      state: {selectedJourney, date, time},
-      positions = [],
-    } = this.props;
-
-    let journeyPosition = null;
-
-    if (selectedJourney) {
-      const journeyId = getJourneyId(selectedJourney);
-      const timeDate = createDateTime(date, time);
-
-      const journeyPositions = get(
-        positions.find((j) => j.journeyId === journeyId),
-        "positions",
-        []
-      );
-
-      const pos = getCoarsePositionForTime(journeyPositions, timeDate, journeyId);
-
-      if (pos) {
-        journeyPosition = latLng([pos.lat, pos.long]);
-      }
-    }
-
-    return journeyPosition;
   };
 
   onClickVehicleMarker = (journey) => {

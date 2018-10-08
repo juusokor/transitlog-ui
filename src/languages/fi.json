@@ -1,0 +1,28 @@
+{
+  "filterpanel.heading": "Liikenteenvalvontatyökalu",
+  "filterpanel.reset": "Palauta",
+  "filterpanel.choose_date": "Valitse päivä",
+  "filterpanel.choose_time": "Valitse aika",
+  "filterpanel.simulate.start": "Simuloi",
+  "filterpanel.simulate.stop": "Pysäytä simulaatio",
+  "filterpanel.filter_by_vehicle": "Rajaa kulkuneuvoa",
+  "filterpanel.filter_by_stop": "Hae pysäkkiä",
+  "filterpanel.filter_by_line": "Hae linjaa",
+  "filterpanel.select_route": "Valitse reitti",
+  "filterpanel.planned_start_time": "Suunniteltu lähtöaika",
+  "filterpanel.real_start_time": "Toteutunut lähtöaika",
+
+  "map.stops.arrive": "Saapumisaika",
+  "map.stops.depart": "Lähtöaika",
+
+  "vehicle.next_stop": "Seuraava pysäkki",
+  "vehicle.speed": "Nopeus",
+  "vehicle.delay.late": "Myöhässä",
+  "vehicle.delay.early": "Etuajassa",
+
+  "general.day": "päivä",
+  "general.week": "viikko",
+  "general.seconds.short": "sek.",
+  "general.loading": "Ladataan",
+  "general.error": "Virhe"
+}
