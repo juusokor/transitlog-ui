@@ -15,6 +15,7 @@ import {app} from "mobx-app";
 import JourneyList from "./JourneyList";
 import VehicleInput from "./VehicleInput";
 import Loading from "../Loading";
+import LanguageSelect from "./LanguageSelect";
 
 @inject(app("Filters", "UI"))
 @observer
@@ -35,6 +36,7 @@ class FilterPanel extends Component {
     return (
       <header
         className={`transitlog-header filter-panel ${visible ? "visible" : ""}`}>
+        <LanguageSelect />
         <Header />
         <button onClick={Filters.reset}>Reset</button>
         <DateSettings />

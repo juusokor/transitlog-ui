@@ -1,0 +1,16 @@
+{
+  "filterpanel.heading": "Transitlog",
+  "filterpanel.reset": "Återställ",
+  "filterpanel.choose_date": "Välj datum",
+  "filterpanel.choose_time": "Välj tid",
+  "filterpanel.simulate": "Simulera",
+  "filterpanel.filter_by_vehicle": "Filtrera enligt fordon",
+  "filterpanel.filter_by_stop": "Sök hållplatser",
+  "filterpanel.filter_by_line": "Sök linjer",
+  "filterpanel.select_route": "Välj rutt",
+  "filterpanel.planned_start_time": "Planerad starttid",
+  "filterpanel.real_start_time": "Realiserad starttid",
+
+  "general.day": "dag",
+  "general.week": "vecka"
+}

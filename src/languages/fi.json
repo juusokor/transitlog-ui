@@ -1,0 +1,16 @@
+{
+  "filterpanel.heading": "Liikenteenvalvontatyökalu",
+  "filterpanel.reset": "Tyhjää",
+  "filterpanel.choose_date": "Valitse päivä",
+  "filterpanel.choose_time": "Valitse aika",
+  "filterpanel.simulate": "Simuloi",
+  "filterpanel.filter_by_vehicle": "Rajaa kulkuneuvoa",
+  "filterpanel.filter_by_stop": "Hae pysäkkiä",
+  "filterpanel.filter_by_line": "Hae linjaa",
+  "filterpanel.select_route": "Valitse reitti",
+  "filterpanel.planned_start_time": "Suunniteltu lähtöaika",
+  "filterpanel.real_start_time": "Toteutettu lähtöaika",
+
+  "general.day": "päivä",
+  "general.week": "viikko"
+}
