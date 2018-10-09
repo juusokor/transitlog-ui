@@ -8,6 +8,7 @@
 }
 
 .filter-panel {
+  background: var(--blue);
   width: 350px;
   position: absolute;
   margin: 20px;

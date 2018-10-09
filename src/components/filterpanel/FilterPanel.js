@@ -35,8 +35,7 @@ class FilterPanel extends Component {
     const {vehicle, stop, route, line, date, filterPanelVisible: visible} = state;
 
     return (
-      <header
-        className={`transitlog-header filter-panel ${visible ? "visible" : ""}`}>
+      <header className={`filter-panel ${visible ? "visible" : ""}`}>
         <LanguageSelect />
         <Header />
         <button onClick={Filters.reset}>
