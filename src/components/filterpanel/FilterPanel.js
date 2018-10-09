@@ -17,6 +17,19 @@ import VehicleInput from "./VehicleInput";
 import Loading from "../Loading";
 import LanguageSelect from "./LanguageSelect";
 import {Text} from "../../helpers/text";
+import styled from "styled-components";
+
+const FilterPanelWrapper = styled.div`
+  height: 100%;
+  overflow: hidden;
+  background: var(--lighter-grey);
+  color: var(--dark-grey);
+  transition: transform 0.3s ease-out;
+  transform: translateX(${({visible = true}) => (visible ? 0 : "calc(-100%)")});
+  border-right: 1px solid var(--alt-grey);
+  display: grid;
+  grid-template-rows: 7.5rem 1fr 1fr;
+`;
 
 @inject(app("Filters", "UI"))
 @observer
@@ -30,7 +43,7 @@ class FilterPanel extends Component {
     const {vehicle, stop, route, line, date, filterPanelVisible: visible} = state;
 
     return (
-      <div className={`filter-panel ${visible ? "visible" : ""}`}>
+      <FilterPanelWrapper visible={visible}>
         <Header />
         <div className="filter-panel-filters">
           <div className="filters-section">
@@ -90,7 +103,7 @@ class FilterPanel extends Component {
           <div className="LoadingContainer">{loading && <Loading />}</div>
         </div>
         <JourneyList />
-      </div>
+      </FilterPanelWrapper>
     );
   }
 }
