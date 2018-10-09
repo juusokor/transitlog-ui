@@ -26,23 +26,22 @@ const filterActions = (state) => {
     setVehicle("");
   });
 
-  const setRoute = action(
-    ({routeId = "", direction = "", dateBegin = "", dateEnd = "", line}) => {
-      state.route.routeId = routeId;
-      state.route.direction = direction;
-      state.route.dateBegin = dateBegin;
-      state.route.dateEnd = dateEnd;
+  const setRoute = action((route) => {
+    state.route.routeId = get(route, "routeId", "");
+    state.route.direction = get(route, "direction", "");
+    state.route.dateBegin = get(route, "dateBegin", "");
+    state.route.dateEnd = get(route, "dateEnd", "");
+    state.route.originstopId = get(route, "originstopId", "");
 
-      const routeLine = get(line, "nodes[0]", null);
+    const routeLine = get(route, "line.nodes[0]", null);
 
-      if (routeLine) {
-        setLine(routeLine);
-      }
-
-      // When the route changes, also reset the vehicle and journey.
-      setVehicle("");
+    if (routeLine) {
+      setLine(routeLine);
     }
-  );
+
+    // When the route changes, also reset the vehicle and journey.
+    setVehicle("");
+  });
 
   return {
     setDate,

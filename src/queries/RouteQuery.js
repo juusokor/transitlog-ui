@@ -19,6 +19,7 @@ const routeQuery = gql`
       dateEnd: $dateEnd
     ) {
       nodeId
+      originstopId
       __typename
       geometries {
         nodes {
