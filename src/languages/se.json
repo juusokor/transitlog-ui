@@ -11,6 +11,8 @@
   "filterpanel.select_route": "Välj rutt",
   "filterpanel.planned_start_time": "Planerad starttid",
   "filterpanel.real_start_time": "Realiserad starttid",
+  "filterpanel.journey.unrealized": "Ogenomförd",
+  "filterpanel.journey.click_to_fetch": "Hämta",
 
   "map.stops.arrive": "Anländningstid",
   "map.stops.depart": "Avgångstid",

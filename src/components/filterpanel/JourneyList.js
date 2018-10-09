@@ -7,22 +7,60 @@ import sortBy from "lodash/sortBy";
 import {app} from "mobx-app";
 import getJourneyId from "../../helpers/getJourneyId";
 import {timeToFormat, combineDateAndTime} from "../../helpers/time";
-import {Text} from "../../helpers/text";
+import {Text, text} from "../../helpers/text";
 import withDepartures from "../../hoc/withDepartures";
 import doubleDigit from "../../helpers/doubleDigit";
+import {observable, action} from "mobx";
+import Loading from "../Loading";
 
 @inject(app("Journey", "Time", "Filters"))
 @withHfpData
 @withDepartures
 @observer
 class JourneyList extends Component {
+  @observable
+  requestedJourney = "";
+  @observable
+  unrealizedJourneys = [];
+
   componentDidMount() {
     this.ensureSelectedVehicle();
   }
 
-  componentDidUpdate() {
+  componentDidUpdate({positions: prevPositions}, prevState) {
     this.ensureSelectedVehicle();
+    const {requestedJourney, unrealizedJourneys} = this;
+    const {selectedJourney} = this.props.state;
+
+    if (
+      !selectedJourney &&
+      requestedJourney &&
+      !unrealizedJourneys.includes(requestedJourney) &&
+      prevPositions.length !== this.props.positions.length
+    ) {
+      this.checkReceivedJourneys();
+    }
   }
+
+  checkReceivedJourneys = action(() => {
+    const {positions, Journey} = this.props;
+    const {requestedJourney} = this;
+
+    const journeys = map(positions, ({positions}) => positions[0]);
+
+    for (const journey of journeys) {
+      if (journey.journey_start_time === requestedJourney) {
+        Journey.setSelectedJourney(journey);
+        this.setRequestedJourney("");
+
+        return;
+      }
+    }
+
+    if (!this.unrealizedJourneys.includes(requestedJourney)) {
+      this.unrealizedJourneys.push(requestedJourney);
+    }
+  });
 
   ensureSelectedVehicle = () => {
     const {Filters, state, positions} = this.props;
@@ -58,10 +96,22 @@ class JourneyList extends Component {
     }
 
     Journey.setSelectedJourney(journey);
+    this.setRequestedJourney("");
   };
 
-  onClickPlannedJourney = (plannedTime) => (e) => {
-    e.preventDefault();
+  setRequestedJourney = action((journeyStartTime = "") => {
+    const {Journey} = this.props;
+
+    if (!this.unrealizedJourneys.includes(journeyStartTime)) {
+      if (journeyStartTime) {
+        Journey.setSelectedJourney(null);
+      }
+
+      this.requestedJourney = journeyStartTime;
+    }
+  });
+
+  requestPlannedJourney = (plannedTime) => {
     const {Time, state} = this.props;
 
     Time.setTime(
@@ -71,6 +121,8 @@ class JourneyList extends Component {
         "Europe/Helsinki"
       )
     );
+
+    this.setRequestedJourney(plannedTime);
   };
 
   getJourneyStartPosition(journeyId) {
@@ -109,7 +161,7 @@ class JourneyList extends Component {
     const {positions, state, departures} = this.props;
 
     const journeys = map(positions, ({positions}) => positions[0]);
-    const selectedJourney = get(state, "selectedJourney");
+    const selectedJourney = get(state, "selectedJourney", null);
     const selectedJourneyId = getJourneyId(selectedJourney);
 
     const isSelected = (journey) =>
@@ -152,9 +204,17 @@ class JourneyList extends Component {
               <button
                 className={`journey-list-row`}
                 key={`planned_journey_row_${journeyOrDeparture}_${index}`}
-                onClick={this.onClickPlannedJourney(journeyOrDeparture)}>
+                onClick={() => this.requestPlannedJourney(journeyOrDeparture)}>
                 <strong className="start-time">{journeyOrDeparture}</strong>
-                <span>Click to fetch</span>
+                {this.unrealizedJourneys.includes(journeyOrDeparture) ? (
+                  <span>{text("filterpanel.journey.unrealized")}</span>
+                ) : this.requestedJourney === journeyOrDeparture ? (
+                  <span className="InlineLoading">
+                    <Loading />
+                  </span>
+                ) : (
+                  <span>{text("filterpanel.journey.click_to_fetch")}</span>
+                )}
               </button>
             );
           }
