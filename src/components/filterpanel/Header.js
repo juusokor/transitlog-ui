@@ -4,9 +4,9 @@ import {Text} from "../../helpers/text";
 
 export default () => {
   return (
-    <div>
-      <img src={logo} className="App-logo" alt="logo" />
-      <h1 className="App-title">
+    <div className="filter-panel-header">
+      <img src={logo} className="header-logo" alt="logo" />
+      <h1 className="header-title">
         <Text>filterpanel.heading</Text>
       </h1>
     </div>

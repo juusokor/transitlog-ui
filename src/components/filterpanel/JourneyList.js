@@ -198,7 +198,8 @@ class JourneyList extends Component {
             <Text>filterpanel.real_start_time</Text>
           </span>
         </div>
-        {departureList.map((journeyOrDeparture, index) => {
+        <div className="journey-list-rows">
+          {departureList.map((journeyOrDeparture, index) => {
           if (typeof journeyOrDeparture === "string") {
             return (
               <button
@@ -219,36 +220,37 @@ class JourneyList extends Component {
             );
           }
 
-          const journeyStartHfp = this.getJourneyStartPosition(
-            getJourneyId(journeyOrDeparture)
-          );
+            const journeyStartHfp = this.getJourneyStartPosition(
+              getJourneyId(journeyOrDeparture)
+            );
 
-          return (
-            <button
-              className={`journey-list-row ${
-                isSelected(journeyOrDeparture) ? "selected" : ""
-              }`}
-              key={`journey_row_${getJourneyId(journeyOrDeparture)}`}
-              onClick={this.selectJourney(journeyOrDeparture)}>
-              <strong className="start-time">
-                {timeToFormat(
-                  journeyOrDeparture.journey_start_timestamp,
-                  "HH:mm:ss",
-                  "Europe/Helsinki"
-                )}
-              </strong>
-              {journeyStartHfp && (
-                <span>
+            return (
+              <button
+                className={`journey-list-row ${
+                  isSelected(journeyOrDeparture) ? "selected" : ""
+                }`}
+                key={`journey_row_${getJourneyId(journeyOrDeparture)}`}
+                onClick={this.selectJourney(journeyOrDeparture)}>
+                <strong className="start-time">
                   {timeToFormat(
-                    journeyStartHfp.received_at,
+                    journeyOrDeparture.journey_start_timestamp,
                     "HH:mm:ss",
                     "Europe/Helsinki"
                   )}
-                </span>
-              )}
-            </button>
-          );
-        })}
+                </strong>
+                {journeyStartHfp && (
+                  <span>
+                    {timeToFormat(
+                      journeyStartHfp.received_at,
+                      "HH:mm:ss",
+                      "Europe/Helsinki"
+                    )}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
       </div>
     );
   }

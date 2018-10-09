@@ -21,7 +21,7 @@ class DateSettings extends Component {
     const {date} = state;
 
     return (
-      <div>
+      <>
         <p>
           <label>
             <Text>filterpanel.choose_date</Text>
@@ -48,7 +48,7 @@ class DateSettings extends Component {
             1 <Text>general.week</Text> &raquo;
           </button>
         </div>
-      </div>
+      </>
     );
   }
 }
