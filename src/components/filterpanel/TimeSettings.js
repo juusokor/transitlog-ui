@@ -8,6 +8,10 @@ import last from "lodash/last";
 import {combineDateAndTime} from "../../helpers/time";
 import moment from "moment-timezone";
 import {Text, text} from "../../helpers/text";
+import {ControlGroup, Button} from "../Forms";
+import PlusMinusInput from "../PlusMinusInput";
+import {Heading} from "../Typography";
+import styled from "styled-components";
 
 const dateToSeconds = (date) => {
   return Math.abs(date.diff(moment(date).startOf("day"), "seconds"));
@@ -35,12 +39,10 @@ class TimeSettings extends Component {
 
     return (
       <>
-        <p>
-          <label>
-            <Text>filterpanel.choose_time</Text>
-          </label>
-        </p>
-        <p>
+        <Heading level={3}>
+          <Text>filterpanel.choose_time</Text>
+        </Heading>
+        <ControlGroup>
           <TimeSlider
             value={time}
             date={date}
@@ -64,30 +66,20 @@ class TimeSettings extends Component {
                 : undefined
             }
           />
-        </p>
-        <p className="control-group">
-          <button onClick={this.onTimeButtonClick(-timeIncrement)}>
-            &lsaquo; {timeIncrement} <Text>general.seconds.short</Text>
-          </button>
-          <input value={time} onChange={(e) => Time.setTime(e.target.value)} />
-          <button onClick={this.onTimeButtonClick(timeIncrement)}>
-            &rsaquo; {timeIncrement} <Text>general.seconds.short</Text>
-          </button>
-          <input
-            type="number"
-            max={1000}
-            maxLength={4}
-            value={timeIncrement}
-            onChange={(e) => Time.setTimeIncrement(e.target.value)}
-          />
-        </p>
-        <p>
-          <button onClick={Time.toggleAutoplay}>
+        </ControlGroup>
+        <PlusMinusInput
+          value={time}
+          onChange={(e) => Time.setTime(e.target.value)}
+          onIncrease={this.onTimeButtonClick(timeIncrement)}
+          onDecrease={this.onTimeButtonClick(-timeIncrement)}
+        />
+        <ControlGroup>
+          <Button onClick={Time.toggleAutoplay}>
             {playing
               ? text("filterpanel.simulate.stop")
               : text("filterpanel.simulate.start")}
-          </button>
-        </p>
+          </Button>
+        </ControlGroup>
       </>
     );
   }

@@ -1,3 +1,5 @@
+@import url("https://cloud.typography.com/6364294/6653152/css/fonts.css");
+
 :root {
   --blue: #007ac9;
   --green: #00985f;
@@ -17,6 +19,8 @@
   --light-grey: #666666;
   --lighter-grey: #dddddc;
   --alt-grey: #ccccdf;
+
+  --font-family: "Gotham Rounded SSm A", "Gotham Rounded SSm B", sans-serif;
 }
 
 * {
@@ -30,7 +34,7 @@ html {
 body {
   margin: 0;
   padding: 0;
-  font-family: sans-serif;
+  font-family: var(--font-family);
   height: 100%;
   background: var(--dark-grey);
 }

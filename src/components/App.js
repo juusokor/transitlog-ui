@@ -1,8 +1,6 @@
 import React, {Component} from "react";
 import get from "lodash/get";
 import FilterPanel from "./filterpanel/FilterPanel";
-import "./App.css";
-import "./Form.css";
 import withHfpData from "../hoc/withHfpData";
 import {app} from "mobx-app";
 import {inject, observer} from "mobx-react";
@@ -16,6 +14,16 @@ import invoke from "lodash/invoke";
 import getJourneyId from "../helpers/getJourneyId";
 import withRoute from "../hoc/withRoute";
 import createRouteIdentifier from "../helpers/createRouteIdentifier";
+import styled from "styled-components";
+
+import "./Forms.css";
+
+const AppFrame = styled.main`
+  height: 100%;
+  display: grid;
+  grid-template-columns: 30rem 1fr;
+  grid-template-rows: 100vh;
+`;
 
 @inject(app("Journey", "Filters"))
 @withHfpData
@@ -73,7 +81,7 @@ class App extends Component {
     const {route, vehicle, stop, selectedJourney} = state;
 
     return (
-      <div className="transitlog">
+      <AppFrame>
         <FilterPanel loading={loading} />
         <Map onMapChanged={this.onMapChanged}>
           {({lat, lng, zoom, setMapBounds}) => (
@@ -127,7 +135,7 @@ class App extends Component {
             </React.Fragment>
           )}
         </Map>
-      </div>
+      </AppFrame>
     );
   }
 }

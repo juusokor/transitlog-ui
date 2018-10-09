@@ -3,6 +3,29 @@ import {observer, inject} from "mobx-react";
 import {LeafletMap} from "./LeafletMap";
 import {app} from "mobx-app";
 import invoke from "lodash/invoke";
+import styled from "styled-components";
+
+const MapPanel = styled.div`
+  position: relative;
+`;
+
+const MapContainer = styled.div`
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+
+  > .leaflet-container {
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    flex: 1 1 50%;
+  }
+`;
 
 @inject(app("Journey"))
 @observer
@@ -48,8 +71,8 @@ class Map extends Component {
     const useCenter = center || [lat, lng] || null;
 
     return (
-      <div className="map-panel">
-        <div className="map-container">
+      <MapPanel>
+        <MapContainer>
           <LeafletMap
             center={useCenter}
             zoom={zoom}
@@ -60,8 +83,8 @@ class Map extends Component {
               ? children({lat, lng, zoom, setMapBounds: this.setMapBounds})
               : children}
           </LeafletMap>
-        </div>
-      </div>
+        </MapContainer>
+      </MapPanel>
     );
   }
 }
