@@ -28,6 +28,7 @@ export default (Component) => {
         route.routeId &&
         route.direction &&
         route.dateBegin &&
+        route.originstopId &&
         routeEnsured !== route.routeId
       ) {
         routeEnsured = route.routeId;

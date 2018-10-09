@@ -3,13 +3,13 @@ import {observer, inject} from "mobx-react";
 import withHfpData from "../../hoc/withHfpData";
 import map from "lodash/map";
 import get from "lodash/get";
+import sortBy from "lodash/sortBy";
 import {app} from "mobx-app";
 import getJourneyId from "../../helpers/getJourneyId";
-import format from "date-fns/format";
-import parse from "date-fns/parse";
-import {timeToFormat} from "../../helpers/time";
+import {timeToFormat, combineDateAndTime} from "../../helpers/time";
 import {Text} from "../../helpers/text";
 import withDepartures from "../../hoc/withDepartures";
+import doubleDigit from "../../helpers/doubleDigit";
 
 @inject(app("Journey", "Time", "Filters"))
 @withHfpData
@@ -60,6 +60,19 @@ class JourneyList extends Component {
     Journey.setSelectedJourney(journey);
   };
 
+  onClickPlannedJourney = (plannedTime) => (e) => {
+    e.preventDefault();
+    const {Time, state} = this.props;
+
+    Time.setTime(
+      timeToFormat(
+        combineDateAndTime(state.date, plannedTime, "Europe/Helsinki"),
+        "HH:mm:ss",
+        "Europe/Helsinki"
+      )
+    );
+  };
+
   getJourneyStartPosition(journeyId) {
     const {positions} = this.props;
 
@@ -93,7 +106,7 @@ class JourneyList extends Component {
   }
 
   render() {
-    const {positions, state} = this.props;
+    const {positions, state, departures} = this.props;
 
     const journeys = map(positions, ({positions}) => positions[0]);
     const selectedJourney = get(state, "selectedJourney");
@@ -102,7 +115,26 @@ class JourneyList extends Component {
     const isSelected = (journey) =>
       selectedJourney && selectedJourneyId === getJourneyId(journey);
 
-    // TODO: Show planned but unfetched journeys
+    const plannedDepartures = departures.reduce((planned, departure) => {
+      const timeStr = `${doubleDigit(departure.hours)}:${doubleDigit(
+        departure.minutes
+      )}:00`;
+
+      if (journeys.some((j) => j.journey_start_time === timeStr)) {
+        return planned;
+      }
+
+      planned.push(timeStr);
+      return planned;
+    }, []);
+
+    const departureList = sortBy([...journeys, ...plannedDepartures], (value) => {
+      if (typeof value === "string") {
+        return value;
+      }
+
+      return get(value, "journey_start_time", 0);
+    });
 
     return (
       <div className="journey-list">
@@ -114,19 +146,33 @@ class JourneyList extends Component {
             <Text>filterpanel.real_start_time</Text>
           </span>
         </div>
-        {journeys.map((journey) => {
+        {departureList.map((journeyOrDeparture, index) => {
+          if (typeof journeyOrDeparture === "string") {
+            return (
+              <button
+                className={`journey-list-row`}
+                key={`planned_journey_row_${journeyOrDeparture}_${index}`}
+                onClick={this.onClickPlannedJourney(journeyOrDeparture)}>
+                <strong className="start-time">{journeyOrDeparture}</strong>
+                <span>Click to fetch</span>
+              </button>
+            );
+          }
+
           const journeyStartHfp = this.getJourneyStartPosition(
-            getJourneyId(journey)
+            getJourneyId(journeyOrDeparture)
           );
 
           return (
             <button
-              className={`journey-list-row ${isSelected(journey) ? "selected" : ""}`}
-              key={`journey_row_${getJourneyId(journey)}`}
-              onClick={this.selectJourney(journey)}>
+              className={`journey-list-row ${
+                isSelected(journeyOrDeparture) ? "selected" : ""
+              }`}
+              key={`journey_row_${getJourneyId(journeyOrDeparture)}`}
+              onClick={this.selectJourney(journeyOrDeparture)}>
               <strong className="start-time">
                 {timeToFormat(
-                  journey.journey_start_timestamp,
+                  journeyOrDeparture.journey_start_timestamp,
                   "HH:mm:ss",
                   "Europe/Helsinki"
                 )}

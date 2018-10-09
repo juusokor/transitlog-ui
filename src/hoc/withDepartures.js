@@ -6,31 +6,31 @@ import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import {get} from "lodash";
 import getDay from "date-fns/get_day";
+import parse from "date-fns/parse";
+import isWithinRange from "date-fns/is_within_range";
 
 const departuresQuery = gql`
   query routeDepartures(
-    $routeId: String!
-    $direction: String!
-    $dateBegin: Date!
-    $dateEnd: Date!
-    $queryDate: Date
+    $routeId: String
+    $direction: String
+    $dayType: String
+    $stopId: String
   ) {
-    route: routeByRouteIdAndDirectionAndDateBeginAndDateEnd(
-      routeId: $routeId
-      direction: $direction
-      dateBegin: $dateBegin
-      dateEnd: $dateEnd
+    allDepartures(
+      condition: {
+        routeId: $routeId
+        direction: $direction
+        stopId: $stopId
+        dayType: $dayType
+      }
     ) {
-      nodeId
-      routeId
-      departuresGropuped(date: $queryDate) {
-        nodes {
-          dayType
-          hours
-          minutes
-          dateBegin
-          dateEnd
-        }
+      nodes {
+        stopId
+        dayType
+        hours
+        minutes
+        dateBegin
+        dateEnd
       }
     }
   }
@@ -45,14 +45,18 @@ export default (Component) => {
   class WithDeparturesComponent extends React.Component {
     render() {
       const {
-        route: {routeId, direction, dateBegin, dateEnd},
+        route: {routeId, direction, dateBegin, dateEnd, originstopId},
         state: {date},
       } = this.props;
 
-      // Make sure none if these are falsy
-      if ([date, routeId, direction, dateBegin, dateEnd].some((i) => !i)) {
+      // Make sure none of these are falsy
+      if (
+        [date, routeId, direction, dateBegin, dateEnd, originstopId].some((i) => !i)
+      ) {
         return <Component departures={[]} {...this.props} />;
       }
+
+      const queryDayType = dayTypes[getDay(date)];
 
       return (
         <Query
@@ -60,19 +64,20 @@ export default (Component) => {
           variables={{
             routeId,
             direction,
-            dateBegin,
-            dateEnd,
-            queryDate: date,
+            dayType: queryDayType,
+            stopId: originstopId,
           }}>
           {({loading, error, data}) => {
-            const departures = get(data, "route.departuresGropuped.nodes", []); // sic
-            const queryDayType = dayTypes[getDay(date)];
+            const departures = get(data, "allDepartures.nodes", []).filter(
+              ({dateBegin, dateEnd}) => {
+                const begin = parse(dateBegin);
+                const end = parse(dateEnd);
 
-            const chosenDayDepartures = departures.filter((departure) => {
-              return departure.dayType.indexOf(queryDayType) !== -1;
-            });
+                return isWithinRange(date, begin, end);
+              }
+            );
 
-            return <Component departures={chosenDayDepartures} {...this.props} />;
+            return <Component departures={departures} {...this.props} />;
           }}
         </Query>
       );
