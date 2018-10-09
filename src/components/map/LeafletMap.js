@@ -57,7 +57,7 @@ export class LeafletMap extends Component {
     } = this.state;
 
     return (
-      <div className="map-container">
+      <>
         <Map
           ref={this.mapRef}
           center={center}
@@ -114,7 +114,7 @@ export class LeafletMap extends Component {
               location={currentMapillaryViewerLocation}
             />
           )}
-      </div>
+      </>
     );
   }
 }

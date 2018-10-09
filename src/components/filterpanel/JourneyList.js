@@ -110,35 +110,39 @@ class JourneyList extends Component {
             <Text>filterpanel.real_start_time</Text>
           </span>
         </div>
-        {journeys.map((journey) => {
-          const journeyStartHfp = this.getJourneyStartPosition(
-            getJourneyId(journey)
-          );
+        <div className="journey-list-rows">
+          {journeys.map((journey) => {
+            const journeyStartHfp = this.getJourneyStartPosition(
+              getJourneyId(journey)
+            );
 
-          return (
-            <button
-              className={`journey-list-row ${isSelected(journey) ? "selected" : ""}`}
-              key={`journey_row_${getJourneyId(journey)}`}
-              onClick={this.selectJourney(journey)}>
-              <strong className="start-time">
-                {timeToFormat(
-                  journey.journey_start_timestamp,
-                  "HH:mm:ss",
-                  "Europe/Helsinki"
-                )}
-              </strong>
-              {journeyStartHfp && (
-                <span>
+            return (
+              <button
+                className={`journey-list-row ${
+                  isSelected(journey) ? "selected" : ""
+                }`}
+                key={`journey_row_${getJourneyId(journey)}`}
+                onClick={this.selectJourney(journey)}>
+                <strong className="start-time">
                   {timeToFormat(
-                    journeyStartHfp.received_at,
+                    journey.journey_start_timestamp,
                     "HH:mm:ss",
                     "Europe/Helsinki"
                   )}
-                </span>
-              )}
-            </button>
-          );
-        })}
+                </strong>
+                {journeyStartHfp && (
+                  <span>
+                    {timeToFormat(
+                      journeyStartHfp.received_at,
+                      "HH:mm:ss",
+                      "Europe/Helsinki"
+                    )}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
       </div>
     );
   }

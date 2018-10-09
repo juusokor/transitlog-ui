@@ -34,7 +34,7 @@ class TimeSettings extends Component {
     const {time, date, timeIncrement, playing} = state;
 
     return (
-      <div>
+      <>
         <p>
           <label>
             <Text>filterpanel.choose_time</Text>
@@ -88,7 +88,7 @@ class TimeSettings extends Component {
               : text("filterpanel.simulate.start")}
           </button>
         </p>
-      </div>
+      </>
     );
   }
 }

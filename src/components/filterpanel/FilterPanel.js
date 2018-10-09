@@ -21,11 +21,6 @@ import {Text} from "../../helpers/text";
 @inject(app("Filters", "UI"))
 @observer
 class FilterPanel extends Component {
-  toggleVisibility = (e) => {
-    e.preventDefault();
-    this.props.UI.toggleFilterPanel();
-  };
-
   onChangeQueryVehicle = (value) => {
     this.props.Filters.setVehicle(value);
   };
@@ -35,60 +30,67 @@ class FilterPanel extends Component {
     const {vehicle, stop, route, line, date, filterPanelVisible: visible} = state;
 
     return (
-      <header className={`filter-panel ${visible ? "visible" : ""}`}>
-        <LanguageSelect />
+      <div className={`filter-panel ${visible ? "visible" : ""}`}>
         <Header />
-        <button onClick={Filters.reset}>
-          <Text>filterpanel.reset</Text>
-        </button>
-        <DateSettings />
-        <TimeSettings />
-        <VehicleInput value={vehicle} onSelect={this.onChangeQueryVehicle} />
-        {!!route.routeId ? (
-          <StopsByRouteQuery key="stop_input_by_route" route={route}>
-            {({stops}) => (
-              <StopInput onSelect={Filters.setStop} stop={stop} stops={stops} />
+        <div className="filter-panel-filters">
+          <div className="filters-section">
+            <LanguageSelect />
+            <button onClick={Filters.reset}>
+              <Text>filterpanel.reset</Text>
+            </button>
+          </div>
+          <div className="filters-section">
+            <DateSettings />
+          </div>
+          <div className="filters-section">
+            <TimeSettings />
+          </div>
+          <div className="filters-section">
+            <VehicleInput value={vehicle} onSelect={this.onChangeQueryVehicle} />
+            {!!route.routeId ? (
+              <StopsByRouteQuery key="stop_input_by_route" route={route}>
+                {({stops}) => (
+                  <StopInput onSelect={Filters.setStop} stop={stop} stops={stops} />
+                )}
+              </StopsByRouteQuery>
+            ) : (
+              <AllStopsQuery key="all_stops">
+                {({stops}) => (
+                  <StopInput onSelect={Filters.setStop} stop={stop} stops={stops} />
+                )}
+              </AllStopsQuery>
             )}
-          </StopsByRouteQuery>
-        ) : (
-          <AllStopsQuery key="all_stops">
-            {({stops}) => (
-              <StopInput onSelect={Filters.setStop} stop={stop} stops={stops} />
-            )}
-          </AllStopsQuery>
-        )}
-        <AllLinesQuery date={date}>
-          {({lines, loading, error}) => {
-            if (loading || error) {
-              return null;
-            }
-
-            return (
-              <LineInput line={line} onSelect={Filters.setLine} lines={lines} />
-            );
-          }}
-        </AllLinesQuery>
-        {line.lineId &&
-          line.dateBegin && (
-            <RoutesByLineQuery
-              key={`line_route_${Object.values(line).join("_")}`}
-              date={date}
-              line={line}>
-              {({routes, loading, error}) => {
+            <AllLinesQuery date={date}>
+              {({lines, loading, error}) => {
                 if (loading || error) {
                   return null;
                 }
 
-                return <RouteInput route={route} routes={routes} />;
+                return (
+                  <LineInput line={line} onSelect={Filters.setLine} lines={lines} />
+                );
               }}
-            </RoutesByLineQuery>
-          )}
-        <div className="LoadingContainer">{loading && <Loading />}</div>
+            </AllLinesQuery>
+            {line.lineId &&
+              line.dateBegin && (
+                <RoutesByLineQuery
+                  key={`line_route_${Object.values(line).join("_")}`}
+                  date={date}
+                  line={line}>
+                  {({routes, loading, error}) => {
+                    if (loading || error) {
+                      return null;
+                    }
+
+                    return <RouteInput route={route} routes={routes} />;
+                  }}
+                </RoutesByLineQuery>
+              )}
+          </div>
+          <div className="LoadingContainer">{loading && <Loading />}</div>
+        </div>
         <JourneyList />
-        <button className="toggle-filter-panel" onClick={this.toggleVisibility}>
-          {visible ? "<" : ">"}
-        </button>
-      </header>
+      </div>
     );
   }
 }

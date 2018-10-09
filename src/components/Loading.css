@@ -13,9 +13,3 @@
   height: 2rem;
   transform: translateY(0.25rem);
 }
-
-.LoadingContainer {
-  margin-top: 0.25rem;
-  padding: 1.25rem 0 1rem;
-  position: relative;
-}

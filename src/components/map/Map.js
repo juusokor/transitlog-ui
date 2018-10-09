@@ -48,16 +48,20 @@ class Map extends Component {
     const useCenter = center || [lat, lng] || null;
 
     return (
-      <LeafletMap
-        center={useCenter}
-        zoom={zoom}
-        bounds={useBounds}
-        onMapChanged={this.onMapChanged}
-        onMapChange={this.onMapChange}>
-        {typeof children === "function"
-          ? children({lat, lng, zoom, setMapBounds: this.setMapBounds})
-          : children}
-      </LeafletMap>
+      <div className="map-panel">
+        <div className="map-container">
+          <LeafletMap
+            center={useCenter}
+            zoom={zoom}
+            bounds={useBounds}
+            onMapChanged={this.onMapChanged}
+            onMapChange={this.onMapChange}>
+            {typeof children === "function"
+              ? children({lat, lng, zoom, setMapBounds: this.setMapBounds})
+              : children}
+          </LeafletMap>
+        </div>
+      </div>
     );
   }
 }

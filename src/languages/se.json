@@ -5,7 +5,7 @@
   "filterpanel.choose_time": "Välj tid",
   "filterpanel.simulate.start": "Simulera",
   "filterpanel.simulate.stop": "Sluta simulera",
-  "filterpanel.filter_by_vehicle": "Filtrera enligt fordon",
+  "filterpanel.filter_by_vehicle": "Sök fordon",
   "filterpanel.filter_by_stop": "Sök hållplatser",
   "filterpanel.filter_by_line": "Sök linjer",
   "filterpanel.select_route": "Välj rutt",
