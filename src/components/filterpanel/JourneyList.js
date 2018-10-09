@@ -3,24 +3,64 @@ import {observer, inject} from "mobx-react";
 import withHfpData from "../../hoc/withHfpData";
 import map from "lodash/map";
 import get from "lodash/get";
+import sortBy from "lodash/sortBy";
 import {app} from "mobx-app";
 import getJourneyId from "../../helpers/getJourneyId";
-import format from "date-fns/format";
-import parse from "date-fns/parse";
-import {timeToFormat} from "../../helpers/time";
-import {Text} from "../../helpers/text";
+import {timeToFormat, combineDateAndTime} from "../../helpers/time";
+import {Text, text} from "../../helpers/text";
+import withDepartures from "../../hoc/withDepartures";
+import doubleDigit from "../../helpers/doubleDigit";
+import {observable, action} from "mobx";
+import Loading from "../Loading";
 
 @inject(app("Journey", "Time", "Filters"))
 @withHfpData
+@withDepartures
 @observer
 class JourneyList extends Component {
+  @observable
+  requestedJourney = "";
+  @observable
+  unrealizedJourneys = [];
+
   componentDidMount() {
     this.ensureSelectedVehicle();
   }
 
-  componentDidUpdate() {
+  componentDidUpdate({positions: prevPositions}, prevState) {
     this.ensureSelectedVehicle();
+    const {requestedJourney, unrealizedJourneys} = this;
+    const {selectedJourney} = this.props.state;
+
+    if (
+      !selectedJourney &&
+      requestedJourney &&
+      !unrealizedJourneys.includes(requestedJourney) &&
+      prevPositions.length !== this.props.positions.length
+    ) {
+      this.checkReceivedJourneys();
+    }
   }
+
+  checkReceivedJourneys = action(() => {
+    const {positions, Journey} = this.props;
+    const {requestedJourney} = this;
+
+    const journeys = map(positions, ({positions}) => positions[0]);
+
+    for (const journey of journeys) {
+      if (journey.journey_start_time === requestedJourney) {
+        Journey.setSelectedJourney(journey);
+        this.setRequestedJourney("");
+
+        return;
+      }
+    }
+
+    if (!this.unrealizedJourneys.includes(requestedJourney)) {
+      this.unrealizedJourneys.push(requestedJourney);
+    }
+  });
 
   ensureSelectedVehicle = () => {
     const {Filters, state, positions} = this.props;
@@ -56,6 +96,33 @@ class JourneyList extends Component {
     }
 
     Journey.setSelectedJourney(journey);
+    this.setRequestedJourney("");
+  };
+
+  setRequestedJourney = action((journeyStartTime = "") => {
+    const {Journey} = this.props;
+
+    if (!this.unrealizedJourneys.includes(journeyStartTime)) {
+      if (journeyStartTime) {
+        Journey.setSelectedJourney(null);
+      }
+
+      this.requestedJourney = journeyStartTime;
+    }
+  });
+
+  requestPlannedJourney = (plannedTime) => {
+    const {Time, state} = this.props;
+
+    Time.setTime(
+      timeToFormat(
+        combineDateAndTime(state.date, plannedTime, "Europe/Helsinki"),
+        "HH:mm:ss",
+        "Europe/Helsinki"
+      )
+    );
+
+    this.setRequestedJourney(plannedTime);
   };
 
   getJourneyStartPosition(journeyId) {
@@ -91,14 +158,35 @@ class JourneyList extends Component {
   }
 
   render() {
-    const {positions, state} = this.props;
+    const {positions, state, departures} = this.props;
 
     const journeys = map(positions, ({positions}) => positions[0]);
-    const selectedJourney = get(state, "selectedJourney");
+    const selectedJourney = get(state, "selectedJourney", null);
     const selectedJourneyId = getJourneyId(selectedJourney);
 
     const isSelected = (journey) =>
       selectedJourney && selectedJourneyId === getJourneyId(journey);
+
+    const plannedDepartures = departures.reduce((planned, departure) => {
+      const timeStr = `${doubleDigit(departure.hours)}:${doubleDigit(
+        departure.minutes
+      )}:00`;
+
+      if (journeys.some((j) => j.journey_start_time === timeStr)) {
+        return planned;
+      }
+
+      planned.push(timeStr);
+      return planned;
+    }, []);
+
+    const departureList = sortBy([...journeys, ...plannedDepartures], (value) => {
+      if (typeof value === "string") {
+        return value;
+      }
+
+      return get(value, "journey_start_time", 0);
+    });
 
     return (
       <div className="journey-list">
@@ -110,19 +198,41 @@ class JourneyList extends Component {
             <Text>filterpanel.real_start_time</Text>
           </span>
         </div>
-        {journeys.map((journey) => {
+        {departureList.map((journeyOrDeparture, index) => {
+          if (typeof journeyOrDeparture === "string") {
+            return (
+              <button
+                className={`journey-list-row`}
+                key={`planned_journey_row_${journeyOrDeparture}_${index}`}
+                onClick={() => this.requestPlannedJourney(journeyOrDeparture)}>
+                <strong className="start-time">{journeyOrDeparture}</strong>
+                {this.unrealizedJourneys.includes(journeyOrDeparture) ? (
+                  <span>{text("filterpanel.journey.unrealized")}</span>
+                ) : this.requestedJourney === journeyOrDeparture ? (
+                  <span className="InlineLoading">
+                    <Loading />
+                  </span>
+                ) : (
+                  <span>{text("filterpanel.journey.click_to_fetch")}</span>
+                )}
+              </button>
+            );
+          }
+
           const journeyStartHfp = this.getJourneyStartPosition(
-            getJourneyId(journey)
+            getJourneyId(journeyOrDeparture)
           );
 
           return (
             <button
-              className={`journey-list-row ${isSelected(journey) ? "selected" : ""}`}
-              key={`journey_row_${getJourneyId(journey)}`}
-              onClick={this.selectJourney(journey)}>
+              className={`journey-list-row ${
+                isSelected(journeyOrDeparture) ? "selected" : ""
+              }`}
+              key={`journey_row_${getJourneyId(journeyOrDeparture)}`}
+              onClick={this.selectJourney(journeyOrDeparture)}>
               <strong className="start-time">
                 {timeToFormat(
-                  journey.journey_start_timestamp,
+                  journeyOrDeparture.journey_start_timestamp,
                   "HH:mm:ss",
                   "Europe/Helsinki"
                 )}

@@ -2,7 +2,6 @@ import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import {get} from "lodash";
-import compact from "lodash/compact";
 import withRoute from "../../hoc/withRoute";
 import {text} from "../../helpers/text";
 
@@ -12,9 +11,9 @@ const getRouteValue = ({
   dateBegin = "",
   dateEnd = "",
 }) => {
-  const valueParts = compact([routeId, direction, dateBegin, dateEnd]);
+  const valueParts = [routeId, direction, dateBegin, dateEnd];
 
-  if (valueParts.length !== 0) {
+  if (valueParts.every((part) => !!part)) {
     return valueParts.join("/");
   }
 
@@ -26,15 +25,18 @@ const getRouteValue = ({
 @observer
 class RouteInput extends Component {
   onChange = (e) => {
-    const {Filters} = this.props;
+    const {Filters, routes} = this.props;
     const selectedValue = get(e, "target.value", false);
 
     if (!selectedValue) {
       return Filters.setRoute({});
     }
 
-    const [routeId, direction, dateBegin, dateEnd] = selectedValue.split("/");
-    Filters.setRoute({routeId, direction, dateBegin, dateEnd});
+    const route = routes.find((r) => getRouteValue(r) === selectedValue);
+
+    if (route) {
+      Filters.setRoute(route);
+    }
   };
 
   componentDidUpdate() {

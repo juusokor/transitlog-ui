@@ -11,6 +11,8 @@
   "filterpanel.select_route": "Valitse reitti",
   "filterpanel.planned_start_time": "Suunniteltu lähtöaika",
   "filterpanel.real_start_time": "Toteutunut lähtöaika",
+  "filterpanel.journey.unrealized": "Toteutumaton",
+  "filterpanel.journey.click_to_fetch": "Hae",
 
   "map.stops.arrive": "Saapumisaika",
   "map.stops.depart": "Lähtöaika",

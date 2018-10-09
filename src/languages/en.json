@@ -11,6 +11,8 @@
   "filterpanel.select_route": "Choose route",
   "filterpanel.planned_start_time": "Planned start time",
   "filterpanel.real_start_time": "Real start time",
+  "filterpanel.journey.unrealized": "Unrealized",
+  "filterpanel.journey.click_to_fetch": "Fetch",
 
   "map.stops.arrive": "Arrive",
   "map.stops.depart": "Depart",
