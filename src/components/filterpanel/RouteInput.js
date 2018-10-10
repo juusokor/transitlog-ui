@@ -5,6 +5,7 @@ import {get} from "lodash";
 import compact from "lodash/compact";
 import withRoute from "../../hoc/withRoute";
 import {text} from "../../helpers/text";
+import Dropdown from "../Dropdown";
 
 const getRouteValue = ({
   routeId = "",
@@ -82,13 +83,13 @@ class RouteInput extends Component {
     const currentValue = getRouteValue(route);
 
     return (
-      <select value={currentValue} onChange={this.onChange}>
+      <Dropdown value={currentValue} onChange={this.onChange}>
         {options.map(({key, value, label}) => (
           <option key={`route_select_${key}`} value={value}>
             {label}
           </option>
         ))}
-      </select>
+      </Dropdown>
     );
   }
 }
