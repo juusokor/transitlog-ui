@@ -5,10 +5,56 @@ import map from "lodash/map";
 import get from "lodash/get";
 import {app} from "mobx-app";
 import getJourneyId from "../../helpers/getJourneyId";
-import format from "date-fns/format";
-import parse from "date-fns/parse";
 import {timeToFormat} from "../../helpers/time";
 import {Text} from "../../helpers/text";
+import styled from "styled-components";
+
+const JourneyListWrapper = styled.div`
+  margin-top: 1rem;
+`;
+
+const JourneyListRows = styled.div`
+  max-height: 100%;
+  overflow: auto;
+`;
+
+const JourneyListRow = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: ${({selected = false}) =>
+    selected ? "var(--blue)" : "rgba(0, 0, 0, 0.025)"};
+  padding: 0.75rem 1.25rem;
+  border: 0;
+  max-width: none;
+  font-size: 1rem;
+  cursor: pointer;
+  color: ${({selected = false}) => (selected ? "white" : "var(--grey)")};
+  outline: none;
+
+  &:nth-child(odd) {
+    background: ${({selected = false}) =>
+      selected ? "var(--blue)" : "rgba(255, 255, 255, 0.025)"};
+  }
+`;
+
+const JourneyListHeader = styled(JourneyListRow.withComponent("div"))`
+  background: transparent;
+  font-size: 0.9em;
+  padding-top: 0;
+
+  > *:last-child {
+    align-self: flex-end;
+    text-align: right;
+  }
+`;
+
+const JourneyRowLeft = styled.span`
+  margin-right: 1rem;
+  display: block;
+  font-weight: bold;
+`;
 
 @inject(app("Journey", "Time", "Filters"))
 @withHfpData
@@ -101,35 +147,33 @@ class JourneyList extends Component {
       selectedJourney && selectedJourneyId === getJourneyId(journey);
 
     return (
-      <div className="journey-list">
-        <div className="journey-list-row header">
-          <strong className="start-time">
+      <JourneyListWrapper>
+        <JourneyListHeader>
+          <JourneyRowLeft>
             <Text>filterpanel.planned_start_time</Text>
-          </strong>
+          </JourneyRowLeft>
           <span>
             <Text>filterpanel.real_start_time</Text>
           </span>
-        </div>
-        <div className="journey-list-rows">
+        </JourneyListHeader>
+        <JourneyListRows>
           {journeys.map((journey) => {
             const journeyStartHfp = this.getJourneyStartPosition(
               getJourneyId(journey)
             );
 
             return (
-              <button
-                className={`journey-list-row ${
-                  isSelected(journey) ? "selected" : ""
-                }`}
+              <JourneyListRow
+                selected={isSelected(journey)}
                 key={`journey_row_${getJourneyId(journey)}`}
                 onClick={this.selectJourney(journey)}>
-                <strong className="start-time">
+                <JourneyRowLeft>
                   {timeToFormat(
                     journey.journey_start_timestamp,
                     "HH:mm:ss",
                     "Europe/Helsinki"
                   )}
-                </strong>
+                </JourneyRowLeft>
                 {journeyStartHfp && (
                   <span>
                     {timeToFormat(
@@ -139,11 +183,11 @@ class JourneyList extends Component {
                     )}
                   </span>
                 )}
-              </button>
+              </JourneyListRow>
             );
           })}
-        </div>
-      </div>
+        </JourneyListRows>
+      </JourneyListWrapper>
     );
   }
 }
