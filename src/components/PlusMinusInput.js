@@ -10,8 +10,8 @@ const PlusMinusButton = styled(Button)`
   height: 2.5rem;
   ${({side}) => (side === "right" ? "margin-left: -3px" : "margin-right: -3px")};
   position: relative;
-  z-index: 0;
-  flex: 0;
+  z-index: 10;
+  flex: 1 1 auto;
 `;
 
 const Wrapper = styled.div`
@@ -19,21 +19,34 @@ const Wrapper = styled.div`
   justify-content: flex-start;
   align-items: center;
   width: 100%;
+
+  > div {
+    position: relative;
+    z-index: 1;
+    flex: 0 1 auto;
+  }
 `;
 
 @observer
 class PlusMinusInput extends Component {
   render() {
-    const {onIncrease, onDecrease, className, children} = this.props;
+    const {
+      onIncrease,
+      onDecrease,
+      className,
+      children,
+      plusLabel = "+",
+      minusLabel = "-",
+    } = this.props;
 
     return (
       <Wrapper className={className}>
         <PlusMinusButton primary side="left" onClick={onDecrease}>
-          -
+          {minusLabel}
         </PlusMinusButton>
         {children}
         <PlusMinusButton primary side="right" onClick={onIncrease}>
-          +
+          {plusLabel}
         </PlusMinusButton>
       </Wrapper>
     );

@@ -71,7 +71,7 @@ class TimeSettings extends Component {
           </Input>
         </ControlGroup>
         <ControlGroup>
-          <Input label={text("filterpanel.choose_time")}>
+          <Input animatedLabel={false} label={text("filterpanel.choose_time")}>
             <PlusMinusInput
               onIncrease={this.onTimeButtonClick(timeIncrement)}
               onDecrease={this.onTimeButtonClick(-timeIncrement)}>
