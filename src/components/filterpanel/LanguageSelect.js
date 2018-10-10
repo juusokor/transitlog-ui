@@ -3,6 +3,7 @@ import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import get from "lodash/get";
 import {LANGUAGES} from "../../stores/UIStore";
+import Dropdown from "../Dropdown";
 
 @inject(app("UI"))
 @observer
@@ -20,11 +21,11 @@ class LanguageSelect extends Component {
     const {language} = this.props.state;
 
     return (
-      <select value={language} onChange={this.onChange}>
+      <Dropdown value={language} onChange={this.onChange}>
         <option value={LANGUAGES.FINNISH}>Suomi</option>
         <option value={LANGUAGES.SWEDISH}>Svenska</option>
         <option value={LANGUAGES.ENGLISH}>English</option>
-      </select>
+      </Dropdown>
     );
   }
 }

@@ -17,6 +17,7 @@ import Loading from "../Loading";
 import LanguageSelect from "./LanguageSelect";
 import {Text} from "../../helpers/text";
 import styled, {css} from "styled-components";
+import {Button} from "../Forms";
 
 const FilterPanelWrapper = styled.div`
   width: 100%;
@@ -86,9 +87,11 @@ class FilterPanel extends Component {
         <div>
           <FilterSection>
             <LanguageSelect />
-            <button onClick={Filters.reset}>
+          </FilterSection>
+          <FilterSection>
+            <Button onClick={Filters.reset}>
               <Text>filterpanel.reset</Text>
-            </button>
+            </Button>
           </FilterSection>
           <FilterSection>
             <DateSettings />
