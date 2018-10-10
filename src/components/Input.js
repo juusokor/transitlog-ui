@@ -11,7 +11,7 @@ const InputWrapper = styled.div`
   align-items: flex-start;
   width: 100%;
   position: relative;
-  padding-top: ${({animatedLabel}) => (animatedLabel ? "2rem" : 0)};
+  padding-top: ${({animatedLabel}) => (animatedLabel ? "2rem" : "0.5rem")};
   margin-right: 1rem;
 
   &:only-child {
@@ -25,14 +25,14 @@ const Label = styled(InputLabel)`
     animated
       ? css`
           position: absolute;
-          bottom: 2.25rem;
+          bottom: 2.5rem;
           left: 0;
           transform: translate(0);
           transition: transform 0.1s ease-out;
           pointer-events: none;
 
           input:placeholder-shown + & {
-            transform: translate(0.75rem, 2.15rem);
+            transform: translate(0.75rem, 2.35rem);
             font-weight: 300;
             color: var(--light-grey);
           }
