@@ -6,12 +6,60 @@ import get from "lodash/get";
 import sortBy from "lodash/sortBy";
 import {app} from "mobx-app";
 import getJourneyId from "../../helpers/getJourneyId";
+import styled from "styled-components";
 import {timeToFormat, combineDateAndTime} from "../../helpers/time";
 import {Text, text} from "../../helpers/text";
 import withDepartures from "../../hoc/withDepartures";
 import doubleDigit from "../../helpers/doubleDigit";
 import {observable, action} from "mobx";
 import Loading from "../Loading";
+
+const JourneyListWrapper = styled.div`
+  margin-top: 1rem;
+`;
+
+const JourneyListRows = styled.div`
+  max-height: 100%;
+  overflow: auto;
+`;
+
+const JourneyListRow = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: ${({selected = false}) =>
+    selected ? "var(--blue)" : "rgba(0, 0, 0, 0.025)"};
+  padding: 0.75rem 1.25rem;
+  border: 0;
+  max-width: none;
+  font-size: 1rem;
+  cursor: pointer;
+  color: ${({selected = false}) => (selected ? "white" : "var(--grey)")};
+  outline: none;
+
+  &:nth-child(odd) {
+    background: ${({selected = false}) =>
+      selected ? "var(--blue)" : "rgba(255, 255, 255, 0.025)"};
+  }
+`;
+
+const JourneyListHeader = styled(JourneyListRow.withComponent("div"))`
+  background: transparent;
+  font-size: 0.9em;
+  padding-top: 0;
+
+  > *:last-child {
+    align-self: flex-end;
+    text-align: right;
+  }
+`;
+
+const JourneyRowLeft = styled.span`
+  margin-right: 1rem;
+  display: block;
+  font-weight: bold;
+`;
 
 @inject(app("Journey", "Time", "Filters"))
 @withHfpData
@@ -189,55 +237,51 @@ class JourneyList extends Component {
     });
 
     return (
-      <div className="journey-list">
-        <div className="journey-list-row header">
-          <strong className="start-time">
+      <JourneyListWrapper>
+        <JourneyListHeader>
+          <JourneyRowLeft>
             <Text>filterpanel.planned_start_time</Text>
-          </strong>
+          </JourneyRowLeft>
           <span>
             <Text>filterpanel.real_start_time</Text>
           </span>
-        </div>
-        <div className="journey-list-rows">
+        </JourneyListHeader>
+        <JourneyListRows>
           {departureList.map((journeyOrDeparture, index) => {
-          if (typeof journeyOrDeparture === "string") {
-            return (
-              <button
-                className={`journey-list-row`}
-                key={`planned_journey_row_${journeyOrDeparture}_${index}`}
-                onClick={() => this.requestPlannedJourney(journeyOrDeparture)}>
-                <strong className="start-time">{journeyOrDeparture}</strong>
-                {this.unrealizedJourneys.includes(journeyOrDeparture) ? (
-                  <span>{text("filterpanel.journey.unrealized")}</span>
-                ) : this.requestedJourney === journeyOrDeparture ? (
-                  <span className="InlineLoading">
-                    <Loading />
-                  </span>
-                ) : (
-                  <span>{text("filterpanel.journey.click_to_fetch")}</span>
-                )}
-              </button>
-            );
-          }
-
+            if (typeof journeyOrDeparture === "string") {
+              return (
+                <JourneyListRow
+                  key={`planned_journey_row_${journeyOrDeparture}_${index}`}
+                  onClick={() => this.requestPlannedJourney(journeyOrDeparture)}>
+                  <JourneyRowLeft>{journeyOrDeparture}</JourneyRowLeft>
+                  {this.unrealizedJourneys.includes(journeyOrDeparture) ? (
+                    <span>{text("filterpanel.journey.unrealized")}</span>
+                  ) : this.requestedJourney === journeyOrDeparture ? (
+                    <span className="InlineLoading">
+                      <Loading />
+                    </span>
+                  ) : (
+                    <span>{text("filterpanel.journey.click_to_fetch")}</span>
+                  )}
+                </JourneyListRow>
+              );
+            }
             const journeyStartHfp = this.getJourneyStartPosition(
               getJourneyId(journeyOrDeparture)
             );
 
             return (
-              <button
-                className={`journey-list-row ${
-                  isSelected(journeyOrDeparture) ? "selected" : ""
-                }`}
+              <JourneyListRow
+                selected={isSelected(journeyOrDeparture)}
                 key={`journey_row_${getJourneyId(journeyOrDeparture)}`}
                 onClick={this.selectJourney(journeyOrDeparture)}>
-                <strong className="start-time">
+                <JourneyRowLeft>
                   {timeToFormat(
                     journeyOrDeparture.journey_start_timestamp,
                     "HH:mm:ss",
                     "Europe/Helsinki"
                   )}
-                </strong>
+                </JourneyRowLeft>
                 {journeyStartHfp && (
                   <span>
                     {timeToFormat(
@@ -247,11 +291,11 @@ class JourneyList extends Component {
                     )}
                   </span>
                 )}
-              </button>
+              </JourneyListRow>
             );
           })}
-        </div>
-      </div>
+        </JourneyListRows>
+      </JourneyListWrapper>
     );
   }
 }
