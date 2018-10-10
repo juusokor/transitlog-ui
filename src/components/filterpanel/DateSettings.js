@@ -12,22 +12,32 @@ import Input from "../Input";
 import styled from "styled-components";
 
 const DateInput = styled(PlusMinusInput)`
-  width: 100%;
+  display: grid;
+  grid-template-columns: 3rem 1fr 3rem;
 
   > button {
     height: 3.5rem;
+    padding: 0 0.25rem;
+  }
+
+  div {
+    display: flex;
     flex: 1 1 auto;
   }
 `;
 
 const WeekInput = styled(PlusMinusInput)`
+  width: 100%;
+  display: grid;
+  grid-template-columns: 3rem 1fr 3rem;
+
   > button {
     background: white;
     border-color: var(--blue);
     color: var(--blue);
     z-index: 0;
-    flex: 1 0 auto;
     height: 3rem;
+    padding: 0 0.25rem;
 
     &:hover {
       background: #eeeeee;
@@ -36,11 +46,10 @@ const WeekInput = styled(PlusMinusInput)`
 `;
 
 const Calendar = styled(InputBase.withComponent(DatePicker))`
-  width: 12rem;
+  min-width: 8rem;
   font-size: 1rem;
   height: 3.5rem;
   text-align: center;
-  flex: 0 1 auto;
 `;
 
 @inject(app("Filters"))
