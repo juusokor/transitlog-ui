@@ -1,10 +1,3 @@
-.filters-section {
-}
-
-.filter-panel.visible {
-  transform: translateX(0);
-}
-
 .LoadingContainer {
   margin-top: 0.25rem;
   padding: 1.25rem 0 1rem;

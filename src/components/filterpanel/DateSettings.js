@@ -16,11 +16,13 @@ const DateInput = styled(PlusMinusInput)`
   grid-template-columns: 3rem 1fr 3rem;
 
   > button {
-    height: 3.5rem;
+    height: 3rem;
     padding: 0 0.25rem;
   }
 
-  div {
+  > div,
+  .react-datepicker-wrapper,
+  .react-datepicker__input-container {
     display: flex;
     flex: 1 1 auto;
   }
@@ -36,7 +38,6 @@ const WeekInput = styled(PlusMinusInput)`
     border-color: var(--blue);
     color: var(--blue);
     z-index: 0;
-    height: 3rem;
     padding: 0 0.25rem;
 
     &:hover {
@@ -47,8 +48,8 @@ const WeekInput = styled(PlusMinusInput)`
 
 const Calendar = styled(InputBase.withComponent(DatePicker))`
   min-width: 8rem;
-  font-size: 1rem;
-  height: 3.5rem;
+  font-size: 1.125rem;
+  height: 3rem;
   text-align: center;
 `;
 
