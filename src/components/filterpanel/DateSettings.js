@@ -3,10 +3,11 @@ import moment from "moment";
 import {inject, observer} from "mobx-react";
 import {app} from "mobx-app";
 import DatePicker from "react-datepicker";
-import "./DateInput.css";
-import "react-datepicker/dist/react-datepicker.css";
 import {Text} from "../../helpers/text";
 import {Heading} from "../Typography";
+
+import "./DateInput.css";
+import "react-datepicker/dist/react-datepicker.css";
 
 @inject(app("Filters"))
 @observer

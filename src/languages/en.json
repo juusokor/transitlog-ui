@@ -3,6 +3,7 @@
   "filterpanel.reset": "Reset",
   "filterpanel.choose_date": "Choose date",
   "filterpanel.choose_time": "Choose time",
+  "filterpanel.time_increment": "Time increment (sec.)",
   "filterpanel.simulate.start": "Simulate",
   "filterpanel.simulate.stop": "Stop simulation",
   "filterpanel.filter_by_vehicle": "Filter by vehicle",

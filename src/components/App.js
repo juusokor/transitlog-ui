@@ -16,8 +16,6 @@ import withRoute from "../hoc/withRoute";
 import createRouteIdentifier from "../helpers/createRouteIdentifier";
 import styled from "styled-components";
 
-import "./Forms.css";
-
 const AppFrame = styled.main`
   height: 100%;
   display: grid;

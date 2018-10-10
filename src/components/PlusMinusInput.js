@@ -1,46 +1,41 @@
 import React, {Component} from "react";
 import {observer} from "mobx-react";
-import {Input, ControlGroup, Button} from "./Forms";
+import {Button} from "./Forms";
 import styled from "styled-components";
 
 const PlusMinusButton = styled(Button)`
   display: inline-block;
   border-radius: ${({side}) => (side === "right" ? "0 5px 5px 0" : "5px 0 0 5px")};
-  padding: 0.5rem;
+  padding: 0.5rem 1rem;
+  height: 2.5rem;
+  ${({side}) => (side === "right" ? "margin-left: -3px" : "margin-right: -3px")};
+  position: relative;
+  z-index: 0;
+  flex: 0;
+`;
+
+const Wrapper = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
 `;
 
 @observer
 class PlusMinusInput extends Component {
   render() {
-    const {
-      value,
-      onChange,
-      onIncrease,
-      onDecrease,
-      type,
-      max,
-      maxLength,
-      min,
-      className,
-    } = this.props;
+    const {onIncrease, onDecrease, className, children} = this.props;
 
     return (
-      <ControlGroup className={className}>
-        <PlusMinusButton side="left" onClick={onDecrease}>
+      <Wrapper className={className}>
+        <PlusMinusButton primary side="left" onClick={onDecrease}>
           -
         </PlusMinusButton>
-        <Input
-          value={value}
-          onChange={onChange}
-          type={type}
-          max={max}
-          min={min}
-          maxLength={maxLength}
-        />
-        <PlusMinusButton side="right" onClick={onIncrease}>
+        {children}
+        <PlusMinusButton primary side="right" onClick={onIncrease}>
           +
         </PlusMinusButton>
-      </ControlGroup>
+      </Wrapper>
     );
   }
 }
