@@ -26,7 +26,7 @@ const Slider = styled.input.attrs({type: "range", step: 1})`
   -webkit-appearance: none;
   width: 100%;
   background: transparent;
-  padding-top: 1rem;
+  padding: 1rem 0 0.5rem;
   display: block;
 
   &::-webkit-slider-thumb {
