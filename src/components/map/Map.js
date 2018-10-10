@@ -7,6 +7,7 @@ import styled from "styled-components";
 
 const MapPanel = styled.div`
   position: relative;
+  width: 100%;
 `;
 
 const MapContainer = styled.div`

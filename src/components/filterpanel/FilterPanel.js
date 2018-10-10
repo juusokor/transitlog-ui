@@ -1,5 +1,4 @@
 import React, {Component} from "react";
-import "./FilterPanel.css";
 import LineInput from "./LineInput";
 import StopInput from "./StopInput";
 import RouteInput from "./RouteInput";
@@ -20,7 +19,7 @@ import {Text} from "../../helpers/text";
 import styled from "styled-components";
 
 const FilterPanelWrapper = styled.div`
-  height: 100%;
+  width: 100%;
   overflow: hidden;
   background: var(--lightest-grey);
   color: var(--dark-grey);
@@ -29,6 +28,17 @@ const FilterPanelWrapper = styled.div`
   border-right: 1px solid var(--alt-grey);
   display: grid;
   grid-template-rows: 7.5rem 1fr 1fr;
+`;
+
+const FilterSection = styled.div`
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0 1rem 1rem;
+  border-bottom: 1px solid var(--alt-grey);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
 `;
 
 @inject(app("Filters", "UI"))
@@ -45,20 +55,20 @@ class FilterPanel extends Component {
     return (
       <FilterPanelWrapper visible={visible}>
         <Header />
-        <div className="filter-panel-filters">
-          <div className="filters-section">
+        <div>
+          <FilterSection>
             <LanguageSelect />
             <button onClick={Filters.reset}>
               <Text>filterpanel.reset</Text>
             </button>
-          </div>
-          <div className="filters-section">
+          </FilterSection>
+          <FilterSection>
             <DateSettings />
-          </div>
-          <div className="filters-section">
+          </FilterSection>
+          <FilterSection>
             <TimeSettings />
-          </div>
-          <div className="filters-section">
+          </FilterSection>
+          <FilterSection>
             <VehicleInput value={vehicle} onSelect={this.onChangeQueryVehicle} />
             {!!route.routeId ? (
               <StopsByRouteQuery key="stop_input_by_route" route={route}>
@@ -99,7 +109,7 @@ class FilterPanel extends Component {
                   }}
                 </RoutesByLineQuery>
               )}
-          </div>
+          </FilterSection>
           <div className="LoadingContainer">{loading && <Loading />}</div>
         </div>
         <JourneyList />
