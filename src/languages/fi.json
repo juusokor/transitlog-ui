@@ -3,6 +3,7 @@
   "filterpanel.reset": "Palauta",
   "filterpanel.choose_date": "Valitse päivä",
   "filterpanel.choose_time": "Valitse aika",
+  "filterpanel.time_increment": "Aikamuutos (sek.)",
   "filterpanel.simulate.start": "Simuloi",
   "filterpanel.simulate.stop": "Pysäytä simulaatio",
   "filterpanel.filter_by_vehicle": "Rajaa kulkuneuvoa",

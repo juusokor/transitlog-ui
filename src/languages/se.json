@@ -3,6 +3,7 @@
   "filterpanel.reset": "Återställ",
   "filterpanel.choose_date": "Välj datum",
   "filterpanel.choose_time": "Välj tid",
+  "filterpanel.time_increment": "Tidsändring (sek.)",
   "filterpanel.simulate.start": "Simulera",
   "filterpanel.simulate.stop": "Sluta simulera",
   "filterpanel.filter_by_vehicle": "Sök fordon",

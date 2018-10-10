@@ -1,8 +1,71 @@
 import React, {Component} from "react";
 import moment from "moment-timezone";
+import styled, {css} from "styled-components";
 
 const MAX = 86399;
 const MIN = 15000;
+
+const SliderThumb = css`
+  border: 3px solid var(--blue);
+  height: 1.5rem;
+  width: 1.5rem;
+  margin-top: -0.7rem;
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+`;
+
+const SliderTrack = css`
+  width: 100%;
+  height: 3px;
+  cursor: pointer;
+  background: var(--blue);
+`;
+
+const Slider = styled.input.attrs({type: "range", step: 1})`
+  -webkit-appearance: none;
+  width: 100%;
+  background: transparent;
+  padding-top: 1rem;
+  display: block;
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    ${SliderThumb};
+  }
+
+  &::-webkit-slider-runnable-track {
+    ${SliderTrack};
+  }
+
+  &::-moz-range-track {
+    ${SliderTrack};
+  }
+
+  &::-ms-track {
+    ${SliderTrack};
+  }
+
+  &::-moz-range-thumb {
+    ${SliderThumb};
+  }
+
+  &::-ms-thumb {
+    ${SliderThumb};
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  &::-ms-track {
+    width: 100%;
+    cursor: pointer;
+    background: transparent;
+    border-color: transparent;
+    color: transparent;
+  }
+`;
 
 class TimeSlider extends Component {
   getNumericValue = (value = "", date) => {
@@ -47,12 +110,9 @@ class TimeSlider extends Component {
     const {value, date, min = MIN, max = MAX} = this.props;
 
     return (
-      <input
-        style={{width: "100%"}}
-        type="range"
+      <Slider
         min={min}
         max={max}
-        step={1}
         value={this.getNumericValue(value, date)}
         onChange={this.onChange}
       />
