@@ -44,33 +44,6 @@ class TimeSettings extends Component {
     return (
       <>
         <ControlGroup>
-          <Input animatedLabel={false} label="Timeslider">
-            <TimeSlider
-              value={time}
-              date={date}
-              onChange={Time.setTime}
-              min={
-                selectedJourneyHfp.length !== 0
-                  ? dateToSeconds(
-                      moment(get(selectedJourneyHfp, "[0].received_at", 0)).tz(
-                        "Europe/Helsinki"
-                      )
-                    )
-                  : undefined
-              }
-              max={
-                selectedJourneyHfp.length !== 0
-                  ? dateToSeconds(
-                      moment(get(last(selectedJourneyHfp), "received_at", 0)).tz(
-                        "Europe/Helsinki"
-                      )
-                    )
-                  : undefined
-              }
-            />
-          </Input>
-        </ControlGroup>
-        <ControlGroup>
           <Input animatedLabel={false} label={text("filterpanel.choose_time")}>
             <PlusMinusInput
               onIncrease={this.onTimeButtonClick(timeIncrement)}
@@ -81,6 +54,31 @@ class TimeSettings extends Component {
               />
             </PlusMinusInput>
           </Input>
+        </ControlGroup>
+        <ControlGroup>
+          <TimeSlider
+            value={time}
+            date={date}
+            onChange={Time.setTime}
+            min={
+              selectedJourneyHfp.length !== 0
+                ? dateToSeconds(
+                    moment(get(selectedJourneyHfp, "[0].received_at", 0)).tz(
+                      "Europe/Helsinki"
+                    )
+                  )
+                : undefined
+            }
+            max={
+              selectedJourneyHfp.length !== 0
+                ? dateToSeconds(
+                    moment(get(last(selectedJourneyHfp), "received_at", 0)).tz(
+                      "Europe/Helsinki"
+                    )
+                  )
+                : undefined
+            }
+          />
         </ControlGroup>
         <ControlGroup>
           <IncrementValueInput
