@@ -28,12 +28,16 @@ const WeekInput = styled(PlusMinusInput)`
     z-index: 0;
     flex: 1 0 auto;
     height: 3rem;
+
+    &:hover {
+      background: #eeeeee;
+    }
   }
 `;
 
 const Calendar = styled(InputBase.withComponent(DatePicker))`
   width: 12rem;
-  font-size: 0.875rem;
+  font-size: 1rem;
   height: 3.5rem;
   text-align: center;
   flex: 0 1 auto;

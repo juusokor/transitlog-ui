@@ -69,4 +69,10 @@ export const Button = styled.button`
   flex: 1 1 auto;
   height: ${({small = false}) => (small ? "2.5rem" : "3rem")};
   cursor: pointer;
+  transition: background-color 0.15s ease-out, transform 0.2s ease-out;
+
+  &:hover {
+    background: ${({primary = false}) => (primary ? "#0069bb" : "#eeeeee")};
+    transform: scale(1.05);
+  }
 `;

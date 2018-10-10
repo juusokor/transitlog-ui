@@ -13,20 +13,28 @@ const SliderThumb = css`
   border-radius: 50%;
   background: white;
   cursor: pointer;
+  transition: background-color 0.15s ease-out, transform 0.2s ease-out;
+
+  &:hover {
+    background: var(--blue);
+    transform: scale(1.05);
+  }
 `;
 
 const SliderTrack = css`
   width: 100%;
   height: 3px;
+  padding: 1rem 0;
+  box-sizing: content-box;
   cursor: pointer;
   background: var(--blue);
+  background-clip: content-box;
 `;
 
 const Slider = styled.input.attrs({type: "range", step: 1})`
   -webkit-appearance: none;
   width: 100%;
   background: transparent;
-  padding: 1rem 0 0.5rem;
   display: block;
 
   &::-webkit-slider-thumb {
