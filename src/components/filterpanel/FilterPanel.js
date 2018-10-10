@@ -22,7 +22,7 @@ import styled from "styled-components";
 const FilterPanelWrapper = styled.div`
   height: 100%;
   overflow: hidden;
-  background: var(--lighter-grey);
+  background: var(--lightest-grey);
   color: var(--dark-grey);
   transition: transform 0.3s ease-out;
   transform: translateX(${({visible = true}) => (visible ? 0 : "calc(-100%)")});
