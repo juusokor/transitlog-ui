@@ -1,42 +1,45 @@
 import React from "react";
-import Spinner from "react-spinkit";
-import styled, {css} from "styled-components";
+import styled, {keyframes, css} from "styled-components";
+import Spinner from "../icons/Spinner";
+
+const spin = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  
+  to {
+    transform: rotate(360deg);
+  }
+`;
 
 const Loading = styled.div`
+  background: white;
+  border-radius: 50%;
+  padding: 0.75rem;
+  box-shadow: 2px 2px 10px 0 rgba(0, 0, 0, 0.2);
   color: white;
+
   ${({inline}) =>
     inline
       ? css`
-          width: 1rem;
-          height: 1rem;
+          padding: 0;
+          background: transparent;
+          box-shadow: none;
           position: relative;
           display: inline-block;
         `
       : ""};
 
-  .sk-circle {
-    width: 2rem;
-    height: 2rem;
-    transform: translateY(0.25rem);
-
-    ${({inline}) =>
-      inline
-        ? css`
-            top: 50%;
-            left: 50%;
-            width: 1.5rem;
-            height: 1.5rem;
-            margin: -0.75rem 0 0 -0.75rem;
-            transform: none;
-          `
-        : ""};
+  svg {
+    display: block;
+    animation: ${spin} 1.5s linear infinite;
   }
 `;
 
-export default ({inline}) => {
+export default ({size = 35, inline}) => {
   return (
     <Loading inline={inline}>
-      <Spinner name="circle" color="white" fadeIn="none" />
+      <Spinner width={inline ? 30 : size} height={inline ? 30 : size} />
     </Loading>
   );
 };

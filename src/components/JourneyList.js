@@ -14,9 +14,7 @@ import doubleDigit from "../../helpers/doubleDigit";
 import {observable, action} from "mobx";
 import Loading from "../Loading";
 
-const JourneyListWrapper = styled.div`
-  margin-top: 1rem;
-`;
+const JourneyListWrapper = styled.div``;
 
 const JourneyListRows = styled.div`
   max-height: 100%;
