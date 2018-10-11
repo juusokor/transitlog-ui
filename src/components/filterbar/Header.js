@@ -4,6 +4,9 @@ import {Text} from "../../helpers/text";
 import styled from "styled-components";
 import {Heading} from "../Typography";
 import LanguageSelect from "./LanguageSelect";
+import {inject, observer} from "mobx-react";
+import {app} from "mobx-app";
+import {Button} from "../Forms";
 
 const Header = styled.header`
   width: 100%;
@@ -33,18 +36,33 @@ const MainHeading = styled(Heading).attrs({level: 1})`
 const LangSelectContainer = styled.div`
   flex: 1 0 100%;
   margin-top: 1rem;
+  display: flex;
+
+  select {
+    flex: 0 1 40%;
+    margin-right: 1rem;
+  }
+
+  button {
+    flex: 0 1 60%;
+  }
 `;
 
-export default () => {
-  return (
-    <Header>
-      <Logo src={logo} alt="logo" />
-      <MainHeading>
-        <Text>filterpanel.heading</Text>
-      </MainHeading>
-      <LangSelectContainer>
-        <LanguageSelect />
-      </LangSelectContainer>
-    </Header>
-  );
-};
+export default inject(app("Filters"))(
+  observer(({Filters}) => {
+    return (
+      <Header>
+        <Logo src={logo} alt="logo" />
+        <MainHeading>
+          <Text>filterpanel.heading</Text>
+        </MainHeading>
+        <LangSelectContainer>
+          <LanguageSelect />
+          <Button small primary onClick={Filters.reset}>
+            <Text>filterpanel.reset</Text>
+          </Button>
+        </LangSelectContainer>
+      </Header>
+    );
+  })
+);
