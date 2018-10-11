@@ -9,9 +9,7 @@ import {timeToFormat} from "../helpers/time";
 import {Text} from "../helpers/text";
 import styled from "styled-components";
 
-const JourneyListWrapper = styled.div`
-  margin-top: 1rem;
-`;
+const JourneyListWrapper = styled.div``;
 
 const JourneyListRows = styled.div`
   max-height: 100%;

@@ -16,30 +16,31 @@ const SidePanelContainer = styled.div`
 
 const LoadingContainer = styled.div`
   position: absolute;
-  top: 0;
+  top: -0.5rem;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
   opacity: 0;
   pointer-events: none;
   user-select: none;
-  transition: opacity 0.2s ease-out;
+  transition: opacity 0.1s ease-out, transform 0.2s ease-out;
+  transform: translateY(-5rem);
 
   ${({loading = false}) =>
     loading
       ? css`
           opacity: 1;
           pointer-events: all;
+          transform: translateY(0);
         `
       : ""};
 `;
 
 const JourneyListWrapper = styled.div`
   position: relative;
+  padding-top: 1rem;
 `;
 
 @observer
@@ -51,10 +52,10 @@ class SidePanel extends Component {
       <SidePanelContainer>
         <Header />
         <JourneyListWrapper>
-          <JourneyList />
           <LoadingContainer loading={loading}>
             <Loading />
           </LoadingContainer>
+          <JourneyList />
         </JourneyListWrapper>
       </SidePanelContainer>
     );
