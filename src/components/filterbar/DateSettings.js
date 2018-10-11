@@ -30,6 +30,10 @@ const DateInput = styled(PlusMinusInput)`
     display: flex;
     flex: 1 1 auto;
   }
+
+  .react-datepicker-popper {
+    z-index: 100;
+  }
 `;
 
 const WeekInput = styled(PlusMinusInput)`
@@ -55,6 +59,7 @@ const Calendar = styled(InputBase.withComponent(DatePicker))`
   min-width: 8rem;
   height: 2.5rem;
   text-align: center;
+  border-color: var(--blue);
 `;
 
 @inject(app("Filters"))

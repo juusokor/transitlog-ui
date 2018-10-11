@@ -14,6 +14,7 @@ import LineSettings from "./LineSettings";
 import Input from "../Input";
 import {ControlGroup} from "../Forms";
 import {text} from "../../helpers/text";
+import FilterSection from "./FilterSection";
 
 const FilterBarWrapper = styled.div`
   width: 100%;
@@ -25,24 +26,9 @@ const FilterBarWrapper = styled.div`
 
 const FilterBarGrid = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: 22.5rem 1fr 1fr 1fr;
   height: 100%;
   align-items: stretch;
-`;
-
-const FilterSection = styled.div`
-  width: 100%;
-  border-right: 1px solid var(--alt-grey);
-  padding: 0.75rem 1rem 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-`;
-
-const SectionVisible = styled.div``;
-
-const SectionExpandable = styled.div`
-  display: none;
 `;
 
 const BottomSlider = styled(TimeSlider)`
@@ -67,14 +53,9 @@ class FilterBar extends Component {
     return (
       <FilterBarWrapper visible={visible}>
         <FilterBarGrid>
-          <FilterSection>
-            <SectionVisible>
-              <DateSettings />
-              <TimeSettings />
-            </SectionVisible>
-            <SectionExpandable>
-              <SimulationSettings />
-            </SectionExpandable>
+          <FilterSection expandable={<SimulationSettings />}>
+            <DateSettings />
+            <TimeSettings />
           </FilterSection>
           <FilterSection>
             <LineSettings />
