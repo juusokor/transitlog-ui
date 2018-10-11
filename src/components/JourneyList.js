@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
-import withHfpData from "../../hoc/withHfpData";
+import withHfpData from "../hoc/withHfpData";
 import map from "lodash/map";
 import get from "lodash/get";
 import sortBy from "lodash/sortBy";

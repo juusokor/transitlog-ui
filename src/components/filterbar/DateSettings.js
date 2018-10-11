@@ -48,7 +48,6 @@ const WeekInput = styled(PlusMinusInput)`
 
 const Calendar = styled(InputBase.withComponent(DatePicker))`
   min-width: 8rem;
-  font-size: 1.125rem;
   height: 3rem;
   text-align: center;
 `;

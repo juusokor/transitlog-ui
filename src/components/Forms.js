@@ -40,7 +40,7 @@ export const InputBase = styled.input`
   border-radius: 0.25rem;
   border: 1px solid var(--alt-grey);
   outline: none;
-  font-size: 1.125rem;
+  font-size: 1rem;
   height: ${NORMAL_HEIGHT};
   background-color: white;
 
@@ -66,7 +66,7 @@ export const Button = styled.button`
   align-items: center;
   justify-content: center;
   width: auto;
-  flex: 1 1 auto;
+  flex: 0 0 auto;
   height: ${({small = false}) => (small ? "2.5rem" : "3rem")};
   cursor: pointer;
   transition: background-color 0.15s ease-out, transform 0.2s ease-out;
