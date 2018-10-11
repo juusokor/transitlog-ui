@@ -11,12 +11,16 @@ import PlusMinusInput from "../PlusMinusInput";
 import Input from "../Input";
 import styled from "styled-components";
 
+const DateControlGroup = styled(ControlGroup)`
+  margin-bottom: 1rem;
+`;
+
 const DateInput = styled(PlusMinusInput)`
   display: grid;
-  grid-template-columns: 3rem 1fr 3rem;
+  grid-template-columns: 2.5rem 1fr 2.5rem;
 
   > button {
-    height: 3rem;
+    height: 2.5rem;
     padding: 0 0.25rem;
   }
 
@@ -31,7 +35,8 @@ const DateInput = styled(PlusMinusInput)`
 const WeekInput = styled(PlusMinusInput)`
   width: 100%;
   display: grid;
-  grid-template-columns: 3rem 1fr 3rem;
+  grid-template-columns: 2.5rem 1fr 2.5rem;
+  margin-top: -0.25rem;
 
   > button {
     background: white;
@@ -48,7 +53,7 @@ const WeekInput = styled(PlusMinusInput)`
 
 const Calendar = styled(InputBase.withComponent(DatePicker))`
   min-width: 8rem;
-  height: 3rem;
+  height: 2.5rem;
   text-align: center;
 `;
 
@@ -57,10 +62,16 @@ const Calendar = styled(InputBase.withComponent(DatePicker))`
 class DateSettings extends Component {
   onDateButtonClick = (modifier) => () => {
     const {Filters, state} = this.props;
-    const nextDate = moment
-      .tz(state.date, "YYYY-MM-DD", "Europe/Helsinki")
-      .add(modifier, "days");
-    Filters.setDate(nextDate);
+
+    if (!state.date) {
+      Filters.setDate("");
+    } else {
+      const nextDate = moment
+        .tz(state.date, "YYYY-MM-DD", "Europe/Helsinki")
+        .add(modifier, "days");
+
+      Filters.setDate(nextDate);
+    }
   };
 
   render() {
@@ -68,8 +79,8 @@ class DateSettings extends Component {
     const {date} = state;
 
     return (
-      <ControlGroup>
-        <Input animatedLabel={false} label={text("filterpanel.choose_date")}>
+      <DateControlGroup>
+        <Input label={text("filterpanel.choose_date_time")} animatedLabel={false}>
           <WeekInput
             minusLabel={<>&laquo; 7</>}
             plusLabel={<>7 &raquo;</>}
@@ -90,19 +101,7 @@ class DateSettings extends Component {
             </DateInput>
           </WeekInput>
         </Input>
-        {/*<Button onClick={this.onDateButtonClick(-7)}>
-            &laquo; 1 <Text>general.week</Text>
-          </Button>
-          <button>
-            &lsaquo; 1 <Text>general.day</Text>
-          </button>
-          <button onClick={this.onDateButtonClick(1)}>
-            1 <Text>general.day</Text> &rsaquo;
-          </button>
-          <button onClick={this.onDateButtonClick(7)}>
-            1 <Text>general.week</Text> &raquo;
-          </button>*/}
-      </ControlGroup>
+      </DateControlGroup>
     );
   }
 }

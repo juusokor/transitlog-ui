@@ -21,7 +21,7 @@ const AppFrame = styled.main`
   height: 100%;
   display: grid;
   grid-template-columns: 20rem 1fr;
-  grid-template-rows: 8rem 1fr;
+  grid-template-rows: 9rem 1fr;
 `;
 
 @inject(app("Journey", "Filters"))

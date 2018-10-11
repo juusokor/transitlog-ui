@@ -81,7 +81,7 @@ class RouteInput extends Component {
       };
     });
 
-    options.unshift({value: "", label: text("filterpanel.select_route")});
+    options.unshift({value: "", label: ""});
     const currentValue = getRouteValue(route);
 
     return (

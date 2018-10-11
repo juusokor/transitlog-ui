@@ -2,6 +2,7 @@
   "filterpanel.heading": "Transitlog",
   "filterpanel.reset": "Reset",
   "filterpanel.choose_date": "Choose date",
+  "filterpanel.choose_date_time": "Choose date and time",
   "filterpanel.choose_time": "Choose time",
   "filterpanel.time_increment": "Time increment (sec.)",
   "filterpanel.simulate.start": "Simulate",

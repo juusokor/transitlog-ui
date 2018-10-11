@@ -1,4 +1,4 @@
-import styled, {injectGlobal} from "styled-components";
+import styled, {injectGlobal, css} from "styled-components";
 
 injectGlobal`
   select,
@@ -9,17 +9,17 @@ injectGlobal`
   }
 `;
 
-const NORMAL_HEIGHT = "2.5rem";
+const NORMAL_HEIGHT = "2rem";
 
 export const ControlGroup = styled.div`
   display: flex;
   justify-content: flex-start;
   align-items: flex-end;
   width: 100%;
-  margin: 1rem 0 0;
+  margin: 0 0 1.25rem;
 
-  &:first-child {
-    margin-top: 0;
+  &:last-child {
+    margin-bottom: 0;
   }
 `;
 
@@ -29,18 +29,18 @@ export const InputLabel = styled.label`
   font-weight: 600;
   line-height: 129%;
   letter-spacing: 0px;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
   color: var(--grey);
   text-transform: uppercase;
 `;
 
-export const InputBase = styled.input`
+export const InputStyles = css`
   font-family: var(--font-family);
   padding: 0.7rem;
   border-radius: 0.25rem;
   border: 1px solid var(--alt-grey);
   outline: none;
-  font-size: 1rem;
+  font-size: 0.875rem;
   height: ${NORMAL_HEIGHT};
   background-color: white;
 
@@ -49,9 +49,13 @@ export const InputBase = styled.input`
   }
 `;
 
+export const InputBase = styled.input`
+  ${InputStyles};
+`;
+
 export const Button = styled.button`
   font-family: var(--font-family);
-  font-size: ${({small = false}) => (small ? "0.875rem" : "1.125rem")};
+  font-size: ${({small = false}) => (small ? "0.875rem" : "1rem")};
   font-weight: 500;
   appearance: none;
   outline: none;
@@ -67,7 +71,7 @@ export const Button = styled.button`
   justify-content: center;
   width: auto;
   flex: 0 0 auto;
-  height: ${({small = false}) => (small ? "2.5rem" : "3rem")};
+  height: ${({small = false}) => (small ? "2rem" : "2.5rem")};
   cursor: pointer;
   transition: background-color 0.15s ease-out, transform 0.2s ease-out;
 

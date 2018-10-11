@@ -4,7 +4,6 @@ import SuggestionInput from "./SuggestionInput";
 import getTransportType from "../../helpers/getTransportType";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
-import {text} from "../../helpers/text";
 
 const parseLineNumber = (lineId) =>
   // Remove 1st number, which represents the city
@@ -57,7 +56,6 @@ class LineInput extends React.Component {
     return (
       <SuggestionInput
         minimumInput={1}
-        placeholder={text("filterpanel.filter_by_line")}
         value={getSuggestionValue(line)}
         onSelect={onSelect}
         getValue={getSuggestionValue}

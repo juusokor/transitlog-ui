@@ -1,15 +1,26 @@
 import React, {Component} from "react";
 import Autosuggest from "react-autosuggest";
-import "./SuggestionInput.css";
+import autosuggestStyles from "./SuggestionInput.css";
 import {observer} from "mobx-react";
+import styled from "styled-components";
+import {InputStyles} from "../Forms";
+
+const AutosuggestWrapper = styled.div`
+  width: 100%;
+  ${autosuggestStyles};
+
+  .react-autosuggest__input {
+    ${InputStyles};
+  }
+`;
 
 @observer
 class SuggestionInput extends Component {
   static getDerivedStateFromProps({value}, {value: currentValue, _lastValue}) {
     if (value && value !== currentValue && value !== _lastValue) {
       return {
-        _lastValue: value,
         value,
+        isEmpty: !value,
       };
     }
 
@@ -23,6 +34,7 @@ class SuggestionInput extends Component {
   }
 
   state = {
+    isEmpty: !this.props.value,
     _lastValue: this.props.value.toString(),
     value: this.props.value.toString(),
     suggestions: [],
@@ -33,6 +45,7 @@ class SuggestionInput extends Component {
 
     this.setState({
       value,
+      isEmpty: !value,
     });
   };
 
@@ -59,8 +72,14 @@ class SuggestionInput extends Component {
   };
 
   render() {
-    const {suggestions, value} = this.state;
-    const {placeholder, getValue, renderSuggestion, minimumInput = 3} = this.props;
+    const {suggestions, value, isEmpty} = this.state;
+    const {
+      className,
+      placeholder,
+      getValue,
+      renderSuggestion,
+      minimumInput = 3,
+    } = this.props;
 
     const inputProps = {
       placeholder,
@@ -69,16 +88,19 @@ class SuggestionInput extends Component {
     };
 
     return (
-      <Autosuggest
-        suggestions={suggestions}
-        shouldRenderSuggestions={this.shouldRenderSuggestions(minimumInput)}
-        onSuggestionSelected={this.onSuggestionSelected}
-        onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
-        onSuggestionsClearRequested={this.onSuggestionsClearRequested}
-        getSuggestionValue={getValue}
-        renderSuggestion={renderSuggestion}
-        inputProps={inputProps}
-      />
+      <AutosuggestWrapper
+        className={`${className} ${isEmpty ? "empty-select" : ""}`}>
+        <Autosuggest
+          suggestions={suggestions}
+          shouldRenderSuggestions={this.shouldRenderSuggestions(minimumInput)}
+          onSuggestionSelected={this.onSuggestionSelected}
+          onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
+          onSuggestionsClearRequested={this.onSuggestionsClearRequested}
+          getSuggestionValue={getValue}
+          renderSuggestion={renderSuggestion}
+          inputProps={inputProps}
+        />
+      </AutosuggestWrapper>
     );
   }
 }

@@ -11,11 +11,20 @@ const InputWrapper = styled.div`
   align-items: flex-start;
   width: 100%;
   position: relative;
-  padding-top: ${({animatedLabel}) => (animatedLabel ? "2rem" : "0.5rem")};
   margin-right: 1rem;
 
   &:only-child {
     margin-right: 0;
+  }
+
+  > *:not(label) {
+    transition: margin-top 0.15s ease-out;
+    ${({animatedLabel}) => (animatedLabel ? "margin-top: 1.625rem" : "")};
+
+    &:placeholder-shown,
+    &.empty-select {
+      margin-top: 0;
+    }
   }
 `;
 
@@ -25,14 +34,17 @@ const Label = styled(InputLabel)`
     animated
       ? css`
           position: absolute;
-          bottom: 2.5rem;
+          top: 0;
           left: 0;
           transform: translate(0);
           transition: transform 0.1s ease-out;
           pointer-events: none;
+          margin-bottom: 0;
 
-          input:placeholder-shown + & {
-            transform: translate(0.75rem, 2.35rem);
+          *:placeholder-shown + &,
+          .empty-select + & {
+            transform: translate(0.75rem, 0.45rem);
+            text-transform: none;
             font-weight: 300;
             color: var(--light-grey);
           }
