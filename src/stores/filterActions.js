@@ -1,11 +1,19 @@
 import {action} from "mobx";
-import moment from "moment";
+import moment from "moment-timezone";
 import get from "lodash/get";
 
 const filterActions = (state) => {
   // Make sure all dates are correctly formed.
   const setDate = action((dateValue) => {
-    state.date = moment(dateValue).format("YYYY-MM-DD");
+    let momentValue = !dateValue
+      ? moment()
+      : moment.tz(dateValue, "Europe/Helsinki");
+
+    if (!momentValue.isValid()) {
+      momentValue = moment();
+    }
+
+    state.date = momentValue.format("YYYY-MM-DD");
   });
 
   // Grab the nodeId from the passed stop object.

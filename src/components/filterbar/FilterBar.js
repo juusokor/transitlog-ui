@@ -5,20 +5,16 @@ import RouteInput from "./RouteInput";
 import RoutesByLineQuery from "../../queries/RoutesByLineQuery";
 import AllStopsQuery from "../../queries/AllStopsQuery";
 import StopsByRouteQuery from "../../queries/StopsByRouteQuery";
-import Header from "./Header";
 import DateSettings from "./DateSettings";
 import TimeSettings from "./TimeSettings";
 import AllLinesQuery from "../../queries/AllLinesQuery";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import VehicleInput from "./VehicleInput";
-import {Text} from "../../helpers/text";
-import styled, {css} from "styled-components";
-import {Button} from "../Forms";
-import moment from "moment-timezone";
-import get from "lodash/get";
-import last from "lodash/last";
+import styled from "styled-components";
 import TimeSlider from "./TimeSlider";
+import SimulationSettings from "./SimulationSettings";
+import LineSettings from "./LineSettings";
 
 const FilterBarWrapper = styled.div`
   width: 100%;
@@ -30,24 +26,30 @@ const FilterBarWrapper = styled.div`
 
 const FilterBarGrid = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: 25rem 25rem 25rem;
 `;
 
 const FilterSection = styled.div`
   width: 100%;
   border-right: 1px solid var(--alt-grey);
-  padding: 1rem;
+  padding: 0.75rem 1rem 1rem;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
 `;
 
+const SectionVisible = styled.div``;
+
+const SectionExpandable = styled.div`
+  display: none;
+`;
+
 const BottomSlider = styled(TimeSlider)`
   position: absolute;
   bottom: calc(-1rem - 6px);
-  left: -2px;
-  width: 100%;
-  z-index: 100;
+  left: -3px;
+  width: calc(100% + 2px);
+  z-index: 10;
 `;
 
 @inject(app("Filters", "UI"))
@@ -59,44 +61,22 @@ class FilterBar extends Component {
 
   render() {
     const {state, Filters} = this.props;
-    const {vehicle, stop, route, line, date, filterPanelVisible: visible} = state;
+    const {vehicle, stop, route, filterPanelVisible: visible} = state;
 
     return (
       <FilterBarWrapper visible={visible}>
         <FilterBarGrid>
           <FilterSection>
-            <AllLinesQuery date={date}>
-              {({lines, loading, error}) => {
-                if (loading || error) {
-                  return null;
-                }
-
-                return (
-                  <LineInput line={line} onSelect={Filters.setLine} lines={lines} />
-                );
-              }}
-            </AllLinesQuery>
-            {line.lineId &&
-              line.dateBegin && (
-                <RoutesByLineQuery
-                  key={`line_route_${Object.values(line).join("_")}`}
-                  date={date}
-                  line={line}>
-                  {({routes, loading, error}) => {
-                    if (loading || error) {
-                      return null;
-                    }
-
-                    return <RouteInput route={route} routes={routes} />;
-                  }}
-                </RoutesByLineQuery>
-              )}
+            <SectionVisible>
+              <DateSettings />
+              <TimeSettings />
+            </SectionVisible>
+            <SectionExpandable>
+              <SimulationSettings />
+            </SectionExpandable>
           </FilterSection>
           <FilterSection>
-            <DateSettings />
-          </FilterSection>
-          <FilterSection>
-            <TimeSettings />
+            <LineSettings />
           </FilterSection>
           <FilterSection>
             <VehicleInput value={vehicle} onSelect={this.onChangeQueryVehicle} />

@@ -2,6 +2,7 @@
   "filterpanel.heading": "Transitlog",
   "filterpanel.reset": "Återställ",
   "filterpanel.choose_date": "Välj datum",
+  "filterpanel.choose_date_time": "Välj datum och tid",
   "filterpanel.choose_time": "Välj tid",
   "filterpanel.time_increment": "Tidsändring (sek.)",
   "filterpanel.simulate.start": "Simulera",

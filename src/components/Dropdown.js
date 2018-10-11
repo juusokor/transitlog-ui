@@ -3,21 +3,43 @@ import {observer} from "mobx-react";
 import styled from "styled-components";
 import {InputBase} from "./Forms";
 
-const SelectWrapper = styled.div`
-  width: 100%;
-`;
-
 const Select = styled(InputBase.withComponent("select"))`
   padding: 0 0.7rem;
+  width: 100%;
 `;
 
 @observer
 class Dropdown extends Component {
+  state = {
+    isEmpty: !this.props.value,
+  };
+
+  onChange = (e) => {
+    const {onChange} = this.props;
+
+    if (!e.target.value) {
+      this.setState({
+        isEmpty: true,
+      });
+    } else {
+      this.setState({
+        isEmpty: false,
+      });
+    }
+
+    onChange(e);
+  };
+
   render() {
+    const {className, ...props} = this.props;
+    const {isEmpty} = this.state;
+
     return (
-      <SelectWrapper>
-        <Select {...this.props} />
-      </SelectWrapper>
+      <Select
+        {...props}
+        onChange={this.onChange}
+        className={`${className} ${isEmpty ? "empty-select" : ""}`}
+      />
     );
   }
 }

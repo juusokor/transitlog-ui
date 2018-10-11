@@ -7,7 +7,6 @@ const PlusMinusButton = styled(Button)`
   display: inline-block;
   border-radius: ${({side}) => (side === "right" ? "0 5px 5px 0" : "5px 0 0 5px")};
   padding: 0.5rem 1rem;
-  height: 2.5rem;
   ${({side}) => (side === "right" ? "margin-left: -3px" : "margin-right: -3px")};
   position: relative;
   z-index: 10;
@@ -40,11 +39,11 @@ class PlusMinusInput extends Component {
 
     return (
       <Wrapper className={className}>
-        <PlusMinusButton primary side="left" onClick={onDecrease}>
+        <PlusMinusButton small primary side="left" onClick={onDecrease}>
           {minusLabel}
         </PlusMinusButton>
         {children}
-        <PlusMinusButton primary side="right" onClick={onIncrease}>
+        <PlusMinusButton small primary side="right" onClick={onIncrease}>
           {plusLabel}
         </PlusMinusButton>
       </Wrapper>

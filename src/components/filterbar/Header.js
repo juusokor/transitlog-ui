@@ -7,7 +7,7 @@ import LanguageSelect from "./LanguageSelect";
 
 const Header = styled.header`
   width: 100%;
-  height: 10rem;
+  height: calc(9rem + 3px);
   background: var(--blue);
   padding: 1rem;
   display: flex;
@@ -18,7 +18,7 @@ const Header = styled.header`
 `;
 
 const Logo = styled.img`
-  width: 7.5rem;
+  width: 6rem;
   flex: 0 0 auto;
 `;
 
@@ -26,7 +26,7 @@ const MainHeading = styled(Heading).attrs({level: 1})`
   color: white;
   flex: 1 1 auto;
   margin: 0;
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   text-align: center;
 `;
 

@@ -77,12 +77,14 @@ class RangeInput extends Component {
   render() {
     const {value, onChange, min, max, className} = this.props;
 
+    const safeVal = !value || isNaN(value) ? 0 : value;
+
     return (
       <Slider
         className={className}
         min={min}
         max={max}
-        value={value}
+        value={safeVal}
         onChange={onChange}
       />
     );
