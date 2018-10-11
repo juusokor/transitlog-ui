@@ -5,8 +5,11 @@ import withSelectedJourneyHfp from "../../hoc/withSelectedJourneyHfp";
 import {combineDateAndTime} from "../../helpers/time";
 import {InputBase, ControlGroup} from "../Forms";
 import PlusMinusInput from "../PlusMinusInput";
-import {text} from "../../helpers/text";
-import Input from "../Input";
+import styled from "styled-components";
+
+const TimeInput = styled(InputBase)`
+  text-align: center;
+`;
 
 @inject(app("Time"))
 @withSelectedJourneyHfp
@@ -33,7 +36,7 @@ class TimeSettings extends Component {
         <PlusMinusInput
           onIncrease={this.onTimeButtonClick(timeIncrement)}
           onDecrease={this.onTimeButtonClick(-timeIncrement)}>
-          <InputBase value={time} onChange={(e) => Time.setTime(e.target.value)} />
+          <TimeInput value={time} onChange={(e) => Time.setTime(e.target.value)} />
         </PlusMinusInput>
       </ControlGroup>
     );
