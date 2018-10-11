@@ -21,7 +21,7 @@ class LineSettings extends Component {
     return (
       <>
         <ControlGroup>
-          <Input label={text("filterpanel.filter_by_line")} animatedLabel={false}>
+          <Input label={text("filterpanel.find_line_route")} animatedLabel={false}>
             <AllLinesQuery date={date}>
               {({lines, loading, error}) => {
                 if (loading || error) {
@@ -38,20 +38,18 @@ class LineSettings extends Component {
         {line.lineId &&
           line.dateBegin && (
             <ControlGroup>
-              <Input label={text("filterpanel.select_route")}>
-                <RoutesByLineQuery
-                  key={`line_route_${Object.values(line).join("_")}`}
-                  date={date}
-                  line={line}>
-                  {({routes, loading, error}) => {
-                    if (loading || error) {
-                      return null;
-                    }
+              <RoutesByLineQuery
+                key={`line_route_${Object.values(line).join("_")}`}
+                date={date}
+                line={line}>
+                {({routes, loading, error}) => {
+                  if (loading || error) {
+                    return null;
+                  }
 
-                    return <RouteInput route={route} routes={routes} />;
-                  }}
-                </RoutesByLineQuery>
-              </Input>
+                  return <RouteInput route={route} routes={routes} />;
+                }}
+              </RoutesByLineQuery>
             </ControlGroup>
           )}
       </>

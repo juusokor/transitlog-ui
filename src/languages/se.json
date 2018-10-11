@@ -10,6 +10,7 @@
   "filterpanel.filter_by_vehicle": "Sök fordon",
   "filterpanel.filter_by_stop": "Sök hållplatser",
   "filterpanel.filter_by_line": "Sök linjer",
+  "filterpanel.find_line_route": "Sök linje och rutt",
   "filterpanel.select_route": "Välj rutt",
   "filterpanel.planned_start_time": "Planerad starttid",
   "filterpanel.real_start_time": "Realiserad starttid",

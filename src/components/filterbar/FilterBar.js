@@ -1,13 +1,9 @@
 import React, {Component} from "react";
-import LineInput from "./LineInput";
 import StopInput from "./StopInput";
-import RouteInput from "./RouteInput";
-import RoutesByLineQuery from "../../queries/RoutesByLineQuery";
 import AllStopsQuery from "../../queries/AllStopsQuery";
 import StopsByRouteQuery from "../../queries/StopsByRouteQuery";
 import DateSettings from "./DateSettings";
 import TimeSettings from "./TimeSettings";
-import AllLinesQuery from "../../queries/AllLinesQuery";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import VehicleInput from "./VehicleInput";
@@ -15,6 +11,9 @@ import styled from "styled-components";
 import TimeSlider from "./TimeSlider";
 import SimulationSettings from "./SimulationSettings";
 import LineSettings from "./LineSettings";
+import Input from "../Input";
+import {ControlGroup} from "../Forms";
+import {text} from "../../helpers/text";
 
 const FilterBarWrapper = styled.div`
   width: 100%;
@@ -26,7 +25,9 @@ const FilterBarWrapper = styled.div`
 
 const FilterBarGrid = styled.div`
   display: grid;
-  grid-template-columns: 25rem 25rem 25rem;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  height: 100%;
+  align-items: stretch;
 `;
 
 const FilterSection = styled.div`
@@ -79,20 +80,42 @@ class FilterBar extends Component {
             <LineSettings />
           </FilterSection>
           <FilterSection>
-            <VehicleInput value={vehicle} onSelect={this.onChangeQueryVehicle} />
-            {!route.routeId ? (
-              <AllStopsQuery key="all_stops">
-                {({stops}) => (
-                  <StopInput onSelect={Filters.setStop} stop={stop} stops={stops} />
+            <ControlGroup>
+              <Input
+                label={text("filterpanel.filter_by_vehicle")}
+                animatedLabel={false}>
+                <VehicleInput value={vehicle} onSelect={this.onChangeQueryVehicle} />
+              </Input>
+            </ControlGroup>
+          </FilterSection>
+          <FilterSection>
+            <ControlGroup>
+              <Input
+                label={text("filterpanel.filter_by_stop")}
+                animatedLabel={false}>
+                {!route.routeId ? (
+                  <AllStopsQuery key="all_stops">
+                    {({stops}) => (
+                      <StopInput
+                        onSelect={Filters.setStop}
+                        stop={stop}
+                        stops={stops}
+                      />
+                    )}
+                  </AllStopsQuery>
+                ) : (
+                  <StopsByRouteQuery key="stop_input_by_route" route={route}>
+                    {({stops}) => (
+                      <StopInput
+                        onSelect={Filters.setStop}
+                        stop={stop}
+                        stops={stops}
+                      />
+                    )}
+                  </StopsByRouteQuery>
                 )}
-              </AllStopsQuery>
-            ) : (
-              <StopsByRouteQuery key="stop_input_by_route" route={route}>
-                {({stops}) => (
-                  <StopInput onSelect={Filters.setStop} stop={stop} stops={stops} />
-                )}
-              </StopsByRouteQuery>
-            )}
+              </Input>
+            </ControlGroup>
           </FilterSection>
         </FilterBarGrid>
         <BottomSlider />

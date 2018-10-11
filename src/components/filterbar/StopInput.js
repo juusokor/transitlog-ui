@@ -56,7 +56,6 @@ export default withStop(
     return (
       <SuggestionInput
         minimumInput={0}
-        placeholder={text("filterpanel.filter_by_stop")}
         value={getSuggestionValue(stop)}
         onSelect={onSelect}
         getValue={getSuggestionValue}

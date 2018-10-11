@@ -43,7 +43,7 @@ const Label = styled(InputLabel)`
 
           *:placeholder-shown + &,
           .empty-select + & {
-            transform: translate(0.75rem, 0.45rem);
+            transform: translate(0.5rem, 0.45rem);
             text-transform: none;
             font-weight: 300;
             color: var(--light-grey);

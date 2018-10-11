@@ -43,7 +43,6 @@ export default enhance(({vehicle = "", onChange, onSelect, state, positions}) =>
   return (
     <SuggestionInput
       minimumInput={0}
-      placeholder={text("filterpanel.filter_by_vehicle")}
       value={vehicle}
       onSelect={onSelect}
       getValue={getSuggestionValue}
