@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import get from "lodash/get";
-import FilterPanel from "./filterpanel/FilterPanel";
+import FilterBar from "./filterbar/FilterBar";
 import withHfpData from "../hoc/withHfpData";
 import {app} from "mobx-app";
 import {inject, observer} from "mobx-react";
@@ -15,12 +15,13 @@ import getJourneyId from "../helpers/getJourneyId";
 import withRoute from "../hoc/withRoute";
 import createRouteIdentifier from "../helpers/createRouteIdentifier";
 import styled from "styled-components";
+import SidePanel from "./SidePanel";
 
 const AppFrame = styled.main`
   height: 100%;
   display: grid;
-  grid-template-columns: 26rem 1fr;
-  grid-template-rows: 100vh;
+  grid-template-columns: 20rem 1fr;
+  grid-template-rows: 8rem 1fr;
 `;
 
 @inject(app("Journey", "Filters"))
@@ -80,7 +81,8 @@ class App extends Component {
 
     return (
       <AppFrame>
-        <FilterPanel loading={loading} />
+        <FilterBar />
+        <SidePanel loading={loading} />
         <Map onMapChanged={this.onMapChanged}>
           {({lat, lng, zoom, setMapBounds}) => (
             <React.Fragment>

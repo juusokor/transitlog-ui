@@ -1,21 +1,13 @@
 import React, {Component} from "react";
-import TimeSlider from "./TimeSlider";
 import {app} from "mobx-app";
 import {inject, observer} from "mobx-react";
 import withSelectedJourneyHfp from "../../hoc/withSelectedJourneyHfp";
-import get from "lodash/get";
-import last from "lodash/last";
 import {combineDateAndTime} from "../../helpers/time";
-import moment from "moment-timezone";
 import {text} from "../../helpers/text";
 import {ControlGroup, Button, InputBase} from "../Forms";
 import PlusMinusInput from "../PlusMinusInput";
 import Input from "../Input";
 import styled from "styled-components";
-
-const dateToSeconds = (date) => {
-  return Math.abs(date.diff(moment(date).startOf("day"), "seconds"));
-};
 
 const IncrementValueInput = styled(Input)`
   flex: 0 1 50%;
@@ -38,8 +30,8 @@ class TimeSettings extends Component {
   };
 
   render() {
-    const {state, Time, selectedJourneyHfp = []} = this.props;
-    const {time, date, timeIncrement, playing} = state;
+    const {state, Time} = this.props;
+    const {time, timeIncrement, playing} = state;
 
     return (
       <>
@@ -54,31 +46,6 @@ class TimeSettings extends Component {
               />
             </PlusMinusInput>
           </Input>
-        </ControlGroup>
-        <ControlGroup>
-          <TimeSlider
-            value={time}
-            date={date}
-            onChange={Time.setTime}
-            min={
-              selectedJourneyHfp.length !== 0
-                ? dateToSeconds(
-                    moment(get(selectedJourneyHfp, "[0].received_at", 0)).tz(
-                      "Europe/Helsinki"
-                    )
-                  )
-                : undefined
-            }
-            max={
-              selectedJourneyHfp.length !== 0
-                ? dateToSeconds(
-                    moment(get(last(selectedJourneyHfp), "received_at", 0)).tz(
-                      "Europe/Helsinki"
-                    )
-                  )
-                : undefined
-            }
-          />
         </ControlGroup>
         <ControlGroup>
           <IncrementValueInput

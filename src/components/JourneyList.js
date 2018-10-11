@@ -1,12 +1,12 @@
 import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
-import withHfpData from "../../hoc/withHfpData";
+import withHfpData from "../hoc/withHfpData";
 import map from "lodash/map";
 import get from "lodash/get";
 import {app} from "mobx-app";
-import getJourneyId from "../../helpers/getJourneyId";
-import {timeToFormat} from "../../helpers/time";
-import {Text} from "../../helpers/text";
+import getJourneyId from "../helpers/getJourneyId";
+import {timeToFormat} from "../helpers/time";
+import {Text} from "../helpers/text";
 import styled from "styled-components";
 
 const JourneyListWrapper = styled.div`
