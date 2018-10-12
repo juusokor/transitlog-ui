@@ -11,6 +11,7 @@ const SliderThumb = css`
   background: white;
   cursor: pointer;
   transition: background-color 0.15s ease-out, transform 0.2s ease-out;
+  padding: 0;
 
   &:hover {
     background: var(--blue);
@@ -30,9 +31,17 @@ const SliderTrack = css`
 
 const Slider = styled.input.attrs({type: "range", step: 1})`
   -webkit-appearance: none;
+  -moz-appearance: none;
   width: 100%;
+  height: 35px;
   background: transparent;
   display: block;
+  margin: 0;
+
+  &:focus {
+    position: relative;
+    z-index: 100;
+  }
 
   &::-webkit-slider-thumb {
     -webkit-appearance: none;
