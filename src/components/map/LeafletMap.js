@@ -5,9 +5,7 @@ import {latLng} from "leaflet";
 import MapillaryViewer from "./MapillaryViewer";
 import MapillaryLayer from "./MapillaryLayer";
 import styled from "styled-components";
-
 import "leaflet/dist/leaflet.css";
-import "./Map.css";
 
 const MapillaryView = styled(MapillaryViewer)`
   width: 100%;

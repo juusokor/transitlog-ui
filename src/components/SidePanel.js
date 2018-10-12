@@ -4,6 +4,7 @@ import JourneyList from "./JourneyList";
 import styled, {css} from "styled-components";
 import Loading from "./Loading";
 import Header from "./filterbar/Header";
+import ToggleButton from "./ToggleButton";
 
 const SidePanelContainer = styled.div`
   background: var(--lightest-grey);

@@ -10,6 +10,8 @@ import {getPrecisePositionForTime} from "../../helpers/getPrecisePositionForTime
 import {combineDateAndTime} from "../../helpers/time";
 import {Text} from "../../helpers/text";
 
+import "./Map.css";
+
 @inject(app("state"))
 @observer
 class HfpMarkerLayer extends Component {

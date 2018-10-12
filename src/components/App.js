@@ -22,14 +22,14 @@ const AppFrame = styled.main`
   overflow: hidden;
   display: grid;
   grid-template-columns: 20rem 1fr;
-  grid-template-rows: 9rem 1fr;
+  grid-template-rows: 10rem 1fr;
 `;
 
 const MapPanel = styled(Map)`
-  top: 9rem;
+  top: 10rem;
   left: 20rem;
   width: (100% - 20rem);
-  height: (100% - 9rem);
+  height: (100% - 10rem);
 `;
 
 @inject(app("Journey", "Filters"))

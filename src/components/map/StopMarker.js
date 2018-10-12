@@ -98,7 +98,7 @@ class StopMarker extends React.Component {
         <Tooltip>
           {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
         </Tooltip>
-        <Popup keepInView={false} autoPan={false}>
+        <Popup keepInView={false} autoPan={false} maxWidth={500} minWidth={350}>
           <Heading level={4}>
             {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
           </Heading>

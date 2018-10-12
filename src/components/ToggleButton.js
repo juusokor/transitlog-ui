@@ -4,6 +4,7 @@ import styled from "styled-components";
 
 const Container = styled.label`
   flex: 1;
+  display: flex;
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
@@ -12,7 +13,7 @@ const Container = styled.label`
   padding-bottom: 0.3rem;
 `;
 
-const ToggleInput = styled.input.attrs({type: "radio"})`
+const ToggleInput = styled.input`
   position: absolute;
   left: -9999px;
   opacity: 0;
@@ -28,7 +29,7 @@ const ToggleMarker = styled.div`
   width: 30px;
   height: 30px;
   background-color: white;
-  border: 1px solid var(--light-grey);
+  border: 1px solid var(--blue);
   border-radius: 15px;
   transition: transform 0.1s ease-out;
 `;
@@ -37,62 +38,66 @@ const ToggleContainer = styled.div`
   position: relative;
   width: 50px;
   height: 30px;
-  border: 1px solid var(--grey);
+  border: 1px solid ${({isSwitch}) => (isSwitch ? "var(--blue)" : "var(--grey)")};
+  background: ${({isSwitch}) => (isSwitch ? "var(--blue)" : "white")};
   border-radius: 15px;
   transition: background 0.2s ease-out;
+  flex: 0 0 50px;
 
   ${ToggleInput}:checked + & {
     background: var(--blue);
     border-color: var(--blue);
 
     ${ToggleMarker} {
-      border-color: var(--blue);
       transform: translate(20px, 0);
     }
   }
 `;
 
 const TextContainer = styled.div`
-  flex: 1;
-  flex-basis: auto;
+  font-family: var(--font-family);
+  flex: 1 1 40%;
   flex-wrap: wrap;
   justify-content: flex-start;
   align-items: flex-start;
-`;
-
-const StyledLabelText = styled.span`
   color: ${({disabled}) => (disabled ? "var(--light-grey)" : "var(--blue)")};
-  margin-left: 1rem;
+  margin-left: ${({isPreLabel = false}) => (isPreLabel ? "0" : "1rem")};
+  margin-right: ${({isPreLabel = false}) => (isPreLabel ? "1rem" : "0")};
+  text-align: ${({isPreLabel = false}) => (isPreLabel ? "right" : "left")};
+  font-size: 1rem;
 `;
 
 @observer
 class ToggleButton extends Component {
   render() {
     const {
+      type = "radio",
       checked,
       name,
       onChange,
       value,
       disabled,
+      isSwitch = false,
       children,
       label = children,
+      preLabel,
     } = this.props;
 
     return (
       <Container>
+        {preLabel && <TextContainer isPreLabel={true}>{preLabel}</TextContainer>}
         <ToggleInput
+          type={type}
           name={name}
           onChange={onChange}
           value={value}
           disabled={disabled}
           checked={checked}
         />
-        <ToggleContainer checked={checked} disabled={disabled}>
+        <ToggleContainer isSwitch={isSwitch} checked={checked} disabled={disabled}>
           <ToggleMarker checked={checked} disabled={disabled} />
         </ToggleContainer>
-        <TextContainer>
-          <StyledLabelText disabled={disabled}>{label}</StyledLabelText>
-        </TextContainer>
+        <TextContainer>{label}</TextContainer>
       </Container>
     );
   }
