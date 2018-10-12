@@ -4,7 +4,6 @@ import JourneyList from "./JourneyList";
 import styled, {css} from "styled-components";
 import Loading from "./Loading";
 import Header from "./filterbar/Header";
-import ToggleButton from "./ToggleButton";
 
 const SidePanelContainer = styled.div`
   background: var(--lightest-grey);
@@ -17,7 +16,7 @@ const SidePanelContainer = styled.div`
 
 const LoadingContainer = styled.div`
   position: absolute;
-  top: -0.5rem;
+  top: 2rem;
   left: 0;
   width: 100%;
   display: flex;
@@ -28,6 +27,7 @@ const LoadingContainer = styled.div`
   user-select: none;
   transition: opacity 0.1s ease-out, transform 0.2s ease-out;
   transform: translateY(-5rem);
+  z-index: 10;
 
   ${({loading = false}) =>
     loading
@@ -40,8 +40,8 @@ const LoadingContainer = styled.div`
 `;
 
 const JourneyListWrapper = styled.div`
-  padding-top: 1rem;
   height: calc(100% - (9rem + 3px)); // Subtract header height
+  position: relative;
 `;
 
 @observer

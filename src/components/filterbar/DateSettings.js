@@ -33,6 +33,7 @@ const DateInput = styled(PlusMinusInput)`
 
   .react-datepicker-popper {
     z-index: 100;
+    transform: translateZ(100px);
   }
 `;
 

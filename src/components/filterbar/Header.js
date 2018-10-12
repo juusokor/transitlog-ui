@@ -10,7 +10,7 @@ import {Button} from "../Forms";
 
 const Header = styled.header`
   width: 100%;
-  height: calc(10rem + 3px);
+  height: calc(9rem + 3px);
   background: var(--blue);
   padding: 1rem;
   display: flex;

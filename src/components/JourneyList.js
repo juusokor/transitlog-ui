@@ -15,10 +15,13 @@ import {observable, action} from "mobx";
 import Loading from "./Loading";
 
 const JourneyListWrapper = styled.div`
+  width: 100%;
   height: 100%;
   display: grid;
+  grid-gap: 0;
+  grid-template-rows: 4rem 1fr;
   align-items: stretch;
-  justify-content: start;
+  justify-content: stretch;
 `;
 
 const JourneyListRows = styled.div`
@@ -49,10 +52,11 @@ const JourneyListRow = styled.button`
 const JourneyListHeader = styled(JourneyListRow.withComponent("div"))`
   background: transparent;
   font-size: 0.9em;
-  padding-top: 0;
+  padding-top: 1rem;
   border-bottom: 1px solid var(--alt-grey);
   box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.075);
-  align-self: start;
+  position: relative;
+  z-index: 1;
 
   > *:last-child {
     align-self: flex-end;
