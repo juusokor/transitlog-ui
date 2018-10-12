@@ -48,7 +48,11 @@ class HfpMarkerLayer extends Component {
 
     const delayType = getDelayType(position.dl);
     const color =
-      delayType === "early" ? "red" : delayType === "late" ? "yellow" : "green";
+      delayType === "early"
+        ? "var(--red)"
+        : delayType === "late"
+          ? "var(--yellow)"
+          : "var(--green)";
 
     const markerIcon = divIcon({
       className: `hfp-icon`,

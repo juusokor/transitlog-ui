@@ -128,10 +128,10 @@ ${
               weight={3}
               color={
                 chunkDelayType === "early"
-                  ? "red"
+                  ? "var(--red)"
                   : chunkDelayType === "late"
-                    ? "yellow"
-                    : "green"
+                    ? "var(--yellow)"
+                    : "var(--green)"
               }
               positions={chunkPositions.map((pos) => [pos.lat, pos.long])}
             />

@@ -10,6 +10,7 @@ import {app} from "mobx-app";
 import parse from "date-fns/parse";
 import ArriveDepartToggle from "./ArriveDepartToggle";
 import {combineDateAndTime} from "../../helpers/time";
+import {Heading} from "../Typography";
 
 const stopColor = "var(--blue)";
 const selectedStopColor = "var(--dark-blue)";
@@ -98,9 +99,9 @@ class StopMarker extends React.Component {
           {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
         </Tooltip>
         <Popup keepInView={false} autoPan={false}>
-          <h4>
+          <Heading level={4}>
             {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
-          </h4>
+          </Heading>
           {hfp.length > 0 && (
             <React.Fragment>
               <ArriveDepartToggle value={showTime} onChange={onChangeShowTime} />
