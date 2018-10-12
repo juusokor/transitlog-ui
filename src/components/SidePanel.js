@@ -39,8 +39,8 @@ const LoadingContainer = styled.div`
 `;
 
 const JourneyListWrapper = styled.div`
-  position: relative;
   padding-top: 1rem;
+  height: calc(100% - (9rem + 3px)); // Subtract header height
 `;
 
 @observer

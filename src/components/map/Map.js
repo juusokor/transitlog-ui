@@ -5,20 +5,11 @@ import {app} from "mobx-app";
 import invoke from "lodash/invoke";
 import styled from "styled-components";
 
-const MapPanel = styled.div`
-  position: relative;
-  width: 100%;
-`;
-
 const MapContainer = styled.div`
   width: 100%;
   height: 100%;
   overflow: hidden;
-  position: absolute;
-  top: 0;
-  right: 0;
-  display: flex;
-  flex-direction: column;
+  position: fixed;
 
   > .leaflet-container {
     width: 100%;
@@ -65,27 +56,25 @@ class Map extends Component {
   };
 
   render() {
-    const {bounds: propBounds, children, center} = this.props;
+    const {bounds: propBounds, children, center, className} = this.props;
     const {lat, lng, zoom, bounds} = this.state;
 
     const useBounds = propBounds || bounds || null;
     const useCenter = center || [lat, lng] || null;
 
     return (
-      <MapPanel>
-        <MapContainer>
-          <LeafletMap
-            center={useCenter}
-            zoom={zoom}
-            bounds={useBounds}
-            onMapChanged={this.onMapChanged}
-            onMapChange={this.onMapChange}>
-            {typeof children === "function"
-              ? children({lat, lng, zoom, setMapBounds: this.setMapBounds})
-              : children}
-          </LeafletMap>
-        </MapContainer>
-      </MapPanel>
+      <MapContainer className={className}>
+        <LeafletMap
+          center={useCenter}
+          zoom={zoom}
+          bounds={useBounds}
+          onMapChanged={this.onMapChanged}
+          onMapChange={this.onMapChange}>
+          {typeof children === "function"
+            ? children({lat, lng, zoom, setMapBounds: this.setMapBounds})
+            : children}
+        </LeafletMap>
+      </MapContainer>
     );
   }
 }

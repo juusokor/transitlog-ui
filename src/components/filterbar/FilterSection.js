@@ -22,9 +22,9 @@ const SectionExpandable = styled.div`
   transform: translateY(100%);
   background: var(--lightest-grey);
   margin-left: -1px;
-  border-right: 1px solid var(--alt-grey);
-  border-left: 1px solid var(--alt-grey);
-  border-bottom: 1px solid var(--alt-grey);
+  border-right: 1px solid var(--lighter-grey);
+  border-left: 1px solid var(--lighter-grey);
+  border-bottom: 1px solid var(--lighter-grey);
 
   > div {
     padding: 1.5rem 1rem 1rem;
@@ -45,7 +45,7 @@ const FilterSectionWrapper = styled.div`
   flex-direction: column;
   align-items: flex-start;
   position: relative;
-  border-right: 1px solid var(--alt-grey);
+  border-right: 1px solid var(--lighter-grey);
   background: var(--lightest-grey);
 
   ${({isExpandable, expanded}) => (isExpandable && expanded ? "z-index: 30;" : "")};

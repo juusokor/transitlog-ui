@@ -19,9 +19,17 @@ import SidePanel from "./SidePanel";
 
 const AppFrame = styled.main`
   height: 100%;
+  overflow: hidden;
   display: grid;
   grid-template-columns: 20rem 1fr;
   grid-template-rows: 9rem 1fr;
+`;
+
+const MapPanel = styled(Map)`
+  top: 9rem;
+  left: 20rem;
+  width: (100% - 20rem);
+  height: (100% - 9rem);
 `;
 
 @inject(app("Journey", "Filters"))
@@ -83,7 +91,7 @@ class App extends Component {
       <AppFrame>
         <FilterBar />
         <SidePanel loading={loading} />
-        <Map onMapChanged={this.onMapChanged}>
+        <MapPanel onMapChanged={this.onMapChanged}>
           {({lat, lng, zoom, setMapBounds}) => (
             <React.Fragment>
               {!route.routeId &&
@@ -134,7 +142,7 @@ class App extends Component {
                 })}
             </React.Fragment>
           )}
-        </Map>
+        </MapPanel>
       </AppFrame>
     );
   }

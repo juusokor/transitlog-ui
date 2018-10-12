@@ -50,7 +50,7 @@ const Loading = styled.div`
 export default ({size = 35, inline}) => {
   return (
     <Loading inline={inline}>
-      <Spinner width={inline ? "1.5rem" : size} height={inline ? "1.5rem" : size} />
+      <Spinner width={inline ? 24 : size} height={inline ? 24 : size} />
     </Loading>
   );
 };
