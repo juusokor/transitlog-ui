@@ -5,20 +5,19 @@ import map from "lodash/map";
 import get from "lodash/get";
 import sortBy from "lodash/sortBy";
 import {app} from "mobx-app";
-import getJourneyId from "../../helpers/getJourneyId";
+import getJourneyId from "../helpers/getJourneyId";
 import styled from "styled-components";
-import {timeToFormat, combineDateAndTime} from "../../helpers/time";
-import {Text, text} from "../../helpers/text";
-import withDepartures from "../../hoc/withDepartures";
-import doubleDigit from "../../helpers/doubleDigit";
+import {timeToFormat, combineDateAndTime} from "../helpers/time";
+import {Text, text} from "../helpers/text";
+import withDepartures from "../hoc/withDepartures";
+import doubleDigit from "../helpers/doubleDigit";
 import {observable, action} from "mobx";
-import Loading from "../Loading";
+import Loading from "./Loading";
 
 const JourneyListWrapper = styled.div``;
 
 const JourneyListRows = styled.div`
   max-height: 100%;
-  overflow: auto;
 `;
 
 const JourneyListRow = styled.button`
@@ -46,7 +45,6 @@ const JourneyListHeader = styled(JourneyListRow.withComponent("div"))`
   background: transparent;
   font-size: 0.9em;
   padding-top: 0;
-  user-select: none;
 
   > *:last-child {
     align-self: flex-end;
@@ -256,9 +254,7 @@ class JourneyList extends Component {
                   {this.unrealizedJourneys.includes(journeyOrDeparture) ? (
                     <span>{text("filterpanel.journey.unrealized")}</span>
                   ) : this.requestedJourney === journeyOrDeparture ? (
-                    <span className="InlineLoading">
-                      <Loading />
-                    </span>
+                    <Loading inline />
                   ) : (
                     <span>{text("filterpanel.journey.click_to_fetch")}</span>
                   )}

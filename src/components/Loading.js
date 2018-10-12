@@ -22,6 +22,8 @@ const Loading = styled.div`
   ${({inline}) =>
     inline
       ? css`
+          width: 0.75rem;
+          height: 0.75rem;
           padding: 0;
           background: transparent;
           box-shadow: none;
@@ -33,13 +35,22 @@ const Loading = styled.div`
   svg {
     display: block;
     animation: ${spin} 1.5s linear infinite;
+
+    ${({inline}) =>
+      inline
+        ? css`
+            position: absolute;
+            top: -50%;
+            left: -120%;
+          `
+        : ""};
   }
 `;
 
 export default ({size = 35, inline}) => {
   return (
     <Loading inline={inline}>
-      <Spinner width={inline ? 30 : size} height={inline ? 30 : size} />
+      <Spinner width={inline ? "1.5rem" : size} height={inline ? "1.5rem" : size} />
     </Loading>
   );
 };
