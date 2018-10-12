@@ -22,21 +22,22 @@ const FilterBarWrapper = styled.div`
   color: var(--dark-grey);
   border-bottom: 1px solid var(--alt-grey);
   position: relative;
+  overflow: visible;
 `;
 
 const FilterBarGrid = styled.div`
   display: grid;
-  grid-template-columns: 22.5rem 1fr 1fr 1fr;
+  grid-template-columns: 22rem 1fr 1fr 1fr;
   height: 100%;
   align-items: stretch;
 `;
 
 const BottomSlider = styled(TimeSlider)`
   position: absolute;
-  bottom: calc(-1rem - 6px);
-  left: -3px;
+  bottom: calc(-1rem - 4px);
+  left: -2px;
   width: calc(100% + 2px);
-  z-index: 10;
+  z-index: 20;
 `;
 
 @inject(app("Filters", "UI"))

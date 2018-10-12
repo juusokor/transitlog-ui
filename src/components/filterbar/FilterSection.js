@@ -6,9 +6,8 @@ const SectionVisible = styled.div`
   height: 100%;
   width: 100%;
   padding: 0.75rem 1rem 1rem;
-  border-right: 1px solid var(--alt-grey);
   position: relative;
-  z-index: 20;
+  z-index: 30;
 `;
 
 const SectionExpandable = styled.div`
@@ -19,14 +18,16 @@ const SectionExpandable = styled.div`
   position: absolute;
   bottom: 0;
   left: 0;
-  z-index: 20;
+  z-index: 30;
   transform: translateY(100%);
   background: var(--lightest-grey);
   border-right: 1px solid var(--alt-grey);
   border-left: 1px solid var(--alt-grey);
-  margin-left: -1px;
-  padding: 0.75rem 1rem 1rem;
   border-bottom: 1px solid var(--alt-grey);
+
+  > div {
+    padding: 1.5rem 1rem 1rem;
+  }
 
   ${({expanded = false}) =>
     expanded
@@ -43,7 +44,7 @@ const FilterSectionWrapper = styled.div`
   flex-direction: column;
   align-items: flex-start;
   position: relative;
-  z-index: 20;
+  border-right: 1px solid var(--alt-grey);
 `;
 
 @observer
@@ -72,7 +73,9 @@ class FilterSection extends Component {
         onMouseEnter={this.onTrigger(true)}
         onMouseLeave={this.onTrigger(false)}>
         {expandable && (
-          <SectionExpandable expanded={expanded}>{expandable}</SectionExpandable>
+          <SectionExpandable expanded={expanded}>
+            <div>{expandable}</div>
+          </SectionExpandable>
         )}
         <SectionVisible>{children}</SectionVisible>
       </FilterSectionWrapper>
