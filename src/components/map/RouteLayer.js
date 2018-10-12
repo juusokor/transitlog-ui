@@ -196,7 +196,12 @@ class RouteLayer extends Component {
 
     return (
       <React.Fragment>
-        <Polyline pane="route-lines" weight={3} positions={coords} />
+        <Polyline
+          pane="route-lines"
+          weight={3}
+          positions={coords}
+          color="var(--blue)"
+        />
         {stops.map((stop, index) => {
           const isSelected = stop.nodeId === selectedStop;
           // Funnily enough, the first stop is last in the array.

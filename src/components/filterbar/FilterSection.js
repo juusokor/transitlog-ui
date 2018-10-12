@@ -11,7 +11,7 @@ const SectionVisible = styled.div`
 `;
 
 const SectionExpandable = styled.div`
-  width: calc(100% + 1px);
+  width: calc(100% + 2px);
   opacity: 0;
   max-height: 0;
   overflow: hidden;
@@ -21,6 +21,7 @@ const SectionExpandable = styled.div`
   z-index: 30;
   transform: translateY(100%);
   background: var(--lightest-grey);
+  margin-left: -1px;
   border-right: 1px solid var(--alt-grey);
   border-left: 1px solid var(--alt-grey);
   border-bottom: 1px solid var(--alt-grey);
@@ -45,6 +46,9 @@ const FilterSectionWrapper = styled.div`
   align-items: flex-start;
   position: relative;
   border-right: 1px solid var(--alt-grey);
+  background: var(--lightest-grey);
+
+  ${({isExpandable, expanded}) => (isExpandable && expanded ? "z-index: 30;" : "")};
 `;
 
 @observer
@@ -69,6 +73,8 @@ class FilterSection extends Component {
 
     return (
       <FilterSectionWrapper
+        isExpandable={!!expandable}
+        expanded={expanded}
         className={className}
         onMouseEnter={this.onTrigger(true)}
         onMouseLeave={this.onTrigger(false)}>
