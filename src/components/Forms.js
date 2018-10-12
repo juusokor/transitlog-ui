@@ -32,6 +32,7 @@ export const InputLabel = styled.label`
   margin-bottom: 0.5rem;
   color: var(--grey);
   text-transform: uppercase;
+  user-select: none;
 `;
 
 export const InputStyles = css`

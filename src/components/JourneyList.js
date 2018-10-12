@@ -46,6 +46,7 @@ const JourneyListHeader = styled(JourneyListRow.withComponent("div"))`
   background: transparent;
   font-size: 0.9em;
   padding-top: 0;
+  user-select: none;
 
   > *:last-child {
     align-self: flex-end;

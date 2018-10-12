@@ -1,5 +1,4 @@
 import React from "react";
-import {darken} from "polished";
 import DriveByTimes from "./DriveByTimes";
 import {Popup, Marker, CircleMarker, Tooltip} from "react-leaflet";
 import {icon} from "leaflet";
@@ -12,8 +11,8 @@ import parse from "date-fns/parse";
 import ArriveDepartToggle from "./ArriveDepartToggle";
 import {combineDateAndTime} from "../../helpers/time";
 
-const stopColor = "#3388ff";
-const selectedStopColor = darken(0.2, stopColor);
+const stopColor = "var(--blue)";
+const selectedStopColor = "var(--dark-blue)";
 
 @inject(app("state"))
 @observer
