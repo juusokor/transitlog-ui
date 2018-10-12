@@ -1,6 +1,7 @@
 @import url("https://cloud.typography.com/6364294/6653152/css/fonts.css");
 
 :root {
+  --dark-blue: rgb(0, 98, 161);
   --blue: #007ac9;
   --green: #00985f;
   --purple: #8c4799;

@@ -76,7 +76,7 @@ export const Button = styled.button`
   transition: background-color 0.15s ease-out, transform 0.2s ease-out;
 
   &:hover {
-    background: ${({primary = false}) => (primary ? "#0069bb" : "#eeeeee")};
+    background: ${({primary = false}) => (primary ? "var(--dark-blue)" : "#eeeeee")};
     transform: scale(1.05);
   }
 `;
