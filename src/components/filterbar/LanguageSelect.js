@@ -1,31 +1,66 @@
 import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
-import get from "lodash/get";
+import {Button} from "../Forms";
+import styled from "styled-components";
 import {LANGUAGES} from "../../stores/UIStore";
-import Dropdown from "../Dropdown";
+
+const LanguageButtonsWrapper = styled.div`
+  display: flex;
+`;
+
+const LanguageButton = styled(Button)`
+  border-radius: 3px;
+  line-height: normal;
+  width: 2rem;
+  height: 1.75rem;
+  background: ${({active}) => (active ? "var(--dark-blue)" : "var(--blue)")};
+  margin-right: 0.3125rem;
+  padding: 0;
+  color: white;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  text-transform: uppercase;
+
+  &:hover {
+    background: ${({active}) => (active ? "var(--dark-blue)" : "var(--blue)")};
+  }
+`;
 
 @inject(app("UI"))
 @observer
 class LanguageSelect extends Component {
-  onChange = (e) => {
-    const {UI} = this.props;
-    const selectedValue = get(e, "target.value", false);
+  onSelectLanguage = (which) => (e) => {
+    e.preventDefault();
 
-    if (selectedValue) {
-      UI.setLanguage(selectedValue);
-    }
+    const {UI} = this.props;
+    UI.setLanguage(which);
   };
 
   render() {
-    const {language} = this.props.state;
+    const {
+      className,
+      state: {language},
+    } = this.props;
 
     return (
-      <Dropdown value={language} onChange={this.onChange}>
-        <option value={LANGUAGES.FINNISH}>Suomi</option>
-        <option value={LANGUAGES.SWEDISH}>Svenska</option>
-        <option value={LANGUAGES.ENGLISH}>English</option>
-      </Dropdown>
+      <LanguageButtonsWrapper className={className}>
+        <LanguageButton
+          active={language === LANGUAGES.FINNISH}
+          onClick={this.onSelectLanguage(LANGUAGES.FINNISH)}>
+          Fi
+        </LanguageButton>
+        <LanguageButton
+          active={language === LANGUAGES.SWEDISH}
+          onClick={this.onSelectLanguage(LANGUAGES.SWEDISH)}>
+          Se
+        </LanguageButton>
+        <LanguageButton
+          active={language === LANGUAGES.ENGLISH}
+          onClick={this.onSelectLanguage(LANGUAGES.ENGLISH)}>
+          En
+        </LanguageButton>
+      </LanguageButtonsWrapper>
     );
   }
 }

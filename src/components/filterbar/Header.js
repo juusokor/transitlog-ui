@@ -37,8 +37,9 @@ const LangSelectContainer = styled.div`
   flex: 1 0 100%;
   margin-top: 1rem;
   display: flex;
+  align-items: center;
 
-  select {
+  div {
     flex: 0 1 40%;
     margin-right: 1rem;
   }
