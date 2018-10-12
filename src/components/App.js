@@ -28,8 +28,8 @@ const AppFrame = styled.main`
 const MapPanel = styled(Map)`
   top: 9rem;
   left: 20rem;
-  width: (100% - 20rem);
-  height: (100% - 9rem);
+  width: calc(100% - 20rem);
+  height: calc(100% - 9rem);
 `;
 
 @inject(app("Journey", "Filters"))
