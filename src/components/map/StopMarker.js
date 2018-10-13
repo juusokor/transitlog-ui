@@ -1,5 +1,4 @@
 import React from "react";
-import {darken} from "polished";
 import DriveByTimes from "./DriveByTimes";
 import {Popup, Marker, CircleMarker, Tooltip} from "react-leaflet";
 import {icon} from "leaflet";
@@ -11,9 +10,10 @@ import {app} from "mobx-app";
 import parse from "date-fns/parse";
 import ArriveDepartToggle from "./ArriveDepartToggle";
 import {combineDateAndTime} from "../../helpers/time";
+import {Heading} from "../Typography";
 
-const stopColor = "#3388ff";
-const selectedStopColor = darken(0.2, stopColor);
+const stopColor = "var(--blue)";
+const selectedStopColor = "var(--dark-blue)";
 
 @inject(app("state"))
 @observer
@@ -98,10 +98,10 @@ class StopMarker extends React.Component {
         <Tooltip>
           {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
         </Tooltip>
-        <Popup keepInView={false} autoPan={false}>
-          <h4>
+        <Popup keepInView={false} autoPan={false} maxWidth={500} minWidth={350}>
+          <Heading level={4}>
             {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
-          </h4>
+          </Heading>
           {hfp.length > 0 && (
             <React.Fragment>
               <ArriveDepartToggle value={showTime} onChange={onChangeShowTime} />

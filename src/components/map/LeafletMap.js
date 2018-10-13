@@ -1,11 +1,18 @@
 import React, {Component} from "react";
 import {Map, TileLayer, ZoomControl, Pane, LayersControl} from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import "./Map.css";
 import get from "lodash/get";
 import {latLng} from "leaflet";
 import MapillaryViewer from "./MapillaryViewer";
 import MapillaryLayer from "./MapillaryLayer";
+import styled from "styled-components";
+import "leaflet/dist/leaflet.css";
+
+const MapillaryView = styled(MapillaryViewer)`
+  width: 100%;
+  height: 100%;
+  flex: 1 1 50%;
+  position: relative;
+`;
 
 export class LeafletMap extends Component {
   mapRef = React.createRef();
@@ -57,7 +64,7 @@ export class LeafletMap extends Component {
     } = this.state;
 
     return (
-      <div className="map-container">
+      <>
         <Map
           ref={this.mapRef}
           center={center}
@@ -108,13 +115,12 @@ export class LeafletMap extends Component {
         </Map>
         {currentBaseLayer === "Mapillary" &&
           currentMapillaryViewerLocation && (
-            <MapillaryViewer
-              className="mapillary-viewer"
+            <MapillaryView
               onNavigation={this.onMapillaryNavigation}
               location={currentMapillaryViewerLocation}
             />
           )}
-      </div>
+      </>
     );
   }
 }

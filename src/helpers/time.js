@@ -16,7 +16,7 @@ export function timeToFormat(value, toFormat, toTimezone, fromTimezone) {
   return date.format(toFormat);
 }
 
-export function combineDateAndTime(date, time, timezone, toTimezone) {
+export function combineDateAndTime(date, time = "00:00:00", timezone, toTimezone) {
   if (toTimezone && typeof toTimezone === "string") {
     return moment.tz(`${date} ${time}`, timezone).tz(toTimezone);
   } else {

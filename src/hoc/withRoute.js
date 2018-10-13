@@ -11,15 +11,6 @@ export default (Component) => {
   @inject(app("Filters"))
   @observer
   class WithRouteComponent extends React.Component {
-    getRoute = () => {
-      const {
-        state: {route: stateRoute = {routeId: ""}},
-        route = stateRoute,
-      } = this.props;
-
-      return route;
-    };
-
     /**
      * This is necessary to ensure that the full route data is in the selected
      * route state. Filters.setRoute also sets the relevant line from the route
@@ -37,6 +28,7 @@ export default (Component) => {
         route.routeId &&
         route.direction &&
         route.dateBegin &&
+        route.originstopId &&
         routeEnsured !== route.routeId
       ) {
         routeEnsured = route.routeId;

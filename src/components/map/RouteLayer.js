@@ -23,9 +23,9 @@ class RouteLayer extends Component {
   cachedPositionsByVehicle = [];
   prevPositionsLength = 0;
 
-  onChangeShowTime = (e) => {
+  onChangeShowTime = (setTo) => () => {
     this.setState({
-      showTime: e.target.value,
+      showTime: setTo,
     });
   };
 
@@ -128,6 +128,7 @@ class RouteLayer extends Component {
     const stopHfpGroups = positions.map(({vehicleId, positions}) => {
       const vehicleJourneys = groupBy(positions, "journey_start_time");
       // Get the hfp positions for when this vehicle was at this stop.
+      // TODO: Guard against null stop
       const stopJourneys = this.getStopPositions(vehicleJourneys, stop.stopId);
       const journeys = this.getArriveDepartTimes(stopJourneys);
 
@@ -196,7 +197,12 @@ class RouteLayer extends Component {
 
     return (
       <React.Fragment>
-        <Polyline pane="route-lines" weight={3} positions={coords} />
+        <Polyline
+          pane="route-lines"
+          weight={3}
+          positions={coords}
+          color="var(--blue)"
+        />
         {stops.map((stop, index) => {
           const isSelected = stop.nodeId === selectedStop;
           // Funnily enough, the first stop is last in the array.

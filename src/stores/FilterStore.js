@@ -17,6 +17,7 @@ const emptyState = {
     direction: "",
     dateBegin: "",
     dateEnd: "",
+    originstopId: "",
   },
 };
 
