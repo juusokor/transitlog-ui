@@ -7,6 +7,8 @@ import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import withRoute from "../../hoc/withRoute";
 import {Text} from "../../helpers/text";
+import {Heading} from "../Typography";
+import styled from "styled-components";
 
 const stopsByBboxQuery = gql`
   query stopsByBboxQuery(
@@ -45,6 +47,17 @@ const stopsByBboxQuery = gql`
 
 const stopColor = "#3388ff";
 
+const StopRouteList = styled.button`
+  text-decoration: none;
+  padding: 2px 4px;
+  border-radius: 3px;
+  background: #e6e6e6;
+  margin: 0 0 3px 3px;
+  display: inline-block;
+  border: 1px solid transparent;
+  cursor: pointer;
+`;
+
 @inject(app("Filters"))
 @withRoute
 @observer
@@ -79,17 +92,16 @@ class StopLayer extends Component {
                   onPopupclose={() => this.setState({selectedStop: null})}>
                   {this.state.selectedStop === stop.stopId ? (
                     <Popup>
-                      <h4>
+                      <Heading level={4}>
                         {stop.nameFi}, {stop.shortId.replace(/ /g, "")} (
                         {stop.stopId})
-                      </h4>
+                      </Heading>
                       {stop.routeSegmentsForDate.nodes.map((route) => (
-                        <button
+                        <StopRouteList
                           key={`route_${route.routeId}_${route.direction}`}
-                          className={"stop-route-list"}
                           onClick={this.selectRoute(route)}>
                           {route.routeId.substring(1).replace(/^0+/, "")}
-                        </button>
+                        </StopRouteList>
                       ))}
                     </Popup>
                   ) : (
