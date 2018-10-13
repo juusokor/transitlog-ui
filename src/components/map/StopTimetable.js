@@ -6,75 +6,86 @@ import {Query} from "react-apollo";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import withRoute from "../../hoc/withRoute";
+import getDay from "date-fns/get_day";
+import styled from "styled-components";
 
-const departuresByStopQuery = gql`
-  query stopDepartures(
-    $stopId: String!
-    $routeId: String!
-    $dateBegin: Date!
-    $dateEnd: Date!
-  ) {
+const departuresQuery = gql`
+  query routeDepartures($dayType: String, $stopId: String) {
     allDepartures(
-      condition: {
-        stopId: $stopId
-        routeId: $routeId
-        dateBegin: $dateBegin
-        dateEnd: $dateEnd
-        dayType: "Su"
-      }
+      orderBy: DEPARTURE_ID_ASC
+      condition: {stopId: $stopId, dayType: $dayType}
     ) {
       nodes {
         stopId
-        routeId
-        departureId
+        dayType
         hours
         minutes
         dateBegin
         dateEnd
-        dayType
+        routeId
       }
     }
   }
+`;
+
+const dayTypes = ["Su", "Ma", "Ti", "Ke", "To", "Pe", "La"];
+
+const TimetableGrid = styled.div`
+  display: grid;
+  grid-template-columns: 5em auto;
+  grid-template-rows: repeat(auto-fill, auto);
+`;
+
+const TimetableHour = styled.div``;
+
+const TimetableTimes = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+`;
+
+const TimetableTime = styled.div`
+  padding: 0.2em;
 `;
 
 @inject(app("Filters"))
 @observer
 class StopTimetable extends Component {
   render() {
+    const queryDayType = dayTypes[getDay(this.props.date)];
     return (
       <Query
-        query={departuresByStopQuery}
+        query={departuresQuery}
         variables={{
-          routeId: "1078",
-          direction: "2",
-          dateBegin: "2018-06-18",
-          dateEnd: "2018-08-12",
-          stopId: "1362148",
+          dayType: queryDayType,
+          stopId: this.props.stopId,
         }}>
         {({loading, data, error}) => {
           if (loading) return "Loading...";
           if (error) return "Error!";
           console.log(error, data);
           const timetable = get(data, "allDepartures.nodes", []);
-          const hourminmap = timetable.reduce(function(acc, departure) {
-            var hour = departure.hours;
-            if (!acc[hour]) {
-              acc[hour] = [];
-            }
-            acc[hour].push(departure.minutes);
-            return acc;
-          }, {});
-          console.log(hourminmap);
+          const filteredTimetable = timetable.filter(
+            ({dateBegin, dateEnd}) =>
+              this.props.date >= dateBegin && this.props.date <= dateEnd
+          );
+          const byHour = groupBy(filteredTimetable, "hours");
+          console.log(byHour);
           return (
-            <React.Fragment>
-              {timetable.map((departure) => (
-                <button
-                  key={`departure_${departure.hours}_${departure.minutes}`}
-                  className={"stop-route-list"}>
-                  {departure.hours + ":" + departure.minutes}
-                </button>
+            <TimetableGrid>
+              {Object.entries(byHour).map(([hour, times]) => (
+                <React.Fragment>
+                  <TimetableHour> {hour}: </TimetableHour>{" "}
+                  <TimetableTimes>
+                    {times.map((time) => (
+                      <TimetableTime>
+                        {" "}
+                        {time.minutes}/{time.routeId}{" "}
+                      </TimetableTime>
+                    ))}
+                  </TimetableTimes>
+                </React.Fragment>
               ))}
-            </React.Fragment>
+            </TimetableGrid>
           );
         }}
       </Query>
