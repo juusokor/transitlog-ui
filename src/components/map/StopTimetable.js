@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import get from "lodash/get";
+import groupBy from "lodash/groupBy";
 import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import {observer, inject} from "mobx-react";
@@ -55,12 +56,20 @@ class StopTimetable extends Component {
           if (error) return "Error!";
           console.log(error, data);
           const timetable = get(data, "allDepartures.nodes", []);
-
+          const hourminmap = timetable.reduce(function(acc, departure) {
+            var hour = departure.hours;
+            if (!acc[hour]) {
+              acc[hour] = [];
+            }
+            acc[hour].push(departure.minutes);
+            return acc;
+          }, {});
+          console.log(hourminmap);
           return (
             <React.Fragment>
               {timetable.map((departure) => (
                 <button
-                  key={`route_${departure.hours}_${departure.minutes}`}
+                  key={`departure_${departure.hours}_${departure.minutes}`}
                   className={"stop-route-list"}>
                   {departure.hours + ":" + departure.minutes}
                 </button>
