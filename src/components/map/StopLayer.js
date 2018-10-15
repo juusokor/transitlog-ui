@@ -6,9 +6,11 @@ import {Query} from "react-apollo";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import withRoute from "../../hoc/withRoute";
+import StopTimetable from "./StopTimetable";
 import {Text} from "../../helpers/text";
 import {Heading} from "../Typography";
 import styled from "styled-components";
+import Modal from "styled-react-modal";
 
 const stopsByBboxQuery = gql`
   query stopsByBboxQuery(
@@ -58,17 +60,27 @@ const StopRouteList = styled.button`
   cursor: pointer;
 `;
 
+const TimetableModal = Modal.styled`
+  width: auto;
+  margin: 10em;
+  height: auto;
+  background-color: white;
+  border: 2px solid black;
+  border-radius: 5px;
+  
+`;
+
 @inject(app("Filters"))
 @withRoute
 @observer
 class StopLayer extends Component {
-  state = {selectedStop: null};
+  state = {selectedStop: null, modalOpen: false};
   selectRoute = (route) => (e) => {
     this.props.Filters.setRoute(route);
   };
 
   render() {
-    const {selectedStop, bounds, state} = this.props;
+    const {selectedStop, bounds, state, dateBegin, dateEnd} = this.props;
     const {date} = state;
 
     return (
@@ -96,6 +108,18 @@ class StopLayer extends Component {
                         {stop.nameFi}, {stop.shortId.replace(/ /g, "")} (
                         {stop.stopId})
                       </Heading>
+                      <button onClick={() => this.setState({modalOpen: true})}>
+                        open
+                      </button>
+                      <TimetableModal
+                        isOpen={this.state.modalOpen}
+                        onBackgroundClick={() => this.setState({modalOpen: false})}
+                        onEscapeKeydown={() => this.setState({modalOpen: false})}>
+                        <StopTimetable
+                          date={date}
+                          stopId={this.state.selectedStop}
+                        />
+                      </TimetableModal>
                       {stop.routeSegmentsForDate.nodes.map((route) => (
                         <StopRouteList
                           key={`route_${route.routeId}_${route.direction}`}
