@@ -9,6 +9,7 @@ import withRoute from "../../hoc/withRoute";
 import getDay from "date-fns/get_day";
 import styled from "styled-components";
 import {hfpClient} from "../../api";
+import doubleDigit from "../../helpers/doubleDigit";
 
 const departuresQuery = gql`
   query routeDepartures($dayType: String, $stopId: String) {
@@ -134,7 +135,7 @@ const StopDelay = ({
       if (loading) return "?";
       if (error) return "Error!";
       const {hours, minutes} = get(data, "allDepartures.nodes", [])[0];
-      const startTime = `${("0" + hours).slice(-2)}:${("0" + minutes).slice(-2)}:00`;
+      const startTime = `${doubleDigit(hours)}:${doubleDigit(minutes)}:00`;
       return (
         <Query
           client={hfpClient}
@@ -145,7 +146,7 @@ const StopDelay = ({
             if (error) return "Error!";
 
             const vehicles = get(data, "vehicles", []);
-            if (vehicles.length === 0) return "(eiolee)";
+            if (vehicles.length === 0) return "";
             const {dl} = vehicles[0];
             if (dl === 0) return "+-0:00";
             const sign = dl < 0 ? "+" : "-";
@@ -180,14 +181,17 @@ class StopTimetable extends Component {
               this.props.date >= dateBegin && this.props.date <= dateEnd
           );
           const byHour = groupBy(filteredTimetable, "hours");
+
+          console.log(byHour);
+
           return (
             <TimetableGrid>
-              {Object.entries(byHour).map(([hour, times]) => (
-                <React.Fragment>
+              {Object.entries(byHour).map(([hour, times], idx) => (
+                <React.Fragment key={`hour_${hour}_${idx}`}>
                   <TimetableHour> {hour}: </TimetableHour>{" "}
                   <TimetableTimes>
-                    {times.map((time) => (
-                      <TimetableTime>
+                    {times.map((time, idx) => (
+                      <TimetableTime key={`time_${idx}`}>
                         {" "}
                         {time.minutes}/{parseLineNumber(time.routeId)}
                         <StopDelay {...time} date={this.props.date} />{" "}

@@ -1,6 +1,5 @@
 import React, {Component} from "react";
 import {Polyline} from "react-leaflet";
-import format from "date-fns/format";
 import get from "lodash/get";
 import groupBy from "lodash/groupBy";
 import filter from "lodash/filter";

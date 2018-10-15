@@ -11,41 +11,7 @@ import {Text} from "../../helpers/text";
 import {Heading} from "../Typography";
 import styled from "styled-components";
 import Modal from "styled-react-modal";
-
-const stopsByBboxQuery = gql`
-  query stopsByBboxQuery(
-    $minLat: Float!
-    $minLon: Float!
-    $maxLat: Float!
-    $maxLon: Float!
-    $date: Date!
-  ) {
-    stopsByBbox(minLat: $minLat, minLon: $minLon, maxLat: $maxLat, maxLon: $maxLon) {
-      nodes {
-        stopId
-        shortId
-        nameFi
-        lat
-        lon
-        routeSegmentsForDate(date: $date) {
-          nodes {
-            line {
-              nodes {
-                lineId
-                dateBegin
-                dateEnd
-              }
-            }
-            routeId
-            dateBegin
-            dateEnd
-            direction
-          }
-        }
-      }
-    }
-  }
-`;
+import StopsByBboxQuery from "../../queries/StopsByBboxQuery";
 
 const stopColor = "#3388ff";
 
@@ -80,65 +46,60 @@ class StopLayer extends Component {
   };
 
   render() {
-    const {selectedStop, bounds, state, dateBegin, dateEnd} = this.props;
+    const {selectedStop, bounds, state} = this.props;
     const {date} = state;
 
     return (
-      <Query query={stopsByBboxQuery} variables={{...bounds, date}}>
-        {({loading, data, error}) => {
-          if (loading) return <Text>general.loading</Text>;
-          if (error) return <Text>general.error</Text>;
-          const stops = get(data, "stopsByBbox.nodes", []);
-          return (
-            <React.Fragment>
-              {stops.map((stop) => (
-                <CircleMarker
-                  key={`stops_${stop.stopId}`}
-                  pane="stops"
-                  center={[stop.lat, stop.lon]}
-                  color={stopColor}
-                  fillColor={"white"}
-                  fillOpacity={1}
-                  radius={selectedStop === stop.stopId ? 10 : 8}
-                  onPopupopen={() => this.setState({selectedStop: stop.stopId})}
-                  onPopupclose={() => this.setState({selectedStop: null})}>
-                  {this.state.selectedStop === stop.stopId ? (
-                    <Popup>
-                      <Heading level={4}>
-                        {stop.nameFi}, {stop.shortId.replace(/ /g, "")} (
-                        {stop.stopId})
-                      </Heading>
-                      <button onClick={() => this.setState({modalOpen: true})}>
-                        open
-                      </button>
-                      <TimetableModal
-                        isOpen={this.state.modalOpen}
-                        onBackgroundClick={() => this.setState({modalOpen: false})}
-                        onEscapeKeydown={() => this.setState({modalOpen: false})}>
-                        <StopTimetable
-                          date={date}
-                          stopId={this.state.selectedStop}
-                        />
-                      </TimetableModal>
-                      {stop.routeSegmentsForDate.nodes.map((route) => (
-                        <StopRouteList
-                          key={`route_${route.routeId}_${route.direction}`}
-                          onClick={this.selectRoute(route)}>
-                          {route.routeId.substring(1).replace(/^0+/, "")}
-                        </StopRouteList>
-                      ))}
-                    </Popup>
-                  ) : (
-                    <Popup>
-                      <Text>general.loading</Text>
-                    </Popup>
-                  )}
-                </CircleMarker>
-              ))}
-            </React.Fragment>
-          );
-        }}
-      </Query>
+      <StopsByBboxQuery variables={{...bounds, date}}>
+        {({stops}) => (
+          <React.Fragment>
+            {stops.map((stop) => (
+              <CircleMarker
+                key={`stops_${stop.stopId}`}
+                pane="stops"
+                center={[stop.lat, stop.lon]}
+                color={stopColor}
+                fillColor={"white"}
+                fillOpacity={1}
+                radius={selectedStop === stop.stopId ? 10 : 8}
+                onPopupopen={() => this.setState({selectedStop: stop.stopId})}
+                onPopupclose={() => this.setState({selectedStop: null})}>
+                {this.state.selectedStop === stop.stopId ? (
+                  <Popup
+                    autoPan={false}
+                    autoClose={false}
+                    keepInView={false}
+                    maxHeight={500}>
+                    <Heading level={4}>
+                      {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
+                    </Heading>
+                    <button onClick={() => this.setState({modalOpen: true})}>
+                      open
+                    </button>
+                    <TimetableModal
+                      isOpen={this.state.modalOpen}
+                      onBackgroundClick={() => this.setState({modalOpen: false})}
+                      onEscapeKeydown={() => this.setState({modalOpen: false})}>
+                      <StopTimetable date={date} stopId={this.state.selectedStop} />
+                    </TimetableModal>
+                    {stop.routeSegmentsForDate.nodes.map((route) => (
+                      <StopRouteList
+                        key={`route_${route.routeId}_${route.direction}`}
+                        onClick={this.selectRoute(route)}>
+                        {route.routeId.substring(1).replace(/^0+/, "")}
+                      </StopRouteList>
+                    ))}
+                  </Popup>
+                ) : (
+                  <Popup>
+                    <Text>general.loading</Text>
+                  </Popup>
+                )}
+              </CircleMarker>
+            ))}
+          </React.Fragment>
+        )}
+      </StopsByBboxQuery>
     );
   }
 }
