@@ -7,6 +7,22 @@ import MapillaryLayer from "./MapillaryLayer";
 import styled from "styled-components";
 import "leaflet/dist/leaflet.css";
 
+const MapContainer = styled.div`
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+
+  > .leaflet-container {
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    flex: 1 1 50%;
+  }
+`;
+
 const MapillaryView = styled(MapillaryViewer)`
   width: 100%;
   height: 100%;
@@ -53,6 +69,7 @@ export class LeafletMap extends Component {
       center,
       zoom,
       bounds,
+      className,
       onMapChange = () => {},
       onMapChanged = () => {},
     } = this.props;
@@ -64,7 +81,7 @@ export class LeafletMap extends Component {
     } = this.state;
 
     return (
-      <>
+      <MapContainer className={className}>
         <Map
           ref={this.mapRef}
           center={center}
@@ -120,7 +137,7 @@ export class LeafletMap extends Component {
               location={currentMapillaryViewerLocation}
             />
           )}
-      </>
+      </MapContainer>
     );
   }
 }
