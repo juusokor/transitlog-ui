@@ -1,6 +1,5 @@
 import React, {Component} from "react";
 import {Polyline} from "react-leaflet";
-import format from "date-fns/format";
 import get from "lodash/get";
 import groupBy from "lodash/groupBy";
 import filter from "lodash/filter";
@@ -184,9 +183,9 @@ class RouteLayer extends Component {
 
     let hfp = [];
 
-    if (selectedStop) {
-      const selectedStopObj = stops.find((s) => s.nodeId === selectedStop);
+    const selectedStopObj = stops.find((s) => s.nodeId === selectedStop);
 
+    if (selectedStopObj) {
       if (selectedJourney) {
         hfp = this.getSelectedJourneyStopTimes(selectedStopObj, positions);
       } else {
