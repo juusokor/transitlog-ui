@@ -19,6 +19,7 @@ import SidePanel from "./SidePanel";
 import {ModalProvider} from "styled-react-modal";
 import JourneyPosition from "./map/JourneyPosition";
 import StopPosition from "./map/StopPosition";
+import StopMarker from "./map/StopMarker";
 
 const AppFrame = styled.main`
   height: 100%;
@@ -88,7 +89,7 @@ class App extends Component {
   render() {
     const {stopsBbox} = this.state;
     const {state, positions = [], loading} = this.props;
-    const {route, vehicle, stop, selectedJourney} = state;
+    const {route, vehicle, selectedJourney, date} = state;
 
     return (
       <ModalProvider>
@@ -98,9 +99,10 @@ class App extends Component {
           <JourneyPosition positions={positions}>
             {(journeyPosition) => (
               <StopPosition>
-                {(stopPosition) => {
-                  const centerPosition =
-                    stopPosition && !route.routeId ? stopPosition : journeyPosition;
+                {(stopPosition, stop) => {
+                  const centerPosition = stopPosition
+                    ? stopPosition
+                    : journeyPosition;
 
                   return (
                     <MapPanel
@@ -108,10 +110,11 @@ class App extends Component {
                       center={centerPosition}>
                       {({lat, lng, zoom, setMapBounds}) => (
                         <React.Fragment>
-                          {!route.routeId &&
-                            zoom > 14 && (
-                              <StopLayer selectedStop={stop} bounds={stopsBbox} />
-                            )}
+                          {!route.routeId && zoom > 14 ? (
+                            <StopLayer selectedStop={stop} bounds={stopsBbox} />
+                          ) : stopPosition ? (
+                            <StopMarker stop={stop} selected={true} date={date} />
+                          ) : null}
                           <RouteQuery
                             key={`route_query_${createRouteIdentifier(route)}`}
                             route={route}>

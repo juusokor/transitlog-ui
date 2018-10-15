@@ -6,7 +6,7 @@ import filter from "lodash/filter";
 import map from "lodash/map";
 import flatMap from "lodash/flatMap";
 import calculateBoundsFromPositions from "../../helpers/calculateBoundsFromPositions";
-import StopMarker from "./StopMarker";
+import RouteStopMarker from "./RouteStopMarker";
 import {inject, observer} from "mobx-react";
 import {app} from "mobx-app";
 import getJourneyId from "../../helpers/getJourneyId";
@@ -213,7 +213,7 @@ class RouteLayer extends Component {
           }
 
           return (
-            <StopMarker
+            <RouteStopMarker
               onTimeClick={this.onTimeClick}
               onChangeShowTime={this.onChangeShowTime}
               key={`stop_marker_${stop.stopId}`}

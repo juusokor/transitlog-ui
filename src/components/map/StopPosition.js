@@ -19,7 +19,7 @@ class StopPosition extends Component {
   render() {
     const {stop, children} = this.props;
     const stopPosition = this.getStopPosition(stop);
-    return children(stopPosition);
+    return children(stopPosition, stop);
   }
 }
 

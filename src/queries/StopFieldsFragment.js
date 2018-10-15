@@ -1,4 +1,5 @@
 import gql from "graphql-tag";
+import RouteFieldsFragment from "./RouteFieldsFragment";
 
 const StopFieldsFragment = gql`
   fragment StopFieldsFragment on Stop {
@@ -8,8 +9,28 @@ const StopFieldsFragment = gql`
     lon
     shortId
     nameFi
-    __typename
+    routeSegmentsForDate(date: $date) {
+      nodes {
+        line {
+          nodes {
+            lineId
+            dateBegin
+            dateEnd
+          }
+        }
+        dateBegin
+        dateEnd
+        routeId
+        direction
+        route {
+          nodes {
+            ...RouteFieldsFragment
+          }
+        }
+      }
+    }
   }
+  ${RouteFieldsFragment}
 `;
 
 export default StopFieldsFragment;

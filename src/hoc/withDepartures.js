@@ -60,7 +60,6 @@ export default (Component) => {
 
       // Make sure none of these are falsy
       if (requiredVars.some((i) => !i)) {
-        console.log(requiredVars);
         return <Component departures={[]} {...this.props} />;
       }
 
