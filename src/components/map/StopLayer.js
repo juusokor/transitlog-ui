@@ -1,8 +1,5 @@
 import React, {Component} from "react";
 import {CircleMarker, Popup} from "react-leaflet";
-import get from "lodash/get";
-import gql from "graphql-tag";
-import {Query} from "react-apollo";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import withRoute from "../../hoc/withRoute";
@@ -11,6 +8,7 @@ import {Text} from "../../helpers/text";
 import {Heading} from "../Typography";
 import styled from "styled-components";
 import Modal from "styled-react-modal";
+import get from "lodash/get";
 import StopsByBboxQuery from "../../queries/StopsByBboxQuery";
 
 const stopColor = "#3388ff";
@@ -41,8 +39,11 @@ const TimetableModal = Modal.styled`
 @observer
 class StopLayer extends Component {
   state = {selectedStop: null, modalOpen: false};
+
   selectRoute = (route) => (e) => {
-    this.props.Filters.setRoute(route);
+    if (route) {
+      this.props.Filters.setRoute(route);
+    }
   };
 
   render() {
@@ -82,11 +83,15 @@ class StopLayer extends Component {
                       onEscapeKeydown={() => this.setState({modalOpen: false})}>
                       <StopTimetable date={date} stopId={this.state.selectedStop} />
                     </TimetableModal>
-                    {stop.routeSegmentsForDate.nodes.map((route) => (
+                    {stop.routeSegmentsForDate.nodes.map((routeSegment) => (
                       <StopRouteList
-                        key={`route_${route.routeId}_${route.direction}`}
-                        onClick={this.selectRoute(route)}>
-                        {route.routeId.substring(1).replace(/^0+/, "")}
+                        key={`route_${routeSegment.routeId}_${
+                          routeSegment.direction
+                        }`}
+                        onClick={this.selectRoute(
+                          get(routeSegment, "route.nodes[0]", null)
+                        )}>
+                        {routeSegment.routeId.substring(1).replace(/^0+/, "")}
                       </StopRouteList>
                     ))}
                   </Popup>

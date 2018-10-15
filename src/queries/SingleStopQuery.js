@@ -17,14 +17,26 @@ export const singleStopQuery = gql`
 export default observer(({children, stop}) => (
   <Query query={singleStopQuery} variables={{stop}}>
     {({loading, error, data}) => {
-      if (loading) return "Loading...";
-      if (error) return "Error!";
+      if (loading) {
+        return children({
+          loading,
+          error: null,
+          stop: null,
+        });
+      }
+      if (error) {
+        return children({
+          loading: false,
+          error,
+          stop: null,
+        });
+      }
 
       const stop = get(data, "stop", null);
 
       return children({
-        loading,
-        error,
+        loading: false,
+        error: null,
         stop,
       });
     }}
