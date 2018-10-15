@@ -47,7 +47,7 @@ class StopMarker extends React.Component {
 
     // TODO: Compare timing stops with real schedules
 
-    if ((firstTerminal || stop.timingStopType) && hfp.length === 1) {
+    if ((firstTerminal || stop.timingStopType) && hfp.length !== 0) {
       const stopDepartHfp = get(hfp, `[0].journeys[0].depart`, "");
 
       const departedDate = parse(stopDepartHfp.received_at);
@@ -81,16 +81,18 @@ class StopMarker extends React.Component {
         icon: stop.timingStopType ? timingStopIcon : null,
         center: [stop.lat, stop.lon], // One marker type uses center...
         position: [stop.lat, stop.lon], // ...the other uses position.
-        color: selected ? selectedStopColor : stopColor,
+        color: stopColor,
         fillColor:
           journeyStartedOnTime === true
-            ? "lime"
+            ? "var(--light-green)"
             : journeyStartedOnTime === false
-              ? "hotpink"
-              : "white",
+              ? "var(--pink)"
+              : selected
+                ? stopColor
+                : "white",
         fillOpacity: 1,
         strokeWeight: isTerminal ? 5 : 3,
-        radius: isTerminal ? 12 : 8,
+        radius: isTerminal ? 12 : selected ? 10 : 8,
         onPopupopen: onPopupOpen(stop.nodeId),
         onPopupclose: onPopupClose(stop.nodeId),
       },

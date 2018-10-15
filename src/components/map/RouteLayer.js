@@ -183,16 +183,15 @@ class RouteLayer extends Component {
     const coords = routeGeometry.map(([lon, lat]) => [lat, lon]);
 
     let hfp = [];
+    let positionsByVehicle = [];
+    const selectedStopObj = stops.find((s) => s.nodeId === selectedStop);
 
-    if (selectedStop) {
-      const selectedStopObj = stops.find((s) => s.nodeId === selectedStop);
-
+    if (selectedStopObj) {
       if (selectedJourney) {
         hfp = this.getSelectedJourneyStopTimes(selectedStopObj, positions);
-      } else {
-        const positionsByVehicle = this.getPositionsByVehicle(positions);
-        hfp = this.getAllJourneysStopTimes(selectedStopObj, positionsByVehicle);
       }
+    } else {
+      positionsByVehicle = this.getPositionsByVehicle(positions);
     }
 
     return (
@@ -210,6 +209,12 @@ class RouteLayer extends Component {
           // ...and the last stop is first.
           const isLast = index === 0;
 
+          let stopHfp = hfp;
+
+          if (!selectedStopObj) {
+            stopHfp = this.getAllJourneysStopTimes(stop, positionsByVehicle);
+          }
+
           return (
             <StopMarker
               onTimeClick={this.onTimeClick}
@@ -219,7 +224,7 @@ class RouteLayer extends Component {
               selected={isSelected}
               firstTerminal={isFirst}
               lastTerminal={isLast}
-              hfp={hfp}
+              hfp={stopHfp}
               stop={stop}
               onPopupOpen={this.onTogglePopup(true)}
               onPopupClose={this.onTogglePopup(false)}
