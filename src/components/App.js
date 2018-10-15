@@ -16,6 +16,7 @@ import withRoute from "../hoc/withRoute";
 import createRouteIdentifier from "../helpers/createRouteIdentifier";
 import styled from "styled-components";
 import SidePanel from "./SidePanel";
+import {ModalProvider} from "styled-react-modal";
 
 const AppFrame = styled.main`
   height: 100%;
@@ -88,62 +89,64 @@ class App extends Component {
     const {route, vehicle, stop, selectedJourney} = state;
 
     return (
-      <AppFrame>
-        <FilterBar />
-        <SidePanel loading={loading} />
-        <MapPanel onMapChanged={this.onMapChanged}>
-          {({lat, lng, zoom, setMapBounds}) => (
-            <React.Fragment>
-              {!route.routeId &&
-                zoom > 14 && <StopLayer selectedStop={stop} bounds={stopsBbox} />}
-              <RouteQuery
-                key={`route_query_${createRouteIdentifier(route)}`}
-                route={route}>
-                {({routeGeometry, stops}) =>
-                  routeGeometry.length !== 0 ? (
-                    <RouteLayer
-                      routeGeometry={routeGeometry}
-                      stops={stops}
-                      setMapBounds={setMapBounds}
-                      key={`route_line_${route.routeId}`}
-                      positions={positions}
-                    />
-                  ) : null
-                }
-              </RouteQuery>
-              {positions.length > 0 &&
-                positions.map(({positions, journeyId}) => {
-                  if (
-                    vehicle &&
-                    get(positions, "[0].unique_vehicle_id", "") !== vehicle
-                  ) {
-                    return null;
+      <ModalProvider>
+        <AppFrame>
+          <FilterBar />
+          <SidePanel loading={loading} />
+          <MapPanel onMapChanged={this.onMapChanged}>
+            {({lat, lng, zoom, setMapBounds}) => (
+              <React.Fragment>
+                {!route.routeId &&
+                  zoom > 14 && <StopLayer selectedStop={stop} bounds={stopsBbox} />}
+                <RouteQuery
+                  key={`route_query_${createRouteIdentifier(route)}`}
+                  route={route}>
+                  {({routeGeometry, stops}) =>
+                    routeGeometry.length !== 0 ? (
+                      <RouteLayer
+                        routeGeometry={routeGeometry}
+                        stops={stops}
+                        setMapBounds={setMapBounds}
+                        key={`route_line_${route.routeId}`}
+                        positions={positions}
+                      />
+                    ) : null
                   }
+                </RouteQuery>
+                {positions.length > 0 &&
+                  positions.map(({positions, journeyId}) => {
+                    if (
+                      vehicle &&
+                      get(positions, "[0].unique_vehicle_id", "") !== vehicle
+                    ) {
+                      return null;
+                    }
 
-                  const isSelectedJourney =
-                    selectedJourney && getJourneyId(selectedJourney) === journeyId;
+                    const isSelectedJourney =
+                      selectedJourney && getJourneyId(selectedJourney) === journeyId;
 
-                  return [
-                    isSelectedJourney ? (
-                      <HfpLayer
-                        key={`hfp_line_${journeyId}`}
-                        selectedJourney={selectedJourney}
+                    return [
+                      isSelectedJourney ? (
+                        <HfpLayer
+                          key={`hfp_line_${journeyId}`}
+                          selectedJourney={selectedJourney}
+                          positions={positions}
+                          name={journeyId}
+                        />
+                      ) : null,
+                      <HfpMarkerLayer
+                        key={`hfp_markers_${journeyId}`}
+                        onMarkerClick={this.onClickVehicleMarker}
                         positions={positions}
                         name={journeyId}
-                      />
-                    ) : null,
-                    <HfpMarkerLayer
-                      key={`hfp_markers_${journeyId}`}
-                      onMarkerClick={this.onClickVehicleMarker}
-                      positions={positions}
-                      name={journeyId}
-                    />,
-                  ];
-                })}
-            </React.Fragment>
-          )}
-        </MapPanel>
-      </AppFrame>
+                      />,
+                    ];
+                  })}
+              </React.Fragment>
+            )}
+          </MapPanel>
+        </AppFrame>
+      </ModalProvider>
     );
   }
 }
