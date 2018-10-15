@@ -37,7 +37,7 @@ const BottomSlider = styled(TimeSlider)`
   bottom: calc(-1rem - 4px);
   left: -2px;
   width: calc(100% + 2px);
-  z-index: 1;
+  z-index: 10;
 `;
 
 @inject(app("Filters", "UI"))

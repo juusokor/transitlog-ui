@@ -32,10 +32,10 @@ const SectionExpandable = styled.div`
   top: 0;
   bottom: 0;
   left: 100%;
-  z-index: 50;
+  z-index: 1;
   transform: translateX(0);
-  background: var(--lightest-grey);
-  box-shadow: 2px 0 5px 0 rgba(0, 0, 0, 0.1);
+  background: #e7e7e7;
+  box-shadow: 3px 0 3px 0 rgba(0, 0, 0, 0.05);
   margin-left: -1px;
   border-right: 1px solid var(--lighter-grey);
   border-left: 1px solid var(--lighter-grey);
