@@ -12,6 +12,7 @@ const SliderThumb = css`
   cursor: pointer;
   transition: background-color 0.15s ease-out, transform 0.2s ease-out;
   padding: 0;
+  box-sizing: border-box;
 
   &:hover {
     background: var(--blue);

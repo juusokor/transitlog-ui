@@ -3,6 +3,8 @@ import {observer, inject} from "mobx-react";
 import {LeafletMap} from "./LeafletMap";
 import {app} from "mobx-app";
 import invoke from "lodash/invoke";
+import get from "lodash/get";
+import {latLng} from "leaflet";
 
 @inject(app("Journey"))
 @observer
@@ -12,6 +14,20 @@ class Map extends Component {
     onMapChange: () => {},
     bounds: null,
   };
+
+  static getDerivedStateFromProps({center}, {lat, lng}) {
+    const propsLat = get(center, "lat", "");
+    const propsLng = get(center, "lng", "");
+
+    if (propsLat && propsLng && propsLat !== lat && propsLng !== lng) {
+      return {
+        lat: propsLat,
+        lng: propsLng,
+      };
+    }
+
+    return null;
+  }
 
   state = {
     bounds: null,
@@ -41,11 +57,11 @@ class Map extends Component {
   };
 
   render() {
-    const {bounds: propBounds, children, center, className} = this.props;
+    const {bounds: propBounds, children, className} = this.props;
     const {lat, lng, zoom, bounds} = this.state;
 
     const useBounds = propBounds || bounds || null;
-    const useCenter = center || [lat, lng] || null;
+    const useCenter = [lat, lng] || null;
 
     return (
       <LeafletMap

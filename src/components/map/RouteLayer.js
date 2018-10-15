@@ -185,11 +185,9 @@ class RouteLayer extends Component {
     let positionsByVehicle = [];
     const selectedStopObj = stops.find((s) => s.nodeId === selectedStop);
 
-    if (selectedStopObj) {
-      if (selectedJourney) {
-        hfp = this.getSelectedJourneyStopTimes(selectedStopObj, positions);
-      }
-    } else {
+    if (selectedStopObj && selectedJourney) {
+      hfp = this.getSelectedJourneyStopTimes(selectedStopObj, positions);
+    } else if (!selectedStopObj && selectedJourney) {
       positionsByVehicle = this.getPositionsByVehicle(positions);
     }
 
@@ -210,7 +208,7 @@ class RouteLayer extends Component {
 
           let stopHfp = hfp;
 
-          if (!selectedStopObj) {
+          if (!selectedStopObj && selectedJourney) {
             stopHfp = this.getAllJourneysStopTimes(stop, positionsByVehicle);
           }
 

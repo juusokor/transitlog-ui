@@ -8,7 +8,7 @@ export default (journey = null) => {
     direction_id = null,
   } = pickJourneyProps(journey || {});
 
-  if (!oday || !journey_start_time) return "";
+  if (!route_id || !oday || !journey_start_time) return "";
 
   return `journey:${oday}_${journey_start_time}_${route_id}_${direction_id}`;
 };
