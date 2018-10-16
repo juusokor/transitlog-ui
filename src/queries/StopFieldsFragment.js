@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 import RouteFieldsFragment from "./RouteFieldsFragment";
 
-const StopFieldsFragment = gql`
+export const StopFieldsFragment = gql`
   fragment StopFieldsFragment on Stop {
     nodeId
     stopId
@@ -9,7 +9,18 @@ const StopFieldsFragment = gql`
     lon
     shortId
     nameFi
-    routeSegmentsForDate(date: $date) {
+  }
+`;
+
+export const StopFieldsWithRouteSegmentsFragment = gql`
+  fragment StopFieldsWithRouteSegmentsFragment on Stop {
+    nodeId
+    stopId
+    lat
+    lon
+    shortId
+    nameFi
+    routeSegmentsForDate(date: $date) @include(if: $fetchRouteSegments) {
       nodes {
         line {
           nodes {
@@ -32,5 +43,3 @@ const StopFieldsFragment = gql`
   }
   ${RouteFieldsFragment}
 `;
-
-export default StopFieldsFragment;

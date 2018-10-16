@@ -14,8 +14,10 @@ export default (Component) =>
       return <Component {...props} />;
     }
 
+    const date = get(props, "date", get(props, "state.date"));
+
     return (
-      <SingleStopQuery stop={stopId}>
+      <SingleStopQuery stop={stopId} date={date}>
         {({stop}) => <Component {...props} stop={stop} />}
       </SingleStopQuery>
     );

@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {observer} from "mobx-react";
+import {observer, inject} from "mobx-react";
 import {Popup, CircleMarker} from "react-leaflet";
 import {Heading} from "../Typography";
 import StopTimetable from "./StopTimetable";
@@ -7,6 +7,7 @@ import get from "lodash/get";
 import {Text} from "../../helpers/text";
 import styled from "styled-components";
 import Modal from "styled-react-modal";
+import {app} from "mobx-app";
 
 const stopColor = "var(--blue)";
 
@@ -31,10 +32,17 @@ const TimetableModal = Modal.styled`
   
 `;
 
+@inject(app("Filters"))
 @observer
 class StopMarker extends Component {
   state = {
     modalOpen: false,
+  };
+
+  selectRoute = (route) => (e) => {
+    if (route) {
+      this.props.Filters.setRoute(route);
+    }
   };
 
   render() {
@@ -73,7 +81,7 @@ class StopMarker extends Component {
               onEscapeKeydown={() => this.setState({modalOpen: false})}>
               <StopTimetable date={date} stopId={this.state.selectedStop} />
             </TimetableModal>
-            {stop.routeSegmentsForDate.nodes.map((routeSegment) => (
+            {get(stop, "routeSegmentsForDate.nodes", []).map((routeSegment) => (
               <StopRouteList
                 key={`route_${routeSegment.routeId}_${routeSegment.direction}`}
                 onClick={this.selectRoute(

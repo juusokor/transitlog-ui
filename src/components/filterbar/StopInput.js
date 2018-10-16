@@ -4,7 +4,6 @@ import orderBy from "lodash/orderBy";
 import get from "lodash/get";
 import {observer} from "mobx-react";
 import withStop from "../../hoc/withStop";
-import {text} from "../../helpers/text";
 
 const getSuggestionValue = (suggestion) =>
   get(suggestion, "stopId", "")

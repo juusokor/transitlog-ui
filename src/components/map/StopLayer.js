@@ -1,21 +1,13 @@
 import React, {Component} from "react";
-import {observer, inject} from "mobx-react";
-import {app} from "mobx-app";
+import {observer} from "mobx-react";
 import withRoute from "../../hoc/withRoute";
 import StopsByBboxQuery from "../../queries/StopsByBboxQuery";
 import StopMarker from "./StopMarker";
 
-@inject(app("Filters"))
 @withRoute
 @observer
 class StopLayer extends Component {
   state = {selectedStop: null};
-
-  selectRoute = (route) => (e) => {
-    if (route) {
-      this.props.Filters.setRoute(route);
-    }
-  };
 
   render() {
     const {selectedStop, bounds, state} = this.props;
