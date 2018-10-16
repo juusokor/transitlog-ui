@@ -25,6 +25,11 @@
   "vehicle.delay.late": "Försenad",
   "vehicle.delay.early": "Tidig",
 
+  "domain.line": "Linje",
+  "domain.route": "Rutt",
+
+  "general.minutes": "minuter",
+  "general.hour": "timme",
   "general.day": "dag",
   "general.week": "vecka",
   "general.seconds.short": "sek.",

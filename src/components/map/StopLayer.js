@@ -12,6 +12,7 @@ class StopLayer extends Component {
   render() {
     const {selectedStop, bounds, state} = this.props;
     const {date} = state;
+    const selected = selectedStop ? selectedStop : this.state.selectedStop;
 
     return (
       <StopsByBboxQuery variables={{...bounds, date}}>
@@ -19,9 +20,10 @@ class StopLayer extends Component {
           <React.Fragment>
             {stops.map((stop) => (
               <StopMarker
+                key={`stops_${stop.stopId}`}
                 date={date}
                 stop={stop}
-                selected={selectedStop === stop.stopId}
+                selected={selected === stop.stopId}
                 onPopupopen={() => this.setState({selectedStop: stop.stopId})}
                 onPopupclose={() => this.setState({selectedStop: null})}
               />

@@ -49,22 +49,21 @@ class StopMarker extends Component {
     const {
       stop,
       selected,
-      onPopupOpen = () => {},
-      onPopupClose = () => {},
+      onPopupopen = () => {},
+      onPopupclose = () => {},
       date,
     } = this.props;
 
     return (
       <CircleMarker
-        key={`stops_${stop.stopId}`}
         pane="stops"
         center={[stop.lat, stop.lon]}
         color={stopColor}
         fillColor={selected ? stopColor : "white"}
         fillOpacity={1}
         radius={selected ? 10 : 8}
-        onPopupopen={onPopupOpen}
-        onPopupclose={onPopupClose}>
+        onPopupopen={onPopupopen}
+        onPopupclose={onPopupclose}>
         {selected ? (
           <Popup
             autoPan={false}
@@ -79,7 +78,7 @@ class StopMarker extends Component {
               isOpen={this.state.modalOpen}
               onBackgroundClick={() => this.setState({modalOpen: false})}
               onEscapeKeydown={() => this.setState({modalOpen: false})}>
-              <StopTimetable date={date} stopId={this.state.selectedStop} />
+              <StopTimetable date={date} stopId={stop.stopId} />
             </TimetableModal>
             {get(stop, "routeSegmentsForDate.nodes", []).map((routeSegment) => (
               <StopRouteList

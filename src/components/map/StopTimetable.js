@@ -5,11 +5,11 @@ import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
-import withRoute from "../../hoc/withRoute";
 import getDay from "date-fns/get_day";
 import styled from "styled-components";
 import {hfpClient} from "../../api";
 import doubleDigit from "../../helpers/doubleDigit";
+import {Text} from "../../helpers/text";
 
 const departuresQuery = gql`
   query routeDepartures($dayType: String, $stopId: String) {
@@ -93,6 +93,7 @@ const TimetableGrid = styled.div`
   display: grid;
   grid-template-columns: 5em auto;
   grid-template-rows: repeat(auto-fill, auto);
+  padding: 0.5rem 1rem;
 `;
 
 const TimetableHour = styled.div``;
@@ -152,7 +153,7 @@ const StopDelay = ({
             const sign = dl < 0 ? "+" : "-";
             const seconds = Math.abs(dl) % 60;
             const minutes = Math.floor(Math.abs(dl) / 60);
-            return `${sign}${minutes}:${("0" + seconds).slice(-2)}`;
+            return `${sign}${doubleDigit(minutes)}:${doubleDigit(seconds)}`;
           }}
         </Query>
       );
@@ -183,22 +184,36 @@ class StopTimetable extends Component {
           const byHour = groupBy(filteredTimetable, "hours");
 
           return (
-            <TimetableGrid>
-              {Object.entries(byHour).map(([hour, times], idx) => (
-                <React.Fragment key={`hour_${hour}_${idx}`}>
-                  <TimetableHour> {hour}: </TimetableHour>{" "}
-                  <TimetableTimes>
-                    {times.map((time, idx) => (
-                      <TimetableTime key={`time_${idx}`}>
-                        {" "}
-                        {time.minutes}/{parseLineNumber(time.routeId)}
-                        <StopDelay {...time} date={this.props.date} />{" "}
-                      </TimetableTime>
-                    ))}
-                  </TimetableTimes>
-                </React.Fragment>
-              ))}
-            </TimetableGrid>
+            <div>
+              <TimetableGrid>
+                <TimetableHour>
+                  <Text>general.hour</Text>
+                </TimetableHour>
+                <TimetableTimes>
+                  <strong>
+                    <Text>domain.line</Text>
+                  </strong>
+                  : <Text>general.minutes</Text>
+                </TimetableTimes>
+              </TimetableGrid>
+              <TimetableGrid>
+                {Object.entries(byHour).map(([hour, times], idx) => (
+                  <React.Fragment key={`hour_${hour}_${idx}`}>
+                    <TimetableHour> {hour}</TimetableHour>{" "}
+                    <TimetableTimes>
+                      {times.map((time, idx) => (
+                        <TimetableTime key={`time_${idx}`}>
+                          {" "}
+                          <strong>{parseLineNumber(time.routeId)}</strong>:{" "}
+                          {doubleDigit(time.minutes)}{" "}
+                          <StopDelay {...time} date={this.props.date} />{" "}
+                        </TimetableTime>
+                      ))}
+                    </TimetableTimes>
+                  </React.Fragment>
+                ))}
+              </TimetableGrid>
+            </div>
           );
         }}
       </Query>

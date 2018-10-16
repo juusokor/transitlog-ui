@@ -25,6 +25,11 @@
   "vehicle.delay.late": "Late",
   "vehicle.delay.early": "Early",
 
+  "domain.line": "Line",
+  "domain.route": "Route",
+
+  "general.minutes": "minutes",
+  "general.hour": "hour",
   "general.day": "day",
   "general.week": "week",
   "general.seconds.short": "sec.",

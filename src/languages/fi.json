@@ -25,6 +25,11 @@
   "vehicle.delay.late": "Myöhässä",
   "vehicle.delay.early": "Etuajassa",
 
+  "domain.line": "Linja",
+  "domain.route": "Reitti",
+
+  "general.minutes": "minuutteja",
+  "general.hour": "tunti",
   "general.day": "päivä",
   "general.week": "viikko",
   "general.seconds.short": "sek.",
