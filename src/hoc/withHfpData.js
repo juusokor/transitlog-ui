@@ -63,7 +63,12 @@ export default (Component) => {
     };
 
     getComponent = (positions, loading) => (
-      <Component {...this.props} loading={loading} positions={positions} />
+      <Component
+        key="withHfpDataComponent"
+        {...this.props}
+        loading={loading}
+        positions={positions}
+      />
     );
 
     render() {
