@@ -70,6 +70,7 @@ export class LeafletMap extends Component {
       zoom,
       bounds,
       className,
+      onMove,
       onMapChange = () => {},
       onMapChanged = () => {},
     } = this.props;
@@ -89,6 +90,7 @@ export class LeafletMap extends Component {
           bounds={bounds}
           maxZoom={20}
           zoomControl={false}
+          onMove={onMove}
           onBaselayerchange={this.onChangeBaseLayer}
           onViewportChanged={this.onViewportChange(onMapChanged)}
           onViewportChange={this.onViewportChange(onMapChange)}>
