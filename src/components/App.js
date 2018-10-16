@@ -3,7 +3,7 @@ import get from "lodash/get";
 import FilterBar from "./filterbar/FilterBar";
 import withHfpData from "../hoc/withHfpData";
 import {app} from "mobx-app";
-import {inject, observer, Observer} from "mobx-react";
+import {inject, observer} from "mobx-react";
 import Map from "./map/Map";
 import StopLayer from "./map/StopLayer";
 import RouteQuery from "../queries/RouteQuery";

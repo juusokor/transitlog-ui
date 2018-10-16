@@ -68,6 +68,7 @@ export class LeafletMap extends Component {
       children,
       center,
       zoom,
+      bounds,
       className,
       onMapChange = () => {},
       onMapChanged = () => {},
@@ -85,6 +86,7 @@ export class LeafletMap extends Component {
           ref={this.mapRef}
           center={center}
           zoom={zoom}
+          bounds={bounds}
           maxZoom={20}
           zoomControl={false}
           onBaselayerchange={this.onChangeBaseLayer}
