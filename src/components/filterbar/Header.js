@@ -50,9 +50,9 @@ const LangSelectContainer = styled.div`
 `;
 
 export default inject(app("Filters"))(
-  observer(({Filters}) => {
+  observer(({Filters, className}) => {
     return (
-      <Header>
+      <Header className={className}>
         <Logo src={logo} alt="logo" />
         <MainHeading>
           <Text>filterpanel.heading</Text>

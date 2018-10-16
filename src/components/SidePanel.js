@@ -1,9 +1,11 @@
 import React, {Component} from "react";
-import {observer} from "mobx-react";
+import {observer, inject} from "mobx-react";
 import JourneyList from "./JourneyList";
 import styled, {css} from "styled-components";
 import Loading from "./Loading";
 import Header from "./filterbar/Header";
+import {app} from "mobx-app";
+import StopTimetable from "./map/StopTimetable";
 
 const SidePanelContainer = styled.div`
   background: var(--lightest-grey);
@@ -11,7 +13,7 @@ const SidePanelContainer = styled.div`
   transition: transform 0.3s ease-out;
   transform: translateX(${({visible = true}) => (visible ? 0 : "calc(-100%)")});
   border-right: 1px solid var(--alt-grey);
-  grid-row: 1 / span 2;
+  grid-row: 2;
 `;
 
 const LoadingContainer = styled.div`
@@ -39,25 +41,37 @@ const LoadingContainer = styled.div`
       : ""};
 `;
 
-const JourneyListWrapper = styled.div`
+const ContentWrapper = styled.div`
   height: calc(100% - (9rem + 3px)); // Subtract header height
   position: relative;
+  width: ${({wide = false}) => (wide ? "200%" : "100%")};
+  position: relative;
+  z-index: 1;
 `;
 
+@inject(app("state"))
 @observer
 class SidePanel extends Component {
   render() {
-    const {loading} = this.props;
+    const {loading, state} = this.props;
+    const {stop, route} = state;
+
+    const showStopTimetables = stop && !route.routeId;
+
+    const content = showStopTimetables ? (
+      <StopTimetable stopId={stop} />
+    ) : (
+      <JourneyList />
+    );
 
     return (
       <SidePanelContainer>
-        <Header />
-        <JourneyListWrapper>
+        <ContentWrapper wide={showStopTimetables}>
           <LoadingContainer loading={loading}>
             <Loading />
           </LoadingContainer>
-          <JourneyList />
-        </JourneyListWrapper>
+          {content}
+        </ContentWrapper>
       </SidePanelContainer>
     );
   }
