@@ -39,20 +39,25 @@ class StopMarker extends Component {
     modalOpen: false,
   };
 
-  selectRoute = (route) => (e) => {
+  selectRoute = (route) => () => {
     if (route) {
       this.props.Filters.setRoute(route);
     }
   };
 
+  selectStop = () => {
+    const {stop, Filters} = this.props;
+
+    if (stop) {
+      Filters.setStop(stop.nodeId);
+    }
+  };
+
   render() {
-    const {
-      stop,
-      selected,
-      onPopupopen = () => {},
-      onPopupclose = () => {},
-      date,
-    } = this.props;
+    const {stop, state} = this.props;
+    const {stop: selectedStop, date} = state;
+
+    const selected = selectedStop === stop.nodeId;
 
     return (
       <CircleMarker
@@ -62,39 +67,26 @@ class StopMarker extends Component {
         fillColor={selected ? stopColor : "white"}
         fillOpacity={1}
         radius={selected ? 10 : 8}
-        onPopupopen={onPopupopen}
-        onPopupclose={onPopupclose}>
-        {selected ? (
-          <Popup
-            autoPan={false}
-            autoClose={false}
-            keepInView={false}
-            maxHeight={500}>
-            <Heading level={4}>
-              {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
-            </Heading>
-            <button onClick={() => this.setState({modalOpen: true})}>open</button>
-            <TimetableModal
-              isOpen={this.state.modalOpen}
-              onBackgroundClick={() => this.setState({modalOpen: false})}
-              onEscapeKeydown={() => this.setState({modalOpen: false})}>
-              <StopTimetable date={date} stopId={stop.stopId} />
-            </TimetableModal>
-            {get(stop, "routeSegmentsForDate.nodes", []).map((routeSegment) => (
-              <StopRouteList
-                key={`route_${routeSegment.routeId}_${routeSegment.direction}`}
-                onClick={this.selectRoute(
-                  get(routeSegment, "route.nodes[0]", null)
-                )}>
-                {routeSegment.routeId.substring(1).replace(/^0+/, "")}
-              </StopRouteList>
-            ))}
-          </Popup>
-        ) : (
-          <Popup>
-            <Text>general.loading</Text>
-          </Popup>
-        )}
+        onClick={this.selectStop}>
+        <Popup autoPan={false} autoClose={false} keepInView={false} maxHeight={500}>
+          <Heading level={4}>
+            {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
+          </Heading>
+          <button onClick={() => this.setState({modalOpen: true})}>open</button>
+          <TimetableModal
+            isOpen={this.state.modalOpen}
+            onBackgroundClick={() => this.setState({modalOpen: false})}
+            onEscapeKeydown={() => this.setState({modalOpen: false})}>
+            <StopTimetable date={date} stopId={stop.stopId} />
+          </TimetableModal>
+          {get(stop, "routeSegmentsForDate.nodes", []).map((routeSegment) => (
+            <StopRouteList
+              key={`route_${routeSegment.routeId}_${routeSegment.direction}`}
+              onClick={this.selectRoute(get(routeSegment, "route.nodes[0]", null))}>
+              {routeSegment.routeId.substring(1).replace(/^0+/, "")}
+            </StopRouteList>
+          ))}
+        </Popup>
       </CircleMarker>
     );
   }

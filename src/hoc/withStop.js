@@ -11,7 +11,7 @@ export default (Component) =>
     // The stop parameter might already be the full object. In that case,
     // just render the component without doing a query.
     if (!stopId || typeof stopId !== "string") {
-      return <Component {...props} />;
+      return <Component stop={null} {...props} />;
     }
 
     const date = get(props, "date", get(props, "state.date"));
