@@ -18,7 +18,7 @@ const StopRouteList = styled.button`
   background: #e6e6e6;
   margin: 0 0 3px 3px;
   display: inline-block;
-  border: 1px solid transparent;
+  border: 0;
   cursor: pointer;
 `;
 

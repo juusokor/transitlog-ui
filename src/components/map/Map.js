@@ -11,7 +11,6 @@ class Map extends Component {
   static defaultProps = {
     onMapChanged: () => {},
     onMapChange: () => {},
-    bounds: null,
   };
 
   static getDerivedStateFromProps({center}, {lat, lng, zoom}) {
@@ -30,7 +29,6 @@ class Map extends Component {
   }
 
   state = {
-    bounds: null,
     lat: 60.170988,
     lng: 24.940842,
     zoom: 13,
@@ -38,7 +36,12 @@ class Map extends Component {
 
   setMapBounds = (bounds = null) => {
     if (bounds && invoke(bounds, "isValid")) {
-      this.setState({bounds});
+      const center = bounds.getCenter();
+
+      this.setState({
+        lat: center.lat,
+        lng: center.lng,
+      });
     }
   };
 
@@ -46,26 +49,23 @@ class Map extends Component {
     this.props.onMapChanged(map, viewport);
   };
 
-  onMapChange = (map, viewport) => {
+  onMapChange = (viewport) => {
     this.setState({
       lat: viewport.center[0],
       lng: viewport.center[1],
       zoom: viewport.zoom,
     });
-
-    this.props.onMapChange(map, viewport);
   };
 
   render() {
     const {children, className} = this.props;
-    const {lat, lng, zoom, bounds} = this.state;
+    const {lat, lng, zoom} = this.state;
 
     return (
       <LeafletMap
         className={className}
         center={[lat, lng]}
         zoom={zoom}
-        bounds={bounds}
         onMapChanged={this.onMapChanged}
         onMapChange={this.onMapChange}>
         {typeof children === "function"
