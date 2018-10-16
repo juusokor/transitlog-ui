@@ -4,7 +4,6 @@ import {LeafletMap} from "./LeafletMap";
 import {app} from "mobx-app";
 import invoke from "lodash/invoke";
 import get from "lodash/get";
-import {latLng} from "leaflet";
 
 @inject(app("Journey"))
 @observer

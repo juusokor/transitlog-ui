@@ -6,6 +6,10 @@ const joreClient = new ApolloClient({
   link: new HttpLink({uri: "https://dev-kartat.hsldev.com/jore-history/graphql"}),
   cache: new InMemoryCache({
     dataIdFromObject: (obj) => {
+      if (obj.__typename === "Stop") {
+        return `Stop:${obj.stopId}`;
+      }
+
       if (typeof obj.nodeId !== "undefined") {
         return obj.nodeId;
       }

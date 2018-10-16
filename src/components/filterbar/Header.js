@@ -21,7 +21,7 @@ const Header = styled.header`
 `;
 
 const Logo = styled.img`
-  width: 6rem;
+  width: 8rem;
   flex: 0 0 auto;
 `;
 
@@ -38,14 +38,16 @@ const LangSelectContainer = styled.div`
   margin-top: 1rem;
   display: flex;
   align-items: center;
+  justify-content: flex-start;
 
   div {
-    flex: 0 1 40%;
+    flex: 0 0 auto;
     margin-right: 1rem;
   }
 
   button {
-    flex: 0 1 60%;
+    flex: 0 1 auto;
+    margin-left: auto;
   }
 `;
 

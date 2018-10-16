@@ -18,7 +18,7 @@ import FilterSection from "./FilterSection";
 import Header from "./Header";
 
 const SiteHeader = styled(Header)`
-  flex: 0 0 20rem;
+  flex: 0 0 25rem;
   z-index: 1;
 `;
 

@@ -5,7 +5,6 @@ import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
-import withRoute from "../../hoc/withRoute";
 import getDay from "date-fns/get_day";
 import styled from "styled-components";
 import {hfpClient} from "../../api";
@@ -134,8 +133,10 @@ const StopDelay = ({
     {({loading, data, error}) => {
       if (loading) return "?";
       if (error) return "Error!";
+
       const {hours, minutes} = get(data, "allDepartures.nodes", [])[0];
       const startTime = `${doubleDigit(hours)}:${doubleDigit(minutes)}:00`;
+
       return (
         <Query
           client={hfpClient}
@@ -147,12 +148,16 @@ const StopDelay = ({
 
             const vehicles = get(data, "vehicles", []);
             if (vehicles.length === 0) return "";
+
             const {dl} = vehicles[0];
+
             if (dl === 0) return "+-0:00";
+
             const sign = dl < 0 ? "+" : "-";
             const seconds = Math.abs(dl) % 60;
             const minutes = Math.floor(Math.abs(dl) / 60);
-            return `${sign}${minutes}:${("0" + seconds).slice(-2)}`;
+
+            return `${sign}${minutes}:${doubleDigit(seconds)}`;
           }}
         </Query>
       );
@@ -164,22 +169,28 @@ const StopDelay = ({
 @observer
 class StopTimetable extends Component {
   render() {
-    const queryDayType = dayTypes[getDay(this.props.date)];
+    const {state, stopId} = this.props;
+    const queryDayType = dayTypes[getDay(state.date)];
+
     return (
       <Query
         query={departuresQuery}
         variables={{
           dayType: queryDayType,
-          stopId: this.props.stopId,
+          stopId,
         }}>
         {({loading, data, error}) => {
           if (loading) return "Loading...";
           if (error) return "Error!";
           const timetable = get(data, "allDepartures.nodes", []);
+
           const filteredTimetable = timetable.filter(
             ({dateBegin, dateEnd}) =>
               this.props.date >= dateBegin && this.props.date <= dateEnd
           );
+
+          console.log(filteredTimetable);
+
           const byHour = groupBy(filteredTimetable, "hours");
 
           return (

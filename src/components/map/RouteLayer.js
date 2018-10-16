@@ -183,7 +183,7 @@ class RouteLayer extends Component {
 
     let hfp = [];
     let positionsByVehicle = [];
-    const selectedStopObj = stops.find((s) => s.nodeId === selectedStop);
+    const selectedStopObj = stops.find((s) => s.stopId === selectedStop);
 
     if (selectedStopObj && selectedJourney) {
       hfp = this.getSelectedJourneyStopTimes(selectedStopObj, positions);
@@ -200,7 +200,7 @@ class RouteLayer extends Component {
           color="var(--blue)"
         />
         {stops.map((stop, index) => {
-          const isSelected = stop.nodeId === selectedStop;
+          const isSelected = stop.stopId === selectedStop;
           // Funnily enough, the first stop is last in the array.
           const isFirst = index === stops.length - 1;
           // ...and the last stop is first.

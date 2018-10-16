@@ -16,9 +16,9 @@ const filterActions = (state) => {
     state.date = momentValue.format("YYYY-MM-DD");
   });
 
-  // Grab the nodeId from the passed stop object.
+  // Grab the stopId from the passed stop object.
   const setStop = action((stop = "") => {
-    state.stop = get(stop, "nodeId", stop);
+    state.stop = get(stop, "stopId", stop);
   });
 
   // The unique_vehicle_id we're interested in.

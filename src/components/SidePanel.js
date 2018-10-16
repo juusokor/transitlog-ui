@@ -3,8 +3,8 @@ import {observer, inject} from "mobx-react";
 import JourneyList from "./JourneyList";
 import styled, {css} from "styled-components";
 import Loading from "./Loading";
-import Header from "./filterbar/Header";
 import {app} from "mobx-app";
+import get from "lodash/get";
 import StopTimetable from "./map/StopTimetable";
 
 const SidePanelContainer = styled.div`
@@ -41,37 +41,57 @@ const LoadingContainer = styled.div`
       : ""};
 `;
 
-const ContentWrapper = styled.div`
-  height: calc(100% - (9rem + 3px)); // Subtract header height
-  position: relative;
-  width: ${({wide = false}) => (wide ? "200%" : "100%")};
-  position: relative;
-  z-index: 1;
-`;
+const enumContentStates = {
+  JOURNEYLIST: "journeylist",
+  STOP_TIMETABLES: "timetables",
+};
 
 @inject(app("state"))
 @observer
 class SidePanel extends Component {
+  static getDerivedStateFromProps(props, state) {
+    const {state: appState} = props;
+    const {stop, route} = appState;
+
+    let nextContentState = enumContentStates.JOURNEYLIST;
+
+    if (stop && (!route || !route.routeId)) {
+      nextContentState = enumContentStates.STOP_TIMETABLES;
+    }
+
+    if (state.content !== nextContentState) {
+      return {
+        content: nextContentState,
+      };
+    }
+
+    return null;
+  }
+
+  state = {
+    content: "journey-list",
+  };
+
   render() {
-    const {loading, state} = this.props;
-    const {stop, route} = state;
+    const {
+      loading,
+      state: {stop},
+    } = this.props;
+    const {content} = this.state;
 
-    const showStopTimetables = stop && !route.routeId;
-
-    const content = showStopTimetables ? (
-      <StopTimetable stopId={stop} />
-    ) : (
-      <JourneyList />
-    );
+    const contentComponent =
+      content === enumContentStates.STOP_TIMETABLES ? (
+        <StopTimetable stopId={stop} />
+      ) : (
+        <JourneyList />
+      );
 
     return (
       <SidePanelContainer>
-        <ContentWrapper wide={showStopTimetables}>
-          <LoadingContainer loading={loading}>
-            <Loading />
-          </LoadingContainer>
-          {content}
-        </ContentWrapper>
+        <LoadingContainer loading={loading}>
+          <Loading />
+        </LoadingContainer>
+        {contentComponent}
       </SidePanelContainer>
     );
   }

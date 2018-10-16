@@ -6,9 +6,11 @@ import {StopFieldsWithRouteSegmentsFragment} from "./StopFieldsFragment";
 import {observer} from "mobx-react";
 
 export const singleStopQuery = gql`
-  query singleStopQuery($stop: ID!, $date: Date, $fetchRouteSegments: Boolean!) {
-    stop(nodeId: $stop) {
-      ...StopFieldsWithRouteSegmentsFragment
+  query singleStopQuery($stop: String!, $date: Date, $fetchRouteSegments: Boolean!) {
+    allStops(condition: {stopId: $stop}, first: 1) {
+      nodes {
+        ...StopFieldsWithRouteSegmentsFragment
+      }
     }
   }
   ${StopFieldsWithRouteSegmentsFragment}
@@ -34,7 +36,7 @@ export default observer(({children, stop, date}) => (
         });
       }
 
-      const stop = get(data, "stop", null);
+      const stop = get(data, "allStops.nodes[0]", null);
 
       return children({
         loading: false,

@@ -16,23 +16,25 @@ import withRoute from "../hoc/withRoute";
 import createRouteIdentifier from "../helpers/createRouteIdentifier";
 import styled from "styled-components";
 import SidePanel from "./SidePanel";
-import {ModalProvider} from "styled-react-modal";
 import JourneyPosition from "./map/JourneyPosition";
 import StopPosition from "./map/StopPosition";
 import StopMarker from "./map/StopMarker";
+
+const DEFAULT_SIDEPANEL_WIDTH = 25;
 
 const AppFrame = styled.main`
   height: 100%;
   overflow: hidden;
   display: grid;
-  grid-template-columns: 20rem 1fr;
+  grid-template-columns: ${({sidepanelWidth}) => sidepanelWidth}rem 1fr;
   grid-template-rows: 9rem 1fr;
+  transition: all 0.15s ease-out;
 `;
 
 const MapPanel = styled(Map)`
   top: 9rem;
-  left: 20rem;
-  width: calc(100% - 20rem);
+  left: ${({sidepanelWidth}) => sidepanelWidth}rem;
+  width: calc(100% - ${({sidepanelWidth}) => sidepanelWidth}rem);
   height: calc(100% - 9rem);
 `;
 
@@ -43,6 +45,13 @@ const MapPanel = styled(Map)`
 class App extends Component {
   state = {
     stopsBbox: null,
+    sidepanelWidthRem: DEFAULT_SIDEPANEL_WIDTH,
+  };
+
+  setSidepanelWidth = (width = DEFAULT_SIDEPANEL_WIDTH) => {
+    this.setState({
+      sidepanelWidthRem: width,
+    });
   };
 
   onMapChanged = (map) => {
@@ -87,90 +96,86 @@ class App extends Component {
   };
 
   render() {
-    const {stopsBbox} = this.state;
+    const {stopsBbox, sidepanelWidthRem} = this.state;
     const {state, positions = [], loading} = this.props;
     const {route, vehicle, selectedJourney, date} = state;
 
     return (
-      <ModalProvider>
-        <AppFrame>
-          <FilterBar />
-          <SidePanel loading={loading} />
-          <JourneyPosition positions={positions}>
-            {(journeyPosition) => (
-              <StopPosition>
-                {(stopPosition, stop) => {
-                  const centerPosition = stopPosition
-                    ? stopPosition
-                    : journeyPosition;
+      <AppFrame sidepanelWidth={sidepanelWidthRem}>
+        <FilterBar />
+        <SidePanel loading={loading} />
+        <JourneyPosition positions={positions}>
+          {(journeyPosition) => (
+            <StopPosition>
+              {(stopPosition, stop) => {
+                const centerPosition = stopPosition ? stopPosition : journeyPosition;
 
-                  return (
-                    <MapPanel
-                      onMapChanged={this.onMapChanged}
-                      center={centerPosition}>
-                      {({lat, lng, zoom, setMapBounds}) => (
-                        <React.Fragment>
-                          {!route.routeId && zoom > 14 ? (
-                            <StopLayer selectedStop={stop} bounds={stopsBbox} />
-                          ) : stopPosition ? (
-                            <StopMarker stop={stop} selected={true} date={date} />
-                          ) : null}
-                          <RouteQuery
-                            key={`route_query_${createRouteIdentifier(route)}`}
-                            route={route}>
-                            {({routeGeometry, stops}) =>
-                              routeGeometry.length !== 0 ? (
-                                <RouteLayer
-                                  routeGeometry={routeGeometry}
-                                  stops={stops}
-                                  setMapBounds={setMapBounds}
-                                  key={`route_line_${route.routeId}`}
-                                  positions={positions}
-                                />
-                              ) : null
+                return (
+                  <MapPanel
+                    sidepanelWidth={sidepanelWidthRem}
+                    onMapChanged={this.onMapChanged}
+                    center={centerPosition}>
+                    {({lat, lng, zoom, setMapBounds}) => (
+                      <React.Fragment>
+                        {!route.routeId && zoom > 14 ? (
+                          <StopLayer selectedStop={stop} bounds={stopsBbox} />
+                        ) : stopPosition ? (
+                          <StopMarker stop={stop} selected={true} date={date} />
+                        ) : null}
+                        <RouteQuery
+                          key={`route_query_${createRouteIdentifier(route)}`}
+                          route={route}>
+                          {({routeGeometry, stops}) =>
+                            routeGeometry.length !== 0 ? (
+                              <RouteLayer
+                                routeGeometry={routeGeometry}
+                                stops={stops}
+                                setMapBounds={setMapBounds}
+                                key={`route_line_${route.routeId}`}
+                                positions={positions}
+                              />
+                            ) : null
+                          }
+                        </RouteQuery>
+                        {positions.length > 0 &&
+                          positions.map(({positions, journeyId}) => {
+                            if (
+                              vehicle &&
+                              get(positions, "[0].unique_vehicle_id", "") !== vehicle
+                            ) {
+                              return null;
                             }
-                          </RouteQuery>
-                          {positions.length > 0 &&
-                            positions.map(({positions, journeyId}) => {
-                              if (
-                                vehicle &&
-                                get(positions, "[0].unique_vehicle_id", "") !==
-                                  vehicle
-                              ) {
-                                return null;
-                              }
 
-                              const isSelectedJourney =
-                                selectedJourney &&
-                                getJourneyId(selectedJourney) === journeyId;
+                            const isSelectedJourney =
+                              selectedJourney &&
+                              getJourneyId(selectedJourney) === journeyId;
 
-                              return [
-                                isSelectedJourney ? (
-                                  <HfpLayer
-                                    key={`hfp_line_${journeyId}`}
-                                    selectedJourney={selectedJourney}
-                                    positions={positions}
-                                    name={journeyId}
-                                  />
-                                ) : null,
-                                <HfpMarkerLayer
-                                  key={`hfp_markers_${journeyId}`}
-                                  onMarkerClick={this.onClickVehicleMarker}
+                            return [
+                              isSelectedJourney ? (
+                                <HfpLayer
+                                  key={`hfp_line_${journeyId}`}
+                                  selectedJourney={selectedJourney}
                                   positions={positions}
                                   name={journeyId}
-                                />,
-                              ];
-                            })}
-                        </React.Fragment>
-                      )}
-                    </MapPanel>
-                  );
-                }}
-              </StopPosition>
-            )}
-          </JourneyPosition>
-        </AppFrame>
-      </ModalProvider>
+                                />
+                              ) : null,
+                              <HfpMarkerLayer
+                                key={`hfp_markers_${journeyId}`}
+                                onMarkerClick={this.onClickVehicleMarker}
+                                positions={positions}
+                                name={journeyId}
+                              />,
+                            ];
+                          })}
+                      </React.Fragment>
+                    )}
+                  </MapPanel>
+                );
+              }}
+            </StopPosition>
+          )}
+        </JourneyPosition>
+      </AppFrame>
     );
   }
 }
