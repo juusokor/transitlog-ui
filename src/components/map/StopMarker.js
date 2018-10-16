@@ -56,7 +56,6 @@ class StopMarker extends Component {
 
     return (
       <CircleMarker
-        key={`stops_${stop.stopId}`}
         pane="stops"
         center={[stop.lat, stop.lon]}
         color={stopColor}
@@ -74,7 +73,6 @@ class StopMarker extends Component {
             <Heading level={4}>
               {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
             </Heading>
-            <button onClick={() => this.setState({modalOpen: true})}>open</button>
             <TimetableModal
               isOpen={this.state.modalOpen}
               onBackgroundClick={() => this.setState({modalOpen: false})}

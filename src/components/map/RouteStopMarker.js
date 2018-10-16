@@ -13,11 +13,16 @@ import {combineDateAndTime} from "../../helpers/time";
 import {Heading} from "../Typography";
 
 const stopColor = "var(--blue)";
-const selectedStopColor = "var(--dark-blue)";
 
-@inject(app("state"))
+@inject(app("Filters"))
 @observer
 class RouteStopMarker extends React.Component {
+  selectRoute = (route) => (e) => {
+    if (route) {
+      this.props.Filters.setRoute(route);
+    }
+  };
+
   render() {
     const {
       stop,
@@ -100,7 +105,13 @@ class RouteStopMarker extends React.Component {
         <Tooltip>
           {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
         </Tooltip>
-        <Popup keepInView={false} autoPan={false} maxWidth={500} minWidth={350}>
+        <Popup
+          keepInView={false}
+          autoPan={false}
+          autoClose={false}
+          maxHeight={550}
+          maxWidth={500}
+          minWidth={350}>
           <Heading level={4}>
             {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
           </Heading>
