@@ -14,7 +14,13 @@ export default (Component) => {
       const {state, positions} = this.props;
 
       if (!state.selectedJourney) {
-        return <Component {...this.props} selectedJourneyHfp={[]} />;
+        return (
+          <Component
+            key="withSelectedJourneyComponent"
+            {...this.props}
+            selectedJourneyHfp={[]}
+          />
+        );
       }
 
       const selectedJourneyId = getJourneyId(state.selectedJourney);
@@ -25,6 +31,7 @@ export default (Component) => {
 
       return (
         <Component
+          key="withSelectedJourneyComponent"
           {...this.props}
           selectedJourneyHfp={get(journeyHfp, "positions", [])}
         />

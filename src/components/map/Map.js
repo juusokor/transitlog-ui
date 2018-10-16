@@ -46,14 +46,12 @@ class Map extends Component {
     this.props.onMapChanged(map, viewport);
   };
 
-  onMapChange = (map, viewport) => {
+  onMapChange = (viewport) => {
     this.setState({
       lat: viewport.center[0],
       lng: viewport.center[1],
       zoom: viewport.zoom,
     });
-
-    this.props.onMapChange(map, viewport);
   };
 
   render() {
