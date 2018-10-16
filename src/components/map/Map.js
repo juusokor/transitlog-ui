@@ -3,21 +3,8 @@ import {observer, inject} from "mobx-react";
 import {LeafletMap} from "./LeafletMap";
 import {app} from "mobx-app";
 import invoke from "lodash/invoke";
-import styled from "styled-components";
-
-const MapContainer = styled.div`
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  position: fixed;
-
-  > .leaflet-container {
-    width: 100%;
-    height: 100%;
-    z-index: 0;
-    flex: 1 1 50%;
-  }
-`;
+import get from "lodash/get";
+import {latLng} from "leaflet";
 
 @inject(app("Journey"))
 @observer
@@ -27,6 +14,20 @@ class Map extends Component {
     onMapChange: () => {},
     bounds: null,
   };
+
+  static getDerivedStateFromProps({center}, {lat, lng}) {
+    const propsLat = get(center, "lat", "");
+    const propsLng = get(center, "lng", "");
+
+    if (propsLat && propsLng && propsLat !== lat && propsLng !== lng) {
+      return {
+        lat: propsLat,
+        lng: propsLng,
+      };
+    }
+
+    return null;
+  }
 
   state = {
     bounds: null,
@@ -56,25 +57,24 @@ class Map extends Component {
   };
 
   render() {
-    const {bounds: propBounds, children, center, className} = this.props;
+    const {bounds: propBounds, children, className} = this.props;
     const {lat, lng, zoom, bounds} = this.state;
 
     const useBounds = propBounds || bounds || null;
-    const useCenter = center || [lat, lng] || null;
+    const useCenter = [lat, lng] || null;
 
     return (
-      <MapContainer className={className}>
-        <LeafletMap
-          center={useCenter}
-          zoom={zoom}
-          bounds={useBounds}
-          onMapChanged={this.onMapChanged}
-          onMapChange={this.onMapChange}>
-          {typeof children === "function"
-            ? children({lat, lng, zoom, setMapBounds: this.setMapBounds})
-            : children}
-        </LeafletMap>
-      </MapContainer>
+      <LeafletMap
+        className={className}
+        center={useCenter}
+        zoom={zoom}
+        bounds={useBounds}
+        onMapChanged={this.onMapChanged}
+        onMapChange={this.onMapChange}>
+        {typeof children === "function"
+          ? children({lat, lng, zoom, setMapBounds: this.setMapBounds})
+          : children}
+      </LeafletMap>
     );
   }
 }

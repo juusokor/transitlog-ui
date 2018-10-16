@@ -182,8 +182,6 @@ class StopTimetable extends Component {
           );
           const byHour = groupBy(filteredTimetable, "hours");
 
-          console.log(byHour);
-
           return (
             <TimetableGrid>
               {Object.entries(byHour).map(([hour, times], idx) => (

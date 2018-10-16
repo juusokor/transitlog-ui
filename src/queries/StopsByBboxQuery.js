@@ -3,6 +3,7 @@ import {observer} from "mobx-react";
 import get from "lodash/get";
 import {Query} from "react-apollo";
 import gql from "graphql-tag";
+import RouteFieldsFragment from "./RouteFieldsFragment";
 
 const stopsByBboxQuery = gql`
   query stopsByBboxQuery(
@@ -28,15 +29,21 @@ const stopsByBboxQuery = gql`
                 dateEnd
               }
             }
-            routeId
             dateBegin
             dateEnd
+            routeId
             direction
+            route {
+              nodes {
+                ...RouteFieldsFragment
+              }
+            }
           }
         }
       }
     }
   }
+  ${RouteFieldsFragment}
 `;
 
 @observer

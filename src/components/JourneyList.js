@@ -35,7 +35,7 @@ const JourneyListRow = styled.button`
   width: 100%;
   background: ${({selected = false}) =>
     selected ? "var(--blue)" : "rgba(0, 0, 0, 0.025)"};
-  padding: 0.75rem 1.25rem;
+  padding: 0.75rem 1rem;
   border: 0;
   max-width: none;
   font-size: 1rem;
@@ -52,14 +52,15 @@ const JourneyListRow = styled.button`
 const JourneyListHeader = styled(JourneyListRow.withComponent("div"))`
   background: transparent;
   font-size: 0.9em;
-  padding-top: 1rem;
   border-bottom: 1px solid var(--alt-grey);
   box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.075);
   position: relative;
   z-index: 1;
+  line-height: 1.4;
+  flex-wrap: nowrap;
+  align-items: start;
 
   > *:last-child {
-    align-self: flex-end;
     text-align: right;
   }
 `;

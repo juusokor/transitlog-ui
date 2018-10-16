@@ -49,10 +49,17 @@ export default (Component) => {
         state: {date},
       } = this.props;
 
+      const requiredVars = [
+        date,
+        routeId,
+        direction,
+        dateBegin,
+        dateEnd,
+        originstopId,
+      ];
+
       // Make sure none of these are falsy
-      if (
-        [date, routeId, direction, dateBegin, dateEnd, originstopId].some((i) => !i)
-      ) {
+      if (requiredVars.some((i) => !i)) {
         return <Component departures={[]} {...this.props} />;
       }
 
