@@ -6,7 +6,7 @@ import filter from "lodash/filter";
 import map from "lodash/map";
 import flatMap from "lodash/flatMap";
 import calculateBoundsFromPositions from "../../helpers/calculateBoundsFromPositions";
-import StopMarker from "./StopMarker";
+import RouteStopMarker from "./RouteStopMarker";
 import {inject, observer} from "mobx-react";
 import {app} from "mobx-app";
 import getJourneyId from "../../helpers/getJourneyId";
@@ -182,16 +182,13 @@ class RouteLayer extends Component {
     const coords = routeGeometry.map(([lon, lat]) => [lat, lon]);
 
     let hfp = [];
-
+    let positionsByVehicle = [];
     const selectedStopObj = stops.find((s) => s.nodeId === selectedStop);
 
-    if (selectedStopObj) {
-      if (selectedJourney) {
-        hfp = this.getSelectedJourneyStopTimes(selectedStopObj, positions);
-      } else {
-        const positionsByVehicle = this.getPositionsByVehicle(positions);
-        hfp = this.getAllJourneysStopTimes(selectedStopObj, positionsByVehicle);
-      }
+    if (selectedStopObj && selectedJourney) {
+      hfp = this.getSelectedJourneyStopTimes(selectedStopObj, positions);
+    } else if (!selectedStopObj && selectedJourney) {
+      positionsByVehicle = this.getPositionsByVehicle(positions);
     }
 
     return (
@@ -209,8 +206,14 @@ class RouteLayer extends Component {
           // ...and the last stop is first.
           const isLast = index === 0;
 
+          let stopHfp = hfp;
+
+          if (!selectedStopObj && selectedJourney) {
+            stopHfp = this.getAllJourneysStopTimes(stop, positionsByVehicle);
+          }
+
           return (
-            <StopMarker
+            <RouteStopMarker
               onTimeClick={this.onTimeClick}
               onChangeShowTime={this.onChangeShowTime}
               key={`stop_marker_${stop.stopId}`}
@@ -218,7 +221,7 @@ class RouteLayer extends Component {
               selected={isSelected}
               firstTerminal={isFirst}
               lastTerminal={isLast}
-              hfp={hfp}
+              hfp={stopHfp}
               stop={stop}
               onPopupOpen={this.onTogglePopup(true)}
               onPopupClose={this.onTogglePopup(false)}

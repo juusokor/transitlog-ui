@@ -2,7 +2,7 @@ import styled, {injectGlobal, css} from "styled-components";
 
 injectGlobal`
   select,
-  input,
+  input:not([type="radio"]):not([type="checkbox"]),
   button,
   textarea {
     width: 100%;

@@ -4,7 +4,7 @@ import {Query} from "react-apollo";
 import get from "lodash/get";
 import withRoute from "../hoc/withRoute";
 import {observer} from "mobx-react";
-import StopFieldsFragment from "./StopFieldsFragment";
+import {StopFieldsFragment} from "./StopFieldsFragment";
 
 const stopsByRouteQuery = gql`
   query stopsByRoute(
