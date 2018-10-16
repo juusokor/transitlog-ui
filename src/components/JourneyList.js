@@ -97,6 +97,8 @@ class JourneyList extends Component {
       prevPositions.length !== this.props.positions.length
     ) {
       this.checkReceivedJourneys();
+    } else {
+      setTimeout(() => this.setRequestedJourney(""), 2000);
     }
   }
 
