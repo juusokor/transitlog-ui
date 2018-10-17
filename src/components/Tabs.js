@@ -28,20 +28,19 @@ const TabButton = styled.button`
   display: flex;
   flex: 1;
   flex-direction: row;
-  align-items: stretch;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   outline: 0;
+  padding: 1rem 0.5rem;
 
   &:last-child {
     border-right: 0;
   }
-`;
 
-const TabButtonContent = styled.div`
-  flex: 1 1 auto;
-  flex-direction: row;
-  padding: 1rem 0.5rem;
-  justify-content: center;
+  &:only-child {
+    padding-bottom: 0.5rem;
+  }
 `;
 
 const TabContentWrapper = styled.div`
@@ -96,7 +95,7 @@ class Tabs extends Component {
               key={`tab_${tabOption.name}_${index}`}
               selected={selectedTab === tabOption.name}
               onClick={this.onTabClick(tabOption.name)}>
-              <TabButtonContent>{tabOption.label}</TabButtonContent>
+              {tabOption.label}
             </TabButton>
           ))}
         </TabButtonsWrapper>

@@ -98,8 +98,8 @@ class RouteStopMarker extends React.Component {
         fillOpacity: 1,
         strokeWeight: isTerminal ? 5 : 3,
         radius: isTerminal ? 12 : selected ? 10 : 8,
-        onPopupopen: onPopupOpen(stop.stopId),
-        onPopupclose: onPopupClose(stop.stopId),
+        onPopupopen: onPopupOpen,
+        onPopupclose: onPopupClose,
       },
       <React.Fragment>
         <Tooltip>

@@ -4,7 +4,9 @@ import SidepanelList from "./SidepanelList";
 import StopTimetable from "./map/StopTimetable";
 import {Text} from "../helpers/text";
 import get from "lodash/get";
+import withStop from "../hoc/withStop";
 
+@withStop
 @observer
 class Timetables extends Component {
   render() {

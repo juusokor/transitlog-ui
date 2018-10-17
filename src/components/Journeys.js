@@ -52,6 +52,8 @@ class Journeys extends Component {
   @observable
   unrealizedJourneys = [];
 
+  journeyRequestTimeout = 0;
+
   componentDidMount() {
     this.ensureSelectedVehicle();
   }
@@ -67,9 +69,14 @@ class Journeys extends Component {
       !unrealizedJourneys.includes(requestedJourney) &&
       prevPositions.length !== this.props.positions.length
     ) {
+      clearTimeout(this.journeyRequestTimeout);
       this.checkReceivedJourneys();
-    } else {
-      setTimeout(() => this.setRequestedJourney(""), 2000);
+    } else if (requestedJourney) {
+      clearTimeout(this.journeyRequestTimeout);
+      this.journeyRequestTimeout = setTimeout(
+        () => this.setRequestedJourney(""),
+        4000
+      );
     }
   }
 
