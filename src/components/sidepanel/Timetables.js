@@ -1,9 +1,9 @@
 import React, {Component} from "react";
 import {observer} from "mobx-react";
 import SidepanelList from "./SidepanelList";
-import StopTimetable from "./map/StopTimetable";
-import {Text} from "../helpers/text";
-import withStop from "../hoc/withStop";
+import StopTimetable from "../map/StopTimetable";
+import {Text} from "../../helpers/text";
+import withStop from "../../hoc/withStop";
 
 @withStop
 @observer

@@ -1,18 +1,18 @@
 import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
-import withHfpData from "../hoc/withHfpData";
+import withHfpData from "../../hoc/withHfpData";
 import map from "lodash/map";
 import get from "lodash/get";
 import sortBy from "lodash/sortBy";
 import {app} from "mobx-app";
-import getJourneyId from "../helpers/getJourneyId";
+import getJourneyId from "../../helpers/getJourneyId";
 import styled from "styled-components";
-import {timeToFormat, combineDateAndTime} from "../helpers/time";
-import {Text, text} from "../helpers/text";
-import withDepartures from "../hoc/withDepartures";
-import doubleDigit from "../helpers/doubleDigit";
+import {timeToFormat, combineDateAndTime} from "../../helpers/time";
+import {Text, text} from "../../helpers/text";
+import withDepartures from "../../hoc/withDepartures";
+import doubleDigit from "../../helpers/doubleDigit";
 import {observable, action} from "mobx";
-import Loading from "./Loading";
+import Loading from "../Loading";
 import SidepanelList from "./SidepanelList";
 
 const JourneyListRow = styled.button`

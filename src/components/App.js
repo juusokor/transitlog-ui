@@ -15,7 +15,7 @@ import getJourneyId from "../helpers/getJourneyId";
 import withRoute from "../hoc/withRoute";
 import createRouteIdentifier from "../helpers/createRouteIdentifier";
 import styled from "styled-components";
-import SidePanel from "./SidePanel";
+import SidePanel from "./sidepanel/SidePanel";
 import JourneyPosition from "./map/JourneyPosition";
 import StopPosition from "./map/StopPosition";
 import StopMarker from "./map/StopMarker";

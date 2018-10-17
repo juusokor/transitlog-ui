@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
 import Journeys from "./Journeys";
 import styled, {css} from "styled-components";
-import Loading from "./Loading";
+import Loading from "../Loading";
 import {app} from "mobx-app";
 import Tabs from "./Tabs";
 import Timetables from "./Timetables";
@@ -48,7 +48,7 @@ class SidePanel extends Component {
   render() {
     const {
       loading,
-      state: {stop},
+      state: {stop, date},
     } = this.props;
 
     return (
@@ -59,7 +59,12 @@ class SidePanel extends Component {
         <Tabs>
           <Journeys name="journeys" label="Journeys" />
           {stop && (
-            <Timetables stop={stop} name="timetables" label={`Stop timetables`} />
+            <Timetables
+              date={date} // Needed for withStop to fetch routeSegments
+              stop={stop}
+              name="timetables"
+              label={`Stop timetables`}
+            />
           )}
         </Tabs>
       </SidePanelContainer>
