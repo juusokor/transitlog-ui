@@ -4,8 +4,8 @@ import JourneyList from "./JourneyList";
 import styled, {css} from "styled-components";
 import Loading from "./Loading";
 import {app} from "mobx-app";
-import get from "lodash/get";
 import StopTimetable from "./map/StopTimetable";
+import Tabs from "./Tabs";
 
 const SidePanelContainer = styled.div`
   background: var(--lightest-grey);
@@ -41,57 +41,24 @@ const LoadingContainer = styled.div`
       : ""};
 `;
 
-const enumContentStates = {
-  JOURNEYLIST: "journeylist",
-  STOP_TIMETABLES: "timetables",
-};
-
 @inject(app("state"))
 @observer
 class SidePanel extends Component {
-  static getDerivedStateFromProps(props, state) {
-    const {state: appState} = props;
-    const {stop, route} = appState;
-
-    let nextContentState = enumContentStates.JOURNEYLIST;
-
-    if (stop && (!route || !route.routeId)) {
-      nextContentState = enumContentStates.STOP_TIMETABLES;
-    }
-
-    if (state.content !== nextContentState) {
-      return {
-        content: nextContentState,
-      };
-    }
-
-    return null;
-  }
-
-  state = {
-    content: "journey-list",
-  };
-
   render() {
     const {
       loading,
       state: {stop},
     } = this.props;
-    const {content} = this.state;
-
-    const contentComponent =
-      content === enumContentStates.STOP_TIMETABLES ? (
-        <StopTimetable stopId={stop} />
-      ) : (
-        <JourneyList />
-      );
 
     return (
       <SidePanelContainer>
         <LoadingContainer loading={loading}>
           <Loading />
         </LoadingContainer>
-        {contentComponent}
+        <Tabs>
+          <JourneyList name="journeys" label="Journeys" />
+          <StopTimetable stopId={stop} name="timetables" label={`Stop timetables`} />
+        </Tabs>
       </SidePanelContainer>
     );
   }
