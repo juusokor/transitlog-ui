@@ -11,6 +11,10 @@ import {hfpClient} from "../../api";
 import doubleDigit from "../../helpers/doubleDigit";
 import parse from "date-fns/parse";
 import isWithinRange from "date-fns/is_within_range";
+import {Heading} from "../Typography";
+import BusIcon from "../../icons/Bus";
+import TramIcon from "../../icons/Tram";
+import RailIcon from "../../icons/Rail";
 
 const departuresQuery = gql`
   query routeDepartures($dayType: String, $stopId: String) {
@@ -90,22 +94,69 @@ const stopDelayQuery = gql`
 
 const dayTypes = ["Su", "Ma", "Ti", "Ke", "To", "Pe", "La"];
 
-const TimetableGrid = styled.div`
-  display: grid;
-  grid-template-columns: 5em auto;
-  padding: 0.5rem 1rem;
+const TimetableGrid = styled.div``;
+
+const TimetableHour = styled(Heading).attrs({level: 4})`
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid var(--lighter-grey);
+  padding: 0.75rem 1rem;
 `;
 
-const TimetableHour = styled.div``;
+const TimetableSection = styled.div``;
 
 const TimetableTimes = styled.div`
   display: flex;
   flex-wrap: wrap;
+  padding: 0 0.75rem;
 `;
 
 const TimetableTime = styled.div`
-  padding: 0.2em;
+  padding: 0 0.4em 0 0;
+  margin: 0.25rem;
+  display: inline-flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  border: 1px solid var(--lighter-grey);
+  background: #fefefe;
 `;
+
+const transportIcon = {
+  BUS: BusIcon,
+  TRUNK: BusIcon,
+  TRAM: TramIcon,
+  RAIL: RailIcon,
+};
+
+const transportColor = {
+  BUS: "var(--bus-blue)",
+  TRUNK: "var(--orange)",
+  TRAM: "var(--green)",
+  RAIL: "var(--purple)",
+};
+
+const RouteTag = styled.span`
+  padding: 2px 8px 2px 4px;
+  border-radius: 3px;
+  color: white;
+  background-color: ${({mode}) => get(transportColor, mode, "var(--light-grey)")};
+  display: inline-flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.25rem;
+
+  svg {
+    width: 1rem;
+    height: 1rem;
+    margin-right: 2px;
+  }
+`;
+
+const TimetableMinutes = styled.span``;
 
 const parseLineNumber = (lineId) =>
   // Remove 1st number, which represents the city
@@ -173,9 +224,16 @@ class StopTimetable extends Component {
   render() {
     const {
       state: {date},
-      stopId,
+      stop,
     } = this.props;
+
+    const {
+      stopId,
+      modes: {nodes: modes},
+    } = stop;
+
     const queryDayType = dayTypes[getDay(date)];
+    const stopMode = modes[0];
 
     return (
       <Query
@@ -199,25 +257,31 @@ class StopTimetable extends Component {
           const byHour = groupBy(filteredTimetable, "hours");
 
           return (
-            <div>
-              <TimetableGrid>
-                {Object.entries(byHour).map(([hour, times], idx) => (
-                  <React.Fragment key={`hour_${hour}_${idx}`}>
-                    <TimetableHour> {hour}</TimetableHour>{" "}
-                    <TimetableTimes>
-                      {times.map((time, idx) => (
-                        <TimetableTime key={`time_${idx}`}>
-                          {" "}
-                          <strong>{parseLineNumber(time.routeId)}</strong>:{" "}
-                          {doubleDigit(time.minutes)}{" "}
-                          <StopDelay {...time} date={date} />{" "}
-                        </TimetableTime>
-                      ))}
-                    </TimetableTimes>
-                  </React.Fragment>
-                ))}
-              </TimetableGrid>
-            </div>
+            <TimetableGrid>
+              {Object.entries(byHour).map(([hour, times], idx) => (
+                <TimetableSection key={`hour_${hour}_${idx}`}>
+                  <TimetableHour> {hour}</TimetableHour>{" "}
+                  <TimetableTimes>
+                    {times.map((time, idx) => (
+                      <TimetableTime key={`time_${idx}`}>
+                        <RouteTag mode={stopMode}>
+                          {React.createElement(get(transportIcon, stopMode, null), {
+                            fill: "white",
+                            width: "16",
+                            heigth: "16",
+                          })}
+                          {parseLineNumber(time.routeId)}
+                        </RouteTag>
+                        <TimetableMinutes>
+                          {doubleDigit(time.minutes)}
+                        </TimetableMinutes>
+                        <StopDelay {...time} date={date} />
+                      </TimetableTime>
+                    ))}
+                  </TimetableTimes>
+                </TimetableSection>
+              ))}
+            </TimetableGrid>
           );
         }}
       </Query>

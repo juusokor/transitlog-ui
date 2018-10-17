@@ -12,7 +12,8 @@ const ListWrapper = styled.div`
 `;
 
 const ListRows = styled.div`
-  overflow-y: scroll;
+  overflow-y: auto;
+  max-height: 100%;
 `;
 
 const ListHeader = styled.header`
@@ -39,7 +40,7 @@ class SidepanelList extends Component {
 
     return (
       <ListWrapper>
-        <ListHeader>{header}</ListHeader>
+        {header && <ListHeader>{header}</ListHeader>}
         <ListRows>{children}</ListRows>
       </ListWrapper>
     );
