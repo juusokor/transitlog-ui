@@ -15,6 +15,7 @@ import {Heading} from "../Typography";
 import BusIcon from "../../icons/Bus";
 import TramIcon from "../../icons/Tram";
 import RailIcon from "../../icons/Rail";
+import getDelayType from "../../helpers/getDelayType";
 
 const departuresQuery = gql`
   query routeDepartures($dayType: String, $stopId: String) {
@@ -111,14 +112,13 @@ const TimetableTimes = styled.div`
 `;
 
 const TimetableTime = styled.div`
-  padding: 0 0.4em 0 0;
   margin: 0.25rem;
   display: inline-flex;
   flex-direction: row;
   flex-wrap: nowrap;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
-  border-radius: 3px;
+  border-radius: 4px;
   border: 1px solid var(--lighter-grey);
   background: #fefefe;
 `;
@@ -138,14 +138,14 @@ const transportColor = {
 };
 
 const RouteTag = styled.span`
-  padding: 2px 8px 2px 4px;
-  border-radius: 3px;
-  color: white;
-  background-color: ${({mode}) => get(transportColor, mode, "var(--light-grey)")};
+  padding: 3px;
+  background-color: transparent;
+  color: ${({mode}) => get(transportColor, mode, "var(--light-grey)")};
   display: inline-flex;
   flex-direction: row;
   flex-wrap: nowrap;
   align-items: center;
+  font-weight: bold;
   justify-content: center;
   margin-right: 0.25rem;
 
@@ -153,10 +153,36 @@ const RouteTag = styled.span`
     width: 1rem;
     height: 1rem;
     margin-right: 2px;
+    margin-top: -1px;
   }
 `;
 
-const TimetableMinutes = styled.span``;
+const TimeDelay = styled.span`
+  font-size: 0.875rem;
+  border-radius: 4px;
+  line-height: 1rem;
+  padding: 3px 5px;
+  display: inline-flex;
+  align-items: center;
+  background: ${({delayType}) =>
+    delayType === "early"
+      ? "var(--red)"
+      : delayType === "late"
+        ? "var(--yellow)"
+        : "var(--light-green)"};
+  color: ${({delayType}) => (delayType === "late" ? "var(--dark-grey)" : "white")};
+  transform: translate(1px, -1px);
+  margin-bottom: -2px;
+
+  &:empty {
+    display: none;
+  }
+`;
+
+const TimetableMinutes = styled.span`
+  padding: 3px 8px;
+  border-left: 1px solid var(--lighter-grey);
+`;
 
 const parseLineNumber = (lineId) =>
   // Remove 1st number, which represents the city
@@ -204,13 +230,16 @@ const StopDelay = ({
 
             const {dl} = vehicles[0];
 
-            if (dl === 0) return "+-0:00";
-
-            const sign = dl < 0 ? "+" : "-";
+            const sign = dl < 0 ? "+" : dl > 0 ? "-" : "";
             const seconds = Math.abs(dl) % 60;
             const minutes = Math.floor(Math.abs(dl) / 60);
 
-            return `${sign}${doubleDigit(minutes)}:${doubleDigit(seconds)}`;
+            return (
+              <TimeDelay delayType={getDelayType(dl)}>
+                {sign}
+                {doubleDigit(minutes)}:{doubleDigit(seconds)}
+              </TimeDelay>
+            );
           }}
         </Query>
       );
@@ -260,13 +289,13 @@ class StopTimetable extends Component {
             <TimetableGrid>
               {Object.entries(byHour).map(([hour, times], idx) => (
                 <TimetableSection key={`hour_${hour}_${idx}`}>
-                  <TimetableHour> {hour}</TimetableHour>{" "}
+                  <TimetableHour> {doubleDigit(hour)}</TimetableHour>{" "}
                   <TimetableTimes>
                     {times.map((time, idx) => (
                       <TimetableTime key={`time_${idx}`}>
                         <RouteTag mode={stopMode}>
                           {React.createElement(get(transportIcon, stopMode, null), {
-                            fill: "white",
+                            fill: get(transportColor, stopMode, "var(--light-grey)"),
                             width: "16",
                             heigth: "16",
                           })}

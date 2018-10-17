@@ -24,6 +24,7 @@
   "vehicle.speed": "Speed",
   "vehicle.delay.late": "Late",
   "vehicle.delay.early": "Early",
+  "vehicle.delay.ontime": "On time",
 
   "domain.line": "Line",
   "domain.route": "Route",

@@ -24,6 +24,7 @@
   "vehicle.speed": "Nopeus",
   "vehicle.delay.late": "Myöhässä",
   "vehicle.delay.early": "Etuajassa",
+  "vehicle.delay.ontime": "Ajallaan",
 
   "domain.line": "Linja",
   "domain.route": "Reitti",

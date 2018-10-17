@@ -24,6 +24,7 @@
   "vehicle.speed": "Hastighet",
   "vehicle.delay.late": "Försenad",
   "vehicle.delay.early": "Tidig",
+  "vehicle.delay.ontime": "I tid",
 
   "domain.line": "Linje",
   "domain.route": "Rutt",
