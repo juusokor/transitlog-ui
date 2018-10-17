@@ -41,15 +41,12 @@ export default withRoute(
     <Query
       query={stopsByRouteQuery}
       variables={{
-        routeId: route.routeId,
-        direction: route.direction,
-        dateBegin: route.dateBegin,
-        dateEnd: route.dateEnd,
+        routeId: get(route, "routeId", ""),
+        direction: get(route, "direction", ""),
+        dateBegin: get(route, "dateBegin", ""),
+        dateEnd: get(route, "dateEnd", ""),
       }}>
       {({loading, error, data}) => {
-        if (loading) return "Loading...";
-        if (error) return "Error!";
-
         const stops = get(data, "route.routeSegments.nodes", []).map((segment) => ({
           stopIndex: segment.stopIndex,
           ...segment.stop,

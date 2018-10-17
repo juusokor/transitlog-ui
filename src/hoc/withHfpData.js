@@ -8,7 +8,6 @@ import withRoute from "./withRoute";
 import {fetchHfp} from "../helpers/hfpQueryManager";
 import {getTimeRange} from "../helpers/time";
 import {combineDateAndTime} from "../helpers/time";
-import parse from "date-fns/parse";
 
 const emptyCachePromise = () => fromPromise.resolve([]);
 

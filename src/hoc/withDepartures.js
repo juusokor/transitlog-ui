@@ -45,7 +45,7 @@ export default (Component) => {
   class WithDeparturesComponent extends React.Component {
     render() {
       const {
-        route: {routeId, direction, dateBegin, dateEnd, originstopId},
+        route: {routeId, direction, dateBegin, dateEnd, originstopId} = {},
         state: {date},
       } = this.props;
 

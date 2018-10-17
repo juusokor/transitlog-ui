@@ -56,7 +56,8 @@ export default (Component) => {
         !get(route, "routeId", "") ||
         (route && route.routeId && route.direction && route.dateBegin)
       ) {
-        return <Component {...this.props} route={route} />;
+        const useRoute = !!route ? route : {routeId: ""};
+        return <Component {...this.props} route={useRoute} />;
       }
 
       // Allow fetched route to be ensured.
@@ -67,7 +68,7 @@ export default (Component) => {
         <SingleRouteQuery route={route} date={date}>
           {({route: routeObj, loading, error}) => {
             if (error || loading) {
-              return <Component {...this.props} route={route} />;
+              return <Component {...this.props} route={{routeId: ""}} />;
             }
 
             return <Component {...this.props} route={routeObj} />;

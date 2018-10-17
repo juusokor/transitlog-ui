@@ -38,7 +38,7 @@ const FilterBarWrapper = styled.div`
 
 const FilterBarGrid = styled.div`
   display: grid;
-  grid-template-columns: 22rem 1fr 1fr 1fr;
+  grid-template-columns: 25rem 1fr 1fr 1fr;
   height: 100%;
   align-items: stretch;
 `;
@@ -47,7 +47,7 @@ const BottomSlider = styled(TimeSlider)`
   position: absolute;
   bottom: calc(-1rem - 4px);
   right: 0;
-  width: calc((100% - 20rem) + 2px);
+  width: calc((100% - 25rem) + 2px);
   z-index: 10;
 `;
 

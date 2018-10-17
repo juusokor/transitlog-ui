@@ -22,7 +22,7 @@ const StopRouteList = styled.button`
 @inject(app("Filters"))
 @observer
 class StopMarker extends Component {
-  selectRoute = (route) => (e) => {
+  selectRoute = (route) => () => {
     if (route) {
       this.props.Filters.setRoute(route);
     }

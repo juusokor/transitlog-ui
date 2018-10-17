@@ -3,13 +3,24 @@ import getJourneyId from "../helpers/getJourneyId";
 import createHistory from "history/createBrowserHistory";
 import {pickJourneyProps} from "../helpers/pickJourneyProps";
 import moment from "moment-timezone";
+import {combineDateAndTime} from "../helpers/time";
 
 const history = createHistory();
 
 export function createJourneyPath(journey) {
-  const date = moment(journey.journey_start_timestamp).tz("Europe/Helsinki");
+  let startTimestamp = journey.journey_start_timestamp;
 
-  const dateStr = date.format("YYYY-MM-DD");
+  if (!startTimestamp) {
+    startTimestamp = combineDateAndTime(
+      journey.oday,
+      journey.journey_start_time,
+      "Europe/Helsinki"
+    );
+  }
+
+  const date = moment(startTimestamp).tz("Europe/Helsinki");
+
+  const dateStr = date.format("YYYYMMDD");
   const timeStr = date.format("HHmm");
 
   return `/journey/${dateStr}/${timeStr}/${journey.route_id}/${
@@ -19,6 +30,8 @@ export function createJourneyPath(journey) {
 
 export default (state) => {
   const setSelectedJourney = action((journey = null) => {
+    console.log(journey);
+
     if (
       !journey ||
       (state.selectedJourney &&

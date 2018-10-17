@@ -111,7 +111,7 @@ const TimetableTimes = styled.div`
   padding: 0 0.75rem;
 `;
 
-const TimetableTime = styled.div`
+const TimetableTime = styled.button`
   margin: 0.25rem;
   display: inline-flex;
   flex-direction: row;
@@ -121,6 +121,12 @@ const TimetableTime = styled.div`
   border-radius: 4px;
   border: 1px solid var(--lighter-grey);
   background: #fefefe;
+  outline: 0;
+  width: auto;
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 0;
+  cursor: pointer;
 `;
 
 const transportIcon = {
@@ -247,9 +253,37 @@ const StopDelay = ({
   </Query>
 );
 
-@inject(app("Filters"))
+@inject(app("Time", "Filters", "Journey"))
 @observer
 class StopTimetable extends Component {
+  selectAsJourney = (departure) => (e) => {
+    e.preventDefault();
+
+    const {
+      state: {date},
+    } = this.props;
+
+    const journeyTime = `${doubleDigit(departure.hours)}:${doubleDigit(
+      departure.minutes
+    )}:00`;
+
+    const journey = {
+      oday: date,
+      direction_id: departure.direction,
+      route_id: departure.routeId,
+      journey_start_time: journeyTime,
+    };
+
+    const route = {
+      direction: departure.direction,
+      routeId: departure.routeId,
+    };
+
+    this.props.Time.setTime(journeyTime);
+    this.props.Filters.setRoute(route);
+    this.props.Journey.setSelectedJourney(journey);
+  };
+
   render() {
     const {
       state: {date},
@@ -292,7 +326,9 @@ class StopTimetable extends Component {
                   <TimetableHour> {doubleDigit(hour)}</TimetableHour>{" "}
                   <TimetableTimes>
                     {times.map((time, idx) => (
-                      <TimetableTime key={`time_${idx}`}>
+                      <TimetableTime
+                        key={`time_${idx}`}
+                        onClick={this.selectAsJourney(time)}>
                         <RouteTag mode={stopMode}>
                           {React.createElement(get(transportIcon, stopMode, null), {
                             fill: get(transportColor, stopMode, "var(--light-grey)"),
