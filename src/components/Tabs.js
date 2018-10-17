@@ -10,7 +10,6 @@ const TabsWrapper = styled.div`
 
 const TabButtonsWrapper = styled.div`
   background-color: white;
-  border: 1px solid var(--lighter-grey);
   display: flex;
   justify-content: flex-start;
   align-items: stretch;
@@ -18,22 +17,30 @@ const TabButtonsWrapper = styled.div`
 `;
 
 const TabButton = styled.button`
-  background-color: white;
-  border: 1px solid var(--lighter-grey);
-  padding: 0.5rem;
+  font-family: inherit;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  background-color: ${({selected}) => (selected ? "white" : "var(--lightest-grey)")};
+  border: 1px solid var(--alt-grey);
+  border-left: 0;
+  border-bottom-color: ${({selected}) =>
+    selected ? "transparent" : "var(--lighter-grey)"};
   display: flex;
   flex: 1;
   flex-direction: row;
   align-items: stretch;
+  cursor: pointer;
+  outline: 0;
+
+  &:last-child {
+    border-right: 0;
+  }
 `;
 
 const TabButtonContent = styled.div`
   flex: 1 1 auto;
   flex-direction: row;
-  margin-left: 1.625rem;
-  margin-right: 1.625rem;
-  margin-bottom: 1rem;
-  padding-top: 1.25rem;
+  padding: 1rem 0.5rem;
   justify-content: center;
 `;
 
@@ -59,16 +66,20 @@ class Tabs extends Component {
 
   render() {
     const {children, className} = this.props;
-    const {selectedTab} = this.state;
+    let {selectedTab} = this.state;
 
     let selectedTabContent = null;
 
-    const tabs = Children.map(children, (tabContent) => {
+    const tabs = Children.map(children, (tabContent, idx) => {
       if (!React.isValidElement(tabContent)) {
         return null;
       }
 
       const {name, label} = tabContent.props;
+
+      if (idx === 0 && !selectedTab) {
+        selectedTab = name;
+      }
 
       if (name === selectedTab) {
         selectedTabContent = tabContent;
