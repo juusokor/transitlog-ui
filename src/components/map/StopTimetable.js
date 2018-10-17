@@ -9,7 +9,8 @@ import getDay from "date-fns/get_day";
 import styled from "styled-components";
 import {hfpClient} from "../../api";
 import doubleDigit from "../../helpers/doubleDigit";
-import {Text} from "../../helpers/text";
+import parse from "date-fns/parse";
+import isWithinRange from "date-fns/is_within_range";
 
 const departuresQuery = gql`
   query routeDepartures($dayType: String, $stopId: String) {
@@ -92,7 +93,6 @@ const dayTypes = ["Su", "Ma", "Ti", "Ke", "To", "Pe", "La"];
 const TimetableGrid = styled.div`
   display: grid;
   grid-template-columns: 5em auto;
-  grid-template-rows: repeat(auto-fill, auto);
   padding: 0.5rem 1rem;
 `;
 
@@ -171,8 +171,11 @@ const StopDelay = ({
 @observer
 class StopTimetable extends Component {
   render() {
-    const {state, stopId} = this.props;
-    const queryDayType = dayTypes[getDay(state.date)];
+    const {
+      state: {date},
+      stopId,
+    } = this.props;
+    const queryDayType = dayTypes[getDay(date)];
 
     return (
       <Query
@@ -186,25 +189,17 @@ class StopTimetable extends Component {
           if (error) return "Error!";
           const timetable = get(data, "allDepartures.nodes", []);
 
-          const filteredTimetable = timetable.filter(
-            ({dateBegin, dateEnd}) =>
-              this.props.date >= dateBegin && this.props.date <= dateEnd
-          );
+          const filteredTimetable = timetable.filter(({dateBegin, dateEnd}) => {
+            const begin = parse(dateBegin);
+            const end = parse(dateEnd);
+
+            return isWithinRange(date, begin, end);
+          });
+
           const byHour = groupBy(filteredTimetable, "hours");
 
           return (
             <div>
-              <TimetableGrid>
-                <TimetableHour>
-                  <Text>general.hour</Text>
-                </TimetableHour>
-                <TimetableTimes>
-                  <strong>
-                    <Text>domain.line</Text>
-                  </strong>
-                  : <Text>general.minutes</Text>
-                </TimetableTimes>
-              </TimetableGrid>
               <TimetableGrid>
                 {Object.entries(byHour).map(([hour, times], idx) => (
                   <React.Fragment key={`hour_${hour}_${idx}`}>
@@ -215,7 +210,7 @@ class StopTimetable extends Component {
                           {" "}
                           <strong>{parseLineNumber(time.routeId)}</strong>:{" "}
                           {doubleDigit(time.minutes)}{" "}
-                          <StopDelay {...time} date={this.props.date} />{" "}
+                          <StopDelay {...time} date={date} />{" "}
                         </TimetableTime>
                       ))}
                     </TimetableTimes>

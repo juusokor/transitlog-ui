@@ -43,6 +43,10 @@ class SuggestionInput extends Component {
   onChange = (event, {newValue}) => {
     const value = newValue.toString();
 
+    if (!value) {
+      this.props.onSelect("");
+    }
+
     this.setState({
       value,
       isEmpty: !value,

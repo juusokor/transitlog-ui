@@ -91,8 +91,9 @@ class Tabs extends Component {
     return (
       <TabsWrapper className={className}>
         <TabButtonsWrapper>
-          {tabs.map((tabOption) => (
+          {tabs.map((tabOption, index) => (
             <TabButton
+              key={`tab_${tabOption.name}_${index}`}
               selected={selectedTab === tabOption.name}
               onClick={this.onTabClick(tabOption.name)}>
               <TabButtonContent>{tabOption.label}</TabButtonContent>

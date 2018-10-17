@@ -1,11 +1,13 @@
 import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
-import JourneyList from "./JourneyList";
+import Journeys from "./Journeys";
 import styled, {css} from "styled-components";
 import Loading from "./Loading";
 import {app} from "mobx-app";
 import StopTimetable from "./map/StopTimetable";
 import Tabs from "./Tabs";
+import Timetables from "./Timetables";
+import withStop from "../hoc/withStop";
 
 const SidePanelContainer = styled.div`
   background: var(--lightest-grey);
@@ -42,13 +44,11 @@ const LoadingContainer = styled.div`
 `;
 
 @inject(app("state"))
+@withStop
 @observer
 class SidePanel extends Component {
   render() {
-    const {
-      loading,
-      state: {stop},
-    } = this.props;
+    const {loading, stop} = this.props;
 
     return (
       <SidePanelContainer>
@@ -56,8 +56,8 @@ class SidePanel extends Component {
           <Loading />
         </LoadingContainer>
         <Tabs>
-          <JourneyList name="journeys" label="Journeys" />
-          <StopTimetable stopId={stop} name="timetables" label={`Stop timetables`} />
+          <Journeys name="journeys" label="Journeys" />
+          <Timetables stop={stop} name="timetables" label={`Stop timetables`} />
         </Tabs>
       </SidePanelContainer>
     );
