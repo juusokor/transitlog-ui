@@ -3,7 +3,6 @@ import {observer, inject} from "mobx-react";
 import {Popup, CircleMarker} from "react-leaflet";
 import {Heading} from "../Typography";
 import get from "lodash/get";
-import {Text} from "../../helpers/text";
 import styled from "styled-components";
 import {app} from "mobx-app";
 
@@ -16,7 +15,7 @@ const StopRouteList = styled.button`
   background: #e6e6e6;
   margin: 0 0 3px 3px;
   display: inline-block;
-  border: 1px solid transparent;
+  border: 0;
   cursor: pointer;
 `;
 
@@ -29,8 +28,19 @@ class StopMarker extends Component {
     }
   };
 
+  selectStop = () => {
+    const {stop, Filters} = this.props;
+
+    if (stop) {
+      Filters.setStop(stop.stopId);
+    }
+  };
+
   render() {
-    const {stop, selected, onSelectStop = () => {}} = this.props;
+    const {stop, state} = this.props;
+    const {stop: selectedStop} = state;
+
+    const selected = selectedStop === stop.stopId;
 
     return (
       <CircleMarker
@@ -39,7 +49,7 @@ class StopMarker extends Component {
         color={stopColor}
         fillColor={selected ? stopColor : "white"}
         fillOpacity={1}
-        onClick={onSelectStop(stop)}
+        onClick={this.selectStop}
         radius={selected ? 10 : 8}>
         <Popup autoPan={false} autoClose={false} keepInView={false} maxHeight={500}>
           <Heading level={4}>

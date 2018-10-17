@@ -13,18 +13,23 @@
   "filterpanel.find_line_route": "Search line and route",
   "filterpanel.select_route": "Choose route",
   "filterpanel.planned_start_time": "Planned start time",
-  "filterpanel.real_start_time": "Actual start time",
+  "filterpanel.real_start_time": "Observed start time",
   "filterpanel.journey.unrealized": "Unrealized",
   "filterpanel.journey.click_to_fetch": "Fetch",
 
-  "map.stops.arrive": "Arrival time",
-  "map.stops.depart": "Departure time",
+  "map.stops.arrive": "Arrival",
+  "map.stops.depart": "Departure",
 
   "vehicle.next_stop": "Next stop",
   "vehicle.speed": "Speed",
   "vehicle.delay.late": "Late",
   "vehicle.delay.early": "Early",
 
+  "domain.line": "Line",
+  "domain.route": "Route",
+
+  "general.minutes": "minutes",
+  "general.hour": "hour",
   "general.day": "day",
   "general.week": "week",
   "general.seconds.short": "sec.",

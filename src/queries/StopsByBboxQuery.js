@@ -15,6 +15,7 @@ const stopsByBboxQuery = gql`
   ) {
     stopsByBbox(minLat: $minLat, minLon: $minLon, maxLat: $maxLat, maxLon: $maxLon) {
       nodes {
+        nodeId
         stopId
         shortId
         nameFi

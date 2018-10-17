@@ -118,25 +118,28 @@ class App extends Component {
                     {({lat, lng, zoom, setMapBounds}) => (
                       <React.Fragment>
                         {!route.routeId && zoom > 14 ? (
-                          <StopLayer selectedStop={stop} bounds={stopsBbox} />
+                          <StopLayer date={date} bounds={stopsBbox} />
                         ) : stopPosition ? (
                           <StopMarker stop={stop} selected={true} date={date} />
                         ) : null}
-                        <RouteQuery
-                          key={`route_query_${createRouteIdentifier(route)}`}
-                          route={route}>
-                          {({routeGeometry, stops}) =>
-                            routeGeometry.length !== 0 ? (
-                              <RouteLayer
-                                routeGeometry={routeGeometry}
-                                stops={stops}
-                                setMapBounds={setMapBounds}
-                                key={`route_line_${route.routeId}`}
-                                positions={positions}
-                              />
-                            ) : null
-                          }
-                        </RouteQuery>
+                        {route &&
+                          route.routeId && (
+                            <RouteQuery
+                              key={`route_query_${createRouteIdentifier(route)}`}
+                              route={route}>
+                              {({routeGeometry, stops}) =>
+                                routeGeometry.length !== 0 ? (
+                                  <RouteLayer
+                                    routeGeometry={routeGeometry}
+                                    stops={stops}
+                                    setMapBounds={setMapBounds}
+                                    key={`route_line_${route.routeId}`}
+                                    positions={positions}
+                                  />
+                                ) : null
+                              }
+                            </RouteQuery>
+                          )}
                         {positions.length > 0 &&
                           positions.map(({positions, journeyId}) => {
                             if (

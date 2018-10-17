@@ -4,7 +4,7 @@ import get from "lodash/get";
 
 const filterActions = (state) => {
   // Make sure all dates are correctly formed.
-  const setDate = action((dateValue) => {
+  const setDate = action("Set date", (dateValue) => {
     let momentValue = !dateValue
       ? moment()
       : moment.tz(dateValue, "Europe/Helsinki");
@@ -17,24 +17,27 @@ const filterActions = (state) => {
   });
 
   // Grab the stopId from the passed stop object.
-  const setStop = action((stop = "") => {
+  const setStop = action("Set stop", (stop = "") => {
     state.stop = get(stop, "stopId", stop);
   });
 
   // The unique_vehicle_id we're interested in.
-  const setVehicle = action((vehicleId) => {
+  const setVehicle = action("Set vehicle", (vehicleId) => {
     state.vehicle = vehicleId || "";
   });
 
-  const setLine = action(({lineId = "", dateBegin = "", dateEnd = ""}) => {
-    state.line.lineId = lineId;
-    state.line.dateBegin = dateBegin;
-    state.line.dateEnd = dateEnd;
+  const setLine = action(
+    "Set line",
+    ({lineId = "", dateBegin = "", dateEnd = ""}) => {
+      state.line.lineId = lineId;
+      state.line.dateBegin = dateBegin;
+      state.line.dateEnd = dateEnd;
 
-    setVehicle("");
-  });
+      setVehicle("");
+    }
+  );
 
-  const setRoute = action((route) => {
+  const setRoute = action("Set route", (route) => {
     state.route.routeId = get(route, "routeId", "");
     state.route.direction = get(route, "direction", "");
     state.route.dateBegin = get(route, "dateBegin", "");

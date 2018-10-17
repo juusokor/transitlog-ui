@@ -1,6 +1,6 @@
 {
   "filterpanel.heading": "Transitlog",
-  "filterpanel.reset": "Tyhjennä",
+  "filterpanel.reset": "Palauta asetukset",
   "filterpanel.choose_date": "Valitse päivä",
   "filterpanel.choose_date_time": "Valitse päivä ja aika",
   "filterpanel.choose_time": "Valitse aika",
@@ -25,6 +25,11 @@
   "vehicle.delay.late": "Myöhässä",
   "vehicle.delay.early": "Etuajassa",
 
+  "domain.line": "Linja",
+  "domain.route": "Reitti",
+
+  "general.minutes": "minuutteja",
+  "general.hour": "tunti",
   "general.day": "päivä",
   "general.week": "viikko",
   "general.seconds.short": "sek.",

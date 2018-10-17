@@ -58,11 +58,6 @@ export default (Component) => {
         originstopId,
       ];
 
-      // Make sure none of these are falsy
-      if (requiredVars.some((i) => !i)) {
-        return <Component departures={[]} {...this.props} />;
-      }
-
       const queryDayType = dayTypes[getDay(date)];
 
       return (
@@ -75,6 +70,10 @@ export default (Component) => {
             stopId: originstopId,
           }}>
           {({loading, error, data}) => {
+            if (loading || error || requiredVars.some((i) => !i)) {
+              return <Component departures={[]} {...this.props} />;
+            }
+
             const departures = get(data, "allDepartures.nodes", []).filter(
               ({dateBegin, dateEnd}) => {
                 const begin = parse(dateBegin);
