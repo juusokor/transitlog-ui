@@ -18,8 +18,8 @@ export default (Component) => {
 
       return (
         <DeparturesQuery route={route} stop={stop} date={date}>
-          {({departures = []}) => (
-            <Component departures={departures} {...this.props} />
+          {({departures = [], loading}) => (
+            <Component {...this.props} departures={departures} loading={loading} />
           )}
         </DeparturesQuery>
       );

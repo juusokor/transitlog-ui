@@ -70,13 +70,30 @@ const LoadingContainer = styled.div`
 
 @observer
 class SidepanelList extends Component {
+  scrollElementRef = React.createRef();
+
+  scrollTo = (offset) => {
+    if (this.scrollElementRef.current) {
+      const listHeight = this.scrollElementRef.current.clientHeight;
+      this.scrollElementRef.current.scrollTop = offset - listHeight / 2;
+    }
+  };
+
+  componentDidUpdate({scrollOffset: prevScrollOffset}) {
+    const {scrollOffset = null} = this.props;
+
+    if (scrollOffset !== null && scrollOffset !== prevScrollOffset) {
+      this.scrollTo(scrollOffset);
+    }
+  }
+
   render() {
     const {header, children, loading = false} = this.props;
 
     return (
       <ListWrapper>
         {header && <ListHeader>{header}</ListHeader>}
-        <ListRows>
+        <ListRows innerRef={this.scrollElementRef}>
           <ScrollContainer>{children}</ScrollContainer>
         </ListRows>
         <LoadingContainer loading={loading}>

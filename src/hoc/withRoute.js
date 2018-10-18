@@ -56,7 +56,7 @@ export default (Component) => {
         !get(route, "routeId", "") ||
         (route && route.routeId && route.direction && route.dateBegin)
       ) {
-        const useRoute = !!route ? route : {routeId: ""};
+        const useRoute = get(route, "routeId", "") ? route : {routeId: ""};
         return (
           <Component key="withRouteComponent" {...this.props} route={useRoute} />
         );

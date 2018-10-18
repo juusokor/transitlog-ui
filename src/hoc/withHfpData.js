@@ -70,6 +70,10 @@ export default (Component) => {
       />
     );
 
+    componentDidCatch(err) {
+      console.log(err);
+    }
+
     render() {
       this.updateCachePromise();
 

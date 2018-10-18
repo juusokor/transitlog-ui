@@ -1,4 +1,4 @@
-import {extendObservable, action} from "mobx";
+import {extendObservable, action, reaction, toJS} from "mobx";
 import getJourneyId from "../helpers/getJourneyId";
 import createHistory from "history/createBrowserHistory";
 import TimeActions from "./timeActions";
@@ -13,6 +13,13 @@ export default (state) => {
   extendObservable(state, {
     selectedJourney: null,
   });
+
+  reaction(
+    () => state.selectedJourney,
+    (selectedJourney) => {
+      console.log(toJS(selectedJourney));
+    }
+  );
 
   const timeActions = TimeActions(state);
   const filterActions = FilterActions(state);

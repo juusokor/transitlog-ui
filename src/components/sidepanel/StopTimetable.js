@@ -59,7 +59,7 @@ class StopTimetable extends Component {
 
     return (
       <DeparturesQuery stop={stop} date={date}>
-        {({departures = [], loading}) => {
+        {({departures = []}) => {
           const byHour = groupBy(departures, "hours");
 
           return (

@@ -53,9 +53,9 @@ const dayTypes = ["Su", "Ma", "Ti", "Ke", "To", "Pe", "La"];
 class DeparturesQuery extends Component {
   static propTypes = {
     route: PropTypes.shape({
-      routeId: PropTypes.string.isRequired,
-      direction: PropTypes.string.isRequired,
-      originstopId: PropTypes.string.isRequired,
+      routeId: PropTypes.string,
+      direction: PropTypes.string,
+      originstopId: PropTypes.string,
     }),
     date: PropTypes.string.isRequired,
     stop: PropTypes.oneOfType([
@@ -69,11 +69,19 @@ class DeparturesQuery extends Component {
     dateEnd: PropTypes.string,
   };
 
+  static defaultProps = {
+    route: {
+      routeId: "",
+      direction: "",
+    },
+    stop: {
+      stopId: "",
+    },
+  };
+
   render() {
     const {
-      routeId: propRouteId = "",
-      direction: propDirection = "",
-      route = {routeId: propRouteId, direction: propDirection},
+      route = {routeId: "", direction: ""},
       stop = {stopId: ""},
       date,
       dateBegin,

@@ -53,7 +53,10 @@ export default (Component) => {
 
       return (
         <DeparturesQuery
-          {...{departureId, dateBegin, dateEnd, routeId, direction}}
+          departureId={departureId}
+          dateBegin={dateBegin}
+          dateEnd={dateEnd}
+          route={{routeId, direction}}
           date={date}>
           {({departures}) => {
             if (departures.length === 0) {

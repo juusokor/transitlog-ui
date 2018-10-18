@@ -50,6 +50,12 @@ class Journeys extends Component {
   @observable
   unrealizedJourneys = [];
 
+  @observable
+  selectedJourneyOffset = 0;
+  selectedJourneyRef = React.createRef();
+  clickedJourneyItem = false;
+
+  clickedJourneyTimeout = 0;
   journeyRequestTimeout = 0;
 
   componentDidMount() {
@@ -58,8 +64,10 @@ class Journeys extends Component {
 
   componentDidUpdate({positions: prevPositions}, prevState) {
     this.ensureSelectedVehicle();
+
     const {requestedJourney, unrealizedJourneys} = this;
     const {selectedJourney} = this.props.state;
+    const {loading} = this.props;
 
     if (
       !selectedJourney &&
@@ -71,10 +79,14 @@ class Journeys extends Component {
       this.checkReceivedJourneys();
     } else if (requestedJourney) {
       clearTimeout(this.journeyRequestTimeout);
-      this.journeyRequestTimeout = setTimeout(
-        () => this.setRequestedJourney(""),
-        4000
-      );
+      // To stop the loading indicator spinning forever
+      this.journeyRequestTimeout = setTimeout(() => {
+        this.setRequestedJourney("");
+      }, 4000);
+    }
+
+    if (!this.clickedJourneyItem && selectedJourney && !loading) {
+      this.setSelectedJourneyOffset();
     }
   }
 
@@ -131,8 +143,9 @@ class Journeys extends Component {
       );
     }
 
+    this.clickedJourneyItem = true;
+    this.setRequestedJourney(journey.journey_start_time);
     Journey.setSelectedJourney(journey);
-    this.setRequestedJourney("");
   };
 
   setRequestedJourney = action((journeyStartTime = "") => {
@@ -144,6 +157,13 @@ class Journeys extends Component {
       }
 
       this.requestedJourney = journeyStartTime;
+    }
+
+    if (!journeyStartTime) {
+      clearTimeout(this.clickedJourneyTimeout);
+      this.clickedJourneyTimeout = setTimeout(() => {
+        this.clickedJourneyItem = false;
+      }, 4100);
     }
   });
 
@@ -158,6 +178,7 @@ class Journeys extends Component {
       )
     );
 
+    this.clickedJourneyItem = true;
     this.setRequestedJourney(plannedTime);
   };
 
@@ -193,6 +214,16 @@ class Journeys extends Component {
     return journeyStartHfp;
   }
 
+  setSelectedJourneyOffset = action(() => {
+    if (this.selectedJourneyRef.current) {
+      let offset = get(this.selectedJourneyRef, "current.offsetTop", null);
+
+      if (offset && offset !== this.selectedJourneyOffset) {
+        this.selectedJourneyOffset = offset;
+      }
+    }
+  });
+
   render() {
     const {positions, loading, state, departures} = this.props;
 
@@ -226,6 +257,7 @@ class Journeys extends Component {
 
     return (
       <SidepanelList
+        scrollOffset={this.selectedJourneyOffset}
         loading={loading}
         header={
           <>
@@ -258,9 +290,12 @@ class Journeys extends Component {
             getJourneyId(journeyOrDeparture)
           );
 
+          const journeyIsSelected = isSelected(journeyOrDeparture);
+
           return (
             <JourneyListRow
-              selected={isSelected(journeyOrDeparture)}
+              innerRef={journeyIsSelected ? this.selectedJourneyRef : null}
+              selected={journeyIsSelected}
               key={`journey_row_${getJourneyId(journeyOrDeparture)}`}
               onClick={this.selectJourney(journeyOrDeparture)}>
               <JourneyRowLeft>
