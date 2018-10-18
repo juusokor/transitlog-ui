@@ -14,18 +14,6 @@ const SidePanelContainer = styled.div`
   border-right: 1px solid var(--alt-grey);
   grid-row: 2;
   padding-top: 3px;
-  position: relative;
-`;
-
-// Needs an absolutely positioned container for scrollbars to work in Chrome...
-const SidePanelContent = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  height: 100%;
 `;
 
 @inject(app("state"))
@@ -44,26 +32,24 @@ class SidePanel extends Component {
 
     return (
       <SidePanelContainer>
-        <SidePanelContent>
-          <Tabs>
-            {routeId && (
-              <Journeys
-                positions={positions}
-                loading={loading}
-                name="journeys"
-                label="Journeys"
-              />
-            )}
-            {stop && (
-              <Timetables
-                date={date} // Needed for withStop to fetch routeSegments
-                stop={stop}
-                name="timetables"
-                label={`Stop timetables`}
-              />
-            )}
-          </Tabs>
-        </SidePanelContent>
+        <Tabs>
+          {routeId && (
+            <Journeys
+              positions={positions}
+              loading={loading}
+              name="journeys"
+              label="Journeys"
+            />
+          )}
+          {stop && (
+            <Timetables
+              date={date} // Needed for withStop to fetch routeSegments
+              stop={stop}
+              name="timetables"
+              label={`Stop timetables`}
+            />
+          )}
+        </Tabs>
       </SidePanelContainer>
     );
   }

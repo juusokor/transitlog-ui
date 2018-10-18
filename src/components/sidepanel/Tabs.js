@@ -4,6 +4,8 @@ import styled from "styled-components";
 
 const TabsWrapper = styled.div`
   height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr;
 `;
 
 const TabButtonsWrapper = styled.div`
@@ -42,10 +44,7 @@ const TabButton = styled.button`
 `;
 
 const TabContentWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
   background: white;
-  align-items: stretch;
   height: 100%;
 `;
 

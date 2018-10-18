@@ -4,13 +4,13 @@ import styled, {css} from "styled-components";
 import Loading from "../Loading";
 
 const ListWrapper = styled.div`
-  width: 100%;
   height: 100%;
   display: grid;
   grid-template-rows: auto 1fr;
 `;
 
 const ListRows = styled.div`
+  position: relative;
   overflow-y: auto;
 `;
 
@@ -21,6 +21,7 @@ const ListHeader = styled.header`
   width: 100%;
   background: transparent;
   font-size: 0.9em;
+  border-bottom: 1px solid var(--alt-grey);
   box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.075);
   position: relative;
   z-index: 1;
@@ -29,6 +30,17 @@ const ListHeader = styled.header`
   align-items: start;
   padding: 0.75rem 1rem;
   color: var(--grey);
+`;
+
+// Needs an absolutely positioned container for scrollbars to work in Chrome...
+const ScrollContainer = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
 `;
 
 const LoadingContainer = styled.div`
@@ -64,7 +76,9 @@ class SidepanelList extends Component {
     return (
       <ListWrapper>
         {header && <ListHeader>{header}</ListHeader>}
-        <ListRows>{children}</ListRows>
+        <ListRows>
+          <ScrollContainer>{children}</ScrollContainer>
+        </ListRows>
         <LoadingContainer loading={loading}>
           <Loading />
         </LoadingContainer>
