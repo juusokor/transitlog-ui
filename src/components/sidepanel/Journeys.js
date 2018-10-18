@@ -1,6 +1,5 @@
 import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
-import withHfpData from "../../hoc/withHfpData";
 import map from "lodash/map";
 import get from "lodash/get";
 import sortBy from "lodash/sortBy";
@@ -43,7 +42,6 @@ const JourneyRowLeft = styled.span`
 `;
 
 @inject(app("Journey", "Time", "Filters"))
-@withHfpData
 @withDepartures
 @observer
 class Journeys extends Component {
@@ -196,7 +194,7 @@ class Journeys extends Component {
   }
 
   render() {
-    const {positions, state, departures} = this.props;
+    const {positions, loading, state, departures} = this.props;
 
     const journeys = map(positions, ({positions}) => positions[0]);
     const selectedJourney = get(state, "selectedJourney", null);
@@ -228,6 +226,7 @@ class Journeys extends Component {
 
     return (
       <SidepanelList
+        loading={loading}
         header={
           <>
             <JourneyRowLeft>

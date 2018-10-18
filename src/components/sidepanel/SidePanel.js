@@ -1,8 +1,7 @@
 import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
 import Journeys from "./Journeys";
-import styled, {css} from "styled-components";
-import Loading from "../Loading";
+import styled from "styled-components";
 import {app} from "mobx-app";
 import Tabs from "./Tabs";
 import Timetables from "./Timetables";
@@ -15,31 +14,18 @@ const SidePanelContainer = styled.div`
   border-right: 1px solid var(--alt-grey);
   grid-row: 2;
   padding-top: 3px;
+  position: relative;
 `;
 
-const LoadingContainer = styled.div`
+// Needs an absolutely positioned container for scrollbars to work in Chrome...
+const SidePanelContent = styled.div`
   position: absolute;
-  top: 2rem;
+  top: 0;
   left: 0;
+  right: 0;
+  bottom: 0;
   width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  opacity: 0;
-  pointer-events: none;
-  user-select: none;
-  transition: opacity 0.1s ease-out, transform 0.2s ease-out;
-  transform: translateY(-5rem);
-  z-index: 10;
-
-  ${({loading = false}) =>
-    loading
-      ? css`
-          opacity: 1;
-          pointer-events: all;
-          transform: translateY(0);
-        `
-      : ""};
+  height: 100%;
 `;
 
 @inject(app("state"))
@@ -47,26 +33,37 @@ const LoadingContainer = styled.div`
 class SidePanel extends Component {
   render() {
     const {
+      positions,
       loading,
-      state: {stop, date},
+      state: {
+        stop,
+        date,
+        route: {routeId = ""},
+      },
     } = this.props;
 
     return (
       <SidePanelContainer>
-        <LoadingContainer loading={loading}>
-          <Loading />
-        </LoadingContainer>
-        <Tabs>
-          <Journeys name="journeys" label="Journeys" />
-          {stop && (
-            <Timetables
-              date={date} // Needed for withStop to fetch routeSegments
-              stop={stop}
-              name="timetables"
-              label={`Stop timetables`}
-            />
-          )}
-        </Tabs>
+        <SidePanelContent>
+          <Tabs>
+            {routeId && (
+              <Journeys
+                positions={positions}
+                loading={loading}
+                name="journeys"
+                label="Journeys"
+              />
+            )}
+            {stop && (
+              <Timetables
+                date={date} // Needed for withStop to fetch routeSegments
+                stop={stop}
+                name="timetables"
+                label={`Stop timetables`}
+              />
+            )}
+          </Tabs>
+        </SidePanelContent>
       </SidePanelContainer>
     );
   }

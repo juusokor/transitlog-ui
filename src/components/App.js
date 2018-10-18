@@ -23,12 +23,13 @@ import StopMarker from "./map/StopMarker";
 const DEFAULT_SIDEPANEL_WIDTH = 25;
 
 const AppFrame = styled.main`
-  height: 100%;
-  overflow: hidden;
   display: grid;
   grid-template-columns: ${({sidepanelWidth}) => sidepanelWidth}rem 1fr;
   grid-template-rows: 9rem 1fr;
+  justify-content: stretch;
   transition: all 0.15s ease-out;
+  overflow: hidden;
+  height: 100%;
 `;
 
 const MapPanel = styled(Map)`
@@ -103,7 +104,7 @@ class App extends Component {
     return (
       <AppFrame sidepanelWidth={sidepanelWidthRem}>
         <FilterBar />
-        <SidePanel loading={loading} />
+        <SidePanel loading={loading} positions={positions} />
         <JourneyPosition positions={positions}>
           {(journeyPosition) => (
             <StopPosition>

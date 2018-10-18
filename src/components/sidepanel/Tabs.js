@@ -3,8 +3,6 @@ import {observer} from "mobx-react";
 import styled from "styled-components";
 
 const TabsWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
   height: 100%;
 `;
 
