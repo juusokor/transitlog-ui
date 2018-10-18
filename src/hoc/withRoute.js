@@ -58,7 +58,9 @@ export default (Component) => {
       ) {
         const useRoute = get(route, "routeId", "") ? route : {routeId: ""};
         return (
-          <Component key="withRouteComponent" {...this.props} route={useRoute} />
+          <React.Fragment key="withRouteWrapper">
+            <Component key="withRouteComponent" {...this.props} route={useRoute} />
+          </React.Fragment>
         );
       }
 
@@ -67,13 +69,21 @@ export default (Component) => {
 
       // Else, fetch the full route data.
       return (
-        <SingleRouteQuery key="withRouteComponent" route={route} date={date}>
+        <SingleRouteQuery key="withRouteWrapper" route={route} date={date}>
           {({route: routeObj, loading, error}) => {
             if (error || loading) {
-              return <Component {...this.props} route={{routeId: ""}} />;
+              return (
+                <Component
+                  key="withRouteComponent"
+                  {...this.props}
+                  route={{routeId: ""}}
+                />
+              );
             }
 
-            return <Component {...this.props} route={routeObj} />;
+            return (
+              <Component key="withRouteComponent" {...this.props} route={routeObj} />
+            );
           }}
         </SingleRouteQuery>
       );

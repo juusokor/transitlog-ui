@@ -4,9 +4,7 @@ import flow from "lodash/flow";
 import flatMap from "lodash/flatMap";
 import unionBy from "lodash/unionBy";
 import {observer, inject} from "mobx-react";
-import withHfpData from "../../hoc/withHfpData";
 import {app} from "mobx-app";
-import {text} from "../../helpers/text";
 
 const getSuggestionValue = (suggestion) => suggestion;
 
@@ -30,7 +28,6 @@ const getSuggestions = (vehicleIds) => (value = "") => {
 
 const enhance = flow(
   observer,
-  withHfpData,
   inject(app("state"))
 );
 

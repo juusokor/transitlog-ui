@@ -8,6 +8,7 @@ import withRoute from "./withRoute";
 import {fetchHfp} from "../helpers/hfpQueryManager";
 import {getTimeRange} from "../helpers/time";
 import {combineDateAndTime} from "../helpers/time";
+import {observable} from "mobx";
 
 const emptyCachePromise = () => fromPromise.resolve([]);
 
@@ -70,10 +71,7 @@ export default (Component) => {
       />
     );
 
-    componentDidCatch(err) {
-      console.log(err);
-    }
-
+    // TODO: Request only when needed
     render() {
       this.updateCachePromise();
 

@@ -1,5 +1,4 @@
 import React, {Component} from "react";
-import get from "lodash/get";
 import groupBy from "lodash/groupBy";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
@@ -8,8 +7,6 @@ import doubleDigit from "../../helpers/doubleDigit";
 import {Heading} from "../Typography";
 import DeparturesQuery from "../../queries/DeparturesQuery";
 import TimetableDeparture from "./TimetableDeparture";
-import withDepartures from "../../hoc/withDepartures";
-import {pickJourneyProps} from "../../helpers/pickJourneyProps";
 
 const TimetableGrid = styled.div``;
 
@@ -28,7 +25,6 @@ const TimetableTimes = styled.div`
 `;
 
 @inject(app("Filters", "Journey", "Time"))
-@withDepartures
 @observer
 class StopTimetable extends Component {
   selectAsJourney = (departure) => (e) => {

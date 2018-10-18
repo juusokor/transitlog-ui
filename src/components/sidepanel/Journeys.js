@@ -144,7 +144,7 @@ class Journeys extends Component {
     }
 
     this.clickedJourneyItem = true;
-    this.setRequestedJourney(journey.journey_start_time);
+    this.setRequestedJourney("");
     Journey.setSelectedJourney(journey);
   };
 

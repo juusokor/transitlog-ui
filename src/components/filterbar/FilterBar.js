@@ -59,7 +59,7 @@ class FilterBar extends Component {
   };
 
   render() {
-    const {state, Filters} = this.props;
+    const {state, Filters, positions} = this.props;
     const {vehicle, stop, route, filterPanelVisible: visible} = state;
 
     return (
@@ -68,7 +68,7 @@ class FilterBar extends Component {
         <FilterBarGrid>
           <FilterSection expandable={<SimulationSettings />}>
             <DateSettings />
-            <TimeSettings />
+            <TimeSettings positions={positions} />
           </FilterSection>
           <FilterSection>
             <LineSettings />
@@ -78,7 +78,11 @@ class FilterBar extends Component {
               <Input
                 label={text("filterpanel.filter_by_vehicle")}
                 animatedLabel={false}>
-                <VehicleInput value={vehicle} onSelect={this.onChangeQueryVehicle} />
+                <VehicleInput
+                  positions={positions}
+                  value={vehicle}
+                  onSelect={this.onChangeQueryVehicle}
+                />
               </Input>
             </ControlGroup>
           </FilterSection>
@@ -112,7 +116,7 @@ class FilterBar extends Component {
             </ControlGroup>
           </FilterSection>
         </FilterBarGrid>
-        <BottomSlider />
+        <BottomSlider positions={positions} />
       </FilterBarWrapper>
     );
   }

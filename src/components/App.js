@@ -12,7 +12,6 @@ import HfpLayer from "./map/HfpLayer";
 import HfpMarkerLayer from "./map/HfpMarkerLayer";
 import invoke from "lodash/invoke";
 import getJourneyId from "../helpers/getJourneyId";
-import withRoute from "../hoc/withRoute";
 import createRouteIdentifier from "../helpers/createRouteIdentifier";
 import styled from "styled-components";
 import SidePanel from "./sidepanel/SidePanel";
@@ -41,7 +40,6 @@ const MapPanel = styled(Map)`
 
 @inject(app("Journey", "Filters"))
 @withHfpData
-@withRoute
 @observer
 class App extends Component {
   state = {
@@ -98,13 +96,15 @@ class App extends Component {
 
   render() {
     const {stopsBbox, sidepanelWidthRem} = this.state;
-    const {state, positions = [], loading} = this.props;
-    const {route, vehicle, selectedJourney, date} = state;
+    const {state, positions = [], loading, route} = this.props;
+    const {vehicle, selectedJourney, date} = state;
+
+    // TODO: Optimize JourneyPosition. rAF?
 
     return (
       <AppFrame sidepanelWidth={sidepanelWidthRem}>
-        <FilterBar />
-        <SidePanel loading={loading} positions={positions} />
+        <FilterBar positions={positions} />
+        <SidePanel loading={loading} positions={positions} route={route} />
         <JourneyPosition positions={positions}>
           {(journeyPosition) => (
             <StopPosition>

@@ -23,24 +23,23 @@ class SidePanel extends Component {
     const {
       positions,
       loading,
-      state: {
-        stop,
-        date,
-        route: {routeId = ""},
-      },
+      route,
+      state: {stop, date},
     } = this.props;
 
     return (
       <SidePanelContainer>
         <Tabs>
-          {routeId && (
-            <Journeys
-              positions={positions}
-              loading={loading}
-              name="journeys"
-              label="Journeys"
-            />
-          )}
+          {!!route &&
+            !!route.routeId && (
+              <Journeys
+                route={route}
+                positions={positions}
+                loading={loading}
+                name="journeys"
+                label="Journeys"
+              />
+            )}
           {stop && (
             <Timetables
               date={date} // Needed for withStop to fetch routeSegments

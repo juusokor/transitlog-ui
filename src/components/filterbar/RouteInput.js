@@ -2,7 +2,6 @@ import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import {get} from "lodash";
-import withRoute from "../../hoc/withRoute";
 import {text} from "../../helpers/text";
 import Dropdown from "../Dropdown";
 
@@ -22,7 +21,6 @@ const getRouteValue = ({
 };
 
 @inject(app("Filters"))
-@withRoute
 @observer
 class RouteInput extends Component {
   onChange = (e) => {
@@ -49,7 +47,10 @@ class RouteInput extends Component {
    * the line has changed and the routes should be refetched.
    */
   resetRoute() {
-    const {routes, route} = this.props;
+    const {
+      routes,
+      state: {route},
+    } = this.props;
     const currentValue = getRouteValue(route);
 
     if (

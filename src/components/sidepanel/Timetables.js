@@ -9,7 +9,7 @@ import withStop from "../../hoc/withStop";
 @observer
 class Timetables extends Component {
   render() {
-    const {stop} = this.props;
+    const {stop, route} = this.props;
 
     return (
       <SidepanelList
@@ -19,7 +19,7 @@ class Timetables extends Component {
             <span>Filter ???</span>
           </>
         }>
-        {stop && <StopTimetable stop={stop} />}
+        {stop && <StopTimetable route={route} stop={stop} />}
       </SidepanelList>
     );
   }
