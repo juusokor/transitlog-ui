@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import moment from "moment-timezone";
-import withSelectedJourneyHfp from "../../hoc/withSelectedJourneyHfp";
+import withSelectedJourneyHfp from "../../hoc/withSelectedJourney";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import RangeInput from "../RangeInput";

@@ -57,7 +57,9 @@ export default (Component) => {
         (route && route.routeId && route.direction && route.dateBegin)
       ) {
         const useRoute = !!route ? route : {routeId: ""};
-        return <Component {...this.props} route={useRoute} />;
+        return (
+          <Component key="withRouteComponent" {...this.props} route={useRoute} />
+        );
       }
 
       // Allow fetched route to be ensured.
@@ -65,7 +67,7 @@ export default (Component) => {
 
       // Else, fetch the full route data.
       return (
-        <SingleRouteQuery route={route} date={date}>
+        <SingleRouteQuery key="withRouteComponent" route={route} date={date}>
           {({route: routeObj, loading, error}) => {
             if (error || loading) {
               return <Component {...this.props} route={{routeId: ""}} />;

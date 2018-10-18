@@ -30,8 +30,6 @@ export function createJourneyPath(journey) {
 
 export default (state) => {
   const setSelectedJourney = action((journey = null) => {
-    console.log(journey);
-
     if (
       !journey ||
       (state.selectedJourney &&
