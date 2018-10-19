@@ -25,10 +25,14 @@ class LineSettings extends Component {
             <AllLinesQuery date={date}>
               {({lines}) => {
                 if (!lines) {
-                  return <LineInput onSelect={Filters.setLine} lines={[]} />;
+                  return (
+                    <LineInput line={line} onSelect={Filters.setLine} lines={[]} />
+                  );
                 }
 
-                return <LineInput onSelect={Filters.setLine} lines={lines} />;
+                return (
+                  <LineInput line={line} onSelect={Filters.setLine} lines={lines} />
+                );
               }}
             </AllLinesQuery>
           </Input>

@@ -34,7 +34,6 @@ const getSuggestions = (lines) => (value = "") => {
       );
 };
 
-@inject(app("state"))
 @observer
 class LineInput extends React.Component {
   componentDidMount() {
@@ -46,11 +45,7 @@ class LineInput extends React.Component {
   }
 
   ensureLine = () => {
-    const {
-      state: {line},
-      lines,
-      onSelect,
-    } = this.props;
+    const {line, lines, onSelect} = this.props;
 
     // If there is a preset lineId, find the rest of the line data from lines.
     if (line.lineId && !line.dateBegin) {
@@ -63,11 +58,7 @@ class LineInput extends React.Component {
   };
 
   render() {
-    const {
-      state: {line},
-      lines,
-      onSelect,
-    } = this.props;
+    const {line, lines, onSelect} = this.props;
 
     return (
       <SuggestionInput
