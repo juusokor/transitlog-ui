@@ -43,7 +43,7 @@ class StopTimetable extends Component {
     this.props.Filters.setRoute(route);
 
     if (departure.journey) {
-      this.props.Journey.setSelectedJourney(departure.journey);
+      this.props.Journey.setSelectedJourney(departure.journey, false);
     }
   };
 

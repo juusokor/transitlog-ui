@@ -29,19 +29,23 @@ export function createJourneyPath(journey) {
 }
 
 export default (state) => {
-  const setSelectedJourney = action((journey = null) => {
-    if (
-      !journey ||
-      (state.selectedJourney &&
-        getJourneyId(state.selectedJourney) === getJourneyId(journey))
-    ) {
-      state.selectedJourney = null;
-      history.push("/");
-    } else {
-      state.selectedJourney = pickJourneyProps(journey);
-      history.push(createJourneyPath(journey));
+  const setSelectedJourney = action(
+    "Set selected journey",
+    (journey = null, toggle = true) => {
+      if (
+        (!journey ||
+          (state.selectedJourney &&
+            getJourneyId(state.selectedJourney) === getJourneyId(journey))) &&
+        toggle
+      ) {
+        state.selectedJourney = null;
+        history.push("/");
+      } else {
+        state.selectedJourney = pickJourneyProps(journey);
+        history.push(createJourneyPath(journey));
+      }
     }
-  });
+  );
 
   return {
     setSelectedJourney,
