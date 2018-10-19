@@ -8,8 +8,7 @@ import {timeToFormat} from "../../helpers/time";
 import styled from "styled-components";
 
 const TimeRow = styled.div`
-  display: flex;
-  flex-wrap: nowrap;
+  display: grid;
   align-items: center;
   margin-bottom: 0.25rem;
   font-family: var(--font-family);

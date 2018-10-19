@@ -6,7 +6,6 @@ import {Query} from "react-apollo";
 import {hfpClient} from "../api";
 import gql from "graphql-tag";
 import DeparturesQuery from "../queries/DeparturesQuery";
-import {pickJourneyProps} from "../helpers/pickJourneyProps";
 import HfpFieldsFragment from "../queries/HfpFieldsFragment";
 
 const stopDelayQuery = gql`
@@ -54,6 +53,7 @@ export default (Component) => {
       return (
         <DeparturesQuery
           departureId={departureId}
+          limit={1}
           dateBegin={dateBegin}
           dateEnd={dateEnd}
           route={{routeId, direction}}

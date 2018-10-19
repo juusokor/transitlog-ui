@@ -118,7 +118,7 @@ class App extends Component {
                     center={centerPosition}>
                     {({lat, lng, zoom, setMapBounds}) => (
                       <React.Fragment>
-                        {!route.routeId && zoom > 14 ? (
+                        {(!route || !route.routeId) && zoom > 14 ? (
                           <StopLayer date={date} bounds={stopsBbox} />
                         ) : stopPosition ? (
                           <StopMarker stop={stop} selected={true} date={date} />
@@ -131,6 +131,7 @@ class App extends Component {
                               {({routeGeometry, stops}) =>
                                 routeGeometry.length !== 0 ? (
                                   <RouteLayer
+                                    key="routeLayer"
                                     routeGeometry={routeGeometry}
                                     stops={stops}
                                     setMapBounds={setMapBounds}

@@ -5,8 +5,10 @@ import {get} from "lodash";
 import {text} from "../../helpers/text";
 import Dropdown from "../Dropdown";
 import {createRouteKey} from "../../helpers/hfpCache";
+import withRoute from "../../hoc/withRoute";
 
 @inject(app("Filters"))
+@withRoute
 @observer
 class RouteInput extends Component {
   onChange = (e) => {
@@ -33,10 +35,7 @@ class RouteInput extends Component {
    * the line has changed and the routes should be refetched.
    */
   resetRoute() {
-    const {
-      routes,
-      state: {route},
-    } = this.props;
+    const {routes, route} = this.props;
     const currentValue = createRouteKey(route);
 
     if (

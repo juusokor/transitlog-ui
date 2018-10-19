@@ -20,7 +20,7 @@ export function createRouteKey(route) {
     get(route, "dateEnd", ""),
   ];
 
-  if (keyParts.some((p) => !p)) {
+  if (keyParts.some((part) => !part)) {
     return "";
   }
 

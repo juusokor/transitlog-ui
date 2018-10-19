@@ -17,12 +17,6 @@ const stopColor = "var(--blue)";
 @inject(app("Filters"))
 @observer
 class RouteStopMarker extends React.Component {
-  selectRoute = (route) => (e) => {
-    if (route) {
-      this.props.Filters.setRoute(route);
-    }
-  };
-
   render() {
     const {
       stop,
