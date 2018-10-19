@@ -9,7 +9,6 @@ import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import parse from "date-fns/parse";
 import ArriveDepartToggle from "./ArriveDepartToggle";
-import {combineDateAndTime} from "../../helpers/time";
 import {Heading} from "../Typography";
 
 const stopColor = "var(--blue)";
@@ -67,12 +66,6 @@ class RouteStopMarker extends React.Component {
       journeyStartedOnTime = delay < 10;
     }
 
-    const time = combineDateAndTime(
-      state.date,
-      state.time,
-      "Europe/Helsinki"
-    ).toISOString();
-
     return React.createElement(
       stop.timingStopType ? Marker : CircleMarker,
       {
@@ -115,7 +108,9 @@ class RouteStopMarker extends React.Component {
               <DriveByTimes
                 showTime={showTime}
                 onTimeClick={onTimeClick}
-                queryTime={time}
+                date={state.date}
+                route={state.route}
+                stop={stop}
                 positions={hfp}
               />
             </React.Fragment>
