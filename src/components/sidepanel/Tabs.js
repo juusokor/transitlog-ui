@@ -1,6 +1,7 @@
 import React, {Component, Children} from "react";
 import {observer} from "mobx-react";
 import styled from "styled-components";
+import compact from "lodash/compact";
 
 const TabsWrapper = styled.div`
   height: 100%;
@@ -66,14 +67,14 @@ class Tabs extends Component {
 
     let selectedTabContent = null;
 
-    const tabs = Children.map(children, (tabContent, idx) => {
-      if (!React.isValidElement(tabContent)) {
+    const tabs = Children.toArray(children).map((tabContent, idx, allChildren) => {
+      if (!tabContent || !React.isValidElement(tabContent)) {
         return null;
       }
 
       const {name, label} = tabContent.props;
 
-      if (idx === 0 && !selectedTab) {
+      if (allChildren.length === 1 || (idx === 0 && !selectedTab)) {
         selectedTab = name;
       }
 
@@ -87,7 +88,7 @@ class Tabs extends Component {
     return (
       <TabsWrapper className={className}>
         <TabButtonsWrapper>
-          {tabs.map((tabOption, index) => (
+          {compact(tabs).map((tabOption, index) => (
             <TabButton
               key={`tab_${tabOption.name}_${index}`}
               selected={selectedTab === tabOption.name}
