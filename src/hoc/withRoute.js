@@ -6,6 +6,7 @@ import {fromPromise} from "mobx-utils";
 import {createRouteKey} from "../helpers/hfpCache";
 import get from "lodash/get";
 import compact from "lodash/compact";
+import {toJS} from "mobx";
 
 function shouldFetch(route) {
   const requiredParts = [

@@ -26,26 +26,6 @@ class RouteInput extends Component {
     }
   };
 
-  componentDidUpdate() {
-    this.resetRoute();
-  }
-
-  /**
-   * Reset the selected route if none of the route options match. This means
-   * the line has changed and the routes should be refetched.
-   */
-  resetRoute() {
-    const {routes, route} = this.props;
-    const currentValue = createRouteKey(route);
-
-    if (
-      routes.length !== 0 &&
-      routes.every((routeListItem) => createRouteKey(routeListItem) !== currentValue)
-    ) {
-      this.onChange(false);
-    }
-  }
-
   render() {
     const {route = null, routes} = this.props;
 

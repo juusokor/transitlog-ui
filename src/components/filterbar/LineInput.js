@@ -4,6 +4,7 @@ import SuggestionInput from "./SuggestionInput";
 import getTransportType from "../../helpers/getTransportType";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
+import {toJS} from "mobx";
 
 const parseLineNumber = (lineId) =>
   // Remove 1st number, which represents the city
@@ -34,18 +35,17 @@ const getSuggestions = (lines) => (value = "") => {
       );
 };
 
-@inject(app("Filters"))
 @observer
 class LineInput extends React.Component {
   componentDidMount() {
-    const {Filters, line, lines} = this.props;
+    const {line, lines, onSelect} = this.props;
 
     // If there is a preset lineId, find the rest of the line data from lines.
     if (line.lineId && !line.dateBegin) {
       const lineData = lines.find((l) => l.lineId === line.lineId);
 
       if (lineData) {
-        Filters.setLine(lineData);
+        onSelect(lineData);
       }
     }
   }
