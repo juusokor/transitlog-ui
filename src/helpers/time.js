@@ -25,7 +25,7 @@ export function combineDateAndTime(date, time = "00:00:00", timezone, toTimezone
 }
 
 export function getTimeRange(date) {
-  const queryMoment = moment(date).seconds(0);
+  const queryMoment = date.seconds(0);
 
   const quarter = Math.round((queryMoment.minutes() / 60) * 100);
   let minMinutes;

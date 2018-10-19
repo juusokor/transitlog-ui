@@ -4,21 +4,7 @@ import {app} from "mobx-app";
 import {get} from "lodash";
 import {text} from "../../helpers/text";
 import Dropdown from "../Dropdown";
-
-const getRouteValue = ({
-  routeId = "",
-  direction = "",
-  dateBegin = "",
-  dateEnd = "",
-}) => {
-  const valueParts = [routeId, direction, dateBegin, dateEnd];
-
-  if (valueParts.every((part) => !!part)) {
-    return valueParts.join("/");
-  }
-
-  return "";
-};
+import {createRouteKey} from "../../helpers/hfpCache";
 
 @inject(app("Filters"))
 @observer
@@ -31,7 +17,7 @@ class RouteInput extends Component {
       return Filters.setRoute({});
     }
 
-    const route = routes.find((r) => getRouteValue(r) === selectedValue);
+    const route = routes.find((r) => createRouteKey(r) === selectedValue);
 
     if (route) {
       Filters.setRoute(route);
@@ -51,11 +37,11 @@ class RouteInput extends Component {
       routes,
       state: {route},
     } = this.props;
-    const currentValue = getRouteValue(route);
+    const currentValue = createRouteKey(route);
 
     if (
       routes.length !== 0 &&
-      routes.every((routeListItem) => getRouteValue(routeListItem) !== currentValue)
+      routes.every((routeListItem) => createRouteKey(routeListItem) !== currentValue)
     ) {
       this.onChange(false);
     }
@@ -77,13 +63,13 @@ class RouteInput extends Component {
 
       return {
         key: nodeId,
-        value: getRouteValue(routeOption),
+        value: createRouteKey(routeOption),
         label: `${routeId} - suunta ${direction}, ${originFi} - ${destinationFi} (${dateBegin} - ${dateEnd})`,
       };
     });
 
     options.unshift({value: "", label: text("filterpanel.select_route")});
-    const currentValue = getRouteValue(route);
+    const currentValue = createRouteKey(route);
 
     return (
       <Dropdown value={currentValue} onChange={this.onChange}>
