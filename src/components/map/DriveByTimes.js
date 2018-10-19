@@ -7,6 +7,7 @@ import styled from "styled-components";
 import DeparturesQuery from "../../queries/DeparturesQuery";
 import getDelayType from "../../helpers/getDelayType";
 import moment from "moment-timezone";
+import doubleDigit from "../../helpers/doubleDigit";
 
 const TimeRow = styled.div`
   display: flex;
@@ -66,6 +67,35 @@ const ObservedTime = styled.span`
   }
 `;
 
+function findClosestDeparture(departures, adjustedTime) {
+  const hour = adjustedTime.hours();
+  const minutes = adjustedTime.minutes();
+  const departuresForHour = departures.filter((dep) => dep.hours === hour);
+
+  if (departuresForHour.length === 0) {
+    return null;
+  }
+
+  let closestDeparture = null;
+
+  function diffMinutes(minutes1, minutes2) {
+    return Math.abs(minutes1 - minutes2);
+  }
+
+  for (const departure of departuresForHour) {
+    const diff = diffMinutes(minutes, departure.minutes);
+    const prevDiff = closestDeparture
+      ? diffMinutes(minutes, closestDeparture.minutes)
+      : 60;
+
+    if (diff < prevDiff) {
+      closestDeparture = departure;
+    }
+  }
+
+  return closestDeparture;
+}
+
 @observer
 class DriveByTimes extends React.Component {
   render() {
@@ -75,6 +105,7 @@ class DriveByTimes extends React.Component {
       date,
       route,
       stop,
+      isFirst,
       showTime = "arrive",
     } = this.props;
 
@@ -84,11 +115,10 @@ class DriveByTimes extends React.Component {
         route={{
           routeId: get(route, "routeId", ""),
           direction: get(route, "direction", ""),
+          // Careful that originstopId doesn't sneak in
         }}
         stop={stop}>
         {({departures}) => {
-          // TODO: Use departures somehow?
-
           return map(journeyGroups, ({vehicleId, journeys}) => (
             <TimeRow key={`hfpPos_${vehicleId}`}>
               <VehicleTag>{vehicleId}:</VehicleTag>{" "}
@@ -109,9 +139,14 @@ class DriveByTimes extends React.Component {
                 const didntStop =
                   arrive.received_at === depart.received_at && !depart.drst;
 
-                const delayType = getDelayType(arrive.dl);
+                // For the first stop, it's the departure time that counts.
+                const delayType = getDelayType(isFirst ? depart.dl : arrive.dl);
 
-                const plannedTime = moment.tz(arrive.received_at, "Europe/Helsinki");
+                const plannedTime = moment.tz(
+                  isFirst ? depart.received_at : arrive.received_at,
+                  "Europe/Helsinki"
+                );
+
                 const delayRounded = Math.round(arrive.dl / 10) * 10;
 
                 if (delayRounded > 0) {
@@ -119,6 +154,20 @@ class DriveByTimes extends React.Component {
                 } else if (delayRounded < 0) {
                   plannedTime.subtract(Math.abs(delayRounded), "seconds");
                 }
+
+                // Find the closest planned departure
+                const closestDeparture = findClosestDeparture(
+                  departures,
+                  plannedTime
+                );
+
+                // Show a planned departure time. Fall back to calculated time if
+                // closest is null.
+                const plannedDepartureTime = closestDeparture
+                  ? `${doubleDigit(closestDeparture.hours)}:${doubleDigit(
+                      closestDeparture.minutes
+                    )}`
+                  : plannedTime.format("HH:mm");
 
                 return (
                   <TimeTag
@@ -129,7 +178,7 @@ class DriveByTimes extends React.Component {
                       useTime.unique_vehicle_id
                     }`}
                     didntStop={didntStop}>
-                    <PlannedTime>{plannedTime.format("HH:mm")}</PlannedTime>
+                    <PlannedTime>{plannedDepartureTime}</PlannedTime>
                     <ObservedTime delayType={delayType}>
                       {receivedAtDate.format("HH:mm:ss")}
                     </ObservedTime>

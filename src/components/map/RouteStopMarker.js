@@ -106,6 +106,7 @@ class RouteStopMarker extends React.Component {
             <React.Fragment>
               <ArriveDepartToggle value={showTime} onChange={onChangeShowTime} />
               <DriveByTimes
+                isFirst={firstTerminal}
                 showTime={showTime}
                 onTimeClick={onTimeClick}
                 date={state.date}
