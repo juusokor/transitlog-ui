@@ -29,9 +29,6 @@ const removeFerryFilter = (line) => line.lineId.substring(0, 4) !== "1019";
 export default observer(({children, date}) => (
   <Query query={allLinesQuery}>
     {({loading, error, data}) => {
-      if (loading) return "Loading...";
-      if (error) return "Error!";
-
       const queryDate = parse(date);
 
       const lines = orderBy(

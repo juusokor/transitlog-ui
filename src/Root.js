@@ -8,7 +8,7 @@ import DevTools from "mobx-react-devtools";
 import {configureDevtool} from "mobx-react-devtools";
 
 configureDevtool({
-  logEnabled: true,
+  logEnabled: false,
   updatesEnabled: false,
   // Log only changes of type `reaction`
   // (only affects top-level messages in console, not inside groups)

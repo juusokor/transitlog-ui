@@ -32,9 +32,6 @@ const routesByLineQuery = gql`
 export default observer(({line, date, children}) => (
   <Query query={routesByLineQuery} variables={line}>
     {({loading, error, data}) => {
-      if (loading) return <div>Loading...</div>;
-      if (error) return <div>Error!</div>;
-
       const queryDate = parse(`${date}T00:00:00`);
       const routes = get(data, "line.routes.nodes", []);
 

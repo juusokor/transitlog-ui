@@ -23,14 +23,12 @@ class LineSettings extends Component {
         <ControlGroup>
           <Input label={text("filterpanel.find_line_route")} animatedLabel={false}>
             <AllLinesQuery date={date}>
-              {({lines, loading, error}) => {
-                if (loading || error) {
-                  return null;
+              {({lines}) => {
+                if (!lines) {
+                  return <LineInput onSelect={Filters.setLine} lines={[]} />;
                 }
 
-                return (
-                  <LineInput line={line} onSelect={Filters.setLine} lines={lines} />
-                );
+                return <LineInput onSelect={Filters.setLine} lines={lines} />;
               }}
             </AllLinesQuery>
           </Input>
@@ -42,9 +40,9 @@ class LineSettings extends Component {
                 key={`line_route_${Object.values(line).join("_")}`}
                 date={date}
                 line={line}>
-                {({routes, loading, error}) => {
-                  if (loading || error) {
-                    return null;
+                {({routes}) => {
+                  if (!routes) {
+                    return <RouteInput route={route} routes={[]} />;
                   }
 
                   return <RouteInput route={route} routes={routes} />;
