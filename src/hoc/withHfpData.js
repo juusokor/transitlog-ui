@@ -15,30 +15,13 @@ export default (Component) => {
   @withRoute
   @observer
   class WithHfpData extends React.Component {
-    currentFetchKey = false;
-
     // Creates a promise for awaiting the hfp result from the API or the cache.
     // React can't render async yet, so some mechanism to update the view when
     // an async result comes back is required. Remember that this runs *per instance*,
     // so the vast majority of work should be done in the `fetchHfp` method that runs
     // once for all instances when required.
-    updateCachePromise = async ({route, date, time}) => {
-      const fetchKey = createFetchKey(route, date, time);
-      let returnVal = [];
-
-      // If we have a valid cacheKey (ie there is a route selected), and the key is
-      // currently not in use, update the cache promise to fetch the current route.
-      if (fetchKey && fetchKey !== this.currentFetchKey) {
-        returnVal = await fetchHfp(route, date, time);
-      }
-
-      // Always update the cache key.
-      // This is needed to update the view when the route changes or filters reset.
-      if (fetchKey !== this.currentFetchKey) {
-        this.currentFetchKey = fetchKey;
-      }
-
-      return returnVal;
+    createFetchPromise = async ({route, date, time}) => {
+      return fetchHfp(route, date, time);
     };
 
     getComponent = (positions, loading) => (
@@ -57,12 +40,14 @@ export default (Component) => {
       } = this.props;
 
       const fetchKey = createFetchKey(route, date, time);
+      // Use the time from the selected journey if one is selected.
+      // This prevents unnecessary fetches from happening while a journey is selected.
       const useTime = get(selectedJourney, "journey_start_time", time);
 
       return (
         <Async
           watch={fetchKey}
-          promiseFn={this.updateCachePromise}
+          promiseFn={this.createFetchPromise}
           time={useTime}
           date={date}
           route={route}>

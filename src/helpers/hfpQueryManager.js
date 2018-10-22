@@ -16,6 +16,7 @@ let promiseCache = {};
 
 const concurrentQueries = 3;
 
+// Add props to or modify the HFP item.
 function createHfpItem(rawHfp) {
   const journeyStartMoment = combineDateAndTime(
     rawHfp.oday,
@@ -29,7 +30,8 @@ function createHfpItem(rawHfp) {
   };
 }
 
-export async function getCachedJourneyIds(route, date, timeRange) {
+// Find already-cached journeys
+export async function getCachedJourneyIds(route, date, time) {
   let cachedKeys = null;
 
   try {
@@ -42,7 +44,7 @@ export async function getCachedJourneyIds(route, date, timeRange) {
     return [];
   }
 
-  const cachedJourneyIds = cachedKeys.filter((key) => {
+  return cachedKeys.filter((key) => {
     if (!key.startsWith("journey")) {
       return false;
     }
@@ -51,28 +53,11 @@ export async function getCachedJourneyIds(route, date, timeRange) {
 
     return (
       keyParts[0] === date &&
+      keyParts[1] === time &&
       keyParts[2] === route.routeId &&
       keyParts[3] === route.direction
     );
   });
-
-  if (cachedJourneyIds.length === 0) {
-    return [];
-  }
-
-  const {max, min} = timeRange;
-
-  return cachedJourneyIds.reduce((matchingJourneys, cachedId) => {
-    const idTime = cachedId.slice(8).split("_")[1];
-
-    const cachedTimeMoment = combineDateAndTime(date, idTime, "Europe/Helsinki");
-
-    if (cachedTimeMoment.isBetween(min, max)) {
-      matchingJourneys.push(cachedId);
-    }
-
-    return matchingJourneys;
-  }, []);
 }
 
 function getCachePromisesForDate(route, date) {
@@ -93,9 +78,7 @@ function getCachePromisesForDate(route, date) {
 }
 
 export async function fetchHfp(route, date, time) {
-  const timeMoment = combineDateAndTime(date, time, "Europe/Helsinki");
-  const timeRange = getTimeRange(timeMoment);
-  const fetchKey = createFetchKey(route, date, timeRange.min.format("HH:mm:ss"));
+  const fetchKey = createFetchKey(route, date, time);
 
   // If fetchKey is false then we don't have all required data yet
   if (!fetchKey) {
@@ -107,14 +90,14 @@ export async function fetchHfp(route, date, time) {
   if (!cachingPromise) {
     try {
       // Start a new fetch if one isn't already in progress
-      cachingPromise = getCachedJourneyIds(route, date, timeRange).then(
+      cachingPromise = getCachedJourneyIds(route, date, time).then(
         (cachedJourneyIds) => {
           if (cachedJourneyIds.length !== 0) {
             return getCachedData(cachedJourneyIds);
           }
 
           return (
-            queuedQueryHfp(route, date, timeRange) // Format the data...
+            queuedQueryHfp(route, date, time) // Format the data...
               .then((result) =>
                 result.filter((pos) => !!pos && !!pos.lat && !!pos.long)
               )
@@ -152,7 +135,7 @@ export async function fetchHfp(route, date, time) {
 
 const queryQueue = new pQueue({concurrency: concurrentQueries});
 
-function queuedQueryHfp(route, date, timeRange) {
-  const fetcher = () => queryHfp(route, date, timeRange);
+function queuedQueryHfp(route, date, time) {
+  const fetcher = () => queryHfp(route, date, time);
   return queryQueue.add(fetcher);
 }
