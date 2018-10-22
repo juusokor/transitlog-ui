@@ -6,17 +6,79 @@ import FilterActions from "./filterActions";
 import moment from "moment-timezone";
 import journeyActions from "./journeyActions";
 import {pickJourneyProps} from "../helpers/pickJourneyProps";
+import uniq from "lodash/uniq";
+import compact from "lodash/compact";
 
 export default (state) => {
   const history = createHistory();
 
   extendObservable(state, {
     selectedJourney: null,
+    requestedJourneys: [],
+    resolvedJourneyStates: new Map(),
   });
 
   const timeActions = TimeActions(state);
   const filterActions = FilterActions(state);
   const actions = journeyActions(state);
+
+  // Sets the resolved state of a fetched journey.
+  const setResolvedJourneyState = action((journeyId, resolveState) => {
+    state.resolvedJourneyStates.set(journeyId, resolveState);
+  });
+
+  // Request a journeyId
+  const requestJourney = action((journeys = []) => {
+    const requestedJourneys = compact(
+      Array.isArray(journeys) ? journeys : [journeys]
+    );
+
+    if (requestedJourneys.length === 0) {
+      return;
+    }
+
+    const {route, date} = state;
+
+    if (route && route.routeId && date) {
+      const acceptedJourneyRequests = requestedJourneys.reduce(
+        (times, journeyTime) => {
+          // Create a journey id from the current state + requested time
+          const journeyId = getJourneyId({
+            oday: date,
+            journey_start_time: journeyTime,
+            route_id: route.routeId,
+            direction_id: route.direction,
+          });
+
+          // Is the journey already requested or even resolved?
+          const journeyFetchState = state.resolvedJourneyStates.get(journeyId);
+
+          // Make sure we haven't fetched this or that it isn't currently being fetched.
+          if (!journeyFetchState) {
+            // Set it as pending immediately
+            setResolvedJourneyState(journeyId, "pending");
+            // And start fetching
+            times.push(journeyTime);
+          }
+
+          return times;
+        },
+        []
+      );
+
+      state.requestedJourneys.replace(
+        uniq([...state.requestedJourneys, ...acceptedJourneyRequests])
+      );
+    }
+  });
+
+  const removeJourneyRequest = action((journey) => {
+    const journeyIdIndex = state.requestedJourneys.indexOf(journey);
+
+    if (journeyIdIndex > -1) {
+      state.requestedJourneys.splice(journeyIdIndex, 1);
+    }
+  });
 
   const selectJourneyFromUrl = action((location) => {
     if (location.pathname.includes("journey")) {
@@ -74,6 +136,7 @@ export default (state) => {
 
         if (getJourneyId(state.selectedJourney) !== getJourneyId(journey)) {
           state.selectedJourney = journey;
+          requestJourney(timeStr);
         }
       }
     }
@@ -83,5 +146,8 @@ export default (state) => {
 
   return {
     ...actions,
+    requestJourney,
+    removeJourneyRequest,
+    setResolvedJourneyState,
   };
 };

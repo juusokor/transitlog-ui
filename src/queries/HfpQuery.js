@@ -40,8 +40,8 @@ export const queryHfp = (route, date, timeRange) => {
         route_id: routeId,
         direction: parseInt(direction, 10),
         date,
-        time_min: typeof min !== "string" ? min.format("HH:mm:ss") : min,
-        time_max: typeof max !== "string" ? max.format("HH:mm:ss") : max,
+        time_min: typeof min.format === "function" ? min.format("HH:mm:ss") : min,
+        time_max: typeof max.format === "function" ? max.format("HH:mm:ss") : max,
       },
     })
     .then(({data}) => get(data, "vehicles", []));

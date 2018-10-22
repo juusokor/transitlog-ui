@@ -9,7 +9,7 @@ import {queryHfp} from "../queries/HfpQuery";
 import getJourneyId from "../helpers/getJourneyId";
 import {groupHfpPositions} from "../helpers/groupHfpPositions";
 import * as localforage from "localforage";
-import {combineDateAndTime, getTimeRange} from "./time";
+import {combineDateAndTime} from "./time";
 import pQueue from "p-queue";
 
 let promiseCache = {};
@@ -77,47 +77,50 @@ function getCachePromisesForDate(route, date) {
   return compact(pickedPromises);
 }
 
-export async function fetchHfp(route, date, time) {
-  const fetchKey = createFetchKey(route, date, time);
-
+export async function fetchHfpJourneys(route, date, times) {
   // If fetchKey is false then we don't have all required data yet
-  if (!fetchKey) {
+  if (!times || times.length === 0 || !createFetchKey(route, date, times[0])) {
     return [];
   }
 
-  let cachingPromise = get(promiseCache, fetchKey);
+  times.forEach((time) => {
+    const fetchKey = createFetchKey(route, date, time);
+    let cachingPromise = get(promiseCache, fetchKey);
 
-  if (!cachingPromise) {
-    try {
-      // Start a new fetch if one isn't already in progress
-      cachingPromise = getCachedJourneyIds(route, date, time).then(
-        (cachedJourneyIds) => {
-          if (cachedJourneyIds.length !== 0) {
-            return getCachedData(cachedJourneyIds);
+    if (!cachingPromise) {
+      try {
+        // Start a new fetch if one isn't already in progress
+        cachingPromise = getCachedJourneyIds(route, date, time).then(
+          (cachedJourneyIds) => {
+            if (cachedJourneyIds.length !== 0) {
+              return getCachedData(cachedJourneyIds);
+            }
+
+            console.trace();
+
+            return (
+              queuedQueryHfp(route, date, time) // Format the data...
+                .then((result) =>
+                  result.filter((pos) => !!pos && !!pos.lat && !!pos.long)
+                )
+                .then((filteredData) => filteredData.map(createHfpItem))
+                // ...group the data by journey
+                .then((formattedData) =>
+                  groupHfpPositions(formattedData, getJourneyId, "journeyId")
+                )
+                // ...and cache the data.
+                .then((journeyGroups) => cacheData(journeyGroups, route, date))
+            );
           }
-
-          return (
-            queuedQueryHfp(route, date, time) // Format the data...
-              .then((result) =>
-                result.filter((pos) => !!pos && !!pos.lat && !!pos.long)
-              )
-              .then((filteredData) => filteredData.map(createHfpItem))
-              // ...group the data by journey
-              .then((formattedData) =>
-                groupHfpPositions(formattedData, getJourneyId, "journeyId")
-              )
-              // ...and cache the data.
-              .then((journeyGroups) => cacheData(journeyGroups, route, date))
-          );
-        }
-      );
-      // Without awaiting it, save the promise in the promiseCache.
-      set(promiseCache, fetchKey, cachingPromise);
-    } catch (err) {
-      console.log(err);
-      return [];
+        );
+        // Without awaiting it, save the promise in the promiseCache.
+        set(promiseCache, fetchKey, cachingPromise);
+      } catch (err) {
+        console.log(err);
+        return [];
+      }
     }
-  }
+  });
 
   // Await the caching promise we got, as well as all the other ones for this date.
   const cachePromisesForDate = getCachePromisesForDate(route, date);
