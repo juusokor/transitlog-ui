@@ -7,6 +7,13 @@ import moment from "moment-timezone";
 import journeyActions from "./journeyActions";
 import {pickJourneyProps} from "../helpers/pickJourneyProps";
 
+export const journeyFetchStates = {
+  PENDING: "pending",
+  RESOLVED: "resolved",
+  NOTFOUND: "notfound",
+  ERROR: "error",
+};
+
 export default (state) => {
   const history = createHistory();
 

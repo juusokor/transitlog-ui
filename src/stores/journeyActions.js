@@ -5,7 +5,9 @@ import {pickJourneyProps} from "../helpers/pickJourneyProps";
 import moment from "moment-timezone";
 import {combineDateAndTime} from "../helpers/time";
 import uniq from "lodash/uniq";
+import get from "lodash/get";
 import compact from "lodash/compact";
+import {journeyFetchStates} from "./JourneyStore";
 
 const history = createHistory();
 
@@ -50,7 +52,7 @@ export default (state) => {
   }
 
   // Sets the resolved state of a fetched journey.
-  const setResolvedJourneyState = action(
+  const setJourneyFetchState = action(
     "Set the status of a requested journey",
     (journeyId, resolveState) => {
       state.resolvedJourneyStates.set(journeyId, resolveState);
@@ -81,7 +83,7 @@ export default (state) => {
           // Make sure we haven't fetched this or that it isn't currently being fetched.
           if (!journeyFetchState) {
             // Set it as pending immediately
-            setResolvedJourneyState(journeyId, "pending");
+            setJourneyFetchState(journeyId, journeyFetchStates.PENDING);
             // And start fetching
             times.push(journeyTime);
           }
@@ -130,7 +132,7 @@ export default (state) => {
     setSelectedJourney,
     requestJourney,
     removeJourneyRequest,
-    setResolvedJourneyState,
+    setJourneyFetchState,
     getJourneyFromStateAndTime,
   };
 };

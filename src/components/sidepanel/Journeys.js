@@ -6,13 +6,14 @@ import sortBy from "lodash/sortBy";
 import {app} from "mobx-app";
 import getJourneyId from "../../helpers/getJourneyId";
 import styled from "styled-components";
-import {timeToFormat, combineDateAndTime} from "../../helpers/time";
+import {timeToFormat} from "../../helpers/time";
 import {Text, text} from "../../helpers/text";
 import withDepartures from "../../hoc/withDepartures";
 import doubleDigit from "../../helpers/doubleDigit";
 import {observable, action} from "mobx";
 import Loading from "../Loading";
 import SidepanelList from "./SidepanelList";
+import {journeyFetchStates} from "../../stores/JourneyStore";
 
 const JourneyListRow = styled.button`
   display: flex;
@@ -46,14 +47,9 @@ const JourneyRowLeft = styled.span`
 @observer
 class Journeys extends Component {
   @observable
-  unrealizedJourneys = [];
-
-  @observable
   selectedJourneyOffset = 0;
   selectedJourneyRef = React.createRef();
   clickedJourneyItem = false;
-
-  journeyRequestTimeout = 0;
 
   componentDidMount() {
     this.ensureSelectedVehicle();
@@ -62,36 +58,13 @@ class Journeys extends Component {
   componentDidUpdate({positions: prevPositions}, prevState) {
     this.ensureSelectedVehicle();
 
-    const {requestedJourneys, selectedJourney} = this.props.state;
+    const {selectedJourney} = this.props.state;
     const {loading} = this.props;
-
-    if (
-      !selectedJourney &&
-      requestedJourneys.length !== 0 &&
-      prevPositions.length !== this.props.positions.length
-    ) {
-      clearTimeout(this.journeyRequestTimeout);
-      this.checkReceivedJourneys();
-    }
 
     if (!this.clickedJourneyItem && selectedJourney && !loading) {
       this.setSelectedJourneyOffset();
     }
   }
-
-  checkReceivedJourneys = () => {
-    const {positions, Journey} = this.props;
-    const {requestedJourney} = this;
-
-    const journeys = map(positions, ({positions}) => positions[0]);
-
-    for (const journey of journeys) {
-      if (journey.journey_start_time === requestedJourney) {
-        Journey.setSelectedJourney(journey);
-        return;
-      }
-    }
-  };
 
   ensureSelectedVehicle = () => {
     const {Filters, state, positions} = this.props;
@@ -189,10 +162,10 @@ class Journeys extends Component {
   });
 
   render() {
-    const {positions, loading, state, departures} = this.props;
+    const {positions, loading, state, departures, Journey} = this.props;
+    const {selectedJourney, resolvedJourneyStates} = state;
 
     const journeys = map(positions, ({positions}) => positions[0]);
-    const selectedJourney = get(state, "selectedJourney", null);
     const selectedJourneyId = getJourneyId(selectedJourney);
 
     const isSelected = (journey) =>
@@ -235,16 +208,20 @@ class Journeys extends Component {
         }>
         {departureList.map((journeyOrDeparture, index) => {
           if (typeof journeyOrDeparture === "string") {
+            const journeyId = getJourneyId(
+              Journey.getJourneyFromStateAndTime(journeyOrDeparture)
+            );
+
+            let fetchStatus = resolvedJourneyStates.get(journeyId);
+
             return (
               <JourneyListRow
                 key={`planned_journey_row_${journeyOrDeparture}_${index}`}
                 onClick={this.selectJourney(journeyOrDeparture)}>
                 <JourneyRowLeft>{journeyOrDeparture}</JourneyRowLeft>
-                {/* TODO: Change to use state */ this.unrealizedJourneys.includes(
-                  journeyOrDeparture
-                ) ? (
+                {fetchStatus === journeyFetchStates.NOTFOUND ? (
                   <span>{text("filterpanel.journey.unrealized")}</span>
-                ) : this.requestedJourney === journeyOrDeparture ? (
+                ) : fetchStatus === journeyFetchStates.PENDING ? (
                   <Loading inline />
                 ) : (
                   <span>{text("filterpanel.journey.click_to_fetch")}</span>
