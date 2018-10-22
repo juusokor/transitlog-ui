@@ -23,7 +23,13 @@ export default (Component) => {
         state: {date, requestedJourneys = []},
       } = this.props;
 
-      return `${createRouteKey(route)}_${date}_${requestedJourneys.join("&")}`;
+      return `${createRouteKey(route)}_${date}_${requestedJourneys
+        .slice()
+        .sort(
+          (a, b) =>
+            parseInt(a.replace(":", ""), 10) > parseInt(b.replace(":", ""), 10)
+        )
+        .join("&")}`;
     }
 
     // Creates a promise for awaiting the hfp result from the API or the cache.
@@ -66,6 +72,7 @@ export default (Component) => {
     render() {
       return (
         <Async
+          initialValue={[]}
           watch={this.fetchKey}
           onResolve={this.onResolve}
           onReject={this.onError}

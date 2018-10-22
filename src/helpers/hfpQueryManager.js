@@ -96,8 +96,6 @@ export async function fetchHfpJourneys(route, date, times) {
               return getCachedData(cachedJourneyIds);
             }
 
-            console.trace();
-
             return (
               queuedQueryHfp(route, date, time) // Format the data...
                 .then((result) =>

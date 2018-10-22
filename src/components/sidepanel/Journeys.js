@@ -46,8 +46,6 @@ const JourneyRowLeft = styled.span`
 @observer
 class Journeys extends Component {
   @observable
-  requestedJourney = "";
-  @observable
   unrealizedJourneys = [];
 
   @observable
@@ -55,7 +53,6 @@ class Journeys extends Component {
   selectedJourneyRef = React.createRef();
   clickedJourneyItem = false;
 
-  clickedJourneyTimeout = 0;
   journeyRequestTimeout = 0;
 
   componentDidMount() {
@@ -65,24 +62,16 @@ class Journeys extends Component {
   componentDidUpdate({positions: prevPositions}, prevState) {
     this.ensureSelectedVehicle();
 
-    const {requestedJourney, unrealizedJourneys} = this;
-    const {selectedJourney} = this.props.state;
+    const {requestedJourneys, selectedJourney} = this.props.state;
     const {loading} = this.props;
 
     if (
       !selectedJourney &&
-      requestedJourney &&
-      !unrealizedJourneys.includes(requestedJourney) &&
+      requestedJourneys.length !== 0 &&
       prevPositions.length !== this.props.positions.length
     ) {
       clearTimeout(this.journeyRequestTimeout);
       this.checkReceivedJourneys();
-    } else if (requestedJourney) {
-      clearTimeout(this.journeyRequestTimeout);
-      // To stop the loading indicator spinning forever
-      this.journeyRequestTimeout = setTimeout(() => {
-        this.setRequestedJourney("");
-      }, 4000);
     }
 
     if (!this.clickedJourneyItem && selectedJourney && !loading) {
@@ -90,7 +79,7 @@ class Journeys extends Component {
     }
   }
 
-  checkReceivedJourneys = action(() => {
+  checkReceivedJourneys = () => {
     const {positions, Journey} = this.props;
     const {requestedJourney} = this;
 
@@ -99,16 +88,10 @@ class Journeys extends Component {
     for (const journey of journeys) {
       if (journey.journey_start_time === requestedJourney) {
         Journey.setSelectedJourney(journey);
-        this.setRequestedJourney("");
-
         return;
       }
     }
-
-    if (!this.unrealizedJourneys.includes(requestedJourney)) {
-      this.unrealizedJourneys.push(requestedJourney);
-    }
-  });
+  };
 
   ensureSelectedVehicle = () => {
     const {Filters, state, positions} = this.props;
@@ -132,54 +115,35 @@ class Journeys extends Component {
     }
   };
 
-  selectJourney = (journey) => (e) => {
+  selectJourney = (journeyOrTime) => (e) => {
     e.preventDefault();
     const {Time, Journey, state} = this.props;
+    let journeyToSelect = null;
 
-    // Only set these if the journey is truthy and was not already selected
-    if (journey && getJourneyId(state.selectedJourney) !== getJourneyId(journey)) {
-      Time.setTime(
-        timeToFormat(journey.journey_start_timestamp, "HH:mm:ss", "Europe/Helsinki")
-      );
-    }
+    if (journeyOrTime) {
+      const journey =
+        typeof journeyOrTime === "string"
+          ? Journey.getJourneyFromStateAndTime(journeyOrTime)
+          : journeyOrTime;
 
-    this.clickedJourneyItem = true;
-    this.setRequestedJourney("");
-    Journey.setSelectedJourney(journey);
-  };
+      const journeyId = getJourneyId(journey);
 
-  setRequestedJourney = action((journeyStartTime = "") => {
-    const {Journey} = this.props;
+      // Only set these if the journey is truthy and was not already selected
+      if (journeyId && getJourneyId(state.selectedJourney) !== journeyId) {
+        Time.setTime(
+          timeToFormat(
+            journey.journey_start_timestamp,
+            "HH:mm:ss",
+            "Europe/Helsinki"
+          )
+        );
 
-    if (!this.unrealizedJourneys.includes(journeyStartTime)) {
-      if (journeyStartTime) {
-        Journey.setSelectedJourney(null);
+        journeyToSelect = journey;
       }
-
-      this.requestedJourney = journeyStartTime;
     }
-
-    if (!journeyStartTime) {
-      clearTimeout(this.clickedJourneyTimeout);
-      this.clickedJourneyTimeout = setTimeout(() => {
-        this.clickedJourneyItem = false;
-      }, 4100);
-    }
-  });
-
-  requestPlannedJourney = (plannedTime) => {
-    const {Time, state} = this.props;
-
-    Time.setTime(
-      timeToFormat(
-        combineDateAndTime(state.date, plannedTime, "Europe/Helsinki"),
-        "HH:mm:ss",
-        "Europe/Helsinki"
-      )
-    );
 
     this.clickedJourneyItem = true;
-    this.setRequestedJourney(plannedTime);
+    Journey.setSelectedJourney(journeyToSelect);
   };
 
   getJourneyStartPosition(journeyId) {
@@ -274,9 +238,11 @@ class Journeys extends Component {
             return (
               <JourneyListRow
                 key={`planned_journey_row_${journeyOrDeparture}_${index}`}
-                onClick={() => this.requestPlannedJourney(journeyOrDeparture)}>
+                onClick={this.selectJourney(journeyOrDeparture)}>
                 <JourneyRowLeft>{journeyOrDeparture}</JourneyRowLeft>
-                {this.unrealizedJourneys.includes(journeyOrDeparture) ? (
+                {/* TODO: Change to use state */ this.unrealizedJourneys.includes(
+                  journeyOrDeparture
+                ) ? (
                   <span>{text("filterpanel.journey.unrealized")}</span>
                 ) : this.requestedJourney === journeyOrDeparture ? (
                   <Loading inline />
