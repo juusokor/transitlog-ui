@@ -2,11 +2,8 @@ import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
 import {Popup, CircleMarker} from "react-leaflet";
 import {Heading} from "../Typography";
-import StopTimetable from "./StopTimetable";
 import get from "lodash/get";
-import {Text} from "../../helpers/text";
 import styled from "styled-components";
-import Modal from "styled-react-modal";
 import {app} from "mobx-app";
 
 const stopColor = "var(--blue)";
@@ -22,23 +19,9 @@ const StopRouteList = styled.button`
   cursor: pointer;
 `;
 
-const TimetableModal = Modal.styled`
-  width: auto;
-  margin: 10em;
-  height: auto;
-  background-color: white;
-  border: 2px solid black;
-  border-radius: 5px;
-  
-`;
-
 @inject(app("Filters"))
 @observer
 class StopMarker extends Component {
-  state = {
-    modalOpen: false,
-  };
-
   selectRoute = (route) => () => {
     if (route) {
       this.props.Filters.setRoute(route);
@@ -49,15 +32,15 @@ class StopMarker extends Component {
     const {stop, Filters} = this.props;
 
     if (stop) {
-      Filters.setStop(stop.nodeId);
+      Filters.setStop(stop.stopId);
     }
   };
 
   render() {
     const {stop, state} = this.props;
-    const {stop: selectedStop, date} = state;
+    const {stop: selectedStop} = state;
 
-    const selected = selectedStop === stop.nodeId;
+    const selected = selectedStop === stop.stopId;
 
     return (
       <CircleMarker
@@ -66,19 +49,12 @@ class StopMarker extends Component {
         color={stopColor}
         fillColor={selected ? stopColor : "white"}
         fillOpacity={1}
-        radius={selected ? 10 : 8}
-        onClick={this.selectStop}>
+        onClick={this.selectStop}
+        radius={selected ? 10 : 8}>
         <Popup autoPan={false} autoClose={false} keepInView={false} maxHeight={500}>
           <Heading level={4}>
             {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
           </Heading>
-          <button onClick={() => this.setState({modalOpen: true})}>open</button>
-          <TimetableModal
-            isOpen={this.state.modalOpen}
-            onBackgroundClick={() => this.setState({modalOpen: false})}
-            onEscapeKeydown={() => this.setState({modalOpen: false})}>
-            <StopTimetable date={date} stopId={stop.stopId} />
-          </TimetableModal>
           {get(stop, "routeSegmentsForDate.nodes", []).map((routeSegment) => (
             <StopRouteList
               key={`route_${routeSegment.routeId}_${routeSegment.direction}`}

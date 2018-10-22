@@ -9,7 +9,7 @@ import {queryHfp} from "../queries/HfpQuery";
 import getJourneyId from "../helpers/getJourneyId";
 import {groupHfpPositions} from "../helpers/groupHfpPositions";
 import * as localforage from "localforage";
-import {combineDateAndTime} from "./time";
+import {combineDateAndTime, getTimeRange} from "./time";
 import pQueue from "p-queue";
 
 let promiseCache = {};
@@ -92,8 +92,10 @@ function getCachePromisesForDate(route, date) {
   return compact(pickedPromises);
 }
 
-export async function fetchHfp(route, date, timeRange) {
-  const fetchKey = createFetchKey(route, date, timeRange);
+export async function fetchHfp(route, date, time) {
+  const timeMoment = combineDateAndTime(date, time, "Europe/Helsinki");
+  const timeRange = getTimeRange(timeMoment);
+  const fetchKey = createFetchKey(route, date, timeRange.min.format("HH:mm:ss"));
 
   // If fetchKey is false then we don't have all required data yet
   if (!fetchKey) {

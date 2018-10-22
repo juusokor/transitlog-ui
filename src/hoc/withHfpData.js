@@ -6,9 +6,6 @@ import {createFetchKey} from "../helpers/hfpCache";
 import {fromPromise} from "mobx-utils";
 import withRoute from "./withRoute";
 import {fetchHfp} from "../helpers/hfpQueryManager";
-import {getTimeRange} from "../helpers/time";
-import {combineDateAndTime} from "../helpers/time";
-import parse from "date-fns/parse";
 
 const emptyCachePromise = () => fromPromise.resolve([]);
 
@@ -39,16 +36,13 @@ export default (Component) => {
       }
 
       const useTime = get(selectedJourney, "journey_start_time", time);
-      const timeMoment = combineDateAndTime(date, useTime, "Europe/Helsinki");
-
-      const timeRange = getTimeRange(timeMoment);
-      const fetchKey = createFetchKey(route, date, timeRange);
+      const fetchKey = createFetchKey(route, date, useTime);
       let setPromise;
 
       // If we have a valid cacheKey (ie there is a route selected), and the key is
       // currently not in use, update the cache promise to fetch the current route.
       if (fetchKey && fetchKey !== this.currentFetchKey) {
-        setPromise = fromPromise(fetchHfp(route, date, timeRange));
+        setPromise = fromPromise(fetchHfp(route, date, useTime));
       } else if (fetchKey !== this.currentFetchKey) {
         setPromise = emptyCachePromise();
       }

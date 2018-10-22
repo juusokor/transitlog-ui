@@ -1,5 +1,4 @@
 import React from "react";
-import withHfpData from "./withHfpData";
 import {observer, inject} from "mobx-react";
 import getJourneyId from "../helpers/getJourneyId";
 import get from "lodash/get";
@@ -7,20 +6,13 @@ import {app} from "mobx-app";
 
 export default (Component) => {
   @inject(app("state"))
-  @withHfpData
   @observer
-  class WithSelectedJourneyHfp extends React.Component {
+  class WithSelectedJourneyComponent extends React.Component {
     render() {
       const {state, positions} = this.props;
 
       if (!state.selectedJourney) {
-        return (
-          <Component
-            key="withSelectedJourneyComponent"
-            {...this.props}
-            selectedJourneyHfp={[]}
-          />
-        );
+        return <Component {...this.props} selectedJourneyHfp={[]} />;
       }
 
       const selectedJourneyId = getJourneyId(state.selectedJourney);
@@ -31,7 +23,6 @@ export default (Component) => {
 
       return (
         <Component
-          key="withSelectedJourneyComponent"
           {...this.props}
           selectedJourneyHfp={get(journeyHfp, "positions", [])}
         />
@@ -39,5 +30,5 @@ export default (Component) => {
     }
   }
 
-  return WithSelectedJourneyHfp;
+  return WithSelectedJourneyComponent;
 };

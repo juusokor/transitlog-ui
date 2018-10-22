@@ -2,12 +2,8 @@ import localforage from "localforage";
 import get from "lodash/get";
 import compact from "lodash/compact";
 
-export function createFetchKey(route, date, timeRange, allowPartial = false) {
-  const range = timeRange
-    ? `${timeRange.min.format("HH:mm")}_${timeRange.max.format("HH:mm")}`
-    : "";
-
-  const keyParts = [date, createRouteKey(route), range];
+export function createFetchKey(route, date, time, allowPartial = false) {
+  const keyParts = [date, createRouteKey(route), time];
 
   if (!allowPartial && keyParts.some((p) => !p)) {
     return "";
@@ -24,7 +20,7 @@ export function createRouteKey(route) {
     get(route, "dateEnd", ""),
   ];
 
-  if (keyParts.some((p) => !p)) {
+  if (keyParts.some((part) => !part)) {
     return "";
   }
 

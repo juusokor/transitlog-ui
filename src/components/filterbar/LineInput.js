@@ -34,29 +34,36 @@ const getSuggestions = (lines) => (value = "") => {
       );
 };
 
-@inject(app("Filters"))
 @observer
 class LineInput extends React.Component {
   componentDidMount() {
-    const {Filters, line, lines} = this.props;
+    this.ensureLine();
+  }
+
+  componentDidUpdate() {
+    this.ensureLine();
+  }
+
+  ensureLine = () => {
+    const {line, lines, onSelect} = this.props;
 
     // If there is a preset lineId, find the rest of the line data from lines.
     if (line.lineId && !line.dateBegin) {
       const lineData = lines.find((l) => l.lineId === line.lineId);
 
       if (lineData) {
-        Filters.setLine(lineData);
+        onSelect(lineData);
       }
     }
-  }
+  };
 
   render() {
-    const {lines, line, onSelect} = this.props;
+    const {line, lines, onSelect} = this.props;
 
     return (
       <SuggestionInput
         minimumInput={1}
-        value={getSuggestionValue(line)}
+        value={line}
         onSelect={onSelect}
         getValue={getSuggestionValue}
         renderSuggestion={renderSuggestion}

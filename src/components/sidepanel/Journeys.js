@@ -1,32 +1,18 @@
 import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
-import withHfpData from "../hoc/withHfpData";
 import map from "lodash/map";
 import get from "lodash/get";
 import sortBy from "lodash/sortBy";
 import {app} from "mobx-app";
-import getJourneyId from "../helpers/getJourneyId";
+import getJourneyId from "../../helpers/getJourneyId";
 import styled from "styled-components";
-import {timeToFormat, combineDateAndTime} from "../helpers/time";
-import {Text, text} from "../helpers/text";
-import withDepartures from "../hoc/withDepartures";
-import doubleDigit from "../helpers/doubleDigit";
+import {timeToFormat, combineDateAndTime} from "../../helpers/time";
+import {Text, text} from "../../helpers/text";
+import withDepartures from "../../hoc/withDepartures";
+import doubleDigit from "../../helpers/doubleDigit";
 import {observable, action} from "mobx";
-import Loading from "./Loading";
-
-const JourneyListWrapper = styled.div`
-  width: 100%;
-  height: 100%;
-  display: grid;
-  grid-gap: 0;
-  grid-template-rows: 4rem 1fr;
-  align-items: stretch;
-  justify-content: stretch;
-`;
-
-const JourneyListRows = styled.div`
-  overflow-y: scroll;
-`;
+import Loading from "../Loading";
+import SidepanelList from "./SidepanelList";
 
 const JourneyListRow = styled.button`
   display: flex;
@@ -49,22 +35,6 @@ const JourneyListRow = styled.button`
   }
 `;
 
-const JourneyListHeader = styled(JourneyListRow.withComponent("div"))`
-  background: transparent;
-  font-size: 0.9em;
-  border-bottom: 1px solid var(--alt-grey);
-  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.075);
-  position: relative;
-  z-index: 1;
-  line-height: 1.4;
-  flex-wrap: nowrap;
-  align-items: start;
-
-  > *:last-child {
-    text-align: right;
-  }
-`;
-
 const JourneyRowLeft = styled.span`
   margin-right: 1rem;
   display: block;
@@ -72,14 +42,21 @@ const JourneyRowLeft = styled.span`
 `;
 
 @inject(app("Journey", "Time", "Filters"))
-@withHfpData
 @withDepartures
 @observer
-class JourneyList extends Component {
+class Journeys extends Component {
   @observable
   requestedJourney = "";
   @observable
   unrealizedJourneys = [];
+
+  @observable
+  selectedJourneyOffset = 0;
+  selectedJourneyRef = React.createRef();
+  clickedJourneyItem = false;
+
+  clickedJourneyTimeout = 0;
+  journeyRequestTimeout = 0;
 
   componentDidMount() {
     this.ensureSelectedVehicle();
@@ -87,8 +64,10 @@ class JourneyList extends Component {
 
   componentDidUpdate({positions: prevPositions}, prevState) {
     this.ensureSelectedVehicle();
+
     const {requestedJourney, unrealizedJourneys} = this;
     const {selectedJourney} = this.props.state;
+    const {loading} = this.props;
 
     if (
       !selectedJourney &&
@@ -96,9 +75,18 @@ class JourneyList extends Component {
       !unrealizedJourneys.includes(requestedJourney) &&
       prevPositions.length !== this.props.positions.length
     ) {
+      clearTimeout(this.journeyRequestTimeout);
       this.checkReceivedJourneys();
-    } else {
-      setTimeout(() => this.setRequestedJourney(""), 2000);
+    } else if (requestedJourney) {
+      clearTimeout(this.journeyRequestTimeout);
+      // To stop the loading indicator spinning forever
+      this.journeyRequestTimeout = setTimeout(() => {
+        this.setRequestedJourney("");
+      }, 4000);
+    }
+
+    if (!this.clickedJourneyItem && selectedJourney && !loading) {
+      this.setSelectedJourneyOffset();
     }
   }
 
@@ -155,8 +143,9 @@ class JourneyList extends Component {
       );
     }
 
-    Journey.setSelectedJourney(journey);
+    this.clickedJourneyItem = true;
     this.setRequestedJourney("");
+    Journey.setSelectedJourney(journey);
   };
 
   setRequestedJourney = action((journeyStartTime = "") => {
@@ -168,6 +157,13 @@ class JourneyList extends Component {
       }
 
       this.requestedJourney = journeyStartTime;
+    }
+
+    if (!journeyStartTime) {
+      clearTimeout(this.clickedJourneyTimeout);
+      this.clickedJourneyTimeout = setTimeout(() => {
+        this.clickedJourneyItem = false;
+      }, 4100);
     }
   });
 
@@ -182,6 +178,7 @@ class JourneyList extends Component {
       )
     );
 
+    this.clickedJourneyItem = true;
     this.setRequestedJourney(plannedTime);
   };
 
@@ -217,8 +214,18 @@ class JourneyList extends Component {
     return journeyStartHfp;
   }
 
+  setSelectedJourneyOffset = action(() => {
+    if (this.selectedJourneyRef.current) {
+      let offset = get(this.selectedJourneyRef, "current.offsetTop", null);
+
+      if (offset && offset !== this.selectedJourneyOffset) {
+        this.selectedJourneyOffset = offset;
+      }
+    }
+  });
+
   render() {
-    const {positions, state, departures} = this.props;
+    const {positions, loading, state, departures} = this.props;
 
     const journeys = map(positions, ({positions}) => positions[0]);
     const selectedJourney = get(state, "selectedJourney", null);
@@ -249,65 +256,70 @@ class JourneyList extends Component {
     });
 
     return (
-      <JourneyListWrapper>
-        <JourneyListHeader>
-          <JourneyRowLeft>
-            <Text>filterpanel.planned_start_time</Text>
-          </JourneyRowLeft>
-          <span>
-            <Text>filterpanel.real_start_time</Text>
-          </span>
-        </JourneyListHeader>
-        <JourneyListRows>
-          {departureList.map((journeyOrDeparture, index) => {
-            if (typeof journeyOrDeparture === "string") {
-              return (
-                <JourneyListRow
-                  key={`planned_journey_row_${journeyOrDeparture}_${index}`}
-                  onClick={() => this.requestPlannedJourney(journeyOrDeparture)}>
-                  <JourneyRowLeft>{journeyOrDeparture}</JourneyRowLeft>
-                  {this.unrealizedJourneys.includes(journeyOrDeparture) ? (
-                    <span>{text("filterpanel.journey.unrealized")}</span>
-                  ) : this.requestedJourney === journeyOrDeparture ? (
-                    <Loading inline />
-                  ) : (
-                    <span>{text("filterpanel.journey.click_to_fetch")}</span>
-                  )}
-                </JourneyListRow>
-              );
-            }
-            const journeyStartHfp = this.getJourneyStartPosition(
-              getJourneyId(journeyOrDeparture)
-            );
-
+      <SidepanelList
+        scrollOffset={this.selectedJourneyOffset}
+        loading={loading}
+        header={
+          <>
+            <JourneyRowLeft>
+              <Text>filterpanel.planned_start_time</Text>
+            </JourneyRowLeft>
+            <span>
+              <Text>filterpanel.real_start_time</Text>
+            </span>
+          </>
+        }>
+        {departureList.map((journeyOrDeparture, index) => {
+          if (typeof journeyOrDeparture === "string") {
             return (
               <JourneyListRow
-                selected={isSelected(journeyOrDeparture)}
-                key={`journey_row_${getJourneyId(journeyOrDeparture)}`}
-                onClick={this.selectJourney(journeyOrDeparture)}>
-                <JourneyRowLeft>
-                  {timeToFormat(
-                    journeyOrDeparture.journey_start_timestamp,
-                    "HH:mm:ss",
-                    "Europe/Helsinki"
-                  )}
-                </JourneyRowLeft>
-                {journeyStartHfp && (
-                  <span>
-                    {timeToFormat(
-                      journeyStartHfp.received_at,
-                      "HH:mm:ss",
-                      "Europe/Helsinki"
-                    )}
-                  </span>
+                key={`planned_journey_row_${journeyOrDeparture}_${index}`}
+                onClick={() => this.requestPlannedJourney(journeyOrDeparture)}>
+                <JourneyRowLeft>{journeyOrDeparture}</JourneyRowLeft>
+                {this.unrealizedJourneys.includes(journeyOrDeparture) ? (
+                  <span>{text("filterpanel.journey.unrealized")}</span>
+                ) : this.requestedJourney === journeyOrDeparture ? (
+                  <Loading inline />
+                ) : (
+                  <span>{text("filterpanel.journey.click_to_fetch")}</span>
                 )}
               </JourneyListRow>
             );
-          })}
-        </JourneyListRows>
-      </JourneyListWrapper>
+          }
+          const journeyStartHfp = this.getJourneyStartPosition(
+            getJourneyId(journeyOrDeparture)
+          );
+
+          const journeyIsSelected = isSelected(journeyOrDeparture);
+
+          return (
+            <JourneyListRow
+              innerRef={journeyIsSelected ? this.selectedJourneyRef : null}
+              selected={journeyIsSelected}
+              key={`journey_row_${getJourneyId(journeyOrDeparture)}`}
+              onClick={this.selectJourney(journeyOrDeparture)}>
+              <JourneyRowLeft>
+                {timeToFormat(
+                  journeyOrDeparture.journey_start_timestamp,
+                  "HH:mm:ss",
+                  "Europe/Helsinki"
+                )}
+              </JourneyRowLeft>
+              {journeyStartHfp && (
+                <span>
+                  {timeToFormat(
+                    journeyStartHfp.received_at,
+                    "HH:mm:ss",
+                    "Europe/Helsinki"
+                  )}
+                </span>
+              )}
+            </JourneyListRow>
+          );
+        })}
+      </SidepanelList>
     );
   }
 }
 
-export default JourneyList;
+export default Journeys;

@@ -1,34 +1,90 @@
 import React from "react";
-import SingleRouteQuery from "../queries/SingleRouteQuery";
+import {fetchSingleRoute} from "../queries/SingleRouteQuery";
 import {observer, inject} from "mobx-react";
-import get from "lodash/get";
 import {app} from "mobx-app";
+import {fromPromise} from "mobx-utils";
+import {createRouteKey} from "../helpers/hfpCache";
+import get from "lodash/get";
+import compact from "lodash/compact";
+import {toJS} from "mobx";
+
+function shouldFetch(route) {
+  const requiredParts = [
+    get(route, "routeId", null),
+    get(route, "direction", null),
+    get(route, "dateBegin", null),
+    get(route, "dateEnd", null),
+    get(route, "originstopId", null),
+  ];
+
+  const presentParts = compact(requiredParts).length;
+
+  // RouteId and direction are required for fetching, so we shouldFetch
+  // if we have at least two parts but less than all parts present.
+  return presentParts > 1 && presentParts !== 5;
+}
 
 // Prevent update loops
 let routeEnsured = "";
+let previouslyFetchedRoute = null;
+
+const createRoutePromise = (value = null) => fromPromise.resolve(value);
 
 export default (Component) => {
   @inject(app("Filters"))
   @observer
   class WithRouteComponent extends React.Component {
+    routePromise = createRoutePromise();
+    currentFetchKey = "";
+
+    updatePromise = (route) => {
+      const {
+        state: {date},
+      } = this.props;
+
+      if (this.routePromise.state === "pending") {
+        return;
+      }
+
+      if (!shouldFetch(route)) {
+        const routeKey = createRouteKey(route);
+
+        if (routeKey !== this.currentFetchKey) {
+          this.routePromise = createRoutePromise(route);
+          this.ensureRouteIsSelected(route);
+          this.currentFetchKey = routeKey;
+        }
+
+        return;
+      }
+
+      routeEnsured = "";
+
+      this.routePromise = fromPromise(
+        fetchSingleRoute(route, date).then((route) => {
+          this.ensureRouteIsSelected(route);
+          this.currentFetchKey = createRouteKey(route);
+          return route;
+        })
+      );
+
+      this.currentFetchKey = "";
+    };
+
     /**
      * This is necessary to ensure that the full route data is in the selected
      * route state. Filters.setRoute also sets the relevant line from the route
      * data, so this method also ensures that the line matches the route.
      */
-    ensureRouteIsSelected = () => {
+    ensureRouteIsSelected = (route) => {
       const {
         state: {route: stateRoute = {routeId: ""}},
-        route = stateRoute,
         Filters,
       } = this.props;
 
       if (
         route &&
-        route.routeId &&
-        route.direction &&
-        route.dateBegin &&
-        route.originstopId &&
+        route.routeId === stateRoute.routeId &&
         routeEnsured !== route.routeId
       ) {
         routeEnsured = route.routeId;
@@ -36,44 +92,28 @@ export default (Component) => {
       }
     };
 
-    componentDidMount() {
-      this.ensureRouteIsSelected();
-    }
-
-    componentDidUpdate() {
-      this.ensureRouteIsSelected();
-    }
+    getComponent = (route, loading) => (
+      <Component
+        key="withRouteComponent"
+        {...this.props}
+        route={route}
+        loading={loading}
+      />
+    );
 
     render() {
       const {
-        state: {route: stateRoute = {routeId: ""}, date},
+        state: {route: stateRoute},
         route = stateRoute,
       } = this.props;
 
-      // Can't do anything without a routeId. Or if we have the route,
-      // there is no need to fetch it.
-      if (
-        !get(route, "routeId", "") ||
-        (route && route.routeId && route.direction && route.dateBegin)
-      ) {
-        return <Component {...this.props} route={route} />;
-      }
+      this.updatePromise(route);
 
-      // Allow fetched route to be ensured.
-      routeEnsured = "";
-
-      // Else, fetch the full route data.
-      return (
-        <SingleRouteQuery route={route} date={date}>
-          {({route: routeObj, loading, error}) => {
-            if (error || loading) {
-              return <Component {...this.props} route={route} />;
-            }
-
-            return <Component {...this.props} route={routeObj} />;
-          }}
-        </SingleRouteQuery>
-      );
+      return this.routePromise.case({
+        pending: () => this.getComponent(previouslyFetchedRoute, true),
+        rejected: () => this.getComponent(previouslyFetchedRoute, false),
+        fulfilled: (route) => this.getComponent(route, false),
+      });
     }
   }
 

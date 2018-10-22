@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 import get from "lodash/get";
 import {Query} from "react-apollo";
 import gql from "graphql-tag";
-import withRoute from "../hoc/withRoute";
 
 const routeQuery = gql`
   query routeQuery(
@@ -48,7 +47,7 @@ const routeQuery = gql`
   }
 `;
 
-@withRoute
+// No @observer here, as it doesn't like shouldComponentUpdate
 class RouteQuery extends Component {
   static propTypes = {
     route: PropTypes.shape({
@@ -66,12 +65,16 @@ class RouteQuery extends Component {
     children: PropTypes.func.isRequired,
   };
 
+  static defaultProps = {
+    route: {},
+  };
+
   shouldComponentUpdate({route}) {
     return !!route.routeId; // Stop the map from flashing and thrashing
   }
 
   render() {
-    const {route, children} = this.props;
+    const {route = {}, children} = this.props;
     const {routeId, direction, dateBegin, dateEnd} = route;
 
     return (

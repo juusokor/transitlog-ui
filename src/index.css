@@ -3,6 +3,7 @@
 :root {
   --dark-blue: rgb(0, 98, 161);
   --blue: #007ac9;
+  --bus-blue: #0079c9;
   --green: #00985f;
   --purple: #8c4799;
   --orange: #ff6319;
@@ -19,7 +20,7 @@
   --grey: #616365;
   --light-grey: #666666;
   --lighter-grey: #dddddc;
-  --lightest-grey: #eeeeee;
+  --lightest-grey: #eef1f3;
   --alt-grey: #ccccdf;
 
   --font-family: "Gotham Rounded SSm A", "Gotham Rounded SSm B", sans-serif;

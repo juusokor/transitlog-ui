@@ -2,7 +2,6 @@ import React from "react";
 import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import get from "lodash/get";
-import withRoute from "../hoc/withRoute";
 import {observer} from "mobx-react";
 import {StopFieldsFragment} from "./StopFieldsFragment";
 
@@ -36,31 +35,26 @@ const stopsByRouteQuery = gql`
   ${StopFieldsFragment}
 `;
 
-export default withRoute(
-  observer(({children, route}) => (
-    <Query
-      query={stopsByRouteQuery}
-      variables={{
-        routeId: route.routeId,
-        direction: route.direction,
-        dateBegin: route.dateBegin,
-        dateEnd: route.dateEnd,
-      }}>
-      {({loading, error, data}) => {
-        if (loading) return "Loading...";
-        if (error) return "Error!";
+export default observer(({children, route}) => (
+  <Query
+    query={stopsByRouteQuery}
+    variables={{
+      routeId: get(route, "routeId", ""),
+      direction: get(route, "direction", ""),
+      dateBegin: get(route, "dateBegin", ""),
+      dateEnd: get(route, "dateEnd", ""),
+    }}>
+    {({loading, error, data}) => {
+      const stops = get(data, "route.routeSegments.nodes", []).map((segment) => ({
+        stopIndex: segment.stopIndex,
+        ...segment.stop,
+      }));
 
-        const stops = get(data, "route.routeSegments.nodes", []).map((segment) => ({
-          stopIndex: segment.stopIndex,
-          ...segment.stop,
-        }));
-
-        return children({
-          loading,
-          error,
-          stops,
-        });
-      }}
-    </Query>
-  ))
-);
+      return children({
+        loading,
+        error,
+        stops,
+      });
+    }}
+  </Query>
+));

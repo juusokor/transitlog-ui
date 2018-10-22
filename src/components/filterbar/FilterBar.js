@@ -15,6 +15,12 @@ import Input from "../Input";
 import {ControlGroup} from "../Forms";
 import {text} from "../../helpers/text";
 import FilterSection from "./FilterSection";
+import Header from "./Header";
+
+const SiteHeader = styled(Header)`
+  flex: 0 0 25rem;
+  z-index: 1;
+`;
 
 const FilterBarWrapper = styled.div`
   width: 100%;
@@ -23,11 +29,16 @@ const FilterBarWrapper = styled.div`
   border-bottom: 1px solid var(--alt-grey);
   position: relative;
   overflow: visible;
+  grid-row: 1;
+  grid-column: 1 / span 2;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
 `;
 
 const FilterBarGrid = styled.div`
   display: grid;
-  grid-template-columns: 22rem 1fr 1fr 1fr;
+  grid-template-columns: 23rem 1fr 1fr 1fr;
   height: 100%;
   align-items: stretch;
 `;
@@ -35,8 +46,8 @@ const FilterBarGrid = styled.div`
 const BottomSlider = styled(TimeSlider)`
   position: absolute;
   bottom: calc(-1rem - 4px);
-  left: -2px;
-  width: calc(100% + 2px);
+  right: 0;
+  width: calc((100% - 25rem) + 2px);
   z-index: 10;
 `;
 
@@ -48,15 +59,16 @@ class FilterBar extends Component {
   };
 
   render() {
-    const {state, Filters} = this.props;
+    const {state, Filters, positions} = this.props;
     const {vehicle, stop, route, filterPanelVisible: visible} = state;
 
     return (
       <FilterBarWrapper visible={visible}>
+        <SiteHeader />
         <FilterBarGrid>
           <FilterSection expandable={<SimulationSettings />}>
             <DateSettings />
-            <TimeSettings />
+            <TimeSettings positions={positions} />
           </FilterSection>
           <FilterSection>
             <LineSettings />
@@ -66,7 +78,11 @@ class FilterBar extends Component {
               <Input
                 label={text("filterpanel.filter_by_vehicle")}
                 animatedLabel={false}>
-                <VehicleInput value={vehicle} onSelect={this.onChangeQueryVehicle} />
+                <VehicleInput
+                  positions={positions}
+                  value={vehicle}
+                  onSelect={this.onChangeQueryVehicle}
+                />
               </Input>
             </ControlGroup>
           </FilterSection>
@@ -100,7 +116,7 @@ class FilterBar extends Component {
             </ControlGroup>
           </FilterSection>
         </FilterBarGrid>
-        <BottomSlider />
+        <BottomSlider positions={positions} />
       </FilterBarWrapper>
     );
   }

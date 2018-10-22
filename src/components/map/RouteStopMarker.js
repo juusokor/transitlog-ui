@@ -9,13 +9,11 @@ import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import parse from "date-fns/parse";
 import ArriveDepartToggle from "./ArriveDepartToggle";
-import {combineDateAndTime} from "../../helpers/time";
 import {Heading} from "../Typography";
 
 const stopColor = "var(--blue)";
-const selectedStopColor = "var(--dark-blue)";
 
-@inject(app("state"))
+@inject(app("Filters"))
 @observer
 class RouteStopMarker extends React.Component {
   render() {
@@ -68,12 +66,6 @@ class RouteStopMarker extends React.Component {
       journeyStartedOnTime = delay < 10;
     }
 
-    const time = combineDateAndTime(
-      state.date,
-      state.time,
-      "Europe/Helsinki"
-    ).toISOString();
-
     return React.createElement(
       stop.timingStopType ? Marker : CircleMarker,
       {
@@ -93,14 +85,20 @@ class RouteStopMarker extends React.Component {
         fillOpacity: 1,
         strokeWeight: isTerminal ? 5 : 3,
         radius: isTerminal ? 12 : selected ? 10 : 8,
-        onPopupopen: onPopupOpen(stop.nodeId),
-        onPopupclose: onPopupClose(stop.nodeId),
+        onPopupopen: onPopupOpen,
+        onPopupclose: onPopupClose,
       },
       <React.Fragment>
         <Tooltip>
           {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
         </Tooltip>
-        <Popup keepInView={false} autoPan={false} maxWidth={500} minWidth={350}>
+        <Popup
+          keepInView={false}
+          autoPan={false}
+          autoClose={false}
+          maxHeight={550}
+          maxWidth={500}
+          minWidth={350}>
           <Heading level={4}>
             {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
           </Heading>
@@ -108,9 +106,12 @@ class RouteStopMarker extends React.Component {
             <React.Fragment>
               <ArriveDepartToggle value={showTime} onChange={onChangeShowTime} />
               <DriveByTimes
+                isFirst={firstTerminal}
                 showTime={showTime}
                 onTimeClick={onTimeClick}
-                queryTime={time}
+                date={state.date}
+                route={state.route}
+                stop={stop}
                 positions={hfp}
               />
             </React.Fragment>

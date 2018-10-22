@@ -9,6 +9,9 @@ export const StopFieldsFragment = gql`
     lon
     shortId
     nameFi
+    modes {
+      nodes
+    }
   }
 `;
 
@@ -20,6 +23,9 @@ export const StopFieldsWithRouteSegmentsFragment = gql`
     lon
     shortId
     nameFi
+    modes {
+      nodes
+    }
     routeSegmentsForDate(date: $date) @include(if: $fetchRouteSegments) {
       nodes {
         line {

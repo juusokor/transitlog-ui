@@ -4,6 +4,7 @@ import autosuggestStyles from "./SuggestionInput.css";
 import {observer} from "mobx-react";
 import styled from "styled-components";
 import {InputStyles} from "../Forms";
+import {observable, action} from "mobx";
 
 const AutosuggestWrapper = styled.div`
   width: 100%;
@@ -16,37 +17,31 @@ const AutosuggestWrapper = styled.div`
 
 @observer
 class SuggestionInput extends Component {
-  static getDerivedStateFromProps({value}, {value: currentValue, _lastValue}) {
-    if (value && value !== currentValue && value !== _lastValue) {
-      return {
-        value,
-        isEmpty: !value,
-      };
-    }
+  @observable
+  inputValue = this.props.getValue(this.props.value);
+  prevInputValue = "";
 
-    if (value !== _lastValue) {
-      return {
-        _lastValue: value,
-      };
-    }
+  @observable
+  suggestions = [];
 
-    return null;
+  @action
+  setValue(value) {
+    this.inputValue = value;
   }
 
-  state = {
-    isEmpty: !this.props.value,
-    _lastValue: this.props.value.toString(),
-    value: this.props.value.toString(),
-    suggestions: [],
-  };
+  @action
+  setSuggestions(suggestions) {
+    this.suggestions = suggestions;
+  }
 
   onChange = (event, {newValue}) => {
-    const value = newValue.toString();
+    const value = newValue;
 
-    this.setState({
-      value,
-      isEmpty: !value,
-    });
+    if (!value) {
+      this.props.onSelect("");
+    }
+
+    this.setValue(value);
   };
 
   onSuggestionSelected = (event, {suggestion}) => {
@@ -55,24 +50,28 @@ class SuggestionInput extends Component {
 
   onSuggestionsFetchRequested = ({value}) => {
     const {getSuggestions} = this.props;
-
-    this.setState({
-      suggestions: getSuggestions(value),
-    });
+    this.setSuggestions(getSuggestions(value));
   };
 
   onSuggestionsClearRequested = () => {
-    this.setState({
-      suggestions: [],
-    });
+    this.setSuggestions([]);
   };
 
   shouldRenderSuggestions = (limit) => (value) => {
     return value.trim().length >= limit;
   };
 
+  componentDidUpdate() {
+    const {value, getValue} = this.props;
+    const nextValue = getValue(value);
+
+    if (nextValue && nextValue !== this.prevInputValue) {
+      this.setValue(nextValue);
+      this.prevInputValue = nextValue;
+    }
+  }
+
   render() {
-    const {suggestions, value, isEmpty} = this.state;
     const {
       className,
       placeholder,
@@ -83,15 +82,14 @@ class SuggestionInput extends Component {
 
     const inputProps = {
       placeholder,
-      value,
+      value: this.inputValue,
       onChange: this.onChange,
     };
 
     return (
-      <AutosuggestWrapper
-        className={`${className} ${isEmpty ? "empty-select" : ""}`}>
+      <AutosuggestWrapper className={className}>
         <Autosuggest
-          suggestions={suggestions}
+          suggestions={this.suggestions}
           shouldRenderSuggestions={this.shouldRenderSuggestions(minimumInput)}
           onSuggestionSelected={this.onSuggestionSelected}
           onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
