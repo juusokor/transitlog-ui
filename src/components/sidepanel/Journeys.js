@@ -14,6 +14,7 @@ import {observable, action} from "mobx";
 import Loading from "../Loading";
 import SidepanelList from "./SidepanelList";
 import {journeyFetchStates} from "../../stores/JourneyStore";
+import {createFetchKey} from "../../helpers/hfpCache";
 
 const JourneyListRow = styled.button`
   display: flex;
@@ -50,6 +51,7 @@ class Journeys extends Component {
   selectedJourneyOffset = 0;
   selectedJourneyRef = React.createRef();
   clickedJourneyItem = false;
+  currentFetchKey = "";
 
   componentDidMount() {
     this.ensureSelectedVehicle();
@@ -57,6 +59,7 @@ class Journeys extends Component {
 
   componentDidUpdate({positions: prevPositions}, prevState) {
     this.ensureSelectedVehicle();
+    this.fetchAllJourneys();
 
     const {selectedJourney} = this.props.state;
     const {loading} = this.props;
@@ -65,6 +68,27 @@ class Journeys extends Component {
       this.setSelectedJourneyOffset();
     }
   }
+
+  fetchAllJourneys = () => {
+    const {
+      Journey,
+      departures,
+      state: {date, route},
+    } = this.props;
+
+    // Create fetch key without date
+    const fetchKey = createFetchKey(route, date, false, true);
+
+    if (fetchKey !== this.currentFetchKey) {
+      const fetchTimes = departures.map(
+        (departure) =>
+          `${doubleDigit(departure.hours)}:${doubleDigit(departure.minutes)}:00`
+      );
+
+      Journey.requestJourney(fetchTimes);
+      this.currentFetchKey = fetchKey;
+    }
+  };
 
   ensureSelectedVehicle = () => {
     const {Filters, state, positions} = this.props;
