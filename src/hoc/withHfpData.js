@@ -4,7 +4,7 @@ import React from "react";
 import withRoute from "./withRoute";
 import {fetchHfpJourney} from "../helpers/hfpQueryManager";
 import Async from "react-async";
-import {computed, observable, flow, runInAction} from "mobx";
+import {computed, observable, runInAction} from "mobx";
 import {journeyFetchStates} from "../stores/JourneyStore";
 import getJourneyId from "../helpers/getJourneyId";
 import orderBy from "lodash/orderBy";
