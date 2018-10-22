@@ -38,6 +38,8 @@ export default (Component) => {
     currentView = [];
 
     createFetcher = async ({requestedJourneys, route, date}) => {
+      // TODO: Fetch the departures starting from the selectedJourney outward.
+
       for (const departure of requestedJourneys) {
         await this.fetchDeparture(route, date, departure);
       }
