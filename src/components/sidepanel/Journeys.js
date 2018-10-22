@@ -76,7 +76,7 @@ class Journeys extends Component {
       state: {date, route},
     } = this.props;
 
-    // Create fetch key without date
+    // Create fetchKey key without date
     const fetchKey = createFetchKey(route, date, false, true);
 
     if (fetchKey !== this.currentFetchKey) {

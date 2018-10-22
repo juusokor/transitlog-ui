@@ -44,6 +44,11 @@ const filterActions = (state) => {
     state.route.dateEnd = get(route, "dateEnd", "");
     state.route.originstopId = get(route, "originstopId", "");
 
+    if (!!route && route.routeId && route.direction) {
+      state.requestedJourneys.clear();
+      state.resolvedJourneyStates.clear();
+    }
+
     const routeLine = get(route, "line.nodes[0]", null);
 
     if (routeLine) {
