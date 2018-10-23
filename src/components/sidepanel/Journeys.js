@@ -15,6 +15,7 @@ import Loading from "../Loading";
 import SidepanelList from "./SidepanelList";
 import {journeyFetchStates} from "../../stores/JourneyStore";
 import {createFetchKey} from "../../helpers/hfpCache";
+import {centerSort} from "../../helpers/centerSort";
 
 const JourneyListRow = styled.button`
   display: flex;
@@ -73,20 +74,27 @@ class Journeys extends Component {
     const {
       Journey,
       departures,
-      state: {date, route},
+      state: {date, route, time, selectedJourney},
     } = this.props;
 
     // Create fetchKey key without date
     const fetchKey = createFetchKey(route, date, false, true);
 
     if (fetchKey !== this.currentFetchKey) {
-      const fetchTimes = departures.map(
+      // Format to an array of string times, like 12:30:00
+      let fetchTimes = departures.map(
         (departure) =>
           `${doubleDigit(departure.hours)}:${doubleDigit(departure.minutes)}:00`
       );
 
-      Journey.requestJourney(fetchTimes);
-      this.currentFetchKey = fetchKey;
+      if (fetchTimes.length !== 0) {
+        // Find which time we want to fetch first.
+        let firstTime = selectedJourney ? selectedJourney.journey_start_time : time;
+        fetchTimes = centerSort(firstTime, fetchTimes);
+
+        Journey.requestJourney(fetchTimes);
+        this.currentFetchKey = fetchKey;
+      }
     }
   };
 
