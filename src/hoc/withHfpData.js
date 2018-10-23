@@ -9,7 +9,7 @@ import getJourneyId from "../helpers/getJourneyId";
 import orderBy from "lodash/orderBy";
 import uniqBy from "lodash/uniqBy";
 import pAll from "p-all";
-import pIdle from "../helpers/pIdle";
+import idle from "../helpers/idle";
 
 // TODO: Fetch the departures starting from the selectedJourney outward.
 // TODO: Find out why it's so heavy to fetch cached journeys
@@ -40,8 +40,7 @@ export default (Component) => {
 
       const journeyPromises = requestedJourneys.map((departure) => async () => {
         // Wait for a quiet moment...
-        await pIdle();
-
+        await idle();
         return this.fetchDeparture(route, date, departure);
       });
 

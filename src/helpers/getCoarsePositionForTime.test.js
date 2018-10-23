@@ -21,9 +21,9 @@ function createPositions() {
 }
 
 describe("getCoarsePositionForTime", () => {
-  test("Finds a position that matches the time within the tolerance.", () => {
+  test("Finds a position that matches the time within the tolerance.", async () => {
     const queryDate = addSeconds(START_DATE, 30); // Query for the event at 11:30:30
-    const foundPosition = getCoarsePositionForTime(
+    const foundPosition = await getCoarsePositionForTime(
       createPositions(),
       queryDate,
       "test",
@@ -35,9 +35,9 @@ describe("getCoarsePositionForTime", () => {
     expect(foundPosition.received_at).toBe(expected);
   });
 
-  test("Returns null if no position is found within the tolerance.", () => {
+  test("Returns null if no position is found within the tolerance.", async () => {
     const queryDate = addSeconds(START_DATE, 120); // Query for the event at 11:32:00
-    const foundPosition = getCoarsePositionForTime(
+    const foundPosition = await getCoarsePositionForTime(
       createPositions(),
       queryDate,
       "test",

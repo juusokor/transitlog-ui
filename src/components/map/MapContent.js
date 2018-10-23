@@ -73,7 +73,7 @@ class MapContent extends Component {
                 key={`hfp_markers_${journeyId}`}
                 onMarkerClick={this.onClickVehicleMarker}
                 positions={positions}
-                name={journeyId}
+                journeyId={journeyId}
               />,
             ];
           })}

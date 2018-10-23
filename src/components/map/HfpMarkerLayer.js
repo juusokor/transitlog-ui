@@ -1,39 +1,51 @@
 import React, {Component} from "react";
 import {Tooltip, Marker} from "react-leaflet";
 import get from "lodash/get";
+import reduce from "lodash/reduce";
 import moment from "moment";
 import {divIcon} from "leaflet";
 import getDelayType from "../../helpers/getDelayType";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
-import {getPrecisePositionForTime} from "../../helpers/getPrecisePositionForTime";
 import {combineDateAndTime} from "../../helpers/time";
 import {Text} from "../../helpers/text";
 
 import "./Map.css";
+import {observable, runInAction, reaction} from "mobx";
+import animationFrame from "../../helpers/animationFrame";
+import idle from "../../helpers/idle";
 
 @inject(app("state"))
 @observer
 class HfpMarkerLayer extends Component {
-  prevQueryTime = "";
-  prevHfpPosition = null;
+  prevJourneyId = "";
+  positions = new Map();
+
+  @observable.ref
+  hfpPosition = null;
+
+  positionReaction = () => {};
 
   // Matches the current time setting with a HFP position from this journey.
-  getHfpPosition = () => {
-    const {positions, state} = this.props;
-    const {date, time} = state;
+  getHfpPosition = async (time, date) => {
+    await animationFrame();
 
-    if (!time || time === this.prevQueryTime) {
-      return this.prevHfpPosition;
+    const timestamp = combineDateAndTime(date, time, "Europe/Helsinki").unix();
+    const positionKeys = this.positions.keys();
+
+    let nextHfpPosition = null;
+    let prevClosestTime = 180;
+
+    for (const timeKey of positionKeys) {
+      const difference = Math.abs(timeKey - timestamp);
+
+      if (difference < prevClosestTime) {
+        prevClosestTime = difference;
+        nextHfpPosition = this.positions.get(timeKey);
+      }
     }
 
-    const dateTime = combineDateAndTime(date, time, "Europe/Helsinki").toISOString();
-    const nextHfpPosition = getPrecisePositionForTime(positions, dateTime);
-
-    this.prevHfpPosition = nextHfpPosition;
-    this.prevQueryTime = time;
-
-    return nextHfpPosition;
+    runInAction(() => (this.hfpPosition = nextHfpPosition));
   };
 
   onMarkerClick = (positionWhenClicked) => () => {
@@ -41,8 +53,50 @@ class HfpMarkerLayer extends Component {
     onMarkerClick(positionWhenClicked);
   };
 
+  indexPositions = async (positions) => {
+    await idle();
+
+    const indexed = positions.reduce((positionIndex, position) => {
+      const key = moment.tz(position.received_at, "Europe/Helsinki").unix();
+      positionIndex.set(key, position);
+      return positionIndex;
+    }, new Map());
+
+    runInAction(() => (this.positions = indexed));
+  };
+
+  componentDidMount() {
+    const {state, positions} = this.props;
+    this.indexPositions(positions);
+
+    this.positionReaction = reaction(
+      () => state.time,
+      (time) => {
+        if (time && this.positions.size !== 0) {
+          this.getHfpPosition(time, state.date);
+        }
+      }
+    );
+  }
+
+  componentDidUpdate() {
+    const {journeyId, positions} = this.props;
+
+    if (positions.length !== 0 && journeyId !== this.prevJourneyId) {
+      this.indexPositions(positions);
+      this.prevJourneyId = journeyId;
+    }
+  }
+
+  componentWillUnmount() {
+    if (typeof this.positionReaction === "function") {
+      // Dispose the reaction
+      this.positionReaction();
+    }
+  }
+
   render() {
-    const position = this.getHfpPosition();
+    const position = this.hfpPosition;
 
     if (!position) {
       return null;
