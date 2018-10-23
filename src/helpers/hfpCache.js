@@ -28,54 +28,27 @@ export function createRouteKey(route) {
   return keyParts.join("_").replace(".", "-");
 }
 
-export async function cacheData(hfpData) {
-  if (!hfpData || hfpData.length === 0) {
+export async function cacheData(dataToCache, cacheKey) {
+  if (!dataToCache || dataToCache.length === 0) {
     return [];
   }
 
-  for (const hfpItem of hfpData) {
-    const {journeyId, positions} = hfpItem;
+  let cachedData = null;
 
-    let cachedData = null;
-
-    try {
-      cachedData = await localforage.getItem(journeyId);
-    } catch (err) {
-      cachedData = null;
-    }
-
-    try {
-      if (cachedData) {
-        await localforage.removeItem(journeyId);
-      }
-      await localforage.setItem(journeyId, positions);
-    } catch (err) {
-      console.error(`Caching journey ${journeyId} failed.`, err);
-    }
+  try {
+    cachedData = await localforage.getItem(cacheKey);
+  } catch (err) {
+    cachedData = null;
   }
 
-  return hfpData;
-}
-
-export async function getCachedData(journeyIds) {
-  const journeyIdsArray = Array.isArray(journeyIds) ? journeyIds : [journeyIds];
-
-  let cachedHfp = [];
-
-  for (const journeyId of journeyIdsArray) {
-    let positions = [];
-
-    try {
-      positions = await localforage.getItem(journeyId);
-    } catch (err) {
-      positions = null;
-      console.error(`Cached journey ${journeyId} not found.`, err);
+  try {
+    if (cachedData) {
+      await localforage.removeItem(cacheKey);
     }
-
-    if (positions && positions.length !== 0) {
-      cachedHfp.push({journeyId, positions});
-    }
+    await localforage.setItem(cacheKey, dataToCache);
+  } catch (err) {
+    console.error(`Caching journey ${cacheKey} failed.`, err);
   }
 
-  return cachedHfp;
+  return dataToCache;
 }

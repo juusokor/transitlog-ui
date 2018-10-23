@@ -1,14 +1,15 @@
-import {getCachedData, cacheData, createFetchKey} from "../helpers/hfpCache";
-import get from "lodash/get";
-import set from "lodash/set";
+import {cacheData, createFetchKey} from "../helpers/hfpCache";
 import {queryHfp} from "../queries/HfpQuery";
 import getJourneyId from "../helpers/getJourneyId";
 import {groupHfpPositions} from "../helpers/groupHfpPositions";
 import * as localforage from "localforage";
 import {combineDateAndTime} from "./time";
 import pQueue from "p-queue";
+import pTry from "p-try";
+import pFinally from "p-finally";
 
-const promiseCache = {};
+const currentPromises = new Map();
+const memoryCache = new Map();
 const concurrentQueries = 10;
 
 // Add props to or modify the HFP item.
@@ -25,34 +26,47 @@ function createHfpItem(rawHfp) {
   };
 }
 
-// Find already-cached journeys
-export async function getCachedJourneyIds(route, date, time) {
-  let cachedKeys = null;
+export async function loadCache(dataToAdd = null) {
+  // Load all data from localstorage if no specific dataToAdd was provided.
+  if (!dataToAdd) {
+    let cachedKeys = null;
 
-  try {
-    cachedKeys = await localforage.keys();
-  } catch (err) {
-    cachedKeys = null;
-  }
-
-  if (!cachedKeys || cachedKeys.length === 0) {
-    return [];
-  }
-
-  return cachedKeys.filter((key) => {
-    if (!key.startsWith("journey")) {
-      return false;
+    try {
+      cachedKeys = await localforage.keys();
+    } catch (err) {
+      cachedKeys = null;
     }
 
-    const keyParts = key.slice(8).split("_");
+    if (!cachedKeys || cachedKeys.length === 0) {
+      return [];
+    }
 
-    return (
-      keyParts[0] === date &&
-      keyParts[1] === time &&
-      keyParts[2] === route.routeId &&
-      keyParts[3] === route.direction
-    );
-  });
+    let data = [];
+
+    for (const cachedKey of cachedKeys) {
+      const cachedJourney = await localforage.getItem(cachedKey);
+      memoryCache.set(cachedKey, cachedJourney);
+      data.push(cachedJourney);
+    }
+
+    return data;
+  } else {
+    // Load the dataToAdd into the memory cache.
+    const {cacheKey, cachedData} = dataToAdd;
+    memoryCache.set(cacheKey, cachedData);
+
+    return dataToAdd;
+  }
+}
+
+async function getCachedJourney(fetchKey) {
+  let cachedItem = memoryCache.get(fetchKey);
+
+  if (!cachedItem) {
+    cachedItem = await localforage.getItem(fetchKey);
+  }
+
+  return cachedItem;
 }
 
 export async function fetchHfpJourney(route, date, time) {
@@ -63,46 +77,49 @@ export async function fetchHfpJourney(route, date, time) {
     return [];
   }
 
-  let cachingPromise = get(promiseCache, fetchKey);
+  let fetchPromise = currentPromises.get(fetchKey);
 
-  if (!cachingPromise) {
+  if (!fetchPromise) {
     try {
-      // Start a new fetchKey if one isn't already in progress
-      cachingPromise = getCachedJourneyIds(route, date, time).then(
-        (cachedJourneyIds) => {
-          if (cachedJourneyIds.length !== 0) {
-            return getCachedData(cachedJourneyIds);
-          }
-
-          return (
-            queuedQueryHfp(route, date, time) // Format the data...
-              .then((result) =>
-                result.filter((pos) => !!pos && !!pos.lat && !!pos.long)
-              )
-              .then((filteredData) => filteredData.map(createHfpItem))
-              // ...group the data by journey
-              .then((formattedData) =>
-                groupHfpPositions(formattedData, getJourneyId, "journeyId")
-              )
-              // ...and cache the data.
-              .then((journeyGroups) => cacheData(journeyGroups, route, date))
-          );
+      // Start a new fetch promise if one isn't already in progress
+      fetchPromise = getCachedJourney(fetchKey).then((cachedJourney) => {
+        if (cachedJourney) {
+          return cachedJourney;
         }
-      );
-      // Without awaiting it, save the promise in the promiseCache.
-      set(promiseCache, fetchKey, cachingPromise);
+
+        return (
+          queryHfp(route, date, time)
+            .then((result) =>
+              // TODO: Change this when we have to deal with null positions
+              result.filter((pos) => !!pos && !!pos.lat && !!pos.long)
+            )
+            .then((filteredData) => filteredData.map(createHfpItem))
+            .then((formattedData) =>
+              // Group into journey groups
+              groupHfpPositions(formattedData, getJourneyId, "journeyId")
+            )
+            // Cache the data.
+            .then((journeyGroups) => cacheData(journeyGroups, fetchKey))
+            .then((cachedJourneyGroups) => {
+              loadCache({
+                cachedData: cachedJourneyGroups,
+                cachedKey: fetchKey,
+              });
+
+              return cachedJourneyGroups;
+            })
+        );
+      });
     } catch (err) {
-      console.log(err);
+      console.warn(`Cache or fetch error for ${fetchKey}`, err);
       return [];
     }
+
+    // Remove the promise when it is finished
+    pFinally(fetchPromise, () => currentPromises.delete(fetchKey));
+    // Without awaiting it, save the promise in the promiseCache.
+    currentPromises.set(fetchKey, fetchPromise);
   }
 
-  return cachingPromise;
-}
-
-const queryQueue = new pQueue({concurrency: concurrentQueries});
-
-function queuedQueryHfp(route, date, time) {
-  const fetcher = () => queryHfp(route, date, time);
-  return queryQueue.add(fetcher);
+  return fetchPromise;
 }
