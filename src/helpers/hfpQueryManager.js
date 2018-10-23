@@ -1,16 +1,15 @@
-import {cacheData, createFetchKey} from "../helpers/hfpCache";
+import {createFetchKey} from "../helpers/hfpCache";
 import {queryHfp} from "../queries/HfpQuery";
 import getJourneyId from "../helpers/getJourneyId";
 import {groupHfpPositions} from "../helpers/groupHfpPositions";
 import * as localforage from "localforage";
 import {combineDateAndTime} from "./time";
-import pQueue from "p-queue";
-import pTry from "p-try";
 import pFinally from "p-finally";
+import idle from "./idle";
+import pAll from "p-all";
 
 const currentPromises = new Map();
 const memoryCache = new Map();
-const concurrentQueries = 10;
 
 // Add props to or modify the HFP item.
 function createHfpItem(rawHfp) {
@@ -26,36 +25,45 @@ function createHfpItem(rawHfp) {
   };
 }
 
-export async function loadCache(dataToAdd = null) {
-  // Load all data from localstorage if no specific dataToAdd was provided.
-  if (!dataToAdd) {
-    let cachedKeys = null;
+// Loads localstorage cache into memory
+export async function loadCache() {
+  let cachedKeys = null;
 
-    try {
-      cachedKeys = await localforage.keys();
-    } catch (err) {
-      cachedKeys = null;
+  try {
+    cachedKeys = await localforage.keys();
+  } catch (err) {
+    cachedKeys = null;
+  }
+
+  if (!cachedKeys || cachedKeys.length === 0) {
+    return [];
+  }
+
+  let data = [];
+
+  for (const cachedKey of cachedKeys) {
+    const cachedJourney = await localforage.getItem(cachedKey);
+    memoryCache.set(cachedKey, cachedJourney);
+    data.push(cachedJourney);
+  }
+
+  return data;
+}
+
+// Persists the memory cache in localstorage
+export async function persistCache() {
+  if (memoryCache.size !== 0) {
+    await idle();
+
+    const persistActions = [];
+    const cacheEntries = memoryCache.entries();
+
+    for (const [key, value] of cacheEntries) {
+      persistActions.push(() => localforage.setItem(key, value));
     }
 
-    if (!cachedKeys || cachedKeys.length === 0) {
-      return [];
-    }
-
-    let data = [];
-
-    for (const cachedKey of cachedKeys) {
-      const cachedJourney = await localforage.getItem(cachedKey);
-      memoryCache.set(cachedKey, cachedJourney);
-      data.push(cachedJourney);
-    }
-
-    return data;
-  } else {
-    // Load the dataToAdd into the memory cache.
-    const {cacheKey, cachedData} = dataToAdd;
-    memoryCache.set(cacheKey, cachedData);
-
-    return dataToAdd;
+    await pAll(persistActions);
+    console.log("Persisted memory cache.");
   }
 }
 
@@ -99,14 +107,9 @@ export async function fetchHfpJourney(route, date, time) {
               groupHfpPositions(formattedData, getJourneyId, "journeyId")
             )
             // Cache the data.
-            .then((journeyGroups) => cacheData(journeyGroups, fetchKey))
-            .then((cachedJourneyGroups) => {
-              loadCache({
-                cachedData: cachedJourneyGroups,
-                cachedKey: fetchKey,
-              });
-
-              return cachedJourneyGroups;
+            .then((journeyGroups) => {
+              memoryCache.set(fetchKey, journeyGroups);
+              return journeyGroups;
             })
         );
       });
@@ -116,7 +119,10 @@ export async function fetchHfpJourney(route, date, time) {
     }
 
     // Remove the promise when it is finished
-    pFinally(fetchPromise, () => currentPromises.delete(fetchKey));
+    pFinally(fetchPromise, () => {
+      currentPromises.delete(fetchKey);
+    });
+
     // Without awaiting it, save the promise in the promiseCache.
     currentPromises.set(fetchKey, fetchPromise);
   }

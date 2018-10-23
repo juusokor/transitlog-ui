@@ -2,7 +2,7 @@ import {inject, observer} from "mobx-react";
 import {app} from "mobx-app";
 import React from "react";
 import withRoute from "./withRoute";
-import {fetchHfpJourney, loadCache} from "../helpers/hfpQueryManager";
+import {fetchHfpJourney, loadCache, persistCache} from "../helpers/hfpQueryManager";
 import {observable, reaction, action, runInAction} from "mobx";
 import {journeyFetchStates} from "../stores/JourneyStore";
 import getJourneyId from "../helpers/getJourneyId";
@@ -39,17 +39,19 @@ export default (Component) => {
       this.setLoading(true);
 
       const journeyPromises = requestedJourneys.map((departure) => async () => {
-        // Wait for a quiet moment...
-        await idle();
         return this.fetchDeparture(route, date, departure);
       });
 
-      await pAll(journeyPromises, {concurrency: 3});
-
+      await pAll(journeyPromises, {concurrency: 5});
       this.setLoading(false);
+
+      await persistCache();
     };
 
     fetchDeparture = async (route, date, departure) => {
+      // Wait for a quiet moment...
+      await idle();
+
       const {Journey} = this.props;
       const [journey] = await fetchHfpJourney(route, date, departure);
 

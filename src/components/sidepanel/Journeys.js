@@ -90,7 +90,7 @@ class Journeys extends Component {
       if (fetchTimes.length !== 0) {
         // Find which time we want to fetch first.
         let firstTime = selectedJourney ? selectedJourney.journey_start_time : time;
-        fetchTimes = centerSort(firstTime, fetchTimes);
+        fetchTimes = centerSort(firstTime, fetchTimes).slice(0, 20);
 
         Journey.requestJourney(fetchTimes);
         this.currentFetchKey = fetchKey;
