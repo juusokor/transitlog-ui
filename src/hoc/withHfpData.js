@@ -1,55 +1,60 @@
-import {inject, observer, Observer} from "mobx-react";
+import {inject, observer} from "mobx-react";
 import {app} from "mobx-app";
 import React from "react";
 import withRoute from "./withRoute";
 import {fetchHfpJourney} from "../helpers/hfpQueryManager";
-import Async from "react-async";
-import {computed, observable, runInAction} from "mobx";
+import {observable, reaction, action, flow} from "mobx";
 import {journeyFetchStates} from "../stores/JourneyStore";
 import getJourneyId from "../helpers/getJourneyId";
 import orderBy from "lodash/orderBy";
 import uniqBy from "lodash/uniqBy";
-import {createRouteKey} from "../helpers/hfpCache";
+import pMap from "p-map";
+
+// TODO: Fetch the departures starting from the selectedJourney outward.
+// TODO: Find out why it's so heavy to fetch cached journeys
 
 export default (Component) => {
   @inject(app("Journey"))
   @withRoute
   @observer
   class WithHfpData extends React.Component {
-    @computed
-    get fetchKey() {
+    @observable.shallow
+    currentView = [];
+
+    @observable
+    loading = false;
+
+    @action
+    setLoading = (value = !this.loading) => {
+      this.loading = value;
+    };
+
+    fetchRequestedJourneys = async () => {
       const {
         route,
         state: {date, requestedJourneys = []},
       } = this.props;
 
-      return `${createRouteKey(route)}_${date}_${requestedJourneys
-        .slice()
-        .sort(
-          (a, b) =>
-            parseInt(a.replace(":", ""), 10) > parseInt(b.replace(":", ""), 10)
-              ? 1
-              : -1
-        )
-        .join("&")}`;
-    }
+      const ctx = this;
+      this.setLoading(true);
 
-    @observable.shallow
-    currentView = [];
+      const fetchAllFlow = flow(function*() {
+        const fetcher = (departure) => ctx.fetchDeparture(route, date, departure);
+        yield pMap(requestedJourneys, fetcher, {concurrency: 3});
 
-    createFetcher = async ({requestedJourneys, route, date}) => {
-      // TODO: Fetch the departures starting from the selectedJourney outward.
+        ctx.setLoading(false);
+      });
 
-      for (const departure of requestedJourneys) {
-        await this.fetchDeparture(route, date, departure);
-      }
+      return fetchAllFlow();
     };
 
     fetchDeparture = async (route, date, departure) => {
       const {Journey} = this.props;
-      const [journey] = await fetchHfpJourney(route, date, departure);
+      const ctx = this;
 
-      runInAction(() => {
+      const fetchFlow = flow(function*() {
+        const [journey] = yield fetchHfpJourney(route, date, departure);
+
         Journey.removeJourneyRequest(departure);
 
         if (journey) {
@@ -59,14 +64,14 @@ export default (Component) => {
           );
 
           const nextView = orderBy(
-            uniqBy([...this.currentView, journey], "journeyId"),
+            uniqBy([...ctx.currentView, journey], "journeyId"),
             ({journeyId}) => {
               const keyParts = journeyId.slice(8).split("_");
-              return keyParts[1];
+              return keyParts[1].replace(":", "");
             }
           );
 
-          this.currentView.replace(nextView);
+          ctx.currentView.replace(nextView);
         } else {
           Journey.setJourneyFetchState(
             getJourneyId(Journey.getJourneyFromStateAndTime(departure)),
@@ -74,6 +79,8 @@ export default (Component) => {
           );
         }
       });
+
+      return fetchFlow();
     };
 
     onError = (err) => {
@@ -82,36 +89,25 @@ export default (Component) => {
       console.log(err);
     };
 
-    render() {
-      const {
-        route,
-        state: {date, requestedJourneys = []},
-      } = this.props;
+    componentDidMount() {
+      reaction(
+        () => this.props.state.requestedJourneys.length,
+        async (requestedCount) => {
+          if (requestedCount !== 0) {
+            await this.fetchRequestedJourneys();
+          }
+        }
+      );
+    }
 
+    render() {
       return (
-        <Async
-          watch={this.fetchKey}
-          requestedJourneys={requestedJourneys}
-          route={route}
-          date={date}
-          initialValue={[]}
-          onReject={this.onError}
-          promiseFn={this.createFetcher}>
-          {({data, error, loading}) => {
-            return (
-              <Observer>
-                {() => (
-                  <Component
-                    key="withHfpDataComponent"
-                    {...this.props}
-                    loading={loading}
-                    positions={this.currentView}
-                  />
-                )}
-              </Observer>
-            );
-          }}
-        </Async>
+        <Component
+          key="withHfpDataComponent"
+          {...this.props}
+          loading={this.loading}
+          positions={this.currentView}
+        />
       );
     }
   }

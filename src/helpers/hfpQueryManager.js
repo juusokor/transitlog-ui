@@ -1,10 +1,6 @@
 import {getCachedData, cacheData, createFetchKey} from "../helpers/hfpCache";
 import get from "lodash/get";
 import set from "lodash/set";
-import flatten from "lodash/flatten";
-import uniqBy from "lodash/uniqBy";
-import orderBy from "lodash/orderBy";
-import compact from "lodash/compact";
 import {queryHfp} from "../queries/HfpQuery";
 import getJourneyId from "../helpers/getJourneyId";
 import {groupHfpPositions} from "../helpers/groupHfpPositions";
@@ -13,7 +9,7 @@ import {combineDateAndTime} from "./time";
 import pQueue from "p-queue";
 
 const promiseCache = {};
-const concurrentQueries = 5;
+const concurrentQueries = 10;
 
 // Add props to or modify the HFP item.
 function createHfpItem(rawHfp) {
