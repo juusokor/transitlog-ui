@@ -6,6 +6,7 @@ import {ApolloProvider} from "react-apollo";
 import {observer} from "mobx-react";
 import DevTools from "mobx-react-devtools";
 import {configureDevtool} from "mobx-react-devtools";
+import {GlobalFormStyle} from "./components/Forms";
 
 configureDevtool({
   logEnabled: false,
@@ -18,6 +19,7 @@ configureDevtool({
 const Root = observer(() => (
   <ApolloProvider client={joreClient}>
     <>
+      <GlobalFormStyle />
       <App />
       <DevTools />
     </>

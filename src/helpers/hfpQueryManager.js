@@ -2,16 +2,42 @@ import {createFetchKey} from "./keys";
 import {queryHfp} from "../queries/HfpQuery";
 import getJourneyId from "../helpers/getJourneyId";
 import {groupHfpPositions} from "../helpers/groupHfpPositions";
-import * as localforage from "localforage";
+import {extendPrototypeResult as indexedLocalforage} from "localforage-indexes";
+import lruDriver from "localforage-lru-driver";
 import {combineDateAndTime} from "./time";
 import pFinally from "p-finally";
 import idle from "./idle";
 import pAll from "p-all";
 import moment from "moment-timezone";
 
+// Bump db version if you change something concering the local cache.
+// That will make all client's databases clear out.
+const DATABASE_VERSION = "1";
+const INDEX_KEY = "lruIndex";
+
 const currentPromises = new Map();
 const memoryCache = new Map();
 let isPersistingCache = false;
+
+const localforage = indexedLocalforage.defineDriver(lruDriver).then(async () => {
+  const lf = indexedLocalforage.createInstance({
+    driver: "lruStorage",
+    cacheSize: 50,
+    lruIndex: INDEX_KEY,
+  });
+
+  await lf.ready();
+
+  const dbVersion = localStorage.getItem("DATABASE_VERSION");
+
+  if (dbVersion !== DATABASE_VERSION) {
+    console.log("Clearing cache");
+    lf.clear();
+    localStorage.setItem("DATABASE_VERSION", DATABASE_VERSION);
+  }
+
+  return lf;
+});
 
 // Add props to or modify the HFP item.
 function createHfpItem(rawHfp) {
@@ -31,9 +57,14 @@ function createHfpItem(rawHfp) {
 // Loads localstorage cache into memory
 export async function loadCache() {
   let cachedKeys = null;
+  const storage = await localforage;
+
+  if (!storage) {
+    return [];
+  }
 
   try {
-    cachedKeys = await localforage.keys();
+    cachedKeys = await storage.keys();
   } catch (err) {
     cachedKeys = null;
   }
@@ -45,7 +76,7 @@ export async function loadCache() {
   let data = [];
 
   for (const cachedKey of cachedKeys) {
-    const cachedJourney = await localforage.getItem(cachedKey);
+    const cachedJourney = await storage.getItem(cachedKey);
     memoryCache.set(cachedKey, cachedJourney);
     data.push(cachedJourney);
   }
@@ -56,6 +87,12 @@ export async function loadCache() {
 // Persists the memory cache in localstorage
 export async function persistCache() {
   if (!isPersistingCache && memoryCache.size !== 0) {
+    const storage = await localforage;
+
+    if (!storage) {
+      return;
+    }
+
     isPersistingCache = true;
     await idle();
 
@@ -63,11 +100,12 @@ export async function persistCache() {
     const cacheEntries = memoryCache.entries();
 
     for (const [key, value] of cacheEntries) {
-      persistActions.push(() => localforage.setItem(key, value));
+      persistActions.push(() => storage.setItem(key, value));
     }
 
     await pAll(persistActions);
     isPersistingCache = false;
+    console.log("Persisted cache");
   }
 }
 
@@ -75,13 +113,14 @@ async function getCachedJourney(fetchKey) {
   let cachedItem = memoryCache.get(fetchKey);
 
   if (!cachedItem) {
-    cachedItem = await localforage.getItem(fetchKey);
+    const storage = await localforage;
+    cachedItem = await storage.getItem(fetchKey);
   }
 
   return cachedItem;
 }
 
-export async function fetchHfpJourney(route, date, time) {
+export async function fetchHfpJourney(route, date, time, waitForIdle = true) {
   // If fetchKey is false then we don't have all required data yet
   const fetchKey = createFetchKey(route, date, time);
 
@@ -94,9 +133,13 @@ export async function fetchHfpJourney(route, date, time) {
   if (!fetchPromise) {
     try {
       // Start a new fetch promise if one isn't already in progress
-      fetchPromise = getCachedJourney(fetchKey).then((cachedJourney) => {
+      fetchPromise = getCachedJourney(fetchKey).then(async (cachedJourney) => {
         if (cachedJourney) {
           return cachedJourney;
+        }
+
+        if (waitForIdle) {
+          await idle();
         }
 
         return (

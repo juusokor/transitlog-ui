@@ -46,25 +46,27 @@ export default (Component) => {
 
       const journeyPromises = requestedJourneys.map(
         (departure, index) => async () => {
+          let waitForIdle = true;
           // Do the first fetch asap without waiting
-          if (index !== 0) {
-            // Wait for a quiet moment...
+          if (index === 0) {
+            waitForIdle = false;
+          } else {
             await idle();
           }
 
-          return this.fetchDeparture(route, date, departure);
+          return this.fetchDeparture(route, date, departure, waitForIdle);
         }
       );
 
-      await pAll(journeyPromises, {concurrency: 5});
+      await pAll(journeyPromises, {concurrency: 10});
       this.setLoading(false);
 
       await persistCache();
     };
 
-    fetchDeparture = async (route, date, departure) => {
+    fetchDeparture = async (route, date, departure, waitForIdle = true) => {
       const {Journey} = this.props;
-      const [journey] = await fetchHfpJourney(route, date, departure);
+      const [journey] = await fetchHfpJourney(route, date, departure, waitForIdle);
 
       Journey.removeJourneyRequest(departure);
 
@@ -95,6 +97,8 @@ export default (Component) => {
     };
 
     async componentDidMount() {
+      await loadCache();
+
       this.fetchReaction = reaction(
         () => {
           const {
@@ -105,9 +109,10 @@ export default (Component) => {
             },
           } = this.props;
 
-          return requestedJourneys.length || date || routeId;
+          return [requestedJourneys.length, date, routeId];
         },
-        () => this.fetchRequestedJourneys()
+        () => this.fetchRequestedJourneys(),
+        {fireImmediately: true}
       );
 
       // Reset the view if the fetchKey (without time) changes.
@@ -124,10 +129,9 @@ export default (Component) => {
           if (fetchKey) {
             this.resetView();
           }
-        }
+        },
+        {fireImmediately: true}
       );
-
-      await loadCache();
     }
 
     componentWillUnmount() {

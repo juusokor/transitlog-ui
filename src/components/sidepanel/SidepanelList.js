@@ -93,7 +93,7 @@ class SidepanelList extends Component {
     return (
       <ListWrapper>
         {header && <ListHeader>{header}</ListHeader>}
-        <ListRows innerRef={this.scrollElementRef}>
+        <ListRows ref={this.scrollElementRef}>
           <ScrollContainer>{children}</ScrollContainer>
         </ListRows>
         <LoadingContainer loading={loading}>

@@ -72,9 +72,9 @@ class HfpMarkerLayer extends Component {
     runInAction(() => (this.positions = indexed));
   };
 
-  componentDidMount() {
+  async componentDidMount() {
     const {state, positions} = this.props;
-    this.indexPositions(positions);
+    await this.indexPositions(positions);
 
     this.positionReaction = reaction(
       () => [state.time, this.positions.size],
