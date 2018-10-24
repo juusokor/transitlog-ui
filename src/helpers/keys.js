@@ -1,4 +1,3 @@
-import localforage from "localforage";
 import get from "lodash/get";
 import compact from "lodash/compact";
 
@@ -26,29 +25,4 @@ export function createRouteKey(route) {
 
   // Join into string and ensure no dots
   return keyParts.join("_").replace(".", "-");
-}
-
-export async function cacheData(dataToCache, cacheKey) {
-  if (!dataToCache || dataToCache.length === 0) {
-    return [];
-  }
-
-  let cachedData = null;
-
-  try {
-    cachedData = await localforage.getItem(cacheKey);
-  } catch (err) {
-    cachedData = null;
-  }
-
-  try {
-    if (cachedData) {
-      await localforage.removeItem(cacheKey);
-    }
-    await localforage.setItem(cacheKey, dataToCache);
-  } catch (err) {
-    console.error(`Caching journey ${cacheKey} failed.`, err);
-  }
-
-  return dataToCache;
 }

@@ -7,10 +7,13 @@ export function centerSort(centerValue, valuesToSort) {
   let firstValue = centerValue;
   let centerIndex = values.indexOf(firstValue);
 
+  // Get a numerical time that we can diff
   let firstValueInt = parseInt(firstValue.replace(":", ""), 10);
 
-  // If the exact time was not found in the times we want to fetch,
-  // we need to figure out which time would be closest to it.
+  // If the exact value was not found in the values we want to sort,
+  // we need to figure out which value would be closest to it.
+  // This function deals with times or numerical values
+  // only, as that's all we need for now.
   if (centerIndex === -1) {
     let prevDifference = false;
 
@@ -29,12 +32,12 @@ export function centerSort(centerValue, valuesToSort) {
   }
 
   if (centerIndex > 0) {
-    // Assign the firstValue to a string that definitely is in the array
+    // Assign firstValue to a string that definitely is in the array.
+    // It will be inserted as the first element after sorting.
     firstValue = values.splice(centerIndex, 1)[0];
-    // Move the first time to the beginning of the array
   } else {
     // If the centerIndex wasn't found (or if it was the first element),
-    // assign it as the firstValue.
+    // assign it as the firstValue. Will be inserted after sorting.
     firstValue = values.shift();
   }
 
@@ -47,6 +50,7 @@ export function centerSort(centerValue, valuesToSort) {
 
   const orderedValues = [
     firstValue,
+    // Interleave the before (reversed) and after values, adn flatten the result.
     ...flatten(zip(groupedValues.after, groupedValues.before.reverse())),
   ];
 

@@ -14,7 +14,7 @@ import {observable, action} from "mobx";
 import Loading from "../Loading";
 import SidepanelList from "./SidepanelList";
 import {journeyFetchStates} from "../../stores/JourneyStore";
-import {createFetchKey} from "../../helpers/hfpCache";
+import {createFetchKey} from "../../helpers/keys";
 import {centerSort} from "../../helpers/centerSort";
 
 const JourneyListRow = styled.button`
@@ -86,7 +86,7 @@ class Journeys extends Component {
       if (fetchTimes.length !== 0) {
         // Find which time we want to fetch first.
         let firstTime = selectedJourney ? selectedJourney.journey_start_time : time;
-        fetchTimes = centerSort(firstTime, fetchTimes).slice(0, 20);
+        fetchTimes = centerSort(firstTime, fetchTimes).slice(0, 10);
 
         Journey.requestJourneys(fetchTimes);
         this.currentFetchKey = fetchKey;

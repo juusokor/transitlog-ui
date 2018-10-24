@@ -13,7 +13,6 @@ import {Text} from "../../helpers/text";
 import "./Map.css";
 import {observable, runInAction, reaction} from "mobx";
 import animationFrame from "../../helpers/animationFrame";
-import idle from "../../helpers/idle";
 
 @inject(app("state"))
 @observer
@@ -31,17 +30,25 @@ class HfpMarkerLayer extends Component {
     await animationFrame();
 
     const timestamp = combineDateAndTime(date, time, "Europe/Helsinki").unix();
-    const positionKeys = this.positions.keys();
+    // Attempt to find the correct hfp item from the indexed positions
+    let nextHfpPosition = this.positions.get(timestamp);
 
-    let nextHfpPosition = null;
-    let prevClosestTime = 180;
+    if (!nextHfpPosition) {
+      // If an exact match was not found, search for a close-enough hfp item.
+      const positionKeys = this.positions.keys();
+      let prevClosestTime = 180;
 
-    for (const timeKey of positionKeys) {
-      const difference = Math.abs(timeKey - timestamp);
+      for (const timeKey of positionKeys) {
+        const difference = Math.abs(timeKey - timestamp);
 
-      if (difference < prevClosestTime) {
-        prevClosestTime = difference;
-        nextHfpPosition = this.positions.get(timeKey);
+        if (difference < prevClosestTime) {
+          prevClosestTime = difference;
+          nextHfpPosition = this.positions.get(timeKey);
+
+          if (difference <= 3) {
+            break;
+          }
+        }
       }
     }
 
@@ -54,10 +61,10 @@ class HfpMarkerLayer extends Component {
   };
 
   indexPositions = async (positions) => {
-    await idle();
+    await animationFrame();
 
     const indexed = positions.reduce((positionIndex, position) => {
-      const key = moment.tz(position.received_at, "Europe/Helsinki").unix();
+      const key = position.received_at_unix;
       positionIndex.set(key, position);
       return positionIndex;
     }, new Map());
@@ -70,7 +77,7 @@ class HfpMarkerLayer extends Component {
     this.indexPositions(positions);
 
     this.positionReaction = reaction(
-      () => state.time,
+      () => [state.time, this.positions.size],
       (time) => {
         if (time && this.positions.size !== 0) {
           this.getHfpPosition(time, state.date);

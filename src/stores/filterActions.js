@@ -1,8 +1,11 @@
 import {action} from "mobx";
 import moment from "moment-timezone";
 import get from "lodash/get";
+import JourneyActions from "./journeyActions";
 
 const filterActions = (state) => {
+  const journeyActions = JourneyActions(state);
+
   // Make sure all dates are correctly formed.
   const setDate = action("Set date", (dateValue) => {
     let momentValue = !dateValue

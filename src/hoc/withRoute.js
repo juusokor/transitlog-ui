@@ -3,7 +3,7 @@ import {fetchSingleRoute} from "../queries/SingleRouteQuery";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import {fromPromise} from "mobx-utils";
-import {createRouteKey} from "../helpers/hfpCache";
+import {createRouteKey} from "../helpers/keys";
 import get from "lodash/get";
 import compact from "lodash/compact";
 import {toJS} from "mobx";

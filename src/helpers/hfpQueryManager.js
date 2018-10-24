@@ -1,4 +1,4 @@
-import {createFetchKey} from "../helpers/hfpCache";
+import {createFetchKey} from "./keys";
 import {queryHfp} from "../queries/HfpQuery";
 import getJourneyId from "../helpers/getJourneyId";
 import {groupHfpPositions} from "../helpers/groupHfpPositions";
@@ -7,6 +7,7 @@ import {combineDateAndTime} from "./time";
 import pFinally from "p-finally";
 import idle from "./idle";
 import pAll from "p-all";
+import moment from "moment-timezone";
 
 const currentPromises = new Map();
 const memoryCache = new Map();
@@ -22,6 +23,7 @@ function createHfpItem(rawHfp) {
 
   return {
     ...rawHfp,
+    received_at_unix: moment.tz(rawHfp.received_at, "Europe/Helsinki").unix(),
     journey_start_timestamp: journeyStartMoment.toISOString(),
   };
 }
@@ -65,9 +67,7 @@ export async function persistCache() {
     }
 
     await pAll(persistActions);
-
     isPersistingCache = false;
-    console.log("Persisted memory cache.");
   }
 }
 

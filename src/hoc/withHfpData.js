@@ -10,6 +10,7 @@ import orderBy from "lodash/orderBy";
 import uniqBy from "lodash/uniqBy";
 import pAll from "p-all";
 import idle from "../helpers/idle";
+import {createFetchKey} from "../helpers/keys";
 
 // TODO: Fetch the departures starting from the selectedJourney outward.
 // TODO: Find out why it's so heavy to fetch cached journeys
@@ -25,9 +26,17 @@ export default (Component) => {
     @observable
     loading = false;
 
+    fetchReaction = () => {};
+    resetReaction = () => {};
+
     @action
     setLoading = (value = !this.loading) => {
       this.loading = value;
+    };
+
+    @action
+    resetView = () => {
+      this.currentView.clear();
     };
 
     fetchRequestedJourneys = async () => {
@@ -84,20 +93,49 @@ export default (Component) => {
     };
 
     async componentDidMount() {
-      const {
-        state: {
-          requestedJourneys,
-          date,
-          route: {routeId = ""},
-        },
-      } = this.props;
+      this.fetchReaction = reaction(
+        () => {
+          const {
+            state: {
+              requestedJourneys,
+              date,
+              route: {routeId = ""},
+            },
+          } = this.props;
 
-      reaction(
-        () => requestedJourneys.length !== 0 || date || routeId,
+          return requestedJourneys.length || date || routeId;
+        },
         () => this.fetchRequestedJourneys()
       );
 
+      // Reset the view if the fetchKey (without time) changes.
+      this.resetReaction = reaction(
+        () => {
+          const {
+            route,
+            state: {date},
+          } = this.props;
+
+          return createFetchKey(route, date, true);
+        },
+        (fetchKey) => {
+          if (fetchKey) {
+            this.resetView();
+          }
+        }
+      );
+
       await loadCache();
+    }
+
+    componentWillUnmount() {
+      if (typeof this.fetchReaction === "function") {
+        this.fetchReaction();
+      }
+
+      if (typeof this.resetReaction === "function") {
+        this.resetReaction();
+      }
     }
 
     render() {

@@ -4,7 +4,7 @@ import {app} from "mobx-app";
 import {get} from "lodash";
 import {text} from "../../helpers/text";
 import Dropdown from "../Dropdown";
-import {createRouteKey} from "../../helpers/hfpCache";
+import {createRouteKey} from "../../helpers/keys";
 import withRoute from "../../hoc/withRoute";
 
 @inject(app("Filters"))
