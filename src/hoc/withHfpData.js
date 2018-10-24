@@ -12,9 +12,6 @@ import pAll from "p-all";
 import idle from "../helpers/idle";
 import {createFetchKey} from "../helpers/keys";
 
-// TODO: Fetch the departures starting from the selectedJourney outward.
-// TODO: Find out why it's so heavy to fetch cached journeys
-
 export default (Component) => {
   @inject(app("Journey"))
   @withRoute
