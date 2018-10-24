@@ -59,7 +59,7 @@ export default (state) => {
     }
   );
 
-  // Request a journeyId
+  // Request a journeyId or multiple journeyIds
   const requestJourneys = action("Request a journey by time", (journeys = []) => {
     const requestedJourneys = compact(
       Array.isArray(journeys) ? journeys : [journeys]
