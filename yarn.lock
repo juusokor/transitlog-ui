@@ -6663,7 +6663,30 @@ loader-utils@1.1.0, loader-utils@^1.0.1, loader-utils@^1.0.2, loader-utils@^1.1.
     emojis-list "^2.0.0"
     json5 "^0.5.0"
 
-localforage@^1.7.2:
+localforage-indexes@^1.1.0, localforage-indexes@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/localforage-indexes/-/localforage-indexes-1.1.1.tgz#a0b252bdb85ad31212838b31aba5dd964897322e"
+  integrity sha512-5sO+kb7bU3Kr68lY+Tl6gI2fq+Wbspn3QouIbFg5r/jRRNId/DlEursvrsGGUy7ghB8KqZQNHnUkCKmtonmkxA==
+  dependencies:
+    localforage ">=1.4.0"
+
+localforage-lru-driver@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/localforage-lru-driver/-/localforage-lru-driver-1.0.4.tgz#014642a522db1aa72ee69ef7b4f5a251231e2670"
+  integrity sha1-AUZCpSLbGqcu5p73tPWiUSMeJnA=
+  dependencies:
+    localforage ">=1.4.0"
+    localforage-indexes "^1.1.0"
+    localforage-removeitems "^1.1.0"
+
+localforage-removeitems@^1.1.0, localforage-removeitems@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/localforage-removeitems/-/localforage-removeitems-1.4.0.tgz#41fc8685b17782584575a247180dfebcfdc82ca8"
+  integrity sha1-QfyGhbF3glhFdaJHGA3+vP3ILKg=
+  dependencies:
+    localforage ">=1.4.0"
+
+localforage@>=1.4.0, localforage@^1.7.2:
   version "1.7.2"
   resolved "https://registry.yarnpkg.com/localforage/-/localforage-1.7.2.tgz#fa4442602f806edd2bca6a54ab4e656f031f121c"
   integrity sha1-+kRCYC+Abt0rympUq05lbwMfEhw=
