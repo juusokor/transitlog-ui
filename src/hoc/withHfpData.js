@@ -44,9 +44,17 @@ export default (Component) => {
 
       this.setLoading(true);
 
-      const journeyPromises = requestedJourneys.map((departure) => async () => {
-        return this.fetchDeparture(route, date, departure);
-      });
+      const journeyPromises = requestedJourneys.map(
+        (departure, index) => async () => {
+          // Do the first fetch asap without waiting
+          if (index !== 0) {
+            // Wait for a quiet moment...
+            await idle();
+          }
+
+          return this.fetchDeparture(route, date, departure);
+        }
+      );
 
       await pAll(journeyPromises, {concurrency: 5});
       this.setLoading(false);
@@ -55,9 +63,6 @@ export default (Component) => {
     };
 
     fetchDeparture = async (route, date, departure) => {
-      // Wait for a quiet moment...
-      await idle();
-
       const {Journey} = this.props;
       const [journey] = await fetchHfpJourney(route, date, departure);
 
