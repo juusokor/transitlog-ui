@@ -10,6 +10,8 @@ import idle from "./idle";
 import pAll from "p-all";
 import moment from "moment-timezone";
 
+// Bump db version if you change something concering the local cache.
+// That will make all client's databases clear out.
 const DATABASE_VERSION = "1";
 const INDEX_KEY = "lruIndex";
 
