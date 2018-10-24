@@ -75,7 +75,8 @@ class HfpMarkerLayer extends Component {
         if (time && this.positions.size !== 0) {
           this.getHfpPosition(time, state.date);
         }
-      }
+      },
+      {fireImmediately: true}
     );
   }
 

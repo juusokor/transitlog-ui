@@ -83,7 +83,7 @@ export default (state) => {
 
         if (getJourneyId(state.selectedJourney) !== getJourneyId(journey)) {
           state.selectedJourney = journey;
-          actions.requestJourney(timeStr);
+          actions.requestJourneys(timeStr);
         }
       }
     }

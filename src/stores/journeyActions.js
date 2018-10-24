@@ -60,7 +60,7 @@ export default (state) => {
   );
 
   // Request a journeyId
-  const requestJourney = action("Request a journey by time", (journeys = []) => {
+  const requestJourneys = action("Request a journey by time", (journeys = []) => {
     const requestedJourneys = compact(
       Array.isArray(journeys) ? journeys : [journeys]
     );
@@ -122,7 +122,7 @@ export default (state) => {
         const journey = pickJourneyProps(hfpItem);
 
         state.selectedJourney = journey;
-        requestJourney(journey.journey_start_time);
+        requestJourneys(journey.journey_start_time);
         history.push(createJourneyPath(hfpItem));
       }
     }
@@ -130,7 +130,7 @@ export default (state) => {
 
   return {
     setSelectedJourney,
-    requestJourney,
+    requestJourneys: requestJourneys,
     removeJourneyRequest,
     setJourneyFetchState,
     getJourneyFromStateAndTime,

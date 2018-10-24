@@ -73,30 +73,32 @@ class Journeys extends Component {
   fetchAllJourneys = () => {
     const {
       Journey,
-      departures,
       state: {date, route, time, selectedJourney},
     } = this.props;
 
-    // Create fetchKey key without date
+    // Create fetchKey key without time
     const fetchKey = createFetchKey(route, date, false, true);
 
     if (fetchKey !== this.currentFetchKey) {
       // Format to an array of string times, like 12:30:00
-      let fetchTimes = departures.map(
-        (departure) =>
-          `${doubleDigit(departure.hours)}:${doubleDigit(departure.minutes)}:00`
-      );
+      let fetchTimes = this.getDeparturesAsTimes();
 
       if (fetchTimes.length !== 0) {
         // Find which time we want to fetch first.
         let firstTime = selectedJourney ? selectedJourney.journey_start_time : time;
         fetchTimes = centerSort(firstTime, fetchTimes).slice(0, 20);
 
-        Journey.requestJourney(fetchTimes);
+        Journey.requestJourneys(fetchTimes);
         this.currentFetchKey = fetchKey;
       }
     }
   };
+
+  getDeparturesAsTimes = () =>
+    this.props.departures.map(
+      (departure) =>
+        `${doubleDigit(departure.hours)}:${doubleDigit(departure.minutes)}:00`
+    );
 
   ensureSelectedVehicle = () => {
     const {Filters, state, positions} = this.props;
@@ -144,6 +146,15 @@ class Journeys extends Component {
         );
 
         journeyToSelect = journey;
+
+        const fetchTimes = centerSort(
+          journey.journey_start_time,
+          this.getDeparturesAsTimes()
+        ).slice(0, 10);
+
+        if (fetchTimes.length !== 0) {
+          Journey.requestJourneys(fetchTimes);
+        }
       }
     }
 

@@ -10,6 +10,7 @@ import pAll from "p-all";
 
 const currentPromises = new Map();
 const memoryCache = new Map();
+let isPersistingCache = false;
 
 // Add props to or modify the HFP item.
 function createHfpItem(rawHfp) {
@@ -52,7 +53,8 @@ export async function loadCache() {
 
 // Persists the memory cache in localstorage
 export async function persistCache() {
-  if (memoryCache.size !== 0) {
+  if (!isPersistingCache && memoryCache.size !== 0) {
+    isPersistingCache = true;
     await idle();
 
     const persistActions = [];
@@ -63,6 +65,8 @@ export async function persistCache() {
     }
 
     await pAll(persistActions);
+
+    isPersistingCache = false;
     console.log("Persisted memory cache.");
   }
 }
