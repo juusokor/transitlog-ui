@@ -6,13 +6,16 @@ import sortBy from "lodash/sortBy";
 import {app} from "mobx-app";
 import getJourneyId from "../../helpers/getJourneyId";
 import styled from "styled-components";
-import {timeToFormat, combineDateAndTime} from "../../helpers/time";
+import {timeToFormat} from "../../helpers/time";
 import {Text, text} from "../../helpers/text";
 import withDepartures from "../../hoc/withDepartures";
 import doubleDigit from "../../helpers/doubleDigit";
 import {observable, action} from "mobx";
 import Loading from "../Loading";
 import SidepanelList from "./SidepanelList";
+import {journeyFetchStates} from "../../stores/JourneyStore";
+import {createFetchKey} from "../../helpers/keys";
+import {centerSort} from "../../helpers/centerSort";
 
 const JourneyListRow = styled.button`
   display: flex;
@@ -46,17 +49,10 @@ const JourneyRowLeft = styled.span`
 @observer
 class Journeys extends Component {
   @observable
-  requestedJourney = "";
-  @observable
-  unrealizedJourneys = [];
-
-  @observable
   selectedJourneyOffset = 0;
   selectedJourneyRef = React.createRef();
   clickedJourneyItem = false;
-
-  clickedJourneyTimeout = 0;
-  journeyRequestTimeout = 0;
+  currentFetchKey = "";
 
   componentDidMount() {
     this.ensureSelectedVehicle();
@@ -64,51 +60,45 @@ class Journeys extends Component {
 
   componentDidUpdate({positions: prevPositions}, prevState) {
     this.ensureSelectedVehicle();
+    this.fetchAllJourneys();
 
-    const {requestedJourney, unrealizedJourneys} = this;
     const {selectedJourney} = this.props.state;
     const {loading} = this.props;
-
-    if (
-      !selectedJourney &&
-      requestedJourney &&
-      !unrealizedJourneys.includes(requestedJourney) &&
-      prevPositions.length !== this.props.positions.length
-    ) {
-      clearTimeout(this.journeyRequestTimeout);
-      this.checkReceivedJourneys();
-    } else if (requestedJourney) {
-      clearTimeout(this.journeyRequestTimeout);
-      // To stop the loading indicator spinning forever
-      this.journeyRequestTimeout = setTimeout(() => {
-        this.setRequestedJourney("");
-      }, 4000);
-    }
 
     if (!this.clickedJourneyItem && selectedJourney && !loading) {
       this.setSelectedJourneyOffset();
     }
   }
 
-  checkReceivedJourneys = action(() => {
-    const {positions, Journey} = this.props;
-    const {requestedJourney} = this;
+  fetchAllJourneys = () => {
+    const {
+      Journey,
+      state: {date, route, time, selectedJourney},
+    } = this.props;
 
-    const journeys = map(positions, ({positions}) => positions[0]);
+    // Create fetchKey key without time
+    const fetchKey = createFetchKey(route, date, false, true);
 
-    for (const journey of journeys) {
-      if (journey.journey_start_time === requestedJourney) {
-        Journey.setSelectedJourney(journey);
-        this.setRequestedJourney("");
+    if (fetchKey !== this.currentFetchKey) {
+      // Format to an array of string times, like 12:30:00
+      let fetchTimes = this.getDeparturesAsTimes();
 
-        return;
+      if (fetchTimes.length !== 0) {
+        // Find which time we want to fetch first.
+        let firstTime = selectedJourney ? selectedJourney.journey_start_time : time;
+        fetchTimes = centerSort(firstTime, fetchTimes).slice(0, 10);
+
+        Journey.requestJourneys(fetchTimes);
+        this.currentFetchKey = fetchKey;
       }
     }
+  };
 
-    if (!this.unrealizedJourneys.includes(requestedJourney)) {
-      this.unrealizedJourneys.push(requestedJourney);
-    }
-  });
+  getDeparturesAsTimes = () =>
+    this.props.departures.map(
+      (departure) =>
+        `${doubleDigit(departure.hours)}:${doubleDigit(departure.minutes)}:00`
+    );
 
   ensureSelectedVehicle = () => {
     const {Filters, state, positions} = this.props;
@@ -132,54 +122,44 @@ class Journeys extends Component {
     }
   };
 
-  selectJourney = (journey) => (e) => {
+  selectJourney = (journeyOrTime) => (e) => {
     e.preventDefault();
     const {Time, Journey, state} = this.props;
+    let journeyToSelect = null;
 
-    // Only set these if the journey is truthy and was not already selected
-    if (journey && getJourneyId(state.selectedJourney) !== getJourneyId(journey)) {
-      Time.setTime(
-        timeToFormat(journey.journey_start_timestamp, "HH:mm:ss", "Europe/Helsinki")
-      );
-    }
+    if (journeyOrTime) {
+      const journey =
+        typeof journeyOrTime === "string"
+          ? Journey.getJourneyFromStateAndTime(journeyOrTime)
+          : journeyOrTime;
 
-    this.clickedJourneyItem = true;
-    this.setRequestedJourney("");
-    Journey.setSelectedJourney(journey);
-  };
+      const journeyId = getJourneyId(journey);
 
-  setRequestedJourney = action((journeyStartTime = "") => {
-    const {Journey} = this.props;
+      // Only set these if the journey is truthy and was not already selected
+      if (journeyId && getJourneyId(state.selectedJourney) !== journeyId) {
+        Time.setTime(
+          timeToFormat(
+            journey.journey_start_timestamp,
+            "HH:mm:ss",
+            "Europe/Helsinki"
+          )
+        );
 
-    if (!this.unrealizedJourneys.includes(journeyStartTime)) {
-      if (journeyStartTime) {
-        Journey.setSelectedJourney(null);
+        journeyToSelect = journey;
+
+        const fetchTimes = centerSort(
+          journey.journey_start_time,
+          this.getDeparturesAsTimes()
+        ).slice(0, 10);
+
+        if (fetchTimes.length !== 0) {
+          Journey.requestJourneys(fetchTimes);
+        }
       }
-
-      this.requestedJourney = journeyStartTime;
     }
-
-    if (!journeyStartTime) {
-      clearTimeout(this.clickedJourneyTimeout);
-      this.clickedJourneyTimeout = setTimeout(() => {
-        this.clickedJourneyItem = false;
-      }, 4100);
-    }
-  });
-
-  requestPlannedJourney = (plannedTime) => {
-    const {Time, state} = this.props;
-
-    Time.setTime(
-      timeToFormat(
-        combineDateAndTime(state.date, plannedTime, "Europe/Helsinki"),
-        "HH:mm:ss",
-        "Europe/Helsinki"
-      )
-    );
 
     this.clickedJourneyItem = true;
-    this.setRequestedJourney(plannedTime);
+    Journey.setSelectedJourney(journeyToSelect);
   };
 
   getJourneyStartPosition(journeyId) {
@@ -225,10 +205,10 @@ class Journeys extends Component {
   });
 
   render() {
-    const {positions, loading, state, departures} = this.props;
+    const {positions, loading, state, departures, Journey} = this.props;
+    const {selectedJourney, resolvedJourneyStates} = state;
 
     const journeys = map(positions, ({positions}) => positions[0]);
-    const selectedJourney = get(state, "selectedJourney", null);
     const selectedJourneyId = getJourneyId(selectedJourney);
 
     const isSelected = (journey) =>
@@ -271,14 +251,20 @@ class Journeys extends Component {
         }>
         {departureList.map((journeyOrDeparture, index) => {
           if (typeof journeyOrDeparture === "string") {
+            const journeyId = getJourneyId(
+              Journey.getJourneyFromStateAndTime(journeyOrDeparture)
+            );
+
+            let fetchStatus = resolvedJourneyStates.get(journeyId);
+
             return (
               <JourneyListRow
                 key={`planned_journey_row_${journeyOrDeparture}_${index}`}
-                onClick={() => this.requestPlannedJourney(journeyOrDeparture)}>
+                onClick={this.selectJourney(journeyOrDeparture)}>
                 <JourneyRowLeft>{journeyOrDeparture}</JourneyRowLeft>
-                {this.unrealizedJourneys.includes(journeyOrDeparture) ? (
+                {fetchStatus === journeyFetchStates.NOTFOUND ? (
                   <span>{text("filterpanel.journey.unrealized")}</span>
-                ) : this.requestedJourney === journeyOrDeparture ? (
+                ) : fetchStatus === journeyFetchStates.PENDING ? (
                   <Loading inline />
                 ) : (
                   <span>{text("filterpanel.journey.click_to_fetch")}</span>

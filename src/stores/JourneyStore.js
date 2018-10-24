@@ -7,11 +7,20 @@ import moment from "moment-timezone";
 import journeyActions from "./journeyActions";
 import {pickJourneyProps} from "../helpers/pickJourneyProps";
 
+export const journeyFetchStates = {
+  PENDING: "pending",
+  RESOLVED: "resolved",
+  NOTFOUND: "notfound",
+  ERROR: "error",
+};
+
 export default (state) => {
   const history = createHistory();
 
   extendObservable(state, {
     selectedJourney: null,
+    requestedJourneys: [],
+    resolvedJourneyStates: new Map(),
   });
 
   const timeActions = TimeActions(state);
@@ -74,6 +83,7 @@ export default (state) => {
 
         if (getJourneyId(state.selectedJourney) !== getJourneyId(journey)) {
           state.selectedJourney = journey;
+          actions.requestJourneys(timeStr);
         }
       }
     }

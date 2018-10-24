@@ -3,7 +3,6 @@ import {hfpClient} from "../api";
 import get from "lodash/get";
 import gql from "graphql-tag";
 import HfpFieldsFragment from "./HfpFieldsFragment";
-import {timeToFormat} from "../helpers/time";
 
 export const hfpQuery = gql`
   query hfpQuery(
@@ -30,7 +29,8 @@ export const hfpQuery = gql`
 
 export const queryHfp = (route, date, timeRange) => {
   const {routeId, direction} = route;
-  const {min, max} = timeRange;
+  const min = get(timeRange, "min", timeRange);
+  const max = get(timeRange, "max", timeRange);
 
   return hfpClient
     .query({
@@ -40,8 +40,8 @@ export const queryHfp = (route, date, timeRange) => {
         route_id: routeId,
         direction: parseInt(direction, 10),
         date,
-        time_min: min.format("HH:mm:ss"),
-        time_max: max.format("HH:mm:ss"),
+        time_min: typeof min.format === "function" ? min.format("HH:mm:ss") : min,
+        time_max: typeof max.format === "function" ? max.format("HH:mm:ss") : max,
       },
     })
     .then(({data}) => get(data, "vehicles", []));

@@ -1,85 +1,149 @@
 import {inject, observer} from "mobx-react";
 import {app} from "mobx-app";
 import React from "react";
-import get from "lodash/get";
-import {createFetchKey} from "../helpers/hfpCache";
-import {fromPromise} from "mobx-utils";
 import withRoute from "./withRoute";
-import {fetchHfp} from "../helpers/hfpQueryManager";
-
-const emptyCachePromise = () => fromPromise.resolve([]);
-
-// To use while the promise is loading
-let previouslyResolvedPositions = [];
+import {fetchHfpJourney, loadCache, persistCache} from "../helpers/hfpQueryManager";
+import {observable, reaction, action, runInAction} from "mobx";
+import {journeyFetchStates} from "../stores/JourneyStore";
+import getJourneyId from "../helpers/getJourneyId";
+import orderBy from "lodash/orderBy";
+import uniqBy from "lodash/uniqBy";
+import pAll from "p-all";
+import idle from "../helpers/idle";
+import {createFetchKey} from "../helpers/keys";
 
 export default (Component) => {
-  @inject(app("state"))
+  @inject(app("Journey"))
   @withRoute
   @observer
   class WithHfpData extends React.Component {
-    currentFetchKey = false;
-    cachePromise = emptyCachePromise();
+    @observable.shallow
+    currentView = [];
 
-    // Creates a promise for awaiting the hfp result from the API or the cache.
-    // React can't render async yet, so some mechanism to update the view when
-    // an async result comes back is required. Remember that this runs *per instance*,
-    // so the vast majority of work should be done in the `fetchHfp` method that runs
-    // once for all instances when required.
-    updateCachePromise = () => {
+    @observable
+    loading = false;
+
+    fetchReaction = () => {};
+    resetReaction = () => {};
+
+    @action
+    setLoading = (value = !this.loading) => {
+      this.loading = value;
+    };
+
+    @action
+    resetView = () => {
+      this.currentView.clear();
+    };
+
+    fetchRequestedJourneys = async () => {
       const {
         route,
-        state: {date, time, selectedJourney},
+        state: {date, requestedJourneys = []},
       } = this.props;
 
-      if (this.cachePromise.state === "pending") {
-        return;
-      }
+      this.setLoading(true);
 
-      const useTime = get(selectedJourney, "journey_start_time", time);
-      const fetchKey = createFetchKey(route, date, useTime);
-      let setPromise;
+      const journeyPromises = requestedJourneys.map((departure) => async () => {
+        return this.fetchDeparture(route, date, departure);
+      });
 
-      // If we have a valid cacheKey (ie there is a route selected), and the key is
-      // currently not in use, update the cache promise to fetch the current route.
-      if (fetchKey && fetchKey !== this.currentFetchKey) {
-        setPromise = fromPromise(fetchHfp(route, date, useTime));
-      } else if (fetchKey !== this.currentFetchKey) {
-        setPromise = emptyCachePromise();
-      }
+      await pAll(journeyPromises, {concurrency: 5});
+      this.setLoading(false);
 
-      // Always update the promise if the current cache key doesn't match the new one.
-      // This allows for empty cache promises to be set, even if the above condition doesn't run.
-      // This is needed to update the view when the route changes or filters reset.
-      if (fetchKey !== this.currentFetchKey) {
-        this.currentFetchKey = fetchKey;
-        this.cachePromise = setPromise;
+      await persistCache();
+    };
+
+    fetchDeparture = async (route, date, departure) => {
+      // Wait for a quiet moment...
+      await idle();
+
+      const {Journey} = this.props;
+      const [journey] = await fetchHfpJourney(route, date, departure);
+
+      Journey.removeJourneyRequest(departure);
+
+      if (journey) {
+        Journey.setJourneyFetchState(journey.journeyId, journeyFetchStates.RESOLVED);
+
+        const nextView = orderBy(
+          uniqBy([...this.currentView, journey], "journeyId"),
+          ({journeyId}) => {
+            const keyParts = journeyId.slice(8).split("_");
+            return keyParts[1].replace(":", "");
+          }
+        );
+
+        runInAction(() => this.currentView.replace(nextView));
+      } else {
+        Journey.setJourneyFetchState(
+          getJourneyId(Journey.getJourneyFromStateAndTime(departure)),
+          journeyFetchStates.NOTFOUND
+        );
       }
     };
 
-    getComponent = (positions, loading) => (
-      <Component
-        key="withHfpDataComponent"
-        {...this.props}
-        loading={loading}
-        positions={positions}
-      />
-    );
+    onError = (err) => {
+      // The error is per fetched journey, so some way to match errors
+      // to requested times is necessary. TODO!
+      console.log(err);
+    };
+
+    async componentDidMount() {
+      this.fetchReaction = reaction(
+        () => {
+          const {
+            state: {
+              requestedJourneys,
+              date,
+              route: {routeId = ""},
+            },
+          } = this.props;
+
+          return requestedJourneys.length || date || routeId;
+        },
+        () => this.fetchRequestedJourneys()
+      );
+
+      // Reset the view if the fetchKey (without time) changes.
+      this.resetReaction = reaction(
+        () => {
+          const {
+            route,
+            state: {date},
+          } = this.props;
+
+          return createFetchKey(route, date, true);
+        },
+        (fetchKey) => {
+          if (fetchKey) {
+            this.resetView();
+          }
+        }
+      );
+
+      await loadCache();
+    }
+
+    componentWillUnmount() {
+      if (typeof this.fetchReaction === "function") {
+        this.fetchReaction();
+      }
+
+      if (typeof this.resetReaction === "function") {
+        this.resetReaction();
+      }
+    }
 
     render() {
-      this.updateCachePromise();
-
-      // Use the mobxified promise
-      return this.cachePromise.case({
-        pending: () => this.getComponent(previouslyResolvedPositions, true),
-        rejected: (error) => {
-          console.error(error);
-          return this.getComponent(previouslyResolvedPositions, false);
-        },
-        fulfilled: (positions) => {
-          previouslyResolvedPositions = positions;
-          return this.getComponent(positions, false);
-        },
-      });
+      return (
+        <Component
+          key="withHfpDataComponent"
+          {...this.props}
+          loading={this.loading}
+          positions={this.currentView}
+        />
+      );
     }
   }
 
