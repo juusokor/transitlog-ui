@@ -280,7 +280,7 @@ class Journeys extends Component {
 
           return (
             <JourneyListRow
-              innerRef={journeyIsSelected ? this.selectedJourneyRef : null}
+              ref={journeyIsSelected ? this.selectedJourneyRef : null}
               selected={journeyIsSelected}
               key={`journey_row_${getJourneyId(journeyOrDeparture)}`}
               onClick={this.selectJourney(journeyOrDeparture)}>

@@ -1,6 +1,6 @@
-import styled, {injectGlobal, css} from "styled-components";
+import styled, {css, createGlobalStyle} from "styled-components";
 
-injectGlobal`
+export const GlobalFormStyle = createGlobalStyle`
   select,
   input:not([type="radio"]):not([type="checkbox"]),
   button,
