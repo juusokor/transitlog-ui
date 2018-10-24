@@ -45,7 +45,6 @@ class MapContent extends Component {
                     stops={stops}
                     setMapBounds={setMapBounds}
                     key={`route_line_${route.routeId}`}
-                    positions={positions}
                   />
                 ) : null
               }

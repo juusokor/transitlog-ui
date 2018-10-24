@@ -7,7 +7,7 @@ import BusIcon from "../../icons/Bus";
 import TramIcon from "../../icons/Tram";
 import RailIcon from "../../icons/Rail";
 import getDelayType from "../../helpers/getDelayType";
-import withDepartureJourney from "../../hoc/withDepartureJourney";
+import DepartureJourneyQuery from "../../queries/DepartureJourneyQuery";
 
 const transportIcon = {
   BUS: BusIcon,
@@ -93,11 +93,10 @@ const parseLineNumber = (lineId) =>
   // Remove all zeros from the beginning
   lineId.substring(1).replace(/^0+/, "");
 
-@withDepartureJourney
 @observer
 class TimetableDeparture extends Component {
   render() {
-    const {departure, journey = null, stop, onClick} = this.props;
+    const {departure, date, stop, onClick} = this.props;
 
     const {
       modes: {nodes: modes},
@@ -105,36 +104,42 @@ class TimetableDeparture extends Component {
 
     const stopMode = modes[0];
 
-    const dl = get(journey, "dl", null);
-
-    const departureData = {
-      ...departure,
-      journey,
-    };
-
-    const sign = dl < 0 ? "+" : dl > 0 ? "-" : "";
-    const seconds = Math.abs(dl) % 60;
-    const minutes = Math.floor(Math.abs(dl) / 60);
-
     return (
-      <TimetableTime onClick={onClick(departureData)}>
-        <RouteTag mode={stopMode}>
-          {React.createElement(get(transportIcon, stopMode, null), {
-            fill: get(transportColor, stopMode, "var(--light-grey)"),
-            width: "16",
-            heigth: "16",
-          })}
-          {parseLineNumber(departure.routeId)}
-        </RouteTag>
-        <TimetableMinutes>{doubleDigit(departure.minutes)}</TimetableMinutes>
-        {typeof dl === "number" &&
-          dl !== null && (
-            <TimeDelay delayType={getDelayType(dl)}>
-              {sign}
-              {doubleDigit(minutes)}:{doubleDigit(seconds)}
-            </TimeDelay>
-          )}
-      </TimetableTime>
+      <DepartureJourneyQuery date={date} departure={departure}>
+        {({journey}) => {
+          const dl = get(journey, "dl", null);
+
+          const departureData = {
+            ...departure,
+            journey,
+          };
+
+          const sign = dl < 0 ? "+" : dl > 0 ? "-" : "";
+          const seconds = Math.abs(dl) % 60;
+          const minutes = Math.floor(Math.abs(dl) / 60);
+
+          return (
+            <TimetableTime onClick={onClick(departureData)}>
+              <RouteTag mode={stopMode}>
+                {React.createElement(get(transportIcon, stopMode, null), {
+                  fill: get(transportColor, stopMode, "var(--light-grey)"),
+                  width: "16",
+                  heigth: "16",
+                })}
+                {parseLineNumber(departure.routeId)}
+              </RouteTag>
+              <TimetableMinutes>{doubleDigit(departure.minutes)}</TimetableMinutes>
+              {typeof dl === "number" &&
+                dl !== null && (
+                  <TimeDelay delayType={getDelayType(dl)}>
+                    {sign}
+                    {doubleDigit(minutes)}:{doubleDigit(seconds)}
+                  </TimeDelay>
+                )}
+            </TimetableTime>
+          );
+        }}
+      </DepartureJourneyQuery>
     );
   }
 }

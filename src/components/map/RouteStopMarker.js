@@ -22,7 +22,7 @@ class RouteStopMarker extends React.Component {
       selected,
       firstTerminal,
       lastTerminal,
-      hfp,
+      departures,
       showTime,
       onChangeShowTime,
       onTimeClick,
@@ -45,7 +45,7 @@ class RouteStopMarker extends React.Component {
 
     // TODO: Compare timing stops with real schedules
 
-    if ((firstTerminal || stop.timingStopType) && hfp.length !== 0) {
+    /*if ((firstTerminal || stop.timingStopType) && hfp.length !== 0) {
       const stopDepartHfp = get(hfp, `[0].journeys[0].depart`, "");
 
       const departedDate = parse(stopDepartHfp.received_at);
@@ -64,7 +64,7 @@ class RouteStopMarker extends React.Component {
 
       // Not "on time" if started 10 or more seconds too early.
       journeyStartedOnTime = delay < 10;
-    }
+    }*/
 
     return React.createElement(
       stop.timingStopType ? Marker : CircleMarker,
@@ -102,20 +102,17 @@ class RouteStopMarker extends React.Component {
           <Heading level={4}>
             {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
           </Heading>
-          {hfp.length > 0 && (
-            <React.Fragment>
-              <ArriveDepartToggle value={showTime} onChange={onChangeShowTime} />
-              <DriveByTimes
-                isFirst={firstTerminal}
-                showTime={showTime}
-                onTimeClick={onTimeClick}
-                date={state.date}
-                route={state.route}
-                stop={stop}
-                positions={hfp}
-              />
-            </React.Fragment>
-          )}
+          <React.Fragment>
+            <ArriveDepartToggle value={showTime} onChange={onChangeShowTime} />
+            <DriveByTimes
+              isFirst={firstTerminal}
+              showTime={showTime}
+              onTimeClick={onTimeClick}
+              date={state.date}
+              route={state.route}
+              stop={stop}
+            />
+          </React.Fragment>
         </Popup>
       </React.Fragment>
     );
