@@ -26,7 +26,7 @@ const transportColor = {
 };
 
 const TimetableTime = styled.button`
-  margin: 0.25rem;
+  margin: 0.3rem 0.25rem;
   display: inline-flex;
   flex-direction: row;
   flex-wrap: nowrap;
@@ -44,7 +44,7 @@ const TimetableTime = styled.button`
 `;
 
 const ColoredIconSlot = styled.span`
-  padding: 3px;
+  padding: 3px 3px 3px 5px;
   background-color: transparent;
   color: ${({mode}) => get(transportColor, mode, "var(--light-grey)")};
   display: inline-flex;
@@ -52,9 +52,9 @@ const ColoredIconSlot = styled.span`
   flex-wrap: nowrap;
   align-items: center;
   font-weight: bold;
-  justify-content: center;
+  justify-content: flex-start;
   margin-right: 0.25rem;
-  min-width: 6rem;
+  min-width: 5rem;
 
   svg {
     width: 1rem;
@@ -92,12 +92,19 @@ const PlainSlot = styled.span`
   min-width: 4rem;
   padding: 3px 8px;
   border-left: 1px solid var(--lighter-grey);
+  font-weight: bold;
+`;
 
-  &:nth-child(4) {
-    margin-left: auto;
-    border-left: 0;
-    font-weight: normal;
-  }
+const PlainSlotSmallRight = styled.span`
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  border-left: 0;
+  font-weight: normal;
+  min-width: 4rem;
+  padding: 3px 8px;
+  font-size: 0.875rem;
 `;
 
 const parseLineNumber = (lineId) =>
@@ -174,7 +181,9 @@ class TimetableDeparture extends Component {
                     {sign}
                     {doubleDigit(minutes)}:{doubleDigit(seconds)}
                   </ColoredBackgroundSlot>
-                  <PlainSlot>{observedDepartureTime.format("HH:mm:ss")}</PlainSlot>
+                  <PlainSlotSmallRight>
+                    {observedDepartureTime.format("HH:mm:ss")}
+                  </PlainSlotSmallRight>
                 </>
               )}
             </TimetableTime>
