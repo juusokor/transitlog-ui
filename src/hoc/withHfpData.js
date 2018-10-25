@@ -58,7 +58,7 @@ export default (Component) => {
         }
       );
 
-      await pAll(journeyPromises, {concurrency: 10});
+      await pAll(journeyPromises, {concurrency: 5});
       this.setLoading(false);
 
       await persistCache();

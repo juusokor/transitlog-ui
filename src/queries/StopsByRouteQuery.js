@@ -19,12 +19,18 @@ const stopsByRouteQuery = gql`
       dateEnd: $dateEnd
     ) {
       nodeId
-      __typename
+      originstopId
+      dateBegin
+      dateEnd
       routeSegments {
         nodes {
           nodeId
+          timingStopType
+          dateBegin
+          dateEnd
           stopIndex
-          __typename
+          distanceFromPrevious
+          distanceFromStart
           stop: stopByStopId {
             ...StopFieldsFragment
           }
@@ -46,8 +52,13 @@ export default observer(({children, route}) => (
     }}>
     {({loading, error, data}) => {
       const stops = get(data, "route.routeSegments.nodes", []).map((segment) => ({
-        stopIndex: segment.stopIndex,
         ...segment.stop,
+        timingStopType: segment.timingStopType,
+        dateBegin: segment.dateBegin,
+        dateEnd: segment.dateEnd,
+        stopIndex: segment.stopIndex,
+        distanceFromPrevious: segment.distanceFromPrevious,
+        distanceFromStart: segment.distanceFromStart,
       }));
 
       return children({

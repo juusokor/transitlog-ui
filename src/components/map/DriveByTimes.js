@@ -100,7 +100,6 @@ function findClosestDeparture(departures, adjustedTime) {
 class DriveByTimes extends React.Component {
   render() {
     const {
-      onTimeClick = () => {},
       positions: journeyGroups,
       date,
       route,
@@ -171,9 +170,6 @@ class DriveByTimes extends React.Component {
 
                 return (
                   <TimeTag
-                    onClick={onTimeClick(
-                      timeToFormat(receivedAtDate, "HH:mm:ss", "Europe/Helsinki")
-                    )}
                     key={`time_tag_${useTime.received_at}_${
                       useTime.unique_vehicle_id
                     }`}

@@ -33,15 +33,6 @@ const stopDelayQuery = gql`
   ${HfpFieldsFragment}
 `;
 
-export const queryStopHfp = (variables) => {
-  return hfpClient
-    .query({
-      query: stopDelayQuery,
-      variables,
-    })
-    .then(({data}) => get(data, "vehicles[0]", null));
-};
-
 @observer
 class StopHfpQuery extends Component {
   render() {

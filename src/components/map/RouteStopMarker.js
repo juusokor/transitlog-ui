@@ -3,10 +3,10 @@ import {Marker, CircleMarker, Tooltip} from "react-leaflet";
 import {icon} from "leaflet";
 import TimingStopIcon from "../../icon-time1.svg";
 import {observer} from "mobx-react";
-import DepartureJourneyQuery from "../../queries/DepartureJourneyQuery";
 import {diffDepartureJourney} from "../../helpers/diffDepartureJourney";
 import getDelayType from "../../helpers/getDelayType";
-import {observable} from "mobx";
+import doubleDigit from "../../helpers/doubleDigit";
+import orderBy from "lodash/orderBy";
 
 const stopColor = "var(--blue)";
 
@@ -51,59 +51,92 @@ class RouteStopMarker extends React.Component {
     );
   };
 
-  @observable
-  departureJourneys = [];
-
-  componentDidMount() {}
-
   render() {
     const {
       stop,
+      originstopId,
       selected,
       firstTerminal,
       lastTerminal,
-      departures,
+      departures = [],
+      positions = [],
       date,
       onSelect,
+      selectedJourney,
     } = this.props;
 
     const isTerminal = firstTerminal || lastTerminal;
 
     // Show a marker without the popup if we don't have any data
-    if (!departures || departures.length === 0) {
+    if (departures.length === 0 || positions.length === 0 || !selectedJourney) {
       return this.createStopMarker(stop, stopColor, selected, isTerminal, onSelect);
     }
 
-    // TODO: Find the departure for the selected journey
-    const departure = departures[0];
+    const {route_id, direction_id, journey_start_time, oday} = selectedJourney;
 
-    return (
-      <DepartureJourneyQuery departure={departure} date={date}>
-        {({journey}) => {
-          let delayType = "on-time";
+    let departure;
 
-          if (journey) {
-            const plannedObservedDiff = diffDepartureJourney(
-              journey,
-              departure,
-              date
-            );
-            // Not "on time" if started 10 or more seconds too early.
-            delayType = getDelayType(plannedObservedDiff.diff);
-          }
+    const firstDeparture = departures.find(
+      (departure) =>
+        `${doubleDigit(departure.hours)}:${doubleDigit(departure.minutes)}:00` ===
+          journey_start_time && departure.stopId === originstopId
+    );
 
-          const color =
-            delayType === "early"
-              ? "var(--red)"
-              : delayType === "late"
-                ? "var(--yellow)"
-                : "var(--light-green)";
+    if (firstTerminal && firstDeparture) {
+      // The first stop is easy. Just find the departure
+      // that matches the journey_start_time.
+      departure = firstDeparture;
+    } else if (firstDeparture) {
+      departure = departures.find(
+        (dep) =>
+          dep.departureId === firstDeparture.departureId &&
+          dep.stopId === stop.stopId
+      );
+    }
 
-          return this.createStopMarker(stop, color, selected, isTerminal, onSelect);
-        }}
-      </DepartureJourneyQuery>
+    if (!departure) {
+      return this.createStopMarker(stop, stopColor, selected, isTerminal, onSelect);
+    }
 
-      /*const popup = (
+    let departureHfpItem = orderBy(
+      positions.filter(
+        (pos) =>
+          pos.route_id === route_id &&
+          pos.direction_id === direction_id &&
+          pos.oday === oday &&
+          pos.journey_start_time === journey_start_time &&
+          pos.next_stop_id === stop.stopId
+      ),
+      "received_at_unix",
+      "desc"
+    )[0];
+
+    if (!departureHfpItem) {
+      return this.createStopMarker(stop, stopColor, selected, isTerminal, onSelect);
+    }
+
+    let delayType = "on-time";
+
+    if (departureHfpItem) {
+      const plannedObservedDiff = diffDepartureJourney(
+        departureHfpItem,
+        departure,
+        date
+      );
+
+      delayType = getDelayType(plannedObservedDiff.diff);
+    }
+
+    const color =
+      delayType === "early"
+        ? "var(--red)"
+        : delayType === "late"
+          ? "var(--yellow)"
+          : "var(--light-green)";
+
+    return this.createStopMarker(stop, color, selected, isTerminal, onSelect);
+
+    /*const popup = (
         <Popup
           keepInView={ false }
           autoPan={ false }
@@ -127,7 +160,6 @@ class RouteStopMarker extends React.Component {
           </React.Fragment>
         </Popup>
       )*/
-    );
   }
 }
 
