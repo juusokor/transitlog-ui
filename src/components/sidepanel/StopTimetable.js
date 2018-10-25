@@ -8,7 +8,9 @@ import {Heading} from "../Typography";
 import DeparturesQuery from "../../queries/DeparturesQuery";
 import TimetableDeparture from "./TimetableDeparture";
 
-const TimetableGrid = styled.div``;
+const TimetableGrid = styled.div`
+  margin-bottom: 1rem;
+`;
 
 const TimetableHour = styled(Heading).attrs({level: 4})`
   margin-bottom: 0.5rem;

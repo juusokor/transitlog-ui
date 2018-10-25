@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import get from "lodash/get";
 import {Query} from "react-apollo";
 import gql from "graphql-tag";
+import {StopFieldsFragment} from "./StopFieldsFragment";
 
 const routeQuery = gql`
   query routeQuery(
@@ -19,10 +20,10 @@ const routeQuery = gql`
     ) {
       nodeId
       originstopId
-      __typename
+      dateBegin
+      dateEnd
       geometries {
         nodes {
-          __typename
           geometry
         }
       }
@@ -30,21 +31,19 @@ const routeQuery = gql`
         nodes {
           nodeId
           timingStopType
-          __typename
+          dateBegin
+          dateEnd
+          stopIndex
+          distanceFromPrevious
+          distanceFromStart
           stop: stopByStopId {
-            nodeId
-            stopId
-            lat
-            lon
-            shortId
-            nameFi
-            nameSe
-            __typename
+            ...StopFieldsFragment
           }
         }
       }
     }
   }
+  ${StopFieldsFragment}
 `;
 
 // No @observer here, as it doesn't like shouldComponentUpdate
@@ -98,7 +97,15 @@ class RouteQuery extends Component {
           );
 
           const stops = get(data, "route.routeSegments.nodes", []).map(
-            (segment) => ({...segment.stop, timingStopType: segment.timingStopType})
+            (segment) => ({
+              ...segment.stop,
+              timingStopType: segment.timingStopType,
+              dateBegin: segment.dateBegin,
+              dateEnd: segment.dateEnd,
+              stopIndex: segment.stopIndex,
+              distanceFromPrevious: segment.distanceFromPrevious,
+              distanceFromStart: segment.distanceFromStart,
+            })
           );
 
           return children({routeGeometry: positions, stops});

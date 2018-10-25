@@ -5,13 +5,13 @@ import RouteStopMarker from "./RouteStopMarker";
 import {inject, observer} from "mobx-react";
 import {app} from "mobx-app";
 import DeparturesQuery from "../../queries/DeparturesQuery";
+import DepartureJourneyQuery from "../../queries/DepartureJourneyQuery";
 
 @inject(app("Time", "Filters"))
 @observer
 class RouteLayer extends Component {
   state = {
     showTime: "arrive",
-    openStopPopup: null,
   };
 
   onChangeShowTime = (setTo) => () => {
@@ -21,13 +21,9 @@ class RouteLayer extends Component {
   };
 
   toggleStopOpen = (stopId = null) => () => {
-    const currentOpenStop = this.state.openStopPopup;
+    const {stop} = this.props.state;
 
-    this.setState({
-      openStopPopup: stopId === currentOpenStop ? null : stopId,
-    });
-
-    if (stopId !== null && currentOpenStop !== stopId) {
+    if (stopId !== null && stop !== stopId) {
       this.props.Filters.setStop(stopId);
     }
   };
@@ -64,16 +60,14 @@ class RouteLayer extends Component {
       lastTerminal={isLast}
       departures={departures}
       stop={stop}
-      onPopupOpen={this.toggleStopOpen(stop.stopId)}
-      onPopupClose={this.toggleStopOpen(stop.stopId)}
+      date={this.props.state.date}
+      onSelect={this.toggleStopOpen(stop.stopId)}
     />
   );
 
   render() {
-    const {openStopPopup} = this.state;
-
     const {state, routeGeometry, stops} = this.props;
-    const {stop: selectedStop, date} = state;
+    const {stop: selectedStop, date, selectedJourney} = state;
 
     const coords = routeGeometry.map(([lon, lat]) => [lat, lon]);
 
@@ -86,18 +80,29 @@ class RouteLayer extends Component {
           color="var(--blue)"
         />
         {stops.map((stop, index) => {
+          console.log(stop);
+
           const isSelected = stop.stopId === selectedStop;
           // Funnily enough, the first stop is last in the array.
           const isFirst = index === stops.length - 1;
           // ...and the last stop is first.
           const isLast = index === 0;
 
-          if (!isSelected || openStopPopup !== stop.stopId) {
+          if (!selectedJourney) {
             return this.getStopMarker(stop, isSelected, isFirst, isLast, []);
           }
 
+          const {route_id, direction_id} = selectedJourney;
+
           return (
-            <DeparturesQuery stop={stop} date={date}>
+            <DeparturesQuery
+              stop={stop}
+              date={date}
+              route={{
+                routeId: route_id,
+                direction: direction_id,
+              }}
+              key={`stop_marker_query_${stop.stopId}`}>
               {({departures}) =>
                 this.getStopMarker(stop, isSelected, isFirst, isLast, departures)
               }

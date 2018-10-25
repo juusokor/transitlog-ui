@@ -1,11 +1,8 @@
 import {action} from "mobx";
 import moment from "moment-timezone";
 import get from "lodash/get";
-import JourneyActions from "./journeyActions";
 
 const filterActions = (state) => {
-  const journeyActions = JourneyActions(state);
-
   // Make sure all dates are correctly formed.
   const setDate = action("Set date", (dateValue) => {
     let momentValue = !dateValue
@@ -21,6 +18,7 @@ const filterActions = (state) => {
 
   // Grab the stopId from the passed stop object.
   const setStop = action("Set stop", (stop = "") => {
+    // Either get the stopId prop or treat the stop arg as the stopId.
     state.stop = get(stop, "stopId", stop);
   });
 

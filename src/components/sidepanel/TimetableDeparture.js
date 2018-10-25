@@ -10,6 +10,7 @@ import getDelayType from "../../helpers/getDelayType";
 import DepartureJourneyQuery from "../../queries/DepartureJourneyQuery";
 import {combineDateAndTime} from "../../helpers/time";
 import moment from "moment-timezone";
+import {diffDepartureJourney} from "../../helpers/diffDepartureJourney";
 
 const transportIcon = {
   BUS: BusIcon,
@@ -131,38 +132,7 @@ class TimetableDeparture extends Component {
             journey,
           };
 
-          const received_at = get(journey, "received_at", null);
-          let sign;
-          let seconds;
-          let minutes;
-          let diff;
-          let observedDepartureTime;
-
-          if (received_at) {
-            observedDepartureTime = moment.tz(received_at, "Europe/Helsinki");
-
-            // The departure uses a 30-hour day, so the night hours actually belong
-            // to the previous day and not the current day.
-            const adjustedDate =
-              departure.hours < 5
-                ? moment
-                    .tz(date, "Europe/Helsinki")
-                    .add(1, "day")
-                    .format("YYYY-MM-DD")
-                : date;
-
-            const plannedDepartureTime = combineDateAndTime(
-              adjustedDate,
-              `${doubleDigit(departure.hours)}:${doubleDigit(departure.minutes)}`,
-              "Europe/Helsinki"
-            );
-
-            diff = plannedDepartureTime.diff(observedDepartureTime, "seconds");
-
-            sign = diff < 0 ? "+" : diff > 0 ? "-" : "";
-            seconds = Math.abs(diff) % 60;
-            minutes = Math.floor(Math.abs(diff) / 60);
-          }
+          const plannedObservedDiff = diffDepartureJourney(journey, departure, date);
 
           return (
             <TimetableTime onClick={onClick(departureData)}>
@@ -175,14 +145,16 @@ class TimetableDeparture extends Component {
                 {parseLineNumber(departure.routeId)}
               </ColoredIconSlot>
               <PlainSlot>{doubleDigit(departure.minutes)}</PlainSlot>
-              {received_at && (
+              {plannedObservedDiff && (
                 <>
-                  <ColoredBackgroundSlot delayType={getDelayType(diff)}>
-                    {sign}
-                    {doubleDigit(minutes)}:{doubleDigit(seconds)}
+                  <ColoredBackgroundSlot
+                    delayType={getDelayType(plannedObservedDiff.diff)}>
+                    {plannedObservedDiff.sign}
+                    {doubleDigit(plannedObservedDiff.minutes)}:
+                    {doubleDigit(plannedObservedDiff.seconds)}
                   </ColoredBackgroundSlot>
                   <PlainSlotSmallRight>
-                    {observedDepartureTime.format("HH:mm:ss")}
+                    {plannedObservedDiff.observedMoment.format("HH:mm:ss")}
                   </PlainSlotSmallRight>
                 </>
               )}
