@@ -8,6 +8,8 @@ import TramIcon from "../../icons/Tram";
 import RailIcon from "../../icons/Rail";
 import getDelayType from "../../helpers/getDelayType";
 import DepartureJourneyQuery from "../../queries/DepartureJourneyQuery";
+import {combineDateAndTime} from "../../helpers/time";
+import moment from "moment-timezone";
 
 const transportIcon = {
   BUS: BusIcon,
@@ -29,19 +31,19 @@ const TimetableTime = styled.button`
   flex-direction: row;
   flex-wrap: nowrap;
   align-items: stretch;
-  justify-content: center;
+  justify-content: flex-start;
   border-radius: 4px;
   border: 1px solid var(--lighter-grey);
   background: #fefefe;
   outline: 0;
-  width: auto;
+  width: 100%;
   font-family: inherit;
   font-size: 1rem;
   padding: 0;
   cursor: pointer;
 `;
 
-const RouteTag = styled.span`
+const ColoredIconSlot = styled.span`
   padding: 3px;
   background-color: transparent;
   color: ${({mode}) => get(transportColor, mode, "var(--light-grey)")};
@@ -52,6 +54,7 @@ const RouteTag = styled.span`
   font-weight: bold;
   justify-content: center;
   margin-right: 0.25rem;
+  min-width: 6rem;
 
   svg {
     width: 1rem;
@@ -61,13 +64,14 @@ const RouteTag = styled.span`
   }
 `;
 
-const TimeDelay = styled.span`
+const ColoredBackgroundSlot = styled.span`
   font-size: 0.875rem;
   border-radius: 4px;
   line-height: 1rem;
   padding: 3px 5px;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   background: ${({delayType}) =>
     delayType === "early"
       ? "var(--red)"
@@ -77,15 +81,23 @@ const TimeDelay = styled.span`
   color: ${({delayType}) => (delayType === "late" ? "var(--dark-grey)" : "white")};
   transform: translate(1px, -1px);
   margin-bottom: -2px;
+  min-width: 5rem;
 
   &:empty {
     display: none;
   }
 `;
 
-const TimetableMinutes = styled.span`
+const PlainSlot = styled.span`
+  min-width: 4rem;
   padding: 3px 8px;
   border-left: 1px solid var(--lighter-grey);
+
+  &:nth-child(4) {
+    margin-left: auto;
+    border-left: 0;
+    font-weight: normal;
+  }
 `;
 
 const parseLineNumber = (lineId) =>
@@ -107,35 +119,64 @@ class TimetableDeparture extends Component {
     return (
       <DepartureJourneyQuery date={date} departure={departure}>
         {({journey}) => {
-          const dl = get(journey, "dl", null);
-
           const departureData = {
             ...departure,
             journey,
           };
 
-          const sign = dl < 0 ? "+" : dl > 0 ? "-" : "";
-          const seconds = Math.abs(dl) % 60;
-          const minutes = Math.floor(Math.abs(dl) / 60);
+          const received_at = get(journey, "received_at", null);
+          let sign;
+          let seconds;
+          let minutes;
+          let diff;
+          let observedDepartureTime;
+
+          if (received_at) {
+            observedDepartureTime = moment.tz(received_at, "Europe/Helsinki");
+
+            // The departure uses a 30-hour day, so the night hours actually belong
+            // to the previous day and not the current day.
+            const adjustedDate =
+              departure.hours < 5
+                ? moment
+                    .tz(date, "Europe/Helsinki")
+                    .add(1, "day")
+                    .format("YYYY-MM-DD")
+                : date;
+
+            const plannedDepartureTime = combineDateAndTime(
+              adjustedDate,
+              `${doubleDigit(departure.hours)}:${doubleDigit(departure.minutes)}`,
+              "Europe/Helsinki"
+            );
+
+            diff = plannedDepartureTime.diff(observedDepartureTime, "seconds");
+
+            sign = diff < 0 ? "+" : diff > 0 ? "-" : "";
+            seconds = Math.abs(diff) % 60;
+            minutes = Math.floor(Math.abs(diff) / 60);
+          }
 
           return (
             <TimetableTime onClick={onClick(departureData)}>
-              <RouteTag mode={stopMode}>
+              <ColoredIconSlot mode={stopMode}>
                 {React.createElement(get(transportIcon, stopMode, null), {
                   fill: get(transportColor, stopMode, "var(--light-grey)"),
                   width: "16",
                   heigth: "16",
                 })}
                 {parseLineNumber(departure.routeId)}
-              </RouteTag>
-              <TimetableMinutes>{doubleDigit(departure.minutes)}</TimetableMinutes>
-              {typeof dl === "number" &&
-                dl !== null && (
-                  <TimeDelay delayType={getDelayType(dl)}>
+              </ColoredIconSlot>
+              <PlainSlot>{doubleDigit(departure.minutes)}</PlainSlot>
+              {received_at && (
+                <>
+                  <ColoredBackgroundSlot delayType={getDelayType(diff)}>
                     {sign}
                     {doubleDigit(minutes)}:{doubleDigit(seconds)}
-                  </TimeDelay>
-                )}
+                  </ColoredBackgroundSlot>
+                  <PlainSlot>{observedDepartureTime.format("HH:mm:ss")}</PlainSlot>
+                </>
+              )}
             </TimetableTime>
           );
         }}

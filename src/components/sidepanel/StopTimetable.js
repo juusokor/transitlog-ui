@@ -62,7 +62,7 @@ class StopTimetable extends Component {
             <TimetableGrid>
               {Object.entries(byHour).map(([hour, times], idx) => (
                 <TimetableSection key={`hour_${hour}_${idx}`}>
-                  <TimetableHour> {doubleDigit(hour)}</TimetableHour>{" "}
+                  <TimetableHour> {doubleDigit(hour)}</TimetableHour>
                   <TimetableTimes>
                     {times.map((departure, idx) => (
                       <TimetableDeparture
