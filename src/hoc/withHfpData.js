@@ -125,10 +125,9 @@ export default (Component) => {
 
           return createFetchKey(route, date, true);
         },
-        (fetchKey) => {
-          if (fetchKey) {
-            this.resetView();
-          }
+        () => {
+          console.log("Resetting the view");
+          this.resetView();
         },
         {fireImmediately: true}
       );

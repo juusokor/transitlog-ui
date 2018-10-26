@@ -34,7 +34,7 @@ export const queryHfp = (route, date, timeRange) => {
 
   return hfpClient
     .query({
-      fetchPolicy: "cache-first",
+      fetchPolicy: "no-cache", // Cached manually
       query: hfpQuery,
       variables: {
         route_id: routeId,

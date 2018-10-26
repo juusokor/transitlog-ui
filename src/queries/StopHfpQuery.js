@@ -40,6 +40,8 @@ class StopHfpQuery extends Component {
 
     return (
       <Query
+        fetchPolicy="cache-first"
+        partialRefetch={true}
         client={hfpClient}
         variables={{routeId, date, direction, stopId, startTime}}
         query={stopDelayQuery}>

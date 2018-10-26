@@ -86,8 +86,6 @@ class App extends Component {
     const {state, positions = [], loading, route} = this.props;
     const {date, stop} = state;
 
-    // TODO: Optimize JourneyPosition. rAF?
-
     return (
       <AppFrame>
         <FilterBar positions={positions} />
