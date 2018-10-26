@@ -41,7 +41,7 @@ class RouteStopsLayer extends Component {
         selectedJourney={selectedJourney}
         stop={stop}
         date={date}
-        originstopId={get(route, "originstopId", "")}
+        routeOriginStopId={get(route, "originstopId", "")}
         onSelect={this.onSelectStop(stop.stopId)}
       />
     );

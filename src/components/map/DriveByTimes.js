@@ -2,7 +2,6 @@ import React from "react";
 import map from "lodash/map";
 import get from "lodash/get";
 import {observer} from "mobx-react";
-import {timeToFormat} from "../../helpers/time";
 import styled from "styled-components";
 import DeparturesQuery from "../../queries/DeparturesQuery";
 import getDelayType from "../../helpers/getDelayType";
@@ -11,7 +10,6 @@ import doubleDigit from "../../helpers/doubleDigit";
 
 const TimeRow = styled.div`
   display: flex;
-  width: 100%;
   align-items: center;
   margin-bottom: 0.25rem;
   font-family: var(--font-family);
@@ -19,7 +17,7 @@ const TimeRow = styled.div`
 `;
 
 const VehicleTag = styled.span`
-  width: 6rem;
+  width: 5rem;
 `;
 
 const TimeTag = styled.button`

@@ -7,6 +7,7 @@ import {diffDepartureJourney} from "../../helpers/diffDepartureJourney";
 import getDelayType from "../../helpers/getDelayType";
 import doubleDigit from "../../helpers/doubleDigit";
 import orderBy from "lodash/orderBy";
+import {uniq} from "lodash";
 
 const stopColor = "var(--blue)";
 
@@ -54,7 +55,7 @@ class RouteStopMarker extends React.Component {
   render() {
     const {
       stop,
-      originstopId,
+      routeOriginStopId,
       selected,
       firstTerminal,
       lastTerminal,
@@ -79,7 +80,7 @@ class RouteStopMarker extends React.Component {
     const firstDeparture = departures.find(
       (departure) =>
         `${doubleDigit(departure.hours)}:${doubleDigit(departure.minutes)}:00` ===
-          journey_start_time && departure.stopId === originstopId
+          journey_start_time && departure.stopId === routeOriginStopId
     );
 
     if (firstTerminal && firstDeparture) {
@@ -101,9 +102,6 @@ class RouteStopMarker extends React.Component {
     let departureHfpItem = orderBy(
       positions.filter(
         (pos) =>
-          pos.route_id === route_id &&
-          pos.direction_id === direction_id &&
-          pos.oday === oday &&
           pos.journey_start_time === journey_start_time &&
           pos.next_stop_id === stop.stopId
       ),

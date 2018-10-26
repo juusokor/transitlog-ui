@@ -133,6 +133,9 @@ class TimetableDeparture extends Component {
           };
 
           const plannedObservedDiff = diffDepartureJourney(journey, departure, date);
+          const observedTimeString = plannedObservedDiff.observedMoment.format(
+            "HH:mm:ss"
+          );
 
           return (
             <TimetableTime onClick={onClick(departureData)}>
@@ -140,7 +143,7 @@ class TimetableDeparture extends Component {
                 {React.createElement(get(transportIcon, stopMode, null), {
                   fill: get(transportColor, stopMode, "var(--light-grey)"),
                   width: "16",
-                  heigth: "16",
+                  height: "16",
                 })}
                 {parseLineNumber(departure.routeId)}
               </ColoredIconSlot>
@@ -153,9 +156,7 @@ class TimetableDeparture extends Component {
                     {doubleDigit(plannedObservedDiff.minutes)}:
                     {doubleDigit(plannedObservedDiff.seconds)}
                   </ColoredBackgroundSlot>
-                  <PlainSlotSmallRight>
-                    {plannedObservedDiff.observedMoment.format("HH:mm:ss")}
-                  </PlainSlotSmallRight>
+                  <PlainSlotSmallRight>{observedTimeString}</PlainSlotSmallRight>
                 </>
               )}
             </TimetableTime>
