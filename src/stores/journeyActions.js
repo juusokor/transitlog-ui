@@ -60,6 +60,28 @@ export default (state) => {
   );
 
   // Request a journeyId or multiple journeyIds
+  const requestVehicleJourneys = action(
+    "Request journeys by vehicle",
+    (vehicleIds = []) => {
+      const requestedVehicles = compact(
+        Array.isArray(vehicleIds) ? vehicleIds : [vehicleIds]
+      );
+
+      if (requestedVehicles.length === 0) {
+        return;
+      }
+
+      const {route, date} = state;
+
+      if (route && route.routeId && date) {
+        state.requestedVehicleJourneys.replace(
+          uniq([...state.requestedVehicleJourneys, ...requestedVehicles])
+        );
+      }
+    }
+  );
+
+  // Request a journeyId or multiple journeyIds
   const requestJourneys = action("Request a journey by time", (journeys = []) => {
     const requestedJourneys = compact(
       Array.isArray(journeys) ? journeys : [journeys]
@@ -130,7 +152,8 @@ export default (state) => {
 
   return {
     setSelectedJourney,
-    requestJourneys: requestJourneys,
+    requestJourneys,
+    requestVehicleJourneys,
     removeJourneyRequest,
     setJourneyFetchState,
     getJourneyFromStateAndTime,

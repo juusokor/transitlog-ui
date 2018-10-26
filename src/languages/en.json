@@ -17,6 +17,10 @@
   "filterpanel.journey.unrealized": "Unrealized",
   "filterpanel.journey.click_to_fetch": "Fetch",
 
+  "sidepanel.tabs.journeys": "Journeys",
+  "sidepanel.tabs.timetables": "Timetables",
+  "sidepanel.tabs.vehicle_journeys": "Vehicle Journeys",
+
   "map.stops.arrive": "Arrival",
   "map.stops.depart": "Departure",
 

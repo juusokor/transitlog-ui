@@ -28,6 +28,7 @@ const JourneyListRow = styled.button`
   border: 0;
   max-width: none;
   font-size: 1rem;
+  font-family: inherit;
   cursor: pointer;
   color: ${({selected = false}) => (selected ? "white" : "var(--grey)")};
   outline: none;
@@ -255,11 +256,16 @@ class Journeys extends Component {
               Journey.getJourneyFromStateAndTime(journeyOrDeparture)
             );
 
+            const journeyIsSelected =
+              selectedJourney && selectedJourneyId === journeyId;
+
             let fetchStatus = resolvedJourneyStates.get(journeyId);
 
             return (
               <JourneyListRow
+                ref={journeyIsSelected ? this.selectedJourneyRef : null}
                 key={`planned_journey_row_${journeyOrDeparture}_${index}`}
+                selected={journeyIsSelected}
                 onClick={this.selectJourney(journeyOrDeparture)}>
                 <JourneyRowLeft>{journeyOrDeparture}</JourneyRowLeft>
                 {fetchStatus === journeyFetchStates.NOTFOUND ? (

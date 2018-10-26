@@ -57,9 +57,25 @@ export default (Component) => {
       );
 
       await pAll(journeyPromises, {concurrency: 5});
-      this.setLoading(false);
+      await this.onFetchCompleted();
+    };
 
-      await persistCache();
+    fetchRequestedVehicleJourneys = async () => {
+      const {
+        route,
+        state: {date, requestedVehicleJourneys = []},
+      } = this.props;
+
+      this.setLoading(true);
+
+      const journeyPromises = requestedVehicleJourneys.map(
+        (vehicleId) => async () => {
+          this.fetchVehicleDeparture(route, date, vehicleId);
+        }
+      );
+
+      await pAll(journeyPromises, {concurrency: 5});
+      await this.onFetchCompleted();
     };
 
     fetchDeparture = async (route, date, departure, waitForIdle = true) => {
@@ -88,6 +104,15 @@ export default (Component) => {
       }
     };
 
+    fetchVehicleDeparture = async () => {
+      // TODO: this
+    };
+
+    onFetchCompleted = async () => {
+      this.setLoading(false);
+      await persistCache();
+    };
+
     onError = (err) => {
       // The error is per fetched journey, so some way to match errors
       // to requested times is necessary. TODO!
@@ -110,6 +135,23 @@ export default (Component) => {
           return [requestedJourneys.length, date, routeId];
         },
         () => this.fetchRequestedJourneys(),
+        {fireImmediately: true}
+      );
+
+      this.vehicleFetchReaction = reaction(
+        () => {
+          const {
+            state: {
+              requestedVehicleJourneys,
+              vehicle,
+              date,
+              route: {routeId = ""},
+            },
+          } = this.props;
+
+          return [requestedVehicleJourneys.length, date, routeId, vehicle];
+        },
+        () => this.fetchRequestedVehicleJourneys(),
         {fireImmediately: true}
       );
 

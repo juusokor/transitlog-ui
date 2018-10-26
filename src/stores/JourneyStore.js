@@ -20,6 +20,7 @@ export default (state) => {
   extendObservable(state, {
     selectedJourney: null,
     requestedJourneys: [],
+    requestedVehicleJourneys: [],
     resolvedJourneyStates: new Map(),
   });
 

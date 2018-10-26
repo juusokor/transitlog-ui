@@ -16,6 +16,7 @@ const HfpFieldsFragment = gql`
     oday
     direction_id
     route_id
+    desi
     __typename
   }
 `;

@@ -14,17 +14,20 @@ const TimetableGrid = styled.div`
 `;
 
 const TimetableHour = styled(Heading).attrs({level: 4})`
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
   border-bottom: 1px solid var(--lighter-grey);
-  padding: 0.75rem 1rem;
+  padding: 0 0.75rem 1rem;
 `;
 
-const TimetableSection = styled.div``;
+const TimetableSection = styled.div`
+  margin-bottom: 2rem;
+`;
 
 const TimetableTimes = styled.div`
   display: flex;
   flex-wrap: wrap;
-  padding: 0 0.75rem;
+  padding: 0 0.5rem 0 0.75rem;
 `;
 
 @inject(app("Filters", "Journey", "Time"))
