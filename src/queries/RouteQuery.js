@@ -19,28 +19,9 @@ const routeQuery = gql`
     ) {
       nodeId
       originstopId
-      __typename
       geometries {
         nodes {
-          __typename
           geometry
-        }
-      }
-      routeSegments {
-        nodes {
-          nodeId
-          timingStopType
-          __typename
-          stop: stopByStopId {
-            nodeId
-            stopId
-            lat
-            lon
-            shortId
-            nameFi
-            nameSe
-            __typename
-          }
         }
       }
     }
@@ -97,11 +78,7 @@ class RouteQuery extends Component {
             []
           );
 
-          const stops = get(data, "route.routeSegments.nodes", []).map(
-            (segment) => ({...segment.stop, timingStopType: segment.timingStopType})
-          );
-
-          return children({routeGeometry: positions, stops});
+          return children({routeGeometry: positions});
         }}
       </Query>
     );

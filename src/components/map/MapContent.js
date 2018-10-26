@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {observer, Observer, inject} from "mobx-react";
+import {observer, inject} from "mobx-react";
 import StopLayer from "./StopLayer";
 import StopMarker from "./StopMarker";
 import RouteQuery from "../../queries/RouteQuery";
@@ -10,6 +10,7 @@ import getJourneyId from "../../helpers/getJourneyId";
 import HfpLayer from "./HfpLayer";
 import HfpMarkerLayer from "./HfpMarkerLayer";
 import {app} from "mobx-app";
+import RouteStopsLayer from "./RouteStopsLayer";
 
 @inject(app("state"))
 @observer
@@ -27,30 +28,30 @@ class MapContent extends Component {
 
     return (
       <>
-        {(!route || !route.routeId) && zoom > 14 ? (
-          <StopLayer date={date} bounds={stopsBbox} />
-        ) : stop ? (
-          <StopMarker stop={stop} selected={true} date={date} />
-        ) : null}
+        {(!route || !route.routeId) &&
+          (zoom > 14 ? (
+            <StopLayer date={date} bounds={stopsBbox} />
+          ) : stop ? (
+            <StopMarker stop={stop} selected={true} date={date} />
+          ) : null)}
         {route &&
           route.routeId && (
             <RouteQuery
               key={`route_query_${createRouteIdentifier(route)}`}
               route={route}>
-              {({routeGeometry, stops}) =>
+              {({routeGeometry}) =>
                 routeGeometry.length !== 0 ? (
                   <RouteLayer
-                    key="routeLayer"
+                    routeId={createRouteIdentifier(route)}
                     routeGeometry={routeGeometry}
-                    stops={stops}
                     setMapBounds={setMapBounds}
                     key={`route_line_${route.routeId}`}
-                    positions={positions}
                   />
                 ) : null
               }
             </RouteQuery>
           )}
+        {!selectedJourney && <RouteStopsLayer route={route} positions={[]} />}
         {positions.length > 0 &&
           positions.map(({positions, journeyId}) => {
             if (vehicle && get(positions, "[0].unique_vehicle_id", "") !== vehicle) {
@@ -67,6 +68,13 @@ class MapContent extends Component {
                   selectedJourney={selectedJourney}
                   positions={positions}
                   name={journeyId}
+                />
+              ) : null,
+              isSelectedJourney ? (
+                <RouteStopsLayer
+                  key={`journey_stops_${journeyId}`}
+                  route={route}
+                  positions={positions}
                 />
               ) : null,
               <HfpMarkerLayer

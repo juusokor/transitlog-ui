@@ -102,7 +102,9 @@ class FilterBar extends Component {
                     )}
                   </AllStopsQuery>
                 ) : (
-                  <StopsByRouteQuery key="stop_input_by_route" route={route}>
+                  <StopsByRouteQuery
+                    key={`stop_input_by_route_${route.routeId}`}
+                    route={route}>
                     {({stops}) => (
                       <StopInput
                         onSelect={Filters.setStop}

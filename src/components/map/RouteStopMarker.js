@@ -1,38 +1,25 @@
 import React from "react";
-import DriveByTimes from "./DriveByTimes";
-import {Popup, Marker, CircleMarker, Tooltip} from "react-leaflet";
+import {Marker, CircleMarker, Tooltip} from "react-leaflet";
 import {icon} from "leaflet";
 import TimingStopIcon from "../../icon-time1.svg";
-import get from "lodash/get";
-import diffDates from "date-fns/difference_in_seconds";
-import {observer, inject} from "mobx-react";
-import {app} from "mobx-app";
-import parse from "date-fns/parse";
-import ArriveDepartToggle from "./ArriveDepartToggle";
-import {Heading} from "../Typography";
+import {observer} from "mobx-react";
+import {diffDepartureJourney} from "../../helpers/diffDepartureJourney";
+import getDelayType from "../../helpers/getDelayType";
+import doubleDigit from "../../helpers/doubleDigit";
+import orderBy from "lodash/orderBy";
 
 const stopColor = "var(--blue)";
 
-@inject(app("Filters"))
 @observer
 class RouteStopMarker extends React.Component {
-  render() {
-    const {
-      stop,
-      selected,
-      firstTerminal,
-      lastTerminal,
-      hfp,
-      showTime,
-      onChangeShowTime,
-      onTimeClick,
-      state,
-      onPopupOpen,
-      onPopupClose,
-    } = this.props;
-
-    const isTerminal = firstTerminal || lastTerminal;
-
+  createStopMarker = (
+    stop,
+    color,
+    isSelected,
+    isTerminal,
+    onSelect,
+    children = null
+  ) => {
     const timingStopIcon = icon({
       iconUrl: TimingStopIcon,
       iconSize: [30, 30],
@@ -41,31 +28,6 @@ class RouteStopMarker extends React.Component {
       className: "stop-marker timing-stop",
     });
 
-    let journeyStartedOnTime;
-
-    // TODO: Compare timing stops with real schedules
-
-    if ((firstTerminal || stop.timingStopType) && hfp.length !== 0) {
-      const stopDepartHfp = get(hfp, `[0].journeys[0].depart`, "");
-
-      const departedDate = parse(stopDepartHfp.received_at);
-
-      let delay = 0;
-
-      // dl is not reliable at terminals
-      if (firstTerminal) {
-        const journeyStartDate = new Date(
-          `${state.date}T${stopDepartHfp.journey_start_time}`
-        );
-        delay = diffDates(journeyStartDate, departedDate);
-      } else {
-        delay = stopDepartHfp.dl;
-      }
-
-      // Not "on time" if started 10 or more seconds too early.
-      journeyStartedOnTime = delay < 10;
-    }
-
     return React.createElement(
       stop.timingStopType ? Marker : CircleMarker,
       {
@@ -73,52 +35,128 @@ class RouteStopMarker extends React.Component {
         icon: stop.timingStopType ? timingStopIcon : null,
         center: [stop.lat, stop.lon], // One marker type uses center...
         position: [stop.lat, stop.lon], // ...the other uses position.
-        color: stopColor,
-        fillColor:
-          journeyStartedOnTime === true
-            ? "var(--light-green)"
-            : journeyStartedOnTime === false
-              ? "var(--pink)"
-              : selected
-                ? stopColor
-                : "white",
+        color: color,
+        fillColor: isSelected ? stopColor : "white",
         fillOpacity: 1,
         strokeWeight: isTerminal ? 5 : 3,
-        radius: isTerminal ? 12 : selected ? 10 : 8,
-        onPopupopen: onPopupOpen,
-        onPopupclose: onPopupClose,
+        radius: isTerminal ? 12 : isSelected ? 10 : 8,
+        onClick: onSelect,
       },
       <React.Fragment>
         <Tooltip>
           {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
         </Tooltip>
-        <Popup
-          keepInView={false}
-          autoPan={false}
-          autoClose={false}
-          maxHeight={550}
-          maxWidth={500}
-          minWidth={350}>
-          <Heading level={4}>
-            {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
-          </Heading>
-          {hfp.length > 0 && (
-            <React.Fragment>
-              <ArriveDepartToggle value={showTime} onChange={onChangeShowTime} />
-              <DriveByTimes
-                isFirst={firstTerminal}
-                showTime={showTime}
-                onTimeClick={onTimeClick}
-                date={state.date}
-                route={state.route}
-                stop={stop}
-                positions={hfp}
-              />
-            </React.Fragment>
-          )}
-        </Popup>
+        {children}
       </React.Fragment>
     );
+  };
+
+  render() {
+    const {
+      stop,
+      routeOriginStopId,
+      selected,
+      firstTerminal,
+      lastTerminal,
+      departures = [],
+      positions = [],
+      date,
+      onSelect,
+      selectedJourney,
+    } = this.props;
+
+    const isTerminal = firstTerminal || lastTerminal;
+
+    // Show a marker without the popup if we don't have any data
+    if (departures.length === 0 || positions.length === 0 || !selectedJourney) {
+      return this.createStopMarker(stop, stopColor, selected, isTerminal, onSelect);
+    }
+
+    const {journey_start_time} = selectedJourney;
+
+    let departure;
+
+    const firstDeparture = departures.find(
+      (departure) =>
+        `${doubleDigit(departure.hours)}:${doubleDigit(departure.minutes)}:00` ===
+          journey_start_time && departure.stopId === routeOriginStopId
+    );
+
+    if (firstTerminal && firstDeparture) {
+      // The first stop is easy. Just find the departure
+      // that matches the journey_start_time.
+      departure = firstDeparture;
+    } else if (firstDeparture) {
+      departure = departures.find(
+        (dep) =>
+          dep.departureId === firstDeparture.departureId &&
+          dep.stopId === stop.stopId
+      );
+    }
+
+    if (!departure) {
+      return this.createStopMarker(stop, stopColor, selected, isTerminal, onSelect);
+    }
+
+    let departureHfpItem = orderBy(
+      positions.filter(
+        (pos) =>
+          pos.journey_start_time === journey_start_time &&
+          pos.next_stop_id === stop.stopId
+      ),
+      "received_at_unix",
+      "desc"
+    )[0];
+
+    if (!departureHfpItem) {
+      return this.createStopMarker(stop, stopColor, selected, isTerminal, onSelect);
+    }
+
+    let delayType = "on-time";
+
+    if (departureHfpItem) {
+      const plannedObservedDiff = diffDepartureJourney(
+        departureHfpItem,
+        departure,
+        date
+      );
+
+      delayType = getDelayType(plannedObservedDiff.diff);
+    }
+
+    const color =
+      delayType === "early"
+        ? "var(--red)"
+        : delayType === "late"
+          ? "var(--yellow)"
+          : "var(--light-green)";
+
+    return this.createStopMarker(stop, color, selected, isTerminal, onSelect);
+
+    /*const popup = (
+        <Popup
+          keepInView={ false }
+          autoPan={ false }
+          autoClose={ false }
+          maxHeight={ 550 }
+          maxWidth={ 500 }
+          minWidth={ 350 }>
+          <Heading level={ 4 }>
+            { stop.nameFi }, { stop.shortId.replace(/ /g, "") } ({ stop.stopId })
+          </Heading>
+          <React.Fragment>
+            <ArriveDepartToggle value={ showTime } onChange={ onChangeShowTime } />
+            <DriveByTimes
+              isFirst={ firstTerminal }
+              showTime={ showTime }
+              onTimeClick={ onTimeClick }
+              date={ state.date }
+              route={ state.route }
+              stop={ stop }
+            />
+          </React.Fragment>
+        </Popup>
+      )*/
   }
 }
 

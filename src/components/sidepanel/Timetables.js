@@ -2,7 +2,6 @@ import React, {Component} from "react";
 import {observer} from "mobx-react";
 import SidepanelList from "./SidepanelList";
 import StopTimetable from "./StopTimetable";
-import {Text} from "../../helpers/text";
 import withStop from "../../hoc/withStop";
 
 @withStop
@@ -15,8 +14,8 @@ class Timetables extends Component {
       <SidepanelList
         header={
           <>
-            <span>Filter line</span>
-            <span>Filter ???</span>
+            <span>[filter placeholder]</span>
+            <span>[filter placeholder]</span>
           </>
         }>
         {stop && <StopTimetable route={route} stop={stop} />}

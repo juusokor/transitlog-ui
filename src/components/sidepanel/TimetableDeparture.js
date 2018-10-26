@@ -7,7 +7,10 @@ import BusIcon from "../../icons/Bus";
 import TramIcon from "../../icons/Tram";
 import RailIcon from "../../icons/Rail";
 import getDelayType from "../../helpers/getDelayType";
-import withDepartureJourney from "../../hoc/withDepartureJourney";
+import DepartureJourneyQuery from "../../queries/DepartureJourneyQuery";
+import {combineDateAndTime} from "../../helpers/time";
+import moment from "moment-timezone";
+import {diffDepartureJourney} from "../../helpers/diffDepartureJourney";
 
 const transportIcon = {
   BUS: BusIcon,
@@ -24,25 +27,25 @@ const transportColor = {
 };
 
 const TimetableTime = styled.button`
-  margin: 0.25rem;
+  margin: 0.3rem 0.25rem;
   display: inline-flex;
   flex-direction: row;
   flex-wrap: nowrap;
   align-items: stretch;
-  justify-content: center;
+  justify-content: flex-start;
   border-radius: 4px;
   border: 1px solid var(--lighter-grey);
   background: #fefefe;
   outline: 0;
-  width: auto;
+  width: 100%;
   font-family: inherit;
   font-size: 1rem;
   padding: 0;
   cursor: pointer;
 `;
 
-const RouteTag = styled.span`
-  padding: 3px;
+const ColoredIconSlot = styled.span`
+  padding: 3px 3px 3px 5px;
   background-color: transparent;
   color: ${({mode}) => get(transportColor, mode, "var(--light-grey)")};
   display: inline-flex;
@@ -50,8 +53,9 @@ const RouteTag = styled.span`
   flex-wrap: nowrap;
   align-items: center;
   font-weight: bold;
-  justify-content: center;
+  justify-content: flex-start;
   margin-right: 0.25rem;
+  min-width: 5rem;
 
   svg {
     width: 1rem;
@@ -61,13 +65,14 @@ const RouteTag = styled.span`
   }
 `;
 
-const TimeDelay = styled.span`
-  font-size: 0.875rem;
+const ColoredBackgroundSlot = styled.span`
+  font-size: 1.125rem;
   border-radius: 4px;
   line-height: 1rem;
-  padding: 3px 5px;
+  padding: 4px 5px;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   background: ${({delayType}) =>
     delayType === "early"
       ? "var(--red)"
@@ -75,17 +80,34 @@ const TimeDelay = styled.span`
         ? "var(--yellow)"
         : "var(--light-green)"};
   color: ${({delayType}) => (delayType === "late" ? "var(--dark-grey)" : "white")};
-  transform: translate(1px, -1px);
-  margin-bottom: -2px;
+  transform: translate(1px, -2px);
+  margin-bottom: -4px;
+  min-width: 5rem;
+  font-family: monospace;
 
   &:empty {
     display: none;
   }
 `;
 
-const TimetableMinutes = styled.span`
+const PlainSlot = styled.span`
+  min-width: 4rem;
   padding: 3px 8px;
   border-left: 1px solid var(--lighter-grey);
+  font-weight: bold;
+`;
+
+const PlainSlotSmallRight = styled.span`
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  border-left: 0;
+  font-weight: normal;
+  min-width: 4rem;
+  padding: 3px 8px;
+  font-size: 1.125rem;
+  font-family: monospace;
 `;
 
 const parseLineNumber = (lineId) =>
@@ -93,11 +115,10 @@ const parseLineNumber = (lineId) =>
   // Remove all zeros from the beginning
   lineId.substring(1).replace(/^0+/, "");
 
-@withDepartureJourney
 @observer
 class TimetableDeparture extends Component {
   render() {
-    const {departure, journey = null, stop, onClick} = this.props;
+    const {departure, date, stop, onClick} = this.props;
 
     const {
       modes: {nodes: modes},
@@ -105,36 +126,45 @@ class TimetableDeparture extends Component {
 
     const stopMode = modes[0];
 
-    const dl = get(journey, "dl", null);
-
-    const departureData = {
-      ...departure,
-      journey,
-    };
-
-    const sign = dl < 0 ? "+" : dl > 0 ? "-" : "";
-    const seconds = Math.abs(dl) % 60;
-    const minutes = Math.floor(Math.abs(dl) / 60);
-
     return (
-      <TimetableTime onClick={onClick(departureData)}>
-        <RouteTag mode={stopMode}>
-          {React.createElement(get(transportIcon, stopMode, null), {
-            fill: get(transportColor, stopMode, "var(--light-grey)"),
-            width: "16",
-            heigth: "16",
-          })}
-          {parseLineNumber(departure.routeId)}
-        </RouteTag>
-        <TimetableMinutes>{doubleDigit(departure.minutes)}</TimetableMinutes>
-        {typeof dl === "number" &&
-          dl !== null && (
-            <TimeDelay delayType={getDelayType(dl)}>
-              {sign}
-              {doubleDigit(minutes)}:{doubleDigit(seconds)}
-            </TimeDelay>
-          )}
-      </TimetableTime>
+      <DepartureJourneyQuery date={date} departure={departure}>
+        {({journey}) => {
+          const departureData = {
+            ...departure,
+            journey,
+          };
+
+          const plannedObservedDiff = diffDepartureJourney(journey, departure, date);
+          const observedTimeString = plannedObservedDiff
+            ? plannedObservedDiff.observedMoment.format("HH:mm:ss")
+            : "";
+
+          return (
+            <TimetableTime onClick={onClick(departureData)}>
+              <ColoredIconSlot mode={stopMode}>
+                {React.createElement(get(transportIcon, stopMode, null), {
+                  fill: get(transportColor, stopMode, "var(--light-grey)"),
+                  width: "16",
+                  height: "16",
+                })}
+                {parseLineNumber(departure.routeId)}
+              </ColoredIconSlot>
+              <PlainSlot>{doubleDigit(departure.minutes)}</PlainSlot>
+              {plannedObservedDiff && (
+                <>
+                  <ColoredBackgroundSlot
+                    delayType={getDelayType(plannedObservedDiff.diff)}>
+                    {plannedObservedDiff.sign}
+                    {doubleDigit(plannedObservedDiff.minutes)}:
+                    {doubleDigit(plannedObservedDiff.seconds)}
+                  </ColoredBackgroundSlot>
+                  <PlainSlotSmallRight>{observedTimeString}</PlainSlotSmallRight>
+                </>
+              )}
+            </TimetableTime>
+          );
+        }}
+      </DepartureJourneyQuery>
     );
   }
 }

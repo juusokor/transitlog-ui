@@ -2,14 +2,11 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 import {observer} from "mobx-react";
 import {Query} from "react-apollo";
-import parse from "date-fns/parse";
 import isWithinRange from "date-fns/is_within_range";
 import gql from "graphql-tag";
 import getDay from "date-fns/get_day";
 import get from "lodash/get";
-import compact from "lodash/compact";
 import reduce from "lodash/reduce";
-import pick from "lodash/pick";
 
 const departuresQuery = gql`
   query allDepartures(
@@ -57,7 +54,7 @@ class DeparturesQuery extends Component {
   static propTypes = {
     route: PropTypes.shape({
       routeId: PropTypes.string,
-      direction: PropTypes.string,
+      direction: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
       originstopId: PropTypes.string,
     }),
     date: PropTypes.string.isRequired,
@@ -75,11 +72,11 @@ class DeparturesQuery extends Component {
 
   static defaultProps = {
     route: {
-      routeId: null,
-      direction: null,
+      routeId: "",
+      direction: "",
     },
     stop: {
-      stopId: null,
+      stopId: "",
     },
   };
 
@@ -97,7 +94,7 @@ class DeparturesQuery extends Component {
 
     const queryDayType = dayTypes[getDay(date)];
 
-    const {routeId, direction, originstopId} = route;
+    const {routeId = "", direction = "", originstopId = ""} = route;
     const stopId = get(stop, "stopId", stop);
 
     let queryVars = reduce(
@@ -105,7 +102,7 @@ class DeparturesQuery extends Component {
         dayType: queryDayType,
         stopId: originstopId ? originstopId : stopId,
         routeId,
-        direction,
+        direction: direction,
         departureId,
         dateBegin,
         dateEnd,
@@ -138,10 +135,7 @@ class DeparturesQuery extends Component {
           // If the query was not constrained by dateBegin or dateEnd, do that here.
           if (!dateBegin || !dateEnd) {
             departures = departures.filter(({dateBegin, dateEnd}) => {
-              const begin = parse(dateBegin);
-              const end = parse(dateEnd);
-
-              return isWithinRange(date, begin, end);
+              return isWithinRange(date, dateBegin, dateEnd);
             });
           }
 

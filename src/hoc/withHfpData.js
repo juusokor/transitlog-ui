@@ -50,15 +50,13 @@ export default (Component) => {
           // Do the first fetch asap without waiting
           if (index === 0) {
             waitForIdle = false;
-          } else {
-            await idle();
           }
 
           return this.fetchDeparture(route, date, departure, waitForIdle);
         }
       );
 
-      await pAll(journeyPromises, {concurrency: 10});
+      await pAll(journeyPromises, {concurrency: 5});
       this.setLoading(false);
 
       await persistCache();
@@ -125,10 +123,9 @@ export default (Component) => {
 
           return createFetchKey(route, date, true);
         },
-        (fetchKey) => {
-          if (fetchKey) {
-            this.resetView();
-          }
+        () => {
+          console.log("Resetting the view");
+          this.resetView();
         },
         {fireImmediately: true}
       );
