@@ -55,12 +55,7 @@ class Journeys extends Component {
   clickedJourneyItem = false;
   currentFetchKey = "";
 
-  componentDidMount() {
-    this.ensureSelectedVehicle();
-  }
-
   componentDidUpdate({positions: prevPositions}, prevState) {
-    this.ensureSelectedVehicle();
     this.fetchAllJourneys();
 
     const {selectedJourney} = this.props.state;
@@ -100,28 +95,6 @@ class Journeys extends Component {
       (departure) =>
         `${doubleDigit(departure.hours)}:${doubleDigit(departure.minutes)}:00`
     );
-
-  ensureSelectedVehicle = () => {
-    const {Filters, state, positions} = this.props;
-    const {vehicle, selectedJourney} = state;
-
-    if (!selectedJourney) {
-      if (vehicle !== "") {
-        Filters.setVehicle("");
-      }
-
-      return;
-    }
-
-    const selectedJourneyId = getJourneyId(selectedJourney);
-    const journeys = map(positions, ({positions}) => positions[0]);
-    const journey = journeys.find((j) => getJourneyId(j) === selectedJourneyId);
-
-    // Only set these if the journey is truthy and was not already selected
-    if (journey && journey.unique_vehicle_id !== vehicle) {
-      Filters.setVehicle(journey.unique_vehicle_id);
-    }
-  };
 
   selectJourney = (journeyOrTime) => (e) => {
     e.preventDefault();

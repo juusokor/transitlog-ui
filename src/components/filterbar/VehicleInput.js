@@ -31,7 +31,7 @@ const enhance = flow(
   inject(app("state"))
 );
 
-export default enhance(({vehicle = "", onChange, onSelect, state, positions}) => {
+export default enhance(({value = "", onSelect, positions}) => {
   const options = unionBy(
     flatMap(positions, (group) => group.positions),
     "unique_vehicle_id"
@@ -40,7 +40,7 @@ export default enhance(({vehicle = "", onChange, onSelect, state, positions}) =>
   return (
     <SuggestionInput
       minimumInput={0}
-      value={vehicle}
+      value={value}
       onSelect={onSelect}
       getValue={getSuggestionValue}
       renderSuggestion={renderSuggestion}

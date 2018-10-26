@@ -9,6 +9,14 @@ import {Heading} from "../Typography";
 import DeparturesQuery from "../../queries/DeparturesQuery";
 import TimetableDeparture from "./TimetableDeparture";
 
+function removeInitialZero(str) {
+  if (str.startsWith("0")) {
+    return str.slice(1);
+  }
+
+  return str;
+}
+
 const TimetableGrid = styled.div`
   margin-bottom: 1rem;
 `;
@@ -55,7 +63,7 @@ class StopTimetable extends Component {
 
   render() {
     const {
-      state: {date},
+      state: {date, selectedJourney},
       stop,
     } = this.props;
 
@@ -73,10 +81,16 @@ class StopTimetable extends Component {
           // make sure that night departures from the same operation day comes
           // last in the timetable list.
           const byHourOrdered = orderBy(Object.entries(byHour), ([hour]) => {
-            const hourVal = parseInt(hour.replace(":", ""));
+            // Take care of edge cases where the initial zero might cause problems
+            const hourVal = parseInt(removeInitialZero(hour).replace(":", ""));
+
+            // And the edge case of 00:00 (parsed to integer 0)
+            if (hourVal === 0) {
+              return 2400;
+            }
 
             if (hourVal < 430) {
-              return hourVal + 1000;
+              return hourVal + 10000;
             }
 
             return hourVal;
@@ -90,6 +104,7 @@ class StopTimetable extends Component {
                   <TimetableTimes>
                     {times.map((departure, idx) => (
                       <TimetableDeparture
+                        selectedJourney={selectedJourney}
                         key={`time_${idx}`}
                         onClick={this.selectAsJourney}
                         stop={stop}

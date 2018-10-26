@@ -8,12 +8,12 @@ import {journeyFetchStates} from "../stores/JourneyStore";
 import getJourneyId from "../helpers/getJourneyId";
 import orderBy from "lodash/orderBy";
 import uniqBy from "lodash/uniqBy";
+import get from "lodash/get";
 import pAll from "p-all";
-import idle from "../helpers/idle";
 import {createFetchKey} from "../helpers/keys";
 
 export default (Component) => {
-  @inject(app("Journey"))
+  @inject(app("Journey", "Filters"))
   @withRoute
   @observer
   class WithHfpData extends React.Component {
@@ -24,6 +24,7 @@ export default (Component) => {
     loading = false;
 
     fetchReaction = () => {};
+    vehicleFetchReaction = () => {};
     resetReaction = () => {};
 
     @action
@@ -38,21 +39,20 @@ export default (Component) => {
 
     fetchRequestedJourneys = async () => {
       const {
-        route,
-        state: {date, requestedJourneys = []},
+        state: {requestedJourneys = []},
       } = this.props;
 
       this.setLoading(true);
 
       const journeyPromises = requestedJourneys.map(
-        (departure, index) => async () => {
+        (journeyRequest, index) => async () => {
           let waitForIdle = true;
           // Do the first fetch asap without waiting
           if (index === 0) {
             waitForIdle = false;
           }
 
-          return this.fetchDeparture(route, date, departure, waitForIdle);
+          return this.fetchDeparture(journeyRequest, waitForIdle);
         }
       );
 
@@ -78,11 +78,17 @@ export default (Component) => {
       await this.onFetchCompleted();
     };
 
-    fetchDeparture = async (route, date, departure, waitForIdle = true) => {
-      const {Journey} = this.props;
-      const [journey] = await fetchHfpJourney(route, date, departure, waitForIdle);
+    fetchDeparture = async (journeyRequest, waitForIdle = true) => {
+      const {route, date, time} = journeyRequest;
+      const [journey] = await fetchHfpJourney(route, date, time, waitForIdle);
 
-      Journey.removeJourneyRequest(departure);
+      const {
+        Journey,
+        Filters,
+        state: {selectedJourney},
+      } = this.props;
+
+      Journey.removeJourneyRequest(journeyRequest);
 
       if (journey) {
         Journey.setJourneyFetchState(journey.journeyId, journeyFetchStates.RESOLVED);
@@ -95,10 +101,18 @@ export default (Component) => {
           }
         );
 
+        if (selectedJourney && getJourneyId(selectedJourney) === journey.journeyId) {
+          const journeyVehicle = get(journey, "positions[0].unique_vehicle_id", "");
+
+          if (journeyVehicle) {
+            Filters.setVehicle(journeyVehicle);
+          }
+        }
+
         runInAction(() => this.currentView.replace(nextView));
       } else {
         Journey.setJourneyFetchState(
-          getJourneyId(Journey.getJourneyFromStateAndTime(departure)),
+          getJourneyId(Journey.getJourneyFromStateAndTime(journeyRequest.time)),
           journeyFetchStates.NOTFOUND
         );
       }
@@ -120,53 +134,31 @@ export default (Component) => {
     };
 
     async componentDidMount() {
+      const {
+        state: {requestedJourneys, requestedVehicleJourneys, vehicle, date, route},
+      } = this.props;
+
       await loadCache();
 
-      this.fetchReaction = reaction(
-        () => {
-          const {
-            state: {
-              requestedJourneys,
-              date,
-              route: {routeId = ""},
-            },
-          } = this.props;
+      const {routeId = ""} = route;
 
-          return [requestedJourneys.length, date, routeId];
-        },
+      this.fetchReaction = reaction(
+        () => [requestedJourneys.length, date, routeId],
         () => this.fetchRequestedJourneys(),
         {fireImmediately: true}
       );
 
       this.vehicleFetchReaction = reaction(
-        () => {
-          const {
-            state: {
-              requestedVehicleJourneys,
-              vehicle,
-              date,
-              route: {routeId = ""},
-            },
-          } = this.props;
-
-          return [requestedVehicleJourneys.length, date, routeId, vehicle];
-        },
+        () => [requestedVehicleJourneys.length, date, routeId, vehicle],
         () => this.fetchRequestedVehicleJourneys(),
         {fireImmediately: true}
       );
 
       // Reset the view if the fetchKey (without time) changes.
       this.resetReaction = reaction(
-        () => {
-          const {
-            route,
-            state: {date},
-          } = this.props;
-
-          return createFetchKey(route, date, true);
-        },
-        () => {
-          console.log("Resetting the view");
+        () => createFetchKey(route, date, true),
+        (fetchKey) => {
+          console.log(fetchKey);
           this.resetView();
         },
         {fireImmediately: true}
@@ -176,6 +168,10 @@ export default (Component) => {
     componentWillUnmount() {
       if (typeof this.fetchReaction === "function") {
         this.fetchReaction();
+      }
+
+      if (typeof this.vehicleFetchReaction === "function") {
+        this.vehicleFetchReaction();
       }
 
       if (typeof this.resetReaction === "function") {

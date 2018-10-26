@@ -70,8 +70,8 @@ const VehicleSelectButton = styled.button`
 const JourneysRow = styled.div`
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   padding: 0 0.5rem 1rem;
-  margin-bottom: 1rem;
 `;
 
 const HeadsignSlot = styled(ColoredIconSlot)`
@@ -102,6 +102,23 @@ class VehicleJourneys extends Component {
     }
 
     Journey.setSelectedJourney(journey);
+  };
+
+  onSelectVehicle = (vehicleId, firstJourney) => {
+    return (e) => {
+      const {Filters, Journey, Time, state} = this.props;
+
+      if (vehicleId && state.vehicle !== vehicleId) {
+        Filters.setVehicle(vehicleId);
+
+        if (firstJourney) {
+          Time.setTime(firstJourney.journey_start_time);
+          Journey.setSelectedJourney(firstJourney);
+        } else {
+          Journey.setSelectedJourney(null);
+        }
+      }
+    };
   };
 
   render() {
@@ -136,7 +153,8 @@ class VehicleJourneys extends Component {
             <JourneyListRow
               key={`vehicle_journey_row_${vehicleId}`}
               selected={vehicle === vehicleId}>
-              <VehicleSelectButton>
+              <VehicleSelectButton
+                onClick={this.onSelectVehicle(vehicleId, journeys[0])}>
                 <VehicleIdHeading>{vehicleId}</VehicleIdHeading>
               </VehicleSelectButton>
               <JourneysRow>

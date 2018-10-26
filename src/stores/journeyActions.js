@@ -8,6 +8,8 @@ import uniq from "lodash/uniq";
 import get from "lodash/get";
 import compact from "lodash/compact";
 import {journeyFetchStates} from "./JourneyStore";
+import filterActions from "./filterActions";
+import {createRouteKey} from "../helpers/keys";
 
 const history = createHistory();
 
@@ -33,6 +35,8 @@ export function createJourneyPath(journey) {
 }
 
 export default (state) => {
+  const filters = filterActions(state);
+
   function getJourneyFromStateAndTime(time) {
     const {route, date} = state;
 
@@ -94,35 +98,37 @@ export default (state) => {
     const {route, date} = state;
 
     if (route && route.routeId && date) {
-      const acceptedJourneyRequests = requestedJourneys.reduce(
-        (times, journeyTime) => {
-          // Create a journey id from the current state + requested time
-          const journeyId = getJourneyId(getJourneyFromStateAndTime(journeyTime));
+      const journeyRequests = requestedJourneys.reduce((times, journeyTime) => {
+        // Create a journey id from the current state + requested time
+        const journeyId = getJourneyId(getJourneyFromStateAndTime(journeyTime));
 
-          // Is the journey already requested or even resolved?
-          const journeyFetchState = state.resolvedJourneyStates.get(journeyId);
+        // Is the journey already requested or even resolved?
+        const journeyFetchState = state.resolvedJourneyStates.get(journeyId);
 
-          // Make sure we haven't fetched this or that it isn't currently being fetched.
-          if (!journeyFetchState) {
-            // Set it as pending immediately
-            setJourneyFetchState(journeyId, journeyFetchStates.PENDING);
-            // And start fetching
-            times.push(journeyTime);
-          }
+        // Make sure we haven't fetched this or that it isn't currently being fetched.
+        if (!journeyFetchState) {
+          // Set it as pending immediately
+          setJourneyFetchState(journeyId, journeyFetchStates.PENDING);
+          // And start fetching
+          times.push({time: journeyTime, route, date});
+        }
 
-          return times;
-        },
-        []
-      );
+        return times;
+      }, []);
 
       state.requestedJourneys.replace(
-        uniq([...state.requestedJourneys, ...acceptedJourneyRequests])
+        uniq([...state.requestedJourneys, ...journeyRequests])
       );
     }
   });
 
   const removeJourneyRequest = action("Remove requested journey time", (journey) => {
-    const journeyIdIndex = state.requestedJourneys.indexOf(journey);
+    const journeyIdIndex = state.requestedJourneys.findIndex(
+      (j) =>
+        j.time === journey.time &&
+        createRouteKey(j.route) === createRouteKey(journey.route) &&
+        j.date === journey.date
+    );
 
     if (journeyIdIndex > -1) {
       state.requestedJourneys.splice(journeyIdIndex, 1);
@@ -139,11 +145,16 @@ export default (state) => {
         toggle
       ) {
         state.selectedJourney = null;
+        filters.setVehicle(null);
         history.push("/");
-      } else {
+      } else if (hfpItem) {
         const journey = pickJourneyProps(hfpItem);
-
         state.selectedJourney = journey;
+
+        if (hfpItem.unique_vehicle_id) {
+          filters.setVehicle(hfpItem.unique_vehicle_id);
+        }
+
         requestJourneys(journey.journey_start_time);
         history.push(createJourneyPath(hfpItem));
       }

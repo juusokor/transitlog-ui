@@ -9,10 +9,12 @@ export const TagButton = styled.button`
   align-items: stretch;
   justify-content: flex-start;
   border-radius: 4px;
-  border: 1px solid var(--lighter-grey);
+  border: 1px solid
+    ${({selected}) => (selected ? "var(--blue)" : "var(--lighter-grey)")};
   background: #fefefe;
   outline: 0;
-  width: 100%;
+  width: auto;
+  max-width: 100%;
   font-family: inherit;
   font-size: 1rem;
   padding: 0;
@@ -30,7 +32,7 @@ export const ColoredIconSlot = styled.span`
   font-weight: bold;
   justify-content: flex-start;
   margin-right: 0.25rem;
-  min-width: 5rem;
+  min-width: 4.5rem;
 
   svg {
     width: 1rem;
@@ -71,10 +73,10 @@ export const PlainSlotSmallRight = styled.span`
   margin-left: auto;
   display: inline-flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
   border-left: 0;
   font-weight: normal;
-  min-width: 4rem;
+  min-width: 7rem;
   padding: 3px 8px;
   font-size: 1rem;
   font-family: "Courier New", Courier, monospace;

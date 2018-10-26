@@ -13,6 +13,7 @@ import {
   TagButton,
   PlainSlotSmallRight,
 } from "../TagButton";
+import getJourneyId from "../../helpers/getJourneyId";
 
 const parseLineNumber = (lineId) =>
   // Remove 1st number, which represents the city
@@ -22,7 +23,7 @@ const parseLineNumber = (lineId) =>
 @observer
 class TimetableDeparture extends Component {
   render() {
-    const {departure, date, stop, onClick} = this.props;
+    const {departure, date, stop, onClick, selectedJourney} = this.props;
 
     const {
       modes: {nodes: modes},
@@ -47,8 +48,12 @@ class TimetableDeparture extends Component {
             ? getDelayType(plannedObservedDiff.diff)
             : "none";
 
+          const journeyIsSelected =
+            selectedJourney &&
+            getJourneyId(selectedJourney) === getJourneyId(journey);
+
           return (
-            <TagButton onClick={onClick(departureData)}>
+            <TagButton selected={journeyIsSelected} onClick={onClick(departureData)}>
               <ColoredIconSlot
                 color={get(transportColor, stopMode, "var(--light-grey)")}>
                 <TransportIcon mode={stopMode} />
