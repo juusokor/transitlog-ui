@@ -15,7 +15,7 @@ export function diffDepartureJourney(journey, departure, date) {
   // The departure uses a 30-hour day, so the night hours actually belong
   // to the previous day and not the current day.
   const adjustedDate =
-    departure.hours < 5
+    (departure.hours === 4 && departure.minutes < 30) || departure.hours < 4
       ? moment
           .tz(date, "Europe/Helsinki")
           .add(1, "day")

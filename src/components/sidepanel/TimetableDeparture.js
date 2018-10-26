@@ -66,7 +66,7 @@ const ColoredIconSlot = styled.span`
 `;
 
 const ColoredBackgroundSlot = styled.span`
-  font-size: 0.875rem;
+  font-size: 1.125rem;
   border-radius: 4px;
   line-height: 1rem;
   padding: 3px 5px;
@@ -83,6 +83,7 @@ const ColoredBackgroundSlot = styled.span`
   transform: translate(1px, -1px);
   margin-bottom: -2px;
   min-width: 5rem;
+  font-family: monospace;
 
   &:empty {
     display: none;
@@ -105,7 +106,8 @@ const PlainSlotSmallRight = styled.span`
   font-weight: normal;
   min-width: 4rem;
   padding: 3px 8px;
-  font-size: 0.875rem;
+  font-size: 1.125rem;
+  font-family: monospace;
 `;
 
 const parseLineNumber = (lineId) =>
@@ -133,9 +135,9 @@ class TimetableDeparture extends Component {
           };
 
           const plannedObservedDiff = diffDepartureJourney(journey, departure, date);
-          const observedTimeString = plannedObservedDiff.observedMoment.format(
-            "HH:mm:ss"
-          );
+          const observedTimeString = plannedObservedDiff
+            ? plannedObservedDiff.observedMoment.format("HH:mm:ss")
+            : "";
 
           return (
             <TimetableTime onClick={onClick(departureData)}>

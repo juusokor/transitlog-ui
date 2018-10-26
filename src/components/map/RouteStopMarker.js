@@ -7,7 +7,6 @@ import {diffDepartureJourney} from "../../helpers/diffDepartureJourney";
 import getDelayType from "../../helpers/getDelayType";
 import doubleDigit from "../../helpers/doubleDigit";
 import orderBy from "lodash/orderBy";
-import {uniq} from "lodash";
 
 const stopColor = "var(--blue)";
 
@@ -73,7 +72,7 @@ class RouteStopMarker extends React.Component {
       return this.createStopMarker(stop, stopColor, selected, isTerminal, onSelect);
     }
 
-    const {route_id, direction_id, journey_start_time, oday} = selectedJourney;
+    const {journey_start_time} = selectedJourney;
 
     let departure;
 

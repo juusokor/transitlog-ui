@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import groupBy from "lodash/groupBy";
+import orderBy from "lodash/orderBy";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import styled from "styled-components";
@@ -58,13 +59,31 @@ class StopTimetable extends Component {
     return (
       <DeparturesQuery stop={stop} date={date}>
         {({departures = []}) => {
-          const byHour = groupBy(departures, "hours");
+          const byHour = groupBy(departures, ({hours, minutes}) => {
+            if (hours === 4 && minutes >= 30) {
+              return `${doubleDigit(hours)}:30`;
+            }
+
+            return `${doubleDigit(hours)}:00`;
+          });
+
+          // make sure that night departures from the same operation day comes
+          // last in the timetable list.
+          const byHourOrdered = orderBy(Object.entries(byHour), ([hour]) => {
+            const hourVal = parseInt(hour.replace(":", ""));
+
+            if (hourVal < 430) {
+              return hourVal + 1000;
+            }
+
+            return hourVal;
+          });
 
           return (
             <TimetableGrid>
-              {Object.entries(byHour).map(([hour, times], idx) => (
+              {byHourOrdered.map(([hour, times], idx) => (
                 <TimetableSection key={`hour_${hour}_${idx}`}>
-                  <TimetableHour> {doubleDigit(hour)}</TimetableHour>
+                  <TimetableHour> {hour}</TimetableHour>
                   <TimetableTimes>
                     {times.map((departure, idx) => (
                       <TimetableDeparture

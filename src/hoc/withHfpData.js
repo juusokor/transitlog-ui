@@ -50,8 +50,6 @@ export default (Component) => {
           // Do the first fetch asap without waiting
           if (index === 0) {
             waitForIdle = false;
-          } else {
-            await idle();
           }
 
           return this.fetchDeparture(route, date, departure, waitForIdle);

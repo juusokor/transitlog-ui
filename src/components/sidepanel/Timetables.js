@@ -14,8 +14,8 @@ class Timetables extends Component {
       <SidepanelList
         header={
           <>
-            <span>Filter line</span>
-            <span>Filter ???</span>
+            <span>[filter placeholder]</span>
+            <span>[filter placeholder]</span>
           </>
         }>
         {stop && <StopTimetable route={route} stop={stop} />}
