@@ -69,7 +69,7 @@ const ColoredBackgroundSlot = styled.span`
   font-size: 1.125rem;
   border-radius: 4px;
   line-height: 1rem;
-  padding: 3px 5px;
+  padding: 4px 5px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -80,8 +80,8 @@ const ColoredBackgroundSlot = styled.span`
         ? "var(--yellow)"
         : "var(--light-green)"};
   color: ${({delayType}) => (delayType === "late" ? "var(--dark-grey)" : "white")};
-  transform: translate(1px, -1px);
-  margin-bottom: -2px;
+  transform: translate(1px, -2px);
+  margin-bottom: -4px;
   min-width: 5rem;
   font-family: monospace;
 
