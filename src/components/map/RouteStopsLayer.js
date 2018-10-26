@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import RouteStopMarker from "./RouteStopMarker";
-import {inject, observer} from "mobx-react";
+import {inject, observer, Observer} from "mobx-react";
 import {app} from "mobx-app";
 import DeparturesQuery from "../../queries/DeparturesQuery";
 import get from "lodash/get";
@@ -53,6 +53,7 @@ class RouteStopsLayer extends Component {
 
     return stops.map((stop, index) => {
       const isSelected = stop.stopId === selectedStop;
+
       // Funnily enough, the first stop is last in the array.
       const isFirst = index === stops.length - 1;
       // ...and the last stop is first.
@@ -93,9 +94,9 @@ class RouteStopsLayer extends Component {
                 routeId: route_id,
                 direction: direction_id,
               }}>
-              {({departures}) => {
-                return this.renderStops(stops, departures);
-              }}
+              {({departures}) => (
+                <Observer>{() => this.renderStops(stops, departures)}</Observer>
+              )}
             </DeparturesQuery>
           );
         }}

@@ -56,7 +56,7 @@ export default withStop(
     return (
       <SuggestionInput
         minimumInput={0}
-        value={getSuggestionValue(stop)}
+        value={stop}
         onSelect={onSelect}
         getValue={getSuggestionValue}
         renderSuggestion={renderSuggestion}
