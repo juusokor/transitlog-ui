@@ -2,7 +2,12 @@ import {inject, observer} from "mobx-react";
 import {app} from "mobx-app";
 import React from "react";
 import withRoute from "./withRoute";
-import {fetchHfpJourney, loadCache, persistCache} from "../helpers/hfpQueryManager";
+import {
+  fetchHfpJourney,
+  loadCache,
+  persistCache,
+  fetchVehicleJourneys,
+} from "../helpers/hfpQueryManager";
 import {observable, reaction, action, runInAction} from "mobx";
 import {journeyFetchStates} from "../stores/JourneyStore";
 import getJourneyId from "../helpers/getJourneyId";
@@ -58,10 +63,9 @@ export default (Component) => {
       await this.onFetchCompleted();
     };
 
-    fetchRequestedVehicleJourneys = async () => {
+    fetchRequestedVehicleJourneys = async (requestedVehicleJourneys) => {
       const {
-        route,
-        state: {date, requestedVehicleJourneys = []},
+        state: {route, date},
       } = this.props;
 
       this.setLoading(true);
@@ -78,6 +82,7 @@ export default (Component) => {
 
     fetchDeparture = async (journeyRequest, waitForIdle = true) => {
       const {
+        Journey,
         state: {route: currentRoute},
       } = this.props;
       const {route, date, time} = journeyRequest;
@@ -93,17 +98,48 @@ export default (Component) => {
         useRoute = currentRoute;
       }
 
-      const [journey] = await fetchHfpJourney(useRoute, date, time, waitForIdle);
+      const journeys = await fetchHfpJourney(useRoute, date, time, waitForIdle);
+      Journey.removeJourneyRequest(journeyRequest);
 
+      if (journeys.length !== 0) {
+        this.onReceivedJourneys(journeys, journeyRequest);
+      } else {
+        Journey.setJourneyFetchState(
+          getJourneyId(Journey.getJourneyFromStateAndTime(journeyRequest.time)),
+          journeyFetchStates.NOTFOUND
+        );
+      }
+    };
+
+    fetchVehicleDeparture = async (route, date, vehicleId, waitForIdle = true) => {
+      const {Journey} = this.props;
+
+      const journeys = await fetchVehicleJourneys(
+        route,
+        date,
+        vehicleId,
+        waitForIdle
+      );
+
+      Journey.removeVehicleJourneyRequest(vehicleId);
+
+      if (journeys.length !== 0) {
+        this.onReceivedJourneys(journeys);
+      }
+    };
+
+    onReceivedJourneys = async (fetchedJourneys) => {
       const {
         Journey,
         Filters,
         state: {selectedJourney},
       } = this.props;
 
-      Journey.removeJourneyRequest(journeyRequest);
+      const journeys = Array.isArray(fetchedJourneys)
+        ? fetchedJourneys
+        : [fetchedJourneys];
 
-      if (journey) {
+      for (const journey of journeys) {
         Journey.setJourneyFetchState(journey.journeyId, journeyFetchStates.RESOLVED);
 
         const nextView = orderBy(
@@ -123,16 +159,7 @@ export default (Component) => {
         }
 
         runInAction(() => this.currentView.replace(nextView));
-      } else {
-        Journey.setJourneyFetchState(
-          getJourneyId(Journey.getJourneyFromStateAndTime(journeyRequest.time)),
-          journeyFetchStates.NOTFOUND
-        );
       }
-    };
-
-    fetchVehicleDeparture = async () => {
-      // TODO: this
     };
 
     onFetchCompleted = async () => {
@@ -167,11 +194,24 @@ export default (Component) => {
         }
       );
 
-      /*this.vehicleFetchReaction = reaction(
-        () => state.requestedVehicleJourneys.length,
-        () => this.fetchRequestedVehicleJourneys(),
+      this.vehicleFetchReaction = reaction(
+        () => {
+          const reqJourneys = state.requestedVehicleJourneys.slice();
+          const routeKey = createRouteKey(state.route);
+
+          if (reqJourneys.length && !!routeKey && !this.loading) {
+            return reqJourneys;
+          }
+
+          return [];
+        },
+        (reqJourneys) => {
+          if (reqJourneys.length !== 0) {
+            return this.fetchRequestedVehicleJourneys(reqJourneys);
+          }
+        },
         {fireImmediately: true}
-      );*/
+      );
 
       // Reset the view if the fetchKey (without time) changes.
       this.resetReaction = reaction(

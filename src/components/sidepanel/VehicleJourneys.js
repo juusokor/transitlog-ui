@@ -111,6 +111,7 @@ class VehicleJourneys extends Component {
 
       if (vehicleId && state.vehicle !== vehicleId) {
         Filters.setVehicle(vehicleId);
+        Journey.requestVehicleJourneys(vehicleId);
 
         if (firstJourney) {
           Time.setTime(firstJourney.journey_start_time);
@@ -135,6 +136,8 @@ class VehicleJourneys extends Component {
     );
 
     const selectedJourneyId = getJourneyId(selectedJourney);
+
+    // TODO: Add prev/next vehicle journey buttons
 
     return (
       <SidepanelList

@@ -77,12 +77,21 @@ export default (state) => {
         return;
       }
 
-      const {route, date} = state;
+      // TODO: Make a vehicle request obj with route and date
 
-      if (route && route.routeId && date) {
-        state.requestedVehicleJourneys.replace(
-          uniq([...state.requestedVehicleJourneys, ...requestedVehicles])
-        );
+      state.requestedVehicleJourneys.replace(
+        uniq([...state.requestedVehicleJourneys, ...requestedVehicles])
+      );
+    }
+  );
+
+  const removeVehicleJourneyRequest = action(
+    "Remove requested vehicle request",
+    (vehicleId) => {
+      const journeyIdIndex = state.requestedVehicleJourneys.indexOf(vehicleId);
+
+      if (journeyIdIndex > -1) {
+        state.requestedVehicleJourneys.splice(journeyIdIndex, 1);
       }
     }
   );
@@ -171,6 +180,7 @@ export default (state) => {
     requestJourneys,
     requestVehicleJourneys,
     removeJourneyRequest,
+    removeVehicleJourneyRequest,
     setJourneyFetchState,
     getJourneyFromStateAndTime,
   };
