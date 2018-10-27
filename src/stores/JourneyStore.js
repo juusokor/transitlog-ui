@@ -1,4 +1,4 @@
-import {extendObservable, action} from "mobx";
+import {extendObservable, action, observable} from "mobx";
 import getJourneyId from "../helpers/getJourneyId";
 import createHistory from "history/createBrowserHistory";
 import TimeActions from "./timeActions";
@@ -17,12 +17,19 @@ export const journeyFetchStates = {
 export default (state) => {
   const history = createHistory();
 
-  extendObservable(state, {
-    selectedJourney: null,
-    requestedJourneys: [],
-    requestedVehicleJourneys: [],
-    resolvedJourneyStates: new Map(),
-  });
+  extendObservable(
+    state,
+    {
+      selectedJourney: null,
+      requestedJourneys: [],
+      requestedVehicleJourneys: [],
+      resolvedJourneyStates: new Map(),
+    },
+    {
+      requestedJourneys: observable.shallow,
+      requestedVehicleJourneys: observable.shallow,
+    }
+  );
 
   const timeActions = TimeActions(state);
   const filterActions = FilterActions(state);
@@ -84,7 +91,11 @@ export default (state) => {
 
         if (getJourneyId(state.selectedJourney) !== getJourneyId(journey)) {
           state.selectedJourney = journey;
-          actions.requestJourneys(timeStr);
+          actions.requestJourneys({
+            time: timeStr,
+            route: {routeId: route_id, direction: direction_id},
+            date: dateStr,
+          });
         }
       }
     }

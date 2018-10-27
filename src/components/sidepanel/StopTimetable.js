@@ -1,12 +1,10 @@
 import React, {Component} from "react";
 import groupBy from "lodash/groupBy";
 import orderBy from "lodash/orderBy";
-import {observer, inject} from "mobx-react";
-import {app} from "mobx-app";
+import {observer} from "mobx-react";
 import styled from "styled-components";
 import doubleDigit from "../../helpers/doubleDigit";
 import {Heading} from "../Typography";
-import DeparturesQuery from "../../queries/DeparturesQuery";
 import TimetableDeparture from "./TimetableDeparture";
 
 function removeInitialZero(str) {
@@ -38,87 +36,57 @@ const TimetableTimes = styled.div`
   padding: 0 0.5rem 0 0.75rem;
 `;
 
-@inject(app("Filters", "Journey", "Time"))
 @observer
 class StopTimetable extends Component {
-  selectAsJourney = (departure) => (e) => {
-    e.preventDefault();
-
-    const currentTime = `${doubleDigit(departure.hours)}:${doubleDigit(
-      departure.minutes
-    )}:00`;
-
-    const route = {
-      direction: departure.direction,
-      routeId: departure.routeId,
-    };
-
-    this.props.Time.setTime(currentTime);
-    this.props.Filters.setRoute(route);
-
-    if (departure.journey) {
-      this.props.Journey.setSelectedJourney(departure.journey, false);
-    }
-  };
-
   render() {
-    const {
-      state: {date, selectedJourney},
-      stop,
-    } = this.props;
+    const {departures, date, selectedJourney, stop, onSelectAsJourney} = this.props;
+
+    const byHour = groupBy(departures, ({hours, minutes}) => {
+      if (hours === 4 && minutes >= 30) {
+        return `${doubleDigit(hours)}:30`;
+      }
+
+      return `${doubleDigit(hours)}:00`;
+    });
+
+    // make sure that night departures from the same operation day comes
+    // last in the timetable list.
+    const byHourOrdered = orderBy(Object.entries(byHour), ([hour]) => {
+      // Take care of edge cases where the initial zero might cause problems
+      const hourVal = parseInt(removeInitialZero(hour).replace(":", ""));
+
+      // And the edge case of 00:00 (parsed to integer 0)
+      if (hourVal === 0) {
+        return 2400;
+      }
+
+      if (hourVal < 430) {
+        return hourVal + 10000;
+      }
+
+      return hourVal;
+    });
 
     return (
-      <DeparturesQuery stop={stop} date={date}>
-        {({departures = []}) => {
-          const byHour = groupBy(departures, ({hours, minutes}) => {
-            if (hours === 4 && minutes >= 30) {
-              return `${doubleDigit(hours)}:30`;
-            }
-
-            return `${doubleDigit(hours)}:00`;
-          });
-
-          // make sure that night departures from the same operation day comes
-          // last in the timetable list.
-          const byHourOrdered = orderBy(Object.entries(byHour), ([hour]) => {
-            // Take care of edge cases where the initial zero might cause problems
-            const hourVal = parseInt(removeInitialZero(hour).replace(":", ""));
-
-            // And the edge case of 00:00 (parsed to integer 0)
-            if (hourVal === 0) {
-              return 2400;
-            }
-
-            if (hourVal < 430) {
-              return hourVal + 10000;
-            }
-
-            return hourVal;
-          });
-
-          return (
-            <TimetableGrid>
-              {byHourOrdered.map(([hour, times], idx) => (
-                <TimetableSection key={`hour_${hour}_${idx}`}>
-                  <TimetableHour> {hour}</TimetableHour>
-                  <TimetableTimes>
-                    {times.map((departure, idx) => (
-                      <TimetableDeparture
-                        selectedJourney={selectedJourney}
-                        key={`time_${idx}`}
-                        onClick={this.selectAsJourney}
-                        stop={stop}
-                        date={date}
-                        departure={departure}
-                      />
-                    ))}
-                  </TimetableTimes>
-                </TimetableSection>
+      <TimetableGrid>
+        {byHourOrdered.map(([hour, times], idx) => (
+          <TimetableSection key={`hour_${hour}_${idx}`}>
+            <TimetableHour> {hour}</TimetableHour>
+            <TimetableTimes>
+              {times.map((departure, idx) => (
+                <TimetableDeparture
+                  selectedJourney={selectedJourney}
+                  key={`time_${idx}`}
+                  onClick={onSelectAsJourney}
+                  stop={stop}
+                  date={date}
+                  departure={departure}
+                />
               ))}
-            </TimetableGrid>
-          );
-        }}
-      </DeparturesQuery>
+            </TimetableTimes>
+          </TimetableSection>
+        ))}
+      </TimetableGrid>
     );
   }
 }

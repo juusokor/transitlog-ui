@@ -105,7 +105,6 @@ export async function persistCache() {
 
     await pAll(persistActions);
     isPersistingCache = false;
-    console.log("Persisted cache");
   }
 }
 

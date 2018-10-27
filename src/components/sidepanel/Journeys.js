@@ -8,14 +8,15 @@ import getJourneyId from "../../helpers/getJourneyId";
 import styled from "styled-components";
 import {timeToFormat} from "../../helpers/time";
 import {Text, text} from "../../helpers/text";
-import withDepartures from "../../hoc/withDepartures";
+import withDepartures from "../../hoc/withRouteStopDepartures";
 import doubleDigit from "../../helpers/doubleDigit";
-import {observable, action} from "mobx";
+import {observable, action, toJS} from "mobx";
 import Loading from "../Loading";
 import SidepanelList from "./SidepanelList";
 import {journeyFetchStates} from "../../stores/JourneyStore";
 import {createFetchKey} from "../../helpers/keys";
 import {centerSort} from "../../helpers/centerSort";
+import {departuresToTimes} from "../../helpers/departuresToTimes";
 
 const JourneyListRow = styled.button`
   display: flex;
@@ -69,6 +70,7 @@ class Journeys extends Component {
   fetchAllJourneys = () => {
     const {
       Journey,
+      departures,
       state: {date, route, time, selectedJourney},
     } = this.props;
 
@@ -77,28 +79,28 @@ class Journeys extends Component {
 
     if (fetchKey !== this.currentFetchKey) {
       // Format to an array of string times, like 12:30:00
-      let fetchTimes = this.getDeparturesAsTimes();
+      let fetchTimes = departuresToTimes(departures);
 
       if (fetchTimes.length !== 0) {
         // Find which time we want to fetch first.
         let firstTime = selectedJourney ? selectedJourney.journey_start_time : time;
         fetchTimes = centerSort(firstTime, fetchTimes).slice(0, 11);
 
-        Journey.requestJourneys(fetchTimes);
+        const journeyRequests = fetchTimes.map((time) => ({
+          time,
+          route: toJS(route),
+          date,
+        }));
+
+        Journey.requestJourneys(journeyRequests);
         this.currentFetchKey = fetchKey;
       }
     }
   };
 
-  getDeparturesAsTimes = () =>
-    this.props.departures.map(
-      (departure) =>
-        `${doubleDigit(departure.hours)}:${doubleDigit(departure.minutes)}:00`
-    );
-
   selectJourney = (journeyOrTime) => (e) => {
     e.preventDefault();
-    const {Time, Journey, state} = this.props;
+    const {departures, Time, Journey, state} = this.props;
     let journeyToSelect = null;
 
     if (journeyOrTime) {
@@ -123,11 +125,17 @@ class Journeys extends Component {
 
         const fetchTimes = centerSort(
           journey.journey_start_time,
-          this.getDeparturesAsTimes()
+          departuresToTimes(departures)
         ).slice(0, 6);
 
+        const journeyRequests = fetchTimes.map((time) => ({
+          time,
+          route: {routeId: journey.route_id, direction: journey.direction_id},
+          date: journey.oday,
+        }));
+
         if (fetchTimes.length !== 0) {
-          Journey.requestJourneys(fetchTimes);
+          Journey.requestJourneys(journeyRequests);
         }
       }
     }

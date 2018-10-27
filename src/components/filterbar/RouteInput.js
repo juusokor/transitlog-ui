@@ -27,7 +27,10 @@ class RouteInput extends Component {
   };
 
   render() {
-    const {route = null, routes} = this.props;
+    const {
+      state: {route},
+      routes,
+    } = this.props;
 
     const options = routes.map((routeOption) => {
       const {

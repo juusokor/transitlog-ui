@@ -25,8 +25,7 @@ class SidePanel extends Component {
     const {
       positions,
       loading,
-      route,
-      state: {stop, date},
+      state: {stop, route},
     } = this.props;
 
     return (
@@ -52,8 +51,6 @@ class SidePanel extends Component {
           )}
           {stop && (
             <Timetables
-              date={date} // Needed for withStop to fetch routeSegments
-              stop={stop}
               name="timetables"
               label={text("sidepanel.tabs.timetables")}
             />

@@ -10,7 +10,7 @@ import get from "lodash/get";
 import uniqBy from "lodash/uniqBy";
 import {app} from "mobx-app";
 import getJourneyId from "../../helpers/getJourneyId";
-import {transportIcon, transportColor, TransportIcon} from "../transportModes";
+import {transportColor, TransportIcon} from "../transportModes";
 import {
   ColoredIconSlot,
   TagButton,
@@ -106,6 +106,7 @@ class VehicleJourneys extends Component {
 
   onSelectVehicle = (vehicleId, firstJourney) => {
     return (e) => {
+      e.preventDefault();
       const {Filters, Journey, Time, state} = this.props;
 
       if (vehicleId && state.vehicle !== vehicleId) {

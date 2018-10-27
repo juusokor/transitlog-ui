@@ -10,7 +10,7 @@ import orderBy from "lodash/orderBy";
 import uniqBy from "lodash/uniqBy";
 import get from "lodash/get";
 import pAll from "p-all";
-import {createFetchKey} from "../helpers/keys";
+import {createFetchKey, createRouteKey} from "../helpers/keys";
 
 export default (Component) => {
   @inject(app("Journey", "Filters"))
@@ -19,6 +19,8 @@ export default (Component) => {
   class WithHfpData extends React.Component {
     @observable.shallow
     currentView = [];
+
+    currentViewKey = "";
 
     @observable
     loading = false;
@@ -37,11 +39,7 @@ export default (Component) => {
       this.currentView.clear();
     };
 
-    fetchRequestedJourneys = async () => {
-      const {
-        state: {requestedJourneys = []},
-      } = this.props;
-
+    fetchRequestedJourneys = async (requestedJourneys) => {
       this.setLoading(true);
 
       const journeyPromises = requestedJourneys.map(
@@ -79,8 +77,23 @@ export default (Component) => {
     };
 
     fetchDeparture = async (journeyRequest, waitForIdle = true) => {
+      const {
+        state: {route: currentRoute},
+      } = this.props;
       const {route, date, time} = journeyRequest;
-      const [journey] = await fetchHfpJourney(route, date, time, waitForIdle);
+
+      let useRoute = route;
+
+      // Ensures that the request has access to the full route data.
+      if (
+        currentRoute &&
+        route.routeId === currentRoute.routeId &&
+        route.direction === currentRoute.direction
+      ) {
+        useRoute = currentRoute;
+      }
+
+      const [journey] = await fetchHfpJourney(useRoute, date, time, waitForIdle);
 
       const {
         Journey,
@@ -133,36 +146,46 @@ export default (Component) => {
       console.log(err);
     };
 
-    async componentDidMount() {
-      const {
-        state: {requestedJourneys, requestedVehicleJourneys, vehicle, date, route},
-      } = this.props;
-
-      await loadCache();
-
-      const {routeId = ""} = route;
+    componentDidMount() {
+      const {state} = this.props;
 
       this.fetchReaction = reaction(
-        () => [requestedJourneys.length, date, routeId],
-        () => this.fetchRequestedJourneys(),
-        {fireImmediately: true}
+        () => {
+          const reqJourneys = state.requestedJourneys.slice();
+          const routeKey = createRouteKey(state.route);
+
+          if (reqJourneys.length && !!routeKey && !this.loading) {
+            return reqJourneys;
+          }
+
+          return [];
+        },
+        (reqJourneys) => {
+          if (reqJourneys.length !== 0) {
+            this.fetchRequestedJourneys(reqJourneys);
+          }
+        }
       );
 
-      this.vehicleFetchReaction = reaction(
-        () => [requestedVehicleJourneys.length, date, routeId, vehicle],
+      /*this.vehicleFetchReaction = reaction(
+        () => state.requestedVehicleJourneys.length,
         () => this.fetchRequestedVehicleJourneys(),
         {fireImmediately: true}
-      );
+      );*/
 
       // Reset the view if the fetchKey (without time) changes.
       this.resetReaction = reaction(
-        () => createFetchKey(route, date, true),
+        () => createFetchKey(state.route, state.date, true),
         (fetchKey) => {
-          console.log(fetchKey);
-          this.resetView();
+          if (fetchKey && fetchKey !== this.currentViewKey) {
+            this.resetView();
+            this.currentViewKey = fetchKey;
+          }
         },
         {fireImmediately: true}
       );
+
+      loadCache();
     }
 
     componentWillUnmount() {

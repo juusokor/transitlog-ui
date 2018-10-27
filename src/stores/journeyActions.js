@@ -4,8 +4,8 @@ import createHistory from "history/createBrowserHistory";
 import {pickJourneyProps} from "../helpers/pickJourneyProps";
 import moment from "moment-timezone";
 import {combineDateAndTime} from "../helpers/time";
+import uniqBy from "lodash/uniqBy";
 import uniq from "lodash/uniq";
-import get from "lodash/get";
 import compact from "lodash/compact";
 import {journeyFetchStates} from "./JourneyStore";
 import filterActions from "./filterActions";
@@ -37,19 +37,21 @@ export function createJourneyPath(journey) {
 export default (state) => {
   const filters = filterActions(state);
 
-  function getJourneyFromStateAndTime(time) {
-    const {route, date} = state;
-
-    if (!route || !route.routeId || !date || !time) {
-      return "";
+  function getJourneyFromStateAndTime(
+    time,
+    useRoute = state.route,
+    useDate = state.date
+  ) {
+    if (!useRoute || !useRoute.routeId || !useDate || !time) {
+      return false;
     }
 
     const journey = {
-      oday: date,
+      oday: useDate,
       journey_start_time: time,
-      journey_start_timestamp: combineDateAndTime(date, time, "Europe/Helsinki"),
-      route_id: route.routeId,
-      direction_id: route.direction,
+      journey_start_timestamp: combineDateAndTime(useDate, time, "Europe/Helsinki"),
+      route_id: useRoute.routeId,
+      direction_id: useRoute.direction,
     };
 
     return journey;
@@ -95,29 +97,34 @@ export default (state) => {
       return;
     }
 
-    const {route, date} = state;
+    const acceptedRequests = [];
 
-    if (route && route.routeId && date) {
-      const journeyRequests = requestedJourneys.reduce((times, journeyTime) => {
-        // Create a journey id from the current state + requested time
-        const journeyId = getJourneyId(getJourneyFromStateAndTime(journeyTime));
+    for (const journeyRequest of requestedJourneys) {
+      const {route, date, time} = journeyRequest;
+      // Create a journey id from the current state + requested time
+      const journeyId = getJourneyId(getJourneyFromStateAndTime(time, route, date));
 
-        // Is the journey already requested or even resolved?
-        const journeyFetchState = state.resolvedJourneyStates.get(journeyId);
+      if (!journeyId) {
+        continue;
+      }
 
-        // Make sure we haven't fetched this or that it isn't currently being fetched.
-        if (!journeyFetchState) {
-          // Set it as pending immediately
-          setJourneyFetchState(journeyId, journeyFetchStates.PENDING);
-          // And start fetching
-          times.push({time: journeyTime, route, date});
-        }
+      // Is the journey already requested or even resolved?
+      const journeyFetchState = state.resolvedJourneyStates.get(journeyId);
 
-        return times;
-      }, []);
+      // Make sure that it isn't currently being fetched.
+      if (!journeyFetchState || journeyFetchState !== journeyFetchStates.PENDING) {
+        // Set it as pending immediately
+        setJourneyFetchState(journeyId, journeyFetchStates.PENDING);
+        // And start fetching
+        acceptedRequests.push(journeyRequest);
+      }
+    }
 
-      state.requestedJourneys.replace(
-        uniq([...state.requestedJourneys, ...journeyRequests])
+    if (acceptedRequests.length) {
+      state.requestedJourneys = uniqBy(
+        [...state.requestedJourneys, ...acceptedRequests],
+        (req) =>
+          `${req.route.routeId}_${req.route.direction}_${req.date}_${req.time}`
       );
     }
   });
@@ -126,7 +133,7 @@ export default (state) => {
     const journeyIdIndex = state.requestedJourneys.findIndex(
       (j) =>
         j.time === journey.time &&
-        createRouteKey(j.route) === createRouteKey(journey.route) &&
+        createRouteKey(j.route, true) === createRouteKey(journey.route, true) &&
         j.date === journey.date
     );
 
@@ -139,10 +146,9 @@ export default (state) => {
     "Set selected journey",
     (hfpItem = null, toggle = true) => {
       if (
-        (!hfpItem ||
-          (state.selectedJourney &&
-            getJourneyId(state.selectedJourney) === getJourneyId(hfpItem))) &&
-        toggle
+        (!hfpItem && toggle) ||
+        (state.selectedJourney &&
+          getJourneyId(state.selectedJourney) === getJourneyId(hfpItem))
       ) {
         state.selectedJourney = null;
         filters.setVehicle(null);
@@ -155,7 +161,6 @@ export default (state) => {
           filters.setVehicle(hfpItem.unique_vehicle_id);
         }
 
-        requestJourneys(journey.journey_start_time);
         history.push(createJourneyPath(hfpItem));
       }
     }

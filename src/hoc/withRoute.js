@@ -2,11 +2,9 @@ import React from "react";
 import {fetchSingleRoute} from "../queries/SingleRouteQuery";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
-import {fromPromise} from "mobx-utils";
-import {createRouteKey} from "../helpers/keys";
 import get from "lodash/get";
 import compact from "lodash/compact";
-import {toJS} from "mobx";
+import {autorun} from "mobx";
 
 function shouldFetch(route) {
   const requiredParts = [
@@ -24,96 +22,46 @@ function shouldFetch(route) {
   return presentParts > 1 && presentParts !== 5;
 }
 
-// Prevent update loops
-let routeEnsured = "";
-let previouslyFetchedRoute = null;
-
-const createRoutePromise = (value = null) => fromPromise.resolve(value);
-
 export default (Component) => {
   @inject(app("Filters"))
   @observer
   class WithRouteComponent extends React.Component {
-    routePromise = createRoutePromise();
-    currentFetchKey = "";
+    disposeReaction = () => {};
 
-    updatePromise = (route) => {
-      const {
-        state: {date},
-      } = this.props;
-
-      if (this.routePromise.state === "pending") {
-        return;
-      }
-
-      if (!shouldFetch(route)) {
-        const routeKey = createRouteKey(route);
-
-        if (routeKey !== this.currentFetchKey) {
-          this.routePromise = createRoutePromise(route);
-          this.ensureRouteIsSelected(route);
-          this.currentFetchKey = routeKey;
+    componentDidMount() {
+      const {state} = this.props;
+      this.disposeReaction = autorun(() => {
+        if (shouldFetch(state.route)) {
+          this.updateRoute();
         }
+      });
+    }
 
-        return;
+    componentWillUnmount() {
+      if (typeof this.disposeReaction === "function") {
+        this.disposeReaction();
       }
+    }
 
-      routeEnsured = "";
-
-      this.routePromise = fromPromise(
-        fetchSingleRoute(route, date).then((route) => {
-          this.ensureRouteIsSelected(route);
-          this.currentFetchKey = createRouteKey(route);
-          return route;
-        })
-      );
-
-      this.currentFetchKey = "";
-    };
-
-    /**
-     * This is necessary to ensure that the full route data is in the selected
-     * route state. Filters.setRoute also sets the relevant line from the route
-     * data, so this method also ensures that the line matches the route.
-     */
-    ensureRouteIsSelected = (route) => {
+    updateRoute = async () => {
       const {
-        state: {route: stateRoute = {routeId: ""}},
         Filters,
+        state: {date, route},
       } = this.props;
 
-      if (
-        route &&
-        route.routeId === stateRoute.routeId &&
-        routeEnsured !== route.routeId
-      ) {
-        routeEnsured = route.routeId;
-        Filters.setRoute(route);
+      const fetchedRoute = await fetchSingleRoute(route, date);
+
+      if (fetchedRoute && route.routeId === fetchedRoute.routeId) {
+        Filters.setRoute(fetchedRoute);
       }
     };
-
-    getComponent = (route, loading) => (
-      <Component
-        key="withRouteComponent"
-        {...this.props}
-        route={route}
-        loading={loading}
-      />
-    );
 
     render() {
       const {
-        state: {route: stateRoute},
-        route = stateRoute,
+        state: {route},
       } = this.props;
 
-      this.updatePromise(route);
-
-      return this.routePromise.case({
-        pending: () => this.getComponent(previouslyFetchedRoute, true),
-        rejected: () => this.getComponent(previouslyFetchedRoute, false),
-        fulfilled: (route) => this.getComponent(route, false),
-      });
+      return <Component {...this.props} route={route} />;
     }
   }
 
