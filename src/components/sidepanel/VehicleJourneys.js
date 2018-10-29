@@ -8,6 +8,7 @@ import groupBy from "lodash/groupBy";
 import map from "lodash/map";
 import get from "lodash/get";
 import uniqBy from "lodash/uniqBy";
+import flatten from "lodash/flatten";
 import {app} from "mobx-app";
 import getJourneyId from "../../helpers/getJourneyId";
 import {transportColor, TransportIcon} from "../transportModes";
@@ -22,6 +23,7 @@ import {diffDepartureJourney} from "../../helpers/diffDepartureJourney";
 import getDelayType from "../../helpers/getDelayType";
 import doubleDigit from "../../helpers/doubleDigit";
 import {Heading} from "../Typography";
+import PlusMinusInput from "../PlusMinusInput";
 
 const JourneyListRow = styled.div`
   width: 100%;
@@ -38,13 +40,13 @@ const JourneyListRow = styled.div`
 const HeaderRowLeft = styled.span`
   margin-right: 1rem;
   display: block;
-  font-weight: bold;
+  width: 100%;
 `;
 
 const VehicleIdHeading = styled(Heading).attrs({level: 4})`
   width: 100%;
   margin: 0;
-  padding: 0 0.75rem 1rem;
+  padding: 0 0.75rem 1rem 1rem;
   text-align: left;
   color: inherit;
   background: transparent;
@@ -87,6 +89,23 @@ const TimeSlot = styled(PlainSlot)`
 @inject(app("Filters", "Journey", "Time"))
 @observer
 class VehicleJourneys extends Component {
+  // We are modifying these in the render function so they cannot be reactive
+  selectedJourneyIndex = 0;
+  nextJourneyIndex = 0;
+
+  // Set this to true to select journey and vehicle
+  // by the indices above on the next update.
+  state = {
+    selectByIndex: false,
+  };
+
+  groupJourneysByVehicle = (journeys) => {
+    return groupBy(
+      flatMap(journeys, ({positions}) => uniqBy(positions, "journey_start_time")),
+      "unique_vehicle_id"
+    );
+  };
+
   selectJourney = (journey) => (e) => {
     e.preventDefault();
     const {Time, Filters, Journey, state} = this.props;
@@ -114,9 +133,12 @@ class VehicleJourneys extends Component {
         state: {vehicle, date, route},
       } = this.props;
 
+      if (vehicleId) {
+        Journey.requestJourneys({vehicleId, date, route});
+      }
+
       if (vehicleId && vehicle !== vehicleId) {
         Filters.setVehicle(vehicleId);
-        Journey.requestJourneys({vehicleId, date, route});
 
         if (firstJourney) {
           Time.setTime(firstJourney.journey_start_time);
@@ -128,6 +150,70 @@ class VehicleJourneys extends Component {
     };
   };
 
+  selectPreviousVehicleJourney = () => {
+    this.nextJourneyIndex = this.selectedJourneyIndex - 1;
+
+    // Clamp to 0
+    if (this.nextJourneyIndex < 0) {
+      this.nextJourneyIndex = 0;
+    }
+
+    this.setState({
+      selectByIndex: true,
+    });
+  };
+
+  selectNextVehicleJourney = () => {
+    this.nextJourneyIndex = this.selectedJourneyIndex + 1;
+
+    this.setState({
+      selectByIndex: true,
+    });
+  };
+
+  componentDidUpdate() {
+    if (this.state.selectByIndex) {
+      this.updateVehicleAndJourneySelection();
+    }
+  }
+
+  updateVehicleAndJourneySelection = () => {
+    const {
+      state: {selectedJourney},
+      positions,
+    } = this.props;
+
+    const journeys = flatten(Object.values(this.groupJourneysByVehicle(positions)));
+
+    if (journeys.length === 0) {
+      return;
+    }
+
+    // Clamp to last
+    if (this.nextJourneyIndex > journeys.length - 1) {
+      this.nextJourneyIndex = journeys.length - 1;
+    }
+
+    const nextSelectedJourney = journeys[this.nextJourneyIndex];
+
+    console.log(nextSelectedJourney);
+
+    // TODO: Investigate why the journey won't get selected
+
+    if (
+      nextSelectedJourney &&
+      ((selectedJourney &&
+        getJourneyId(nextSelectedJourney) !== getJourneyId(selectedJourney)) ||
+        !selectedJourney)
+    ) {
+      this.selectJourney(nextSelectedJourney);
+    }
+
+    this.setState({
+      selectByIndex: false,
+    });
+  };
+
   render() {
     const {
       positions = [],
@@ -135,14 +221,10 @@ class VehicleJourneys extends Component {
       state: {selectedJourney, date, vehicle},
     } = this.props;
 
-    const vehicleGrouped = groupBy(
-      flatMap(positions, ({positions}) => uniqBy(positions, "journey_start_time")),
-      "unique_vehicle_id"
-    );
+    const vehicleGrouped = this.groupJourneysByVehicle(positions);
 
     const selectedJourneyId = getJourneyId(selectedJourney);
-
-    // TODO: Add prev/next vehicle journey buttons
+    let journeyIndex = -1;
 
     return (
       <SidepanelList
@@ -150,11 +232,12 @@ class VehicleJourneys extends Component {
         header={
           <>
             <HeaderRowLeft>
-              <Text>Vehicle</Text>
+              <PlusMinusInput
+                onDecrease={this.selectPreviousVehicleJourney}
+                onIncrease={this.selectNextVehicleJourney}>
+                Next/prev journey
+              </PlusMinusInput>
             </HeaderRowLeft>
-            <span>
-              <Text>Journeys</Text>
-            </span>
           </>
         }>
         {map(vehicleGrouped, (journeys, vehicleId) => {
@@ -168,6 +251,7 @@ class VehicleJourneys extends Component {
               </VehicleSelectButton>
               <JourneysRow>
                 {journeys.map((journey) => {
+                  journeyIndex++;
                   const journeyId = getJourneyId(journey);
 
                   const mode = get(journey, "mode", "").toUpperCase();
@@ -196,6 +280,10 @@ class VehicleJourneys extends Component {
 
                   const journeyIsSelected =
                     selectedJourney && selectedJourneyId === journeyId;
+
+                  if (journeyIsSelected) {
+                    this.selectedJourneyIndex = journeyIndex;
+                  }
 
                   return (
                     <TagButton
