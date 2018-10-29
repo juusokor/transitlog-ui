@@ -4,10 +4,12 @@ import createHistory from "history/createBrowserHistory";
 import {pickJourneyProps} from "../helpers/pickJourneyProps";
 import moment from "moment-timezone";
 import {combineDateAndTime} from "../helpers/time";
+import uniqBy from "lodash/uniqBy";
 import uniq from "lodash/uniq";
-import get from "lodash/get";
 import compact from "lodash/compact";
 import {journeyFetchStates} from "./JourneyStore";
+import filterActions from "./filterActions";
+import {createRouteKey} from "../helpers/keys";
 
 const history = createHistory();
 
@@ -33,19 +35,23 @@ export function createJourneyPath(journey) {
 }
 
 export default (state) => {
-  function getJourneyFromStateAndTime(time) {
-    const {route, date} = state;
+  const filters = filterActions(state);
 
-    if (!route || !route.routeId || !date || !time) {
-      return "";
+  function getJourneyFromStateAndTime(
+    time,
+    useRoute = state.route,
+    useDate = state.date
+  ) {
+    if (!useRoute || !useRoute.routeId || !useDate || !time) {
+      return false;
     }
 
     const journey = {
-      oday: date,
+      oday: useDate,
       journey_start_time: time,
-      journey_start_timestamp: combineDateAndTime(date, time, "Europe/Helsinki"),
-      route_id: route.routeId,
-      direction_id: route.direction,
+      journey_start_timestamp: combineDateAndTime(useDate, time, "Europe/Helsinki"),
+      route_id: useRoute.routeId,
+      direction_id: useRoute.direction,
     };
 
     return journey;
@@ -59,7 +65,17 @@ export default (state) => {
     }
   );
 
-  // Request a journeyId or multiple journeyIds
+  /** Request a journey or multiple journeys by a journey request object.
+   * The request object:
+   * {
+   *   time: the journey_start_time you want to query for,
+   *   date: the date you want to query for (oday),
+   *   route: {
+   *     routeId: the routeId you're interested in,
+   *     direction: the direction of the route
+   *   }
+   * }
+   */
   const requestJourneys = action("Request a journey by time", (journeys = []) => {
     const requestedJourneys = compact(
       Array.isArray(journeys) ? journeys : [journeys]
@@ -69,38 +85,52 @@ export default (state) => {
       return;
     }
 
-    const {route, date} = state;
+    const acceptedRequests = [];
 
-    if (route && route.routeId && date) {
-      const acceptedJourneyRequests = requestedJourneys.reduce(
-        (times, journeyTime) => {
-          // Create a journey id from the current state + requested time
-          const journeyId = getJourneyId(getJourneyFromStateAndTime(journeyTime));
+    for (const journeyRequest of requestedJourneys) {
+      const {route, date, time, vehicleId} = journeyRequest;
 
-          // Is the journey already requested or even resolved?
-          const journeyFetchState = state.resolvedJourneyStates.get(journeyId);
+      if (vehicleId && !time) {
+        // We can't make a journeyId with vehicle requests to check
+        // for pending requests, so just accept it and move on.
+        acceptedRequests.push(journeyRequest);
+        continue;
+      }
+      // Create a journey id from the current state + requested time
+      const journeyId = getJourneyId(getJourneyFromStateAndTime(time, route, date));
 
-          // Make sure we haven't fetched this or that it isn't currently being fetched.
-          if (!journeyFetchState) {
-            // Set it as pending immediately
-            setJourneyFetchState(journeyId, journeyFetchStates.PENDING);
-            // And start fetching
-            times.push(journeyTime);
-          }
+      if (!journeyId) {
+        continue;
+      }
 
-          return times;
-        },
-        []
-      );
+      // Is the journey already requested or even resolved?
+      const journeyFetchState = state.resolvedJourneyStates.get(journeyId);
 
-      state.requestedJourneys.replace(
-        uniq([...state.requestedJourneys, ...acceptedJourneyRequests])
+      // Make sure that it isn't currently being fetched.
+      if (!journeyFetchState || journeyFetchState !== journeyFetchStates.PENDING) {
+        // Set it as pending immediately
+        setJourneyFetchState(journeyId, journeyFetchStates.PENDING);
+        // And start fetching
+        acceptedRequests.push(journeyRequest);
+      }
+    }
+
+    if (acceptedRequests.length) {
+      state.requestedJourneys = uniqBy(
+        [...state.requestedJourneys, ...acceptedRequests],
+        (req) =>
+          `${req.route.routeId}_${req.route.direction}_${req.date}_${req.time}`
       );
     }
   });
 
   const removeJourneyRequest = action("Remove requested journey time", (journey) => {
-    const journeyIdIndex = state.requestedJourneys.indexOf(journey);
+    const journeyIdIndex = state.requestedJourneys.findIndex(
+      (j) =>
+        (j.time === journey.time || j.vehicleId === journey.vehicleId) &&
+        createRouteKey(j.route, true) === createRouteKey(journey.route, true) &&
+        j.date === journey.date
+    );
 
     if (journeyIdIndex > -1) {
       state.requestedJourneys.splice(journeyIdIndex, 1);
@@ -111,18 +141,21 @@ export default (state) => {
     "Set selected journey",
     (hfpItem = null, toggle = true) => {
       if (
-        (!hfpItem ||
-          (state.selectedJourney &&
-            getJourneyId(state.selectedJourney) === getJourneyId(hfpItem))) &&
-        toggle
+        (!hfpItem && toggle) ||
+        (state.selectedJourney &&
+          getJourneyId(state.selectedJourney) === getJourneyId(hfpItem))
       ) {
         state.selectedJourney = null;
+        filters.setVehicle(null);
         history.push("/");
-      } else {
+      } else if (hfpItem) {
         const journey = pickJourneyProps(hfpItem);
-
         state.selectedJourney = journey;
-        requestJourneys(journey.journey_start_time);
+
+        if (hfpItem.unique_vehicle_id) {
+          filters.setVehicle(hfpItem.unique_vehicle_id);
+        }
+
         history.push(createJourneyPath(hfpItem));
       }
     }
@@ -130,7 +163,7 @@ export default (state) => {
 
   return {
     setSelectedJourney,
-    requestJourneys: requestJourneys,
+    requestJourneys,
     removeJourneyRequest,
     setJourneyFetchState,
     getJourneyFromStateAndTime,

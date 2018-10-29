@@ -5,6 +5,8 @@ import styled from "styled-components";
 import {app} from "mobx-app";
 import Tabs from "./Tabs";
 import Timetables from "./Timetables";
+import VehicleJourneys from "./VehicleJourneys";
+import {text} from "../../helpers/text";
 
 const SidePanelContainer = styled.div`
   background: var(--lightest-grey);
@@ -23,8 +25,7 @@ class SidePanel extends Component {
     const {
       positions,
       loading,
-      route,
-      state: {stop, date},
+      state: {stop, route},
     } = this.props;
 
     return (
@@ -37,15 +38,21 @@ class SidePanel extends Component {
                 positions={positions}
                 loading={loading}
                 name="journeys"
-                label="Journeys"
+                label={text("sidepanel.tabs.journeys")}
               />
             )}
+          {positions.length !== 0 && (
+            <VehicleJourneys
+              loading={loading}
+              positions={positions}
+              name="vehicle-journeys"
+              label={text("sidepanel.tabs.vehicle_journeys")}
+            />
+          )}
           {stop && (
             <Timetables
-              date={date} // Needed for withStop to fetch routeSegments
-              stop={stop}
               name="timetables"
-              label={`Stop timetables`}
+              label={text("sidepanel.tabs.timetables")}
             />
           )}
         </Tabs>

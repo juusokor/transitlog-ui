@@ -17,6 +17,10 @@
   "filterpanel.journey.unrealized": "Ogenomförd",
   "filterpanel.journey.click_to_fetch": "Hämta",
 
+  "sidepanel.tabs.journeys": "Resor",
+  "sidepanel.tabs.timetables": "Tidtabeller",
+  "sidepanel.tabs.vehicle_journeys": "Fordonsresor",
+
   "map.stops.arrive": "Anländningstid",
   "map.stops.depart": "Avgångstid",
 
@@ -35,5 +39,6 @@
   "general.week": "vecka",
   "general.seconds.short": "sek.",
   "general.loading": "Laddar",
-  "general.error": "Fel"
+  "general.error": "Fel",
+  "general.journey": "resa"
 }

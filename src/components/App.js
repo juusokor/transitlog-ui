@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import FilterBar from "./filterbar/FilterBar";
 import withHfpData from "../hoc/withHfpData";
 import {app} from "mobx-app";
-import {inject, observer, Observer} from "mobx-react";
+import {inject, observer} from "mobx-react";
 import Map from "./map/Map";
 import invoke from "lodash/invoke";
 import getJourneyId from "../helpers/getJourneyId";
@@ -83,8 +83,8 @@ class App extends Component {
   };
 
   render() {
-    const {state, positions = [], loading, route} = this.props;
-    const {date, stop} = state;
+    const {state, positions = [], loading} = this.props;
+    const {date, stop, route} = state;
 
     return (
       <AppFrame>

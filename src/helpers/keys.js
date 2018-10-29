@@ -11,7 +11,7 @@ export function createFetchKey(route, date, time, allowPartial = false) {
   return compact(keyParts).join(".");
 }
 
-export function createRouteKey(route) {
+export function createRouteKey(route, allowPartial = false) {
   const keyParts = [
     get(route, "routeId", ""),
     get(route, "direction", ""),
@@ -19,7 +19,7 @@ export function createRouteKey(route) {
     get(route, "dateEnd", ""),
   ];
 
-  if (keyParts.some((part) => !part)) {
+  if (!allowPartial && keyParts.some((part) => !part)) {
     return "";
   }
 

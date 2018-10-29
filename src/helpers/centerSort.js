@@ -1,8 +1,13 @@
 import groupBy from "lodash/groupBy";
 import flatten from "lodash/flatten";
 import zip from "lodash/zip";
+import get from "lodash/get";
 
-export function centerSort(centerValue, valuesToSort) {
+export function centerSort(centerValue, valuesToSort = []) {
+  if (valuesToSort.length === 0) {
+    return [];
+  }
+
   const values = valuesToSort.slice();
   let firstValue = centerValue;
   let centerIndex = values.indexOf(firstValue);
@@ -50,8 +55,13 @@ export function centerSort(centerValue, valuesToSort) {
 
   const orderedValues = [
     firstValue,
-    // Interleave the before (reversed) and after values, adn flatten the result.
-    ...flatten(zip(groupedValues.after, groupedValues.before.reverse())),
+    // Interleave the before (reversed) and after values, and flatten the result.
+    ...flatten(
+      zip(
+        get(groupedValues, "after", []),
+        get(groupedValues, "before", []).reverse()
+      )
+    ),
   ];
 
   return orderedValues;

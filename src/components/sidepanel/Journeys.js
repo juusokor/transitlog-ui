@@ -8,14 +8,19 @@ import getJourneyId from "../../helpers/getJourneyId";
 import styled from "styled-components";
 import {timeToFormat} from "../../helpers/time";
 import {Text, text} from "../../helpers/text";
-import withDepartures from "../../hoc/withDepartures";
+import withDepartures from "../../hoc/withRouteStopDepartures";
 import doubleDigit from "../../helpers/doubleDigit";
-import {observable, action} from "mobx";
+import {observable, action, toJS} from "mobx";
 import Loading from "../Loading";
 import SidepanelList from "./SidepanelList";
 import {journeyFetchStates} from "../../stores/JourneyStore";
 import {createFetchKey} from "../../helpers/keys";
 import {centerSort} from "../../helpers/centerSort";
+import {departuresToTimes} from "../../helpers/departuresToTimes";
+import {findJourneyStartPosition} from "../../helpers/findJourneyStartPosition";
+import {ColoredBackgroundSlot} from "../TagButton";
+import {diffDepartureJourney} from "../../helpers/diffDepartureJourney";
+import getDelayType from "../../helpers/getDelayType";
 
 const JourneyListRow = styled.button`
   display: flex;
@@ -28,6 +33,7 @@ const JourneyListRow = styled.button`
   border: 0;
   max-width: none;
   font-size: 1rem;
+  font-family: inherit;
   cursor: pointer;
   color: ${({selected = false}) => (selected ? "white" : "var(--grey)")};
   outline: none;
@@ -39,9 +45,25 @@ const JourneyListRow = styled.button`
 `;
 
 const JourneyRowLeft = styled.span`
-  margin-right: 1rem;
   display: block;
   font-weight: bold;
+  min-width: 6rem;
+  text-align: left;
+`;
+
+const DelaySlot = styled(ColoredBackgroundSlot)`
+  font-size: 0.857rem;
+  margin: 0;
+  transform: none;
+  padding: 5px;
+  line-height: 1;
+`;
+
+const TimeSlot = styled.span`
+  font-size: 0.857rem;
+  font-family: "Courier New", Courier, monospace;
+  min-width: 5rem;
+  text-align: right;
 `;
 
 @inject(app("Journey", "Time", "Filters"))
@@ -54,12 +76,7 @@ class Journeys extends Component {
   clickedJourneyItem = false;
   currentFetchKey = "";
 
-  componentDidMount() {
-    this.ensureSelectedVehicle();
-  }
-
   componentDidUpdate({positions: prevPositions}, prevState) {
-    this.ensureSelectedVehicle();
     this.fetchAllJourneys();
 
     const {selectedJourney} = this.props.state;
@@ -73,58 +90,37 @@ class Journeys extends Component {
   fetchAllJourneys = () => {
     const {
       Journey,
+      departures,
       state: {date, route, time, selectedJourney},
     } = this.props;
 
     // Create fetchKey key without time
-    const fetchKey = createFetchKey(route, date, false, true);
+    const fetchKey = createFetchKey(route, date, true);
 
-    if (fetchKey !== this.currentFetchKey) {
+    if (fetchKey && fetchKey !== this.currentFetchKey) {
       // Format to an array of string times, like 12:30:00
-      let fetchTimes = this.getDeparturesAsTimes();
+      let fetchTimes = departuresToTimes(departures);
 
       if (fetchTimes.length !== 0) {
         // Find which time we want to fetch first.
         let firstTime = selectedJourney ? selectedJourney.journey_start_time : time;
         fetchTimes = centerSort(firstTime, fetchTimes).slice(0, 11);
 
-        Journey.requestJourneys(fetchTimes);
+        const journeyRequests = fetchTimes.map((time) => ({
+          time,
+          route: toJS(route),
+          date,
+        }));
+
+        Journey.requestJourneys(journeyRequests);
         this.currentFetchKey = fetchKey;
       }
     }
   };
 
-  getDeparturesAsTimes = () =>
-    this.props.departures.map(
-      (departure) =>
-        `${doubleDigit(departure.hours)}:${doubleDigit(departure.minutes)}:00`
-    );
-
-  ensureSelectedVehicle = () => {
-    const {Filters, state, positions} = this.props;
-    const {vehicle, selectedJourney} = state;
-
-    if (!selectedJourney) {
-      if (vehicle !== "") {
-        Filters.setVehicle("");
-      }
-
-      return;
-    }
-
-    const selectedJourneyId = getJourneyId(selectedJourney);
-    const journeys = map(positions, ({positions}) => positions[0]);
-    const journey = journeys.find((j) => getJourneyId(j) === selectedJourneyId);
-
-    // Only set these if the journey is truthy and was not already selected
-    if (journey && journey.unique_vehicle_id !== vehicle) {
-      Filters.setVehicle(journey.unique_vehicle_id);
-    }
-  };
-
   selectJourney = (journeyOrTime) => (e) => {
     e.preventDefault();
-    const {Time, Journey, state} = this.props;
+    const {departures, Time, Journey, state} = this.props;
     let journeyToSelect = null;
 
     if (journeyOrTime) {
@@ -149,11 +145,17 @@ class Journeys extends Component {
 
         const fetchTimes = centerSort(
           journey.journey_start_time,
-          this.getDeparturesAsTimes()
+          departuresToTimes(departures)
         ).slice(0, 6);
 
+        const journeyRequests = fetchTimes.map((time) => ({
+          time,
+          route: {routeId: journey.route_id, direction: journey.direction_id},
+          date: journey.oday,
+        }));
+
         if (fetchTimes.length !== 0) {
-          Journey.requestJourneys(fetchTimes);
+          Journey.requestJourneys(journeyRequests);
         }
       }
     }
@@ -161,38 +163,6 @@ class Journeys extends Component {
     this.clickedJourneyItem = true;
     Journey.setSelectedJourney(journeyToSelect);
   };
-
-  getJourneyStartPosition(journeyId) {
-    const {positions} = this.props;
-
-    // Get the hfp data for this journey
-    const journeyPositions = get(
-      positions.find(({journeyId: jid}) => jid === journeyId),
-      "positions",
-      []
-    );
-
-    // Default to the first hfp event, ie when the data stream from this vehicle started
-    let journeyStartHfp = journeyPositions[0];
-
-    if (!journeyStartHfp) {
-      return null;
-    }
-
-    for (let i = 1; i < journeyPositions.length; i++) {
-      const current = journeyPositions[i];
-
-      // Loop through the positions and find when the next_stop_id prop changes.
-      // The hfp event BEFORE this is when the journey started, ie when
-      // the vehicle departed the first terminal.
-      if (current && current.next_stop_id !== journeyStartHfp.next_stop_id) {
-        journeyStartHfp = journeyPositions[i - 1];
-        break;
-      }
-    }
-
-    return journeyStartHfp;
-  }
 
   setSelectedJourneyOffset = action(() => {
     if (this.selectedJourneyRef.current) {
@@ -206,7 +176,7 @@ class Journeys extends Component {
 
   render() {
     const {positions, loading, state, departures, Journey} = this.props;
-    const {selectedJourney, resolvedJourneyStates} = state;
+    const {selectedJourney, resolvedJourneyStates, date} = state;
 
     const journeys = map(positions, ({positions}) => positions[0]);
     const selectedJourneyId = getJourneyId(selectedJourney);
@@ -255,11 +225,16 @@ class Journeys extends Component {
               Journey.getJourneyFromStateAndTime(journeyOrDeparture)
             );
 
+            const journeyIsSelected =
+              selectedJourney && selectedJourneyId === journeyId;
+
             let fetchStatus = resolvedJourneyStates.get(journeyId);
 
             return (
               <JourneyListRow
+                ref={journeyIsSelected ? this.selectedJourneyRef : null}
                 key={`planned_journey_row_${journeyOrDeparture}_${index}`}
+                selected={journeyIsSelected}
                 onClick={this.selectJourney(journeyOrDeparture)}>
                 <JourneyRowLeft>{journeyOrDeparture}</JourneyRowLeft>
                 {fetchStatus === journeyFetchStates.NOTFOUND ? (
@@ -272,11 +247,39 @@ class Journeys extends Component {
               </JourneyListRow>
             );
           }
-          const journeyStartHfp = this.getJourneyStartPosition(
-            getJourneyId(journeyOrDeparture)
+
+          const journeyId = getJourneyId(journeyOrDeparture);
+
+          const journeyPositions = get(
+            positions.find(({journeyId: jid}) => jid === journeyId),
+            "positions",
+            []
           );
 
+          const journeyStartPosition = findJourneyStartPosition(journeyPositions);
           const journeyIsSelected = isSelected(journeyOrDeparture);
+
+          const [hours, minutes] = journeyStartPosition.journey_start_time.split(
+            ":"
+          );
+
+          const departure = {
+            hours: parseInt(hours, 10),
+            minutes: parseInt(minutes, 10),
+          };
+
+          const plannedObservedDiff = diffDepartureJourney(
+            journeyStartPosition,
+            departure,
+            date
+          );
+          const observedTimeString = plannedObservedDiff
+            ? plannedObservedDiff.observedMoment.format("HH:mm:ss")
+            : "";
+
+          const delayType = plannedObservedDiff
+            ? getDelayType(plannedObservedDiff.diff)
+            : "none";
 
           return (
             <JourneyListRow
@@ -291,14 +294,23 @@ class Journeys extends Component {
                   "Europe/Helsinki"
                 )}
               </JourneyRowLeft>
-              {journeyStartHfp && (
-                <span>
-                  {timeToFormat(
-                    journeyStartHfp.received_at,
-                    "HH:mm:ss",
-                    "Europe/Helsinki"
-                  )}
-                </span>
+              {journeyStartPosition && (
+                <>
+                  <DelaySlot
+                    color={delayType === "late" ? "var(--dark-grey)" : "white"}
+                    backgroundColor={
+                      delayType === "early"
+                        ? "var(--red)"
+                        : delayType === "late"
+                          ? "var(--yellow)"
+                          : "var(--light-green)"
+                    }>
+                    {plannedObservedDiff.sign}
+                    {doubleDigit(plannedObservedDiff.minutes)}:
+                    {doubleDigit(plannedObservedDiff.seconds)}
+                  </DelaySlot>
+                  <TimeSlot>{observedTimeString}</TimeSlot>
+                </>
               )}
             </JourneyListRow>
           );

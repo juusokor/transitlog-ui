@@ -20,7 +20,7 @@ const DateInput = styled(PlusMinusInput)`
   grid-template-columns: 2.5rem 1fr 2.5rem;
 
   > button {
-    height: 2.5rem;
+    height: calc(2rem + 4px);
     padding: 0 0.25rem;
   }
 
@@ -58,7 +58,7 @@ const WeekInput = styled(PlusMinusInput)`
 
 const Calendar = styled(InputBase.withComponent(DatePicker))`
   min-width: 8rem;
-  height: 2.5rem;
+  height: calc(2rem + 6px);
   text-align: center;
   border-color: var(--blue);
 `;
