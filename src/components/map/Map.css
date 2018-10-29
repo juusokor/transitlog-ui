@@ -26,6 +26,16 @@
 }
 
 .timing-stop.early {
-  background: hotpink;
+  background: var(--pink);
+  border-radius: 50%;
+}
+
+.timing-stop.late {
+  background: var(--yellow);
+  border-radius: 50%;
+}
+
+.timing-stop.on-time {
+  background: var(--lighter-green);
   border-radius: 50%;
 }
