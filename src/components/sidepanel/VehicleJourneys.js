@@ -255,7 +255,15 @@ class VehicleJourneys extends Component {
                 minusLabel={<>&laquo;</>}
                 onDecrease={this.selectPreviousVehicleJourney}
                 onIncrease={this.selectNextVehicleJourney}>
-                <NextPrevLabel>{vehicle}</NextPrevLabel>
+                <NextPrevLabel>
+                  {selectedJourney ? (
+                    <>
+                      {vehicle}, {selectedJourney.journey_start_time}
+                    </>
+                  ) : (
+                    vehicle
+                  )}
+                </NextPrevLabel>
               </PlusMinusInput>
             </HeaderRowLeft>
           </>
