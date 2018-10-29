@@ -9,6 +9,7 @@ import map from "lodash/map";
 import get from "lodash/get";
 import uniqBy from "lodash/uniqBy";
 import flatten from "lodash/flatten";
+import orderBy from "lodash/orderBy";
 import {app} from "mobx-app";
 import getJourneyId from "../../helpers/getJourneyId";
 import {transportColor, TransportIcon} from "../transportModes";
@@ -112,10 +113,13 @@ class VehicleJourneys extends Component {
 
   groupJourneysByVehicle = (journeys) => {
     return groupBy(
-      flatMap(journeys, ({journeyId, positions}) => {
-        const journeyStartPosition = findJourneyStartPosition(positions);
-        return [journeyStartPosition];
-      }),
+      orderBy(
+        flatMap(journeys, ({journeyId, positions}) => {
+          const journeyStartPosition = findJourneyStartPosition(positions);
+          return [journeyStartPosition];
+        }),
+        "unique_vehicle_id"
+      ),
       "unique_vehicle_id"
     );
   };
