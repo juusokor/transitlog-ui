@@ -22,12 +22,10 @@ export default (state) => {
     {
       selectedJourney: null,
       requestedJourneys: [],
-      requestedVehicleJourneys: [],
       resolvedJourneyStates: new Map(),
     },
     {
       requestedJourneys: observable.shallow,
-      requestedVehicleJourneys: observable.shallow,
     }
   );
 
