@@ -107,11 +107,16 @@ class VehicleJourneys extends Component {
   onSelectVehicle = (vehicleId, firstJourney) => {
     return (e) => {
       e.preventDefault();
-      const {Filters, Journey, Time, state} = this.props;
+      const {
+        Filters,
+        Journey,
+        Time,
+        state: {vehicle, date, route},
+      } = this.props;
 
-      if (vehicleId && state.vehicle !== vehicleId) {
+      if (vehicleId && vehicle !== vehicleId) {
         Filters.setVehicle(vehicleId);
-        Journey.requestVehicleJourneys(vehicleId);
+        Journey.requestJourneys({vehicleId, date, route});
 
         if (firstJourney) {
           Time.setTime(firstJourney.journey_start_time);

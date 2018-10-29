@@ -44,6 +44,23 @@ export default (Component) => {
       this.currentView.clear();
     };
 
+    getStateRoute = (partialRoute) => {
+      const {
+        state: {route},
+      } = this.props;
+
+      // Ensures that the request has access to the full route data.
+      if (
+        route &&
+        partialRoute.routeId === route.routeId &&
+        partialRoute.direction === route.direction
+      ) {
+        return route;
+      }
+
+      return partialRoute;
+    };
+
     fetchRequestedJourneys = async (requestedJourneys) => {
       this.setLoading(true);
 
@@ -55,6 +72,10 @@ export default (Component) => {
             waitForIdle = false;
           }
 
+          if (journeyRequest.vehicleId && !journeyRequest.time) {
+            return this.fetchVehicleDeparture(journeyRequest, waitForIdle);
+          }
+
           return this.fetchDeparture(journeyRequest, waitForIdle);
         }
       );
@@ -63,47 +84,16 @@ export default (Component) => {
       await this.onFetchCompleted();
     };
 
-    fetchRequestedVehicleJourneys = async (requestedVehicleJourneys) => {
-      const {
-        state: {route, date},
-      } = this.props;
-
-      this.setLoading(true);
-
-      const journeyPromises = requestedVehicleJourneys.map(
-        (vehicleId) => async () => {
-          this.fetchVehicleDeparture(route, date, vehicleId);
-        }
-      );
-
-      await pAll(journeyPromises, {concurrency: 5});
-      await this.onFetchCompleted();
-    };
-
     fetchDeparture = async (journeyRequest, waitForIdle = true) => {
-      const {
-        Journey,
-        state: {route: currentRoute},
-      } = this.props;
+      const {Journey} = this.props;
       const {route, date, time} = journeyRequest;
 
-      let useRoute = route;
-
-      // Ensures that the request has access to the full route data.
-      if (
-        currentRoute &&
-        route.routeId === currentRoute.routeId &&
-        route.direction === currentRoute.direction
-      ) {
-        useRoute = currentRoute;
-      }
-
+      const useRoute = this.getStateRoute(route);
       const journeys = await fetchHfpJourney(useRoute, date, time, waitForIdle);
-      Journey.removeJourneyRequest(journeyRequest);
 
-      if (journeys.length !== 0) {
-        this.onReceivedJourneys(journeys, journeyRequest);
-      } else {
+      this.onReceivedJourneys(journeys, journeyRequest);
+
+      if (journeys.length === 0) {
         Journey.setJourneyFetchState(
           getJourneyId(Journey.getJourneyFromStateAndTime(journeyRequest.time)),
           journeyFetchStates.NOTFOUND
@@ -111,8 +101,8 @@ export default (Component) => {
       }
     };
 
-    fetchVehicleDeparture = async (route, date, vehicleId, waitForIdle = true) => {
-      const {Journey} = this.props;
+    fetchVehicleDeparture = async (vehicleRequest, waitForIdle = true) => {
+      const {vehicleId, route, date} = vehicleRequest;
 
       const journeys = await fetchVehicleJourneys(
         route,
@@ -121,14 +111,10 @@ export default (Component) => {
         waitForIdle
       );
 
-      Journey.removeVehicleJourneyRequest(vehicleId);
-
-      if (journeys.length !== 0) {
-        this.onReceivedJourneys(journeys);
-      }
+      this.onReceivedJourneys(journeys, vehicleRequest);
     };
 
-    onReceivedJourneys = async (fetchedJourneys) => {
+    onReceivedJourneys = async (fetchedJourneys, journeyRequest) => {
       const {
         Journey,
         Filters,
@@ -138,6 +124,8 @@ export default (Component) => {
       const journeys = Array.isArray(fetchedJourneys)
         ? fetchedJourneys
         : [fetchedJourneys];
+
+      Journey.removeJourneyRequest(journeyRequest);
 
       for (const journey of journeys) {
         Journey.setJourneyFetchState(journey.journeyId, journeyFetchStates.RESOLVED);
@@ -194,26 +182,8 @@ export default (Component) => {
         }
       );
 
-      this.vehicleFetchReaction = reaction(
-        () => {
-          const reqJourneys = state.requestedVehicleJourneys.slice();
-          const routeKey = createRouteKey(state.route);
-
-          if (reqJourneys.length && !!routeKey && !this.loading) {
-            return reqJourneys;
-          }
-
-          return [];
-        },
-        (reqJourneys) => {
-          if (reqJourneys.length !== 0) {
-            return this.fetchRequestedVehicleJourneys(reqJourneys);
-          }
-        },
-        {fireImmediately: true}
-      );
-
-      // Reset the view if the fetchKey (without time) changes.
+      // Reset the view if the fetchKey (without time, but still
+      // falseable if the date or route is missing) changes.
       this.resetReaction = reaction(
         () => createFetchKey(state.route, state.date, true),
         (fetchKey) => {
@@ -232,11 +202,6 @@ export default (Component) => {
       if (typeof this.fetchReaction === "function") {
         this.fetchReaction();
       }
-
-      if (typeof this.vehicleFetchReaction === "function") {
-        this.vehicleFetchReaction();
-      }
-
       if (typeof this.resetReaction === "function") {
         this.resetReaction();
       }
