@@ -17,6 +17,8 @@ import {journeyFetchStates} from "../../stores/JourneyStore";
 import {createFetchKey} from "../../helpers/keys";
 import {centerSort} from "../../helpers/centerSort";
 import {departuresToTimes} from "../../helpers/departuresToTimes";
+import {findJourneyStartPosition} from "../../helpers/findJourneyStartPosition";
+import JourneyPosition from "../map/JourneyPosition";
 
 const JourneyListRow = styled.button`
   display: flex;
@@ -146,34 +148,6 @@ class Journeys extends Component {
 
   getJourneyStartPosition(journeyId) {
     const {positions} = this.props;
-
-    // Get the hfp data for this journey
-    const journeyPositions = get(
-      positions.find(({journeyId: jid}) => jid === journeyId),
-      "positions",
-      []
-    );
-
-    // Default to the first hfp event, ie when the data stream from this vehicle started
-    let journeyStartHfp = journeyPositions[0];
-
-    if (!journeyStartHfp) {
-      return null;
-    }
-
-    for (let i = 1; i < journeyPositions.length; i++) {
-      const current = journeyPositions[i];
-
-      // Loop through the positions and find when the next_stop_id prop changes.
-      // The hfp event BEFORE this is when the journey started, ie when
-      // the vehicle departed the first terminal.
-      if (current && current.next_stop_id !== journeyStartHfp.next_stop_id) {
-        journeyStartHfp = journeyPositions[i - 1];
-        break;
-      }
-    }
-
-    return journeyStartHfp;
   }
 
   setSelectedJourneyOffset = action(() => {
@@ -259,8 +233,18 @@ class Journeys extends Component {
               </JourneyListRow>
             );
           }
-          const journeyStartHfp = this.getJourneyStartPosition(
-            getJourneyId(journeyOrDeparture)
+
+          const journeyId = getJourneyId(journeyOrDeparture);
+
+          const journeyPositions = get(
+            positions.find(({journeyId: jid}) => jid === journeyId),
+            "positions",
+            []
+          );
+
+          const journeyStartPosition = findJourneyStartPosition(
+            journeyId,
+            journeyPositions
           );
 
           const journeyIsSelected = isSelected(journeyOrDeparture);
@@ -278,10 +262,10 @@ class Journeys extends Component {
                   "Europe/Helsinki"
                 )}
               </JourneyRowLeft>
-              {journeyStartHfp && (
+              {journeyStartPosition && (
                 <span>
                   {timeToFormat(
-                    journeyStartHfp.received_at,
+                    journeyStartPosition.received_at,
                     "HH:mm:ss",
                     "Europe/Helsinki"
                   )}

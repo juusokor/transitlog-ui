@@ -25,6 +25,7 @@ import doubleDigit from "../../helpers/doubleDigit";
 import {Heading} from "../Typography";
 import PlusMinusInput from "../PlusMinusInput";
 import {observable, action, reaction} from "mobx";
+import {findJourneyStartPosition} from "../../helpers/findJourneyStartPosition";
 
 const JourneyListRow = styled.div`
   width: 100%;
@@ -111,7 +112,10 @@ class VehicleJourneys extends Component {
 
   groupJourneysByVehicle = (journeys) => {
     return groupBy(
-      flatMap(journeys, ({positions}) => uniqBy(positions, "journey_start_time")),
+      flatMap(journeys, ({journeyId, positions}) => {
+        const journeyStartPosition = findJourneyStartPosition(positions);
+        return [journeyStartPosition];
+      }),
       "unique_vehicle_id"
     );
   };
