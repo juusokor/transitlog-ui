@@ -62,6 +62,8 @@ const DelaySlot = styled(ColoredBackgroundSlot)`
 const TimeSlot = styled.span`
   font-size: 0.857rem;
   font-family: "Courier New", Courier, monospace;
+  min-width: 5rem;
+  text-align: right;
 `;
 
 @inject(app("Journey", "Time", "Filters"))
@@ -93,9 +95,9 @@ class Journeys extends Component {
     } = this.props;
 
     // Create fetchKey key without time
-    const fetchKey = createFetchKey(route, date, false, true);
+    const fetchKey = createFetchKey(route, date, true);
 
-    if (fetchKey !== this.currentFetchKey) {
+    if (fetchKey && fetchKey !== this.currentFetchKey) {
       // Format to an array of string times, like 12:30:00
       let fetchTimes = departuresToTimes(departures);
 

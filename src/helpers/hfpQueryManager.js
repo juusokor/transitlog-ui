@@ -208,7 +208,7 @@ export const fetchVehicleJourneys = async (route, date, vehicleId, waitForIdle) 
         .then((journeyGroups) => {
           journeyGroups.forEach((journey) => {
             const journeyTime = get(journey, "positions.[0].journey_start_time");
-            memoryCache.set(createFetchKey(route, date, journeyTime), journeyGroups);
+            memoryCache.set(createFetchKey(route, date, journeyTime), [journey]);
           });
 
           return journeyGroups;
