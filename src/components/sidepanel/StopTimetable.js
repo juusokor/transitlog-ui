@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import groupBy from "lodash/groupBy";
 import orderBy from "lodash/orderBy";
+import get from "lodash/get";
 import {observer} from "mobx-react";
 import styled from "styled-components";
 import doubleDigit from "../../helpers/doubleDigit";
@@ -39,7 +40,15 @@ const TimetableTimes = styled.div`
 @observer
 class StopTimetable extends Component {
   render() {
-    const {departures, date, selectedJourney, stop, onSelectAsJourney} = this.props;
+    const {
+      routeFilter,
+      timeRangeFilter,
+      departures,
+      date,
+      selectedJourney,
+      stop,
+      onSelectAsJourney,
+    } = this.props;
 
     const byHour = groupBy(departures, ({hours, minutes}) => {
       if (hours === 4 && minutes >= 30) {
@@ -67,25 +76,46 @@ class StopTimetable extends Component {
       return hourVal;
     });
 
+    const {min, max} = timeRangeFilter;
+
     return (
       <TimetableGrid>
-        {byHourOrdered.map(([hour, times], idx) => (
-          <TimetableSection key={`hour_${hour}_${idx}`}>
-            <TimetableHour> {hour}</TimetableHour>
-            <TimetableTimes>
-              {times.map((departure, idx) => (
-                <TimetableDeparture
-                  selectedJourney={selectedJourney}
-                  key={`time_${idx}`}
-                  onClick={onSelectAsJourney}
-                  stop={stop}
-                  date={date}
-                  departure={departure}
-                />
-              ))}
-            </TimetableTimes>
-          </TimetableSection>
-        ))}
+        {byHourOrdered.map(([hour, times], idx) => {
+          let showTimes = times;
+
+          if (min !== "" || max !== "") {
+            const intHour = parseInt(hour.replace(":", ""), 10) / 100;
+            if (intHour < parseInt(min) || intHour > parseInt(max)) {
+              return null;
+            }
+          }
+
+          if (routeFilter) {
+            showTimes = times.filter((departure) =>
+              get(departure, "routeId", "").startsWith(routeFilter)
+            );
+          }
+
+          return (
+            <TimetableSection key={`hour_${hour}_${idx}`}>
+              <TimetableHour> {hour}</TimetableHour>
+              <TimetableTimes>
+                {showTimes.map((departure, idx) => (
+                  <TimetableDeparture
+                    routeFilter={routeFilter}
+                    timeRangeFilter={timeRangeFilter}
+                    selectedJourney={selectedJourney}
+                    key={`time_${idx}`}
+                    onClick={onSelectAsJourney}
+                    stop={stop}
+                    date={date}
+                    departure={departure}
+                  />
+                ))}
+              </TimetableTimes>
+            </TimetableSection>
+          );
+        })}
       </TimetableGrid>
     );
   }

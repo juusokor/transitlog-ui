@@ -23,7 +23,15 @@ const parseLineNumber = (lineId) =>
 @observer
 class TimetableDeparture extends Component {
   render() {
-    const {departure, date, stop, onClick, selectedJourney} = this.props;
+    const {
+      routeFilter,
+      timeRangeFilter,
+      departure,
+      date,
+      stop,
+      onClick,
+      selectedJourney,
+    } = this.props;
 
     const {
       modes: {nodes: modes},

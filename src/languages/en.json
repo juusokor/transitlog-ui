@@ -35,6 +35,8 @@
 
   "general.minutes": "minutes",
   "general.hour": "hour",
+  "general.timerange.min": "min",
+  "general.timerange.max": "max",
   "general.day": "day",
   "general.week": "week",
   "general.seconds.short": "sec.",

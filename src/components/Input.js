@@ -35,7 +35,7 @@ const Label = styled(InputLabel)`
       ? css`
           position: absolute;
           top: 0;
-          left: 0;
+          left: 0.2rem;
           transform: translate(0);
           transition: transform 0.1s ease-out;
           pointer-events: none;

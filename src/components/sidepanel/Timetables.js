@@ -6,12 +6,57 @@ import withStop from "../../hoc/withStop";
 import doubleDigit from "../../helpers/doubleDigit";
 import {app} from "mobx-app";
 import withAllStopDepartures from "../../hoc/withAllStopDepartures";
+import {action, observable} from "mobx";
+import styled from "styled-components";
+import Input from "../Input";
+import DeparturesQuery from "../../queries/DeparturesQuery";
+import {text} from "../../helpers/text";
+
+const RouteFilterContainer = styled.div`
+  flex: 1 1 50%;
+
+  label {
+    font-size: 0.75rem;
+  }
+`;
+
+const TimeRangeFilterContainer = styled.div`
+  flex: 1 1 50%;
+  display: flex;
+
+  > * {
+    margin-right: 0;
+    margin-left: 0.5rem;
+  }
+
+  label {
+    font-size: 0.75rem;
+  }
+`;
 
 @inject(app("Filters", "Journey", "Time"))
 @withStop
 @withAllStopDepartures
 @observer
 class Timetables extends Component {
+  @observable
+  timeRange = {min: "", max: ""};
+
+  @observable
+  route = "";
+
+  @action
+  setRouteFilter = (e) => {
+    const value = e.target.value;
+    this.route = value;
+  };
+
+  @action
+  setTimeRangeFilter = (which) => (e) => {
+    const value = e.target.value;
+    this.timeRange[which] = value > 23 || value < 0 ? "00" : doubleDigit(value);
+  };
+
   selectAsJourney = (departure) => (e) => {
     e.preventDefault();
     const {Filters, Journey, Time} = this.props;
@@ -45,26 +90,53 @@ class Timetables extends Component {
       state: {date, selectedJourney},
       stop,
       route,
-      departures,
     } = this.props;
 
     return (
       <SidepanelList
         header={
           <>
-            <span>[filter placeholder]</span>
-            <span>[filter placeholder]</span>
+            <RouteFilterContainer>
+              <Input
+                value={this.route}
+                animatedLabel={false}
+                onChange={this.setRouteFilter}
+                label={text("domain.route")}
+              />
+            </RouteFilterContainer>
+            <TimeRangeFilterContainer>
+              <Input
+                type="number"
+                value={this.timeRange.min}
+                animatedLabel={false}
+                label={`${text("general.timerange.min")} ${text("general.hour")}`}
+                onChange={this.setTimeRangeFilter("min")}
+              />
+              <Input
+                type="number"
+                value={this.timeRange.max}
+                animatedLabel={false}
+                label={`${text("general.timerange.max")} ${text("general.hour")}`}
+                onChange={this.setTimeRangeFilter("max")}
+              />
+            </TimeRangeFilterContainer>
           </>
         }>
         {stop && (
-          <StopTimetable
-            departures={departures}
-            route={route}
-            stop={stop}
-            date={date}
-            selectedJourney={selectedJourney}
-            onSelectAsJourney={this.selectAsJourney}
-          />
+          <DeparturesQuery stop={stop} date={date}>
+            {({departures = []}) => (
+              <StopTimetable
+                routeFilter={this.route}
+                timeRangeFilter={this.timeRange}
+                departures={departures}
+                route={route}
+                stop={stop}
+                date={date}
+                selectedJourney={selectedJourney}
+                onSelectAsJourney={this.selectAsJourney}
+              />
+            )}
+          </DeparturesQuery>
         )}
       </SidepanelList>
     );

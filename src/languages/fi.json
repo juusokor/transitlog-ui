@@ -35,6 +35,8 @@
 
   "general.minutes": "minuutteja",
   "general.hour": "tunti",
+  "general.timerange.min": "min",
+  "general.timerange.max": "maks",
   "general.day": "päivä",
   "general.week": "viikko",
   "general.seconds.short": "sek.",

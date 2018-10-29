@@ -49,7 +49,7 @@ const HeaderRowLeft = styled.span`
 const VehicleIdHeading = styled(Heading).attrs({level: 4})`
   width: 100%;
   margin: 0;
-  padding: 0 0.75rem 1rem 1rem;
+  padding: 0 0.75rem 1rem;
   text-align: left;
   color: inherit;
   background: transparent;
@@ -76,7 +76,7 @@ const JourneysRow = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: 0 0.5rem 1rem;
+  padding: 0 0.75rem 1rem;
 `;
 
 const HeadsignSlot = styled(ColoredIconSlot)`

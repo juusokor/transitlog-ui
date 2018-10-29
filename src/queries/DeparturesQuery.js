@@ -68,6 +68,7 @@ class DeparturesQuery extends Component {
     dateBegin: PropTypes.string,
     dateEnd: PropTypes.string,
     limit: PropTypes.number,
+    skip: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -90,6 +91,7 @@ class DeparturesQuery extends Component {
       departureId,
       limit,
       children,
+      skip,
     } = this.props;
 
     const queryDayType = dayTypes[getDay(date)];
@@ -124,7 +126,7 @@ class DeparturesQuery extends Component {
     }
 
     return (
-      <Query query={departuresQuery} variables={queryVars}>
+      <Query query={departuresQuery} variables={queryVars} skip={skip}>
         {({loading, error, data}) => {
           if (loading || error) {
             return children({departures: [], loading, error});
