@@ -8,9 +8,7 @@ import {combineDateAndTime} from "./time";
 import pFinally from "p-finally";
 import idle from "./idle";
 import pAll from "p-all";
-import get from "lodash/get";
 import moment from "moment-timezone";
-import {queryHfpByVehicle} from "../queries/HfpVehicleQuery";
 
 // Bump db version if you change something concering the local cache.
 // That will make all client's databases clear out.
@@ -177,55 +175,3 @@ export async function fetchHfpJourney(route, date, time, waitForIdle = true) {
 
   return fetchPromise;
 }
-
-export const fetchVehicleJourneys = async (route, date, vehicleId, waitForIdle) => {
-  // If fetchKey is false then we don't have all required data yet
-  const fetchKey = createFetchKey(route, date, vehicleId);
-
-  if (!fetchKey) {
-    return [];
-  }
-
-  let fetchPromise = currentPromises.get(fetchKey);
-
-  if (!fetchPromise) {
-    try {
-      if (waitForIdle) {
-        await idle();
-      }
-
-      fetchPromise = queryHfpByVehicle(route, date, vehicleId)
-        .then((result) =>
-          // TODO: Change this when we have to deal with null positions
-          result.filter((pos) => !!pos && !!pos.lat && !!pos.long)
-        )
-        .then((filteredData) => filteredData.map(createHfpItem))
-        .then((formattedData) =>
-          // Group into journey groups
-          groupHfpPositions(formattedData, getJourneyId, "journeyId")
-        )
-        // Cache the data.
-        .then((journeyGroups) => {
-          journeyGroups.forEach((journey) => {
-            const journeyTime = get(journey, "positions.[0].journey_start_time");
-            memoryCache.set(createFetchKey(route, date, journeyTime), [journey]);
-          });
-
-          return journeyGroups;
-        });
-    } catch (err) {
-      console.warn(`Cache or fetch error for ${fetchKey}`, err);
-      return [];
-    }
-
-    // Remove the promise when it is finished
-    pFinally(fetchPromise, () => {
-      currentPromises.delete(fetchKey);
-    });
-
-    // Without awaiting it, save the promise in the promiseCache.
-    currentPromises.set(fetchKey, fetchPromise);
-  }
-
-  return fetchPromise;
-};
