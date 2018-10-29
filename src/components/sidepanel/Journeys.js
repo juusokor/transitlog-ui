@@ -18,7 +18,9 @@ import {createFetchKey} from "../../helpers/keys";
 import {centerSort} from "../../helpers/centerSort";
 import {departuresToTimes} from "../../helpers/departuresToTimes";
 import {findJourneyStartPosition} from "../../helpers/findJourneyStartPosition";
-import JourneyPosition from "../map/JourneyPosition";
+import {ColoredBackgroundSlot} from "../TagButton";
+import {diffDepartureJourney} from "../../helpers/diffDepartureJourney";
+import getDelayType from "../../helpers/getDelayType";
 
 const JourneyListRow = styled.button`
   display: flex;
@@ -43,9 +45,23 @@ const JourneyListRow = styled.button`
 `;
 
 const JourneyRowLeft = styled.span`
-  margin-right: 1rem;
   display: block;
   font-weight: bold;
+  min-width: 6rem;
+  text-align: left;
+`;
+
+const DelaySlot = styled(ColoredBackgroundSlot)`
+  font-size: 0.857rem;
+  margin: 0;
+  transform: none;
+  padding: 5px;
+  line-height: 1;
+`;
+
+const TimeSlot = styled.span`
+  font-size: 0.857rem;
+  font-family: "Courier New", Courier, monospace;
 `;
 
 @inject(app("Journey", "Time", "Filters"))
@@ -146,10 +162,6 @@ class Journeys extends Component {
     Journey.setSelectedJourney(journeyToSelect);
   };
 
-  getJourneyStartPosition(journeyId) {
-    const {positions} = this.props;
-  }
-
   setSelectedJourneyOffset = action(() => {
     if (this.selectedJourneyRef.current) {
       let offset = get(this.selectedJourneyRef, "current.offsetTop", null);
@@ -162,7 +174,7 @@ class Journeys extends Component {
 
   render() {
     const {positions, loading, state, departures, Journey} = this.props;
-    const {selectedJourney, resolvedJourneyStates} = state;
+    const {selectedJourney, resolvedJourneyStates, date} = state;
 
     const journeys = map(positions, ({positions}) => positions[0]);
     const selectedJourneyId = getJourneyId(selectedJourney);
@@ -242,12 +254,30 @@ class Journeys extends Component {
             []
           );
 
-          const journeyStartPosition = findJourneyStartPosition(
-            journeyId,
-            journeyPositions
+          const journeyStartPosition = findJourneyStartPosition(journeyPositions);
+          const journeyIsSelected = isSelected(journeyOrDeparture);
+
+          const [hours, minutes] = journeyStartPosition.journey_start_time.split(
+            ":"
           );
 
-          const journeyIsSelected = isSelected(journeyOrDeparture);
+          const departure = {
+            hours: parseInt(hours, 10),
+            minutes: parseInt(minutes, 10),
+          };
+
+          const plannedObservedDiff = diffDepartureJourney(
+            journeyStartPosition,
+            departure,
+            date
+          );
+          const observedTimeString = plannedObservedDiff
+            ? plannedObservedDiff.observedMoment.format("HH:mm:ss")
+            : "";
+
+          const delayType = plannedObservedDiff
+            ? getDelayType(plannedObservedDiff.diff)
+            : "none";
 
           return (
             <JourneyListRow
@@ -263,13 +293,22 @@ class Journeys extends Component {
                 )}
               </JourneyRowLeft>
               {journeyStartPosition && (
-                <span>
-                  {timeToFormat(
-                    journeyStartPosition.received_at,
-                    "HH:mm:ss",
-                    "Europe/Helsinki"
-                  )}
-                </span>
+                <>
+                  <DelaySlot
+                    color={delayType === "late" ? "var(--dark-grey)" : "white"}
+                    backgroundColor={
+                      delayType === "early"
+                        ? "var(--red)"
+                        : delayType === "late"
+                          ? "var(--yellow)"
+                          : "var(--light-green)"
+                    }>
+                    {plannedObservedDiff.sign}
+                    {doubleDigit(plannedObservedDiff.minutes)}:
+                    {doubleDigit(plannedObservedDiff.seconds)}
+                  </DelaySlot>
+                  <TimeSlot>{observedTimeString}</TimeSlot>
+                </>
               )}
             </JourneyListRow>
           );
