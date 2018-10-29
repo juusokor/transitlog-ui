@@ -24,6 +24,7 @@ import getDelayType from "../../helpers/getDelayType";
 import doubleDigit from "../../helpers/doubleDigit";
 import {Heading} from "../Typography";
 import PlusMinusInput from "../PlusMinusInput";
+import {observable, action, reaction} from "mobx";
 
 const JourneyListRow = styled.div`
   width: 100%;
@@ -89,15 +90,11 @@ const TimeSlot = styled(PlainSlot)`
 @inject(app("Filters", "Journey", "Time"))
 @observer
 class VehicleJourneys extends Component {
-  // We are modifying these in the render function so they cannot be reactive
+  // We are modifying this in the render function so it cannot be reactive
   selectedJourneyIndex = 0;
-  nextJourneyIndex = 0;
 
-  // Set this to true to select journey and vehicle
-  // by the indices above on the next update.
-  state = {
-    selectByIndex: false,
-  };
+  @observable
+  nextJourneyIndex = 0;
 
   groupJourneysByVehicle = (journeys) => {
     return groupBy(
@@ -106,8 +103,7 @@ class VehicleJourneys extends Component {
     );
   };
 
-  selectJourney = (journey) => (e) => {
-    e.preventDefault();
+  selectJourney = (journey) => {
     const {Time, Filters, Journey, state} = this.props;
 
     if (journey) {
@@ -123,33 +119,37 @@ class VehicleJourneys extends Component {
     Journey.setSelectedJourney(journey);
   };
 
-  onSelectVehicle = (vehicleId, firstJourney) => {
-    return (e) => {
-      e.preventDefault();
-      const {
-        Filters,
-        Journey,
-        Time,
-        state: {vehicle, date, route},
-      } = this.props;
-
-      if (vehicleId) {
-        Journey.requestJourneys({vehicleId, date, route});
-      }
-
-      if (vehicleId && vehicle !== vehicleId) {
-        Filters.setVehicle(vehicleId);
-
-        if (firstJourney) {
-          Time.setTime(firstJourney.journey_start_time);
-          Journey.setSelectedJourney(firstJourney);
-        } else {
-          Journey.setSelectedJourney(null);
-        }
-      }
-    };
+  onSelectJourney = (journey) => (e) => {
+    e.preventDefault();
+    this.selectJourney(journey);
   };
 
+  onSelectVehicle = (vehicleId, firstJourney) => (e) => {
+    e.preventDefault();
+    const {
+      Filters,
+      Journey,
+      Time,
+      state: {vehicle, date, route},
+    } = this.props;
+
+    if (vehicleId) {
+      Journey.requestJourneys({vehicleId, date, route});
+    }
+
+    if (vehicleId && vehicle !== vehicleId) {
+      Filters.setVehicle(vehicleId);
+
+      if (firstJourney) {
+        Time.setTime(firstJourney.journey_start_time);
+        Journey.setSelectedJourney(firstJourney);
+      } else {
+        Journey.setSelectedJourney(null);
+      }
+    }
+  };
+
+  @action
   selectPreviousVehicleJourney = () => {
     this.nextJourneyIndex = this.selectedJourneyIndex - 1;
 
@@ -157,49 +157,46 @@ class VehicleJourneys extends Component {
     if (this.nextJourneyIndex < 0) {
       this.nextJourneyIndex = 0;
     }
-
-    this.setState({
-      selectByIndex: true,
-    });
   };
 
+  @action
   selectNextVehicleJourney = () => {
     this.nextJourneyIndex = this.selectedJourneyIndex + 1;
-
-    this.setState({
-      selectByIndex: true,
-    });
   };
 
-  componentDidUpdate() {
-    if (this.state.selectByIndex) {
-      this.updateVehicleAndJourneySelection();
-    }
+  componentDidMount() {
+    reaction(
+      () => this.nextJourneyIndex,
+      (nextJourneyIndex) => this.updateVehicleAndJourneySelection(nextJourneyIndex)
+    );
   }
 
-  updateVehicleAndJourneySelection = () => {
+  updateVehicleAndJourneySelection = (nextJourneyIndex) => {
     const {
-      state: {selectedJourney},
+      state: {selectedJourney, vehicle, date, route},
       positions,
+      Journey,
     } = this.props;
 
+    let useIndex = nextJourneyIndex;
+
+    // Get a flattened array of journeys in the vehicle group order.
+    // It's important that this is the same order as rendered.
     const journeys = flatten(Object.values(this.groupJourneysByVehicle(positions)));
 
     if (journeys.length === 0) {
       return;
     }
 
-    // Clamp to last
-    if (this.nextJourneyIndex > journeys.length - 1) {
-      this.nextJourneyIndex = journeys.length - 1;
+    // Select the last journey if we're out of bounds
+    if (useIndex > journeys.length - 1) {
+      useIndex = journeys.length - 1;
     }
 
-    const nextSelectedJourney = journeys[this.nextJourneyIndex];
+    const nextSelectedJourney = journeys[useIndex];
 
-    console.log(nextSelectedJourney);
-
-    // TODO: Investigate why the journey won't get selected
-
+    // If the index corresponds to a journey, and it isn't already selected,
+    // select it as the selected journey.
     if (
       nextSelectedJourney &&
       ((selectedJourney &&
@@ -207,11 +204,18 @@ class VehicleJourneys extends Component {
         !selectedJourney)
     ) {
       this.selectJourney(nextSelectedJourney);
-    }
 
-    this.setState({
-      selectByIndex: false,
-    });
+      const vehicleId = get(nextSelectedJourney, "unique_vehicle_id", "");
+
+      // If the vehicle ID changed, fetch the journeys for the vehicle.
+      if (vehicleId && vehicleId !== vehicle) {
+        Journey.requestJourneys({
+          vehicleId,
+          date,
+          route,
+        });
+      }
+    }
   };
 
   render() {
@@ -224,6 +228,7 @@ class VehicleJourneys extends Component {
     const vehicleGrouped = this.groupJourneysByVehicle(positions);
 
     const selectedJourneyId = getJourneyId(selectedJourney);
+    // Keep track of the journey index independent of vehicle groups
     let journeyIndex = -1;
 
     return (
@@ -289,7 +294,7 @@ class VehicleJourneys extends Component {
                     <TagButton
                       key={`journey_row_${journeyId}`}
                       selected={journeyIsSelected}
-                      onClick={this.selectJourney(journey)}>
+                      onClick={this.onSelectJourney(journey)}>
                       <HeadsignSlot
                         color={get(transportColor, mode, "var(--light-grey)")}>
                         <TransportIcon mode={mode} />
