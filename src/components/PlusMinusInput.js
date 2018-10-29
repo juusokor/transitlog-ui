@@ -22,7 +22,8 @@ const Wrapper = styled.div`
   align-items: center;
   width: 100%;
 
-  > div {
+  > div,
+  > input {
     position: relative;
     z-index: 5;
   }

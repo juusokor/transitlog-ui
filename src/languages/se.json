@@ -39,5 +39,6 @@
   "general.week": "vecka",
   "general.seconds.short": "sek.",
   "general.loading": "Laddar",
-  "general.error": "Fel"
+  "general.error": "Fel",
+  "general.journey": "resa"
 }

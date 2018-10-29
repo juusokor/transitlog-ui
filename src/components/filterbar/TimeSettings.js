@@ -9,6 +9,9 @@ import styled from "styled-components";
 
 const TimeInput = styled(InputBase)`
   text-align: center;
+  border-color: var(--blue);
+  display: block;
+  height: calc(2rem + 2px);
 `;
 
 @inject(app("Time"))

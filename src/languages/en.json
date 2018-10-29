@@ -39,5 +39,6 @@
   "general.week": "week",
   "general.seconds.short": "sec.",
   "general.loading": "Loading",
-  "general.error": "Error"
+  "general.error": "Error",
+  "general.journey": "journey"
 }

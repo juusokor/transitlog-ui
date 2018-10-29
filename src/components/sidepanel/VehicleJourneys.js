@@ -87,6 +87,19 @@ const TimeSlot = styled(PlainSlot)`
   text-align: center;
 `;
 
+const NextPrevLabel = styled.div`
+  padding: 0 0.7rem;
+  border-radius: 0.25rem;
+  border: 1px solid var(--blue);
+  height: calc(2rem + 2px);
+  background: var(--lightest-grey);
+  flex: 1 0 75%;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
 @inject(app("Filters", "Journey", "Time"))
 @observer
 class VehicleJourneys extends Component {
@@ -238,9 +251,11 @@ class VehicleJourneys extends Component {
           <>
             <HeaderRowLeft>
               <PlusMinusInput
+                plusLabel={<>&raquo;</>}
+                minusLabel={<>&laquo;</>}
                 onDecrease={this.selectPreviousVehicleJourney}
                 onIncrease={this.selectNextVehicleJourney}>
-                Next/prev journey
+                <NextPrevLabel>{vehicle}</NextPrevLabel>
               </PlusMinusInput>
             </HeaderRowLeft>
           </>

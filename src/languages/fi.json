@@ -39,5 +39,6 @@
   "general.week": "viikko",
   "general.seconds.short": "sek.",
   "general.loading": "Ladataan",
-  "general.error": "Virhe"
+  "general.error": "Virhe",
+  "general.journey": "lähtö"
 }
