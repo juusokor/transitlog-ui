@@ -25,7 +25,7 @@ class SidePanel extends Component {
     const {
       positions,
       loading,
-      state: {stop, route},
+      state: {stop, route, vehicle},
     } = this.props;
 
     return (
@@ -41,10 +41,9 @@ class SidePanel extends Component {
                 label={text("sidepanel.tabs.journeys")}
               />
             )}
-          {positions.length !== 0 && (
+          {vehicle && (
             <VehicleJourneys
               loading={loading}
-              positions={positions}
               name="vehicle-journeys"
               label={text("sidepanel.tabs.vehicle_journeys")}
             />

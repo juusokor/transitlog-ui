@@ -113,7 +113,7 @@ export class LeafletMap extends Component {
                 url="http://tiles.kartat.kapsi.fi/ortokuva/{z}/{x}/{y}.jpg"
               />
             </LayersControl.BaseLayer>
-            <LayersControl.BaseLayer
+            {/*<LayersControl.BaseLayer
               name="Mapillary"
               checked={currentBaseLayer === "Mapillary"}>
               <MapillaryLayer
@@ -121,7 +121,7 @@ export class LeafletMap extends Component {
                 layerIsActive={currentBaseLayer === "Mapillary"}
                 onSelectLocation={this.setMapillaryViewerLocation}
               />
-            </LayersControl.BaseLayer>
+            </LayersControl.BaseLayer>*/}
           </LayersControl>
           <Pane name="route-lines" style={{zIndex: 410}} />
           <Pane name="hfp-lines" style={{zIndex: 420}} />
@@ -130,13 +130,14 @@ export class LeafletMap extends Component {
           <ZoomControl position="topright" />
           {children}
         </Map>
-        {currentBaseLayer === "Mapillary" &&
+        {/* Temporarily disable mapillary */}
+        {/*{currentBaseLayer === "Mapillary" &&
           currentMapillaryViewerLocation && (
             <MapillaryView
               onNavigation={this.onMapillaryNavigation}
               location={currentMapillaryViewerLocation}
             />
-          )}
+          )}*/}
       </MapContainer>
     );
   }
