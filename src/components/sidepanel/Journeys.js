@@ -102,7 +102,7 @@ class Journeys extends Component {
 
     if (fetchKey && fetchKey !== this.currentFetchKey) {
       // Format to an array of string times, like 12:30:00
-      let fetchTimes = departuresToTimes(departures);
+      let fetchTimes = sortBy(departuresToTimes(departures), sortByOperationDay);
 
       if (fetchTimes.length !== 0) {
         // Find which time we want to fetch first.
@@ -148,7 +148,7 @@ class Journeys extends Component {
 
         const fetchTimes = centerSort(
           journey.journey_start_time,
-          departuresToTimes(departures)
+          sortBy(departuresToTimes(departures), sortByOperationDay)
         ).slice(0, 7);
 
         const journeyRequests = fetchTimes.map((time) => ({
