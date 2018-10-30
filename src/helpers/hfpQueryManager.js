@@ -9,7 +9,6 @@ import pFinally from "p-finally";
 import idle from "./idle";
 import pAll from "p-all";
 import moment from "moment-timezone";
-import {createCompositeJourney} from "../stores/journeyActions";
 
 // Bump db version if you change something concering the local cache.
 // That will make all client's databases clear out.
