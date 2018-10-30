@@ -20,11 +20,8 @@ class MapContent extends Component {
 
     if (journey && getJourneyId(state.selectedJourney) !== getJourneyId(journey)) {
       Filters.setVehicle(journey.unique_vehicle_id);
-    } else {
-      Filters.setVehicle("");
+      Journey.setSelectedJourney(journey);
     }
-
-    Journey.setSelectedJourney(journey);
   };
 
   render() {

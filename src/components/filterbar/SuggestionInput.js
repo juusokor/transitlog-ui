@@ -65,7 +65,7 @@ class SuggestionInput extends Component {
     const {value, getValue} = this.props;
     const nextValue = getValue(value);
 
-    if (nextValue && nextValue !== this.prevInputValue) {
+    if (nextValue !== this.prevInputValue) {
       this.setValue(nextValue);
       this.prevInputValue = nextValue;
     }
