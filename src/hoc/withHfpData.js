@@ -9,8 +9,9 @@ import getJourneyId from "../helpers/getJourneyId";
 import orderBy from "lodash/orderBy";
 import uniqBy from "lodash/uniqBy";
 import get from "lodash/get";
-import pAll from "p-all";
 import {createFetchKey, createRouteKey} from "../helpers/keys";
+import pEachSeries from "p-each-series";
+import idle from "../helpers/idle";
 
 export default (Component) => {
   @inject(app("Journey", "Filters"))
@@ -57,33 +58,22 @@ export default (Component) => {
 
     fetchRequestedJourneys = async (requestedJourneys) => {
       this.setLoading(true);
-
-      const journeyPromises = requestedJourneys.map(
-        (journeyRequest, index) => async () => {
-          let waitForIdle = true;
-          // Do the first fetch asap without waiting
-          if (index === 0) {
-            waitForIdle = false;
-          }
-
-          return this.fetchDeparture(journeyRequest, waitForIdle);
-        }
-      );
-
-      await pAll(journeyPromises, {concurrency: 5});
+      await pEachSeries(requestedJourneys, this.fetchDeparture);
       await this.onFetchCompleted();
     };
 
-    fetchDeparture = async (journeyRequest, waitForIdle = true) => {
+    fetchDeparture = async (journeyRequest) => {
       const {Journey} = this.props;
-      const {route, date, time} = journeyRequest;
+      const {route, date, time, skipCache = false} = journeyRequest;
 
       const useRoute = this.getStateRoute(route);
-      const journeys = await fetchHfpJourney(useRoute, date, time, waitForIdle);
+      const journeys = await fetchHfpJourney(useRoute, date, time, skipCache);
 
       if (journeys.length === 0) {
         Journey.setJourneyFetchState(
-          getJourneyId(Journey.getJourneyFromStateAndTime(journeyRequest.time)),
+          getJourneyId(
+            Journey.createCompositeJourney(date, route, journeyRequest.time)
+          ),
           journeyFetchStates.NOTFOUND
         );
       }

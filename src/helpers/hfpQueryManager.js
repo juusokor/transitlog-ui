@@ -9,6 +9,7 @@ import pFinally from "p-finally";
 import idle from "./idle";
 import pAll from "p-all";
 import moment from "moment-timezone";
+import {createCompositeJourney} from "../stores/journeyActions";
 
 // Bump db version if you change something concering the local cache.
 // That will make all client's databases clear out.
@@ -119,7 +120,7 @@ async function getCachedJourney(fetchKey) {
   return cachedItem;
 }
 
-export async function fetchHfpJourney(route, date, time, waitForIdle = true) {
+export async function fetchHfpJourney(route, date, time, skipCache) {
   // If fetchKey is false then we don't have all required data yet
   const fetchKey = createFetchKey(route, date, time);
 
@@ -130,35 +131,35 @@ export async function fetchHfpJourney(route, date, time, waitForIdle = true) {
   let fetchPromise = currentPromises.get(fetchKey);
 
   if (!fetchPromise) {
-    try {
-      // Start a new fetch promise if one isn't already in progress
-      fetchPromise = getCachedJourney(fetchKey).then(async (cachedJourney) => {
-        if (cachedJourney) {
-          return cachedJourney;
-        }
+    const doFetch = (fetchRoute, fetchDate, fetchTime) =>
+      queryHfp(fetchRoute, fetchDate, fetchTime).then(({data, fetchedJourneyId}) => {
+        const groupedData = groupHfpPositions(
+          data
+            // TODO: Change this when we have to deal with null positions
+            .filter((pos) => !!pos && !!pos.lat && !!pos.long)
+            .map(createHfpItem),
+          getJourneyId,
+          "journeyId"
+          // Make sure all returned journeys were requested
+        ).filter((jg) => jg.journeyId === fetchedJourneyId);
 
-        if (waitForIdle) {
-          await idle();
-        }
-
-        return (
-          queryHfp(route, date, time)
-            .then((result) =>
-              // TODO: Change this when we have to deal with null positions
-              result.filter((pos) => !!pos && !!pos.lat && !!pos.long)
-            )
-            .then((filteredData) => filteredData.map(createHfpItem))
-            .then((formattedData) =>
-              // Group into journey groups
-              groupHfpPositions(formattedData, getJourneyId, "journeyId")
-            )
-            // Cache the data.
-            .then((journeyGroups) => {
-              memoryCache.set(fetchKey, journeyGroups);
-              return journeyGroups;
-            })
-        );
+        memoryCache.set(fetchKey, groupedData);
+        return groupedData;
       });
+
+    try {
+      if (skipCache) {
+        fetchPromise = doFetch(route, date, time);
+      } else {
+        // Start a new fetch promise if one isn't already in progress
+        fetchPromise = getCachedJourney(fetchKey).then(async (cachedJourney) => {
+          if (cachedJourney) {
+            return cachedJourney;
+          }
+
+          return doFetch(route, date, time);
+        });
+      }
     } catch (err) {
       console.warn(`Cache or fetch error for ${fetchKey}`, err);
       return [];

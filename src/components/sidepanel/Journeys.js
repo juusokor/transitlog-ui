@@ -84,6 +84,8 @@ class Journeys extends Component {
 
     if (!this.clickedJourneyItem && selectedJourney && !loading) {
       this.setSelectedJourneyOffset();
+    } else if (this.clickedJourneyItem && selectedJourney && !loading) {
+      this.clickedJourneyItem = false;
     }
   }
 
@@ -126,7 +128,7 @@ class Journeys extends Component {
     if (journeyOrTime) {
       const journey =
         typeof journeyOrTime === "string"
-          ? Journey.getJourneyFromStateAndTime(journeyOrTime)
+          ? Journey.createCompositeJourney(state.date, state.route, journeyOrTime)
           : journeyOrTime;
 
       const journeyId = getJourneyId(journey);
@@ -146,7 +148,7 @@ class Journeys extends Component {
         const fetchTimes = centerSort(
           journey.journey_start_time,
           departuresToTimes(departures)
-        ).slice(0, 6);
+        ).slice(0, 7);
 
         const journeyRequests = fetchTimes.map((time) => ({
           time,
@@ -176,7 +178,7 @@ class Journeys extends Component {
 
   render() {
     const {positions, loading, state, departures, Journey} = this.props;
-    const {selectedJourney, resolvedJourneyStates, date} = state;
+    const {selectedJourney, resolvedJourneyStates, date, route} = state;
 
     const journeys = map(positions, ({positions}) => positions[0]);
     const selectedJourneyId = getJourneyId(selectedJourney);
@@ -222,7 +224,7 @@ class Journeys extends Component {
         {departureList.map((journeyOrDeparture, index) => {
           if (typeof journeyOrDeparture === "string") {
             const journeyId = getJourneyId(
-              Journey.getJourneyFromStateAndTime(journeyOrDeparture)
+              Journey.createCompositeJourney(date, route, journeyOrDeparture)
             );
 
             const journeyIsSelected =

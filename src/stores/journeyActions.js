@@ -5,7 +5,6 @@ import {pickJourneyProps} from "../helpers/pickJourneyProps";
 import moment from "moment-timezone";
 import {combineDateAndTime} from "../helpers/time";
 import uniqBy from "lodash/uniqBy";
-import uniq from "lodash/uniq";
 import compact from "lodash/compact";
 import {journeyFetchStates} from "./JourneyStore";
 import filterActions from "./filterActions";
@@ -34,28 +33,24 @@ export function createJourneyPath(journey) {
   }`;
 }
 
+export function createCompositeJourney(date, route, time) {
+  if (!route || !route.routeId || !date || !time) {
+    return false;
+  }
+
+  const journey = {
+    oday: date,
+    journey_start_time: time,
+    journey_start_timestamp: combineDateAndTime(date, time, "Europe/Helsinki"),
+    route_id: route.routeId,
+    direction_id: route.direction,
+  };
+
+  return journey;
+}
+
 export default (state) => {
   const filters = filterActions(state);
-
-  function getJourneyFromStateAndTime(
-    time,
-    useRoute = state.route,
-    useDate = state.date
-  ) {
-    if (!useRoute || !useRoute.routeId || !useDate || !time) {
-      return false;
-    }
-
-    const journey = {
-      oday: useDate,
-      journey_start_time: time,
-      journey_start_timestamp: combineDateAndTime(useDate, time, "Europe/Helsinki"),
-      route_id: useRoute.routeId,
-      direction_id: useRoute.direction,
-    };
-
-    return journey;
-  }
 
   // Sets the resolved state of a fetched journey.
   const setJourneyFetchState = action(
@@ -90,7 +85,7 @@ export default (state) => {
     for (const journeyRequest of requestedJourneys) {
       const {route, date, time} = journeyRequest;
       // Create a journey id from the current state + requested time
-      const journeyId = getJourneyId(getJourneyFromStateAndTime(time, route, date));
+      const journeyId = getJourneyId(createCompositeJourney(date, route, time));
 
       if (!journeyId) {
         continue;
@@ -104,7 +99,10 @@ export default (state) => {
         // Set it as pending immediately
         setJourneyFetchState(journeyId, journeyFetchStates.PENDING);
         // And start fetching
-        acceptedRequests.push(journeyRequest);
+        acceptedRequests.push({
+          ...journeyRequest,
+          skipCache: journeyFetchState === journeyFetchStates.NOTFOUND,
+        });
       }
     }
 
@@ -159,6 +157,6 @@ export default (state) => {
     requestJourneys,
     removeJourneyRequest,
     setJourneyFetchState,
-    getJourneyFromStateAndTime,
+    createCompositeJourney,
   };
 };

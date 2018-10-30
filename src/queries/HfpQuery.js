@@ -3,22 +3,18 @@ import {hfpClient} from "../api";
 import get from "lodash/get";
 import gql from "graphql-tag";
 import HfpFieldsFragment from "./HfpFieldsFragment";
+import getJourneyId from "../helpers/getJourneyId";
+import {createCompositeJourney} from "../stores/journeyActions";
 
 export const hfpQuery = gql`
-  query hfpQuery(
-    $route_id: String
-    $direction: smallint
-    $date: date
-    $time_min: time
-    $time_max: time
-  ) {
+  query hfpQuery($route_id: String, $direction: smallint, $date: date, $time: time) {
     vehicles(
       order_by: received_at_asc
       where: {
         route_id: {_eq: $route_id}
         direction_id: {_eq: $direction}
         oday: {_eq: $date}
-        journey_start_time: {_gte: $time_min, _lte: $time_max}
+        journey_start_time: {_eq: $time}
       }
     ) {
       ...HfpFieldsFragment
@@ -27,10 +23,9 @@ export const hfpQuery = gql`
   ${HfpFieldsFragment}
 `;
 
-export const queryHfp = (route, date, timeRange) => {
+export const queryHfp = (route, date, time) => {
   const {routeId, direction} = route;
-  const min = get(timeRange, "min", timeRange);
-  const max = get(timeRange, "max", timeRange);
+  const fetchedJourneyId = getJourneyId(createCompositeJourney(date, route, time));
 
   return hfpClient
     .query({
@@ -40,9 +35,8 @@ export const queryHfp = (route, date, timeRange) => {
         route_id: routeId,
         direction: parseInt(direction, 10),
         date,
-        time_min: typeof min.format === "function" ? min.format("HH:mm:ss") : min,
-        time_max: typeof max.format === "function" ? max.format("HH:mm:ss") : max,
+        time,
       },
     })
-    .then(({data}) => get(data, "vehicles", []));
+    .then(({data}) => ({data: get(data, "vehicles", []), fetchedJourneyId}));
 };
