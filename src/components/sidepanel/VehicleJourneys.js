@@ -3,13 +3,8 @@ import {observer, inject} from "mobx-react";
 import SidepanelList from "./SidepanelList";
 import styled from "styled-components";
 import {Text} from "../../helpers/text";
-import flatMap from "lodash/flatMap";
-import groupBy from "lodash/groupBy";
-import map from "lodash/map";
+import sortBy from "lodash/sortBy";
 import get from "lodash/get";
-import uniqBy from "lodash/uniqBy";
-import flatten from "lodash/flatten";
-import orderBy from "lodash/orderBy";
 import {app} from "mobx-app";
 import getJourneyId from "../../helpers/getJourneyId";
 import {transportColor, TransportIcon} from "../transportModes";
@@ -26,6 +21,7 @@ import doubleDigit from "../../helpers/doubleDigit";
 import PlusMinusInput from "../PlusMinusInput";
 import {observable, action, reaction} from "mobx";
 import withVehicleJourneys from "../../hoc/withVehicleJourneys";
+import {sortByOperationDay} from "../../helpers/sortByOperationDay";
 
 const JourneyListRow = styled.div`
   display: flex;
@@ -68,7 +64,7 @@ const NextPrevLabel = styled.div`
   height: calc(2rem + 2px);
   background: var(--lightest-grey);
   flex: 1 0 75%;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -140,6 +136,7 @@ class VehicleJourneys extends Component {
     );
   }
 
+  // Selects a journey based on its index in the list.
   updateVehicleAndJourneySelection = (nextJourneyIndex) => {
     const {
       state: {selectedJourney, vehicle, date, route},
@@ -194,6 +191,10 @@ class VehicleJourneys extends Component {
     // Keep track of the journey index independent of vehicle groups
     let journeyIndex = -1;
 
+    const sortedPositions = sortBy(positions, (pos) =>
+      sortByOperationDay(pos.journey_start_time)
+    );
+
     return (
       <SidepanelList
         loading={loading}
@@ -208,7 +209,8 @@ class VehicleJourneys extends Component {
                 <NextPrevLabel>
                   {selectedJourney ? (
                     <>
-                      {vehicle}, {selectedJourney.journey_start_time}
+                      {vehicle}, {selectedJourney.journey_start_time} /{" "}
+                      {selectedJourney.direction_id}
                     </>
                   ) : (
                     vehicle
@@ -218,7 +220,7 @@ class VehicleJourneys extends Component {
             </HeaderRowLeft>
           </>
         }>
-        {positions.map((journey) => {
+        {sortedPositions.map((journey) => {
           journeyIndex++;
           const journeyId = getJourneyId(journey);
 

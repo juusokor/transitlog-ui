@@ -33,7 +33,9 @@ class RouteStopMarker extends React.Component {
         ? "var(--red)"
         : delayType === "late"
           ? "var(--yellow)"
-          : "var(--light-green)";
+          : delayType === "on-time"
+            ? "var(--light-green)"
+            : stopColor;
 
     return React.createElement(
       stop.timingStopType ? Marker : CircleMarker,

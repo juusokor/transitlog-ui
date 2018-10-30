@@ -20,11 +20,8 @@ class MapContent extends Component {
 
     if (journey && getJourneyId(state.selectedJourney) !== getJourneyId(journey)) {
       Filters.setVehicle(journey.unique_vehicle_id);
-    } else {
-      Filters.setVehicle("");
+      Journey.setSelectedJourney(journey);
     }
-
-    Journey.setSelectedJourney(journey);
   };
 
   render() {
@@ -67,7 +64,11 @@ class MapContent extends Component {
               }
             </RouteQuery>
           )}
-        {!selectedJourney && <RouteStopsLayer route={route} positions={[]} />}
+        {(!selectedJourney ||
+          selectedJourney.route_id !== route.routeId ||
+          positions.length === 0) && (
+          <RouteStopsLayer route={route} positions={[]} />
+        )}
         {positions.length > 0 &&
           positions.map(({positions, journeyId}) => {
             if (vehicle && get(positions, "[0].unique_vehicle_id", "") !== vehicle) {
