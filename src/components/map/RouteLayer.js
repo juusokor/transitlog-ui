@@ -17,6 +17,14 @@ class RouteLayer extends Component {
     this.updateGeometry();
   }
 
+  shouldComponentUpdate({routeId}) {
+    if (routeId !== this.currentRouteId) {
+      return true;
+    }
+
+    return false;
+  }
+
   @action
   updateGeometry = () => {
     const {routeGeometry, routeId} = this.props;
