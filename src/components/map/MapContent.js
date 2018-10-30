@@ -45,7 +45,7 @@ class MapContent extends Component {
                     routeId={createRouteIdentifier(route)}
                     routeGeometry={routeGeometry}
                     setMapBounds={setMapBounds}
-                    key={`route_line_${route.routeId}`}
+                    key={`route_line_${createRouteIdentifier(route)}`}
                   />
                 ) : null
               }

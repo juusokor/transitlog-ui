@@ -52,8 +52,8 @@ const JourneyRowLeft = styled.span`
 `;
 
 const DelaySlot = styled(ColoredBackgroundSlot)`
-  font-size: 0.857rem;
-  margin: 0;
+  font-size: 0.875rem;
+  margin: -2.5px 0;
   transform: none;
   padding: 5px;
   line-height: 1;

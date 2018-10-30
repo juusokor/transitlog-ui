@@ -81,14 +81,14 @@ export default (Component) => {
       const useRoute = this.getStateRoute(route);
       const journeys = await fetchHfpJourney(useRoute, date, time, waitForIdle);
 
-      this.onReceivedJourneys(journeys, journeyRequest);
-
       if (journeys.length === 0) {
         Journey.setJourneyFetchState(
           getJourneyId(Journey.getJourneyFromStateAndTime(journeyRequest.time)),
           journeyFetchStates.NOTFOUND
         );
       }
+
+      this.onReceivedJourneys(journeys, journeyRequest);
     };
 
     onReceivedJourneys = async (fetchedJourneys, journeyRequest) => {
