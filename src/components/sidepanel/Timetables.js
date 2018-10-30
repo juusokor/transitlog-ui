@@ -11,6 +11,7 @@ import styled from "styled-components";
 import Input from "../Input";
 import DeparturesQuery from "../../queries/DeparturesQuery";
 import {text} from "../../helpers/text";
+import get from "lodash/get";
 
 const RouteFilterContainer = styled.div`
   flex: 1 1 50%;
@@ -85,6 +86,15 @@ class Timetables extends Component {
     }
   };
 
+  @observable
+  selectedJourneyOffset = 0;
+
+  setSelectedJourneyOffset = action((offset) => {
+    if (offset && offset !== this.selectedJourneyOffset) {
+      this.selectedJourneyOffset = offset;
+    }
+  });
+
   render() {
     const {
       state: {date, selectedJourney},
@@ -94,6 +104,7 @@ class Timetables extends Component {
 
     return (
       <SidepanelList
+        scrollOffset={this.selectedJourneyOffset}
         header={
           <>
             <RouteFilterContainer>
@@ -126,6 +137,7 @@ class Timetables extends Component {
           <DeparturesQuery stop={stop} date={date}>
             {({departures = []}) => (
               <StopTimetable
+                setSelectedJourneyOffset={this.setSelectedJourneyOffset}
                 routeFilter={this.route}
                 timeRangeFilter={this.timeRange}
                 departures={departures}

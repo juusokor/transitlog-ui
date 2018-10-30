@@ -13,12 +13,16 @@ export default (Component) => {
   class WithVehicleJourneysComponent extends React.Component {
     render() {
       const {
+        loading: propsLoading,
         state: {date, vehicle},
       } = this.props;
 
       return (
         <HfpVehicleQuery vehicleId={vehicle} date={date}>
           {({positions = [], loading}) => {
+            // Forward loading state from props
+            const isLoading = propsLoading ? true : loading;
+
             const vehicleJourneys = map(
               groupBy(
                 orderBy(positions, "journey_start_time"),
@@ -31,7 +35,7 @@ export default (Component) => {
               <Component
                 {...this.props}
                 positions={vehicleJourneys}
-                loading={loading}
+                loading={isLoading}
               />
             );
           }}

@@ -30,6 +30,7 @@ export default (state) => {
   const reset = action(() => {
     mergeWithObservable(state, emptyState);
     journeyActions.setSelectedJourney(null);
+    state.requestedJourneys.clear();
   });
 
   return {

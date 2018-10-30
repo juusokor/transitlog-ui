@@ -21,6 +21,7 @@ import {findJourneyStartPosition} from "../../helpers/findJourneyStartPosition";
 import {ColoredBackgroundSlot} from "../TagButton";
 import {diffDepartureJourney} from "../../helpers/diffDepartureJourney";
 import getDelayType from "../../helpers/getDelayType";
+import {sortByOperationDay} from "../../helpers/sortByOperationDay";
 
 const JourneyListRow = styled.button`
   display: flex;
@@ -52,8 +53,8 @@ const JourneyRowLeft = styled.span`
 `;
 
 const DelaySlot = styled(ColoredBackgroundSlot)`
-  font-size: 0.857rem;
-  margin: 0;
+  font-size: 0.875rem;
+  margin: -2.5px 0;
   transform: none;
   padding: 5px;
   line-height: 1;
@@ -84,6 +85,8 @@ class Journeys extends Component {
 
     if (!this.clickedJourneyItem && selectedJourney && !loading) {
       this.setSelectedJourneyOffset();
+    } else if (this.clickedJourneyItem && selectedJourney && !loading) {
+      this.clickedJourneyItem = false;
     }
   }
 
@@ -126,7 +129,7 @@ class Journeys extends Component {
     if (journeyOrTime) {
       const journey =
         typeof journeyOrTime === "string"
-          ? Journey.getJourneyFromStateAndTime(journeyOrTime)
+          ? Journey.createCompositeJourney(state.date, state.route, journeyOrTime)
           : journeyOrTime;
 
       const journeyId = getJourneyId(journey);
@@ -146,7 +149,7 @@ class Journeys extends Component {
         const fetchTimes = centerSort(
           journey.journey_start_time,
           departuresToTimes(departures)
-        ).slice(0, 6);
+        ).slice(0, 7);
 
         const journeyRequests = fetchTimes.map((time) => ({
           time,
@@ -176,7 +179,7 @@ class Journeys extends Component {
 
   render() {
     const {positions, loading, state, departures, Journey} = this.props;
-    const {selectedJourney, resolvedJourneyStates, date} = state;
+    const {selectedJourney, resolvedJourneyStates, date, route} = state;
 
     const journeys = map(positions, ({positions}) => positions[0]);
     const selectedJourneyId = getJourneyId(selectedJourney);
@@ -198,11 +201,10 @@ class Journeys extends Component {
     }, []);
 
     const departureList = sortBy([...journeys, ...plannedDepartures], (value) => {
-      if (typeof value === "string") {
-        return value;
-      }
+      const sortByTime =
+        typeof value === "string" ? value : get(value, "journey_start_time");
 
-      return get(value, "journey_start_time", 0);
+      return sortByOperationDay(sortByTime);
     });
 
     return (
@@ -222,7 +224,7 @@ class Journeys extends Component {
         {departureList.map((journeyOrDeparture, index) => {
           if (typeof journeyOrDeparture === "string") {
             const journeyId = getJourneyId(
-              Journey.getJourneyFromStateAndTime(journeyOrDeparture)
+              Journey.createCompositeJourney(date, route, journeyOrDeparture)
             );
 
             const journeyIsSelected =
@@ -273,6 +275,7 @@ class Journeys extends Component {
             departure,
             date
           );
+
           const observedTimeString = plannedObservedDiff
             ? plannedObservedDiff.observedMoment.format("HH:mm:ss")
             : "";

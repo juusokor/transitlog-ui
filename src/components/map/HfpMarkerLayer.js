@@ -1,7 +1,7 @@
 import React, {Component} from "react";
+import PropTypes from "prop-types";
 import {Tooltip, Marker} from "react-leaflet";
 import get from "lodash/get";
-import reduce from "lodash/reduce";
 import moment from "moment";
 import {divIcon} from "leaflet";
 import getDelayType from "../../helpers/getDelayType";
@@ -17,6 +17,10 @@ import animationFrame from "../../helpers/animationFrame";
 @inject(app("state"))
 @observer
 class HfpMarkerLayer extends Component {
+  static propTypes = {
+    onMarkerClick: PropTypes.func.isRequired,
+  };
+
   prevJourneyId = "";
   positions = new Map();
 
@@ -57,7 +61,10 @@ class HfpMarkerLayer extends Component {
 
   onMarkerClick = (positionWhenClicked) => () => {
     const {onMarkerClick} = this.props;
-    onMarkerClick(positionWhenClicked);
+
+    if (typeof onMarkerClick === "function") {
+      onMarkerClick(positionWhenClicked);
+    }
   };
 
   indexPositions = async (positions) => {

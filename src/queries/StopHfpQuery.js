@@ -36,10 +36,19 @@ const stopDelayQuery = gql`
 @observer
 class StopHfpQuery extends Component {
   render() {
-    const {routeId, date, direction, stopId, startTime, children} = this.props;
+    const {
+      onCompleted = () => {},
+      routeId,
+      date,
+      direction,
+      stopId,
+      startTime,
+      children,
+    } = this.props;
 
     return (
       <Query
+        onCompleted={onCompleted}
         fetchPolicy="cache-first"
         partialRefetch={true}
         client={hfpClient}
