@@ -22,16 +22,35 @@ const parseLineNumber = (lineId) =>
 
 @observer
 class TimetableDeparture extends Component {
+  selectedJourneyRef = React.createRef();
+  clickedJourney = false;
+
+  scrollToSelectedJourney = () => {
+    const {setSelectedJourneyOffset, selectedJourney} = this.props;
+
+    if (!this.clickedJourney && selectedJourney && this.selectedJourneyRef.current) {
+      let offset = get(this.selectedJourneyRef, "current.offsetTop", null);
+
+      if (offset) {
+        setSelectedJourneyOffset(offset);
+      }
+    } else if (this.clickedJourney) {
+      this.clickedJourney = false;
+    }
+  };
+
+  onClickJourney = (departureData) => {
+    const clickCb = this.props.onClick(departureData);
+
+    return (e) => {
+      e.preventDefault();
+      this.clickedJourney = true;
+      clickCb(e);
+    };
+  };
+
   render() {
-    const {
-      routeFilter,
-      timeRangeFilter,
-      departure,
-      date,
-      stop,
-      onClick,
-      selectedJourney,
-    } = this.props;
+    const {departure, date, stop, selectedJourney} = this.props;
 
     const {
       modes: {nodes: modes},
@@ -40,7 +59,10 @@ class TimetableDeparture extends Component {
     const stopMode = modes[0];
 
     return (
-      <DepartureJourneyQuery date={date} departure={departure}>
+      <DepartureJourneyQuery
+        onCompleted={this.scrollToSelectedJourney}
+        date={date}
+        departure={departure}>
         {({journey}) => {
           const departureData = {
             ...departure,
@@ -61,7 +83,10 @@ class TimetableDeparture extends Component {
             getJourneyId(selectedJourney) === getJourneyId(journey);
 
           return (
-            <TagButton selected={journeyIsSelected} onClick={onClick(departureData)}>
+            <TagButton
+              ref={journeyIsSelected ? this.selectedJourneyRef : null}
+              selected={journeyIsSelected}
+              onClick={this.onClickJourney(departureData)}>
               <ColoredIconSlot
                 color={get(transportColor, stopMode, "var(--light-grey)")}>
                 <TransportIcon mode={stopMode} />

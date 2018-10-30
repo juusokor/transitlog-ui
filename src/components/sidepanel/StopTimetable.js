@@ -7,6 +7,7 @@ import styled from "styled-components";
 import doubleDigit from "../../helpers/doubleDigit";
 import {Heading} from "../Typography";
 import TimetableDeparture from "./TimetableDeparture";
+import {action} from "mobx";
 
 function removeInitialZero(str) {
   if (str.startsWith("0")) {
@@ -48,6 +49,7 @@ class StopTimetable extends Component {
       selectedJourney,
       stop,
       onSelectAsJourney,
+      setSelectedJourneyOffset,
     } = this.props;
 
     const byHour = groupBy(departures, ({hours, minutes}) => {
@@ -92,7 +94,10 @@ class StopTimetable extends Component {
 
           if (routeFilter) {
             showTimes = times.filter((departure) =>
-              get(departure, "routeId", "").substring(1).replace(/^0+/, "").startsWith(routeFilter)
+              get(departure, "routeId", "")
+                .substring(1)
+                .replace(/^0+/, "")
+                .startsWith(routeFilter)
             );
           }
 
@@ -102,6 +107,7 @@ class StopTimetable extends Component {
               <TimetableTimes>
                 {showTimes.map((departure, idx) => (
                   <TimetableDeparture
+                    setSelectedJourneyOffset={setSelectedJourneyOffset}
                     routeFilter={routeFilter}
                     timeRangeFilter={timeRangeFilter}
                     selectedJourney={selectedJourney}

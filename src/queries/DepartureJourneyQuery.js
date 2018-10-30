@@ -1,5 +1,5 @@
 import {observer} from "mobx-react";
-import React, {Component} from "react";
+import React from "react";
 import get from "lodash/get";
 import doubleDigit from "../helpers/doubleDigit";
 import DeparturesQuery from "./DeparturesQuery";
@@ -8,7 +8,7 @@ import StopHfpQuery from "./StopHfpQuery";
 @observer
 class DepartureJourneyQuery extends React.Component {
   render() {
-    const {date, departure, children} = this.props;
+    const {onCompleted, date, departure, children} = this.props;
     const {departureId, dateBegin, dateEnd, routeId, direction, stopId} = departure;
 
     return (
@@ -31,6 +31,7 @@ class DepartureJourneyQuery extends React.Component {
 
           return (
             <StopHfpQuery
+              onCompleted={onCompleted}
               routeId={routeId}
               date={date}
               direction={direction}
