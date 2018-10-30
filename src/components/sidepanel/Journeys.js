@@ -21,6 +21,7 @@ import {findJourneyStartPosition} from "../../helpers/findJourneyStartPosition";
 import {ColoredBackgroundSlot} from "../TagButton";
 import {diffDepartureJourney} from "../../helpers/diffDepartureJourney";
 import getDelayType from "../../helpers/getDelayType";
+import {sortByOperationDay} from "../../helpers/sortByOperationDay";
 
 const JourneyListRow = styled.button`
   display: flex;
@@ -200,11 +201,10 @@ class Journeys extends Component {
     }, []);
 
     const departureList = sortBy([...journeys, ...plannedDepartures], (value) => {
-      if (typeof value === "string") {
-        return value;
-      }
+      const sortByTime =
+        typeof value === "string" ? value : get(value, "journey_start_time");
 
-      return get(value, "journey_start_time", 0);
+      return sortByOperationDay(sortByTime);
     });
 
     return (
@@ -275,6 +275,7 @@ class Journeys extends Component {
             departure,
             date
           );
+
           const observedTimeString = plannedObservedDiff
             ? plannedObservedDiff.observedMoment.format("HH:mm:ss")
             : "";
