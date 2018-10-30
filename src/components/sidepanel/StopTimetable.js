@@ -92,7 +92,7 @@ class StopTimetable extends Component {
 
           if (routeFilter) {
             showTimes = times.filter((departure) =>
-              get(departure, "routeId", "").startsWith(routeFilter)
+              get(departure, "routeId", "").substring(1).replace(/^0+/, "").startsWith(routeFilter)
             );
           }
 
