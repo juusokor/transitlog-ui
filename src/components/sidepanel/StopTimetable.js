@@ -83,7 +83,7 @@ class StopTimetable extends Component {
 
           return (
             <TimetableSection key={`hour_${hour}_${idx}`}>
-              <TimetableHour> {hour}</TimetableHour>
+              <TimetableHour>{hour}</TimetableHour>
               <TimetableTimes>
                 {showTimes.map((departure, idx) => (
                   <TimetableDeparture
