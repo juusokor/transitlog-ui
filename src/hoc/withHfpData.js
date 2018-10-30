@@ -164,7 +164,7 @@ export default (Component) => {
       this.resetReaction = reaction(
         () => createFetchKey(state.route, state.date, true),
         (fetchKey) => {
-          if (fetchKey && fetchKey !== this.currentViewKey) {
+          if (!fetchKey || fetchKey !== this.currentViewKey) {
             this.resetView();
             this.currentViewKey = fetchKey;
           }

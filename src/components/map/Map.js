@@ -4,7 +4,6 @@ import {LeafletMap} from "./LeafletMap";
 import {app} from "mobx-app";
 import invoke from "lodash/invoke";
 import get from "lodash/get";
-import {observable, action} from "mobx";
 
 @inject(app("Journey"))
 @observer
@@ -15,25 +14,42 @@ class Map extends Component {
     bounds: null,
   };
 
-  @observable
-  mapState = {
-    bounds: null,
-    lat: 60.170988,
-    lng: 24.940842,
+  mapRef = React.createRef();
+
+  state = {
     zoom: 13,
   };
 
-  setMapState = action("Set map position", (lat, lng, zoom) => {
-    this.mapState.lat = lat;
-    this.mapState.lng = lng;
+  setMapZoom = (zoom) => {
+    this.setState({
+      zoom,
+    });
+  };
 
-    if (zoom) {
-      this.mapState.zoom = zoom;
+  getLeaflet = () => {
+    return get(this.mapRef, "current.leafletElement", null);
+  };
+
+  componentDidMount() {
+    const map = this.getLeaflet();
+
+    if (map) {
+      map.setView(
+        {
+          lat: 60.170988,
+          lng: 24.940842,
+        },
+        this.state.zoom
+      );
     }
-  });
+  }
 
   componentDidUpdate({center: prevCenter}) {
     const {center} = this.props;
+
+    if (!center) {
+      return;
+    }
 
     const propsLat = get(center, "lat", "");
     const propsLng = get(center, "lng", "");
@@ -41,28 +57,45 @@ class Map extends Component {
     const prevLat = get(prevCenter, "lat", "");
     const prevLng = get(prevCenter, "lng", "");
 
-    if (propsLat && propsLng && propsLat !== prevLat && propsLng !== prevLng) {
-      this.setMapState(propsLat, propsLng);
+    const map = this.getLeaflet();
+
+    if (
+      map &&
+      propsLat &&
+      propsLng &&
+      propsLat !== prevLat &&
+      propsLng !== prevLng
+    ) {
+      map.setView({
+        lat: propsLat,
+        lng: propsLng,
+      });
     }
   }
 
-  setMapBounds = action("Set map bounds", (bounds = null) => {
+  setMapBounds = (bounds = null) => {
     if (bounds && invoke(bounds, "isValid")) {
-      this.mapState.bounds = bounds;
-    }
-  });
+      const map = this.getLeaflet();
 
-  onMapChanged = (map, viewport) => {
-    this.props.onMapChanged(map, viewport);
+      if (map) {
+        map.fitBounds(bounds);
+      }
+    }
   };
 
-  onMapChange = (viewport) => {
-    this.setMapState(viewport.center[0], viewport.center[1], viewport.zoom);
+  onMapChanged = () => {
+    const map = this.getLeaflet();
+    this.props.onMapChanged(map);
+  };
+
+  onZoom = (event) => {
+    const zoom = event.target.getZoom();
+    this.setMapZoom(zoom);
   };
 
   render() {
+    const {zoom} = this.state;
     const {children, className} = this.props;
-    const {lat, lng, zoom, bounds} = this.mapState;
 
     const child = (props) => (
       <>{typeof children === "function" ? children(props) : children}</>
@@ -70,15 +103,11 @@ class Map extends Component {
 
     return (
       <LeafletMap
+        mapRef={this.mapRef}
         className={className}
-        center={[lat, lng]}
-        zoom={zoom}
-        bounds={bounds}
         onMapChanged={this.onMapChanged}
-        onMapChange={this.onMapChange}>
+        onZoom={this.onZoom}>
         {child({
-          lat,
-          lng,
           zoom,
           setMapBounds: this.setMapBounds,
         })}

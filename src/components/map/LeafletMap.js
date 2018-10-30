@@ -31,16 +31,10 @@ const MapillaryView = styled(MapillaryViewer)`
 `;
 
 export class LeafletMap extends Component {
-  mapRef = React.createRef();
-
   state = {
     currentBaseLayer: "Digitransit",
     currentMapillaryViewerLocation: false,
     currentMapillaryMapLocation: false,
-  };
-
-  onViewportChanged = (cb = () => {}) => (viewport) => {
-    cb(get(this.mapRef, "current.leafletElement", null), viewport);
   };
 
   onChangeBaseLayer = ({name}) => {
@@ -65,12 +59,10 @@ export class LeafletMap extends Component {
 
   render() {
     const {
+      mapRef,
       children,
-      center,
-      zoom,
-      bounds,
       className,
-      onMapChange = () => {},
+      onZoom = () => {},
       onMapChanged = () => {},
     } = this.props;
 
@@ -83,15 +75,13 @@ export class LeafletMap extends Component {
     return (
       <MapContainer className={className}>
         <Map
-          ref={this.mapRef}
-          center={center}
-          zoom={zoom}
-          bounds={bounds}
+          key="the-map"
+          ref={mapRef}
           maxZoom={20}
           zoomControl={false}
           onBaselayerchange={this.onChangeBaseLayer}
-          onViewportChanged={this.onViewportChanged(onMapChanged)}
-          onViewportChange={onMapChange}>
+          onZoomend={onZoom}
+          onMoveend={onMapChanged}>
           <LayersControl position="topright">
             <LayersControl.BaseLayer
               name="Digitransit"

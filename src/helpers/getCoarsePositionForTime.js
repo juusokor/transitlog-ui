@@ -3,7 +3,7 @@ import animationFrame from "./animationFrame";
 
 // getJourneyFollowBounds caches the previously matched index so that
 // consecutive lookups will be much faster. It saves around 3 ms.
-// Since this is outside a component we also need to save a ref
+// Since this is outside a component we also need to save a ref (key)
 // to the journey that was searched through.
 let prevPosition = {
   key: "",
@@ -13,8 +13,7 @@ let prevPosition = {
 const TOLERANCE = 15; // Tolerate 15 seconds off from time
 
 // This function is not as precise as the ones used
-// for the HFP markers and stop drive-by times. But
-// it is a lot cheaper and more performant!
+// for the HFP markers. But it is a lot cheaper and more performant!
 async function getCoarsePositionForTime(
   positions,
   time,
@@ -25,6 +24,7 @@ async function getCoarsePositionForTime(
 
   let followPosition = null;
 
+  // If we have a previous position, start the loop from its index.
   const prevPosIdx = prevPosition.key === cacheKey ? prevPosition.posIndex : 0;
 
   for (let posIdx = prevPosIdx; posIdx < positions.length; posIdx++) {
@@ -41,6 +41,7 @@ async function getCoarsePositionForTime(
     }
   }
 
+  // Reset the cache if there were no position matches.
   if (!followPosition) {
     prevPosition = {
       key: "",

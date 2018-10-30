@@ -62,7 +62,7 @@ class JourneyPosition extends Component {
         The idea here is to make the map center follow the HFP marker ONLY IF
         the current journey hasn't changed. These conditionals need to be
         in this exact order for this to work, otherwise the map may
-        recenter when changing journeys.
+        recenter when changing journeys, which we don't want.
          */
 
         // 1. Change the journey key when the selected journey changes.
