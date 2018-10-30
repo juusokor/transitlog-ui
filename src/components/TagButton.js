@@ -2,8 +2,8 @@ import React from "react";
 import styled from "styled-components";
 
 export const TagButton = styled.button`
-  margin: 0.3rem 0.25rem;
-  display: inline-flex;
+  margin: 0.3rem 0;
+  display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
   align-items: stretch;
@@ -13,7 +13,7 @@ export const TagButton = styled.button`
     ${({selected}) => (selected ? "var(--blue)" : "var(--lighter-grey)")};
   background: #fefefe;
   outline: 0;
-  width: auto;
+  width: 100%;
   max-width: 100%;
   font-family: inherit;
   font-size: 1rem;

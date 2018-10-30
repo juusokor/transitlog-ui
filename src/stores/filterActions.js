@@ -33,8 +33,6 @@ const filterActions = (state) => {
       state.line.lineId = lineId;
       state.line.dateBegin = dateBegin;
       state.line.dateEnd = dateEnd;
-
-      setVehicle("");
     }
   );
 

@@ -23,60 +23,32 @@ import {
 import {diffDepartureJourney} from "../../helpers/diffDepartureJourney";
 import getDelayType from "../../helpers/getDelayType";
 import doubleDigit from "../../helpers/doubleDigit";
-import {Heading} from "../Typography";
 import PlusMinusInput from "../PlusMinusInput";
 import {observable, action, reaction} from "mobx";
-import {findJourneyStartPosition} from "../../helpers/findJourneyStartPosition";
+import withVehicleJourneys from "../../hoc/withVehicleJourneys";
 
 const JourneyListRow = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0 0.75rem;
+  margin: 0.5rem 0;
   width: 100%;
   border: 0;
   max-width: none;
   font-size: 1rem;
-  outline: none;
-  padding: 0;
   font-family: var(--font-family);
-  background: ${({selected = false}) =>
-    selected ? "var(--lightest-grey)" : "white"};
+  background: white;
+
+  &:first-child {
+    margin-top: 1rem;
+  }
 `;
 
 const HeaderRowLeft = styled.span`
   margin-right: 1rem;
   display: block;
   width: 100%;
-`;
-
-const VehicleIdHeading = styled(Heading).attrs({level: 4})`
-  width: 100%;
-  margin: 0;
-  padding: 0 0.75rem 1rem 1rem;
-  text-align: left;
-  color: inherit;
-  background: transparent;
-`;
-
-const VehicleSelectButton = styled.button`
-  background: none;
-  font-size: 1rem;
-  font-family: inherit;
-  padding: 1rem 0 0;
-  cursor: pointer;
-  border: 0;
-  outline: none;
-  margin-bottom: 1rem;
-  border-bottom: 1px solid var(--lighter-grey);
-
-  &:hover {
-    background-color: var(--blue);
-    color: white;
-  }
-`;
-
-const JourneysRow = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 0 0.5rem 1rem;
 `;
 
 const HeadsignSlot = styled(ColoredIconSlot)`
@@ -103,6 +75,7 @@ const NextPrevLabel = styled.div`
 `;
 
 @inject(app("Filters", "Journey", "Time"))
+@withVehicleJourneys
 @observer
 class VehicleJourneys extends Component {
   // We are modifying this in the render function so it cannot be reactive
@@ -110,19 +83,6 @@ class VehicleJourneys extends Component {
 
   @observable
   nextJourneyIndex = 0;
-
-  groupJourneysByVehicle = (journeys) => {
-    return groupBy(
-      orderBy(
-        flatMap(journeys, ({journeyId, positions}) => {
-          const journeyStartPosition = findJourneyStartPosition(positions);
-          return [journeyStartPosition];
-        }),
-        "unique_vehicle_id"
-      ),
-      "unique_vehicle_id"
-    );
-  };
 
   selectJourney = (journey) => {
     const {Time, Filters, Journey, state} = this.props;
@@ -135,6 +95,19 @@ class VehicleJourneys extends Component {
         Time.setTime(journey.journey_start_time);
         Filters.setVehicle(journey.unique_vehicle_id);
       }
+
+      const route = {
+        routeId: journey.route_id,
+        direction: journey.direction_id + "",
+      };
+
+      Filters.setRoute(route);
+
+      Journey.requestJourneys({
+        time: journey.journey_start_time,
+        route,
+        date: journey.oday,
+      });
     }
 
     Journey.setSelectedJourney(journey);
@@ -143,31 +116,6 @@ class VehicleJourneys extends Component {
   onSelectJourney = (journey) => (e) => {
     e.preventDefault();
     this.selectJourney(journey);
-  };
-
-  onSelectVehicle = (vehicleId, firstJourney) => (e) => {
-    e.preventDefault();
-    const {
-      Filters,
-      Journey,
-      Time,
-      state: {vehicle, date, route},
-    } = this.props;
-
-    if (vehicleId) {
-      Journey.requestJourneys({vehicleId, date, route});
-    }
-
-    if (vehicleId && vehicle !== vehicleId) {
-      Filters.setVehicle(vehicleId);
-
-      if (firstJourney) {
-        Time.setTime(firstJourney.journey_start_time);
-        Journey.setSelectedJourney(firstJourney);
-      } else {
-        Journey.setSelectedJourney(null);
-      }
-    }
   };
 
   @action
@@ -195,15 +143,11 @@ class VehicleJourneys extends Component {
   updateVehicleAndJourneySelection = (nextJourneyIndex) => {
     const {
       state: {selectedJourney, vehicle, date, route},
-      positions,
+      positions: journeys,
       Journey,
     } = this.props;
 
     let useIndex = nextJourneyIndex;
-
-    // Get a flattened array of journeys in the vehicle group order.
-    // It's important that this is the same order as rendered.
-    const journeys = flatten(Object.values(this.groupJourneysByVehicle(positions)));
 
     if (journeys.length === 0) {
       return;
@@ -246,8 +190,6 @@ class VehicleJourneys extends Component {
       state: {selectedJourney, date, vehicle},
     } = this.props;
 
-    const vehicleGrouped = this.groupJourneysByVehicle(positions);
-
     const selectedJourneyId = getJourneyId(selectedJourney);
     // Keep track of the journey index independent of vehicle groups
     let journeyIndex = -1;
@@ -276,80 +218,62 @@ class VehicleJourneys extends Component {
             </HeaderRowLeft>
           </>
         }>
-        {map(vehicleGrouped, (journeys, vehicleId) => {
+        {positions.map((journey) => {
+          journeyIndex++;
+          const journeyId = getJourneyId(journey);
+
+          const mode = get(journey, "mode", "").toUpperCase();
+          const journeyTime = get(journey, "journey_start_time", "");
+          const lineNumber = get(journey, "desi", "");
+
+          const [hours, minutes] = journeyTime.split(":");
+
+          const departure = {
+            hours: parseInt(hours, 10),
+            minutes: parseInt(minutes, 10),
+          };
+
+          const plannedObservedDiff = diffDepartureJourney(journey, departure, date);
+          const observedTimeString = plannedObservedDiff
+            ? plannedObservedDiff.observedMoment.format("HH:mm:ss")
+            : "";
+
+          const delayType = plannedObservedDiff
+            ? getDelayType(plannedObservedDiff.diff)
+            : "none";
+
+          const journeyIsSelected =
+            selectedJourney && selectedJourneyId === journeyId;
+
+          if (journeyIsSelected) {
+            this.selectedJourneyIndex = journeyIndex;
+          }
+
           return (
-            <JourneyListRow
-              key={`vehicle_journey_row_${vehicleId}`}
-              selected={vehicle === vehicleId}>
-              <VehicleSelectButton
-                onClick={this.onSelectVehicle(vehicleId, journeys[0])}>
-                <VehicleIdHeading>{vehicleId}</VehicleIdHeading>
-              </VehicleSelectButton>
-              <JourneysRow>
-                {journeys.map((journey) => {
-                  journeyIndex++;
-                  const journeyId = getJourneyId(journey);
-
-                  const mode = get(journey, "mode", "").toUpperCase();
-                  const journeyTime = get(journey, "journey_start_time", "");
-                  const lineNumber = get(journey, "desi", "");
-
-                  const [hours, minutes] = journeyTime.split(":");
-
-                  const departure = {
-                    hours: parseInt(hours, 10),
-                    minutes: parseInt(minutes, 10),
-                  };
-
-                  const plannedObservedDiff = diffDepartureJourney(
-                    journey,
-                    departure,
-                    date
-                  );
-                  const observedTimeString = plannedObservedDiff
-                    ? plannedObservedDiff.observedMoment.format("HH:mm:ss")
-                    : "";
-
-                  const delayType = plannedObservedDiff
-                    ? getDelayType(plannedObservedDiff.diff)
-                    : "none";
-
-                  const journeyIsSelected =
-                    selectedJourney && selectedJourneyId === journeyId;
-
-                  if (journeyIsSelected) {
-                    this.selectedJourneyIndex = journeyIndex;
-                  }
-
-                  return (
-                    <TagButton
-                      key={`journey_row_${journeyId}`}
-                      selected={journeyIsSelected}
-                      onClick={this.onSelectJourney(journey)}>
-                      <HeadsignSlot
-                        color={get(transportColor, mode, "var(--light-grey)")}>
-                        <TransportIcon mode={mode} />
-                        {lineNumber}
-                      </HeadsignSlot>
-                      <TimeSlot>{journeyTime}</TimeSlot>
-                      <ColoredBackgroundSlot
-                        color={delayType === "late" ? "var(--dark-grey)" : "white"}
-                        backgroundColor={
-                          delayType === "early"
-                            ? "var(--red)"
-                            : delayType === "late"
-                              ? "var(--yellow)"
-                              : "var(--light-green)"
-                        }>
-                        {plannedObservedDiff.sign}
-                        {doubleDigit(plannedObservedDiff.minutes)}:
-                        {doubleDigit(plannedObservedDiff.seconds)}
-                      </ColoredBackgroundSlot>
-                      <PlainSlotSmallRight>{observedTimeString}</PlainSlotSmallRight>
-                    </TagButton>
-                  );
-                })}
-              </JourneysRow>
+            <JourneyListRow key={`vehicle_journey_row_${journeyId}`}>
+              <TagButton
+                selected={journeyIsSelected}
+                onClick={this.onSelectJourney(journey)}>
+                <HeadsignSlot color={get(transportColor, mode, "var(--light-grey)")}>
+                  <TransportIcon mode={mode} />
+                  {lineNumber}
+                </HeadsignSlot>
+                <TimeSlot>{journeyTime}</TimeSlot>
+                <ColoredBackgroundSlot
+                  color={delayType === "late" ? "var(--dark-grey)" : "white"}
+                  backgroundColor={
+                    delayType === "early"
+                      ? "var(--red)"
+                      : delayType === "late"
+                        ? "var(--yellow)"
+                        : "var(--light-green)"
+                  }>
+                  {plannedObservedDiff.sign}
+                  {doubleDigit(plannedObservedDiff.minutes)}:
+                  {doubleDigit(plannedObservedDiff.seconds)}
+                </ColoredBackgroundSlot>
+                <PlainSlotSmallRight>{observedTimeString}</PlainSlotSmallRight>
+              </TagButton>
             </JourneyListRow>
           );
         })}

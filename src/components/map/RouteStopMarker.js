@@ -14,7 +14,7 @@ const stopColor = "var(--blue)";
 class RouteStopMarker extends React.Component {
   createStopMarker = (
     stop,
-    color,
+    delayType,
     isSelected,
     isTerminal,
     onSelect,
@@ -25,8 +25,15 @@ class RouteStopMarker extends React.Component {
       iconSize: [30, 30],
       iconAnchor: [23, 25 / 2],
       popupAnchor: [3, -15],
-      className: "stop-marker timing-stop",
+      className: `stop-marker timing-stop ${delayType}`,
     });
+
+    const color =
+      delayType === "early"
+        ? "var(--red)"
+        : delayType === "late"
+          ? "var(--yellow)"
+          : "var(--light-green)";
 
     return React.createElement(
       stop.timingStopType ? Marker : CircleMarker,
@@ -124,39 +131,7 @@ class RouteStopMarker extends React.Component {
       delayType = getDelayType(plannedObservedDiff.diff);
     }
 
-    const color =
-      delayType === "early"
-        ? "var(--red)"
-        : delayType === "late"
-          ? "var(--yellow)"
-          : "var(--light-green)";
-
-    return this.createStopMarker(stop, color, selected, isTerminal, onSelect);
-
-    /*const popup = (
-        <Popup
-          keepInView={ false }
-          autoPan={ false }
-          autoClose={ false }
-          maxHeight={ 550 }
-          maxWidth={ 500 }
-          minWidth={ 350 }>
-          <Heading level={ 4 }>
-            { stop.nameFi }, { stop.shortId.replace(/ /g, "") } ({ stop.stopId })
-          </Heading>
-          <React.Fragment>
-            <ArriveDepartToggle value={ showTime } onChange={ onChangeShowTime } />
-            <DriveByTimes
-              isFirst={ firstTerminal }
-              showTime={ showTime }
-              onTimeClick={ onTimeClick }
-              date={ state.date }
-              route={ state.route }
-              stop={ stop }
-            />
-          </React.Fragment>
-        </Popup>
-      )*/
+    return this.createStopMarker(stop, delayType, selected, isTerminal, onSelect);
   }
 }
 

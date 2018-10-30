@@ -2,12 +2,7 @@ import {inject, observer} from "mobx-react";
 import {app} from "mobx-app";
 import React from "react";
 import withRoute from "./withRoute";
-import {
-  fetchHfpJourney,
-  loadCache,
-  persistCache,
-  fetchVehicleJourneys,
-} from "../helpers/hfpQueryManager";
+import {fetchHfpJourney, loadCache, persistCache} from "../helpers/hfpQueryManager";
 import {observable, reaction, action, runInAction} from "mobx";
 import {journeyFetchStates} from "../stores/JourneyStore";
 import getJourneyId from "../helpers/getJourneyId";
@@ -31,7 +26,6 @@ export default (Component) => {
     loading = false;
 
     fetchReaction = () => {};
-    vehicleFetchReaction = () => {};
     resetReaction = () => {};
 
     @action
@@ -72,10 +66,6 @@ export default (Component) => {
             waitForIdle = false;
           }
 
-          if (journeyRequest.vehicleId && !journeyRequest.time) {
-            return this.fetchVehicleDeparture(journeyRequest, waitForIdle);
-          }
-
           return this.fetchDeparture(journeyRequest, waitForIdle);
         }
       );
@@ -99,19 +89,6 @@ export default (Component) => {
           journeyFetchStates.NOTFOUND
         );
       }
-    };
-
-    fetchVehicleDeparture = async (vehicleRequest, waitForIdle = true) => {
-      const {vehicleId, route, date} = vehicleRequest;
-
-      const journeys = await fetchVehicleJourneys(
-        route,
-        date,
-        vehicleId,
-        waitForIdle
-      );
-
-      this.onReceivedJourneys(journeys, vehicleRequest);
     };
 
     onReceivedJourneys = async (fetchedJourneys, journeyRequest) => {

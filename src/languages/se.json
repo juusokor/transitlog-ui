@@ -35,6 +35,8 @@
 
   "general.minutes": "minuter",
   "general.hour": "timme",
+  "general.timerange.min": "min",
+  "general.timerange.max": "max",
   "general.day": "dag",
   "general.week": "vecka",
   "general.seconds.short": "sek.",

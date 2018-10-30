@@ -33,7 +33,7 @@ class RouteQuery extends Component {
   static propTypes = {
     route: PropTypes.shape({
       routeId: PropTypes.string,
-      direction: PropTypes.string,
+      direction: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
       dateBegin: PropTypes.string,
       dateEnd: PropTypes.string,
     }).isRequired,

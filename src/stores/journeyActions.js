@@ -88,14 +88,7 @@ export default (state) => {
     const acceptedRequests = [];
 
     for (const journeyRequest of requestedJourneys) {
-      const {route, date, time, vehicleId} = journeyRequest;
-
-      if (vehicleId && !time) {
-        // We can't make a journeyId with vehicle requests to check
-        // for pending requests, so just accept it and move on.
-        acceptedRequests.push(journeyRequest);
-        continue;
-      }
+      const {route, date, time} = journeyRequest;
       // Create a journey id from the current state + requested time
       const journeyId = getJourneyId(getJourneyFromStateAndTime(time, route, date));
 
@@ -127,7 +120,7 @@ export default (state) => {
   const removeJourneyRequest = action("Remove requested journey time", (journey) => {
     const journeyIdIndex = state.requestedJourneys.findIndex(
       (j) =>
-        (j.time === journey.time || j.vehicleId === journey.vehicleId) &&
+        j.time === journey.time &&
         createRouteKey(j.route, true) === createRouteKey(journey.route, true) &&
         j.date === journey.date
     );
