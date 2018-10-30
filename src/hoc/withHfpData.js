@@ -11,7 +11,6 @@ import uniqBy from "lodash/uniqBy";
 import get from "lodash/get";
 import {createFetchKey, createRouteKey} from "../helpers/keys";
 import pEachSeries from "p-each-series";
-import idle from "../helpers/idle";
 
 export default (Component) => {
   @inject(app("Journey", "Filters"))

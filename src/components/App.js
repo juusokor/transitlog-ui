@@ -70,18 +70,6 @@ class App extends Component {
     };
   });
 
-  onClickVehicleMarker = (journey) => {
-    const {Journey, Filters, state} = this.props;
-
-    if (journey && getJourneyId(state.selectedJourney) !== getJourneyId(journey)) {
-      Filters.setVehicle(journey.unique_vehicle_id);
-    } else {
-      Filters.setVehicle("");
-    }
-
-    Journey.setSelectedJourney(journey);
-  };
-
   render() {
     const {state, positions = [], loading} = this.props;
     const {date, stop, route} = state;

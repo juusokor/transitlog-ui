@@ -12,9 +12,21 @@ import HfpMarkerLayer from "./HfpMarkerLayer";
 import {app} from "mobx-app";
 import RouteStopsLayer from "./RouteStopsLayer";
 
-@inject(app("state"))
+@inject(app("Journey", "Filters"))
 @observer
 class MapContent extends Component {
+  onClickVehicleMarker = (journey) => {
+    const {Journey, Filters, state} = this.props;
+
+    if (journey && getJourneyId(state.selectedJourney) !== getJourneyId(journey)) {
+      Filters.setVehicle(journey.unique_vehicle_id);
+    } else {
+      Filters.setVehicle("");
+    }
+
+    Journey.setSelectedJourney(journey);
+  };
+
   render() {
     const {
       positions,
