@@ -29,6 +29,7 @@
     "p-all": "^1.0.0",
     "p-each-series": "^1.0.0",
     "p-finally": "^1.0.0",
+    "p-map": "^2.0.0",
     "polished": "^2.2.0",
     "prop-types": "^15.6.1",
     "react": "16.6.3",
