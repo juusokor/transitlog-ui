@@ -6,7 +6,7 @@ import withStop from "../../hoc/withStop";
 import doubleDigit from "../../helpers/doubleDigit";
 import {app} from "mobx-app";
 import withAllStopDepartures from "../../hoc/withAllStopDepartures";
-import {action, observable} from "mobx";
+import {action, observable, toJS} from "mobx";
 import styled from "styled-components";
 import Input from "../Input";
 import DeparturesQuery from "../../queries/DeparturesQuery";
@@ -45,6 +45,13 @@ class Timetables extends Component {
 
   @observable
   route = "";
+
+  @observable
+  selectedJourneyOffset = 0;
+
+  // We actually DON'T want this component to react to time changes,
+  // as there is a lot to render and it would be too heavy.
+  reactionlessTime = toJS(this.props.state.time);
 
   @action
   setRouteFilter = (e) => {
@@ -85,9 +92,6 @@ class Timetables extends Component {
       });
     }
   };
-
-  @observable
-  selectedJourneyOffset = 0;
 
   setSelectedJourneyOffset = action((offset) => {
     if (offset && offset !== this.selectedJourneyOffset) {
@@ -138,6 +142,7 @@ class Timetables extends Component {
             {({departures = []}) => (
               <StopTimetable
                 setSelectedJourneyOffset={this.setSelectedJourneyOffset}
+                time={this.reactionlessTime}
                 routeFilter={this.route}
                 timeRangeFilter={this.timeRange}
                 departures={departures}

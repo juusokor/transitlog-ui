@@ -14,6 +14,7 @@ import {
   PlainSlotSmallRight,
 } from "../TagButton";
 import getJourneyId from "../../helpers/getJourneyId";
+import {combineDateAndTime} from "../../helpers/time";
 
 const parseLineNumber = (lineId) =>
   // Remove 1st number, which represents the city
@@ -23,21 +24,21 @@ const parseLineNumber = (lineId) =>
 @observer
 class TimetableDeparture extends Component {
   selectedJourneyRef = React.createRef();
+  prevOffsetTop = 0;
   clickedJourney = false;
 
-  scrollToSelectedJourney = () => {
-    const {setSelectedJourneyOffset, selectedJourney} = this.props;
+  componentDidUpdate() {
+    const {setSelectedJourneyOffset} = this.props;
 
-    if (!this.clickedJourney && selectedJourney && this.selectedJourneyRef.current) {
+    if (!this.clickedJourney && this.selectedJourneyRef.current) {
       let offset = get(this.selectedJourneyRef, "current.offsetTop", null);
 
-      if (offset) {
+      if (offset && offset !== this.prevOffsetTop) {
+        this.prevOffsetTop = offset;
         setSelectedJourneyOffset(offset);
       }
-    } else if (this.clickedJourney) {
-      this.clickedJourney = false;
     }
-  };
+  }
 
   onClickJourney = (departureData) => {
     const clickCb = this.props.onClick(departureData);
@@ -50,7 +51,13 @@ class TimetableDeparture extends Component {
   };
 
   render() {
-    const {departure, date, stop, selectedJourney} = this.props;
+    const {
+      departure,
+      date,
+      stop,
+      selectedJourney,
+      selectedTimeDeparture,
+    } = this.props;
 
     const {
       modes: {nodes: modes},
@@ -58,11 +65,17 @@ class TimetableDeparture extends Component {
 
     const stopMode = modes[0];
 
+    let scrollToTime = false;
+
+    if (
+      selectedTimeDeparture.hours === departure.hours &&
+      selectedTimeDeparture.minutes === departure.minutes
+    ) {
+      scrollToTime = true;
+    }
+
     return (
-      <DepartureJourneyQuery
-        onCompleted={this.scrollToSelectedJourney}
-        date={date}
-        departure={departure}>
+      <DepartureJourneyQuery date={date} departure={departure}>
         {({journey}) => {
           const departureData = {
             ...departure,
@@ -84,7 +97,9 @@ class TimetableDeparture extends Component {
 
           return (
             <TagButton
-              ref={journeyIsSelected ? this.selectedJourneyRef : null}
+              ref={
+                journeyIsSelected || scrollToTime ? this.selectedJourneyRef : null
+              }
               selected={journeyIsSelected}
               onClick={this.onClickJourney(departureData)}>
               <ColoredIconSlot

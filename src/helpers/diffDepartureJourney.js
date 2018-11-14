@@ -4,13 +4,13 @@ import {combineDateAndTime} from "./time";
 import doubleDigit from "./doubleDigit";
 
 export function diffDepartureJourney(journey, departure, date) {
-  const received_at = get(journey, "received_at", null);
+  const receivedAt = get(journey, "received_at", null);
 
-  if (!received_at) {
+  if (!receivedAt) {
     return null;
   }
 
-  const observedDepartureTime = moment.tz(received_at, "Europe/Helsinki");
+  const observedDepartureTime = moment.tz(receivedAt, "Europe/Helsinki");
 
   // The departure uses a 30-hour day, so the night hours actually belong
   // to the previous day and not the current day.
