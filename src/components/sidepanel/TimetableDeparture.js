@@ -22,54 +22,14 @@ const parseLineNumber = (lineId) =>
 
 @observer
 class TimetableDeparture extends Component {
-  selectedJourneyRef = React.createRef();
-  clickedJourney = false;
-
-  componentDidUpdate() {
-    const {setSelectedJourneyOffset} = this.props;
-
-    if (!this.clickedJourney && this.selectedJourneyRef.current) {
-      let offset = get(this.selectedJourneyRef, "current.offsetTop", null);
-
-      if (offset) {
-        setSelectedJourneyOffset(offset);
-      }
-    }
-  }
-
-  onClickJourney = (departureData) => {
-    const clickCb = this.props.onClick(departureData);
-
-    return (e) => {
-      e.preventDefault();
-      this.clickedJourney = true;
-      clickCb(e);
-    };
-  };
-
   render() {
-    const {
-      departure,
-      date,
-      stop,
-      selectedJourney,
-      selectedTimeDeparture,
-    } = this.props;
+    const {departure, date, stop, selectedJourney, onClick, focusRef} = this.props;
 
     const {
       modes: {nodes: modes},
     } = stop;
 
     const stopMode = modes[0];
-
-    let scrollToTime = false;
-
-    if (
-      selectedTimeDeparture.hours === departure.hours &&
-      selectedTimeDeparture.minutes === departure.minutes
-    ) {
-      scrollToTime = true;
-    }
 
     return (
       <DepartureJourneyQuery date={date} departure={departure}>
@@ -94,11 +54,9 @@ class TimetableDeparture extends Component {
 
           return (
             <TagButton
-              ref={
-                journeyIsSelected || scrollToTime ? this.selectedJourneyRef : null
-              }
+              ref={focusRef}
               selected={journeyIsSelected}
-              onClick={this.onClickJourney(departureData)}>
+              onClick={onClick(departureData)}>
               <ColoredIconSlot
                 color={get(transportColor, stopMode, "var(--light-grey)")}>
                 <TransportIcon mode={stopMode} />

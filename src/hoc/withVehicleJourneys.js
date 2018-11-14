@@ -23,6 +23,8 @@ export default (Component) => {
             // Forward loading state from props
             const isLoading = propsLoading ? true : loading;
 
+            // Group and order by journey_start_time, and get the HFP item that
+            // represents the start of the journey.
             const vehicleJourneys = map(
               groupBy(
                 orderBy(positions, "journey_start_time"),

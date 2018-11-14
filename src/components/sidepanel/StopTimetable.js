@@ -67,7 +67,7 @@ class StopTimetable extends Component {
       selectedJourney,
       stop,
       onSelectAsJourney,
-      setSelectedJourneyOffset,
+      focusRef,
       time,
     } = this.props;
 
@@ -114,20 +114,30 @@ class StopTimetable extends Component {
             <TimetableSection key={`hour_${hour}_${idx}`}>
               <TimetableHour>{hour}</TimetableHour>
               <TimetableTimes>
-                {showTimes.map((departure, idx) => (
-                  <TimetableDeparture
-                    setSelectedJourneyOffset={setSelectedJourneyOffset}
-                    selectedTimeDeparture={focusedDepartureTime}
-                    routeFilter={routeFilter}
-                    timeRangeFilter={timeRangeFilter}
-                    selectedJourney={selectedJourney}
-                    key={`time_${idx}`}
-                    onClick={onSelectAsJourney}
-                    stop={stop}
-                    date={date}
-                    departure={departure}
-                  />
-                ))}
+                {showTimes.map((departure, idx) => {
+                  let scrollToTime = false;
+
+                  if (
+                    focusedDepartureTime.hours === departure.hours &&
+                    focusedDepartureTime.minutes === departure.minutes
+                  ) {
+                    scrollToTime = true;
+                  }
+
+                  return (
+                    <TimetableDeparture
+                      focusRef={scrollToTime ? focusRef : null}
+                      routeFilter={routeFilter}
+                      timeRangeFilter={timeRangeFilter}
+                      selectedJourney={selectedJourney}
+                      key={`time_${idx}`}
+                      onClick={onSelectAsJourney}
+                      stop={stop}
+                      date={date}
+                      departure={departure}
+                    />
+                  );
+                })}
               </TimetableTimes>
             </TimetableSection>
           );

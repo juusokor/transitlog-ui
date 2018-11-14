@@ -11,6 +11,7 @@ import styled from "styled-components";
 import Input from "../Input";
 import DeparturesQuery from "../../queries/DeparturesQuery";
 import {text} from "../../helpers/text";
+import get from "lodash/get";
 
 const RouteFilterContainer = styled.div`
   flex: 1 1 50%;
@@ -39,6 +40,9 @@ const TimeRangeFilterContainer = styled.div`
 @withAllStopDepartures
 @observer
 class Timetables extends Component {
+  selectedJourneyRef = React.createRef();
+  clickedJourney = false;
+
   @observable
   timeRange = {min: "", max: ""};
 
@@ -51,6 +55,16 @@ class Timetables extends Component {
   // We DON'T want this component to react to time changes,
   // as there is a lot to render and it would be too heavy.
   reactionlessTime = toJS(this.props.state.time);
+
+  componentDidUpdate() {
+    if (!this.clickedJourney && this.selectedJourneyRef.current) {
+      let offset = get(this.selectedJourneyRef, "current.offsetTop", null);
+
+      if (offset) {
+        this.setSelectedJourneyOffset(offset);
+      }
+    }
+  }
 
   @action
   setRouteFilter = (e) => {
@@ -81,6 +95,7 @@ class Timetables extends Component {
     Filters.setRoute(route);
 
     if (departure.journey) {
+      this.clickedJourney = true;
       const {journey} = departure;
 
       Journey.setSelectedJourney(journey);
@@ -140,8 +155,8 @@ class Timetables extends Component {
           <DeparturesQuery stop={stop} date={date}>
             {({departures = []}) => (
               <StopTimetable
-                setSelectedJourneyOffset={this.setSelectedJourneyOffset}
                 time={this.reactionlessTime}
+                focusRef={this.selectedJourneyRef}
                 routeFilter={this.route}
                 timeRangeFilter={this.timeRange}
                 departures={departures}
