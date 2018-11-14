@@ -95,7 +95,7 @@ class Map extends Component {
 
   render() {
     const {zoom} = this.state;
-    const {children, className} = this.props;
+    const {children, className, viewBbox} = this.props;
 
     const child = (props) => (
       <>{typeof children === "function" ? children(props) : children}</>
@@ -103,6 +103,7 @@ class Map extends Component {
 
     return (
       <LeafletMap
+        viewBbox={viewBbox}
         mapRef={this.mapRef}
         className={className}
         onMapChanged={this.onMapChanged}

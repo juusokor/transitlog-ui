@@ -43,27 +43,24 @@ class MapContent extends Component {
           ) : stop ? (
             <StopMarker stop={stop} selected={true} date={date} />
           ) : null)}
-        {route &&
-          route.routeId && (
-            <RouteQuery
-              key={`route_query_${createRouteIdentifier(route)}`}
-              route={route}>
-              {({routeGeometry}) =>
-                routeGeometry.length !== 0 ? (
-                  <RouteLayer
-                    routeId={
-                      routeGeometry.length !== 0
-                        ? createRouteIdentifier(route)
-                        : null
-                    }
-                    routeGeometry={routeGeometry}
-                    setMapBounds={setMapBounds}
-                    key={`route_line_${createRouteIdentifier(route)}`}
-                  />
-                ) : null
-              }
-            </RouteQuery>
-          )}
+        {route && route.routeId && (
+          <RouteQuery
+            key={`route_query_${createRouteIdentifier(route)}`}
+            route={route}>
+            {({routeGeometry}) =>
+              routeGeometry.length !== 0 ? (
+                <RouteLayer
+                  routeId={
+                    routeGeometry.length !== 0 ? createRouteIdentifier(route) : null
+                  }
+                  routeGeometry={routeGeometry}
+                  setMapBounds={setMapBounds}
+                  key={`route_line_${createRouteIdentifier(route)}`}
+                />
+              ) : null
+            }
+          </RouteQuery>
+        )}
         {(!selectedJourney ||
           selectedJourney.route_id !== route.routeId ||
           positions.length === 0) && (

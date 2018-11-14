@@ -112,7 +112,11 @@ class MapillaryLayer extends MapLayer {
         "line-color": "rgb(50, 200, 200)",
         "line-width": 2,
       },
-      filter: [">=", "captured_at", minDate],
+      filter: [
+        "all",
+        [">=", "captured_at", minDate],
+        ["==", "userkey", "TRRxvmEfVdOFNLpPqXy0jAsrruU="],
+      ],
     });
   }
 

@@ -2,9 +2,9 @@ import React, {Component} from "react";
 import {Map, TileLayer, ZoomControl, Pane, LayersControl} from "react-leaflet";
 import {latLng} from "leaflet";
 import MapillaryViewer from "./MapillaryViewer";
-import MapillaryLayer from "./MapillaryLayer";
 import styled from "styled-components";
 import "leaflet/dist/leaflet.css";
+import MapillaryGeoJSONLayer from "./MapillaryGeoJSONLayer";
 
 const MapContainer = styled.div`
   width: 100%;
@@ -32,6 +32,7 @@ const MapillaryView = styled(MapillaryViewer)`
 export class LeafletMap extends Component {
   state = {
     currentBaseLayer: "Digitransit",
+    currentOverlays: [],
     currentMapillaryViewerLocation: false,
     currentMapillaryMapLocation: false,
   };
@@ -39,6 +40,24 @@ export class LeafletMap extends Component {
   onChangeBaseLayer = ({name}) => {
     this.setState({
       currentBaseLayer: name,
+    });
+  };
+
+  onChangeOverlay = (action) => ({name}) => {
+    const overlays = this.state.currentOverlays;
+
+    if (action === "remove") {
+      const idx = overlays.indexOf(name);
+
+      if (idx !== -1) {
+        overlays.splice(idx, 1);
+      }
+    } else if (action === "add") {
+      overlays.push(name);
+    }
+
+    this.setState({
+      currentOverlays: overlays,
     });
   };
 
@@ -61,6 +80,7 @@ export class LeafletMap extends Component {
       mapRef,
       children,
       className,
+      viewBbox,
       onZoom = () => {},
       onMapChanged = () => {},
     } = this.props;
@@ -69,6 +89,7 @@ export class LeafletMap extends Component {
       currentBaseLayer,
       currentMapillaryViewerLocation,
       currentMapillaryMapLocation,
+      currentOverlays,
     } = this.state;
 
     return (
@@ -79,6 +100,8 @@ export class LeafletMap extends Component {
           maxZoom={20}
           zoomControl={false}
           onBaselayerchange={this.onChangeBaseLayer}
+          onOverlayadd={this.onChangeOverlay("add")}
+          onOverlayremove={this.onChangeOverlay("remove")}
           onZoomend={onZoom}
           onMoveend={onMapChanged}>
           <LayersControl position="topright">
@@ -102,15 +125,24 @@ export class LeafletMap extends Component {
                 url="http://tiles.kartat.kapsi.fi/ortokuva/{z}/{x}/{y}.jpg"
               />
             </LayersControl.BaseLayer>
-            <LayersControl.BaseLayer
+            {/*<LayersControl.BaseLayer
               name="Mapillary"
               checked={currentBaseLayer === "Mapillary"}>
               <MapillaryLayer
                 location={currentMapillaryMapLocation}
                 layerIsActive={currentBaseLayer === "Mapillary"}
                 onSelectLocation={this.setMapillaryViewerLocation}
+              /></LayersControl.BaseLayer>*/}
+            <LayersControl.Overlay
+              name="Mapillary"
+              checked={currentOverlays.indexOf("Mapillary") !== -1}>
+              <MapillaryGeoJSONLayer
+                viewBbox={viewBbox}
+                location={currentMapillaryMapLocation}
+                layerIsActive={currentOverlays.indexOf("Mapillary") !== -1}
+                onSelectLocation={this.setMapillaryViewerLocation}
               />
-            </LayersControl.BaseLayer>
+            </LayersControl.Overlay>
           </LayersControl>
           <Pane name="route-lines" style={{zIndex: 410}} />
           <Pane name="hfp-lines" style={{zIndex: 420}} />
@@ -119,12 +151,13 @@ export class LeafletMap extends Component {
           <ZoomControl position="topright" />
           {children}
         </Map>
-        {currentBaseLayer === "Mapillary" && currentMapillaryViewerLocation && (
-          <MapillaryView
-            onNavigation={this.onMapillaryNavigation}
-            location={currentMapillaryViewerLocation}
-          />
-        )}
+        {currentOverlays.indexOf("Mapillary") !== -1 &&
+          currentMapillaryViewerLocation && (
+            <MapillaryView
+              onNavigation={this.onMapillaryNavigation}
+              location={currentMapillaryViewerLocation}
+            />
+          )}
       </MapContainer>
     );
   }
