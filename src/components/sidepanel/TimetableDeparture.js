@@ -14,7 +14,6 @@ import {
   PlainSlotSmallRight,
 } from "../TagButton";
 import getJourneyId from "../../helpers/getJourneyId";
-import {combineDateAndTime} from "../../helpers/time";
 
 const parseLineNumber = (lineId) =>
   // Remove 1st number, which represents the city
@@ -24,7 +23,6 @@ const parseLineNumber = (lineId) =>
 @observer
 class TimetableDeparture extends Component {
   selectedJourneyRef = React.createRef();
-  prevOffsetTop = 0;
   clickedJourney = false;
 
   componentDidUpdate() {
@@ -33,8 +31,7 @@ class TimetableDeparture extends Component {
     if (!this.clickedJourney && this.selectedJourneyRef.current) {
       let offset = get(this.selectedJourneyRef, "current.offsetTop", null);
 
-      if (offset && offset !== this.prevOffsetTop) {
-        this.prevOffsetTop = offset;
+      if (offset) {
         setSelectedJourneyOffset(offset);
       }
     }

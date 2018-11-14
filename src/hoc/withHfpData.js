@@ -132,7 +132,7 @@ export default (Component) => {
 
       this.fetchReaction = reaction(
         () => {
-          const reqJourneys = state.requestedJourneys.slice();
+          const reqJourneys = state.requestedJourneys.slice(); // Slice to tell mobx that we used this array
           const routeKey = createRouteKey(state.route);
 
           if (reqJourneys.length && !!routeKey && !this.loading) {
@@ -165,6 +165,7 @@ export default (Component) => {
     }
 
     componentWillUnmount() {
+      // Clear the reactions if unmounted
       if (typeof this.fetchReaction === "function") {
         this.fetchReaction();
       }

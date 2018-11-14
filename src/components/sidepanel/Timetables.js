@@ -11,7 +11,6 @@ import styled from "styled-components";
 import Input from "../Input";
 import DeparturesQuery from "../../queries/DeparturesQuery";
 import {text} from "../../helpers/text";
-import get from "lodash/get";
 
 const RouteFilterContainer = styled.div`
   flex: 1 1 50%;
@@ -49,7 +48,7 @@ class Timetables extends Component {
   @observable
   selectedJourneyOffset = 0;
 
-  // We actually DON'T want this component to react to time changes,
+  // We DON'T want this component to react to time changes,
   // as there is a lot to render and it would be too heavy.
   reactionlessTime = toJS(this.props.state.time);
 
