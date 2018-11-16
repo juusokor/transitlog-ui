@@ -13,6 +13,7 @@ import {Text} from "../../helpers/text";
 import "./Map.css";
 import {observable, runInAction, reaction} from "mobx";
 import animationFrame from "../../helpers/animationFrame";
+import {getTimelinessColor} from "../../helpers/timelinessColor";
 
 @inject(app("state"))
 @observer
@@ -118,12 +119,7 @@ class HfpMarkerLayer extends Component {
     }
 
     const delayType = getDelayType(position.dl);
-    const color =
-      delayType === "early"
-        ? "var(--red)"
-        : delayType === "late"
-          ? "var(--yellow)"
-          : "var(--green)";
+    const color = getTimelinessColor(delayType, "var(--light-green)");
 
     const markerIcon = divIcon({
       className: `hfp-icon`,

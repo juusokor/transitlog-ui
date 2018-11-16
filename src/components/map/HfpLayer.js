@@ -9,6 +9,7 @@ import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import getJourneyId from "../../helpers/getJourneyId";
 import {text} from "../../helpers/text";
+import {getTimelinessColor} from "../../helpers/timelinessColor";
 
 export function getLineChunksByDelay(positions, journeyId) {
   // Get only the positions from the same journey and create latLng items for Leaflet.
@@ -126,13 +127,7 @@ ${
               onMouseout={this.onMouseout}
               pane="hfp-lines"
               weight={3}
-              color={
-                chunkDelayType === "early"
-                  ? "var(--red)"
-                  : chunkDelayType === "late"
-                    ? "var(--yellow)"
-                    : "var(--green)"
-              }
+              color={getTimelinessColor(chunkDelayType, "var(--light-green)")}
               positions={chunkPositions.map((pos) => [pos.lat, pos.long])}
             />
           );

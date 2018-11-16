@@ -1,5 +1,5 @@
 import React from "react";
-import {Marker, CircleMarker, Tooltip} from "react-leaflet";
+import {Marker, CircleMarker, Tooltip, Popup} from "react-leaflet";
 import {icon} from "leaflet";
 import TimingStopIcon from "../../icon-time1.svg";
 import {observer} from "mobx-react";
@@ -7,18 +7,36 @@ import {diffDepartureJourney} from "../../helpers/diffDepartureJourney";
 import getDelayType from "../../helpers/getDelayType";
 import doubleDigit from "../../helpers/doubleDigit";
 import orderBy from "lodash/orderBy";
+import {Heading, P} from "../Typography";
+import {ColoredBackgroundSlot, PlainSlot} from "../TagButton";
+import styled from "styled-components";
+import {getTimelinessColor} from "../../helpers/timelinessColor";
 
 const stopColor = "var(--blue)";
+
+const PopupParagraph = styled(P)`
+  font-size: 1rem;
+`;
+
+const PlannedTime = styled.span`
+  font-size: 1rem;
+  font-weight: bold;
+`;
+
+const ObservedTime = styled(ColoredBackgroundSlot)`
+  font-size: 1rem;
+`;
 
 @observer
 class RouteStopMarker extends React.Component {
   createStopMarker = (
     stop,
     delayType,
+    color,
     isSelected,
     isTerminal,
     onSelect,
-    children = null
+    children
   ) => {
     const timingStopIcon = icon({
       iconUrl: TimingStopIcon,
@@ -27,15 +45,6 @@ class RouteStopMarker extends React.Component {
       popupAnchor: [3, -15],
       className: `stop-marker timing-stop ${delayType}`,
     });
-
-    const color =
-      delayType === "early"
-        ? "var(--red)"
-        : delayType === "late"
-          ? "var(--yellow)"
-          : delayType === "on-time"
-            ? "var(--light-green)"
-            : stopColor;
 
     return React.createElement(
       stop.timingStopType ? Marker : CircleMarker,
@@ -51,12 +60,7 @@ class RouteStopMarker extends React.Component {
         radius: isTerminal ? 12 : isSelected ? 10 : 8,
         onClick: onSelect,
       },
-      <React.Fragment>
-        <Tooltip>
-          {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
-        </Tooltip>
-        {children}
-      </React.Fragment>
+      <React.Fragment>{children}</React.Fragment>
     );
   };
 
@@ -76,9 +80,26 @@ class RouteStopMarker extends React.Component {
 
     const isTerminal = firstTerminal || lastTerminal;
 
+    const stopChildren = [
+      <Tooltip key={`stop${stop.stopId}_tooltip`}>
+        {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
+      </Tooltip>,
+    ];
+
+    let color = stopColor;
+    let delayType = "none";
+
     // Show a marker without the popup if we don't have any data
     if (departures.length === 0 || positions.length === 0 || !selectedJourney) {
-      return this.createStopMarker(stop, stopColor, selected, isTerminal, onSelect);
+      return this.createStopMarker(
+        stop,
+        delayType,
+        color,
+        selected,
+        isTerminal,
+        onSelect,
+        stopChildren
+      );
     }
 
     const {journey_start_time} = selectedJourney;
@@ -104,7 +125,15 @@ class RouteStopMarker extends React.Component {
     }
 
     if (!departure) {
-      return this.createStopMarker(stop, stopColor, selected, isTerminal, onSelect);
+      return this.createStopMarker(
+        stop,
+        delayType,
+        color,
+        selected,
+        isTerminal,
+        onSelect,
+        stopChildren
+      );
     }
 
     let departureHfpItem = orderBy(
@@ -118,10 +147,20 @@ class RouteStopMarker extends React.Component {
     )[0];
 
     if (!departureHfpItem) {
-      return this.createStopMarker(stop, stopColor, selected, isTerminal, onSelect);
+      return this.createStopMarker(
+        stop,
+        delayType,
+        color,
+        selected,
+        isTerminal,
+        onSelect,
+        stopChildren
+      );
     }
 
-    let delayType = "on-time";
+    delayType = "on-time";
+    let driveByTime = false;
+    let plannedTime = false;
 
     if (departureHfpItem) {
       const plannedObservedDiff = diffDepartureJourney(
@@ -130,10 +169,48 @@ class RouteStopMarker extends React.Component {
         date
       );
 
+      driveByTime = plannedObservedDiff.observedMoment;
+      plannedTime = plannedObservedDiff.plannedMoment;
       delayType = getDelayType(plannedObservedDiff.diff);
     }
 
-    return this.createStopMarker(stop, delayType, selected, isTerminal, onSelect);
+    color = getTimelinessColor(delayType, stopColor);
+
+    if (driveByTime) {
+      const stopPopup = (
+        <Popup
+          minWidth={300}
+          maxWidth={500}
+          autoPan={false}
+          key={`stop${stop.stopId}_popup`}>
+          <Heading level={4}>
+            {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
+          </Heading>
+          <PopupParagraph>
+            Planned drive by time:{" "}
+            <PlannedTime>{plannedTime.format("HH:mm:ss")}</PlannedTime>
+          </PopupParagraph>
+          <PopupParagraph>
+            Observed drive by time:{" "}
+            <ObservedTime backgroundColor={color} color="white">
+              {driveByTime.format("HH:mm:ss")}
+            </ObservedTime>
+          </PopupParagraph>
+        </Popup>
+      );
+
+      stopChildren.push(stopPopup);
+    }
+
+    return this.createStopMarker(
+      stop,
+      delayType,
+      color,
+      selected,
+      isTerminal,
+      onSelect,
+      stopChildren
+    );
   }
 }
 
