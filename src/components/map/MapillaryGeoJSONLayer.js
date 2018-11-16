@@ -25,10 +25,12 @@ class MapillaryGeoJSONLayer extends React.Component {
     const {layerIsActive} = this.props;
     const {latlng} = e;
 
+    // Bail if the layer isn't active or if we don't have any features
     if (!this.state.features || !layerIsActive) {
       return;
     }
 
+    // Get the feature closest to where the user is hovering
     let featurePoint = closestPointCompareReducer(
       get(this, "state.features.features", []),
       (feature) => closestPointInGeometry(latlng, feature.geometry, 200),
@@ -60,9 +62,8 @@ class MapillaryGeoJSONLayer extends React.Component {
       } else {
         this.marker.setLatLng(position);
       }
-    } else if (!position && this.marker !== null) {
-      this.marker.remove();
-      this.marker = null;
+    } else if (!position) {
+      this.removeMarker();
     }
   };
 
@@ -89,6 +90,7 @@ class MapillaryGeoJSONLayer extends React.Component {
 
     if (!layerIsActive) {
       this.unbindEvents();
+      this.removeMarker();
       return;
     } else {
       this.bindEvents();
@@ -98,6 +100,7 @@ class MapillaryGeoJSONLayer extends React.Component {
       this.highlightMapillaryPoint(location);
     }
 
+    // Fetch only once per component instance
     if (!this.state.features && viewBbox) {
       this.fetchFeatures(viewBbox);
     }
@@ -108,6 +111,7 @@ class MapillaryGeoJSONLayer extends React.Component {
       return;
     }
 
+    // Round the coordinates to stop the fetch from refetching every small change
     const round = (coord) => Math.floor(coord * 1000 + 0.5) / 1000;
 
     const west = round(bounds.getWest());
@@ -152,8 +156,16 @@ class MapillaryGeoJSONLayer extends React.Component {
     this.eventsEnabled = false;
   };
 
+  removeMarker = () => {
+    if (this.marker) {
+      this.marker.remove();
+      this.marker = null;
+    }
+  };
+
   componentWillUnmount() {
     this.unbindEvents();
+    this.removeMarker();
   }
 
   render() {
