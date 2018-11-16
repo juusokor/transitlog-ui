@@ -12,6 +12,7 @@ import {ColoredBackgroundSlot, PlainSlot} from "../TagButton";
 import styled from "styled-components";
 import {getTimelinessColor} from "../../helpers/timelinessColor";
 import moment from "moment-timezone";
+import StopStreetView from "./StopStreetView";
 
 const stopColor = "var(--blue)";
 
@@ -87,6 +88,21 @@ class RouteStopMarker extends React.Component {
       </Tooltip>
     );
 
+    let stopStreetViewPopup = (
+      <Popup
+        minWidth={300}
+        maxWidth={800}
+        autoPan={false}
+        key={`stop_${stop.stopId}_popup`}>
+        <Heading level={4}>
+          {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
+        </Heading>
+        <StopStreetView stop={stop} />
+      </Popup>
+    );
+
+    let markerChildren = [stopTooltip, stopStreetViewPopup];
+
     let color = stopColor;
     let delayType = "none";
 
@@ -99,7 +115,7 @@ class RouteStopMarker extends React.Component {
         selected,
         isTerminal,
         onSelect,
-        stopTooltip
+        markerChildren
       );
     }
 
@@ -136,7 +152,7 @@ class RouteStopMarker extends React.Component {
         selected,
         isTerminal,
         onSelect,
-        stopTooltip
+        markerChildren
       );
     }
 
@@ -165,7 +181,7 @@ class RouteStopMarker extends React.Component {
         selected,
         isTerminal,
         onSelect,
-        stopTooltip
+        markerChildren
       );
     }
 
@@ -198,7 +214,6 @@ class RouteStopMarker extends React.Component {
     delayType = getDelayType(diff);
 
     color = getTimelinessColor(delayType, stopColor);
-    let markerChildren = [stopTooltip];
 
     if (observedMoment) {
       const observedTime = (
@@ -216,7 +231,7 @@ class RouteStopMarker extends React.Component {
       const stopPopup = (
         <Popup
           minWidth={300}
-          maxWidth={500}
+          maxWidth={750}
           autoPan={false}
           key={`stop${stop.stopId}_popup`}>
           <Heading level={4}>
@@ -235,6 +250,7 @@ class RouteStopMarker extends React.Component {
             <PlannedTime>{plannedMoment.format("HH:mm:ss")}</PlannedTime>
           </PopupParagraph>
           <PopupParagraph>Observed drive by time: {observedTime}</PopupParagraph>
+          <StopStreetView stop={stop} />
         </Popup>
       );
 

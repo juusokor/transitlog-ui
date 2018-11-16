@@ -5,6 +5,7 @@ import MapillaryViewer from "./MapillaryViewer";
 import styled from "styled-components";
 import "leaflet/dist/leaflet.css";
 import MapillaryGeoJSONLayer from "./MapillaryGeoJSONLayer";
+import uniq from "lodash/uniq";
 
 const MapContainer = styled.div`
   width: 100%;
