@@ -241,7 +241,7 @@ class Journeys extends Component {
                 onClick={this.selectJourney(journeyOrDeparture)}>
                 <JourneyRowLeft>{journeyOrDeparture}</JourneyRowLeft>
                 {fetchStatus === journeyFetchStates.NOTFOUND ? (
-                  <span>{text("filterpanel.journey.unrealized")}</span>
+                  <span>{text("filterpanel.journey.no_data")}</span>
                 ) : fetchStatus === journeyFetchStates.PENDING ? (
                   <Loading inline />
                 ) : (

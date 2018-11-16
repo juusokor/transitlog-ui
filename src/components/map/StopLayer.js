@@ -8,8 +8,15 @@ class StopLayer extends Component {
   render() {
     const {bounds, date} = this.props;
 
+    const bbox = {
+      minLat: bounds.getSouth(),
+      minLon: bounds.getWest(),
+      maxLat: bounds.getNorth(),
+      maxLon: bounds.getEast(),
+    };
+
     return (
-      <StopsByBboxQuery variables={{...bounds, date}}>
+      <StopsByBboxQuery variables={{...bbox, date}}>
         {({stops}) => (
           <React.Fragment>
             {stops.map((stop) => (

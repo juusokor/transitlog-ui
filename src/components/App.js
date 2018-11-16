@@ -44,11 +44,7 @@ class App extends Component {
   stopsBbox = null;
 
   onMapChanged = (map) => {
-    const {route} = this.props.state;
-
-    if (!route.routeId && map.getZoom() > 14) {
-      this.setStopsBbox(map);
-    }
+    this.setStopsBbox(map);
   };
 
   setStopsBbox = action((map) => {
@@ -58,16 +54,15 @@ class App extends Component {
 
     const bounds = map.getBounds();
 
-    if (!bounds || !invoke(bounds, "isValid")) {
+    if (
+      !bounds ||
+      !invoke(bounds, "isValid") ||
+      (this.stopsBbox !== null && bounds.equals(this.stopsBbox))
+    ) {
       return;
     }
 
-    this.stopsBbox = {
-      minLat: bounds.getSouth(),
-      minLon: bounds.getWest(),
-      maxLat: bounds.getNorth(),
-      maxLon: bounds.getEast(),
-    };
+    this.stopsBbox = bounds;
   });
 
   render() {
@@ -86,7 +81,10 @@ class App extends Component {
                 const centerPosition = stopPosition ? stopPosition : journeyPosition;
 
                 return (
-                  <MapPanel onMapChanged={this.onMapChanged} center={centerPosition}>
+                  <MapPanel
+                    viewBbox={this.stopsBbox}
+                    onMapChanged={this.onMapChanged}
+                    center={centerPosition}>
                     {({zoom, setMapBounds}) => (
                       <MapContent
                         setMapBounds={setMapBounds}
