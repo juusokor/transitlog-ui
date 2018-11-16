@@ -15,8 +15,6 @@ class MapillaryGeoJSONLayer extends React.Component {
   features = null;
 
   onHover = (e) => {
-    console.log("hovering");
-
     const {layerIsActive} = this.props;
     const {latlng} = e;
 
@@ -26,7 +24,7 @@ class MapillaryGeoJSONLayer extends React.Component {
 
     let featurePoint = closestPointCompareReducer(
       get(this, "features.features", []),
-      (feature) => closestPointInGeometry(latlng, feature.geometry, 100),
+      (feature) => closestPointInGeometry(latlng, feature.geometry, 200),
       latlng
     );
 
