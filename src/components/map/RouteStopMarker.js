@@ -11,6 +11,7 @@ import {Heading, P} from "../Typography";
 import {ColoredBackgroundSlot, PlainSlot} from "../TagButton";
 import styled from "styled-components";
 import {getTimelinessColor} from "../../helpers/timelinessColor";
+import moment from "moment-timezone";
 
 const stopColor = "var(--blue)";
 
@@ -139,11 +140,7 @@ class RouteStopMarker extends React.Component {
       );
     }
 
-    // Find the hfp item that matches this departure.
-    // Sort by received_at descending and select the first element, this way we get the
-    // hfp item that represents the time when the vehicle left the stop, ie the
-    // last hfp item before the next_stop_id value changed.
-    let departureHfpItem = orderBy(
+    const stopPositions = orderBy(
       positions.filter(
         (pos) =>
           pos.journey_start_time === journey_start_time &&
@@ -151,7 +148,13 @@ class RouteStopMarker extends React.Component {
       ),
       "received_at_unix",
       "desc"
-    )[0];
+    );
+
+    // Find the hfp item that matches this departure.
+    // Sort by received_at descending and select the first element, this way we get the
+    // hfp item that represents the time when the vehicle left the stop, ie the
+    // last hfp item before the next_stop_id value changed.
+    let departureHfpItem = stopPositions[0];
 
     // Again, render the marker at this point if we didn't find an hfp item.
     if (!departureHfpItem) {
@@ -164,6 +167,24 @@ class RouteStopMarker extends React.Component {
         onSelect,
         stopTooltip
       );
+    }
+
+    // Find out when the vehicle arrived at the stop
+    // by looking at when the doors were opened.
+    let doorDidOpen = false;
+    let arrivalHfpItem = departureHfpItem;
+
+    for (const positionIndex in stopPositions) {
+      const position = stopPositions[positionIndex];
+
+      if (doorDidOpen && !position.drst) {
+        arrivalHfpItem = stopPositions[positionIndex - 1];
+        break;
+      }
+
+      if (!doorDidOpen && !!position.drst) {
+        doorDidOpen = true;
+      }
     }
 
     // Get the difference between the planned and the observed time,
@@ -186,6 +207,12 @@ class RouteStopMarker extends React.Component {
         </ObservedTime>
       );
 
+      let arrivalMoment;
+
+      if (doorDidOpen) {
+        arrivalMoment = moment.tz(arrivalHfpItem.received_at, "Europe/Helsinki");
+      }
+
       const stopPopup = (
         <Popup
           minWidth={300}
@@ -195,6 +222,14 @@ class RouteStopMarker extends React.Component {
           <Heading level={4}>
             {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
           </Heading>
+          {doorDidOpen ? (
+            <PopupParagraph>
+              Arrival time:{" "}
+              <PlannedTime>{arrivalMoment.format("HH:mm:ss")}</PlannedTime>
+            </PopupParagraph>
+          ) : (
+            <PopupParagraph>The doors did not open at this stop.</PopupParagraph>
+          )}
           <PopupParagraph>
             Planned drive by time:{" "}
             <PlannedTime>{plannedMoment.format("HH:mm:ss")}</PlannedTime>
