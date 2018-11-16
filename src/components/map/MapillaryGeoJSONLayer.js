@@ -1,5 +1,4 @@
 import React from "react";
-import Fetch from "../../helpers/Fetch";
 import {GeoJSON, FeatureGroup, withLeaflet} from "react-leaflet";
 import {circleMarker} from "leaflet";
 import get from "lodash/get";
@@ -10,20 +9,28 @@ import {
 
 @withLeaflet
 class MapillaryGeoJSONLayer extends React.Component {
+  static defaultProps = {
+    viewBbox: null,
+  };
+
   highlightedLocation = false;
   marker = null;
-  features = null;
+  eventsEnabled = false;
+
+  state = {
+    features: null,
+  };
 
   onHover = (e) => {
     const {layerIsActive} = this.props;
     const {latlng} = e;
 
-    if (!this.features || !layerIsActive) {
+    if (!this.state.features || !layerIsActive) {
       return;
     }
 
     let featurePoint = closestPointCompareReducer(
-      get(this, "features.features", []),
+      get(this, "state.features.features", []),
       (feature) => closestPointInGeometry(latlng, feature.geometry, 200),
       latlng
     );
@@ -68,63 +75,102 @@ class MapillaryGeoJSONLayer extends React.Component {
   };
 
   componentDidMount() {
+    const {layerIsActive, viewBbox} = this.props;
+
+    if (layerIsActive) {
+      this.bindEvents();
+      this.fetchFeatures(viewBbox);
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const {location, layerIsActive, viewBbox} = this.props;
+    const {location: prevLocation} = prevProps;
+
+    if (!layerIsActive) {
+      this.unbindEvents();
+      return;
+    } else {
+      this.bindEvents();
+    }
+
+    if (location && prevLocation && !location.equals(prevLocation)) {
+      this.highlightMapillaryPoint(location);
+    }
+
+    if (!this.state.features && viewBbox) {
+      this.fetchFeatures(viewBbox);
+    }
+  }
+
+  fetchFeatures = async (bounds) => {
+    if (!bounds || !bounds.isValid()) {
+      return;
+    }
+
+    const round = (coord) => Math.floor(coord * 1000 + 0.5) / 1000;
+
+    const west = round(bounds.getWest());
+    const east = round(bounds.getEast());
+    const north = round(bounds.getNorth());
+    const south = round(bounds.getSouth());
+
+    const url = `https://a.mapillary.com/v3/sequences?bbox=${west},${south},${east},${north}&client_id=V2RqRUsxM2dPVFBMdnlhVUliTkM0ZzoxNmI5ZDZhOTc5YzQ2MzEw`;
+    const request = await fetch(url);
+    const data = await request.json();
+
+    this.setState({
+      features: data,
+    });
+  };
+
+  bindEvents = () => {
+    if (this.eventsEnabled) {
+      return;
+    }
+
     const {
       leaflet: {map},
     } = this.props;
 
     map.on("mousemove", this.onHover);
     map.on("click", this.onMapClick);
-  }
+    this.eventsEnabled = true;
+  };
 
-  componentDidUpdate(prevProps) {
-    const {location, layerIsActive} = this.props;
-    const {location: prevLocation} = prevProps;
-
-    if (!layerIsActive) {
+  unbindEvents = () => {
+    if (!this.eventsEnabled) {
       return;
     }
 
-    if (location && prevLocation && !location.equals(prevLocation)) {
-      this.highlightMapillaryPoint(location);
-    }
-  }
-
-  componentWillUnmount() {
     const {
       leaflet: {map},
     } = this.props;
 
     map.off("mousemove", this.onHover);
     map.off("click", this.onMapClick);
+    this.eventsEnabled = false;
+  };
+
+  componentWillUnmount() {
+    this.unbindEvents();
   }
 
   render() {
-    const {viewBbox} = this.props;
-
-    if (!viewBbox) {
-      return null;
-    }
+    const {layerIsActive} = this.props;
 
     return (
       <FeatureGroup>
-        <Fetch
-          options={{method: "GET"}}
-          url={`https://a.mapillary.com/v3/sequences?bbox=${viewBbox.getWest()},${viewBbox.getSouth()},${viewBbox.getEast()},${viewBbox.getNorth()}&client_id=V2RqRUsxM2dPVFBMdnlhVUliTkM0ZzoxNmI5ZDZhOTc5YzQ2MzEw`}>
-          {({data, loading}) => {
-            this.features = data;
-
-            return loading ? null : (
-              <GeoJSON
-                style={() => ({
-                  color: "rgb(50, 200, 200)",
-                  weight: 3,
-                  opacity: 0.75,
-                })}
-                data={data}
-              />
-            );
-          }}
-        </Fetch>
+        {layerIsActive && this.state.features && (
+          <GeoJSON
+            style={() => ({
+              color: "rgb(50, 200, 200)",
+              weight: 3,
+              opacity: 0.75,
+            })}
+            data={this.state.features}
+          />
+        )}
       </FeatureGroup>
     );
   }

@@ -2,8 +2,6 @@ import React from "react";
 import * as Mapillary from "mapillary-js";
 import "mapillary-js/dist/mapillary.min.css";
 
-const MAPILLARY_ELEMENT_ID = "mapillary-viewer";
-
 class MapillaryViewer extends React.Component {
   mly = null;
 
@@ -34,10 +32,10 @@ class MapillaryViewer extends React.Component {
   }
 
   initMapillary() {
-    const {onNavigation} = this.props;
+    const {onNavigation, elementId} = this.props;
 
     this.mly = new Mapillary.Viewer(
-      MAPILLARY_ELEMENT_ID,
+      elementId,
       "V2RqRUsxM2dPVFBMdnlhVUliTkM0ZzoxNmI5ZDZhOTc5YzQ2MzEw",
       null,
       {
@@ -63,8 +61,8 @@ class MapillaryViewer extends React.Component {
   }
 
   render() {
-    const {className} = this.props;
-    return <div className={className} id={MAPILLARY_ELEMENT_ID} />;
+    const {className, elementId} = this.props;
+    return <div className={className} id={elementId} />;
   }
 }
 
