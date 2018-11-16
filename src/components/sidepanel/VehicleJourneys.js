@@ -267,8 +267,8 @@ class VehicleJourneys extends Component {
                     delayType === "early"
                       ? "var(--red)"
                       : delayType === "late"
-                        ? "var(--yellow)"
-                        : "var(--light-green)"
+                      ? "var(--yellow)"
+                      : "var(--light-green)"
                   }>
                   {plannedObservedDiff.sign}
                   {doubleDigit(plannedObservedDiff.minutes)}:

@@ -22,35 +22,8 @@ const parseLineNumber = (lineId) =>
 
 @observer
 class TimetableDeparture extends Component {
-  selectedJourneyRef = React.createRef();
-  clickedJourney = false;
-
-  scrollToSelectedJourney = () => {
-    const {setSelectedJourneyOffset, selectedJourney} = this.props;
-
-    if (!this.clickedJourney && selectedJourney && this.selectedJourneyRef.current) {
-      let offset = get(this.selectedJourneyRef, "current.offsetTop", null);
-
-      if (offset) {
-        setSelectedJourneyOffset(offset);
-      }
-    } else if (this.clickedJourney) {
-      this.clickedJourney = false;
-    }
-  };
-
-  onClickJourney = (departureData) => {
-    const clickCb = this.props.onClick(departureData);
-
-    return (e) => {
-      e.preventDefault();
-      this.clickedJourney = true;
-      clickCb(e);
-    };
-  };
-
   render() {
-    const {departure, date, stop, selectedJourney} = this.props;
+    const {departure, date, stop, selectedJourney, onClick, focusRef} = this.props;
 
     const {
       modes: {nodes: modes},
@@ -59,10 +32,7 @@ class TimetableDeparture extends Component {
     const stopMode = modes[0];
 
     return (
-      <DepartureJourneyQuery
-        onCompleted={this.scrollToSelectedJourney}
-        date={date}
-        departure={departure}>
+      <DepartureJourneyQuery date={date} departure={departure}>
         {({journey}) => {
           const departureData = {
             ...departure,
@@ -84,9 +54,9 @@ class TimetableDeparture extends Component {
 
           return (
             <TagButton
-              ref={journeyIsSelected ? this.selectedJourneyRef : null}
+              ref={focusRef}
               selected={journeyIsSelected}
-              onClick={this.onClickJourney(departureData)}>
+              onClick={onClick(departureData)}>
               <ColoredIconSlot
                 color={get(transportColor, stopMode, "var(--light-grey)")}>
                 <TransportIcon mode={stopMode} />
@@ -101,8 +71,8 @@ class TimetableDeparture extends Component {
                       delayType === "early"
                         ? "var(--red)"
                         : delayType === "late"
-                          ? "var(--yellow)"
-                          : "var(--light-green)"
+                        ? "var(--yellow)"
+                        : "var(--light-green)"
                     }>
                     {plannedObservedDiff.sign}
                     {doubleDigit(plannedObservedDiff.minutes)}:

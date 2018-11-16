@@ -119,6 +119,22 @@ async function getCachedJourney(fetchKey) {
   return cachedItem;
 }
 
+const doFetch = (fetchRoute, fetchDate, fetchTime, fetchKey) =>
+  queryHfp(fetchRoute, fetchDate, fetchTime).then(({data, fetchedJourneyId}) => {
+    const groupedData = groupHfpPositions(
+      data
+        // TODO: Change this when we have to deal with null positions
+        .filter((pos) => !!pos && !!pos.lat && !!pos.long)
+        .map(createHfpItem),
+      getJourneyId,
+      "journeyId"
+      // Make sure all returned journeys were requested
+    ).filter((jg) => jg.journeyId === fetchedJourneyId);
+
+    memoryCache.set(fetchKey, groupedData);
+    return groupedData;
+  });
+
 export async function fetchHfpJourney(route, date, time, skipCache) {
   // If fetchKey is false then we don't have all required data yet
   const fetchKey = createFetchKey(route, date, time);
@@ -130,25 +146,9 @@ export async function fetchHfpJourney(route, date, time, skipCache) {
   let fetchPromise = currentPromises.get(fetchKey);
 
   if (!fetchPromise) {
-    const doFetch = (fetchRoute, fetchDate, fetchTime) =>
-      queryHfp(fetchRoute, fetchDate, fetchTime).then(({data, fetchedJourneyId}) => {
-        const groupedData = groupHfpPositions(
-          data
-            // TODO: Change this when we have to deal with null positions
-            .filter((pos) => !!pos && !!pos.lat && !!pos.long)
-            .map(createHfpItem),
-          getJourneyId,
-          "journeyId"
-          // Make sure all returned journeys were requested
-        ).filter((jg) => jg.journeyId === fetchedJourneyId);
-
-        memoryCache.set(fetchKey, groupedData);
-        return groupedData;
-      });
-
     try {
       if (skipCache) {
-        fetchPromise = doFetch(route, date, time);
+        fetchPromise = doFetch(route, date, time, fetchKey);
       } else {
         // Start a new fetch promise if one isn't already in progress
         fetchPromise = getCachedJourney(fetchKey).then(async (cachedJourney) => {
@@ -156,7 +156,7 @@ export async function fetchHfpJourney(route, date, time, skipCache) {
             return cachedJourney;
           }
 
-          return doFetch(route, date, time);
+          return doFetch(route, date, time, fetchKey);
         });
       }
     } catch (err) {
@@ -165,7 +165,7 @@ export async function fetchHfpJourney(route, date, time, skipCache) {
     }
 
     // Remove the promise when it is finished
-    pFinally(fetchPromise, () => {
+    fetchPromise = pFinally(fetchPromise, () => {
       currentPromises.delete(fetchKey);
     });
 

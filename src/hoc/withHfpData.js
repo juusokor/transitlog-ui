@@ -11,6 +11,7 @@ import uniqBy from "lodash/uniqBy";
 import get from "lodash/get";
 import {createFetchKey, createRouteKey} from "../helpers/keys";
 import pEachSeries from "p-each-series";
+import pMap from "p-map";
 
 export default (Component) => {
   @inject(app("Journey", "Filters"))
@@ -57,7 +58,7 @@ export default (Component) => {
 
     fetchRequestedJourneys = async (requestedJourneys) => {
       this.setLoading(true);
-      await pEachSeries(requestedJourneys, this.fetchDeparture);
+      await pMap(requestedJourneys, this.fetchDeparture, {concurrency: 3});
       await this.onFetchCompleted();
     };
 
@@ -132,7 +133,7 @@ export default (Component) => {
 
       this.fetchReaction = reaction(
         () => {
-          const reqJourneys = state.requestedJourneys.slice();
+          const reqJourneys = state.requestedJourneys.slice(); // Slice to tell mobx that we used this array
           const routeKey = createRouteKey(state.route);
 
           if (reqJourneys.length && !!routeKey && !this.loading) {
@@ -142,7 +143,7 @@ export default (Component) => {
           return [];
         },
         (reqJourneys) => {
-          if (reqJourneys.length !== 0) {
+          if (reqJourneys.length !== 0 && !this.loading) {
             this.fetchRequestedJourneys(reqJourneys);
           }
         }
@@ -165,6 +166,7 @@ export default (Component) => {
     }
 
     componentWillUnmount() {
+      // Clear the reactions if unmounted
       if (typeof this.fetchReaction === "function") {
         this.fetchReaction();
       }

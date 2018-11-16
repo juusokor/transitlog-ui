@@ -31,16 +31,15 @@ class SidePanel extends Component {
     return (
       <SidePanelContainer>
         <Tabs>
-          {!!route &&
-            !!route.routeId && (
-              <Journeys
-                route={route}
-                positions={positions}
-                loading={loading}
-                name="journeys"
-                label={text("sidepanel.tabs.journeys")}
-              />
-            )}
+          {!!route && !!route.routeId && (
+            <Journeys
+              route={route}
+              positions={positions}
+              loading={loading}
+              name="journeys"
+              label={text("sidepanel.tabs.journeys")}
+            />
+          )}
           {vehicle && (
             <VehicleJourneys
               loading={loading}

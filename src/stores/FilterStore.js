@@ -4,7 +4,7 @@ import mergeWithObservable from "../helpers/mergeWithObservable";
 import JourneyActions from "./journeyActions";
 
 const emptyState = {
-  date: "2018-05-06",
+  date: "2018-05-07",
   stop: "",
   vehicle: "",
   line: {
