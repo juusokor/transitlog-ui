@@ -103,9 +103,9 @@ class RouteStopMarker extends React.Component {
     }
 
     const {journey_start_time} = selectedJourney;
-
     let departure;
 
+    // Find the departure from the first stop.
     const firstDeparture = departures.find(
       (departure) =>
         `${doubleDigit(departure.hours)}:${doubleDigit(departure.minutes)}:00` ===
@@ -113,10 +113,12 @@ class RouteStopMarker extends React.Component {
     );
 
     if (firstTerminal && firstDeparture) {
-      // The first stop is easy. Just find the departure
-      // that matches the journey_start_time.
+      // The first stop is easy. Select the departure
+      // found above as the stop departure.
       departure = firstDeparture;
     } else if (firstDeparture) {
+      // For other stops, find a departure from this stop from
+      // the same departure chain as the first departure.
       departure = departures.find(
         (dep) =>
           dep.departureId === firstDeparture.departureId &&
@@ -124,6 +126,7 @@ class RouteStopMarker extends React.Component {
       );
     }
 
+    // If we don't have a departure, no biggie, just render the stop marker at this point.
     if (!departure) {
       return this.createStopMarker(
         stop,
@@ -136,6 +139,10 @@ class RouteStopMarker extends React.Component {
       );
     }
 
+    // Find the hfp item that matches this departure.
+    // Sort by received_at descending and select the first element, this way we get the
+    // hfp item that represents the time when the vehicle left the stop, ie the
+    // last hfp item before the next_stop_id value changed.
     let departureHfpItem = orderBy(
       positions.filter(
         (pos) =>
@@ -146,6 +153,7 @@ class RouteStopMarker extends React.Component {
       "desc"
     )[0];
 
+    // Again, render the marker at this point if we didn't find an hfp item.
     if (!departureHfpItem) {
       return this.createStopMarker(
         stop,
@@ -158,29 +166,23 @@ class RouteStopMarker extends React.Component {
       );
     }
 
-    delayType = "on-time";
-    let driveByTime = false;
-    let plannedTime = false;
+    // Get the difference between the planned and the observed time,
+    // now that we have both.
+    const {observedMoment, plannedMoment, diff} = diffDepartureJourney(
+      departureHfpItem,
+      departure,
+      date
+    );
 
-    if (departureHfpItem) {
-      const plannedObservedDiff = diffDepartureJourney(
-        departureHfpItem,
-        departure,
-        date
-      );
-
-      driveByTime = plannedObservedDiff.observedMoment;
-      plannedTime = plannedObservedDiff.plannedMoment;
-      delayType = getDelayType(plannedObservedDiff.diff);
-    }
+    delayType = getDelayType(diff);
 
     color = getTimelinessColor(delayType, stopColor);
     let markerChildren = [stopTooltip];
 
-    if (driveByTime) {
+    if (observedMoment) {
       const observedTime = (
         <ObservedTime backgroundColor={color} color="white">
-          {driveByTime.format("HH:mm:ss")}
+          {observedMoment.format("HH:mm:ss")}
         </ObservedTime>
       );
 
@@ -195,7 +197,7 @@ class RouteStopMarker extends React.Component {
           </Heading>
           <PopupParagraph>
             Planned drive by time:{" "}
-            <PlannedTime>{plannedTime.format("HH:mm:ss")}</PlannedTime>
+            <PlannedTime>{plannedMoment.format("HH:mm:ss")}</PlannedTime>
           </PopupParagraph>
           <PopupParagraph>Observed drive by time: {observedTime}</PopupParagraph>
         </Popup>
