@@ -125,14 +125,6 @@ export class LeafletMap extends Component {
                 url="http://tiles.kartat.kapsi.fi/ortokuva/{z}/{x}/{y}.jpg"
               />
             </LayersControl.BaseLayer>
-            {/*<LayersControl.BaseLayer
-              name="Mapillary"
-              checked={currentBaseLayer === "Mapillary"}>
-              <MapillaryLayer
-                location={currentMapillaryMapLocation}
-                layerIsActive={currentBaseLayer === "Mapillary"}
-                onSelectLocation={this.setMapillaryViewerLocation}
-              /></LayersControl.BaseLayer>*/}
             <LayersControl.Overlay
               name="Mapillary"
               checked={currentOverlays.indexOf("Mapillary") !== -1}>
