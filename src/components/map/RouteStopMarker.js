@@ -24,7 +24,7 @@ const PlannedTime = styled.span`
 `;
 
 const ObservedTime = styled(ColoredBackgroundSlot)`
-  font-size: 1rem;
+  font-size: 0.875rem;
 `;
 
 @observer
@@ -80,11 +80,11 @@ class RouteStopMarker extends React.Component {
 
     const isTerminal = firstTerminal || lastTerminal;
 
-    const stopChildren = [
+    let stopTooltip = (
       <Tooltip key={`stop${stop.stopId}_tooltip`}>
         {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
-      </Tooltip>,
-    ];
+      </Tooltip>
+    );
 
     let color = stopColor;
     let delayType = "none";
@@ -98,7 +98,7 @@ class RouteStopMarker extends React.Component {
         selected,
         isTerminal,
         onSelect,
-        stopChildren
+        stopTooltip
       );
     }
 
@@ -132,7 +132,7 @@ class RouteStopMarker extends React.Component {
         selected,
         isTerminal,
         onSelect,
-        stopChildren
+        stopTooltip
       );
     }
 
@@ -154,7 +154,7 @@ class RouteStopMarker extends React.Component {
         selected,
         isTerminal,
         onSelect,
-        stopChildren
+        stopTooltip
       );
     }
 
@@ -175,8 +175,15 @@ class RouteStopMarker extends React.Component {
     }
 
     color = getTimelinessColor(delayType, stopColor);
+    let markerChildren = [stopTooltip];
 
     if (driveByTime) {
+      const observedTime = (
+        <ObservedTime backgroundColor={color} color="white">
+          {driveByTime.format("HH:mm:ss")}
+        </ObservedTime>
+      );
+
       const stopPopup = (
         <Popup
           minWidth={300}
@@ -190,16 +197,18 @@ class RouteStopMarker extends React.Component {
             Planned drive by time:{" "}
             <PlannedTime>{plannedTime.format("HH:mm:ss")}</PlannedTime>
           </PopupParagraph>
-          <PopupParagraph>
-            Observed drive by time:{" "}
-            <ObservedTime backgroundColor={color} color="white">
-              {driveByTime.format("HH:mm:ss")}
-            </ObservedTime>
-          </PopupParagraph>
+          <PopupParagraph>Observed drive by time: {observedTime}</PopupParagraph>
         </Popup>
       );
 
-      stopChildren.push(stopPopup);
+      stopTooltip = (
+        <Tooltip key={`stop${stop.stopId}_tooltip`}>
+          {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})<br />
+          {observedTime}
+        </Tooltip>
+      );
+
+      markerChildren = [stopTooltip, stopPopup];
     }
 
     return this.createStopMarker(
@@ -209,7 +218,7 @@ class RouteStopMarker extends React.Component {
       selected,
       isTerminal,
       onSelect,
-      stopChildren
+      markerChildren
     );
   }
 }
