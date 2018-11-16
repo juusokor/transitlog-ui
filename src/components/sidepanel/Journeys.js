@@ -22,6 +22,7 @@ import {ColoredBackgroundSlot} from "../TagButton";
 import {diffDepartureJourney} from "../../helpers/diffDepartureJourney";
 import getDelayType from "../../helpers/getDelayType";
 import {sortByOperationDay} from "../../helpers/sortByOperationDay";
+import {getTimelinessColor} from "../../helpers/timelinessColor";
 
 const JourneyListRow = styled.button`
   display: flex;
@@ -301,13 +302,10 @@ class Journeys extends Component {
                 <>
                   <DelaySlot
                     color={delayType === "late" ? "var(--dark-grey)" : "white"}
-                    backgroundColor={
-                      delayType === "early"
-                        ? "var(--red)"
-                        : delayType === "late"
-                        ? "var(--yellow)"
-                        : "var(--light-green)"
-                    }>
+                    backgroundColor={getTimelinessColor(
+                      delayType,
+                      "var(--light-green)"
+                    )}>
                     {plannedObservedDiff.sign}
                     {doubleDigit(plannedObservedDiff.minutes)}:
                     {doubleDigit(plannedObservedDiff.seconds)}

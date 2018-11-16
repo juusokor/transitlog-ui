@@ -146,6 +146,7 @@ export class LeafletMap extends Component {
         {currentOverlays.indexOf("Mapillary") !== -1 &&
           currentMapillaryViewerLocation && (
             <MapillaryView
+              elementId="mapillary-viewer"
               onNavigation={this.onMapillaryNavigation}
               location={currentMapillaryViewerLocation}
             />

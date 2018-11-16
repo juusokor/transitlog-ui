@@ -22,6 +22,7 @@ import PlusMinusInput from "../PlusMinusInput";
 import {observable, action, reaction} from "mobx";
 import withVehicleJourneys from "../../hoc/withVehicleJourneys";
 import {sortByOperationDay} from "../../helpers/sortByOperationDay";
+import {getTimelinessColor} from "../../helpers/timelinessColor";
 
 const JourneyListRow = styled.div`
   display: flex;
@@ -263,13 +264,10 @@ class VehicleJourneys extends Component {
                 <TimeSlot>{journeyTime}</TimeSlot>
                 <ColoredBackgroundSlot
                   color={delayType === "late" ? "var(--dark-grey)" : "white"}
-                  backgroundColor={
-                    delayType === "early"
-                      ? "var(--red)"
-                      : delayType === "late"
-                      ? "var(--yellow)"
-                      : "var(--light-green)"
-                  }>
+                  backgroundColor={getTimelinessColor(
+                    delayType,
+                    "var(--light-green)"
+                  )}>
                   {plannedObservedDiff.sign}
                   {doubleDigit(plannedObservedDiff.minutes)}:
                   {doubleDigit(plannedObservedDiff.seconds)}

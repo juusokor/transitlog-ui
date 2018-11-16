@@ -5,6 +5,7 @@ import {Heading} from "../Typography";
 import get from "lodash/get";
 import styled from "styled-components";
 import {app} from "mobx-app";
+import StopStreetView from "./StopStreetView";
 
 const stopColor = "var(--blue)";
 
@@ -51,7 +52,12 @@ class StopMarker extends Component {
         fillOpacity={1}
         onClick={this.selectStop}
         radius={selected ? 10 : 8}>
-        <Popup autoPan={false} autoClose={false} keepInView={false} maxHeight={500}>
+        <Popup
+          autoPan={false}
+          autoClose={false}
+          keepInView={false}
+          maxHeight={1000}
+          maxWidth={1000}>
           <Heading level={4}>
             {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
           </Heading>
@@ -62,6 +68,7 @@ class StopMarker extends Component {
               {routeSegment.routeId.substring(1).replace(/^0+/, "")}
             </StopRouteList>
           ))}
+          <StopStreetView stop={stop} />
         </Popup>
       </CircleMarker>
     );

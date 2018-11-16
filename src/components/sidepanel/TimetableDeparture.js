@@ -14,6 +14,7 @@ import {
   PlainSlotSmallRight,
 } from "../TagButton";
 import getJourneyId from "../../helpers/getJourneyId";
+import {getTimelinessColor} from "../../helpers/timelinessColor";
 
 const parseLineNumber = (lineId) =>
   // Remove 1st number, which represents the city
@@ -67,13 +68,10 @@ class TimetableDeparture extends Component {
                 <>
                   <ColoredBackgroundSlot
                     color={delayType === "late" ? "var(--dark-grey)" : "white"}
-                    backgroundColor={
-                      delayType === "early"
-                        ? "var(--red)"
-                        : delayType === "late"
-                        ? "var(--yellow)"
-                        : "var(--light-green)"
-                    }>
+                    backgroundColor={getTimelinessColor(
+                      delayType,
+                      "var(--light-green)"
+                    )}>
                     {plannedObservedDiff.sign}
                     {doubleDigit(plannedObservedDiff.minutes)}:
                     {doubleDigit(plannedObservedDiff.seconds)}

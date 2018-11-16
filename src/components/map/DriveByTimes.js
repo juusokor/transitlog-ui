@@ -7,6 +7,7 @@ import DeparturesQuery from "../../queries/DeparturesQuery";
 import getDelayType from "../../helpers/getDelayType";
 import moment from "moment-timezone";
 import doubleDigit from "../../helpers/doubleDigit";
+import {getTimelinessColor} from "../../helpers/timelinessColor";
 
 const TimeRow = styled.div`
   display: flex;
@@ -51,11 +52,7 @@ const ObservedTime = styled.span`
   display: inline-flex;
   align-items: center;
   background: ${({delayType}) =>
-    delayType === "early"
-      ? "var(--red)"
-      : delayType === "late"
-        ? "var(--yellow)"
-        : "var(--light-green)"};
+    getTimelinessColor(delayType, "var(--light-green)")};
   color: ${({delayType}) => (delayType === "late" ? "var(--dark-grey)" : "white")};
   transform: translate(1px, -4px);
   margin-bottom: -8px;
