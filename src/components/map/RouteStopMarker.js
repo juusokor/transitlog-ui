@@ -31,6 +31,16 @@ const ObservedTime = styled(ColoredBackgroundSlot)`
 
 @observer
 class RouteStopMarker extends React.Component {
+  state = {
+    showStreetView: false,
+  };
+
+  toggleStreetView = () => {
+    this.setState((state) => ({
+      showStreetView: !state.showStreetView,
+    }));
+  };
+
   createStopMarker = (
     stop,
     delayType,
@@ -256,7 +266,10 @@ class RouteStopMarker extends React.Component {
             <PlannedTime>{plannedMoment.format("HH:mm:ss")}</PlannedTime>
           </PopupParagraph>
           <PopupParagraph>Observed drive by time: {observedTime}</PopupParagraph>
-          <StopStreetView stop={stop} />
+          {this.state.showStreetView && <StopStreetView stop={stop} />}
+          <div>
+            <button onClick={this.toggleStreetView}>Toggle street view</button>
+          </div>
         </Popup>
       );
 

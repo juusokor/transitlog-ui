@@ -22,6 +22,16 @@ const StopRouteList = styled.button`
 @inject(app("Filters"))
 @observer
 class StopMarker extends Component {
+  state = {
+    showStreetView: false,
+  };
+
+  toggleStreetView = () => {
+    this.setState((state) => ({
+      showStreetView: !state.showStreetView,
+    }));
+  };
+
   selectRoute = (route) => () => {
     if (route) {
       this.props.Filters.setRoute(route);
@@ -69,7 +79,10 @@ class StopMarker extends Component {
               {routeSegment.routeId.substring(1).replace(/^0+/, "")}
             </StopRouteList>
           ))}
-          <StopStreetView stop={stop} />
+          {this.state.showStreetView && <StopStreetView stop={stop} />}
+          <div>
+            <button onClick={this.toggleStreetView}>Toggle street view</button>
+          </div>
         </Popup>
       </CircleMarker>
     );
