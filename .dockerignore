@@ -6,3 +6,4 @@ node_modules
 LICENSE
 graphql.config.json
 travis-build.sh
+*.log
