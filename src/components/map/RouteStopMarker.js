@@ -13,8 +13,8 @@ import styled from "styled-components";
 import {getTimelinessColor} from "../../helpers/timelinessColor";
 import moment from "moment-timezone";
 import StopStreetView from "./StopStreetView";
-
-const stopColor = "var(--blue)";
+import {getPriorityMode, getModeColor} from "../../helpers/vehicleColor";
+import get from "lodash/get";
 
 const PopupParagraph = styled(P)`
   font-size: 1rem;
@@ -47,6 +47,9 @@ class RouteStopMarker extends React.Component {
       popupAnchor: [3, -15],
       className: `stop-marker timing-stop ${delayType}`,
     });
+
+    const mode = getPriorityMode(get(stop, "modes.nodes", []));
+    const stopColor = getModeColor(mode);
 
     return React.createElement(
       stop.timingStopType ? Marker : CircleMarker,
@@ -102,6 +105,9 @@ class RouteStopMarker extends React.Component {
     );
 
     let markerChildren = [stopTooltip, stopStreetViewPopup];
+
+    const mode = getPriorityMode(get(stop, "modes.nodes", []));
+    const stopColor = getModeColor(mode);
 
     let color = stopColor;
     let delayType = "none";
