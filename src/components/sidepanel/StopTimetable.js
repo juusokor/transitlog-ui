@@ -49,6 +49,7 @@ class StopTimetable extends Component {
       routeFilter,
       timeRangeFilter,
       departures,
+      journeysByRoute,
       date,
       selectedJourney,
       stop,
@@ -118,6 +119,11 @@ class StopTimetable extends Component {
                     onClick={onSelectAsJourney}
                     stop={stop}
                     date={date}
+                    routeJourneys={get(
+                      journeysByRoute,
+                      `${departure.routeId}:${departure.direction}`,
+                      []
+                    )}
                     departure={departure}
                   />
                 );

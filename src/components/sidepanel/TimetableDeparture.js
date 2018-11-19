@@ -3,7 +3,6 @@ import {observer} from "mobx-react";
 import get from "lodash/get";
 import doubleDigit from "../../helpers/doubleDigit";
 import getDelayType from "../../helpers/getDelayType";
-import DepartureJourneyQuery from "../../queries/DepartureJourneyQuery";
 import {diffDepartureJourney} from "../../helpers/diffDepartureJourney";
 import {TransportIcon, transportColor} from "../transportModes";
 import {
@@ -16,6 +15,7 @@ import {
 import getJourneyId from "../../helpers/getJourneyId";
 import {getTimelinessColor} from "../../helpers/timelinessColor";
 import styled from "styled-components";
+import FirstDepartureQuery from "../../queries/FirstDepartureQuery";
 
 const parseLineNumber = (lineId) =>
   // Remove 1st number, which represents the city
@@ -32,7 +32,15 @@ const ListRow = styled.div`
 @observer
 class TimetableDeparture extends Component {
   render() {
-    const {departure, date, stop, selectedJourney, onClick, focusRef} = this.props;
+    const {
+      departure,
+      routeJourneys,
+      date,
+      stop,
+      selectedJourney,
+      onClick,
+      focusRef,
+    } = this.props;
 
     const {
       modes: {nodes: modes},
@@ -41,8 +49,12 @@ class TimetableDeparture extends Component {
     const stopMode = modes[0];
 
     return (
-      <DepartureJourneyQuery date={date} departure={departure}>
-        {({journey}) => {
+      <FirstDepartureQuery skip={routeJourneys.length === 0} {...departure}>
+        {({departureTime}) => {
+          const journey = routeJourneys.filter(
+            (journey) => journey.journey_start_time === departureTime
+          )[0];
+
           const departureData = {
             ...departure,
             journey,
@@ -94,7 +106,7 @@ class TimetableDeparture extends Component {
             </ListRow>
           );
         }}
-      </DepartureJourneyQuery>
+      </FirstDepartureQuery>
     );
   }
 }

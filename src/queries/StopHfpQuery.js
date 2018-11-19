@@ -8,23 +8,18 @@ import HfpFieldsFragment from "./HfpFieldsFragment";
 
 const stopDelayQuery = gql`
   query stopDelay(
-    $routeId: String!
+    $routes: [String]!
     $date: date!
-    $direction: smallint!
+    $directions: [smallint]!
     $stopId: String!
-    $startTime: time!
   ) {
     vehicles(
-      limit: 1
       order_by: received_at_desc
       where: {
-        _and: {
-          route_id: {_eq: $routeId}
-          dir: {_eq: $direction}
-          oday: {_eq: $date}
-          journey_start_time: {_eq: $startTime}
-          next_stop_id: {_eq: $stopId}
-        }
+        route_id: {_in: $routes}
+        dir: {_in: $directions}
+        oday: {_eq: $date}
+        next_stop_id: {_eq: $stopId}
       }
     ) {
       ...HfpFieldsFragment
@@ -38,25 +33,22 @@ class StopHfpQuery extends Component {
   render() {
     const {
       onCompleted = () => {},
-      routeId,
+      routes,
       date,
-      direction,
+      directions,
       stopId,
-      startTime,
       children,
     } = this.props;
 
     return (
       <Query
         onCompleted={onCompleted}
-        fetchPolicy="cache-first"
-        partialRefetch={true}
         client={hfpClient}
-        variables={{routeId, date, direction, stopId, startTime}}
+        variables={{routes, date, directions, stopId}}
         query={stopDelayQuery}>
         {({loading, data}) => {
-          const journey = get(data, "vehicles[0]", null);
-          return children({journey});
+          const journeys = get(data, "vehicles", []);
+          return children({journeys});
         }}
       </Query>
     );
