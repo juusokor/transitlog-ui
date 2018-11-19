@@ -5,7 +5,6 @@ import get from "lodash/get";
 import {observer} from "mobx-react";
 import styled from "styled-components";
 import doubleDigit from "../../helpers/doubleDigit";
-import {Heading} from "../Typography";
 import TimetableDeparture from "./TimetableDeparture";
 import {sortByOperationDay} from "../../helpers/sortByOperationDay";
 
@@ -13,21 +12,8 @@ const TimetableGrid = styled.div`
   margin-bottom: 1rem;
 `;
 
-const TimetableHour = styled(Heading).attrs({level: 4})`
-  margin-bottom: 1rem;
-  margin-top: 1rem;
-  border-bottom: 1px solid var(--lighter-grey);
-  padding: 0 0.75rem 1rem;
-`;
-
 const TimetableSection = styled.div`
-  margin-bottom: 2rem;
-`;
-
-const TimetableTimes = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  padding: 0 0.5rem 0 0.75rem;
+  margin-bottom: 1.5rem;
 `;
 
 @observer
@@ -112,33 +98,30 @@ class StopTimetable extends Component {
 
           return (
             <TimetableSection key={`hour_${hour}_${idx}`}>
-              <TimetableHour>{hour}</TimetableHour>
-              <TimetableTimes>
-                {showTimes.map((departure, idx) => {
-                  let scrollToTime = false;
+              {showTimes.map((departure, idx) => {
+                let scrollToTime = false;
 
-                  if (
-                    focusedDepartureTime.hours === departure.hours &&
-                    focusedDepartureTime.minutes === departure.minutes
-                  ) {
-                    scrollToTime = true;
-                  }
+                if (
+                  focusedDepartureTime.hours === departure.hours &&
+                  focusedDepartureTime.minutes === departure.minutes
+                ) {
+                  scrollToTime = true;
+                }
 
-                  return (
-                    <TimetableDeparture
-                      focusRef={scrollToTime ? focusRef : null}
-                      routeFilter={routeFilter}
-                      timeRangeFilter={timeRangeFilter}
-                      selectedJourney={selectedJourney}
-                      key={`time_${idx}`}
-                      onClick={onSelectAsJourney}
-                      stop={stop}
-                      date={date}
-                      departure={departure}
-                    />
-                  );
-                })}
-              </TimetableTimes>
+                return (
+                  <TimetableDeparture
+                    focusRef={scrollToTime ? focusRef : null}
+                    routeFilter={routeFilter}
+                    timeRangeFilter={timeRangeFilter}
+                    selectedJourney={selectedJourney}
+                    key={`time_${idx}`}
+                    onClick={onSelectAsJourney}
+                    stop={stop}
+                    date={date}
+                    departure={departure}
+                  />
+                );
+              })}
             </TimetableSection>
           );
         })}

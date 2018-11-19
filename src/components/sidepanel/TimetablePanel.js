@@ -39,7 +39,7 @@ const TimeRangeFilterContainer = styled.div`
 @withStop
 @withAllStopDepartures
 @observer
-class Timetables extends Component {
+class TimetablePanel extends Component {
   selectedJourneyRef = React.createRef();
   clickedJourney = false;
 
@@ -174,4 +174,4 @@ class Timetables extends Component {
   }
 }
 
-export default Timetables;
+export default TimetablePanel;
