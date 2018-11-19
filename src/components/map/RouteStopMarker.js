@@ -8,7 +8,7 @@ import getDelayType from "../../helpers/getDelayType";
 import doubleDigit from "../../helpers/doubleDigit";
 import orderBy from "lodash/orderBy";
 import {Heading, P} from "../Typography";
-import {ColoredBackgroundSlot, PlainSlot} from "../TagButton";
+import {ColoredBackgroundSlot} from "../TagButton";
 import styled from "styled-components";
 import {getTimelinessColor} from "../../helpers/timelinessColor";
 import moment from "moment-timezone";

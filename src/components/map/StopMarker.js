@@ -8,8 +8,6 @@ import {app} from "mobx-app";
 import StopStreetView from "./StopStreetView";
 import {getPriorityMode, getModeColor} from "../../helpers/vehicleColor";
 
-const defaultStopColor = "var(--blue)";
-
 const StopRouteList = styled.button`
   text-decoration: none;
   padding: 2px 4px;

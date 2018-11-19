@@ -55,7 +55,7 @@ class Tabs extends Component {
     selectedTab: "",
   };
 
-  onTabClick = (selectName) => (e) => {
+  onTabClick = (selectName) => () => {
     this.setState({
       selectedTab: selectName,
     });

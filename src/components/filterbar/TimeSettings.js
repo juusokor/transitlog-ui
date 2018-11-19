@@ -18,7 +18,7 @@ const TimeInput = styled(InputBase)`
 @withSelectedJourneyHfp
 @observer
 class TimeSettings extends Component {
-  onTimeButtonClick = (modifier) => (e) => {
+  onTimeButtonClick = (modifier) => () => {
     const {
       state: {date, time},
       Time,

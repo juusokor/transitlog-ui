@@ -2,7 +2,6 @@ import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
 import SidepanelList from "./SidepanelList";
 import styled from "styled-components";
-import {Text} from "../../helpers/text";
 import sortBy from "lodash/sortBy";
 import get from "lodash/get";
 import {app} from "mobx-app";

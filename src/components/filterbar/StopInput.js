@@ -46,7 +46,7 @@ const getSuggestions = (stops = []) => (value = "") => {
 
   return orderBy(
     suggestionStops,
-    [inputLength ? suggestionFitness(inputValue) : (x) => 0, "stopId"],
+    [inputLength ? suggestionFitness(inputValue) : () => 0, "stopId"],
     ["desc", "asc"]
   ).slice(0, 50);
 };

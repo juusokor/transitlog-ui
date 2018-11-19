@@ -78,7 +78,7 @@ class Journeys extends Component {
   clickedJourneyItem = false;
   currentFetchKey = "";
 
-  componentDidUpdate({positions: prevPositions}, prevState) {
+  componentDidUpdate() {
     this.fetchAllJourneys();
 
     const {selectedJourney} = this.props.state;
