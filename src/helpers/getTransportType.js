@@ -8,7 +8,7 @@ function getTransportType(lineId) {
   }
 
   if (/^300[12]/.test(lineType)) {
-    return "TRAIN";
+    return "RAIL";
   }
 
   if (lineType.substr(1) === "560" || lineType.substr(1) === "550") {
