@@ -17,13 +17,11 @@ class StopLayer extends Component {
 
     return (
       <StopsByBboxQuery variables={{...bbox, date}}>
-        {({stops}) => (
-          <React.Fragment>
-            {stops.map((stop) => (
-              <StopMarker key={`stops_${stop.stopId}`} stop={stop} />
-            ))}
-          </React.Fragment>
-        )}
+        {({stops}) =>
+          stops.map((stop) => (
+            <StopMarker key={`stops_${stop.stopId}`} stop={stop} />
+          ))
+        }
       </StopsByBboxQuery>
     );
   }

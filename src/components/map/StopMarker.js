@@ -6,8 +6,9 @@ import get from "lodash/get";
 import styled from "styled-components";
 import {app} from "mobx-app";
 import StopStreetView from "./StopStreetView";
+import {getPriorityMode, getModeColor} from "../../helpers/vehicleColor";
 
-const stopColor = "var(--blue)";
+const defaultStopColor = "var(--blue)";
 
 const StopRouteList = styled.button`
   text-decoration: none;
@@ -42,6 +43,8 @@ class StopMarker extends Component {
     const {stop: selectedStop} = state;
 
     const selected = selectedStop === stop.stopId;
+    const mode = getPriorityMode(get(stop, "modes.nodes", []));
+    const stopColor = getModeColor(mode);
 
     return (
       <CircleMarker
