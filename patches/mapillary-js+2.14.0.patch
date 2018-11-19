@@ -1,0 +1,13 @@
+diff --git a/node_modules/mapillary-js/package.json b/node_modules/mapillary-js/package.json
+index 1b422c8..0c05c0b 100644
+--- a/node_modules/mapillary-js/package.json
++++ b/node_modules/mapillary-js/package.json
+@@ -2,7 +2,7 @@
+   "name": "mapillary-js",
+   "version": "2.14.0",
+   "description": "WebGL JavaScript library for displaying street level imagery from mapillary.com",
+-  "main": "dist/mapillary.min",
++  "main": "dist/mapillary.js",
+   "license": "MIT",
+   "homepage": "https://github.com/mapillary/mapillary-js#readme",
+   "keywords": [
