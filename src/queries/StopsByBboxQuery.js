@@ -21,6 +21,9 @@ const stopsByBboxQuery = gql`
         nameFi
         lat
         lon
+        modes {
+          nodes
+        }
         routeSegmentsForDate(date: $date) {
           nodes {
             line {
