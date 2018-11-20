@@ -123,6 +123,8 @@ class TimetablePanel extends Component {
       route,
     } = this.props;
 
+    let isLoading = false;
+
     return (
       <SidepanelList
         scrollOffset={this.selectedJourneyOffset}
@@ -156,9 +158,11 @@ class TimetablePanel extends Component {
         }>
         {stop && (
           <DeparturesQuery stop={stop} date={date}>
-            {({departures = []}) => {
+            {({departures = [], loading}) => {
               let routes = [];
               let directions = [];
+
+              isLoading = loading;
 
               for (const departure of departures) {
                 const {routeId, direction} = departure;
@@ -176,12 +180,14 @@ class TimetablePanel extends Component {
 
               return (
                 <StopHfpQuery
+                  skip={routes.length === 0}
                   stopId={stop.stopId}
                   routes={routes}
                   directions={directions}
                   date={date}>
-                  {({journeys}) => (
+                  {({journeys, loading}) => (
                     <StopTimetable
+                      loading={isLoading || loading}
                       time={this.reactionlessTime}
                       focusRef={this.selectedJourneyRef}
                       routeFilter={this.route}

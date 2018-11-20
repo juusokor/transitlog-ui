@@ -37,11 +37,13 @@ class StopHfpQuery extends Component {
       date,
       directions,
       stopId,
+      skip,
       children,
     } = this.props;
 
     return (
       <Query
+        skip={skip}
         onCompleted={onCompleted}
         client={hfpClient}
         variables={{routes, date, directions, stopId}}

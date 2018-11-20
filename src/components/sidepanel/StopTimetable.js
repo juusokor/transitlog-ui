@@ -56,6 +56,7 @@ class StopTimetable extends Component {
       onSelectAsJourney,
       focusRef,
       time,
+      loading,
     } = this.props;
 
     // Group into hours while making sure to separate pre-4:30 and post-4:30 departures
@@ -78,6 +79,8 @@ class StopTimetable extends Component {
 
     return (
       <TimetableGrid>
+        {!loading && byHourOrdered.length === 0 && "No data"}
+
         {byHourOrdered.map(([hour, times], idx) => {
           let showTimes = times;
 

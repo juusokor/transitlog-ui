@@ -246,8 +246,8 @@ class RouteStopMarker extends React.Component {
 
       const stopPopup = (
         <Popup
-          minWidth={300}
-          maxWidth={750}
+          maxHeight={750}
+          maxWidth={550}
           autoPan={false}
           key={`stop${stop.stopId}_popup`}>
           <Heading level={4}>
