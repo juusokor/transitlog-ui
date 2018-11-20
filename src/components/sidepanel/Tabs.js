@@ -65,19 +65,26 @@ class Tabs extends Component {
     const {children, className} = this.props;
     let {selectedTab} = this.state;
 
+    // The tab content to render
     let selectedTabContent = null;
 
-    const tabs = Children.toArray(children).map((tabContent, idx, allChildren) => {
+    // The children usually contain an empty string as the first element.
+    // Compact() removes all falsy values from the array.
+    const validChildren = compact(Children.toArray(children));
+
+    const tabs = validChildren.map((tabContent, idx, allChildren) => {
       if (!tabContent || !React.isValidElement(tabContent)) {
         return null;
       }
 
       const {name, label} = tabContent.props;
 
+      // If there is only one tab, select it right off
       if (allChildren.length === 1 || (idx === 0 && !selectedTab)) {
         selectedTab = name;
       }
 
+      // Set the current tab content to the selected tab
       if (name === selectedTab) {
         selectedTabContent = tabContent;
       }
