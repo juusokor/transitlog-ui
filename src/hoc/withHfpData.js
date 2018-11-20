@@ -57,11 +57,11 @@ export default (Component) => {
 
     fetchRequestedJourneys = async (requestedJourneys) => {
       this.setLoading(true);
-      await pMap(requestedJourneys, this.fetchDeparture, {concurrency: 3});
+      await pMap(requestedJourneys, this.fetchJourney, {concurrency: 3});
       await this.onFetchCompleted();
     };
 
-    fetchDeparture = async (journeyRequest) => {
+    fetchJourney = async (journeyRequest) => {
       const {Journey} = this.props;
       const {route, date, time, skipCache = false} = journeyRequest;
 

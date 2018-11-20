@@ -1,7 +1,11 @@
 import React, {Component} from "react";
 import groupBy from "lodash/groupBy";
 import orderBy from "lodash/orderBy";
+import reduce from "lodash/reduce";
 import get from "lodash/get";
+import set from "lodash/set";
+import map from "lodash/map";
+import sortedIndexBy from "lodash/sortedIndexBy";
 import {observer} from "mobx-react";
 import styled from "styled-components";
 import doubleDigit from "../../helpers/doubleDigit";
@@ -49,7 +53,7 @@ class StopTimetable extends Component {
       routeFilter,
       timeRangeFilter,
       departures,
-      journeysByRoute,
+      journeys,
       date,
       selectedJourney,
       stop,
@@ -58,6 +62,30 @@ class StopTimetable extends Component {
       time,
       loading,
     } = this.props;
+
+    const journeysByRouteAndTime = {};
+
+    for (let i = journeys.length - 1; i >= 0; i--) {
+      const hfp = journeys[i];
+      const routeKey = `${hfp.route_id}:${hfp.direction_id}`;
+      const routeHfp = journeysByRouteAndTime[routeKey] || [];
+      let existingHfpIndex = routeHfp.findIndex(
+        (item) => item.journey_start_time === hfp.journey_start_time
+      );
+
+      if (existingHfpIndex !== -1) {
+        const existingHfp = routeHfp[existingHfpIndex];
+
+        if (hfp.received_at_unix > existingHfp.received_at_unix) {
+          routeHfp.splice(existingHfpIndex, 1, hfp);
+        }
+      } else {
+        const insertIndex = sortedIndexBy(routeHfp, hfp, "received_at_unix");
+        routeHfp.splice(insertIndex, 0, hfp);
+      }
+
+      journeysByRouteAndTime[routeKey] = routeHfp;
+    }
 
     // Group into hours while making sure to separate pre-4:30 and post-4:30 departures
     const byHour = groupBy(departures, ({hours, minutes}) => {
@@ -82,7 +110,7 @@ class StopTimetable extends Component {
         {!loading && byHourOrdered.length === 0 && "No data"}
 
         {byHourOrdered.map(([hour, times], idx) => {
-          let showTimes = times;
+          let timetableDepartures = times;
 
           if (min !== "" || max !== "") {
             const intHour = parseInt(hour.replace(":", ""), 10) / 100;
@@ -92,7 +120,7 @@ class StopTimetable extends Component {
           }
 
           if (routeFilter) {
-            showTimes = times.filter((departure) =>
+            timetableDepartures = times.filter((departure) =>
               get(departure, "routeId", "")
                 .substring(1)
                 .replace(/^0+/, "")
@@ -102,7 +130,7 @@ class StopTimetable extends Component {
 
           return (
             <TimetableSection key={`hour_${hour}_${idx}`}>
-              {showTimes.map((departure, idx) => {
+              {timetableDepartures.map((departure, idx) => {
                 let scrollToTime = false;
 
                 if (
@@ -111,6 +139,14 @@ class StopTimetable extends Component {
                 ) {
                   scrollToTime = true;
                 }
+
+                const departureJourney = Object.values(
+                  get(
+                    journeysByRouteAndTime,
+                    `${departure.routeId}:${departure.direction}`,
+                    {}
+                  )
+                )[departure.departureId - 1];
 
                 return (
                   <TimetableDeparture
@@ -122,11 +158,7 @@ class StopTimetable extends Component {
                     onClick={onSelectAsJourney}
                     stop={stop}
                     date={date}
-                    routeJourneys={get(
-                      journeysByRoute,
-                      `${departure.routeId}:${departure.direction}`,
-                      []
-                    )}
+                    journey={departureJourney}
                     departure={departure}
                   />
                 );

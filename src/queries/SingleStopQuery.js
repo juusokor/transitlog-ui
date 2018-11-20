@@ -16,10 +16,8 @@ export const singleStopQuery = gql`
   ${StopFieldsWithRouteSegmentsFragment}
 `;
 
-export default observer(({children, stop, date}) => (
-  <Query
-    query={singleStopQuery}
-    variables={{stop, date, fetchRouteSegments: !!date}}>
+export default observer(({children, stop, date, fetchRouteSegments = false}) => (
+  <Query query={singleStopQuery} variables={{stop, date, fetchRouteSegments}}>
     {({loading, error, data}) => {
       if (loading) {
         return children({

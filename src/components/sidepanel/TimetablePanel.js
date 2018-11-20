@@ -12,8 +12,6 @@ import Input from "../Input";
 import DeparturesQuery from "../../queries/DeparturesQuery";
 import {text} from "../../helpers/text";
 import get from "lodash/get";
-import uniqBy from "lodash/uniqBy";
-import groupBy from "lodash/groupBy";
 import StopHfpQuery from "../../queries/StopHfpQuery";
 
 const RouteFilterContainer = styled.div`
@@ -39,7 +37,7 @@ const TimeRangeFilterContainer = styled.div`
 `;
 
 @inject(app("Filters", "Journey", "Time"))
-@withStop
+@withStop({fetchRouteSegments: false})
 @withAllStopDepartures
 @observer
 class TimetablePanel extends Component {
@@ -120,10 +118,28 @@ class TimetablePanel extends Component {
     const {
       state: {date, selectedJourney},
       stop,
+      loading,
+      departures,
       route,
     } = this.props;
 
-    let isLoading = false;
+    let isLoading = loading;
+    let routes = [];
+    let directions = [];
+
+    for (const departure of departures) {
+      const {routeId, direction} = departure;
+
+      if (routes.indexOf(routeId) === -1) {
+        routes.push(routeId);
+      }
+
+      const intDirection = parseInt(direction, 10);
+
+      if (directions.indexOf(intDirection) === -1) {
+        directions.push(intDirection);
+      }
+    }
 
     return (
       <SidepanelList
@@ -157,57 +173,30 @@ class TimetablePanel extends Component {
           </>
         }>
         {stop && (
-          <DeparturesQuery stop={stop} date={date}>
-            {({departures = [], loading}) => {
-              let routes = [];
-              let directions = [];
-
-              isLoading = loading;
-
-              for (const departure of departures) {
-                const {routeId, direction} = departure;
-
-                if (routes.indexOf(routeId) === -1) {
-                  routes.push(routeId);
-                }
-
-                const intDirection = parseInt(direction, 10);
-
-                if (directions.indexOf(intDirection) === -1) {
-                  directions.push(intDirection);
-                }
-              }
-
-              return (
-                <StopHfpQuery
-                  skip={routes.length === 0}
-                  stopId={stop.stopId}
-                  routes={routes}
-                  directions={directions}
-                  date={date}>
-                  {({journeys, loading}) => (
-                    <StopTimetable
-                      loading={isLoading || loading}
-                      time={this.reactionlessTime}
-                      focusRef={this.selectedJourneyRef}
-                      routeFilter={this.route}
-                      timeRangeFilter={this.timeRange}
-                      journeysByRoute={groupBy(
-                        journeys,
-                        (hfp) => `${hfp.route_id}:${hfp.direction_id}`
-                      )}
-                      departures={departures}
-                      route={route}
-                      stop={stop}
-                      date={date}
-                      selectedJourney={selectedJourney}
-                      onSelectAsJourney={this.selectAsJourney}
-                    />
-                  )}
-                </StopHfpQuery>
-              );
-            }}
-          </DeparturesQuery>
+          <StopHfpQuery
+            skip={routes.length === 0}
+            stopId={stop.stopId}
+            routes={routes}
+            directions={directions}
+            date={date}>
+            {({journeys, loading}) => (
+              <StopTimetable
+                key={`stop_timetable_${stop.stopId}_${date}`}
+                loading={isLoading || loading}
+                time={this.reactionlessTime}
+                focusRef={this.selectedJourneyRef}
+                routeFilter={this.route}
+                timeRangeFilter={this.timeRange}
+                journeys={journeys}
+                departures={departures}
+                route={route}
+                stop={stop}
+                date={date}
+                selectedJourney={selectedJourney}
+                onSelectAsJourney={this.selectAsJourney}
+              />
+            )}
+          </StopHfpQuery>
         )}
       </SidepanelList>
     );

@@ -3,7 +3,6 @@ import SuggestionInput from "./SuggestionInput";
 import orderBy from "lodash/orderBy";
 import get from "lodash/get";
 import {observer} from "mobx-react";
-import withStop from "../../hoc/withStop";
 
 const getSuggestionValue = (suggestion) =>
   get(suggestion, "stopId", "")
@@ -51,17 +50,15 @@ const getSuggestions = (stops = []) => (value = "") => {
   ).slice(0, 50);
 };
 
-export default withStop(
-  observer(({stops, onSelect, stop}) => {
-    return (
-      <SuggestionInput
-        minimumInput={0}
-        value={stop}
-        onSelect={onSelect}
-        getValue={getSuggestionValue}
-        renderSuggestion={renderSuggestion}
-        getSuggestions={getSuggestions(stops)}
-      />
-    );
-  })
-);
+export default observer(({stops, onSelect, stop}) => {
+  return (
+    <SuggestionInput
+      minimumInput={0}
+      value={stop}
+      onSelect={onSelect}
+      getValue={getSuggestionValue}
+      renderSuggestion={renderSuggestion}
+      getSuggestions={getSuggestions(stops)}
+    />
+  );
+});

@@ -15,7 +15,6 @@ import {
 import getJourneyId from "../../helpers/getJourneyId";
 import {getTimelinessColor} from "../../helpers/timelinessColor";
 import styled from "styled-components";
-import FirstDepartureQuery from "../../queries/FirstDepartureQuery";
 
 const parseLineNumber = (lineId) =>
   // Remove 1st number, which represents the city
@@ -34,7 +33,7 @@ class TimetableDeparture extends Component {
   render() {
     const {
       departure,
-      routeJourneys,
+      journey,
       date,
       stop,
       selectedJourney,
@@ -48,65 +47,54 @@ class TimetableDeparture extends Component {
 
     const stopMode = modes[0];
 
+    const departureData = {
+      ...departure,
+      journey,
+    };
+
+    const plannedObservedDiff = diffDepartureJourney(journey, departure, date);
+    const observedTimeString = plannedObservedDiff
+      ? plannedObservedDiff.observedMoment.format("HH:mm:ss")
+      : "";
+
+    const delayType = plannedObservedDiff
+      ? getDelayType(plannedObservedDiff.diff)
+      : "none";
+
+    const journeyIsSelected =
+      selectedJourney && getJourneyId(selectedJourney) === getJourneyId(journey);
+
     return (
-      <FirstDepartureQuery skip={routeJourneys.length === 0} {...departure}>
-        {({departureTime}) => {
-          const journey = routeJourneys.filter(
-            (journey) => journey.journey_start_time === departureTime
-          )[0];
-
-          const departureData = {
-            ...departure,
-            journey,
-          };
-
-          const plannedObservedDiff = diffDepartureJourney(journey, departure, date);
-          const observedTimeString = plannedObservedDiff
-            ? plannedObservedDiff.observedMoment.format("HH:mm:ss")
-            : "";
-
-          const delayType = plannedObservedDiff
-            ? getDelayType(plannedObservedDiff.diff)
-            : "none";
-
-          const journeyIsSelected =
-            selectedJourney &&
-            getJourneyId(selectedJourney) === getJourneyId(journey);
-
-          return (
-            <ListRow selected={journeyIsSelected}>
-              <TagButton
-                ref={focusRef}
-                selected={journeyIsSelected}
-                onClick={onClick(departureData)}>
-                <ColoredIconSlot
-                  color={get(transportColor, stopMode, "var(--light-grey)")}>
-                  <TransportIcon mode={stopMode} />
-                  {parseLineNumber(departure.routeId)}
-                </ColoredIconSlot>
-                <PlainSlot>
-                  {doubleDigit(departure.hours)}:{doubleDigit(departure.minutes)}
-                </PlainSlot>
-                {plannedObservedDiff && (
-                  <>
-                    <ColoredBackgroundSlot
-                      color={delayType === "late" ? "var(--dark-grey)" : "white"}
-                      backgroundColor={getTimelinessColor(
-                        delayType,
-                        "var(--light-green)"
-                      )}>
-                      {plannedObservedDiff.sign}
-                      {doubleDigit(plannedObservedDiff.minutes)}:
-                      {doubleDigit(plannedObservedDiff.seconds)}
-                    </ColoredBackgroundSlot>
-                    <PlainSlotSmallRight>{observedTimeString}</PlainSlotSmallRight>
-                  </>
-                )}
-              </TagButton>
-            </ListRow>
-          );
-        }}
-      </FirstDepartureQuery>
+      <ListRow selected={journeyIsSelected}>
+        <TagButton
+          ref={focusRef}
+          selected={journeyIsSelected}
+          onClick={onClick(departureData)}>
+          <ColoredIconSlot
+            color={get(transportColor, stopMode, "var(--light-grey)")}>
+            <TransportIcon mode={stopMode} />
+            {parseLineNumber(departure.routeId)}
+          </ColoredIconSlot>
+          <PlainSlot>
+            {doubleDigit(departure.hours)}:{doubleDigit(departure.minutes)}
+          </PlainSlot>
+          {plannedObservedDiff && (
+            <>
+              <ColoredBackgroundSlot
+                color={delayType === "late" ? "var(--dark-grey)" : "white"}
+                backgroundColor={getTimelinessColor(
+                  delayType,
+                  "var(--light-green)"
+                )}>
+                {plannedObservedDiff.sign}
+                {doubleDigit(plannedObservedDiff.minutes)}:
+                {doubleDigit(plannedObservedDiff.seconds)}
+              </ColoredBackgroundSlot>
+              <PlainSlotSmallRight>{observedTimeString}</PlainSlotSmallRight>
+            </>
+          )}
+        </TagButton>
+      </ListRow>
     );
   }
 }

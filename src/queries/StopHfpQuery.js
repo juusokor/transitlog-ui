@@ -5,6 +5,7 @@ import {hfpClient} from "../api";
 import get from "lodash/get";
 import gql from "graphql-tag";
 import HfpFieldsFragment from "./HfpFieldsFragment";
+import {createHfpItem} from "../helpers/hfpQueryManager";
 
 const stopDelayQuery = gql`
   query stopDelay(
@@ -14,7 +15,6 @@ const stopDelayQuery = gql`
     $stopId: String!
   ) {
     vehicles(
-      order_by: received_at_desc
       where: {
         route_id: {_in: $routes}
         dir: {_in: $directions}
@@ -49,7 +49,7 @@ class StopHfpQuery extends Component {
         variables={{routes, date, directions, stopId}}
         query={stopDelayQuery}>
         {({loading, data}) => {
-          const journeys = get(data, "vehicles", []);
+          const journeys = get(data, "vehicles", []).map(createHfpItem);
           return children({journeys});
         }}
       </Query>
