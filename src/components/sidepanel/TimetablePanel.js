@@ -120,12 +120,11 @@ class TimetablePanel extends Component {
     const {
       state: {date, selectedJourney},
       stop,
-      loading,
+      loading: timetableLoading,
       departures,
       route,
     } = this.props;
 
-    let isLoading = loading;
     let routes = [];
     let directions = [];
 
@@ -145,6 +144,7 @@ class TimetablePanel extends Component {
 
     return (
       <SidepanelList
+        loading={timetableLoading}
         scrollOffset={this.selectedJourneyOffset}
         header={
           <>
@@ -185,7 +185,7 @@ class TimetablePanel extends Component {
               return (
                 <StopTimetable
                   key={`stop_timetable_${stop.stopId}_${date}`}
-                  loading={isLoading || loading}
+                  loading={timetableLoading || loading}
                   time={this.reactionlessTime}
                   focusRef={this.selectedJourneyRef}
                   routeFilter={this.route}

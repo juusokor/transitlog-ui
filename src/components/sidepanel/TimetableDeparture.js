@@ -15,6 +15,7 @@ import {
 import getJourneyId from "../../helpers/getJourneyId";
 import {getTimelinessColor} from "../../helpers/timelinessColor";
 import styled from "styled-components";
+import Loading from "../Loading";
 
 const parseLineNumber = (lineId) =>
   // Remove 1st number, which represents the city
@@ -28,6 +29,13 @@ const ListRow = styled.div`
   background: ${({selected = false}) => (selected ? "var(--blue)" : "transparent")};
 `;
 
+const InlineLoading = styled(Loading).attrs({inline: true, size: 18})`
+  color: red;
+  align-self: center;
+  margin-left: auto;
+  margin-top: 5px;
+`;
+
 @observer
 class TimetableDeparture extends Component {
   render() {
@@ -39,6 +47,7 @@ class TimetableDeparture extends Component {
       selectedJourney,
       onClick,
       focusRef,
+      loading,
     } = this.props;
 
     const {
@@ -78,7 +87,7 @@ class TimetableDeparture extends Component {
           <PlainSlot>
             {doubleDigit(departure.hours)}:{doubleDigit(departure.minutes)}
           </PlainSlot>
-          {plannedObservedDiff && (
+          {plannedObservedDiff ? (
             <>
               <ColoredBackgroundSlot
                 color={delayType === "late" ? "var(--dark-grey)" : "white"}
@@ -92,7 +101,9 @@ class TimetableDeparture extends Component {
               </ColoredBackgroundSlot>
               <PlainSlotSmallRight>{observedTimeString}</PlainSlotSmallRight>
             </>
-          )}
+          ) : loading ? (
+            <InlineLoading />
+          ) : null}
         </TagButton>
       </ListRow>
     );

@@ -57,7 +57,7 @@ class StopTimetable extends Component {
       onSelectAsJourney,
       focusRef,
       time,
-      loading,
+      loading: allLoading,
     } = this.props;
 
     // Group into hours while making sure to separate pre-4:30 and post-4:30 departures
@@ -80,7 +80,7 @@ class StopTimetable extends Component {
 
     return (
       <TimetableGrid>
-        {!loading && byHourOrdered.length === 0 && "No data"}
+        {!allLoading && byHourOrdered.length === 0 && "No data"}
 
         {byHourOrdered.map(([hour, times]) => {
           let timetableDepartures = times;
@@ -133,7 +133,7 @@ class StopTimetable extends Component {
                     routeId={routeId}
                     direction={direction}
                     dayType={dayType}>
-                    {({departureTime}) => {
+                    {({departureTime, loading}) => {
                       const departureJourney = get(
                         groupedJourneys,
                         `${departureTime}:${departure.routeId}:${
@@ -153,6 +153,7 @@ class StopTimetable extends Component {
                           date={date}
                           journey={departureJourney}
                           departure={departure}
+                          loading={allLoading || loading}
                         />
                       );
                     }}
