@@ -2,6 +2,7 @@ import {extendObservable, action} from "mobx";
 import filterActions from "./filterActions";
 import mergeWithObservable from "../helpers/mergeWithObservable";
 import JourneyActions from "./journeyActions";
+import createHistory from "history/createBrowserHistory";
 
 const emptyState = {
   date: "2018-05-07",
@@ -22,6 +23,8 @@ const emptyState = {
 };
 
 export default (state) => {
+  const history = createHistory();
+
   extendObservable(state, emptyState);
 
   const journeyActions = JourneyActions(state);
@@ -32,6 +35,16 @@ export default (state) => {
     journeyActions.setSelectedJourney(null);
     state.requestedJourneys.clear();
   });
+
+  const selectStopFromUrl = action((location) => {
+    const query = new URLSearchParams(location.search);
+
+    if (query.has("stop")) {
+      state.stop = query.get("stop");
+    }
+  });
+
+  selectStopFromUrl(history.location);
 
   return {
     ...actions,
