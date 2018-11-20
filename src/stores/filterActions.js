@@ -24,6 +24,9 @@ const filterActions = (state) => {
     // Either get the stopId prop or treat the stop arg as the stopId.
     state.stop = get(stop, "stopId", stop);
 
+    // The following will be replaced with a better
+    // URL management solution in a future PR.
+
     const query = new URLSearchParams(history.location.search);
 
     if (!stop) {
