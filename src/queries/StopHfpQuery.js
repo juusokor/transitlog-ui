@@ -4,8 +4,8 @@ import {Query} from "react-apollo";
 import {hfpClient} from "../api";
 import get from "lodash/get";
 import gql from "graphql-tag";
-import HfpFieldsFragment from "./HfpFieldsFragment";
-import {createHfpItem} from "../helpers/hfpQueryManager";
+import groupBy from "lodash/groupBy";
+import reduce from "lodash/reduce";
 
 const stopDelayQuery = gql`
   query stopDelay(
@@ -22,10 +22,14 @@ const stopDelayQuery = gql`
         next_stop_id: {_eq: $stopId}
       }
     ) {
-      ...HfpFieldsFragment
+      journey_start_time
+      next_stop_id
+      received_at
+      oday
+      direction_id
+      route_id
     }
   }
-  ${HfpFieldsFragment}
 `;
 
 @observer
@@ -48,9 +52,26 @@ class StopHfpQuery extends Component {
         client={hfpClient}
         variables={{routes, date, directions, stopId}}
         query={stopDelayQuery}>
-        {({loading, data}) => {
-          const journeys = get(data, "vehicles", []).map(createHfpItem);
-          return children({journeys});
+        {({loading, data, error}) => {
+          if (loading || error) {
+            return children({journeys: {}, loading, error});
+          }
+
+          const journeysByRoute = groupBy(
+            get(data, "vehicles", []),
+            (hfp) => `${hfp.journey_start_time}:${hfp.route_id}:${hfp.direction_id}`
+          );
+
+          const journeysByRouteAndTime = reduce(
+            journeysByRoute,
+            (groups, hfpItems, groupKey) => {
+              groups[groupKey] = hfpItems[hfpItems.length - 1];
+              return groups;
+            },
+            {}
+          );
+
+          return children({journeys: journeysByRouteAndTime, loading});
         }}
       </Query>
     );

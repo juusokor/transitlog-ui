@@ -13,6 +13,8 @@ import DeparturesQuery from "../../queries/DeparturesQuery";
 import {text} from "../../helpers/text";
 import get from "lodash/get";
 import StopHfpQuery from "../../queries/StopHfpQuery";
+import groupBy from "lodash/groupBy";
+import map from "lodash/map";
 
 const RouteFilterContainer = styled.div`
   flex: 1 1 50%;
@@ -179,23 +181,25 @@ class TimetablePanel extends Component {
             routes={routes}
             directions={directions}
             date={date}>
-            {({journeys, loading}) => (
-              <StopTimetable
-                key={`stop_timetable_${stop.stopId}_${date}`}
-                loading={isLoading || loading}
-                time={this.reactionlessTime}
-                focusRef={this.selectedJourneyRef}
-                routeFilter={this.route}
-                timeRangeFilter={this.timeRange}
-                journeys={journeys}
-                departures={departures}
-                route={route}
-                stop={stop}
-                date={date}
-                selectedJourney={selectedJourney}
-                onSelectAsJourney={this.selectAsJourney}
-              />
-            )}
+            {({journeys, loading}) => {
+              return (
+                <StopTimetable
+                  key={`stop_timetable_${stop.stopId}_${date}`}
+                  loading={isLoading || loading}
+                  time={this.reactionlessTime}
+                  focusRef={this.selectedJourneyRef}
+                  routeFilter={this.route}
+                  timeRangeFilter={this.timeRange}
+                  groupedJourneys={journeys}
+                  departures={departures}
+                  route={route}
+                  stop={stop}
+                  date={date}
+                  selectedJourney={selectedJourney}
+                  onSelectAsJourney={this.selectAsJourney}
+                />
+              );
+            }}
           </StopHfpQuery>
         )}
       </SidepanelList>
