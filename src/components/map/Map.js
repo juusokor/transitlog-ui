@@ -18,6 +18,13 @@ class Map extends Component {
 
   state = {
     zoom: 13,
+    currentMapillaryViewerLocation: false,
+  };
+
+  setMapillaryViewerLocation = (location) => {
+    this.setState({
+      currentMapillaryViewerLocation: location,
+    });
   };
 
   setMapZoom = (zoom) => {
@@ -94,7 +101,7 @@ class Map extends Component {
   };
 
   render() {
-    const {zoom} = this.state;
+    const {zoom, currentMapillaryViewerLocation} = this.state;
     const {children, className, viewBbox} = this.props;
 
     const child = (props) => (
@@ -103,12 +110,15 @@ class Map extends Component {
 
     return (
       <LeafletMap
+        setMapillaryViewerLocation={this.setMapillaryViewerLocation}
+        currentMapillaryViewerLocation={currentMapillaryViewerLocation}
         viewBbox={viewBbox}
         mapRef={this.mapRef}
         className={className}
         onMapChanged={this.onMapChanged}
         onZoom={this.onZoom}>
         {child({
+          setViewerLocation: this.setMapillaryViewerLocation,
           zoom,
           setMapBounds: this.setMapBounds,
         })}
@@ -116,5 +126,4 @@ class Map extends Component {
     );
   }
 }
-
 export default Map;

@@ -1,14 +1,12 @@
 import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
 import {Popup, CircleMarker} from "react-leaflet";
+import {latLng} from "leaflet";
 import {Heading} from "../Typography";
 import get from "lodash/get";
 import styled from "styled-components";
 import {app} from "mobx-app";
-import StopStreetView from "./StopStreetView";
 import {getPriorityMode, getModeColor} from "../../helpers/vehicleColor";
-
-const defaultStopColor = "var(--blue)";
 
 const StopRouteList = styled.button`
   text-decoration: none;
@@ -36,6 +34,11 @@ class StopMarker extends Component {
     if (stop) {
       Filters.setStop(stop.stopId);
     }
+  };
+
+  onShowStreetView = (e) => {
+    const {onViewLocation, stop} = this.props;
+    onViewLocation(latLng({lat: stop.lat, lng: stop.lon}));
   };
 
   render() {
@@ -71,7 +74,7 @@ class StopMarker extends Component {
               {routeSegment.routeId.substring(1).replace(/^0+/, "")}
             </StopRouteList>
           ))}
-          <StopStreetView stop={stop} />
+          <button onClick={this.onShowStreetView}>Show in street view</button>
         </Popup>
       </CircleMarker>
     );
