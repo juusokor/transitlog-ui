@@ -56,11 +56,14 @@ class TimetableDeparture extends Component {
 
     const stopMode = modes[0];
 
+    // Bake the hfp data into the departure object
+    // for selecting the journey when clicked.
     const departureData = {
       ...departure,
       journey,
     };
 
+    // Diff planned and observed times
     const plannedObservedDiff = diffDepartureJourney(journey, departure, date);
     const observedTimeString = plannedObservedDiff
       ? plannedObservedDiff.observedMoment.format("HH:mm:ss")

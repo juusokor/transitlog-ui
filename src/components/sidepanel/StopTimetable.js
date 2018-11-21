@@ -76,12 +76,13 @@ class StopTimetable extends Component {
       sortByOperationDay(hour)
     );
 
+    // Figure out which time the list should be scrolled to.
     const focusedDepartureTime = this.getFocusedDepartureTime(byHourOrdered, time);
     const {min, max} = timeRangeFilter;
 
     const dayType = getDayTypeFromDate(date);
-    const direction = get(departures, "[0].direction", "");
 
+    // Create batches for the firstDeparture query.
     const batchedFirstDepartureRequests = departures.map(
       ({routeId, departureId, dateBegin, dateEnd, direction}) => ({
         routeId,
@@ -96,12 +97,12 @@ class StopTimetable extends Component {
       <FirstDepartureQuery
         skip={batchedFirstDepartureRequests.length === 0}
         queries={batchedFirstDepartureRequests}
-        direction={direction}
         dayType={dayType}>
         {({firstDepartures, loading}) => (
           <TimetableGrid>
             {!allLoading && byHourOrdered.length === 0 && "No data"}
 
+            {/* Loop through the hour-grouped departures */}
             {byHourOrdered.map(([hour, times]) => {
               let timetableDepartures = times;
 
@@ -112,6 +113,7 @@ class StopTimetable extends Component {
                 }
               }
 
+              // Filter the list by the route filter
               if (routeFilter) {
                 timetableDepartures = times.filter((departure) =>
                   get(departure, "routeId", "")
@@ -126,6 +128,7 @@ class StopTimetable extends Component {
                   {timetableDepartures.map((departure) => {
                     let scrollToTime = false;
 
+                    // Check if the list should be scrolled to the current element.
                     if (
                       focusedDepartureTime.hours === departure.hours &&
                       focusedDepartureTime.minutes === departure.minutes
@@ -137,17 +140,21 @@ class StopTimetable extends Component {
 
                     let departureJourney = null;
 
-                    const departureTime = get(
+                    // Find the scheduled time for the first stop in order
+                    // to get the correct hfp item.
+                    const firstDepartureTime = get(
                       firstDepartures,
                       `${departure.routeId}_${departure.direction}_${
                         departure.departureId
                       }`
                     );
 
-                    if (firstDepartures && departureTime) {
+                    // If we have the scheduled time from the first stop, we can
+                    // find the correct hfp item.
+                    if (firstDepartures && firstDepartureTime) {
                       departureJourney = get(
                         groupedJourneys,
-                        `${departureTime}:${departure.routeId}:${
+                        `${firstDepartureTime}:${departure.routeId}:${
                           departure.direction
                         }`,
                         {}

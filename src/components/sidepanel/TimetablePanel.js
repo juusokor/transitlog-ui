@@ -9,12 +9,9 @@ import withAllStopDepartures from "../../hoc/withAllStopDepartures";
 import {action, observable, toJS} from "mobx";
 import styled from "styled-components";
 import Input from "../Input";
-import DeparturesQuery from "../../queries/DeparturesQuery";
 import {text} from "../../helpers/text";
 import get from "lodash/get";
 import StopHfpQuery from "../../queries/StopHfpQuery";
-import groupBy from "lodash/groupBy";
-import map from "lodash/map";
 
 const RouteFilterContainer = styled.div`
   flex: 1 1 50%;
@@ -122,8 +119,12 @@ class TimetablePanel extends Component {
       stop,
       loading: timetableLoading,
       departures,
-      route,
     } = this.props;
+
+    // We query for the hfp data related to the routes and directions on
+    // this stop in one go, instead of doing one query per row. Collect
+    // all distinct routes and directions in these arrays. Yes, there
+    // are stops with more than one direction.
 
     let routes = [];
     let directions = [];
@@ -176,7 +177,7 @@ class TimetablePanel extends Component {
         }>
         {stop && (
           <StopHfpQuery
-            skip={routes.length === 0}
+            skip={routes.length === 0} // Skip if there are no routes to fetch
             stopId={stop.stopId}
             routes={routes}
             directions={directions}
@@ -192,7 +193,6 @@ class TimetablePanel extends Component {
                   timeRangeFilter={this.timeRange}
                   groupedJourneys={journeys}
                   departures={departures}
-                  route={route}
                   stop={stop}
                   date={date}
                   selectedJourney={selectedJourney}
