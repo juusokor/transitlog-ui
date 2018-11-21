@@ -49,6 +49,8 @@ const TabContentWrapper = styled.div`
   height: 100%;
 `;
 
+let selectedTab = "";
+
 @observer
 class Tabs extends Component {
   state = {
@@ -63,7 +65,7 @@ class Tabs extends Component {
 
   render() {
     const {children, className} = this.props;
-    let {selectedTab} = this.state;
+    selectedTab = this.state.selectedTab || selectedTab; // Ensure that "transient" values stay between renders
 
     // The tab content to render
     let selectedTabContent = null;
