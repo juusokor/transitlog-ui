@@ -21,7 +21,7 @@ const queryPart = (variables) => {
   // It also needs a string prefix, ie it can't begin with a number.
   const queryName =
     routeId && departureId && direction
-      ? `query_${routeId}_dir${direction}_${departureId}`
+      ? `query_${routeId.replace(/\s/g, "")}_dir${direction}_${departureId}`
       : "allDepartures";
 
   return `
