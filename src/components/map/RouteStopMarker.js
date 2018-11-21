@@ -99,7 +99,7 @@ class RouteStopMarker extends React.Component {
       <Popup
         minWidth={300}
         maxWidth={800}
-        autoPan={false}
+        autoPan={true}
         key={`stop_${stop.stopId}_popup`}>
         <Heading level={4}>
           {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
@@ -242,7 +242,7 @@ class RouteStopMarker extends React.Component {
         <Popup
           minWidth={300}
           maxWidth={750}
-          autoPan={false}
+          autoPan={true}
           key={`stop${stop.stopId}_popup`}>
           <Heading level={4}>
             {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})

@@ -144,6 +144,7 @@ export class LeafletMap extends Component {
         </Map>
         {currentMapillaryViewerLocation && (
           <MapillaryView
+            onCloseViewer={() => setMapillaryViewerLocation(false)}
             elementId="mapillary-viewer"
             onNavigation={this.onMapillaryNavigation}
             location={currentMapillaryViewerLocation}
