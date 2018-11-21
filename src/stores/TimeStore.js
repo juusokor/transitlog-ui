@@ -2,12 +2,13 @@ import {extendObservable, reaction, action} from "mobx";
 import moment from "moment";
 import timer from "../helpers/timer";
 import timeActions from "./timeActions";
+import get from "lodash/get";
 
 let timerHandle = null;
 
-export default (state) => {
+export default (state, initialState) => {
   extendObservable(state, {
-    time: "13:00:00",
+    time: get(initialState, "time", "13:00:00"),
     playing: false,
     timeIncrement: 5,
     marginMinutes: 5,

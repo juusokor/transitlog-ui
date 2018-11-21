@@ -1,3 +1,4 @@
+import get from "lodash/get";
 import createHistory from "history/createBrowserHistory";
 
 const history = createHistory();
@@ -17,13 +18,18 @@ export const setUrlValue = (key, val) => {
   history.push({search: queryStr});
 };
 
-export const getInitialUrlState = () => {
+export const getUrlState = () => {
   const query = new URLSearchParams(history.location.search);
 
-  const initialState = Array.from(query.entries()).reduce((obj, [key, val]) => {
+  const urlState = Array.from(query.entries()).reduce((obj, [key, val]) => {
     obj[key] = val;
     return obj;
   }, {});
 
-  return initialState;
+  return urlState;
+};
+
+export const getUrlValue = (key) => {
+  const values = getUrlState();
+  return get(values, key, "");
 };

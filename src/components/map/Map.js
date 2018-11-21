@@ -1,9 +1,12 @@
 import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
+import {latLngBounds} from "leaflet";
 import {LeafletMap} from "./LeafletMap";
 import {app} from "mobx-app";
 import invoke from "lodash/invoke";
 import get from "lodash/get";
+import debounce from "lodash/debounce";
+import {setUrlValue, getUrlValue} from "../../stores/UrlManager";
 
 @inject(app("Journey"))
 @observer
@@ -34,13 +37,27 @@ class Map extends Component {
     const map = this.getLeaflet();
 
     if (map) {
-      map.setView(
-        {
-          lat: 60.170988,
-          lng: 24.940842,
-        },
-        this.state.zoom
-      );
+      const urlBounds = getUrlValue("mapBounds");
+
+      if (urlBounds) {
+        const splitUrlBounds = urlBounds.split(",");
+        console.log(urlBounds);
+
+        const bounds = latLngBounds(
+          [splitUrlBounds[1], splitUrlBounds[0]],
+          [splitUrlBounds[3], splitUrlBounds[2]]
+        );
+
+        this.setMapBounds(bounds);
+      } else {
+        map.setView(
+          {
+            lat: 60.170988,
+            lng: 24.940842,
+          },
+          this.state.zoom
+        );
+      }
     }
   }
 
@@ -86,7 +103,11 @@ class Map extends Component {
   onMapChanged = () => {
     const map = this.getLeaflet();
     this.props.onMapChanged(map);
+
+    this.setMapUrlBounds(map.getBounds().toBBoxString());
   };
+
+  setMapUrlBounds = debounce((val) => setUrlValue("mapBounds", val), 500);
 
   onZoom = (event) => {
     const zoom = event.target.getZoom();

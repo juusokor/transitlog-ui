@@ -138,7 +138,7 @@ export default (state) => {
       ) {
         state.selectedJourney = null;
         filters.setVehicle(null);
-        history.push("/");
+        history.push({pathname: "/"});
       } else if (hfpItem) {
         const journey = pickJourneyProps(hfpItem);
         state.selectedJourney = journey;
@@ -147,7 +147,7 @@ export default (state) => {
           filters.setVehicle(hfpItem.unique_vehicle_id);
         }
 
-        history.push(createJourneyPath(hfpItem));
+        history.push({pathname: createJourneyPath(hfpItem)});
       }
     }
   );
