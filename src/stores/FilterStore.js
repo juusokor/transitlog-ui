@@ -22,10 +22,8 @@ const emptyState = {
   },
 };
 
-export default (state) => {
-  const history = createHistory();
-
-  extendObservable(state, emptyState);
+export default (state, initialState) => {
+  extendObservable(state, {...emptyState, ...initialState});
 
   const journeyActions = JourneyActions(state);
   const actions = filterActions(state);
@@ -35,16 +33,6 @@ export default (state) => {
     journeyActions.setSelectedJourney(null);
     state.requestedJourneys.clear();
   });
-
-  const selectStopFromUrl = action((location) => {
-    const query = new URLSearchParams(location.search);
-
-    if (query.has("stop")) {
-      state.stop = query.get("stop");
-    }
-  });
-
-  selectStopFromUrl(history.location);
 
   return {
     ...actions,

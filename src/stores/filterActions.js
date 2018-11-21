@@ -2,6 +2,7 @@ import {action} from "mobx";
 import moment from "moment-timezone";
 import get from "lodash/get";
 import createHistory from "history/createBrowserHistory";
+import {setUrlValue} from "./UrlManager";
 
 const filterActions = (state) => {
   const history = createHistory();
@@ -23,22 +24,7 @@ const filterActions = (state) => {
   const setStop = action("Set stop", (stop = "") => {
     // Either get the stopId prop or treat the stop arg as the stopId.
     state.stop = get(stop, "stopId", stop);
-
-    // The following will be replaced with a better
-    // URL management solution in a future PR.
-
-    const query = new URLSearchParams(history.location.search);
-
-    if (!stop) {
-      query.delete("stop");
-    } else if (query.has("stop")) {
-      query.set("stop", stop);
-    } else {
-      query.append("stop", stop);
-    }
-
-    const queryStr = query.toString();
-    history.push({search: queryStr});
+    setUrlValue("stop", stop);
   });
 
   // The unique_vehicle_id we're interested in.
