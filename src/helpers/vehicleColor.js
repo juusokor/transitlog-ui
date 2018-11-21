@@ -14,8 +14,15 @@ export function getModeColor(mode = "default") {
   return color;
 }
 
-// If there are many modes, return the most significant one. This is a placeholder
-// function, to be expanded upon if logic like this is needed.
+// If there are many modes, return the most significant one with explicit logic.
 export function getPriorityMode(modes) {
+  if (modes.indexOf("TRUNK") !== -1) {
+    return "TRUNK";
+  }
+
+  if (modes.indexOf("TRAM") !== -1) {
+    return "TRAM";
+  }
+
   return modes[0];
 }
