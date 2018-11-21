@@ -1,12 +1,9 @@
 import {action} from "mobx";
 import moment from "moment-timezone";
 import get from "lodash/get";
-import createHistory from "history/createBrowserHistory";
 import {setUrlValue} from "./UrlManager";
 
 const filterActions = (state) => {
-  const history = createHistory();
-
   // Make sure all dates are correctly formed.
   const setDate = action("Set date", (dateValue) => {
     let momentValue = !dateValue

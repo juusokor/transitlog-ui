@@ -9,7 +9,7 @@ const getSuggestionValue = (suggestion) =>
     ? `${suggestion.shortId.replace(/ /g, "")} - ${suggestion.nameFi} (${
         suggestion.stopId
       })`
-    : "";
+    : suggestion;
 
 const renderSuggestion = (suggestion) => (
   <span className="suggestion-content">

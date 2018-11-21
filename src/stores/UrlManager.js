@@ -20,7 +20,7 @@ export const setUrlValue = (key, val) => {
 export const getInitialUrlState = () => {
   const query = new URLSearchParams(history.location.search);
 
-  const initialState = Array.from(query.values()).reduce((obj, [key, val]) => {
+  const initialState = Array.from(query.entries()).reduce((obj, [key, val]) => {
     obj[key] = val;
     return obj;
   }, {});
