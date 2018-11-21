@@ -5,7 +5,6 @@ import {app} from "mobx-app";
 import {inject, observer} from "mobx-react";
 import Map from "./map/Map";
 import invoke from "lodash/invoke";
-import getJourneyId from "../helpers/getJourneyId";
 import styled from "styled-components";
 import SidePanel from "./sidepanel/SidePanel";
 import JourneyPosition from "./map/JourneyPosition";

@@ -3,7 +3,7 @@ import moment from "moment-timezone";
 import {inject, observer} from "mobx-react";
 import {app} from "mobx-app";
 import DatePicker from "react-datepicker";
-import {Text, text} from "../../helpers/text";
+import {text} from "../../helpers/text";
 import {InputBase, ControlGroup} from "../Forms";
 
 import "react-datepicker/dist/react-datepicker.css";

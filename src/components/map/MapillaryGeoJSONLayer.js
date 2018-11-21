@@ -84,7 +84,7 @@ class MapillaryGeoJSONLayer extends React.Component {
     }
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps) {
     const {location, layerIsActive, viewBbox} = this.props;
     const {location: prevLocation} = prevProps;
 

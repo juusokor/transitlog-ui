@@ -62,8 +62,9 @@ class StopMarker extends Component {
           autoPan={false}
           autoClose={false}
           keepInView={false}
-          maxHeight={1000}
-          maxWidth={1000}>
+          minWidth={300}
+          maxHeight={750}
+          maxWidth={550}>
           <Heading level={4}>
             {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
           </Heading>

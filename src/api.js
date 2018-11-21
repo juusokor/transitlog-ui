@@ -32,4 +32,9 @@ const hfpClient = new ApolloClient({
   cache,
 });
 
-export {joreClient, hfpClient};
+const digiTransitClient = new ApolloClient({
+  link: new HttpLink({uri: "https://api.digitransit.fi/graphql"}),
+  cache: new InMemoryCache(),
+});
+
+export {joreClient, hfpClient, digiTransitClient};

@@ -2,8 +2,7 @@ import React from "react";
 import get from "lodash/get";
 import SuggestionInput from "./SuggestionInput";
 import getTransportType from "../../helpers/getTransportType";
-import {observer, inject} from "mobx-react";
-import {app} from "mobx-app";
+import {observer} from "mobx-react";
 
 const parseLineNumber = (lineId) =>
   // Remove 1st number, which represents the city

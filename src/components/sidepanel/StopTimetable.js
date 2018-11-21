@@ -5,29 +5,17 @@ import get from "lodash/get";
 import {observer} from "mobx-react";
 import styled from "styled-components";
 import doubleDigit from "../../helpers/doubleDigit";
-import {Heading} from "../Typography";
 import TimetableDeparture from "./TimetableDeparture";
 import {sortByOperationDay} from "../../helpers/sortByOperationDay";
+import FirstDepartureQuery from "../../queries/FirstDepartureQuery";
+import {getDayTypeFromDate} from "../../helpers/getDayTypeFromDate";
 
 const TimetableGrid = styled.div`
   margin-bottom: 1rem;
 `;
 
-const TimetableHour = styled(Heading).attrs({level: 4})`
-  margin-bottom: 1rem;
-  margin-top: 1rem;
-  border-bottom: 1px solid var(--lighter-grey);
-  padding: 0 0.75rem 1rem;
-`;
-
 const TimetableSection = styled.div`
-  margin-bottom: 2rem;
-`;
-
-const TimetableTimes = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  padding: 0 0.5rem 0 0.75rem;
+  margin-bottom: 1.5rem;
 `;
 
 @observer
@@ -63,12 +51,14 @@ class StopTimetable extends Component {
       routeFilter,
       timeRangeFilter,
       departures,
+      groupedJourneys,
       date,
       selectedJourney,
       stop,
       onSelectAsJourney,
       focusRef,
       time,
+      loading: allLoading,
     } = this.props;
 
     // Group into hours while making sure to separate pre-4:30 and post-4:30 departures
@@ -86,63 +76,115 @@ class StopTimetable extends Component {
       sortByOperationDay(hour)
     );
 
+    // Figure out which time the list should be scrolled to.
     const focusedDepartureTime = this.getFocusedDepartureTime(byHourOrdered, time);
     const {min, max} = timeRangeFilter;
 
+    const dayType = getDayTypeFromDate(date);
+
+    // Create batches for the firstDeparture query.
+    const batchedFirstDepartureRequests = departures.map(
+      ({routeId, departureId, dateBegin, dateEnd, direction}) => ({
+        routeId,
+        departureId,
+        dateBegin,
+        dateEnd,
+        direction,
+      })
+    );
+
     return (
-      <TimetableGrid>
-        {byHourOrdered.map(([hour, times], idx) => {
-          let showTimes = times;
+      <FirstDepartureQuery
+        skip={batchedFirstDepartureRequests.length === 0}
+        queries={batchedFirstDepartureRequests}
+        dayType={dayType}>
+        {({firstDepartures, loading}) => (
+          <TimetableGrid>
+            {!allLoading && byHourOrdered.length === 0 && "No data"}
 
-          if (min !== "" || max !== "") {
-            const intHour = parseInt(hour.replace(":", ""), 10) / 100;
-            if (intHour < parseInt(min) || intHour > parseInt(max)) {
-              return null;
-            }
-          }
+            {/* Loop through the hour-grouped departures */}
+            {byHourOrdered.map(([hour, times]) => {
+              let timetableDepartures = times;
 
-          if (routeFilter) {
-            showTimes = times.filter((departure) =>
-              get(departure, "routeId", "")
-                .substring(1)
-                .replace(/^0+/, "")
-                .startsWith(routeFilter)
-            );
-          }
+              if (min !== "" || max !== "") {
+                const intHour = parseInt(hour.replace(":", ""), 10) / 100;
+                if (intHour < parseInt(min) || intHour > parseInt(max)) {
+                  return null;
+                }
+              }
 
-          return (
-            <TimetableSection key={`hour_${hour}_${idx}`}>
-              <TimetableHour>{hour}</TimetableHour>
-              <TimetableTimes>
-                {showTimes.map((departure, idx) => {
-                  let scrollToTime = false;
+              // Filter the list by the route filter
+              if (routeFilter) {
+                timetableDepartures = times.filter((departure) =>
+                  get(departure, "routeId", "")
+                    .substring(1)
+                    .replace(/^0+/, "")
+                    .startsWith(routeFilter)
+                );
+              }
 
-                  if (
-                    focusedDepartureTime.hours === departure.hours &&
-                    focusedDepartureTime.minutes === departure.minutes
-                  ) {
-                    scrollToTime = true;
-                  }
+              return (
+                <TimetableSection key={`hour_${stop.stopId}_${hour}`}>
+                  {timetableDepartures.map((departure) => {
+                    let scrollToTime = false;
 
-                  return (
-                    <TimetableDeparture
-                      focusRef={scrollToTime ? focusRef : null}
-                      routeFilter={routeFilter}
-                      timeRangeFilter={timeRangeFilter}
-                      selectedJourney={selectedJourney}
-                      key={`time_${idx}`}
-                      onClick={onSelectAsJourney}
-                      stop={stop}
-                      date={date}
-                      departure={departure}
-                    />
-                  );
-                })}
-              </TimetableTimes>
-            </TimetableSection>
-          );
-        })}
-      </TimetableGrid>
+                    // Check if the list should be scrolled to the current element.
+                    if (
+                      focusedDepartureTime.hours === departure.hours &&
+                      focusedDepartureTime.minutes === departure.minutes
+                    ) {
+                      scrollToTime = true;
+                    }
+
+                    const {departureId, dayType, routeId, direction} = departure;
+
+                    let departureJourney = null;
+
+                    // Find the scheduled time for the first stop in order
+                    // to get the correct hfp item.
+                    const firstDepartureTime = get(
+                      firstDepartures,
+                      `${departure.routeId}_${departure.direction}_${
+                        departure.departureId
+                      }`
+                    );
+
+                    // If we have the scheduled time from the first stop, we can
+                    // find the correct hfp item.
+                    if (firstDepartures && firstDepartureTime) {
+                      departureJourney = get(
+                        groupedJourneys,
+                        `${firstDepartureTime}:${departure.routeId}:${
+                          departure.direction
+                        }`,
+                        {}
+                      );
+                    }
+
+                    return (
+                      <TimetableDeparture
+                        key={`departure_${departureId}_${routeId}_${direction}_${
+                          stop.stopId
+                        }_${dayType}_${departure.hours}:${departure.minutes}`}
+                        focusRef={scrollToTime ? focusRef : null}
+                        routeFilter={routeFilter}
+                        timeRangeFilter={timeRangeFilter}
+                        selectedJourney={selectedJourney}
+                        onClick={onSelectAsJourney}
+                        stop={stop}
+                        date={date}
+                        journey={departureJourney}
+                        departure={departure}
+                        loading={allLoading || loading}
+                      />
+                    );
+                  })}
+                </TimetableSection>
+              );
+            })}
+          </TimetableGrid>
+        )}
+      </FirstDepartureQuery>
     );
   }
 }

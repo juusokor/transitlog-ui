@@ -4,33 +4,32 @@ import {Query} from "react-apollo";
 import {hfpClient} from "../api";
 import get from "lodash/get";
 import gql from "graphql-tag";
-import HfpFieldsFragment from "./HfpFieldsFragment";
+import groupBy from "lodash/groupBy";
+import reduce from "lodash/reduce";
 
 const stopDelayQuery = gql`
   query stopDelay(
-    $routeId: String!
+    $routes: [String]!
     $date: date!
-    $direction: smallint!
+    $directions: [smallint]!
     $stopId: String!
-    $startTime: time!
   ) {
     vehicles(
-      limit: 1
-      order_by: received_at_desc
       where: {
-        _and: {
-          route_id: {_eq: $routeId}
-          dir: {_eq: $direction}
-          oday: {_eq: $date}
-          journey_start_time: {_eq: $startTime}
-          next_stop_id: {_eq: $stopId}
-        }
+        route_id: {_in: $routes}
+        dir: {_in: $directions}
+        oday: {_eq: $date}
+        next_stop_id: {_eq: $stopId}
       }
     ) {
-      ...HfpFieldsFragment
+      journey_start_time
+      next_stop_id
+      received_at
+      oday
+      direction_id
+      route_id
     }
   }
-  ${HfpFieldsFragment}
 `;
 
 @observer
@@ -38,25 +37,41 @@ class StopHfpQuery extends Component {
   render() {
     const {
       onCompleted = () => {},
-      routeId,
+      routes,
       date,
-      direction,
+      directions,
       stopId,
-      startTime,
+      skip,
       children,
     } = this.props;
 
     return (
       <Query
+        skip={skip}
         onCompleted={onCompleted}
-        fetchPolicy="cache-first"
-        partialRefetch={true}
         client={hfpClient}
-        variables={{routeId, date, direction, stopId, startTime}}
+        variables={{routes, date, directions, stopId}}
         query={stopDelayQuery}>
-        {({loading, data}) => {
-          const journey = get(data, "vehicles[0]", null);
-          return children({journey});
+        {({loading, data, error}) => {
+          if (loading || error) {
+            return children({journeys: {}, loading, error});
+          }
+
+          const journeysByRoute = groupBy(
+            get(data, "vehicles", []),
+            (hfp) => `${hfp.journey_start_time}:${hfp.route_id}:${hfp.direction_id}`
+          );
+
+          const journeysByRouteAndTime = reduce(
+            journeysByRoute,
+            (groups, hfpItems, groupKey) => {
+              groups[groupKey] = hfpItems[hfpItems.length - 1];
+              return groups;
+            },
+            {}
+          );
+
+          return children({journeys: journeysByRouteAndTime, loading});
         }}
       </Query>
     );

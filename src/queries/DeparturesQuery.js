@@ -4,9 +4,9 @@ import {observer} from "mobx-react";
 import {Query} from "react-apollo";
 import isWithinRange from "date-fns/is_within_range";
 import gql from "graphql-tag";
-import getDay from "date-fns/get_day";
 import get from "lodash/get";
 import reduce from "lodash/reduce";
+import {getDayTypeFromDate} from "../helpers/getDayTypeFromDate";
 
 const departuresQuery = gql`
   query allDepartures(
@@ -46,8 +46,6 @@ const departuresQuery = gql`
     }
   }
 `;
-
-const dayTypes = ["Su", "Ma", "Ti", "Ke", "To", "Pe", "La"];
 
 @observer
 class DeparturesQuery extends Component {
@@ -94,7 +92,7 @@ class DeparturesQuery extends Component {
       skip,
     } = this.props;
 
-    const queryDayType = dayTypes[getDay(date)];
+    const queryDayType = getDayTypeFromDate(date);
 
     const {routeId = "", direction = "", originstopId = ""} = route;
     const stopId = get(stop, "stopId", stop);
