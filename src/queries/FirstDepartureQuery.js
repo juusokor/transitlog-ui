@@ -4,26 +4,23 @@ import {observer} from "mobx-react";
 import {Query} from "react-apollo";
 import gql from "graphql-tag";
 import get from "lodash/get";
+import reduce from "lodash/reduce";
 import doubleDigit from "../helpers/doubleDigit";
 
-const firstDepartureQuery = gql`
-  query allDepartures(
-    $routeId: String
-    $direction: String
-    $dayType: String
-    $dateBegin: Date
-    $dateEnd: Date
-    $departureId: Int
-  ) {
-    allDepartures(
+const queryPart = (routeId = "", departureId = "", dateBegin = "", dateEnd = "") => {
+  const queryName =
+    routeId && departureId ? `query_${routeId}_${departureId}` : "allDepartures";
+
+  return `
+    ${queryName}: allDepartures(
       first: 1
       orderBy: [HOURS_ASC, MINUTES_ASC, DEPARTURE_ID_ASC]
       condition: {
-        routeId: $routeId
+        routeId: "${routeId}"
         direction: $direction
-        dateBegin: $dateBegin
-        dateEnd: $dateEnd
-        departureId: $departureId
+        dateBegin: "${dateBegin}"
+        dateEnd: "${dateEnd}"
+        departureId: ${departureId}
         dayType: $dayType
       }
     ) {
@@ -31,61 +28,97 @@ const firstDepartureQuery = gql`
         hours
         minutes
         departureId
+        routeId
       }
     }
+`;
+};
+
+const firstDepartureQuery = (getQueryParts = queryPart) => gql`
+  query allDepartures(
+    $direction: String!
+    $dayType: String!
+  ) {
+    ${getQueryParts()}
   }
 `;
+
+const createBatchedFirstDepartureQuery = (routesAndIds) =>
+  firstDepartureQuery(() => {
+    const parts = routesAndIds.map(({routeId, departureId, dateBegin, dateEnd}) =>
+      queryPart(routeId, departureId, dateBegin, dateEnd)
+    );
+
+    return parts.join("");
+  });
 
 @observer
 class FirstDepartureQuery extends Component {
   static propTypes = {
-    routeId: PropTypes.string.isRequired,
+    routes: PropTypes.arrayOf(
+      PropTypes.shape({
+        routeId: PropTypes.string.isRequired,
+        departureId: PropTypes.number.isRequired,
+        dateBegin: PropTypes.string.isRequired,
+        dateEnd: PropTypes.string.isRequired,
+      })
+    ),
     direction: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     dayType: PropTypes.string.isRequired,
-    departureId: PropTypes.number.isRequired,
-    dateBegin: PropTypes.string.isRequired,
-    dateEnd: PropTypes.string.isRequired,
   };
 
   render() {
-    const {
-      routeId,
-      direction,
-      dayType,
-      dateBegin,
-      dateEnd,
-      departureId,
-      children,
-      skip,
-    } = this.props;
+    const {routes = [], direction = 0, dayType, children, skip} = this.props;
 
-    const queryVars = {
-      departureId,
-      routeId,
-      direction,
-      dayType,
-      dateBegin,
-      dateEnd,
-    };
+    let query = firstDepartureQuery();
+
+    if (Array.isArray(routes) && routes.length !== 0) {
+      query = createBatchedFirstDepartureQuery(routes);
+    }
 
     return (
-      <Query skip={skip} query={firstDepartureQuery} variables={queryVars}>
+      <Query
+        skip={skip}
+        query={query}
+        variables={{
+          direction,
+          dayType,
+        }}>
         {({loading, error, data}) => {
           if (loading || error) {
-            return children({departureTime: "", loading, error});
+            return children({firstDepartures: null, loading, error});
           }
 
-          const departure = get(data, "allDepartures.nodes[0]", "");
+          const departureStartTimes = reduce(
+            data,
+            (all, {nodes}, key) => {
+              const departure = get(nodes, "[0]", null);
 
-          if (!departure) {
-            return children({departureTime: "", loading: false, error: null});
+              if (!departure) {
+                return all;
+              }
+
+              const collection = all || {};
+
+              const startTime = `${doubleDigit(departure.hours)}:${doubleDigit(
+                departure.minutes
+              )}:00`;
+
+              collection[key.replace("query_", "")] = startTime;
+              return collection;
+            },
+            null
+          );
+
+          if (!departureStartTimes) {
+            return children({firstDepartures: null, loading: false, error: null});
           }
 
-          const startTime = `${doubleDigit(departure.hours)}:${doubleDigit(
-            departure.minutes
-          )}:00`;
-
-          return children({departureTime: startTime, loading: false, error: null});
+          return children({
+            firstDepartures: departureStartTimes,
+            loading: false,
+            error: null,
+          });
         }}
       </Query>
     );
