@@ -49,13 +49,15 @@ const TabContentWrapper = styled.div`
   height: 100%;
 `;
 
+let selectedTab = "";
+
 @observer
 class Tabs extends Component {
   state = {
     selectedTab: "",
   };
 
-  onTabClick = (selectName) => (e) => {
+  onTabClick = (selectName) => () => {
     this.setState({
       selectedTab: selectName,
     });
@@ -63,21 +65,31 @@ class Tabs extends Component {
 
   render() {
     const {children, className} = this.props;
-    let {selectedTab} = this.state;
+    selectedTab = this.state.selectedTab || selectedTab; // Ensure that "transient" values stay between renders
 
+    // The tab content to render
     let selectedTabContent = null;
 
-    const tabs = Children.toArray(children).map((tabContent, idx, allChildren) => {
+    // The children usually contain an empty string as the first element.
+    // Compact() removes all falsy values from the array.
+    const validChildren = compact(Children.toArray(children));
+
+    const tabs = validChildren.map((tabContent, idx, allChildren) => {
       if (!tabContent || !React.isValidElement(tabContent)) {
         return null;
       }
 
       const {name, label} = tabContent.props;
 
-      if (allChildren.length === 1 || (idx === 0 && !selectedTab)) {
+      // If there is only one tab, select it right off
+      if (
+        !selectedTab &&
+        (allChildren.length === 1 || (idx === 0 && !selectedTab))
+      ) {
         selectedTab = name;
       }
 
+      // Set the current tab content to the selected tab
       if (name === selectedTab) {
         selectedTabContent = tabContent;
       }

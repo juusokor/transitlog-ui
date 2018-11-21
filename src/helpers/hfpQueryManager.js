@@ -40,7 +40,7 @@ const localforage = indexedLocalforage.defineDriver(lruDriver).then(async () => 
 });
 
 // Add props to or modify the HFP item.
-function createHfpItem(rawHfp) {
+export function createHfpItem(rawHfp) {
   const journeyStartMoment = combineDateAndTime(
     rawHfp.oday,
     rawHfp.journey_start_time,

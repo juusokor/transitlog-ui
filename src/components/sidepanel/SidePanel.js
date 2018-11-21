@@ -4,7 +4,7 @@ import Journeys from "./Journeys";
 import styled from "styled-components";
 import {app} from "mobx-app";
 import Tabs from "./Tabs";
-import Timetables from "./Timetables";
+import TimetablePanel from "./TimetablePanel";
 import VehicleJourneys from "./VehicleJourneys";
 import {text} from "../../helpers/text";
 
@@ -48,7 +48,7 @@ class SidePanel extends Component {
             />
           )}
           {stop && (
-            <Timetables
+            <TimetablePanel
               name="timetables"
               label={text("sidepanel.tabs.timetables")}
             />

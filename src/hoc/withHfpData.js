@@ -10,7 +10,6 @@ import orderBy from "lodash/orderBy";
 import uniqBy from "lodash/uniqBy";
 import get from "lodash/get";
 import {createFetchKey, createRouteKey} from "../helpers/keys";
-import pEachSeries from "p-each-series";
 import pMap from "p-map";
 
 export default (Component) => {
@@ -58,11 +57,11 @@ export default (Component) => {
 
     fetchRequestedJourneys = async (requestedJourneys) => {
       this.setLoading(true);
-      await pMap(requestedJourneys, this.fetchDeparture, {concurrency: 3});
+      await pMap(requestedJourneys, this.fetchJourney, {concurrency: 3});
       await this.onFetchCompleted();
     };
 
-    fetchDeparture = async (journeyRequest) => {
+    fetchJourney = async (journeyRequest) => {
       const {Journey} = this.props;
       const {route, date, time, skipCache = false} = journeyRequest;
 

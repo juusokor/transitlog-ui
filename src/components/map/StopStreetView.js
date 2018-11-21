@@ -4,8 +4,8 @@ import styled from "styled-components";
 import MapillaryViewer from "./MapillaryViewer";
 
 const StopStreetViewer = styled(MapillaryViewer)`
-  width: 750px;
-  height: 400px;
+  width: 500px;
+  height: 300px;
   margin-top: 1rem;
 `;
 

@@ -8,8 +8,6 @@ import {app} from "mobx-app";
 import StopStreetView from "./StopStreetView";
 import {getPriorityMode, getModeColor} from "../../helpers/vehicleColor";
 
-const defaultStopColor = "var(--blue)";
-
 const StopRouteList = styled.button`
   text-decoration: none;
   padding: 2px 4px;
@@ -24,6 +22,16 @@ const StopRouteList = styled.button`
 @inject(app("Filters"))
 @observer
 class StopMarker extends Component {
+  state = {
+    showStreetView: false,
+  };
+
+  toggleStreetView = () => {
+    this.setState((state) => ({
+      showStreetView: !state.showStreetView,
+    }));
+  };
+
   selectRoute = (route) => () => {
     if (route) {
       this.props.Filters.setRoute(route);
@@ -59,8 +67,9 @@ class StopMarker extends Component {
           autoPan={false}
           autoClose={false}
           keepInView={false}
-          maxHeight={1000}
-          maxWidth={1000}>
+          minWidth={300}
+          maxHeight={750}
+          maxWidth={550}>
           <Heading level={4}>
             {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
           </Heading>
@@ -71,7 +80,10 @@ class StopMarker extends Component {
               {routeSegment.routeId.substring(1).replace(/^0+/, "")}
             </StopRouteList>
           ))}
-          <StopStreetView stop={stop} />
+          {this.state.showStreetView && <StopStreetView stop={stop} />}
+          <div>
+            <button onClick={this.toggleStreetView}>Toggle street view</button>
+          </div>
         </Popup>
       </CircleMarker>
     );

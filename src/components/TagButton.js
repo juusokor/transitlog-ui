@@ -2,7 +2,6 @@ import React from "react";
 import styled from "styled-components";
 
 export const TagButton = styled.button`
-  margin: 0.3rem 0;
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
@@ -63,10 +62,10 @@ export const ColoredBackgroundSlot = styled.span`
 `;
 
 export const PlainSlot = styled.span`
-  min-width: 4rem;
   padding: 3px 8px;
   border-left: 1px solid var(--lighter-grey);
-  font-weight: bold;
+  min-width: 5rem;
+  font-weight: normal;
 `;
 
 export const PlainSlotSmallRight = styled.span`

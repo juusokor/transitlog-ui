@@ -47,10 +47,12 @@ const Loading = styled.div`
   }
 `;
 
-export default ({size = 35, inline}) => {
+export default ({className, inline, size}) => {
+  const defaultSize = inline ? 24 : 35;
+
   return (
-    <Loading inline={inline}>
-      <Spinner width={inline ? 24 : size} height={inline ? 24 : size} />
+    <Loading inline={inline} className={className}>
+      <Spinner width={size || defaultSize} height={size || defaultSize} />
     </Loading>
   );
 };

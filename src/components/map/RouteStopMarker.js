@@ -8,7 +8,7 @@ import getDelayType from "../../helpers/getDelayType";
 import doubleDigit from "../../helpers/doubleDigit";
 import orderBy from "lodash/orderBy";
 import {Heading, P} from "../Typography";
-import {ColoredBackgroundSlot, PlainSlot} from "../TagButton";
+import {ColoredBackgroundSlot} from "../TagButton";
 import styled from "styled-components";
 import {getTimelinessColor} from "../../helpers/timelinessColor";
 import moment from "moment-timezone";
@@ -31,6 +31,16 @@ const ObservedTime = styled(ColoredBackgroundSlot)`
 
 @observer
 class RouteStopMarker extends React.Component {
+  state = {
+    showStreetView: false,
+  };
+
+  toggleStreetView = () => {
+    this.setState((state) => ({
+      showStreetView: !state.showStreetView,
+    }));
+  };
+
   createStopMarker = (
     stop,
     delayType,
@@ -236,8 +246,8 @@ class RouteStopMarker extends React.Component {
 
       const stopPopup = (
         <Popup
-          minWidth={300}
-          maxWidth={750}
+          maxHeight={750}
+          maxWidth={550}
           autoPan={false}
           key={`stop${stop.stopId}_popup`}>
           <Heading level={4}>
@@ -256,7 +266,10 @@ class RouteStopMarker extends React.Component {
             <PlannedTime>{plannedMoment.format("HH:mm:ss")}</PlannedTime>
           </PopupParagraph>
           <PopupParagraph>Observed drive by time: {observedTime}</PopupParagraph>
-          <StopStreetView stop={stop} />
+          {this.state.showStreetView && <StopStreetView stop={stop} />}
+          <div>
+            <button onClick={this.toggleStreetView}>Toggle street view</button>
+          </div>
         </Popup>
       );
 

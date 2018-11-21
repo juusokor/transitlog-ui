@@ -9,9 +9,9 @@ import withAllStopDepartures from "../../hoc/withAllStopDepartures";
 import {action, observable, toJS} from "mobx";
 import styled from "styled-components";
 import Input from "../Input";
-import DeparturesQuery from "../../queries/DeparturesQuery";
 import {text} from "../../helpers/text";
 import get from "lodash/get";
+import StopHfpQuery from "../../queries/StopHfpQuery";
 
 const RouteFilterContainer = styled.div`
   flex: 1 1 50%;
@@ -36,10 +36,10 @@ const TimeRangeFilterContainer = styled.div`
 `;
 
 @inject(app("Filters", "Journey", "Time"))
-@withStop
+@withStop({fetchRouteSegments: false})
 @withAllStopDepartures
 @observer
-class Timetables extends Component {
+class TimetablePanel extends Component {
   selectedJourneyRef = React.createRef();
   clickedJourney = false;
 
@@ -117,11 +117,35 @@ class Timetables extends Component {
     const {
       state: {date, selectedJourney},
       stop,
-      route,
+      loading: timetableLoading,
+      departures,
     } = this.props;
+
+    // We query for the hfp data related to the routes and directions on
+    // this stop in one go, instead of doing one query per row. Collect
+    // all distinct routes and directions in these arrays. Yes, there
+    // are stops with more than one direction.
+
+    let routes = [];
+    let directions = [];
+
+    for (const departure of departures) {
+      const {routeId, direction} = departure;
+
+      if (routes.indexOf(routeId) === -1) {
+        routes.push(routeId);
+      }
+
+      const intDirection = parseInt(direction, 10);
+
+      if (directions.indexOf(intDirection) === -1) {
+        directions.push(intDirection);
+      }
+    }
 
     return (
       <SidepanelList
+        loading={timetableLoading}
         scrollOffset={this.selectedJourneyOffset}
         header={
           <>
@@ -152,26 +176,35 @@ class Timetables extends Component {
           </>
         }>
         {stop && (
-          <DeparturesQuery stop={stop} date={date}>
-            {({departures = []}) => (
-              <StopTimetable
-                time={this.reactionlessTime}
-                focusRef={this.selectedJourneyRef}
-                routeFilter={this.route}
-                timeRangeFilter={this.timeRange}
-                departures={departures}
-                route={route}
-                stop={stop}
-                date={date}
-                selectedJourney={selectedJourney}
-                onSelectAsJourney={this.selectAsJourney}
-              />
-            )}
-          </DeparturesQuery>
+          <StopHfpQuery
+            skip={routes.length === 0} // Skip if there are no routes to fetch
+            stopId={stop.stopId}
+            routes={routes}
+            directions={directions}
+            date={date}>
+            {({journeys, loading}) => {
+              return (
+                <StopTimetable
+                  key={`stop_timetable_${stop.stopId}_${date}`}
+                  loading={timetableLoading || loading}
+                  time={this.reactionlessTime}
+                  focusRef={this.selectedJourneyRef}
+                  routeFilter={this.route}
+                  timeRangeFilter={this.timeRange}
+                  groupedJourneys={journeys}
+                  departures={departures}
+                  stop={stop}
+                  date={date}
+                  selectedJourney={selectedJourney}
+                  onSelectAsJourney={this.selectAsJourney}
+                />
+              );
+            }}
+          </StopHfpQuery>
         )}
       </SidepanelList>
     );
   }
 }
 
-export default Timetables;
+export default TimetablePanel;
