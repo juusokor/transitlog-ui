@@ -7,10 +7,21 @@ import get from "lodash/get";
 import reduce from "lodash/reduce";
 import doubleDigit from "../helpers/doubleDigit";
 
-const queryPart = (routeId = "", departureId = 0, dateBegin = "", dateEnd = "") => {
+const queryPart = (variables) => {
+  const {
+    routeId = "",
+    departureId = 0,
+    dateBegin = "",
+    dateEnd = "",
+    direction = "",
+  } = variables;
+
+  // It's important to give each query part an unique alias.
+  // Construct such an alias from the routeId and departureId.
+  // It also needs a string prefix, ie it can't begin with a number.
   const queryName =
-    routeId !== "" && departureId !== 0
-      ? `query_${routeId}_${departureId}`
+    routeId && departureId && direction
+      ? `query_${routeId}_dir${direction}_${departureId}`
       : "allDepartures";
 
   return `
@@ -19,7 +30,7 @@ const queryPart = (routeId = "", departureId = 0, dateBegin = "", dateEnd = "") 
       orderBy: [HOURS_ASC, MINUTES_ASC, DEPARTURE_ID_ASC]
       condition: {
         routeId: "${routeId}"
-        direction: $direction
+        direction: "${direction}"
         dateBegin: "${dateBegin}"
         dateEnd: "${dateEnd}"
         departureId: ${departureId}
@@ -31,26 +42,25 @@ const queryPart = (routeId = "", departureId = 0, dateBegin = "", dateEnd = "") 
         minutes
         departureId
         routeId
+        direction
       }
     }
 `;
 };
 
+// The container for the query or queries
 const firstDepartureQuery = (getQueryParts = queryPart) => gql`
   query allDepartures(
-    $direction: String!
     $dayType: String!
   ) {
     ${getQueryParts()}
   }
 `;
 
+// Creates a batched GraphQL query with the requested routeIds and departureIds
 const createBatchedFirstDepartureQuery = (routesAndIds) =>
   firstDepartureQuery(() => {
-    const parts = routesAndIds.map(({routeId, departureId, dateBegin, dateEnd}) =>
-      queryPart(routeId, departureId, dateBegin, dateEnd)
-    );
-
+    const parts = routesAndIds.map(queryPart);
     return parts.join("");
   });
 
@@ -63,14 +73,16 @@ class FirstDepartureQuery extends Component {
         departureId: PropTypes.number.isRequired,
         dateBegin: PropTypes.string.isRequired,
         dateEnd: PropTypes.string.isRequired,
+        direction: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+          .isRequired,
       })
     ),
-    direction: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    // Only supports querying by one day at a time
     dayType: PropTypes.string.isRequired,
   };
 
   render() {
-    const {queries = [], direction = 0, dayType, children, skip} = this.props;
+    const {queries = [], dayType, children, skip} = this.props;
 
     let query;
 
@@ -85,7 +97,6 @@ class FirstDepartureQuery extends Component {
         skip={skip}
         query={query}
         variables={{
-          direction,
           dayType,
         }}>
         {({loading, error, data}) => {
@@ -95,7 +106,7 @@ class FirstDepartureQuery extends Component {
 
           const departureStartTimes = reduce(
             data,
-            (all, {nodes}, key) => {
+            (all, {nodes}) => {
               const departure = get(nodes, "[0]", null);
 
               if (!departure) {
@@ -108,7 +119,11 @@ class FirstDepartureQuery extends Component {
                 departure.minutes
               )}:00`;
 
-              collection[key.replace("query_", "")] = startTime;
+              const key = `${departure.routeId}_${departure.direction}_${
+                departure.departureId
+              }`;
+
+              collection[key] = startTime;
               return collection;
             },
             null

@@ -83,11 +83,12 @@ class StopTimetable extends Component {
     const direction = get(departures, "[0].direction", "");
 
     const batchedFirstDepartureRequests = departures.map(
-      ({routeId, departureId, dateBegin, dateEnd}) => ({
+      ({routeId, departureId, dateBegin, dateEnd, direction}) => ({
         routeId,
         departureId,
         dateBegin,
         dateEnd,
+        direction,
       })
     );
 
@@ -138,7 +139,9 @@ class StopTimetable extends Component {
 
                     const departureTime = get(
                       firstDepartures,
-                      `${departure.routeId}_${departure.departureId}`
+                      `${departure.routeId}_${departure.direction}_${
+                        departure.departureId
+                      }`
                     );
 
                     if (firstDepartures && departureTime) {
