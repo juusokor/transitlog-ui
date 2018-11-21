@@ -7,9 +7,11 @@ import get from "lodash/get";
 import reduce from "lodash/reduce";
 import doubleDigit from "../helpers/doubleDigit";
 
-const queryPart = (routeId = "", departureId = "", dateBegin = "", dateEnd = "") => {
+const queryPart = (routeId = "", departureId = 0, dateBegin = "", dateEnd = "") => {
   const queryName =
-    routeId && departureId ? `query_${routeId}_${departureId}` : "allDepartures";
+    routeId !== "" && departureId !== 0
+      ? `query_${routeId}_${departureId}`
+      : "allDepartures";
 
   return `
     ${queryName}: allDepartures(
@@ -55,7 +57,7 @@ const createBatchedFirstDepartureQuery = (routesAndIds) =>
 @observer
 class FirstDepartureQuery extends Component {
   static propTypes = {
-    routes: PropTypes.arrayOf(
+    queries: PropTypes.arrayOf(
       PropTypes.shape({
         routeId: PropTypes.string.isRequired,
         departureId: PropTypes.number.isRequired,
@@ -68,12 +70,14 @@ class FirstDepartureQuery extends Component {
   };
 
   render() {
-    const {routes = [], direction = 0, dayType, children, skip} = this.props;
+    const {queries = [], direction = 0, dayType, children, skip} = this.props;
 
-    let query = firstDepartureQuery();
+    let query;
 
-    if (Array.isArray(routes) && routes.length !== 0) {
-      query = createBatchedFirstDepartureQuery(routes);
+    if (Array.isArray(queries) && queries.length !== 0) {
+      query = createBatchedFirstDepartureQuery(queries);
+    } else {
+      return children({firstDepartures: null, loading: false, error: null});
     }
 
     return (

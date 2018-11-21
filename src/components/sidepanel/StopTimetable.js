@@ -94,7 +94,7 @@ class StopTimetable extends Component {
     return (
       <FirstDepartureQuery
         skip={batchedFirstDepartureRequests.length === 0}
-        routes={batchedFirstDepartureRequests}
+        queries={batchedFirstDepartureRequests}
         direction={direction}
         dayType={dayType}>
         {({firstDepartures, loading}) => (
