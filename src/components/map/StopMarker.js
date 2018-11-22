@@ -1,11 +1,11 @@
 import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
 import {Popup, CircleMarker} from "react-leaflet";
+import {latLng} from "leaflet";
 import {Heading} from "../Typography";
 import get from "lodash/get";
 import styled from "styled-components";
 import {app} from "mobx-app";
-import StopStreetView from "./StopStreetView";
 import {getPriorityMode, getModeColor} from "../../helpers/vehicleColor";
 
 const StopRouteList = styled.button`
@@ -22,16 +22,6 @@ const StopRouteList = styled.button`
 @inject(app("Filters"))
 @observer
 class StopMarker extends Component {
-  state = {
-    showStreetView: false,
-  };
-
-  toggleStreetView = () => {
-    this.setState((state) => ({
-      showStreetView: !state.showStreetView,
-    }));
-  };
-
   selectRoute = (route) => () => {
     if (route) {
       this.props.Filters.setRoute(route);
@@ -44,6 +34,11 @@ class StopMarker extends Component {
     if (stop) {
       Filters.setStop(stop.stopId);
     }
+  };
+
+  onShowStreetView = (e) => {
+    const {onViewLocation, stop} = this.props;
+    onViewLocation(latLng({lat: stop.lat, lng: stop.lon}));
   };
 
   render() {
@@ -80,10 +75,7 @@ class StopMarker extends Component {
               {routeSegment.routeId.substring(1).replace(/^0+/, "")}
             </StopRouteList>
           ))}
-          {this.state.showStreetView && <StopStreetView stop={stop} />}
-          <div>
-            <button onClick={this.toggleStreetView}>Toggle street view</button>
-          </div>
+          <button onClick={this.onShowStreetView}>Show in street view</button>
         </Popup>
       </CircleMarker>
     );

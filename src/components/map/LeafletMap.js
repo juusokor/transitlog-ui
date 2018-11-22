@@ -33,7 +33,6 @@ export class LeafletMap extends Component {
   state = {
     currentBaseLayer: "Digitransit",
     currentOverlays: [],
-    currentMapillaryViewerLocation: false,
     currentMapillaryMapLocation: false,
   };
 
@@ -47,6 +46,11 @@ export class LeafletMap extends Component {
     const overlays = this.state.currentOverlays;
 
     if (action === "remove") {
+      // Be sure to hide the Mapillary viewer if the mapillary layer was turned off.
+      if (name === "Mapillary") {
+        this.props.setMapillaryViewerLocation(false);
+      }
+
       const idx = overlays.indexOf(name);
 
       if (idx !== -1) {
@@ -58,12 +62,6 @@ export class LeafletMap extends Component {
 
     this.setState({
       currentOverlays: overlays,
-    });
-  };
-
-  setMapillaryViewerLocation = (location) => {
-    this.setState({
-      currentMapillaryViewerLocation: location,
     });
   };
 
@@ -81,13 +79,14 @@ export class LeafletMap extends Component {
       children,
       className,
       viewBbox,
+      currentMapillaryViewerLocation,
+      setMapillaryViewerLocation,
       onZoom = () => {},
       onMapChanged = () => {},
     } = this.props;
 
     const {
       currentBaseLayer,
-      currentMapillaryViewerLocation,
       currentMapillaryMapLocation,
       currentOverlays,
     } = this.state;
@@ -132,7 +131,7 @@ export class LeafletMap extends Component {
                 viewBbox={viewBbox}
                 location={currentMapillaryMapLocation}
                 layerIsActive={currentOverlays.indexOf("Mapillary") !== -1}
-                onSelectLocation={this.setMapillaryViewerLocation}
+                onSelectLocation={setMapillaryViewerLocation}
               />
             </LayersControl.Overlay>
           </LayersControl>
@@ -143,14 +142,14 @@ export class LeafletMap extends Component {
           <ZoomControl position="topright" />
           {children}
         </Map>
-        {currentOverlays.indexOf("Mapillary") !== -1 &&
-          currentMapillaryViewerLocation && (
-            <MapillaryView
-              elementId="mapillary-viewer"
-              onNavigation={this.onMapillaryNavigation}
-              location={currentMapillaryViewerLocation}
-            />
-          )}
+        {currentMapillaryViewerLocation && (
+          <MapillaryView
+            onCloseViewer={() => setMapillaryViewerLocation(false)}
+            elementId="mapillary-viewer"
+            onNavigation={this.onMapillaryNavigation}
+            location={currentMapillaryViewerLocation}
+          />
+        )}
       </MapContainer>
     );
   }

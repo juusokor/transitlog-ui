@@ -6,7 +6,7 @@ import StopMarker from "./StopMarker";
 @observer
 class StopLayer extends Component {
   render() {
-    const {bounds, date} = this.props;
+    const {bounds, date, onViewLocation} = this.props;
 
     const bbox = {
       minLat: bounds.getSouth(),
@@ -19,7 +19,11 @@ class StopLayer extends Component {
       <StopsByBboxQuery variables={{...bbox, date}}>
         {({stops}) =>
           stops.map((stop) => (
-            <StopMarker key={`stops_${stop.stopId}`} stop={stop} />
+            <StopMarker
+              onViewLocation={onViewLocation}
+              key={`stops_${stop.stopId}`}
+              stop={stop}
+            />
           ))
         }
       </StopsByBboxQuery>

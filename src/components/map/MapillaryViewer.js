@@ -1,6 +1,36 @@
 import React from "react";
+import Cross from "../../icons/Cross";
 import * as Mapillary from "mapillary-js";
 import "mapillary-js/dist/mapillary.min.css";
+import styled from "styled-components";
+
+const ViewerWrapper = styled.div`
+  position: relative;
+  display: flex;
+`;
+
+const MapillaryElement = styled.div`
+  width: 100%;
+  height: 100%;
+`;
+
+const CloseButton = styled.button`
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  padding: 0;
+  border: 0;
+  background: var(--blue);
+  color: white;
+  border-radius: 50%;
+  width: 2rem;
+  height: 2rem;
+  cursor: pointer;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+`;
 
 class MapillaryViewer extends React.Component {
   mly = null;
@@ -61,8 +91,15 @@ class MapillaryViewer extends React.Component {
   }
 
   render() {
-    const {className, elementId} = this.props;
-    return <div className={className} id={elementId} />;
+    const {className, elementId, onCloseViewer} = this.props;
+    return (
+      <ViewerWrapper className={className}>
+        <MapillaryElement id={elementId} />
+        <CloseButton onClick={onCloseViewer}>
+          <Cross fill="white" width={16} height={16} />
+        </CloseButton>
+      </ViewerWrapper>
+    );
   }
 }
 

@@ -1,6 +1,6 @@
 import React from "react";
 import {Marker, CircleMarker, Tooltip, Popup} from "react-leaflet";
-import {icon} from "leaflet";
+import {icon, latLng} from "leaflet";
 import TimingStopIcon from "../../icon-time1.svg";
 import {observer} from "mobx-react";
 import {diffDepartureJourney} from "../../helpers/diffDepartureJourney";
@@ -12,7 +12,6 @@ import {ColoredBackgroundSlot} from "../TagButton";
 import styled from "styled-components";
 import {getTimelinessColor} from "../../helpers/timelinessColor";
 import moment from "moment-timezone";
-import StopStreetView from "./StopStreetView";
 import {getPriorityMode, getModeColor} from "../../helpers/vehicleColor";
 import get from "lodash/get";
 
@@ -31,16 +30,6 @@ const ObservedTime = styled(ColoredBackgroundSlot)`
 
 @observer
 class RouteStopMarker extends React.Component {
-  state = {
-    showStreetView: false,
-  };
-
-  toggleStreetView = () => {
-    this.setState((state) => ({
-      showStreetView: !state.showStreetView,
-    }));
-  };
-
   createStopMarker = (
     stop,
     delayType,
@@ -79,6 +68,11 @@ class RouteStopMarker extends React.Component {
     );
   };
 
+  onShowStreetView = (e) => {
+    const {onViewLocation, stop} = this.props;
+    onViewLocation(latLng({lat: stop.lat, lng: stop.lon}));
+  };
+
   render() {
     const {
       stop,
@@ -105,12 +99,12 @@ class RouteStopMarker extends React.Component {
       <Popup
         minWidth={300}
         maxWidth={800}
-        autoPan={false}
+        autoPan={true}
         key={`stop_${stop.stopId}_popup`}>
         <Heading level={4}>
           {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
         </Heading>
-        <StopStreetView stop={stop} />
+        <button onClick={this.onShowStreetView}>Show in street view</button>
       </Popup>
     );
 
@@ -248,7 +242,7 @@ class RouteStopMarker extends React.Component {
         <Popup
           maxHeight={750}
           maxWidth={550}
-          autoPan={false}
+          autoPan={true}
           key={`stop${stop.stopId}_popup`}>
           <Heading level={4}>
             {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
@@ -266,10 +260,7 @@ class RouteStopMarker extends React.Component {
             <PlannedTime>{plannedMoment.format("HH:mm:ss")}</PlannedTime>
           </PopupParagraph>
           <PopupParagraph>Observed drive by time: {observedTime}</PopupParagraph>
-          {this.state.showStreetView && <StopStreetView stop={stop} />}
-          <div>
-            <button onClick={this.toggleStreetView}>Toggle street view</button>
-          </div>
+          <button onClick={this.onShowStreetView}>Show in street view</button>
         </Popup>
       );
 
