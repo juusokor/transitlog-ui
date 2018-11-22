@@ -12,6 +12,7 @@ import HfpMarkerLayer from "./HfpMarkerLayer";
 import {app} from "mobx-app";
 import RouteStopsLayer from "./RouteStopsLayer";
 import AreaSelect from "./AreaSelect";
+import SimpleHfpLayer from "./SimpleHfpLayer";
 
 @inject(app("Journey", "Filters"))
 @observer
@@ -74,8 +75,11 @@ class MapContent extends Component {
             <RouteStopsLayer route={route} positions={[]} />
           )}
         {positions.length > 0 &&
-          positions.map(({positions, journeyId}) => {
-            if (vehicle && get(positions, "[0].unique_vehicle_id", "") !== vehicle) {
+          positions.map(({positions: journeyPositions, journeyId}) => {
+            if (
+              vehicle &&
+              get(journeyPositions, "[0].unique_vehicle_id", "") !== vehicle
+            ) {
               return null;
             }
 
@@ -83,11 +87,18 @@ class MapContent extends Component {
               selectedJourney && getJourneyId(selectedJourney) === journeyId;
 
             return [
+              !selectedJourney && journeyPositions.length !== 0 && (
+                <SimpleHfpLayer
+                  key={`simple_hfp_line_${journeyId}`}
+                  positions={journeyPositions}
+                  name={journeyId}
+                />
+              ),
               isSelectedJourney ? (
                 <HfpLayer
                   key={`hfp_line_${journeyId}`}
                   selectedJourney={selectedJourney}
-                  positions={positions}
+                  positions={journeyPositions}
                   name={journeyId}
                 />
               ) : null,
@@ -95,13 +106,13 @@ class MapContent extends Component {
                 <RouteStopsLayer
                   key={`journey_stops_${journeyId}`}
                   route={route}
-                  positions={positions}
+                  positions={journeyPositions}
                 />
               ) : null,
               <HfpMarkerLayer
                 key={`hfp_markers_${journeyId}`}
                 onMarkerClick={this.onClickVehicleMarker}
-                positions={positions}
+                positions={journeyPositions}
                 journeyId={journeyId}
               />,
             ];
