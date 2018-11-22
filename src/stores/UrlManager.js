@@ -1,9 +1,14 @@
 import get from "lodash/get";
+import invoke from "lodash/invoke";
+import fromPairs from "lodash/fromPairs";
 import createHistory from "history/createBrowserHistory";
 
 const history = createHistory();
 
-export const setUrlValue = (key, val) => {
+// Sets or changes an URL value. Use repalce by default,
+// as we don't need to grow the history stack. We're not
+// listening to the url anyway, so going back does nothing.
+export const setUrlValue = (key, val, historyAction = "replace") => {
   const query = new URLSearchParams(history.location.search);
 
   if (!val) {
@@ -15,17 +20,12 @@ export const setUrlValue = (key, val) => {
   }
 
   const queryStr = query.toString();
-  history.push({search: queryStr});
+  invoke(history, historyAction, {search: queryStr});
 };
 
 export const getUrlState = () => {
   const query = new URLSearchParams(history.location.search);
-
-  const urlState = Array.from(query.entries()).reduce((obj, [key, val]) => {
-    obj[key] = val;
-    return obj;
-  }, {});
-
+  const urlState = fromPairs(Array.from(query.entries()));
   return urlState;
 };
 
