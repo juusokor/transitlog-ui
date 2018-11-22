@@ -98,6 +98,7 @@ export class LeafletMap extends Component {
           key="the-map"
           ref={mapRef}
           maxZoom={20}
+          selectArea={true}
           zoomControl={false}
           onBaselayerchange={this.onChangeBaseLayer}
           onOverlayadd={this.onChangeOverlay("add")}

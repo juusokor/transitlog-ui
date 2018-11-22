@@ -11,6 +11,7 @@ import HfpLayer from "./HfpLayer";
 import HfpMarkerLayer from "./HfpMarkerLayer";
 import {app} from "mobx-app";
 import RouteStopsLayer from "./RouteStopsLayer";
+import AreaSelect from "./AreaSelect";
 
 @inject(app("Journey", "Filters"))
 @observer
@@ -37,12 +38,16 @@ class MapContent extends Component {
 
     return (
       <>
-        {(!route || !route.routeId) &&
-          (zoom > 14 ? (
-            <StopLayer date={date} bounds={stopsBbox} />
-          ) : stop ? (
-            <StopMarker stop={stop} selected={true} date={date} />
-          ) : null)}
+        {(!route || !route.routeId) && (
+          <>
+            {zoom > 14 ? (
+              <StopLayer date={date} bounds={stopsBbox} />
+            ) : stop ? (
+              <StopMarker stop={stop} selected={true} date={date} />
+            ) : null}
+            <AreaSelect />
+          </>
+        )}
         {route && route.routeId && (
           <RouteQuery
             key={`route_query_${createRouteIdentifier(route)}`}

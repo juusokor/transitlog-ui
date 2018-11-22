@@ -12,6 +12,7 @@ class Map extends Component {
     onMapChanged: () => {},
     onMapChange: () => {},
     bounds: null,
+    queryBounds: null,
   };
 
   mapRef = React.createRef();
@@ -25,6 +26,8 @@ class Map extends Component {
       zoom,
     });
   };
+
+  setQueryBounds = () => {};
 
   getLeaflet = () => {
     return get(this.mapRef, "current.leafletElement", null);
