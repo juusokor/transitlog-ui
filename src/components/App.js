@@ -12,6 +12,7 @@ import MapContent from "./map/MapContent";
 import {latLng} from "leaflet";
 import SingleStopQuery from "../queries/SingleStopQuery";
 import {observable, action} from "mobx";
+import QueryArea from "./map/QueryArea";
 
 const DEFAULT_SIDEPANEL_WIDTH = 25;
 
@@ -41,10 +42,6 @@ const MapPanel = styled(Map)`
 class App extends Component {
   @observable
   stopsBbox = null;
-
-  onMapChanged = (map) => {
-    this.setStopsBbox(map);
-  };
 
   setStopsBbox = action((map) => {
     if (!map) {
@@ -82,17 +79,22 @@ class App extends Component {
                 return (
                   <MapPanel
                     viewBbox={this.stopsBbox}
-                    onMapChanged={this.onMapChanged}
+                    onMapChanged={this.setStopsBbox}
                     center={centerPosition}>
                     {({zoom, setMapBounds}) => (
-                      <MapContent
-                        setMapBounds={setMapBounds}
-                        positions={positions}
-                        route={route}
-                        stop={stop}
-                        zoom={zoom}
-                        stopsBbox={this.stopsBbox}
-                      />
+                      <QueryArea>
+                        {({queryBounds, events}) => (
+                          <MapContent
+                            queryBounds={queryBounds}
+                            setMapBounds={setMapBounds}
+                            positions={events.length ? events : positions}
+                            route={route}
+                            stop={stop}
+                            zoom={zoom}
+                            stopsBbox={this.stopsBbox}
+                          />
+                        )}
+                      </QueryArea>
                     )}
                   </MapPanel>
                 );

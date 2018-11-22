@@ -33,6 +33,7 @@ class MapContent extends Component {
       stopsBbox,
       stop,
       setMapBounds,
+      queryBounds,
       state: {vehicle, selectedJourney, date},
     } = this.props;
 
@@ -45,7 +46,7 @@ class MapContent extends Component {
             ) : stop ? (
               <StopMarker stop={stop} selected={true} date={date} />
             ) : null}
-            <AreaSelect />
+            <AreaSelect onSelectArea={queryBounds} />
           </>
         )}
         {route && route.routeId && (

@@ -2,23 +2,35 @@ import React, {Component} from "react";
 import "leaflet-draw/dist/leaflet.draw.css";
 import {FeatureGroup} from "react-leaflet";
 import {EditControl} from "react-leaflet-draw";
+import get from "lodash/get";
 
 class AreaSelect extends Component {
   featureLayer = React.createRef();
 
   onCreated = (e) => {
-    console.log(e.layer.getBounds());
+    this.onBoundsSelected(e.layer.getBounds());
   };
 
   onDrawStart = () => {
+    // Remove all current layers if we're about to draw a new one
     if (this.featureLayer.current) {
       this.featureLayer.current.leafletElement.clearLayers();
     }
   };
 
   onEdited = (e) => {
-    for (const layer of e.layers) {
-      console.log(layer.getBounds());
+    const layer = get(e.layers.getLayers(), "[0]", null);
+
+    if (layer) {
+      this.onBoundsSelected(layer.getBounds());
+    }
+  };
+
+  onBoundsSelected = (bounds) => {
+    const {onSelectArea} = this.props;
+
+    if (bounds && bounds.isValid()) {
+      onSelectArea(bounds);
     }
   };
 
