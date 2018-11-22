@@ -157,7 +157,7 @@ class StopTimetable extends Component {
                         `${firstDepartureTime}:${departure.routeId}:${
                           departure.direction
                         }`,
-                        {}
+                        null
                       );
                     }
 
