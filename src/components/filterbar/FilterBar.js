@@ -27,7 +27,6 @@ const FilterBarWrapper = styled.div`
   background: var(--lightest-grey);
   color: var(--dark-grey);
   border-bottom: 1px solid var(--alt-grey);
-  position: relative;
   overflow: visible;
   grid-row: 1;
   grid-column: 1 / span 2;
@@ -45,7 +44,7 @@ const FilterBarGrid = styled.div`
 
 const BottomSlider = styled(TimeSlider)`
   position: absolute;
-  bottom: calc(-1rem - 4px);
+  top: calc(8rem);
   right: 0;
   width: calc((100% - 25rem) + 2px);
   z-index: 10;

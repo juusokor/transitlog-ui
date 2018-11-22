@@ -13,6 +13,8 @@ import styled from "styled-components";
 
 const DateControlGroup = styled(ControlGroup)`
   margin-bottom: 1rem;
+  position: relative;
+  z-index: 100;
 `;
 
 const DateInput = styled(PlusMinusInput)`
@@ -33,7 +35,6 @@ const DateInput = styled(PlusMinusInput)`
 
   .react-datepicker-popper {
     z-index: 100;
-    transform: translateZ(100px);
   }
 `;
 
@@ -98,9 +99,8 @@ class DateSettings extends Component {
               onDecrease={this.onDateButtonClick(-1)}
               onIncrease={this.onDateButtonClick(1)}>
               <Calendar
-                locale="fi-FI"
-                dateFormat="YYYY-MM-DD"
-                selected={moment.tz(date, "Europe/Helsinki")}
+                dateFormat="yyyy-MM-dd"
+                selected={moment.tz(date, "Europe/Helsinki").toDate()}
                 onChange={Filters.setDate}
                 className="calendar"
               />
