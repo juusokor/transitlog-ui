@@ -1,7 +1,6 @@
 import {extendObservable, action, observable} from "mobx";
 import getJourneyId from "../helpers/getJourneyId";
 import createHistory from "history/createBrowserHistory";
-import TimeActions from "./timeActions";
 import FilterActions from "./filterActions";
 import moment from "moment-timezone";
 import journeyActions from "./journeyActions";
@@ -29,25 +28,22 @@ export default (state) => {
     }
   );
 
-  const timeActions = TimeActions(state);
   const filterActions = FilterActions(state);
   const actions = journeyActions(state);
 
   const selectJourneyFromUrl = action((location) => {
-    if (location.pathname.includes("journey")) {
-      const [
-        // The first two array elements are an empty string and the word "journey".
-        // We're not interested in those.
-        // eslint-disable-next-line no-unused-vars
-        _,
-        // eslint-disable-next-line no-unused-vars
-        __,
-        oday,
-        journey_start_time,
-        route_id,
-        direction_id,
-      ] = location.pathname.split("/");
+    const [
+      // The first two array elements are an empty string and the word "journey".
+      // eslint-disable-next-line no-unused-vars
+      _,
+      basePath,
+      oday,
+      journey_start_time,
+      route_id,
+      direction_id,
+    ] = location.pathname.split("/");
 
+    if (basePath === "journey") {
       const date = moment.tz(oday, "YYYYMMDD", "Europe/Helsinki");
 
       let dateStr = "";
@@ -56,9 +52,7 @@ export default (state) => {
       if (date.isValid()) {
         dateStr = date.format("YYYY-MM-DD");
         filterActions.setDate(dateStr);
-      }
 
-      if (date.isValid()) {
         const time = moment.tz(
           `${oday} ${journey_start_time}`,
           "YYYYMMDD HHmmss",
@@ -67,7 +61,6 @@ export default (state) => {
 
         if (time.isValid()) {
           timeStr = time.format("HH:mm:ss");
-          timeActions.setTime(timeStr);
         }
       }
 

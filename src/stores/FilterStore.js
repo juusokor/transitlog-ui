@@ -2,7 +2,9 @@ import {extendObservable, action} from "mobx";
 import filterActions from "./filterActions";
 import mergeWithObservable from "../helpers/mergeWithObservable";
 import JourneyActions from "./journeyActions";
-import createHistory from "history/createBrowserHistory";
+import {inflate} from "../helpers/inflate";
+import pick from "lodash/pick";
+import merge from "lodash/merge";
 
 const emptyState = {
   date: "2018-05-07",
@@ -22,10 +24,11 @@ const emptyState = {
   },
 };
 
-export default (state) => {
-  const history = createHistory();
-
-  extendObservable(state, emptyState);
+export default (state, initialState) => {
+  extendObservable(
+    state,
+    merge(emptyState, pick(inflate(initialState), ...Object.keys(emptyState)))
+  );
 
   const journeyActions = JourneyActions(state);
   const actions = filterActions(state);
@@ -35,16 +38,6 @@ export default (state) => {
     journeyActions.setSelectedJourney(null);
     state.requestedJourneys.clear();
   });
-
-  const selectStopFromUrl = action((location) => {
-    const query = new URLSearchParams(location.search);
-
-    if (query.has("stop")) {
-      state.stop = query.get("stop");
-    }
-  });
-
-  selectStopFromUrl(history.location);
 
   return {
     ...actions,

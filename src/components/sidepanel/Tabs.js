@@ -2,6 +2,7 @@ import React, {Component, Children} from "react";
 import {observer} from "mobx-react";
 import styled from "styled-components";
 import compact from "lodash/compact";
+import {setUrlValue, getUrlValue} from "../../stores/UrlManager";
 
 const TabsWrapper = styled.div`
   height: 100%;
@@ -54,13 +55,18 @@ let selectedTab = "";
 @observer
 class Tabs extends Component {
   state = {
-    selectedTab: "",
+    selectedTab: getUrlValue("tab"),
   };
 
   onTabClick = (selectName) => () => {
-    this.setState({
-      selectedTab: selectName,
-    });
+    this.setState(
+      {
+        selectedTab: selectName,
+      },
+      () => {
+        setUrlValue("tab", this.state.selectedTab);
+      }
+    );
   };
 
   render() {
