@@ -41,7 +41,6 @@ class Map extends Component {
 
       if (urlBounds) {
         const splitUrlBounds = urlBounds.split(",");
-        console.log(urlBounds);
 
         const bounds = latLngBounds(
           [splitUrlBounds[1], splitUrlBounds[0]],
