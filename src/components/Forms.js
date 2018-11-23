@@ -16,7 +16,7 @@ export const ControlGroup = styled.div`
   justify-content: flex-start;
   align-items: flex-end;
   width: 100%;
-  margin: 0 0 1.25rem;
+  margin: 0 0 1rem;
 
   &:last-child {
     margin-bottom: 0;
@@ -25,7 +25,7 @@ export const ControlGroup = styled.div`
 
 export const InputLabel = styled.label`
   font-family: var(--font-family);
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   font-weight: 600;
   line-height: 129%;
   letter-spacing: 0px;

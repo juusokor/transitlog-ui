@@ -19,7 +19,7 @@ const InputWrapper = styled.div`
 
   > *:not(label) {
     transition: margin-top 0.15s ease-out;
-    ${({animatedLabel}) => (animatedLabel ? "margin-top: 1.625rem" : "")};
+    ${({animatedLabel}) => (animatedLabel ? "margin-top: 1.25rem" : "")};
 
     &:placeholder-shown,
     &.empty-select {

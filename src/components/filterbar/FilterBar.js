@@ -9,7 +9,7 @@ import {app} from "mobx-app";
 import VehicleInput from "./VehicleInput";
 import styled from "styled-components";
 import TimeSlider, {TIME_SLIDER_MIN, TIME_SLIDER_MAX} from "./TimeSlider";
-import SimulationSettings from "./SimulationSettings";
+import AdditionalTimeSettings from "./AdditionalTimeSettings";
 import LineSettings from "./LineSettings";
 import Input from "../Input";
 import {ControlGroup} from "../Forms";
@@ -101,7 +101,7 @@ class FilterBar extends Component {
       <FilterBarWrapper visible={visible}>
         <SiteHeader />
         <FilterBarGrid>
-          <FilterSection expandable={<SimulationSettings />}>
+          <FilterSection expandable={<AdditionalTimeSettings />}>
             <DateSettings />
             <TimeSettings />
           </FilterSection>

@@ -7,9 +7,14 @@ const timeActions = (state) => {
     (timeIncrementValue) => (state.timeIncrement = timeIncrementValue)
   );
 
+  const setAreaSearchMinutes = action(
+    (searchValue) => (state.areaSearchRangeMinutes = searchValue)
+  );
+
   return {
     setTime,
     setTimeIncrement,
+    setAreaSearchMinutes,
   };
 };
 

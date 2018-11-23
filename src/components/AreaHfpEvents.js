@@ -38,7 +38,7 @@ class AreaHfpEvents extends Component {
 
   setQueryParams = action((bounds) => {
     const {
-      state: {date, time},
+      state: {date, time, areaSearchRangeMinutes = 10},
     } = this.props;
 
     if (!bounds || (typeof bounds.isValid === "function" && !bounds.isValid())) {
@@ -49,8 +49,8 @@ class AreaHfpEvents extends Component {
 
     this.queryParams = {
       date,
-      minTime: moment.clone().subtract(5, "minutes"),
-      maxTime: moment.clone().add(5, "minutes"),
+      minTime: moment.clone().subtract(areaSearchRangeMinutes / 2, "minutes"),
+      maxTime: moment.clone().add(areaSearchRangeMinutes / 2, "minutes"),
       minLong: bounds.getWest(),
       maxLong: bounds.getEast(),
       minLat: bounds.getSouth(),
