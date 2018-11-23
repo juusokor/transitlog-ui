@@ -13,6 +13,7 @@ import {latLng} from "leaflet";
 import SingleStopQuery from "../queries/SingleStopQuery";
 import {observable, action} from "mobx";
 import AreaHfpEvents from "./AreaHfpEvents";
+import getJourneyId from "../helpers/getJourneyId";
 
 const DEFAULT_SIDEPANEL_WIDTH = 25;
 
@@ -62,15 +63,40 @@ class App extends Component {
 
   render() {
     const {state} = this.props;
-    const {date, stop, route} = state;
+    const {date, stop, route, selectedJourney} = state;
 
     return (
       <AppFrame>
         <AreaHfpEvents>
-          {({queryBounds, events}) => (
-            <RouteHfpEvents skip={events.length !== 0}>
+          {({queryBounds, events = []}) => (
+            <RouteHfpEvents>
               {({positions: routePositions = [], loading}) => {
                 const positions = events.length !== 0 ? events : routePositions;
+
+                if (selectedJourney && events.length !== 0) {
+                  const selectedJourneyId = getJourneyId(selectedJourney);
+                  const selectedJourneyPositions = routePositions.find(
+                    (jrn) => jrn.journeyId === selectedJourneyId
+                  );
+
+                  console.log(selectedJourneyPositions);
+
+                  if (selectedJourneyPositions) {
+                    const selectedJourneyAreaIndex = events.findIndex(
+                      (jrn) => jrn.journeyId === selectedJourneyId
+                    );
+
+                    if (selectedJourneyAreaIndex !== -1) {
+                      positions.splice(
+                        selectedJourneyAreaIndex,
+                        1,
+                        selectedJourneyPositions
+                      );
+                    } else {
+                      positions.push(selectedJourneyPositions);
+                    }
+                  }
+                }
 
                 return (
                   <>

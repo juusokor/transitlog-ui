@@ -57,7 +57,7 @@ class AreaHfpQuery extends Component {
         query={areaHfpQuery}>
         {({loading, data, error}) => {
           if (loading || error) {
-            return children({events: {}, loading, error});
+            return children({events: [], loading, error});
           }
 
           // Make sure the data is in the same format as the normal hfp events are.
