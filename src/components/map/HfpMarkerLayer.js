@@ -9,9 +9,8 @@ import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import {combineDateAndTime} from "../../helpers/time";
 import {Text} from "../../helpers/text";
-
 import "./Map.css";
-import {observable, runInAction, reaction} from "mobx";
+import {observable, action, reaction, runInAction} from "mobx";
 import animationFrame from "../../helpers/animationFrame";
 import {getTimelinessColor} from "../../helpers/timelinessColor";
 
@@ -57,8 +56,12 @@ class HfpMarkerLayer extends Component {
       }
     }
 
-    runInAction(() => (this.hfpPosition = nextHfpPosition));
+    this.setHfpPosition(nextHfpPosition);
   };
+
+  setHfpPosition = action((nextHfpPosition) => {
+    this.hfpPosition = nextHfpPosition;
+  });
 
   onMarkerClick = (positionWhenClicked) => () => {
     const {onMarkerClick} = this.props;
@@ -73,7 +76,12 @@ class HfpMarkerLayer extends Component {
 
     const indexed = positions.reduce((positionIndex, position) => {
       const key = position.received_at_unix;
-      positionIndex.set(key, position);
+
+      positionIndex.set(key, {
+        ...position,
+        received_at_formatted: moment(position.received_at).format("HH:mm:ss"),
+      });
+
       return positionIndex;
     }, new Map());
 
@@ -137,7 +145,7 @@ ${position.drst ? `<span class="hfp-marker-drst" />` : ""}
         icon={markerIcon}
         pane="hfp-markers">
         <Tooltip>
-          {moment(position.received_at).format("HH:mm:ss")}
+          {position.received_at_formatted}
           <br />
           {position.unique_vehicle_id}
           <br />

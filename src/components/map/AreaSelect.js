@@ -8,7 +8,9 @@ class AreaSelect extends Component {
   featureLayer = React.createRef();
 
   onCreated = (e) => {
-    this.onBoundsSelected(e.layer.getBounds());
+    const {layer} = e;
+    const layerBounds = layer.getBounds();
+    this.onBoundsSelected(layerBounds);
   };
 
   onDrawStart = () => {
@@ -35,6 +37,8 @@ class AreaSelect extends Component {
   };
 
   render() {
+    const {enabled = true} = this.props;
+
     return (
       <FeatureGroup ref={this.featureLayer}>
         <EditControl
@@ -43,16 +47,18 @@ class AreaSelect extends Component {
           onDrawStart={this.onDrawStart}
           onEdited={this.onEdited}
           draw={{
-            rectangle: {
-              shapeOptions: {
-                weight: 2,
-                dashArray: "10 4",
-                opacity: 1,
-                color: "white",
-                fillColor: "var(--blue)",
-                fillOpacity: 0.1,
-              },
-            },
+            rectangle: enabled
+              ? {
+                  shapeOptions: {
+                    weight: 2,
+                    dashArray: "10 4",
+                    opacity: 1,
+                    color: "white",
+                    fillColor: "var(--blue)",
+                    fillOpacity: 0.1,
+                  },
+                }
+              : false,
             polyline: false,
             polygon: false,
             circle: false,

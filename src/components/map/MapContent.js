@@ -50,7 +50,7 @@ class MapContent extends Component {
             ) : stop ? (
               <StopMarker stop={stop} selected={true} date={date} />
             ) : null}
-            <AreaSelect onSelectArea={queryBounds} />
+            <AreaSelect enabled={zoom > 15} onSelectArea={queryBounds} />
             {positions.length !== 0 &&
               positions.map(({journeyId, positions}) => (
                 <HfpMarkerLayer
