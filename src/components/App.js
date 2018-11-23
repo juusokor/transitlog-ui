@@ -79,8 +79,6 @@ class App extends Component {
                     (jrn) => jrn.journeyId === selectedJourneyId
                   );
 
-                  console.log(selectedJourneyPositions);
-
                   if (selectedJourneyPositions) {
                     const selectedJourneyAreaIndex = events.findIndex(
                       (jrn) => jrn.journeyId === selectedJourneyId

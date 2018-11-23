@@ -81,10 +81,11 @@ class Tabs extends Component {
 
       const {name, label} = tabContent.props;
 
-      // If there is only one tab, select it right off
+      // If there is only one tab, select it right off. Or, if there
+      // is no tab selected, autoselect the first tab.
       if (
-        !selectedTab &&
-        (allChildren.length === 1 || (idx === 0 && !selectedTab))
+        (allChildren.length === 1 && selectedTab !== name) ||
+        (!selectedTab && idx === 0)
       ) {
         selectedTab = name;
       }
