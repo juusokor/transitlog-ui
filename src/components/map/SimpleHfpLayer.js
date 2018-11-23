@@ -5,6 +5,7 @@ import moment from "moment";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import {text} from "../../helpers/text";
+import {createColor} from "../../helpers/vehicleColor";
 
 @inject(app("state"))
 @observer
@@ -21,14 +22,14 @@ class SimpleHfpLayer extends Component {
 
   onMouseout = (event) => {
     const line = event.target;
-    line.setStyle({weight: 3});
+    line.setStyle({weight: 2});
     this.mouseOver = false;
   };
 
   onHover = (event) => {
     this.mouseOver = true;
     const line = event.target;
-    line.setStyle({weight: 10});
+    line.setStyle({weight: 4});
   };
 
   onMousemove = (positions) => (event) => {
@@ -66,8 +67,8 @@ ${text("vehicle.speed")}: ${Math.round((hfpItem.spd * 18) / 5)} km/h`;
           onMouseover={this.onHover}
           onMouseout={this.onMouseout}
           pane="hfp-lines"
-          weight={3}
-          color={"var(--blue)"}
+          weight={2}
+          color={createColor()}
           positions={positions.map((pos) => [pos.lat, pos.long])}
         />
       </React.Fragment>

@@ -40,11 +40,11 @@ class QueryArea extends Component {
       date,
       minTime: moment
         .clone()
-        .subtract(15, "minutes")
+        .subtract(5, "minutes")
         .toISOString(),
       maxTime: moment
         .clone()
-        .add(15, "minutes")
+        .add(5, "minutes")
         .toISOString(),
       minLong: bounds.getWest(),
       maxLong: bounds.getEast(),
