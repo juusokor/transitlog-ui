@@ -12,7 +12,6 @@ import HfpMarkerLayer from "./HfpMarkerLayer";
 import {app} from "mobx-app";
 import RouteStopsLayer from "./RouteStopsLayer";
 import AreaSelect from "./AreaSelect";
-import SimpleHfpLayer from "./SimpleHfpLayer";
 
 @inject(app("Journey", "Filters"))
 @observer

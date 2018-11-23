@@ -70,16 +70,16 @@ class App extends Component {
     const {state} = this.props;
     const {date, stop, route} = state;
 
+    const hasRoute = !!route && !!route.routeId;
+
     return (
       <AppFrame>
         <AreaHfpEvents>
           {({queryBounds, events = [], timeRange}) => (
-            <RouteHfpEvents skip={events.length !== 0}>
+            <RouteHfpEvents skip={!hasRoute && events.length !== 0}>
               {({positions: routePositions = [], loading}) => {
                 const positions =
-                  (!route || !route.routeId) && events.length !== 0
-                    ? events
-                    : routePositions;
+                  !hasRoute && events.length !== 0 ? events : routePositions;
 
                 return (
                   <>

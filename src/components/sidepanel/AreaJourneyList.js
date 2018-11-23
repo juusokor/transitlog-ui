@@ -46,20 +46,28 @@ const JourneyRowLeft = styled.span`
 class AreaJourneyList extends Component {
   selectJourney = (journey) => (e) => {
     e.preventDefault();
-    const {Journey, state} = this.props;
-    let journeyToSelect = null;
+    const {Filters, Journey, state} = this.props;
 
     if (journey) {
       const journeyId = getJourneyId(journey);
 
       // Only set these if the journey is truthy and was not already selected
       if (journeyId && getJourneyId(state.selectedJourney) !== journeyId) {
-        journeyToSelect = journey;
-        Journey.requestJourneys(journey.journey_start_time);
+        const route = {
+          routeId: journey.route_id,
+          direction: parseInt(journey.direction_id, 10),
+        };
+
+        Filters.setRoute(route);
+        Journey.setSelectedJourney(journey);
+
+        Journey.requestJourneys({
+          time: journey.journey_start_time,
+          route,
+          date: journey.oday,
+        });
       }
     }
-
-    Journey.setSelectedJourney(journeyToSelect);
   };
 
   render() {
