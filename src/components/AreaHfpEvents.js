@@ -38,14 +38,8 @@ class AreaHfpEvents extends Component {
 
     this.queryParams = {
       date,
-      minTime: moment
-        .clone()
-        .subtract(5, "minutes")
-        .toISOString(),
-      maxTime: moment
-        .clone()
-        .add(5, "minutes")
-        .toISOString(),
+      minTime: moment.clone().subtract(5, "minutes"),
+      maxTime: moment.clone().add(5, "minutes"),
       minLong: bounds.getWest(),
       maxLong: bounds.getEast(),
       minLat: bounds.getSouth(),
@@ -69,8 +63,8 @@ class AreaHfpEvents extends Component {
       <AreaHfpQuery
         skip={Object.values(this.queryParams).some((p) => !p)} // Skip query if some params are falsy
         date={date}
-        minTime={minTime}
-        maxTime={maxTime}
+        minTime={minTime ? minTime.toISOString() : null}
+        maxTime={maxTime ? maxTime.toISOString() : null}
         area={area}>
         {({events, loading, error}) => {
           return children({
@@ -78,6 +72,12 @@ class AreaHfpEvents extends Component {
             events,
             loading,
             error,
+            timeRange: minTime
+              ? {
+                  min: minTime,
+                  max: maxTime,
+                }
+              : null,
           });
         }}
       </AreaHfpQuery>

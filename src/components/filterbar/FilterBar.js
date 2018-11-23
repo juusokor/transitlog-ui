@@ -8,7 +8,7 @@ import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import VehicleInput from "./VehicleInput";
 import styled from "styled-components";
-import TimeSlider from "./TimeSlider";
+import TimeSlider, {TIME_SLIDER_MIN, TIME_SLIDER_MAX} from "./TimeSlider";
 import SimulationSettings from "./SimulationSettings";
 import LineSettings from "./LineSettings";
 import Input from "../Input";
@@ -16,6 +16,12 @@ import {ControlGroup} from "../Forms";
 import {text} from "../../helpers/text";
 import FilterSection from "./FilterSection";
 import Header from "./Header";
+import {
+  getTimeRangeFromPositions,
+  dateToSeconds,
+} from "../../helpers/getTimeRangeFromPositions";
+import getJourneyId from "../../helpers/getJourneyId";
+import get from "lodash/get";
 
 const SiteHeader = styled(Header)`
   flex: 0 0 25rem;
@@ -58,8 +64,38 @@ class FilterBar extends Component {
   };
 
   render() {
-    const {state, Filters, positions} = this.props;
-    const {vehicle, stop, route, filterPanelVisible: visible} = state;
+    const {state, Filters, positions, timeRange = null} = this.props;
+    const {
+      selectedJourney,
+      vehicle,
+      stop,
+      route,
+      filterPanelVisible: visible,
+    } = state;
+
+    const selectedJourneyId = getJourneyId(selectedJourney);
+    let selectedJourneyPositions = [];
+
+    if (selectedJourneyId && positions.length !== 0) {
+      selectedJourneyPositions = get(
+        positions.find(({journeyId}) => journeyId === selectedJourneyId),
+        "positions",
+        []
+      );
+    }
+
+    const useTimeRange = timeRange
+      ? {
+          min: dateToSeconds(timeRange.min),
+          max: dateToSeconds(timeRange.max),
+        }
+      : selectedJourneyPositions.length !== 0
+      ? getTimeRangeFromPositions(
+          selectedJourneyPositions,
+          TIME_SLIDER_MIN,
+          TIME_SLIDER_MAX
+        )
+      : {};
 
     return (
       <FilterBarWrapper visible={visible}>
@@ -67,7 +103,7 @@ class FilterBar extends Component {
         <FilterBarGrid>
           <FilterSection expandable={<SimulationSettings />}>
             <DateSettings />
-            <TimeSettings positions={positions} />
+            <TimeSettings />
           </FilterSection>
           <FilterSection>
             <LineSettings />
@@ -117,7 +153,7 @@ class FilterBar extends Component {
             </ControlGroup>
           </FilterSection>
         </FilterBarGrid>
-        <BottomSlider positions={positions} />
+        <BottomSlider {...useTimeRange} />
       </FilterBarWrapper>
     );
   }

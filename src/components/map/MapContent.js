@@ -38,9 +38,12 @@ class MapContent extends Component {
       state: {vehicle, selectedJourney, date},
     } = this.props;
 
+    const hasRoute = !!route && !!route.routeId;
+
     return (
       <>
-        {(!route || !route.routeId) && (
+        {/* When a route is NOT selected... */}
+        {!hasRoute && (
           <>
             {zoom > 14 ? (
               <StopLayer date={date} bounds={stopsBbox} />
@@ -48,75 +51,80 @@ class MapContent extends Component {
               <StopMarker stop={stop} selected={true} date={date} />
             ) : null}
             <AreaSelect onSelectArea={queryBounds} />
-          </>
-        )}
-        {route && route.routeId && (
-          <RouteQuery
-            key={`route_query_${createRouteIdentifier(route)}`}
-            route={route}>
-            {({routeGeometry}) =>
-              routeGeometry.length !== 0 ? (
-                <RouteLayer
-                  routeId={
-                    routeGeometry.length !== 0 ? createRouteIdentifier(route) : null
-                  }
-                  routeGeometry={routeGeometry}
-                  setMapBounds={setMapBounds}
-                  key={`route_line_${createRouteIdentifier(route)}`}
-                />
-              ) : null
-            }
-          </RouteQuery>
-        )}
-        {route.routeId &&
-          (!selectedJourney ||
-            (selectedJourney.route_id !== route.routeId ||
-              positions.length === 0)) && (
-            <RouteStopsLayer route={route} positions={[]} />
-          )}
-        {positions.length > 0 &&
-          positions.map(({positions: journeyPositions, journeyId}) => {
-            if (
-              vehicle &&
-              get(journeyPositions, "[0].unique_vehicle_id", "") !== vehicle
-            ) {
-              return null;
-            }
-
-            const isSelectedJourney =
-              selectedJourney && getJourneyId(selectedJourney) === journeyId;
-
-            return [
-              (!route || !route.routeId) && journeyPositions.length !== 0 && (
+            {positions.length !== 0 &&
+              positions.map(({journeyId, positions}) => (
                 <SimpleHfpLayer
                   key={`simple_hfp_line_${journeyId}`}
-                  positions={journeyPositions}
+                  positions={positions}
                   name={journeyId}
                 />
-              ),
-              isSelectedJourney ? (
-                <HfpLayer
-                  key={`hfp_line_${journeyId}`}
-                  selectedJourney={selectedJourney}
-                  positions={journeyPositions}
-                  name={journeyId}
-                />
-              ) : null,
-              isSelectedJourney ? (
-                <RouteStopsLayer
-                  key={`journey_stops_${journeyId}`}
-                  route={route}
-                  positions={journeyPositions}
-                />
-              ) : null,
-              <HfpMarkerLayer
-                key={`hfp_markers_${journeyId}`}
-                onMarkerClick={this.onClickVehicleMarker}
-                positions={journeyPositions}
-                journeyId={journeyId}
-              />,
-            ];
-          })}
+              ))}
+          </>
+        )}
+        {/* When a route IS selected... */}
+        {hasRoute && (
+          <>
+            <RouteQuery
+              key={`route_query_${createRouteIdentifier(route)}`}
+              route={route}>
+              {({routeGeometry}) =>
+                routeGeometry.length !== 0 ? (
+                  <RouteLayer
+                    routeId={
+                      routeGeometry.length !== 0
+                        ? createRouteIdentifier(route)
+                        : null
+                    }
+                    routeGeometry={routeGeometry}
+                    setMapBounds={setMapBounds}
+                    key={`route_line_${createRouteIdentifier(route)}`}
+                  />
+                ) : null
+              }
+            </RouteQuery>
+            {(!selectedJourney ||
+              (selectedJourney.route_id !== route.routeId ||
+                positions.length === 0)) && (
+              <RouteStopsLayer route={route} positions={[]} />
+            )}
+            {positions.length > 0 &&
+              positions.map(({positions: journeyPositions, journeyId}) => {
+                if (
+                  vehicle &&
+                  get(journeyPositions, "[0].unique_vehicle_id", "") !== vehicle
+                ) {
+                  return null;
+                }
+
+                const isSelectedJourney =
+                  selectedJourney && getJourneyId(selectedJourney) === journeyId;
+
+                return [
+                  isSelectedJourney ? (
+                    <HfpLayer
+                      key={`hfp_line_${journeyId}`}
+                      selectedJourney={selectedJourney}
+                      positions={journeyPositions}
+                      name={journeyId}
+                    />
+                  ) : null,
+                  isSelectedJourney ? (
+                    <RouteStopsLayer
+                      key={`journey_stops_${journeyId}`}
+                      route={route}
+                      positions={journeyPositions}
+                    />
+                  ) : null,
+                  <HfpMarkerLayer
+                    key={`hfp_markers_${journeyId}`}
+                    onMarkerClick={this.onClickVehicleMarker}
+                    positions={journeyPositions}
+                    journeyId={journeyId}
+                  />,
+                ];
+              })}
+          </>
+        )}
       </>
     );
   }

@@ -14,6 +14,11 @@ import SingleStopQuery from "../queries/SingleStopQuery";
 import {observable, action} from "mobx";
 import AreaHfpEvents from "./AreaHfpEvents";
 import getJourneyId from "../helpers/getJourneyId";
+import {
+  dateToSeconds,
+  getTimeRangeFromPositions,
+} from "../helpers/getTimeRangeFromPositions";
+import {TIME_SLIDER_MIN, TIME_SLIDER_MAX} from "./filterbar/TimeSlider";
 
 const DEFAULT_SIDEPANEL_WIDTH = 25;
 
@@ -63,42 +68,19 @@ class App extends Component {
 
   render() {
     const {state} = this.props;
-    const {date, stop, route, selectedJourney} = state;
+    const {date, stop, route} = state;
 
     return (
       <AppFrame>
         <AreaHfpEvents>
-          {({queryBounds, events = []}) => (
-            <RouteHfpEvents>
+          {({queryBounds, events = [], timeRange}) => (
+            <RouteHfpEvents skip={events.length !== 0}>
               {({positions: routePositions = [], loading}) => {
                 const positions = events.length !== 0 ? events : routePositions;
 
-                if (selectedJourney && events.length !== 0) {
-                  const selectedJourneyId = getJourneyId(selectedJourney);
-                  const selectedJourneyPositions = routePositions.find(
-                    (jrn) => jrn.journeyId === selectedJourneyId
-                  );
-
-                  if (selectedJourneyPositions) {
-                    const selectedJourneyAreaIndex = events.findIndex(
-                      (jrn) => jrn.journeyId === selectedJourneyId
-                    );
-
-                    if (selectedJourneyAreaIndex !== -1) {
-                      positions.splice(
-                        selectedJourneyAreaIndex,
-                        1,
-                        selectedJourneyPositions
-                      );
-                    } else {
-                      positions.push(selectedJourneyPositions);
-                    }
-                  }
-                }
-
                 return (
                   <>
-                    <FilterBar positions={positions} />
+                    <FilterBar timeRange={timeRange} positions={positions} />
                     <SidePanel
                       loading={loading}
                       positions={positions}

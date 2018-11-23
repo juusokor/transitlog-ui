@@ -15,7 +15,6 @@ const TimeInput = styled(InputBase)`
 `;
 
 @inject(app("Time"))
-@withSelectedJourneyHfp
 @observer
 class TimeSettings extends Component {
   onTimeButtonClick = (modifier) => () => {

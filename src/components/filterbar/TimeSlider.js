@@ -1,25 +1,17 @@
 import React, {Component} from "react";
 import moment from "moment-timezone";
-import withSelectedJourneyHfp from "../../hoc/withSelectedJourney";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import RangeInput from "../RangeInput";
-import get from "lodash/get";
-import last from "lodash/last";
 
-const dateToSeconds = (date) => {
-  return Math.abs(date.diff(moment(date).startOf("day"), "seconds"));
-};
-
-const MAX = 86399;
-const MIN = 15000;
+export const TIME_SLIDER_MAX = 86399;
+export const TIME_SLIDER_MIN = 15000;
 
 @inject(app("Time"))
-@withSelectedJourneyHfp
 @observer
 class TimeSlider extends Component {
   getNumericValue = (value = "", date) => {
-    const {max = MAX} = this.props;
+    const {max = TIME_SLIDER_MAX} = this.props;
 
     const val = moment.tz(date, "Europe/Helsinki").startOf("day");
 
@@ -63,26 +55,9 @@ class TimeSlider extends Component {
     const {
       className,
       state: {date, time},
-      selectedJourneyHfp = [],
+      min = TIME_SLIDER_MIN,
+      max = TIME_SLIDER_MAX,
     } = this.props;
-
-    const min =
-      selectedJourneyHfp.length !== 0
-        ? dateToSeconds(
-            moment(get(selectedJourneyHfp, "[0].received_at", 0)).tz(
-              "Europe/Helsinki"
-            )
-          )
-        : MIN;
-
-    const max =
-      selectedJourneyHfp.length !== 0
-        ? dateToSeconds(
-            moment(get(last(selectedJourneyHfp), "received_at", 0)).tz(
-              "Europe/Helsinki"
-            )
-          )
-        : MAX;
 
     return (
       <div className={className}>
