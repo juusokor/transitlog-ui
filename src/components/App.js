@@ -76,7 +76,10 @@ class App extends Component {
           {({queryBounds, events = [], timeRange}) => (
             <RouteHfpEvents skip={events.length !== 0}>
               {({positions: routePositions = [], loading}) => {
-                const positions = events.length !== 0 ? events : routePositions;
+                const positions =
+                  (!route || !route.routeId) && events.length !== 0
+                    ? events
+                    : routePositions;
 
                 return (
                   <>

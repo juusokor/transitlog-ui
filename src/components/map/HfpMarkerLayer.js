@@ -7,12 +7,12 @@ import {divIcon} from "leaflet";
 import getDelayType from "../../helpers/getDelayType";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
-import {combineDateAndTime} from "../../helpers/time";
 import {Text} from "../../helpers/text";
 import "./Map.css";
 import {observable, action, reaction, runInAction} from "mobx";
 import animationFrame from "../../helpers/animationFrame";
 import {getTimelinessColor} from "../../helpers/timelinessColor";
+import doubleDigit from "../../helpers/doubleDigit";
 
 @inject(app("state"))
 @observer
@@ -30,29 +30,20 @@ class HfpMarkerLayer extends Component {
   positionReaction = () => {};
 
   // Matches the current time setting with a HFP position from this journey.
-  getHfpPosition = async (time, date, maxTimeDiff = 180) => {
+  getHfpPosition = async (time) => {
     await animationFrame();
-
-    const timestamp = combineDateAndTime(date, time, "Europe/Helsinki").unix();
     // Attempt to find the correct hfp item from the indexed positions
-    let nextHfpPosition = this.positions.get(timestamp);
+    let nextHfpPosition = this.positions.get(time);
 
     if (!nextHfpPosition) {
-      // If an exact match was not found, search for a close-enough hfp item.
-      const positionKeys = this.positions.keys();
-      let prevClosestTime = maxTimeDiff;
+      let minTime = time - 10;
+      let maxTime = time + 10;
 
-      for (const timeKey of positionKeys) {
-        const difference = Math.abs(timeKey - timestamp);
+      let checkSeconds = minTime;
 
-        if (difference < prevClosestTime) {
-          prevClosestTime = difference;
-          nextHfpPosition = this.positions.get(timeKey);
-
-          if (difference <= 3) {
-            break;
-          }
-        }
+      while (!nextHfpPosition && checkSeconds <= maxTime) {
+        nextHfpPosition = this.positions.get(checkSeconds);
+        checkSeconds += 1;
       }
     }
 
@@ -89,14 +80,14 @@ class HfpMarkerLayer extends Component {
   };
 
   async componentDidMount() {
-    const {state, positions, maxTimeDiff} = this.props;
+    const {state, positions} = this.props;
     await this.indexPositions(positions);
 
     this.positionReaction = reaction(
-      () => [state.time, this.positions.size],
-      (time) => {
-        if (time && this.positions.size !== 0) {
-          this.getHfpPosition(time, state.date, maxTimeDiff);
+      () => [state.unixTime, this.positions.size],
+      ([time, positionsSize]) => {
+        if (time && positionsSize !== 0) {
+          this.getHfpPosition(time);
         }
       },
       {fireImmediately: true}
