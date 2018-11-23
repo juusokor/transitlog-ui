@@ -5,6 +5,15 @@ import {app} from "mobx-app";
 import {combineDateAndTime} from "../helpers/time";
 import AreaHfpQuery from "../queries/AreaHfpQuery";
 
+const defaultQueryParams = {
+  minTime: null,
+  maxTime: null,
+  minLong: null,
+  maxLong: null,
+  minLat: null,
+  maxLat: null,
+};
+
 @inject(app("state"))
 @observer
 class AreaHfpEvents extends Component {
@@ -14,14 +23,12 @@ class AreaHfpEvents extends Component {
   currentBounds = null;
 
   @observable
-  queryParams = {
-    minTime: null,
-    maxTime: null,
-    minLong: null,
-    maxLong: null,
-    minLat: null,
-    maxLat: null,
-  };
+  queryParams = defaultQueryParams;
+
+  onReset = action(() => {
+    this.queryParams = defaultQueryParams;
+    this.currentBounds = null;
+  });
 
   setQueryBounds = action((bounds) => {
     if (!this.currentBounds || !this.currentBounds.equals(bounds)) {
@@ -33,6 +40,10 @@ class AreaHfpEvents extends Component {
     const {
       state: {date, time},
     } = this.props;
+
+    if (!bounds || (typeof bounds.isValid === "function" && !bounds.isValid())) {
+      return;
+    }
 
     const moment = combineDateAndTime(date, time, "Europe/Helsinki");
 
@@ -48,6 +59,7 @@ class AreaHfpEvents extends Component {
   });
 
   componentDidMount() {
+    this.props.state.setResetListener(this.onReset);
     this.disposeReaction = reaction(() => this.currentBounds, this.setQueryParams);
   }
 
