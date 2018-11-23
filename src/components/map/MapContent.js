@@ -87,7 +87,7 @@ class MapContent extends Component {
               selectedJourney && getJourneyId(selectedJourney) === journeyId;
 
             return [
-              !selectedJourney && journeyPositions.length !== 0 && (
+              (!route || !route.routeId) && journeyPositions.length !== 0 && (
                 <SimpleHfpLayer
                   key={`simple_hfp_line_${journeyId}`}
                   positions={journeyPositions}

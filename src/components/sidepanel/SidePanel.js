@@ -7,6 +7,7 @@ import Tabs from "./Tabs";
 import TimetablePanel from "./TimetablePanel";
 import VehicleJourneys from "./VehicleJourneys";
 import {text} from "../../helpers/text";
+import AreaJourneyList from "./AreaJourneyList";
 
 const SidePanelContainer = styled.div`
   background: var(--lightest-grey);
@@ -31,6 +32,13 @@ class SidePanel extends Component {
     return (
       <SidePanelContainer>
         <Tabs>
+          {(!route || !route.routeId) && positions.length !== 0 && (
+            <AreaJourneyList
+              journeys={positions}
+              name="area-journeys"
+              label={text("sidepanel.tabs.area_events")}
+            />
+          )}
           {!!route && !!route.routeId && (
             <Journeys
               route={route}

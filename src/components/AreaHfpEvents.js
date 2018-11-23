@@ -2,12 +2,12 @@ import React, {Component} from "react";
 import {inject, observer} from "mobx-react";
 import {observable, action, reaction} from "mobx";
 import {app} from "mobx-app";
-import {combineDateAndTime} from "../../helpers/time";
-import AreaHfpQuery from "../../queries/AreaHfpQuery";
+import {combineDateAndTime} from "../helpers/time";
+import AreaHfpQuery from "../queries/AreaHfpQuery";
 
 @inject(app("state"))
 @observer
-class QueryArea extends Component {
+class AreaHfpEvents extends Component {
   disposeReaction = () => {};
 
   @observable
@@ -85,4 +85,4 @@ class QueryArea extends Component {
   }
 }
 
-export default QueryArea;
+export default AreaHfpEvents;
