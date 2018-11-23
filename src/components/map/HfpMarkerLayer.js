@@ -31,7 +31,7 @@ class HfpMarkerLayer extends Component {
   positionReaction = () => {};
 
   // Matches the current time setting with a HFP position from this journey.
-  getHfpPosition = async (time, date) => {
+  getHfpPosition = async (time, date, maxTimeDiff = 180) => {
     await animationFrame();
 
     const timestamp = combineDateAndTime(date, time, "Europe/Helsinki").unix();
@@ -41,7 +41,7 @@ class HfpMarkerLayer extends Component {
     if (!nextHfpPosition) {
       // If an exact match was not found, search for a close-enough hfp item.
       const positionKeys = this.positions.keys();
-      let prevClosestTime = 180;
+      let prevClosestTime = maxTimeDiff;
 
       for (const timeKey of positionKeys) {
         const difference = Math.abs(timeKey - timestamp);
@@ -81,14 +81,14 @@ class HfpMarkerLayer extends Component {
   };
 
   async componentDidMount() {
-    const {state, positions} = this.props;
+    const {state, positions, maxTimeDiff} = this.props;
     await this.indexPositions(positions);
 
     this.positionReaction = reaction(
       () => [state.time, this.positions.size],
       (time) => {
         if (time && this.positions.size !== 0) {
-          this.getHfpPosition(time, state.date);
+          this.getHfpPosition(time, state.date, maxTimeDiff);
         }
       },
       {fireImmediately: true}

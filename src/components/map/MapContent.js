@@ -53,10 +53,12 @@ class MapContent extends Component {
             <AreaSelect onSelectArea={queryBounds} />
             {positions.length !== 0 &&
               positions.map(({journeyId, positions}) => (
-                <SimpleHfpLayer
-                  key={`simple_hfp_line_${journeyId}`}
+                <HfpMarkerLayer
+                  key={`hfp_markers_${journeyId}`}
+                  onMarkerClick={this.onClickVehicleMarker}
                   positions={positions}
-                  name={journeyId}
+                  journeyId={journeyId}
+                  maxTimeDiff={3}
                 />
               ))}
           </>

@@ -6,6 +6,7 @@ import get from "lodash/get";
 import gql from "graphql-tag";
 import {groupHfpPositions} from "../helpers/groupHfpPositions";
 import getJourneyId from "../helpers/getJourneyId";
+import {createHfpItem} from "../helpers/hfpQueryManager";
 
 const areaHfpQuery = gql`
   query stopDelay(
@@ -62,10 +63,12 @@ class AreaHfpQuery extends Component {
 
           // Make sure the data is in the same format as the normal hfp events are.
           const groupedEvents = groupHfpPositions(
-            get(data, "vehicles", []).filter(
-              // Filter out null positions. Can't draw them on the map.
-              (evt) => !!evt && !!evt.lat && !!evt.long
-            ),
+            get(data, "vehicles", [])
+              .filter(
+                // Filter out null positions. Can't draw them on the map.
+                (evt) => !!evt && !!evt.lat && !!evt.long
+              )
+              .map(createHfpItem),
             getJourneyId,
             "journeyId"
           );
