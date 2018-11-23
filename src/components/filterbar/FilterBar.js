@@ -84,18 +84,19 @@ class FilterBar extends Component {
       );
     }
 
-    const useTimeRange = timeRange
-      ? {
-          min: dateToSeconds(timeRange.min),
-          max: dateToSeconds(timeRange.max),
-        }
-      : selectedJourneyPositions.length !== 0
-      ? getTimeRangeFromPositions(
-          selectedJourneyPositions,
-          TIME_SLIDER_MIN,
-          TIME_SLIDER_MAX
-        )
-      : {};
+    const useTimeRange =
+      (!route || !route.routeId) && timeRange
+        ? {
+            min: dateToSeconds(timeRange.min),
+            max: dateToSeconds(timeRange.max),
+          }
+        : selectedJourneyPositions.length !== 0
+        ? getTimeRangeFromPositions(
+            selectedJourneyPositions,
+            TIME_SLIDER_MIN,
+            TIME_SLIDER_MAX
+          )
+        : {};
 
     return (
       <FilterBarWrapper visible={visible}>
