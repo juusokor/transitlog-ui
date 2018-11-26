@@ -101,7 +101,7 @@ class Tabs extends Component {
         selectedTabContent = tabContent;
       }
 
-      return {name, label};
+      return {name, label, content: tabContent};
     });
 
     // The selected tab might not be available, so pick the first tab in that case.
@@ -109,7 +109,9 @@ class Tabs extends Component {
       tabs.length !== 0 &&
       tabs.findIndex((tab) => tab.name === selectedTab) === -1
     ) {
-      selectedTab = tabs[0].name;
+      const {name, content} = tabs[0];
+      selectedTab = name;
+      selectedTabContent = content;
     }
 
     return (
