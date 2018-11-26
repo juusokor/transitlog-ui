@@ -19,9 +19,13 @@ const defaultQueryParams = {
 class AreaHfpEvents extends Component {
   disposeQueryReaction = () => {};
 
+  // A listener listens to changes to the bounds, and updates the query params
+  // themselves if needed.
   @observable
   currentBounds = null;
 
+  // Changing the query params is what actually triggers the query, since it's the
+  // only observable value that the render method listens to.
   @observable
   queryParams = defaultQueryParams;
 
@@ -36,6 +40,7 @@ class AreaHfpEvents extends Component {
     }
   });
 
+  // When the query bounds change, update the params.
   setQueryParams = action((bounds) => {
     const {
       state: {date, time, areaSearchRangeMinutes = 10},
@@ -47,6 +52,7 @@ class AreaHfpEvents extends Component {
 
     const moment = combineDateAndTime(date, time, "Europe/Helsinki");
 
+    // Translate the bounding box to a min/max query for the HFP api and create a time range.
     this.queryParams = {
       date,
       minTime: moment.clone().subtract(areaSearchRangeMinutes / 2, "minutes"),
@@ -60,6 +66,7 @@ class AreaHfpEvents extends Component {
 
   componentDidMount() {
     this.props.state.setResetListener(this.onReset);
+
     this.disposeQueryReaction = reaction(
       () => this.currentBounds,
       this.setQueryParams

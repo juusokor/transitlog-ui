@@ -35,6 +35,8 @@ class HfpMarkerLayer extends Component {
     let nextHfpPosition = this.positions.get(time);
 
     if (!nextHfpPosition) {
+      // If no positions matched the current time exactly, look backwards and forwards
+      // 10 seconds respectively to find a matching hfp event.
       let minTime = time - 10;
       let maxTime = time + 10;
 
@@ -61,9 +63,10 @@ class HfpMarkerLayer extends Component {
     }
   };
 
-  indexPositions = async (positions) => {
-    await animationFrame();
-
+  // Index the hfp events under their timestamp to make it easy to find them on the fly.
+  // This is a performance optimization.
+  @action
+  indexPositions = (positions) => {
     const indexed = positions.reduce((positionIndex, position) => {
       const key = position.received_at_unix;
 
@@ -75,13 +78,15 @@ class HfpMarkerLayer extends Component {
       return positionIndex;
     }, new Map());
 
-    runInAction(() => (this.positions = indexed));
+    this.positions = indexed;
   };
 
   async componentDidMount() {
     const {state, positions} = this.props;
+    // Index once when mounted.
     await this.indexPositions(positions);
 
+    // A reaction to set the hfp event that matches the currently selected time
     this.positionReaction = reaction(
       () => [state.unixTime, this.positions.size],
       ([time, positionsSize]) => {
@@ -96,6 +101,7 @@ class HfpMarkerLayer extends Component {
   componentDidUpdate() {
     const {journeyId, positions} = this.props;
 
+    // If the positions changed we need to index again.
     if (positions.length !== 0 && journeyId !== this.prevJourneyId) {
       this.indexPositions(positions);
       this.prevJourneyId = journeyId;
