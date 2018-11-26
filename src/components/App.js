@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import FilterBar from "./filterbar/FilterBar";
-import withHfpData from "../hoc/withHfpData";
+import RouteHfpEvents from "./RouteHfpEvents";
 import {app} from "mobx-app";
 import {inject, observer} from "mobx-react";
 import Map from "./map/Map";
@@ -12,6 +12,7 @@ import MapContent from "./map/MapContent";
 import {latLng} from "leaflet";
 import SingleStopQuery from "../queries/SingleStopQuery";
 import {observable, action} from "mobx";
+import AreaHfpEvents from "./AreaHfpEvents";
 
 const DEFAULT_SIDEPANEL_WIDTH = 25;
 
@@ -36,15 +37,10 @@ const MapPanel = styled(Map)`
 `;
 
 @inject(app("Journey", "Filters"))
-@withHfpData
 @observer
 class App extends Component {
   @observable
   stopsBbox = null;
-
-  onMapChanged = (map) => {
-    this.setStopsBbox(map);
-  };
 
   setStopsBbox = action((map) => {
     if (!map) {
@@ -65,42 +61,72 @@ class App extends Component {
   });
 
   render() {
-    const {state, positions = [], loading} = this.props;
+    const {state} = this.props;
     const {date, stop, route} = state;
+
+    const hasRoute = !!route && !!route.routeId;
 
     return (
       <AppFrame>
-        <FilterBar positions={positions} />
-        <SidePanel loading={loading} positions={positions} route={route} />
-        <JourneyPosition positions={positions}>
-          {(journeyPosition) => (
-            <SingleStopQuery stop={stop} date={date}>
-              {({stop}) => {
-                const stopPosition = stop ? latLng(stop.lat, stop.lon) : false;
-                const centerPosition = stopPosition ? stopPosition : journeyPosition;
+        <AreaHfpEvents>
+          {({queryBounds, events: areaEvents = [], timeRange}) => (
+            <RouteHfpEvents>
+              {({positions: routeEvents = [], loading}) => {
+                let positions =
+                  !hasRoute && areaEvents.length !== 0
+                    ? areaEvents
+                    : hasRoute && routeEvents.length
+                    ? routeEvents
+                    : [];
 
                 return (
-                  <MapPanel
-                    viewBbox={this.stopsBbox}
-                    onMapChanged={this.onMapChanged}
-                    center={centerPosition}>
-                    {({zoom, setMapBounds, setViewerLocation}) => (
-                      <MapContent
-                        setMapBounds={setMapBounds}
-                        positions={positions}
-                        route={route}
-                        stop={stop}
-                        zoom={zoom}
-                        viewLocation={setViewerLocation}
-                        stopsBbox={this.stopsBbox}
-                      />
-                    )}
-                  </MapPanel>
+                  <>
+                    <FilterBar timeRange={timeRange} positions={positions} />
+                    <SidePanel
+                      loading={loading}
+                      positions={positions}
+                      route={route}
+                    />
+                    <JourneyPosition positions={positions}>
+                      {(journeyPosition) => (
+                        <SingleStopQuery stop={stop} date={date}>
+                          {({stop}) => {
+                            const stopPosition = stop
+                              ? latLng(stop.lat, stop.lon)
+                              : false;
+                            const centerPosition = stopPosition
+                              ? stopPosition
+                              : journeyPosition;
+
+                            return (
+                              <MapPanel
+                                viewBbox={this.stopsBbox}
+                                onMapChanged={this.setStopsBbox}
+                                center={centerPosition}>
+                                {({zoom, setMapBounds, setViewerLocation}) => (
+                                  <MapContent
+                                    queryBounds={queryBounds}
+                                    setMapBounds={setMapBounds}
+                                    positions={positions}
+                                    route={route}
+                                    stop={stop}
+                                    zoom={zoom}
+                                    viewLocation={setViewerLocation}
+                                    stopsBbox={this.stopsBbox}
+                                  />
+                                )}
+                              </MapPanel>
+                            );
+                          }}
+                        </SingleStopQuery>
+                      )}
+                    </JourneyPosition>
+                  </>
                 );
               }}
-            </SingleStopQuery>
+            </RouteHfpEvents>
           )}
-        </JourneyPosition>
+        </AreaHfpEvents>
       </AppFrame>
     );
   }

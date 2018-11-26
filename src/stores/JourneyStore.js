@@ -5,6 +5,7 @@ import FilterActions from "./filterActions";
 import moment from "moment-timezone";
 import journeyActions from "./journeyActions";
 import {pickJourneyProps} from "../helpers/pickJourneyProps";
+import {getPathName} from "./UrlManager";
 
 export const journeyFetchStates = {
   PENDING: "pending",
@@ -31,7 +32,7 @@ export default (state) => {
   const filterActions = FilterActions(state);
   const actions = journeyActions(state);
 
-  const selectJourneyFromUrl = action((location) => {
+  const selectJourneyFromUrl = action((pathname) => {
     const [
       // The first two array elements are an empty string and the word "journey".
       // eslint-disable-next-line no-unused-vars
@@ -41,7 +42,7 @@ export default (state) => {
       journey_start_time,
       route_id,
       direction_id,
-    ] = location.pathname.split("/");
+    ] = pathname.split("/");
 
     if (basePath === "journey") {
       const date = moment.tz(oday, "YYYYMMDD", "Europe/Helsinki");
@@ -92,7 +93,7 @@ export default (state) => {
     }
   });
 
-  selectJourneyFromUrl(history.location);
+  selectJourneyFromUrl(getPathName());
 
   return {
     ...actions,

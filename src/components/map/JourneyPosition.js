@@ -1,4 +1,4 @@
-import React, {Component} from "react";
+import {Component} from "react";
 import {observer, inject} from "mobx-react";
 import getJourneyId from "../../helpers/getJourneyId";
 import get from "lodash/get";

@@ -9,7 +9,7 @@ export default (Component) => {
   @observer
   class WithSelectedJourneyComponent extends React.Component {
     render() {
-      const {state, positions} = this.props;
+      const {state, positions = []} = this.props;
 
       if (!state.selectedJourney) {
         return <Component {...this.props} selectedJourneyHfp={[]} />;

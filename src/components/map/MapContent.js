@@ -11,6 +11,7 @@ import HfpLayer from "./HfpLayer";
 import HfpMarkerLayer from "./HfpMarkerLayer";
 import {app} from "mobx-app";
 import RouteStopsLayer from "./RouteStopsLayer";
+import AreaSelect from "./AreaSelect";
 
 @inject(app("Journey", "Filters"))
 @observer
@@ -33,88 +34,113 @@ class MapContent extends Component {
       stop,
       setMapBounds,
       viewLocation,
+      queryBounds,
       state: {vehicle, selectedJourney, date},
     } = this.props;
 
+    const hasRoute = !!route && !!route.routeId;
+
     return (
       <>
-        {(!route || !route.routeId) &&
-          (zoom > 14 ? (
-            <StopLayer
-              onViewLocation={viewLocation}
-              date={date}
-              bounds={stopsBbox}
-            />
-          ) : stop ? (
-            <StopMarker
-              onViewLocation={viewLocation}
-              stop={stop}
-              selected={true}
-              date={date}
-            />
-          ) : null)}
-        {route && route.routeId && (
-          <RouteQuery
-            key={`route_query_${createRouteIdentifier(route)}`}
-            route={route}>
-            {({routeGeometry}) =>
-              routeGeometry.length !== 0 ? (
-                <RouteLayer
-                  routeId={
-                    routeGeometry.length !== 0 ? createRouteIdentifier(route) : null
-                  }
-                  routeGeometry={routeGeometry}
-                  setMapBounds={setMapBounds}
-                  key={`route_line_${createRouteIdentifier(route)}`}
+        {/* When a route is NOT selected... */}
+        {!hasRoute && (
+          <>
+            {zoom > 14 ? (
+              <StopLayer
+                onViewLocation={viewLocation}
+                date={date}
+                bounds={stopsBbox}
+              />
+            ) : stop ? (
+              <StopMarker
+                onViewLocation={viewLocation}
+                stop={stop}
+                selected={true}
+                date={date}
+              />
+            ) : null}
+            <AreaSelect enabled={zoom > 14} onSelectArea={queryBounds} />
+            {positions.length !== 0 &&
+              positions.map(({journeyId, positions}) => (
+                <HfpMarkerLayer
+                  key={`hfp_markers_${journeyId}`}
+                  onMarkerClick={this.onClickVehicleMarker}
+                  positions={positions}
+                  journeyId={journeyId}
+                  maxTimeDiff={3}
                 />
-              ) : null
-            }
-          </RouteQuery>
+              ))}
+          </>
         )}
-        {route.routeId &&
-          (!selectedJourney ||
-            (selectedJourney.route_id !== route.routeId ||
-              positions.length === 0)) && (
-            <RouteStopsLayer
-              onViewLocation={viewLocation}
-              route={route}
-              positions={[]}
-            />
-          )}
-        {positions.length > 0 &&
-          positions.map(({positions, journeyId}) => {
-            if (vehicle && get(positions, "[0].unique_vehicle_id", "") !== vehicle) {
-              return null;
-            }
+        {/* When a route IS selected... */}
+        {hasRoute && (
+          <>
+            <RouteQuery
+              key={`route_query_${createRouteIdentifier(route)}`}
+              route={route}>
+              {({routeGeometry}) =>
+                routeGeometry.length !== 0 ? (
+                  <RouteLayer
+                    routeId={
+                      routeGeometry.length !== 0
+                        ? createRouteIdentifier(route)
+                        : null
+                    }
+                    routeGeometry={routeGeometry}
+                    setMapBounds={setMapBounds}
+                    key={`route_line_${createRouteIdentifier(route)}`}
+                  />
+                ) : null
+              }
+            </RouteQuery>
+            {(!selectedJourney ||
+              (selectedJourney.route_id !== route.routeId ||
+                positions.length === 0)) && (
+              <RouteStopsLayer
+                onViewLocation={viewLocation}
+                route={route}
+                positions={[]}
+              />
+            )}
+            {positions.length > 0 &&
+              positions.map(({positions: journeyPositions, journeyId}) => {
+                if (
+                  vehicle &&
+                  get(journeyPositions, "[0].unique_vehicle_id", "") !== vehicle
+                ) {
+                  return null;
+                }
 
-            const isSelectedJourney =
-              selectedJourney && getJourneyId(selectedJourney) === journeyId;
+                const isSelectedJourney =
+                  selectedJourney && getJourneyId(selectedJourney) === journeyId;
 
-            return [
-              isSelectedJourney ? (
-                <HfpLayer
-                  key={`hfp_line_${journeyId}`}
-                  selectedJourney={selectedJourney}
-                  positions={positions}
-                  name={journeyId}
-                />
-              ) : null,
-              isSelectedJourney ? (
-                <RouteStopsLayer
-                  onViewLocation={viewLocation}
-                  key={`journey_stops_${journeyId}`}
-                  route={route}
-                  positions={positions}
-                />
-              ) : null,
-              <HfpMarkerLayer
-                key={`hfp_markers_${journeyId}`}
-                onMarkerClick={this.onClickVehicleMarker}
-                positions={positions}
-                journeyId={journeyId}
-              />,
-            ];
-          })}
+                return [
+                  isSelectedJourney ? (
+                    <HfpLayer
+                      key={`hfp_line_${journeyId}`}
+                      selectedJourney={selectedJourney}
+                      positions={journeyPositions}
+                      name={journeyId}
+                    />
+                  ) : null,
+                  isSelectedJourney ? (
+                    <RouteStopsLayer
+                      onViewLocation={viewLocation}
+                      key={`journey_stops_${journeyId}`}
+                      route={route}
+                      positions={journeyPositions}
+                    />
+                  ) : null,
+                  <HfpMarkerLayer
+                    key={`hfp_markers_${journeyId}`}
+                    onMarkerClick={this.onClickVehicleMarker}
+                    positions={journeyPositions}
+                    journeyId={journeyId}
+                  />,
+                ];
+              })}
+          </>
+        )}
       </>
     );
   }

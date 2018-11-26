@@ -1,6 +1,4 @@
 import {getTimeRange, combineDateAndTime} from "./time";
-import addMinutes from "date-fns/add_minutes";
-import moment from "moment-timezone";
 
 describe("getTimeRange", () => {
   test("Returns the same range of 15 minutes for any date within the same 15 minutes", () => {

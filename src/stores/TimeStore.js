@@ -2,6 +2,7 @@ import {extendObservable, reaction, action} from "mobx";
 import moment from "moment";
 import timer from "../helpers/timer";
 import timeActions from "./timeActions";
+import {combineDateAndTime} from "../helpers/time";
 import get from "lodash/get";
 
 let timerHandle = null;
@@ -9,9 +10,14 @@ let timerHandle = null;
 export default (state, initialState) => {
   extendObservable(state, {
     time: get(initialState, "time", "13:00:00"),
+    get unixTime() {
+      const {date, time} = state;
+      return combineDateAndTime(date, time, "Europe/Helsinki").unix();
+    },
     playing: false,
     timeIncrement: 5,
     marginMinutes: 5,
+    areaSearchRangeMinutes: 10,
   });
 
   const actions = timeActions(state);

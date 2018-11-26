@@ -1,6 +1,5 @@
 import {action} from "mobx";
 import getJourneyId from "../helpers/getJourneyId";
-import createHistory from "history/createBrowserHistory";
 import {pickJourneyProps} from "../helpers/pickJourneyProps";
 import moment from "moment-timezone";
 import {combineDateAndTime} from "../helpers/time";
@@ -9,8 +8,7 @@ import compact from "lodash/compact";
 import {journeyFetchStates} from "./JourneyStore";
 import filterActions from "./filterActions";
 import {createRouteKey} from "../helpers/keys";
-
-const history = createHistory();
+import {setPathName} from "./UrlManager";
 
 export function createJourneyPath(journey) {
   let startTimestamp = journey.journey_start_timestamp;
@@ -138,7 +136,7 @@ export default (state) => {
       ) {
         state.selectedJourney = null;
         filters.setVehicle(null);
-        history.push({pathname: "/"});
+        setPathName("/");
       } else if (hfpItem) {
         const journey = pickJourneyProps(hfpItem);
         state.selectedJourney = journey;
@@ -147,7 +145,7 @@ export default (state) => {
           filters.setVehicle(hfpItem.unique_vehicle_id);
         }
 
-        history.push({pathname: createJourneyPath(hfpItem)});
+        setPathName(createJourneyPath(hfpItem));
       }
     }
   );

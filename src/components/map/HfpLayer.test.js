@@ -1,7 +1,7 @@
 import {getLineChunksByDelay} from "./HfpLayer";
 import getJourneyId from "../../helpers/getJourneyId";
 
-describe("HfpLayer", () => {
+describe("SimpleHfpLayer", () => {
   const defaultPosition = {
     oday: "date",
     journey_start_time: "starttime",

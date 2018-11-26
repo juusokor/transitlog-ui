@@ -37,23 +37,22 @@ class LineSettings extends Component {
             </AllLinesQuery>
           </Input>
         </ControlGroup>
-        {line.lineId &&
-          line.dateBegin && (
-            <ControlGroup>
-              <RoutesByLineQuery
-                key={`line_route_${Object.values(line).join("_")}`}
-                date={date}
-                line={line}>
-                {({routes}) => {
-                  if (!routes) {
-                    return <RouteInput route={route} routes={[]} />;
-                  }
+        {line.lineId && line.dateBegin && (
+          <ControlGroup>
+            <RoutesByLineQuery
+              key={`line_route_${Object.values(line).join("_")}`}
+              date={date}
+              line={line}>
+              {({routes}) => {
+                if (!routes) {
+                  return <RouteInput route={route} routes={[]} />;
+                }
 
-                  return <RouteInput route={route} routes={routes} />;
-                }}
-              </RoutesByLineQuery>
-            </ControlGroup>
-          )}
+                return <RouteInput route={route} routes={routes} />;
+              }}
+            </RoutesByLineQuery>
+          </ControlGroup>
+        )}
       </>
     );
   }

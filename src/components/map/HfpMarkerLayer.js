@@ -7,11 +7,9 @@ import {divIcon} from "leaflet";
 import getDelayType from "../../helpers/getDelayType";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
-import {combineDateAndTime} from "../../helpers/time";
 import {Text} from "../../helpers/text";
-
 import "./Map.css";
-import {observable, runInAction, reaction} from "mobx";
+import {observable, action, reaction, runInAction} from "mobx";
 import animationFrame from "../../helpers/animationFrame";
 import {getTimelinessColor} from "../../helpers/timelinessColor";
 
@@ -31,34 +29,31 @@ class HfpMarkerLayer extends Component {
   positionReaction = () => {};
 
   // Matches the current time setting with a HFP position from this journey.
-  getHfpPosition = async (time, date) => {
+  getHfpPosition = async (time) => {
     await animationFrame();
-
-    const timestamp = combineDateAndTime(date, time, "Europe/Helsinki").unix();
     // Attempt to find the correct hfp item from the indexed positions
-    let nextHfpPosition = this.positions.get(timestamp);
+    let nextHfpPosition = this.positions.get(time);
 
     if (!nextHfpPosition) {
-      // If an exact match was not found, search for a close-enough hfp item.
-      const positionKeys = this.positions.keys();
-      let prevClosestTime = 180;
+      // If no positions matched the current time exactly, look backwards and forwards
+      // 10 seconds respectively to find a matching hfp event.
+      let minTime = time - 10;
+      let maxTime = time + 10;
 
-      for (const timeKey of positionKeys) {
-        const difference = Math.abs(timeKey - timestamp);
+      let checkSeconds = minTime;
 
-        if (difference < prevClosestTime) {
-          prevClosestTime = difference;
-          nextHfpPosition = this.positions.get(timeKey);
-
-          if (difference <= 3) {
-            break;
-          }
-        }
+      while (!nextHfpPosition && checkSeconds <= maxTime) {
+        nextHfpPosition = this.positions.get(checkSeconds);
+        checkSeconds += 1;
       }
     }
 
-    runInAction(() => (this.hfpPosition = nextHfpPosition));
+    this.setHfpPosition(nextHfpPosition);
   };
+
+  setHfpPosition = action((nextHfpPosition) => {
+    this.hfpPosition = nextHfpPosition;
+  });
 
   onMarkerClick = (positionWhenClicked) => () => {
     const {onMarkerClick} = this.props;
@@ -68,27 +63,35 @@ class HfpMarkerLayer extends Component {
     }
   };
 
-  indexPositions = async (positions) => {
-    await animationFrame();
-
+  // Index the hfp events under their timestamp to make it easy to find them on the fly.
+  // This is a performance optimization.
+  @action
+  indexPositions = (positions) => {
     const indexed = positions.reduce((positionIndex, position) => {
       const key = position.received_at_unix;
-      positionIndex.set(key, position);
+
+      positionIndex.set(key, {
+        ...position,
+        received_at_formatted: moment(position.received_at).format("HH:mm:ss"),
+      });
+
       return positionIndex;
     }, new Map());
 
-    runInAction(() => (this.positions = indexed));
+    this.positions = indexed;
   };
 
   async componentDidMount() {
     const {state, positions} = this.props;
+    // Index once when mounted.
     await this.indexPositions(positions);
 
+    // A reaction to set the hfp event that matches the currently selected time
     this.positionReaction = reaction(
-      () => [state.time, this.positions.size],
-      (time) => {
-        if (time && this.positions.size !== 0) {
-          this.getHfpPosition(time, state.date);
+      () => [state.unixTime, this.positions.size],
+      ([time, positionsSize]) => {
+        if (time && positionsSize !== 0) {
+          this.getHfpPosition(time);
         }
       },
       {fireImmediately: true}
@@ -98,6 +101,7 @@ class HfpMarkerLayer extends Component {
   componentDidUpdate() {
     const {journeyId, positions} = this.props;
 
+    // If the positions changed we need to index again.
     if (positions.length !== 0 && journeyId !== this.prevJourneyId) {
       this.indexPositions(positions);
       this.prevJourneyId = journeyId;
@@ -137,24 +141,17 @@ ${position.drst ? `<span class="hfp-marker-drst" />` : ""}
         icon={markerIcon}
         pane="hfp-markers">
         <Tooltip>
-          {moment(position.received_at).format("HH:mm:ss")}
+          <strong>
+            {position.route_id} / {position.direction_id}
+          </strong>
+          <br />
+          {position.received_at_formatted}
           <br />
           {position.unique_vehicle_id}
           <br />
           <Text>vehicle.next_stop</Text>: {position.next_stop_id}
           <br />
           <Text>vehicle.speed</Text>: {Math.round((position.spd * 18) / 5)} km/h
-          {position.dl !== 0 && (
-            <React.Fragment>
-              <br />
-              {position.dl < 0 ? (
-                <Text>vehicle.delay.late</Text>
-              ) : (
-                <Text>vehicle.delay.early</Text>
-              )}{" "}
-              {Math.abs(position.dl)}: <Text>general.seconds.short</Text>
-            </React.Fragment>
-          )}
         </Tooltip>
       </Marker>
     );

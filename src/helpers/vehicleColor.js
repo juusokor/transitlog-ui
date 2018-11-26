@@ -1,4 +1,5 @@
 import get from "lodash/get";
+import random from "lodash/random";
 
 const vehicleColors = {
   BUS: "var(--bus-blue)",
@@ -25,4 +26,8 @@ export function getPriorityMode(modes) {
   }
 
   return modes[0];
+}
+
+export function createColor() {
+  return `rgb(${random(0, 150)}, ${random(0, 150)}, ${random(0, 150)})`;
 }

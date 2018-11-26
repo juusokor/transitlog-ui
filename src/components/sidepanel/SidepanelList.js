@@ -6,7 +6,7 @@ import Loading from "../Loading";
 const ListWrapper = styled.div`
   height: 100%;
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: ${({hasHeader}) => (hasHeader ? "auto 1fr" : "1fr")};
 `;
 
 const ListRows = styled.div`
@@ -91,7 +91,7 @@ class SidepanelList extends Component {
     const {header, children, loading = false} = this.props;
 
     return (
-      <ListWrapper>
+      <ListWrapper hasHeader={!!header}>
         {header && <ListHeader>{header}</ListHeader>}
         <ListRows ref={this.scrollElementRef}>
           <ScrollContainer>{children}</ScrollContainer>
