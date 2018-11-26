@@ -17,7 +17,7 @@ const defaultQueryParams = {
 @inject(app("state"))
 @observer
 class AreaHfpEvents extends Component {
-  disposeReaction = () => {};
+  disposeQueryReaction = () => {};
 
   @observable
   currentBounds = null;
@@ -60,11 +60,14 @@ class AreaHfpEvents extends Component {
 
   componentDidMount() {
     this.props.state.setResetListener(this.onReset);
-    this.disposeReaction = reaction(() => this.currentBounds, this.setQueryParams);
+    this.disposeQueryReaction = reaction(
+      () => this.currentBounds,
+      this.setQueryParams
+    );
   }
 
   componentWillUnmount() {
-    this.disposeReaction();
+    this.disposeQueryReaction();
   }
 
   render() {

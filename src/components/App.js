@@ -75,14 +75,14 @@ class App extends Component {
     return (
       <AppFrame>
         <AreaHfpEvents>
-          {({queryBounds, events = [], timeRange}) => (
+          {({queryBounds, events: areaEvents = [], timeRange}) => (
             <RouteHfpEvents>
-              {({positions: routePositions = [], loading}) => {
-                const positions =
-                  !hasRoute && events.length !== 0
-                    ? events
-                    : hasRoute && routePositions.length
-                    ? routePositions
+              {({positions: routeEvents = [], loading}) => {
+                let positions =
+                  !hasRoute && areaEvents.length !== 0
+                    ? areaEvents
+                    : hasRoute && routeEvents.length
+                    ? routeEvents
                     : [];
 
                 return (

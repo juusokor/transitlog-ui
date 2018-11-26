@@ -98,6 +98,14 @@ class Tabs extends Component {
       return {name, label};
     });
 
+    // The selected tab might not be available, so pick the first tab in that case.
+    if (
+      tabs.length !== 0 &&
+      tabs.findIndex((tab) => tab.name === selectedTab) === -1
+    ) {
+      selectedTab = tabs[0].name;
+    }
+
     return (
       <TabsWrapper className={className}>
         <TabButtonsWrapper>
