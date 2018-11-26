@@ -46,7 +46,8 @@ class RouteHfpEvents extends React.Component {
     if (
       route &&
       partialRoute.routeId === route.routeId &&
-      partialRoute.direction === route.direction
+      // The direction might be either a string or an integer, depending on which API it comes from.
+      parseInt(partialRoute.direction, 10) === parseInt(route.direction, 10)
     ) {
       return route;
     }
@@ -67,16 +68,20 @@ class RouteHfpEvents extends React.Component {
     const useRoute = this.getStateRoute(route);
     const journeys = await fetchHfpJourney(useRoute, date, time, skipCache);
 
-    if (journeys.length === 0) {
-      Journey.setJourneyFetchState(
-        getJourneyId(
-          Journey.createCompositeJourney(date, route, journeyRequest.time)
-        ),
-        journeyFetchStates.NOTFOUND
-      );
-    }
+    if (journeys && Array.isArray(journeys)) {
+      if (journeys.length === 0) {
+        Journey.setJourneyFetchState(
+          getJourneyId(
+            Journey.createCompositeJourney(date, route, journeyRequest.time)
+          ),
+          journeyFetchStates.NOTFOUND
+        );
+      }
 
-    this.onReceivedJourneys(journeys, journeyRequest);
+      this.onReceivedJourneys(journeys, journeyRequest);
+    } else {
+      this.setLoading(false);
+    }
   };
 
   onReceivedJourneys = async (fetchedJourneys, journeyRequest) => {
@@ -127,8 +132,6 @@ class RouteHfpEvents extends React.Component {
   };
 
   componentDidMount() {
-    const {state} = this.props;
-
     this.fetchReaction = reaction(
       () => {
         const {skip} = this.props;
@@ -137,13 +140,12 @@ class RouteHfpEvents extends React.Component {
           return [];
         }
 
-        const reqJourneys = state.requestedJourneys.slice(); // Slice to tell mobx that we used this array
-        const routeKey = createRouteKey(state.route);
+        const reqJourneys = this.props.state.requestedJourneys.slice(); // Slice to tell mobx that we used this array
+        const routeKey = createRouteKey(this.props.state.route);
 
-        if (reqJourneys.length && !!routeKey && !this.loading) {
+        if (reqJourneys.length && !!routeKey) {
           return reqJourneys;
         }
-
         return [];
       },
       (reqJourneys) => {
@@ -156,9 +158,10 @@ class RouteHfpEvents extends React.Component {
     // Reset the view if the fetchKey (without time, but still
     // falseable if the date or route is missing) changes.
     this.resetReaction = reaction(
-      () => createFetchKey(state.route, state.date, true),
+      () => createFetchKey(this.props.state.route, this.props.state.date, true),
       (fetchKey) => {
         if (!fetchKey || fetchKey !== this.currentViewKey) {
+          this.setLoading(false);
           this.resetView();
           this.currentViewKey = fetchKey;
         }

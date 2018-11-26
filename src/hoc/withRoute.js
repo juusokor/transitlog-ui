@@ -19,7 +19,7 @@ function shouldFetch(route) {
 
   // RouteId and direction are required for fetching, so we shouldFetch
   // if we have at least two parts but less than all parts present.
-  return presentParts > 1 && presentParts !== 5;
+  return presentParts >= 2 && presentParts !== 5;
 }
 
 export default (Component) => {
@@ -29,9 +29,8 @@ export default (Component) => {
     disposeReaction = () => {};
 
     componentDidMount() {
-      const {state} = this.props;
       this.disposeReaction = autorun(() => {
-        if (shouldFetch(state.route)) {
+        if (shouldFetch(this.props.state.route)) {
           this.updateRoute();
         }
       });

@@ -140,7 +140,7 @@ export async function fetchHfpJourney(route, date, time, skipCache) {
   const fetchKey = createFetchKey(route, date, time);
 
   if (!fetchKey) {
-    return [];
+    return false;
   }
 
   let fetchPromise = currentPromises.get(fetchKey);
