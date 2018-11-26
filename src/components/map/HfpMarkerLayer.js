@@ -37,14 +37,20 @@ class HfpMarkerLayer extends Component {
     if (!nextHfpPosition) {
       // If no positions matched the current time exactly, look backwards and forwards
       // 10 seconds respectively to find a matching hfp event.
-      let minTime = time - 10;
-      let maxTime = time + 10;
+      let i = 0;
+      let checkSeconds = time;
 
-      let checkSeconds = minTime;
-
-      while (!nextHfpPosition && checkSeconds <= maxTime) {
+      while (!nextHfpPosition && i >= 20) {
+        console.log(checkSeconds);
         nextHfpPosition = this.positions.get(checkSeconds);
-        checkSeconds += 1;
+
+        if (i % 2 === 0) {
+          checkSeconds = time + Math.round(i / 2);
+        } else {
+          checkSeconds = time + Math.round(i / 2);
+        }
+
+        i += 1;
       }
     }
 
