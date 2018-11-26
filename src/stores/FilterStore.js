@@ -5,6 +5,7 @@ import JourneyActions from "./journeyActions";
 import {inflate} from "../helpers/inflate";
 import pick from "lodash/pick";
 import merge from "lodash/merge";
+import {resetUrlState} from "./UrlManager";
 
 export default (state, initialState) => {
   const resetListeners = [];
@@ -39,7 +40,9 @@ export default (state, initialState) => {
   const actions = filterActions(state);
 
   const reset = action(() => {
+    resetUrlState(true);
     mergeWithObservable(state, emptyState);
+
     journeyActions.setSelectedJourney(null);
     state.requestedJourneys.clear();
 

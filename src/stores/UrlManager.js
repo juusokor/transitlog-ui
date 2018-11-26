@@ -3,6 +3,10 @@ import invoke from "lodash/invoke";
 import fromPairs from "lodash/fromPairs";
 import createHistory from "history/createBrowserHistory";
 
+/**
+ * Make sure that all history operations happen through the specific history object created here:
+ */
+
 const history = createHistory();
 
 // Sets or changes an URL value. Use repalce by default,
@@ -20,7 +24,11 @@ export const setUrlValue = (key, val, historyAction = "replace") => {
   }
 
   const queryStr = query.toString();
-  invoke(history, historyAction, {search: queryStr});
+
+  invoke(history, historyAction, {
+    pathname: history.location.pathname,
+    search: queryStr,
+  });
 };
 
 export const getUrlState = () => {
@@ -32,4 +40,23 @@ export const getUrlState = () => {
 export const getUrlValue = (key) => {
   const values = getUrlState();
   return get(values, key, "");
+};
+
+export const setPathName = (pathName, historyAction = "replace") => {
+  invoke(history, historyAction, {
+    pathname: pathName,
+    search: history.location.search,
+  });
+};
+
+export const getPathName = () => {
+  return history.location.pathname;
+};
+
+export const resetUrlState = (replace = false) => {
+  if (replace) {
+    history.replace({pathname: "", search: ""});
+  } else {
+    history.push({pathname: "", search: ""});
+  }
 };
