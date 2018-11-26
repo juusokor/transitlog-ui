@@ -9,7 +9,7 @@ import createHistory from "history/createBrowserHistory";
 
 const history = createHistory();
 
-// Sets or changes an URL value. Use repalce by default,
+// Sets or changes an URL value. Use replace by default,
 // as we don't need to grow the history stack. We're not
 // listening to the url anyway, so going back does nothing.
 export const setUrlValue = (key, val, historyAction = "replace") => {

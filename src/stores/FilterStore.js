@@ -40,8 +40,8 @@ export default (state, initialState) => {
   const actions = filterActions(state);
 
   const reset = action(() => {
-    resetUrlState(true);
     mergeWithObservable(state, emptyState);
+    resetUrlState(true);
 
     journeyActions.setSelectedJourney(null);
     state.requestedJourneys.clear();
