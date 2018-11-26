@@ -4,6 +4,10 @@ import {FeatureGroup} from "react-leaflet";
 import {EditControl} from "react-leaflet-draw";
 import {inject} from "mobx-react";
 import {app} from "mobx-app";
+import {getUrlValue, setUrlValue} from "../../stores/UrlManager";
+import {latLngBounds} from "leaflet";
+
+const AREA_BOUNDS_URL_KEY = "areaBounds";
 
 @inject(app("state"))
 class AreaSelect extends Component {
@@ -13,6 +17,8 @@ class AreaSelect extends Component {
     const {layer} = e;
     const layerBounds = layer.getBounds();
     this.onBoundsSelected(layerBounds);
+
+    setUrlValue(AREA_BOUNDS_URL_KEY, layerBounds.toBBoxString());
   };
 
   clearAreas = () => {
@@ -33,6 +39,19 @@ class AreaSelect extends Component {
   componentDidMount() {
     const {state} = this.props;
     state.setResetListener(this.clearAreas);
+
+    const urlBounds = getUrlValue(AREA_BOUNDS_URL_KEY);
+
+    if (urlBounds) {
+      const splitUrlBounds = urlBounds.split(",");
+
+      const bounds = latLngBounds(
+        [splitUrlBounds[1], splitUrlBounds[0]],
+        [splitUrlBounds[3], splitUrlBounds[2]]
+      );
+
+      this.onBoundsSelected(bounds);
+    }
   }
 
   render() {

@@ -8,6 +8,8 @@ import get from "lodash/get";
 import debounce from "lodash/debounce";
 import {setUrlValue, getUrlValue} from "../../stores/UrlManager";
 
+const MAP_BOUNDS_URL_KEY = "mapBounds";
+
 @inject(app("Journey"))
 @observer
 class Map extends Component {
@@ -44,7 +46,7 @@ class Map extends Component {
     const map = this.getLeaflet();
 
     if (map) {
-      const urlBounds = getUrlValue("mapBounds");
+      const urlBounds = getUrlValue(MAP_BOUNDS_URL_KEY);
 
       if (urlBounds) {
         const splitUrlBounds = urlBounds.split(",");
@@ -113,7 +115,7 @@ class Map extends Component {
     this.setMapUrlBounds(map.getBounds().toBBoxString());
   };
 
-  setMapUrlBounds = debounce((val) => setUrlValue("mapBounds", val), 500);
+  setMapUrlBounds = debounce((val) => setUrlValue(MAP_BOUNDS_URL_KEY, val), 500);
 
   onZoom = (event) => {
     const zoom = event.target.getZoom();
