@@ -5,6 +5,7 @@ import {observer} from "mobx-react";
 import styled from "styled-components";
 import {InputStyles} from "../Forms";
 import {observable, action} from "mobx";
+import {setResetListener} from "../../stores/FilterStore";
 
 const AutosuggestWrapper = styled.div`
   width: 100%;
@@ -23,6 +24,8 @@ class SuggestionInput extends Component {
 
   @observable
   suggestions = [];
+
+  unbindResetListener = () => {};
 
   @action
   setValue(value) {
@@ -60,6 +63,19 @@ class SuggestionInput extends Component {
   shouldRenderSuggestions = (limit) => (value) => {
     return value.trim().length >= limit;
   };
+
+  reset = () => {
+    this.setValue("");
+    this.setSuggestions([]);
+  };
+
+  componentDidMount() {
+    this.unbindResetListener = setResetListener(this.reset);
+  }
+
+  componentWillUnmount() {
+    this.unbindResetListener();
+  }
 
   componentDidUpdate() {
     const {value, getValue} = this.props;

@@ -7,9 +7,21 @@ import pick from "lodash/pick";
 import merge from "lodash/merge";
 import {resetUrlState} from "./UrlManager";
 
-export default (state, initialState) => {
-  const resetListeners = [];
+const resetListeners = [];
 
+export function setResetListener(cb) {
+  resetListeners.push(cb);
+
+  return () => {
+    const cbIndex = resetListeners.indexOf(cb);
+
+    if (cbIndex !== -1) {
+      resetListeners.splice(cbIndex, 1);
+    }
+  };
+}
+
+export default (state, initialState) => {
   const emptyState = {
     date: "2018-05-07",
     stop: "",
@@ -26,9 +38,6 @@ export default (state, initialState) => {
       dateEnd: "",
       originstopId: "",
     },
-    setResetListener: action((cb) => {
-      resetListeners.push(cb);
-    }),
   };
 
   extendObservable(
@@ -41,7 +50,6 @@ export default (state, initialState) => {
 
   const reset = action(() => {
     mergeWithObservable(state, emptyState);
-    resetUrlState(true);
 
     journeyActions.setSelectedJourney(null);
     state.requestedJourneys.clear();
@@ -51,6 +59,8 @@ export default (state, initialState) => {
         cb();
       }
     });
+
+    resetUrlState(true);
   });
 
   return {
