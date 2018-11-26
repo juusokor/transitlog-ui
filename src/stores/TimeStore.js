@@ -3,12 +3,13 @@ import moment from "moment";
 import timer from "../helpers/timer";
 import timeActions from "./timeActions";
 import {combineDateAndTime} from "../helpers/time";
+import get from "lodash/get";
 
 let timerHandle = null;
 
-export default (state) => {
+export default (state, initialState) => {
   extendObservable(state, {
-    time: "13:00:00",
+    time: get(initialState, "time", "13:00:00"),
     get unixTime() {
       const {date, time} = state;
       return combineDateAndTime(date, time, "Europe/Helsinki").unix();

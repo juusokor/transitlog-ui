@@ -1,9 +1,12 @@
 import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
+import {latLngBounds} from "leaflet";
 import {LeafletMap} from "./LeafletMap";
 import {app} from "mobx-app";
 import invoke from "lodash/invoke";
 import get from "lodash/get";
+import debounce from "lodash/debounce";
+import {setUrlValue, getUrlValue} from "../../stores/UrlManager";
 
 @inject(app("Journey"))
 @observer
@@ -18,6 +21,13 @@ class Map extends Component {
 
   state = {
     zoom: 13,
+    currentMapillaryViewerLocation: false,
+  };
+
+  setMapillaryViewerLocation = (location) => {
+    this.setState({
+      currentMapillaryViewerLocation: location,
+    });
   };
 
   setMapZoom = (zoom) => {
@@ -34,13 +44,26 @@ class Map extends Component {
     const map = this.getLeaflet();
 
     if (map) {
-      map.setView(
-        {
-          lat: 60.170988,
-          lng: 24.940842,
-        },
-        this.state.zoom
-      );
+      const urlBounds = getUrlValue("mapBounds");
+
+      if (urlBounds) {
+        const splitUrlBounds = urlBounds.split(",");
+
+        const bounds = latLngBounds(
+          [splitUrlBounds[1], splitUrlBounds[0]],
+          [splitUrlBounds[3], splitUrlBounds[2]]
+        );
+
+        this.setMapBounds(bounds);
+      } else {
+        map.setView(
+          {
+            lat: 60.170988,
+            lng: 24.940842,
+          },
+          this.state.zoom
+        );
+      }
     }
   }
 
@@ -86,7 +109,11 @@ class Map extends Component {
   onMapChanged = () => {
     const map = this.getLeaflet();
     this.props.onMapChanged(map);
+
+    this.setMapUrlBounds(map.getBounds().toBBoxString());
   };
+
+  setMapUrlBounds = debounce((val) => setUrlValue("mapBounds", val), 500);
 
   onZoom = (event) => {
     const zoom = event.target.getZoom();
@@ -94,7 +121,7 @@ class Map extends Component {
   };
 
   render() {
-    const {zoom} = this.state;
+    const {zoom, currentMapillaryViewerLocation} = this.state;
     const {children, className, viewBbox} = this.props;
 
     const child = (props) => (
@@ -103,12 +130,15 @@ class Map extends Component {
 
     return (
       <LeafletMap
+        setMapillaryViewerLocation={this.setMapillaryViewerLocation}
+        currentMapillaryViewerLocation={currentMapillaryViewerLocation}
         viewBbox={viewBbox}
         mapRef={this.mapRef}
         className={className}
         onMapChanged={this.onMapChanged}
         onZoom={this.onZoom}>
         {child({
+          setViewerLocation: this.setMapillaryViewerLocation,
           zoom,
           setMapBounds: this.setMapBounds,
         })}
@@ -116,5 +146,4 @@ class Map extends Component {
     );
   }
 }
-
 export default Map;

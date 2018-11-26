@@ -103,7 +103,7 @@ class App extends Component {
                                 viewBbox={this.stopsBbox}
                                 onMapChanged={this.setStopsBbox}
                                 center={centerPosition}>
-                                {({zoom, setMapBounds}) => (
+                                {({zoom, setMapBounds, setViewerLocation}) => (
                                   <MapContent
                                     queryBounds={queryBounds}
                                     setMapBounds={setMapBounds}
@@ -111,6 +111,7 @@ class App extends Component {
                                     route={route}
                                     stop={stop}
                                     zoom={zoom}
+                                    viewLocation={setViewerLocation}
                                     stopsBbox={this.stopsBbox}
                                   />
                                 )}

@@ -22,7 +22,7 @@ const ListHeader = styled.header`
   background: transparent;
   font-size: 0.9em;
   border-bottom: 1px solid var(--alt-grey);
-  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.075);
+  box-shadow: 0 3px 3px 0 rgba(0, 0, 0, 0.075);
   position: relative;
   z-index: 1;
   line-height: 1.4;

@@ -33,6 +33,7 @@ class MapContent extends Component {
       stopsBbox,
       stop,
       setMapBounds,
+      viewLocation,
       queryBounds,
       state: {vehicle, selectedJourney, date},
     } = this.props;
@@ -45,9 +46,18 @@ class MapContent extends Component {
         {!hasRoute && (
           <>
             {zoom > 14 ? (
-              <StopLayer date={date} bounds={stopsBbox} />
+              <StopLayer
+                onViewLocation={viewLocation}
+                date={date}
+                bounds={stopsBbox}
+              />
             ) : stop ? (
-              <StopMarker stop={stop} selected={true} date={date} />
+              <StopMarker
+                onViewLocation={viewLocation}
+                stop={stop}
+                selected={true}
+                date={date}
+              />
             ) : null}
             <AreaSelect enabled={zoom > 14} onSelectArea={queryBounds} />
             {positions.length !== 0 &&
@@ -86,7 +96,11 @@ class MapContent extends Component {
             {(!selectedJourney ||
               (selectedJourney.route_id !== route.routeId ||
                 positions.length === 0)) && (
-              <RouteStopsLayer route={route} positions={[]} />
+              <RouteStopsLayer
+                onViewLocation={viewLocation}
+                route={route}
+                positions={[]}
+              />
             )}
             {positions.length > 0 &&
               positions.map(({positions: journeyPositions, journeyId}) => {
@@ -111,6 +125,7 @@ class MapContent extends Component {
                   ) : null,
                   isSelectedJourney ? (
                     <RouteStopsLayer
+                      onViewLocation={viewLocation}
                       key={`journey_stops_${journeyId}`}
                       route={route}
                       positions={journeyPositions}

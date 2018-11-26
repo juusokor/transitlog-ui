@@ -1,11 +1,9 @@
 import {action} from "mobx";
 import moment from "moment-timezone";
 import get from "lodash/get";
-import createHistory from "history/createBrowserHistory";
+import {setUrlValue} from "./UrlManager";
 
 const filterActions = (state) => {
-  const history = createHistory();
-
   // Make sure all dates are correctly formed.
   const setDate = action("Set date", (dateValue) => {
     let momentValue = !dateValue
@@ -23,27 +21,13 @@ const filterActions = (state) => {
   const setStop = action("Set stop", (stop = "") => {
     // Either get the stopId prop or treat the stop arg as the stopId.
     state.stop = get(stop, "stopId", stop);
-
-    // The following will be replaced with a better
-    // URL management solution in a future PR.
-
-    const query = new URLSearchParams(history.location.search);
-
-    if (!stop) {
-      query.delete("stop");
-    } else if (query.has("stop")) {
-      query.set("stop", stop);
-    } else {
-      query.append("stop", stop);
-    }
-
-    const queryStr = query.toString();
-    history.push({search: queryStr});
+    setUrlValue("stop", state.stop);
   });
 
   // The unique_vehicle_id we're interested in.
   const setVehicle = action("Set vehicle", (vehicleId) => {
     state.vehicle = vehicleId || "";
+    setUrlValue("vehicle", state.vehicle);
   });
 
   const setLine = action(
@@ -52,6 +36,8 @@ const filterActions = (state) => {
       state.line.lineId = lineId;
       state.line.dateBegin = dateBegin;
       state.line.dateEnd = dateEnd;
+
+      setUrlValue("line.lineId", state.line.lineId);
     }
   );
 
@@ -61,6 +47,9 @@ const filterActions = (state) => {
     state.route.dateBegin = get(route, "dateBegin", "");
     state.route.dateEnd = get(route, "dateEnd", "");
     state.route.originstopId = get(route, "originstopId", "");
+
+    setUrlValue("route.routeId", state.route.routeId);
+    setUrlValue("route.direction", state.route.direction);
 
     const routeLine = get(route, "line.nodes[0]", null);
 
