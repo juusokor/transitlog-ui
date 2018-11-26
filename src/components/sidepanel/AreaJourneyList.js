@@ -4,13 +4,7 @@ import {app} from "mobx-app";
 import SidepanelList from "./SidepanelList";
 import styled from "styled-components";
 import map from "lodash/map";
-import {journeyFetchStates} from "../../stores/JourneyStore";
-import {text} from "../../helpers/text";
-import Loading from "../Loading";
 import getJourneyId from "../../helpers/getJourneyId";
-import {timeToFormat} from "../../helpers/time";
-import {centerSort} from "../../helpers/centerSort";
-import {departuresToTimes} from "../../helpers/departuresToTimes";
 
 const JourneyListRow = styled.button`
   display: flex;

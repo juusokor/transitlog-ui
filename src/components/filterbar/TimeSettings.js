@@ -1,7 +1,6 @@
 import React, {Component} from "react";
 import {app} from "mobx-app";
 import {inject, observer} from "mobx-react";
-import withSelectedJourneyHfp from "../../hoc/withSelectedJourney";
 import {combineDateAndTime} from "../../helpers/time";
 import {InputBase, ControlGroup} from "../Forms";
 import PlusMinusInput from "../PlusMinusInput";

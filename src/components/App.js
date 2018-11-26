@@ -13,12 +13,6 @@ import {latLng} from "leaflet";
 import SingleStopQuery from "../queries/SingleStopQuery";
 import {observable, action} from "mobx";
 import AreaHfpEvents from "./AreaHfpEvents";
-import getJourneyId from "../helpers/getJourneyId";
-import {
-  dateToSeconds,
-  getTimeRangeFromPositions,
-} from "../helpers/getTimeRangeFromPositions";
-import {TIME_SLIDER_MIN, TIME_SLIDER_MAX} from "./filterbar/TimeSlider";
 
 const DEFAULT_SIDEPANEL_WIDTH = 25;
 

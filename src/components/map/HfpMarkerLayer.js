@@ -12,7 +12,6 @@ import "./Map.css";
 import {observable, action, reaction, runInAction} from "mobx";
 import animationFrame from "../../helpers/animationFrame";
 import {getTimelinessColor} from "../../helpers/timelinessColor";
-import doubleDigit from "../../helpers/doubleDigit";
 
 @inject(app("state"))
 @observer

@@ -1,4 +1,3 @@
-import React from "react";
 import {observer} from "mobx-react";
 import {languageState} from "../stores/UIStore";
 import {get} from "lodash";

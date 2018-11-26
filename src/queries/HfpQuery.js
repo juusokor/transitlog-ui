@@ -1,4 +1,3 @@
-import React from "react";
 import {hfpClient} from "../api";
 import get from "lodash/get";
 import gql from "graphql-tag";
