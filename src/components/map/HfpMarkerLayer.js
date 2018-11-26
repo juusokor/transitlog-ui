@@ -136,6 +136,10 @@ ${position.drst ? `<span class="hfp-marker-drst" />` : ""}
         icon={markerIcon}
         pane="hfp-markers">
         <Tooltip>
+          <strong>
+            {position.route_id} / {position.direction_id}
+          </strong>
+          <br />
           {position.received_at_formatted}
           <br />
           {position.unique_vehicle_id}
@@ -143,17 +147,6 @@ ${position.drst ? `<span class="hfp-marker-drst" />` : ""}
           <Text>vehicle.next_stop</Text>: {position.next_stop_id}
           <br />
           <Text>vehicle.speed</Text>: {Math.round((position.spd * 18) / 5)} km/h
-          {position.dl !== 0 && (
-            <React.Fragment>
-              <br />
-              {position.dl < 0 ? (
-                <Text>vehicle.delay.late</Text>
-              ) : (
-                <Text>vehicle.delay.early</Text>
-              )}{" "}
-              {Math.abs(position.dl)}: <Text>general.seconds.short</Text>
-            </React.Fragment>
-          )}
         </Tooltip>
       </Marker>
     );
