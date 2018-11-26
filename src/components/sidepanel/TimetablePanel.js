@@ -3,7 +3,6 @@ import {observer, inject} from "mobx-react";
 import SidepanelList from "./SidepanelList";
 import StopTimetable from "./StopTimetable";
 import withStop from "../../hoc/withStop";
-import doubleDigit from "../../helpers/doubleDigit";
 import {app} from "mobx-app";
 import withAllStopDepartures from "../../hoc/withAllStopDepartures";
 import {action, observable, toJS} from "mobx";
@@ -12,6 +11,11 @@ import Input from "../Input";
 import {text} from "../../helpers/text";
 import get from "lodash/get";
 import StopHfpQuery from "../../queries/StopHfpQuery";
+import {sortByOperationDay} from "../../helpers/sortByOperationDay";
+import doubleDigit from "../../helpers/doubleDigit";
+import orderBy from "lodash/orderBy";
+import meanBy from "lodash/meanBy";
+import groupBy from "lodash/groupBy";
 
 const RouteFilterContainer = styled.div`
   flex: 1 1 50%;
@@ -121,6 +125,21 @@ class TimetablePanel extends Component {
       departures,
     } = this.props;
 
+    // Group into hours while making sure to separate pre-4:30 and post-4:30 departures
+    const byHour = groupBy(departures, ({hours, minutes}) => {
+      if (hours === 4 && minutes >= 30) {
+        return `${doubleDigit(hours)}:30`;
+      }
+
+      return `${doubleDigit(hours)}:00`;
+    });
+
+    // Make sure that night departures from the same operation
+    // day comes last in the timetable list.
+    const byHourOrdered = orderBy(Object.entries(byHour), ([hour]) =>
+      sortByOperationDay(hour)
+    );
+
     // We query for the hfp data related to the routes and directions on
     // this stop in one go, instead of doing one query per row. Collect
     // all distinct routes and directions in these arrays. Yes, there
@@ -132,6 +151,11 @@ class TimetablePanel extends Component {
     for (const departure of departures) {
       const {routeId, direction} = departure;
 
+      if (this.route && routeId !== this.route) {
+        continue;
+      }
+
+      // No need for more than one of everything
       if (routes.indexOf(routeId) === -1) {
         routes.push(routeId);
       }
@@ -192,7 +216,7 @@ class TimetablePanel extends Component {
                   routeFilter={this.route}
                   timeRangeFilter={this.timeRange}
                   groupedJourneys={journeys}
-                  departures={departures}
+                  departuresByHour={byHourOrdered}
                   stop={stop}
                   date={date}
                   selectedJourney={selectedJourney}
