@@ -2,8 +2,10 @@ import React, {Component} from "react";
 import "leaflet-draw/dist/leaflet.draw.css";
 import {FeatureGroup} from "react-leaflet";
 import {EditControl} from "react-leaflet-draw";
-import get from "lodash/get";
+import {inject} from "mobx-react";
+import {app} from "mobx-app";
 
+@inject(app("state"))
 class AreaSelect extends Component {
   featureLayer = React.createRef();
 
@@ -13,18 +15,10 @@ class AreaSelect extends Component {
     this.onBoundsSelected(layerBounds);
   };
 
-  onDrawStart = () => {
+  clearAreas = () => {
     // Remove all current layers if we're about to draw a new one
     if (this.featureLayer.current) {
       this.featureLayer.current.leafletElement.clearLayers();
-    }
-  };
-
-  onEdited = (e) => {
-    const layer = get(e.layers.getLayers(), "[0]", null);
-
-    if (layer) {
-      this.onBoundsSelected(layer.getBounds());
     }
   };
 
@@ -36,6 +30,11 @@ class AreaSelect extends Component {
     }
   };
 
+  componentDidMount() {
+    const {state} = this.props;
+    state.setResetListener(this.clearAreas);
+  }
+
   render() {
     const {enabled = true} = this.props;
 
@@ -44,8 +43,11 @@ class AreaSelect extends Component {
         <EditControl
           position="bottomright"
           onCreated={this.onCreated}
-          onDrawStart={this.onDrawStart}
-          onEdited={this.onEdited}
+          onDrawStart={this.clearAreas}
+          edit={{
+            edit: false,
+            remove: false,
+          }}
           draw={{
             rectangle: enabled
               ? {
