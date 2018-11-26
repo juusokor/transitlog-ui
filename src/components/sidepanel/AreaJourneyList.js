@@ -84,7 +84,7 @@ class AreaJourneyList extends Component {
     const selectedJourneyId = getJourneyId(selectedJourney);
 
     return (
-      <SidepanelList header={<span>header</span>}>
+      <SidepanelList>
         {journeyHfpEvents.map(({journeyId, position}) => {
           const {route_id, direction_id, journey_start_time} = position;
 
