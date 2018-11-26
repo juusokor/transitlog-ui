@@ -79,7 +79,11 @@ class App extends Component {
             <RouteHfpEvents skip={!hasRoute && events.length !== 0}>
               {({positions: routePositions = [], loading}) => {
                 const positions =
-                  !hasRoute && events.length !== 0 ? events : routePositions;
+                  !hasRoute && events.length !== 0
+                    ? events
+                    : hasRoute && routePositions.length
+                    ? routePositions
+                    : [];
 
                 return (
                   <>
