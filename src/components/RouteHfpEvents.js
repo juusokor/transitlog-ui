@@ -138,19 +138,15 @@ class RouteHfpEvents extends React.Component {
     this.fetchReaction = reaction(
       () => {
         const {
-          skip,
+          skip = false,
           route,
           state: {route: stateRoute, requestedJourneys},
         } = this.props;
 
-        if (skip) {
-          return [];
-        }
-
         const reqJourneys = requestedJourneys.slice(); // Slice to tell mobx that we used this array
         const routeKey = createRouteKey(route);
 
-        if (reqJourneys.length !== 0 && !!routeKey && !this.loading) {
+        if (!skip && (reqJourneys.length !== 0 && !!routeKey && !this.loading)) {
           return reqJourneys;
         }
 
