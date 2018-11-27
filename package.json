@@ -21,6 +21,7 @@
     "lodash": "^4.17.11",
     "mapbox-gl": "^0.51.0",
     "mapillary-js": "^2.14.0",
+    "memoized-decorator": "^0.0.4",
     "mobx": "^5.6.0",
     "mobx-app": "^1.0.3",
     "mobx-react": "^5.4.2",

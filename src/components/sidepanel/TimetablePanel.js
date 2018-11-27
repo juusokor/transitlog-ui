@@ -1,11 +1,11 @@
 import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
 import SidepanelList from "./SidepanelList";
-import StopTimetable from "./StopTimetable";
+import StopTimetable, {AVG_DEPARTURES_THRESHOLD} from "./StopTimetable";
 import withStop from "../../hoc/withStop";
 import {app} from "mobx-app";
 import withAllStopDepartures from "../../hoc/withAllStopDepartures";
-import {action, observable, toJS} from "mobx";
+import {action, observable, toJS, computed, reaction} from "mobx";
 import styled from "styled-components";
 import Input from "../Input";
 import {text} from "../../helpers/text";
@@ -16,6 +16,10 @@ import doubleDigit from "../../helpers/doubleDigit";
 import orderBy from "lodash/orderBy";
 import meanBy from "lodash/meanBy";
 import groupBy from "lodash/groupBy";
+import memoize from "memoized-decorator";
+import {combineDateAndTime} from "../../helpers/time";
+import * as mobxUtils from "mobx-utils";
+import {createDebouncedObservable} from "../../helpers/createDebouncedObservable";
 
 const RouteFilterContainer = styled.div`
   flex: 1 1 50%;
@@ -44,14 +48,44 @@ const TimeRangeFilterContainer = styled.div`
 @withAllStopDepartures
 @observer
 class TimetablePanel extends Component {
+  disposeTimeRangeReaction = () => {};
   selectedJourneyRef = React.createRef();
   clickedJourney = false;
 
-  @observable
-  timeRange = {min: "", max: ""};
+  // Create debounced observable values for the timetable filters.
+  routeFilter = createDebouncedObservable("");
+  timeRangeFilter = createDebouncedObservable({min: "", max: ""});
 
-  @observable
-  route = "";
+  // If there are too many departures, we want to set a time range filter by default.
+  // This method figures out the range to set if one needs setting.
+  getDefaultTimeRangeValue(timeRange, perHour, date, time) {
+    let {min = "", max = ""} = timeRange;
+
+    if ((!min || !max) && perHour > AVG_DEPARTURES_THRESHOLD && perHour < 50) {
+      const currentTime = combineDateAndTime(date, time, "Europe/Helsinki");
+      // Use the average numbe of departures per hour to determine how large of a range to set.
+      // More departures means narrower ranges, the idea is to not have the fetch take forever.
+      const hourModifier = perHour > 30 ? 2 : perHour > 20 ? 3 : 4;
+
+      const modifierHalf = Math.floor(hourModifier / 2);
+
+      if (!min) {
+        min = currentTime
+          .clone()
+          .subtract(modifierHalf, "hours")
+          .format("HH");
+      }
+
+      if (!max) {
+        max = currentTime
+          .clone()
+          .add(modifierHalf, "hours")
+          .format("HH");
+      }
+    }
+
+    return {min, max};
+  }
 
   @observable
   selectedJourneyOffset = 0;
@@ -61,6 +95,7 @@ class TimetablePanel extends Component {
   reactionlessTime = toJS(this.props.state.time);
 
   componentDidUpdate() {
+    // THis part makes the list scroll to the currently selected journey
     if (!this.clickedJourney && this.selectedJourneyRef.current) {
       let offset = get(this.selectedJourneyRef, "current.offsetTop", null);
 
@@ -68,24 +103,71 @@ class TimetablePanel extends Component {
         this.setSelectedJourneyOffset(offset);
       }
     }
+
+    // Check mobx docs on reaction if this is unclear.
+    this.disposeTimeRangeReaction = reaction(
+      () => {
+        // The reaction will only react to changes in values used here in the first function.
+        const {date} = this.props.state;
+        const time = this.reactionlessTime;
+        const perHour = this.avgDeparturesPerHour;
+        const timeRange = this.timeRangeFilter.value;
+
+        return {
+          timeRange,
+          perHour,
+          date,
+          time,
+        };
+      },
+      ({timeRange, perHour, date, time}) => {
+        const nextTimeRange = this.getDefaultTimeRangeValue(
+          timeRange,
+          perHour,
+          date,
+          time
+        );
+
+        // While values used here will not cause a reaction, se still need to be
+        // careful to not create infinite update loops.
+        const {min, max} = nextTimeRange;
+        const {min: prevMin, max: prevMax} = timeRange;
+
+        if ((min && prevMin !== min) || (max && prevMax !== max)) {
+          this.timeRangeFilter.setValue(nextTimeRange);
+        }
+      },
+      {fireImmediately: true}
+    );
   }
 
-  @action
+  componentWillUnmount() {
+    // Always dispose reactions to prevent memory leaks. This component might mount
+    // an unmount often, so it is very important to do it here.
+    this.disposeTimeRangeReaction();
+  }
+
   setRouteFilter = (e) => {
-    const value = e.target.value;
-    this.route = value;
+    const value = get(e, "target.value", e);
+    this.routeFilter.setValue(value);
   };
 
-  @action
-  setTimeRangeFilter = (which) => (e) => {
+  setTimeRangeFilter = (which = false) => (e) => {
     const value = e.target.value;
-    this.timeRange[which] = value > 23 || value < 0 ? "00" : doubleDigit(value);
+
+    // The time range value is set as an object.
+    const nextValue = {
+      [which]: value > 23 || value < 0 ? "00" : doubleDigit(value),
+    };
+
+    this.timeRangeFilter.setValue(nextValue);
   };
 
   selectAsJourney = (departure) => (e) => {
     e.preventDefault();
     const {Filters, Journey, Time} = this.props;
 
+    // Set the selected time from the departure time
     const currentTime = `${doubleDigit(departure.hours)}:${doubleDigit(
       departure.minutes
     )}:00`;
@@ -111,20 +193,55 @@ class TimetablePanel extends Component {
     }
   };
 
+  // Set the offset where the selected journey is located so we can scroll to it.
   setSelectedJourneyOffset = action((offset) => {
     if (offset && offset !== this.selectedJourneyOffset) {
       this.selectedJourneyOffset = offset;
     }
   });
 
-  render() {
-    const {
-      state: {date, selectedJourney},
-      stop,
-      loading: timetableLoading,
-      departures,
-    } = this.props;
+  // getDeparturesByHour is memoized and needs a key. Although the method itself does
+  // not take arguments, provide this key as its argument for the memoization to work.
+  get departuresKey() {
+    const {stop, date, departures} = this.props;
 
+    if (departures.length === 0) {
+      return "";
+    }
+
+    return `${get(stop, "stopId", stop)}_${date}`;
+  }
+
+  @computed
+  get avgDeparturesPerHour() {
+    const departuresByHour = this.getDeparturesByHour(this.departuresKey);
+    const routeFilter = this.routeFilter.debouncedValue;
+
+    // Figure out how many departures this stop has planned per hour on average.
+    // This is used to determine if observed times can be fetched immediately,
+    // or if we should wait for the user to filter the list. Filtering by
+    // route should also be taken into account here.
+    return Math.round(
+      meanBy(departuresByHour, ([hour, hourDepartures]) => {
+        // The route filter will help to ease the burden of too many departures, so
+        // make sure that the average does not include routes that do not match the filter.
+        if (!routeFilter) {
+          return hourDepartures.length;
+        }
+
+        return hourDepartures.filter(
+          (departure) => departure.routeId === routeFilter
+        ).length;
+      })
+    );
+  }
+
+  // This will get called a few times during updates, so it is memoized.
+  // Although the method itself does not use the argument, always pass
+  // this.departuresKey when calling it for the memoization to work.
+  @memoize
+  getDeparturesByHour(departuresKey) {
+    const {departures} = this.props;
     // Group into hours while making sure to separate pre-4:30 and post-4:30 departures
     const byHour = groupBy(departures, ({hours, minutes}) => {
       if (hours === 4 && minutes >= 30) {
@@ -134,11 +251,26 @@ class TimetablePanel extends Component {
       return `${doubleDigit(hours)}:00`;
     });
 
-    // Make sure that night departures from the same operation
+    // Ensure that night departures from the same operation
     // day comes last in the timetable list.
-    const byHourOrdered = orderBy(Object.entries(byHour), ([hour]) =>
-      sortByOperationDay(hour)
-    );
+    return orderBy(Object.entries(byHour), ([hour]) => sortByOperationDay(hour));
+  }
+
+  render() {
+    const {
+      state: {date, selectedJourney},
+      stop,
+      loading: timetableLoading,
+      departures,
+    } = this.props;
+
+    // Collect values. The filter values are read as debounced values.
+    const routeFilter = this.routeFilter.debouncedValue;
+    const timeRangeFilter = this.timeRangeFilter.debouncedValue;
+    // the per hour average number of departures is used to determine if we
+    // allow the app to fetch data immediately or if we need to wait for filter input.
+    const departuresPerHour = this.avgDeparturesPerHour;
+    const departuresByHour = this.getDeparturesByHour(this.departuresKey);
 
     // We query for the hfp data related to the routes and directions on
     // this stop in one go, instead of doing one query per row. Collect
@@ -148,22 +280,38 @@ class TimetablePanel extends Component {
     let routes = [];
     let directions = [];
 
-    for (const departure of departures) {
-      const {routeId, direction} = departure;
+    // If there isn't an ungodly amount of departures per hour, or of the route
+    // filter is set, collect all the routes and directions for the hfp query.
+    // The query will not run if the routes array is empty.
+    if (departuresPerHour < 50 || !!routeFilter) {
+      for (const departure of departures) {
+        const {routeId, direction} = departure;
+        // Clean up the routeId to be compatible with what
+        // the user will enter into the filter field.
+        const routeIdFilterTerm = routeId
+          .substring(1)
+          .replace(/^0+/, "")
+          .toLowerCase();
 
-      if (this.route && routeId !== this.route) {
-        continue;
-      }
+        // If there is a route filter set, we don't want
+        // to query for routes that do not match.
+        if (
+          routeFilter &&
+          !routeIdFilterTerm.startsWith(routeFilter.toLowerCase())
+        ) {
+          continue;
+        }
 
-      // No need for more than one of everything
-      if (routes.indexOf(routeId) === -1) {
-        routes.push(routeId);
-      }
+        // No need for more than one of everything
+        if (routes.indexOf(routeId) === -1) {
+          routes.push(routeId);
+        }
 
-      const intDirection = parseInt(direction, 10);
+        const intDirection = parseInt(direction, 10);
 
-      if (directions.indexOf(intDirection) === -1) {
-        directions.push(intDirection);
+        if (directions.indexOf(intDirection) === -1) {
+          directions.push(intDirection);
+        }
       }
     }
 
@@ -175,7 +323,7 @@ class TimetablePanel extends Component {
           <>
             <RouteFilterContainer>
               <Input
-                value={this.route}
+                value={this.routeFilter.value} // The value is not debounced here
                 animatedLabel={false}
                 onChange={this.setRouteFilter}
                 label={text("domain.route")}
@@ -184,14 +332,14 @@ class TimetablePanel extends Component {
             <TimeRangeFilterContainer>
               <Input
                 type="number"
-                value={this.timeRange.min}
+                value={this.timeRangeFilter.value.min} // The value is not debounced here either
                 animatedLabel={false}
                 label={`${text("general.timerange.min")} ${text("general.hour")}`}
                 onChange={this.setTimeRangeFilter("min")}
               />
               <Input
                 type="number"
-                value={this.timeRange.max}
+                value={this.timeRangeFilter.value.max} // Nor is it debounced here :)
                 animatedLabel={false}
                 label={`${text("general.timerange.max")} ${text("general.hour")}`}
                 onChange={this.setTimeRangeFilter("max")}
@@ -213,10 +361,11 @@ class TimetablePanel extends Component {
                   loading={timetableLoading || loading}
                   time={this.reactionlessTime}
                   focusRef={this.selectedJourneyRef}
-                  routeFilter={this.route}
-                  timeRangeFilter={this.timeRange}
+                  routeFilter={routeFilter}
+                  timeRangeFilter={timeRangeFilter}
                   groupedJourneys={journeys}
-                  departuresByHour={byHourOrdered}
+                  departuresByHour={departuresByHour}
+                  departuresPerHour={this.avgDeparturesPerHour}
                   stop={stop}
                   date={date}
                   selectedJourney={selectedJourney}

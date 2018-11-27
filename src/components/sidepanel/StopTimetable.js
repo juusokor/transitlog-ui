@@ -7,7 +7,6 @@ import styled from "styled-components";
 import TimetableDeparture from "./TimetableDeparture";
 import FirstDepartureQuery from "../../queries/FirstDepartureQuery";
 import {getDayTypeFromDate} from "../../helpers/getDayTypeFromDate";
-import meanBy from "lodash/meanBy";
 
 const TimetableGrid = styled.div`
   margin-bottom: 1rem;
@@ -17,7 +16,7 @@ const TimetableSection = styled.div`
   margin-bottom: 1.5rem;
 `;
 
-const AVG_DEPARTURES_THRESHOLD = 7;
+export const AVG_DEPARTURES_THRESHOLD = 7;
 
 @observer
 class StopTimetable extends Component {
@@ -52,6 +51,7 @@ class StopTimetable extends Component {
       routeFilter,
       timeRangeFilter,
       departuresByHour,
+      departuresPerHour,
       groupedJourneys,
       date,
       selectedJourney,
@@ -62,22 +62,6 @@ class StopTimetable extends Component {
       loading: allLoading,
     } = this.props;
 
-    // Figure out how many departures this stop has planned per hour on average.
-    // This is used to determine if observed times can be fetched immediately,
-    // or if we should wait for the user to filter the list. Filtering by
-    // route should also be taken into account here.
-    const avgDeparturesPerHour = Math.round(
-      meanBy(departuresByHour, ([hour, hourDepartures]) => {
-        if (!routeFilter) {
-          return hourDepartures.length;
-        }
-
-        return hourDepartures.filter(
-          (departure) => departure.routeId === routeFilter
-        ).length;
-      })
-    );
-
     // Figure out which time the list should be scrolled to.
     const focusedDepartureTime = this.getFocusedDepartureTime(
       departuresByHour,
@@ -86,16 +70,12 @@ class StopTimetable extends Component {
 
     let {min, max} = timeRangeFilter;
 
-    if (!min && !max && avgDeparturesPerHour > AVG_DEPARTURES_THRESHOLD) {
-      // TODO: Set default time range when there's too many departures
-    }
-
     const dayType = getDayTypeFromDate(date);
     let batchedFirstDepartureRequests = [];
 
     // Only fetch the observed times if there's not too many departures. If the average
     // number of departures per hour is over the threshold, wait for the user to filter by time.
-    if (avgDeparturesPerHour <= AVG_DEPARTURES_THRESHOLD || (min && max)) {
+    if (departuresPerHour <= AVG_DEPARTURES_THRESHOLD || (min && max)) {
       // Create batches for the firstDeparture query.
       batchedFirstDepartureRequests = flatMap(
         departuresByHour,
@@ -143,7 +123,8 @@ class StopTimetable extends Component {
                   get(departure, "routeId", "")
                     .substring(1)
                     .replace(/^0+/, "")
-                    .startsWith(routeFilter)
+                    .toLowerCase()
+                    .startsWith(routeFilter.toLowerCase())
                 );
               }
 
