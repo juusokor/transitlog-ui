@@ -7,6 +7,10 @@ import compact from "lodash/compact";
 import {autorun} from "mobx";
 
 function shouldFetch(route) {
+  if (!get(route, "routeId", null)) {
+    return false;
+  }
+
   const requiredParts = [
     get(route, "routeId", null),
     get(route, "direction", null),
@@ -30,8 +34,9 @@ export default (Component) => {
 
     componentDidMount() {
       this.disposeReaction = autorun(() => {
-        if (shouldFetch(this.props.state.route)) {
-          this.updateRoute();
+        const {route} = this.props.state;
+        if (shouldFetch(route)) {
+          this.updateRoute(route);
         }
       });
     }
@@ -42,15 +47,16 @@ export default (Component) => {
       }
     }
 
-    updateRoute = async () => {
+    updateRoute = async (route) => {
       const {
         Filters,
-        state: {date, route},
+        state: {date},
       } = this.props;
 
       const fetchedRoute = await fetchSingleRoute(route, date);
+      const stateRoute = this.props.state.route;
 
-      if (fetchedRoute && route.routeId === fetchedRoute.routeId) {
+      if (fetchedRoute && stateRoute.routeId === fetchedRoute.routeId) {
         Filters.setRoute(fetchedRoute);
       }
     };

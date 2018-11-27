@@ -1,12 +1,10 @@
 import React, {Component} from "react";
-import groupBy from "lodash/groupBy";
 import orderBy from "lodash/orderBy";
+import flatMap from "lodash/flatMap";
 import get from "lodash/get";
 import {observer} from "mobx-react";
 import styled from "styled-components";
-import doubleDigit from "../../helpers/doubleDigit";
 import TimetableDeparture from "./TimetableDeparture";
-import {sortByOperationDay} from "../../helpers/sortByOperationDay";
 import FirstDepartureQuery from "../../queries/FirstDepartureQuery";
 import {getDayTypeFromDate} from "../../helpers/getDayTypeFromDate";
 
@@ -17,6 +15,8 @@ const TimetableGrid = styled.div`
 const TimetableSection = styled.div`
   margin-bottom: 1.5rem;
 `;
+
+export const AVG_DEPARTURES_THRESHOLD = 7;
 
 @observer
 class StopTimetable extends Component {
@@ -50,7 +50,8 @@ class StopTimetable extends Component {
     const {
       routeFilter,
       timeRangeFilter,
-      departures,
+      departuresByHour,
+      departuresPerHour,
       groupedJourneys,
       date,
       selectedJourney,
@@ -61,37 +62,40 @@ class StopTimetable extends Component {
       loading: allLoading,
     } = this.props;
 
-    // Group into hours while making sure to separate pre-4:30 and post-4:30 departures
-    const byHour = groupBy(departures, ({hours, minutes}) => {
-      if (hours === 4 && minutes >= 30) {
-        return `${doubleDigit(hours)}:30`;
-      }
-
-      return `${doubleDigit(hours)}:00`;
-    });
-
-    // Make sure that night departures from the same operation
-    // day comes last in the timetable list.
-    const byHourOrdered = orderBy(Object.entries(byHour), ([hour]) =>
-      sortByOperationDay(hour)
+    // Figure out which time the list should be scrolled to.
+    const focusedDepartureTime = this.getFocusedDepartureTime(
+      departuresByHour,
+      time
     );
 
-    // Figure out which time the list should be scrolled to.
-    const focusedDepartureTime = this.getFocusedDepartureTime(byHourOrdered, time);
-    const {min, max} = timeRangeFilter;
+    let {min, max} = timeRangeFilter;
 
     const dayType = getDayTypeFromDate(date);
+    let batchedFirstDepartureRequests = [];
 
-    // Create batches for the firstDeparture query.
-    const batchedFirstDepartureRequests = departures.map(
-      ({routeId, departureId, dateBegin, dateEnd, direction}) => ({
-        routeId,
-        departureId,
-        dateBegin,
-        dateEnd,
-        direction,
-      })
-    );
+    // Only fetch the observed times if there's not too many departures. If the average
+    // number of departures per hour is over the threshold, wait for the user to filter by time.
+    if (departuresPerHour <= AVG_DEPARTURES_THRESHOLD || (min && max)) {
+      // Create batches for the firstDeparture query.
+      batchedFirstDepartureRequests = flatMap(
+        departuresByHour,
+        // Map to whole departures. The query will pick what it needs.
+        ([hour, departures]) => departures.map((dep) => dep)
+      );
+
+      // If there is min/max hour filters set, make sure no unnecessary first departures are fetched.
+      if (min || max) {
+        batchedFirstDepartureRequests = batchedFirstDepartureRequests.filter(
+          ({hours}) => {
+            if ((min && hours < parseInt(min)) || (max && hours > parseInt(max))) {
+              return false;
+            }
+
+            return true;
+          }
+        );
+      }
+    }
 
     return (
       <FirstDepartureQuery
@@ -100,10 +104,10 @@ class StopTimetable extends Component {
         dayType={dayType}>
         {({firstDepartures, loading}) => (
           <TimetableGrid>
-            {!allLoading && byHourOrdered.length === 0 && "No data"}
+            {!allLoading && departuresByHour.length === 0 && "No data"}
 
             {/* Loop through the hour-grouped departures */}
-            {byHourOrdered.map(([hour, times]) => {
+            {departuresByHour.map(([hour, times]) => {
               let timetableDepartures = times;
 
               if (min !== "" || max !== "") {
@@ -119,7 +123,8 @@ class StopTimetable extends Component {
                   get(departure, "routeId", "")
                     .substring(1)
                     .replace(/^0+/, "")
-                    .startsWith(routeFilter)
+                    .toLowerCase()
+                    .startsWith(routeFilter.toLowerCase())
                 );
               }
 

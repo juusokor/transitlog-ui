@@ -32,6 +32,7 @@ const areaHfpQuery = gql`
       received_at
       lat
       long
+      dl
       unique_vehicle_id
       drst
       spd

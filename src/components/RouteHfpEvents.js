@@ -11,6 +11,7 @@ import uniqBy from "lodash/uniqBy";
 import get from "lodash/get";
 import {createFetchKey, createRouteKey} from "../helpers/keys";
 import pMap from "p-map";
+import {setResetListener} from "../stores/FilterStore";
 
 @inject(app("Journey", "Filters"))
 @withRoute
@@ -33,8 +34,10 @@ class RouteHfpEvents extends React.Component {
   };
 
   @action
-  resetView = () => {
+  resetView = (setFetchKey = "") => {
     this.currentView.clear();
+    this.setLoading(false);
+    this.currentViewKey = setFetchKey;
   };
 
   getStateRoute = (partialRoute) => {
@@ -134,26 +137,29 @@ class RouteHfpEvents extends React.Component {
   componentDidMount() {
     this.fetchReaction = reaction(
       () => {
-        const {skip} = this.props;
+        const {
+          skip = false,
+          route,
+          state: {route: stateRoute, requestedJourneys},
+        } = this.props;
 
-        if (skip) {
-          return [];
-        }
+        const reqJourneys = requestedJourneys.slice(); // Slice to tell mobx that we used this array
+        const routeKey = createRouteKey(route);
 
-        const reqJourneys = this.props.state.requestedJourneys.slice(); // Slice to tell mobx that we used this array
-        const routeKey = createRouteKey(this.props.state.route);
-
-        if (reqJourneys.length && !!routeKey) {
+        if (!skip && (reqJourneys.length !== 0 && !!routeKey && !this.loading)) {
           return reqJourneys;
         }
+
         return [];
       },
       (reqJourneys) => {
-        if (reqJourneys.length !== 0 && !this.loading) {
+        if (reqJourneys.length !== 0) {
           this.fetchRequestedJourneys(reqJourneys);
         }
       }
     );
+
+    setResetListener(this.resetView);
 
     // Reset the view if the fetchKey (without time, but still
     // falseable if the date or route is missing) changes.
@@ -161,9 +167,7 @@ class RouteHfpEvents extends React.Component {
       () => createFetchKey(this.props.state.route, this.props.state.date, true),
       (fetchKey) => {
         if (!fetchKey || fetchKey !== this.currentViewKey) {
-          this.setLoading(false);
-          this.resetView();
-          this.currentViewKey = fetchKey;
+          this.resetView(fetchKey);
         }
       },
       {fireImmediately: true}

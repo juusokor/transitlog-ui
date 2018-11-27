@@ -7,6 +7,7 @@ import {app} from "mobx-app";
 import {getUrlValue, setUrlValue} from "../../stores/UrlManager";
 import {latLngBounds} from "leaflet";
 import {observable, action} from "mobx";
+import {setResetListener} from "../../stores/FilterStore";
 
 // The key under which the bounds will be recorded in the URL.
 const AREA_BOUNDS_URL_KEY = "areaBounds";
@@ -62,8 +63,7 @@ class AreaSelect extends Component {
   };
 
   componentDidMount() {
-    const {state} = this.props;
-    state.setResetListener(this.clearAreas);
+    setResetListener(this.clearAreas);
 
     // The url value is a stringified bbox created with bounds.toBBoxString()
     const urlBounds = getUrlValue(AREA_BOUNDS_URL_KEY);

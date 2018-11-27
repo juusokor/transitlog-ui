@@ -16,7 +16,7 @@ class RouteInput extends Component {
     const selectedValue = get(e, "target.value", false);
 
     if (!selectedValue) {
-      return Filters.setRoute({});
+      return Filters.setRoute({routeId: "", direction: ""});
     }
 
     const route = routes.find((r) => createRouteKey(r) === selectedValue);

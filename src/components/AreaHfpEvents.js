@@ -4,6 +4,7 @@ import {observable, action, reaction} from "mobx";
 import {app} from "mobx-app";
 import {combineDateAndTime} from "../helpers/time";
 import AreaHfpQuery from "../queries/AreaHfpQuery";
+import {setResetListener} from "../stores/FilterStore";
 
 const defaultQueryParams = {
   minTime: null,
@@ -65,7 +66,7 @@ class AreaHfpEvents extends Component {
   });
 
   componentDidMount() {
-    this.props.state.setResetListener(this.onReset);
+    setResetListener(this.onReset);
 
     this.disposeQueryReaction = reaction(
       () => this.currentBounds,
