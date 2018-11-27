@@ -82,19 +82,32 @@ class StopTimetable extends Component {
         // Map to whole departures. The query will pick what it needs.
         ([hour, departures]) => departures.map((dep) => dep)
       );
+    }
 
-      // If there is min/max hour filters set, make sure no unnecessary first departures are fetched.
-      if (min || max) {
-        batchedFirstDepartureRequests = batchedFirstDepartureRequests.filter(
-          ({hours}) => {
-            if ((min && hours < parseInt(min)) || (max && hours > parseInt(max))) {
+    // If there is min/max hour filters set, make sure no unnecessary first departures are fetched.
+    if (min || max || routeFilter) {
+      batchedFirstDepartureRequests = batchedFirstDepartureRequests.filter(
+        ({hours, routeId}) => {
+          if ((min && hours < parseInt(min)) || (max && hours > parseInt(max))) {
+            return false;
+          }
+
+          if (routeFilter) {
+            // Clean up the routeId to be compatible with what
+            // the user will enter into the filter field.
+            const routeIdFilterTerm = routeId
+              .substring(1)
+              .replace(/^0+/, "")
+              .toLowerCase();
+
+            if (!routeIdFilterTerm.startsWith(routeFilter.toLowerCase())) {
               return false;
             }
-
-            return true;
           }
-        );
-      }
+
+          return true;
+        }
+      );
     }
 
     return (
