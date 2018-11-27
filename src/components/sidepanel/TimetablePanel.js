@@ -65,7 +65,7 @@ class TimetablePanel extends Component {
   getDefaultTimeRangeValue(timeRange, perHour, date, time) {
     let {min = "", max = ""} = timeRange;
 
-    if (!min && !max && perHour > AVG_DEPARTURES_THRESHOLD && perHour < 50) {
+    if (!min && !max && perHour > AVG_DEPARTURES_THRESHOLD && perHour < 40) {
       const currentTime = combineDateAndTime(date, time, "Europe/Helsinki");
       // Use the average numbe of departures per hour to determine how large of a range to set.
       // More departures means narrower ranges, the idea is to not have the fetch take forever.
@@ -293,7 +293,7 @@ class TimetablePanel extends Component {
     // If there isn't an ungodly amount of departures per hour, or of the route
     // filter is set, collect all the routes and directions for the hfp query.
     // The query will not run if the routes array is empty.
-    if (departuresPerHour < 50 || !!routeFilter) {
+    if (departuresPerHour < 40 || !!routeFilter) {
       for (const departure of departures) {
         const {routeId, direction} = departure;
         // Clean up the routeId to be compatible with what
