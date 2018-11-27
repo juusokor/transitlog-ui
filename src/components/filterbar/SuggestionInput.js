@@ -64,19 +64,6 @@ class SuggestionInput extends Component {
     return value.trim().length >= limit;
   };
 
-  reset = () => {
-    this.setValue("");
-    this.setSuggestions([]);
-  };
-
-  componentDidMount() {
-    this.unbindResetListener = setResetListener(this.reset);
-  }
-
-  componentWillUnmount() {
-    this.unbindResetListener();
-  }
-
   componentDidUpdate() {
     const {value, getValue} = this.props;
     const nextValue = getValue(value);

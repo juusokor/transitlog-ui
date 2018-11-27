@@ -1,4 +1,4 @@
-import {extendObservable, action} from "mobx";
+import {extendObservable, action, toJS} from "mobx";
 import filterActions from "./filterActions";
 import JourneyActions from "./journeyActions";
 import {inflate} from "../helpers/inflate";
@@ -42,7 +42,7 @@ export default (state, initialState) => {
 
   extendObservable(
     state,
-    merge(emptyState, pick(inflate(initialState), ...Object.keys(emptyState)))
+    merge({}, emptyState, pick(inflate(initialState), ...Object.keys(emptyState)))
   );
 
   const journeyActions = JourneyActions(state);
@@ -50,14 +50,9 @@ export default (state, initialState) => {
 
   const reset = action(() => {
     // Recurse through the passed object and assign each value to the respective state value.
-    function resetStateWith(obj, path = "") {
+    function resetStateWith(obj) {
       Object.entries(obj).forEach(([key, value]) => {
-        const currentPath = path + "." + key;
-        if (typeof value === "object") {
-          resetStateWith(value, currentPath);
-        } else if (get(state, currentPath, false)) {
-          state[currentPath] = value;
-        }
+        state[key] = value;
       });
     }
 

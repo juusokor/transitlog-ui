@@ -35,7 +35,6 @@ export default (Component) => {
     componentDidMount() {
       this.disposeReaction = autorun(() => {
         const {route} = this.props.state;
-        console.log(route);
         if (shouldFetch(route)) {
           this.updateRoute(route);
         }
