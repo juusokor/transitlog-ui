@@ -1,10 +1,10 @@
 import {extendObservable, action} from "mobx";
 import filterActions from "./filterActions";
-import mergeWithObservable from "../helpers/mergeWithObservable";
 import JourneyActions from "./journeyActions";
 import {inflate} from "../helpers/inflate";
 import pick from "lodash/pick";
 import merge from "lodash/merge";
+import get from "lodash/get";
 import {resetUrlState} from "./UrlManager";
 
 const resetListeners = [];
@@ -49,7 +49,19 @@ export default (state, initialState) => {
   const actions = filterActions(state);
 
   const reset = action(() => {
-    mergeWithObservable(state, emptyState);
+    // Recurse through the passed object and assign each value to the respective state value.
+    function resetStateWith(obj, path = "") {
+      Object.entries(obj).forEach(([key, value]) => {
+        const currentPath = path + "." + key;
+        if (typeof value === "object") {
+          resetStateWith(value, currentPath);
+        } else if (get(state, currentPath, false)) {
+          state[currentPath] = value;
+        }
+      });
+    }
+
+    resetStateWith(emptyState);
 
     journeyActions.setSelectedJourney(null);
     state.requestedJourneys.clear();
