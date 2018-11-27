@@ -20,6 +20,7 @@ import memoize from "memoized-decorator";
 import {combineDateAndTime} from "../../helpers/time";
 import * as mobxUtils from "mobx-utils";
 import {createDebouncedObservable} from "../../helpers/createDebouncedObservable";
+import {getUrlValue, setUrlValue} from "../../stores/UrlManager";
 
 const RouteFilterContainer = styled.div`
   flex: 1 1 50%;
@@ -53,35 +54,33 @@ class TimetablePanel extends Component {
   clickedJourney = false;
 
   // Create debounced observable values for the timetable filters.
-  routeFilter = createDebouncedObservable("");
-  timeRangeFilter = createDebouncedObservable({min: "", max: ""});
+  routeFilter = createDebouncedObservable(getUrlValue("timetableRoute"));
+  timeRangeFilter = createDebouncedObservable({
+    min: getUrlValue("timetableTimeRange.min"),
+    max: getUrlValue("timetableTimeRange.max"),
+  });
 
   // If there are too many departures, we want to set a time range filter by default.
   // This method figures out the range to set if one needs setting.
   getDefaultTimeRangeValue(timeRange, perHour, date, time) {
     let {min = "", max = ""} = timeRange;
 
-    if ((!min || !max) && perHour > AVG_DEPARTURES_THRESHOLD && perHour < 50) {
+    if (!min && !max && perHour > AVG_DEPARTURES_THRESHOLD && perHour < 50) {
       const currentTime = combineDateAndTime(date, time, "Europe/Helsinki");
       // Use the average numbe of departures per hour to determine how large of a range to set.
       // More departures means narrower ranges, the idea is to not have the fetch take forever.
       const hourModifier = perHour > 30 ? 2 : perHour > 20 ? 3 : 4;
-
       const modifierHalf = Math.floor(hourModifier / 2);
 
-      if (!min) {
-        min = currentTime
-          .clone()
-          .subtract(modifierHalf, "hours")
-          .format("HH");
-      }
+      min = currentTime
+        .clone()
+        .subtract(modifierHalf, "hours")
+        .format("HH");
 
-      if (!max) {
-        max = currentTime
-          .clone()
-          .add(modifierHalf, "hours")
-          .format("HH");
-      }
+      max = currentTime
+        .clone()
+        .add(modifierHalf, "hours")
+        .format("HH");
     }
 
     return {min, max};
@@ -95,7 +94,7 @@ class TimetablePanel extends Component {
   reactionlessTime = toJS(this.props.state.time);
 
   componentDidUpdate() {
-    // THis part makes the list scroll to the currently selected journey
+    // This part makes the list scroll to the currently selected journey
     if (!this.clickedJourney && this.selectedJourneyRef.current) {
       let offset = get(this.selectedJourneyRef, "current.offsetTop", null);
 
@@ -121,20 +120,23 @@ class TimetablePanel extends Component {
         };
       },
       ({timeRange, perHour, date, time}) => {
-        const nextTimeRange = this.getDefaultTimeRangeValue(
-          timeRange,
-          perHour,
-          date,
-          time
-        );
-
-        // While values used here will not cause a reaction, se still need to be
-        // careful to not create infinite update loops.
-        const {min, max} = nextTimeRange;
         const {min: prevMin, max: prevMax} = timeRange;
 
-        if ((min && prevMin !== min) || (max && prevMax !== max)) {
-          this.timeRangeFilter.setValue(nextTimeRange);
+        if (!prevMin && !prevMax) {
+          const nextTimeRange = this.getDefaultTimeRangeValue(
+            timeRange,
+            perHour,
+            date,
+            time
+          );
+
+          // While values used here will not cause a reaction, se still need to be
+          // careful to not create infinite update loops.
+          const {min, max} = nextTimeRange;
+
+          if ((min && prevMin !== min) || (max && prevMax !== max)) {
+            this.timeRangeFilter.setValue(nextTimeRange);
+          }
         }
       },
       {fireImmediately: true}
@@ -150,17 +152,25 @@ class TimetablePanel extends Component {
   setRouteFilter = (e) => {
     const value = get(e, "target.value", e);
     this.routeFilter.setValue(value);
+    setUrlValue("timetableRoute", value);
   };
 
-  setTimeRangeFilter = (which = false) => (e) => {
+  setTimeRangeFilter = (which) => (e) => {
     const value = e.target.value;
+
+    const reverse = which === "min" ? "max" : "min";
+
+    // If the time is not a valid hour, make it empty.
+    const setValue = value > 23 || value < 0 ? "" : value;
 
     // The time range value is set as an object.
     const nextValue = {
-      [which]: value > 23 || value < 0 ? "00" : doubleDigit(value),
+      [reverse]: this.timeRangeFilter.value[reverse],
+      [which]: setValue,
     };
 
     this.timeRangeFilter.setValue(nextValue);
+    setUrlValue(`timetableTimeRange.${which}`, setValue);
   };
 
   selectAsJourney = (departure) => (e) => {

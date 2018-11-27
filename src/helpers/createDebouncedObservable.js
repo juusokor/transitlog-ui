@@ -10,13 +10,7 @@ export function createDebouncedObservable(observableValue) {
 
     @action
     setValue(value) {
-      // If the original value is an object, use extend.
-      if (this.observableValue === "object") {
-        extendObservable(this.value, value);
-      } else {
-        // else just assign
-        this.value = value;
-      }
+      this.value = value;
     }
 
     @computed
