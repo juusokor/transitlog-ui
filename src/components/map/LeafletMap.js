@@ -1,10 +1,12 @@
 import React, {Component} from "react";
 import {Map, TileLayer, ZoomControl, Pane, LayersControl} from "react-leaflet";
 import {latLng} from "leaflet";
+import get from "lodash/get";
 import MapillaryViewer from "./MapillaryViewer";
 import styled from "styled-components";
 import "leaflet/dist/leaflet.css";
 import MapillaryGeoJSONLayer from "./MapillaryGeoJSONLayer";
+import {setUrlValue, getUrlValue} from "../../stores/UrlManager";
 
 const MapContainer = styled.div`
   width: 100%;
@@ -29,14 +31,16 @@ const MapillaryView = styled(MapillaryViewer)`
   position: relative;
 `;
 
-export class LeafletMap extends Component {
+class LeafletMap extends Component {
   state = {
-    currentBaseLayer: "Digitransit",
-    currentOverlays: [],
+    currentBaseLayer: getUrlValue("mapBaseLayer", "Digitransit"),
+    currentOverlays: getUrlValue("mapOverlays", "").split(","),
     currentMapillaryMapLocation: false,
   };
 
   onChangeBaseLayer = ({name}) => {
+    setUrlValue("mapBaseLayer", name);
+
     this.setState({
       currentBaseLayer: name,
     });
@@ -59,6 +63,11 @@ export class LeafletMap extends Component {
     } else if (action === "add") {
       overlays.push(name);
     }
+
+    setUrlValue(
+      "mapOverlays",
+      overlays.length !== 0 ? overlays.filter((name) => !!name).join(",") : null
+    );
 
     this.setState({
       currentOverlays: overlays,
@@ -129,6 +138,7 @@ export class LeafletMap extends Component {
               name="Mapillary"
               checked={currentOverlays.indexOf("Mapillary") !== -1}>
               <MapillaryGeoJSONLayer
+                map={get(mapRef, "current.leafletElement", null)}
                 viewBbox={viewBbox}
                 location={currentMapillaryMapLocation}
                 layerIsActive={currentOverlays.indexOf("Mapillary") !== -1}
@@ -136,6 +146,8 @@ export class LeafletMap extends Component {
               />
             </LayersControl.Overlay>
           </LayersControl>
+          <Pane name="mapillary-lines" style={{zIndex: 390}} />
+          <Pane name="mapillary-location" style={{zIndex: 400}} />
           <Pane name="route-lines" style={{zIndex: 410}} />
           <Pane name="hfp-lines" style={{zIndex: 420}} />
           <Pane name="hfp-markers" style={{zIndex: 430}} />
@@ -155,3 +167,5 @@ export class LeafletMap extends Component {
     );
   }
 }
+
+export default LeafletMap;

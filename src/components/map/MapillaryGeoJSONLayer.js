@@ -1,38 +1,38 @@
 import React from "react";
-import {GeoJSON, FeatureGroup, withLeaflet} from "react-leaflet";
+import {GeoJSON, FeatureGroup} from "react-leaflet";
 import {circleMarker} from "leaflet";
 import get from "lodash/get";
 import {
   closestPointCompareReducer,
   closestPointInGeometry,
 } from "../../helpers/closestPoint";
+import subYears from "date-fns/sub_years";
+import format from "date-fns/format";
 
-@withLeaflet
-class MapillaryGeoJSONLayer extends React.Component {
+class MapillaryGeoJSONLayer extends React.PureComponent {
   static defaultProps = {
     viewBbox: null,
   };
 
+  geoJSONLayer = React.createRef();
   highlightedLocation = false;
   marker = null;
   eventsEnabled = false;
-
-  state = {
-    features: null,
-  };
+  prevFetchedBbox = "";
+  features = null;
 
   onHover = (e) => {
     const {layerIsActive} = this.props;
     const {latlng} = e;
 
     // Bail if the layer isn't active or if we don't have any features
-    if (!this.state.features || !layerIsActive) {
+    if (!this.features || !layerIsActive) {
       return;
     }
 
     // Get the feature closest to where the user is hovering
     let featurePoint = closestPointCompareReducer(
-      get(this, "state.features.features", []),
+      get(this, "features.features", []),
       (feature) => closestPointInGeometry(latlng, feature.geometry, 200),
       latlng
     );
@@ -45,15 +45,17 @@ class MapillaryGeoJSONLayer extends React.Component {
   };
 
   createMarker = (position) => {
-    return circleMarker(position, {radius: 4, color: "#ff0000"});
+    return circleMarker(position, {
+      radius: 4,
+      color: "#ff0000",
+      pane: "mapillary-location",
+    });
   };
 
   highlightMapillaryPoint = (position) => {
-    const {
-      leaflet: {map},
-    } = this.props;
+    const {map} = this.props;
 
-    if (position) {
+    if (map && position) {
       const marker = this.marker || this.createMarker(position);
 
       if (!this.marker) {
@@ -100,8 +102,7 @@ class MapillaryGeoJSONLayer extends React.Component {
       this.highlightMapillaryPoint(location);
     }
 
-    // Fetch only once per component instance
-    if (!this.state.features && viewBbox) {
+    if (viewBbox) {
       this.fetchFeatures(viewBbox);
     }
   }
@@ -111,31 +112,39 @@ class MapillaryGeoJSONLayer extends React.Component {
       return;
     }
 
-    // Round the coordinates to stop the fetch from refetching every small change
-    const round = (coord) => Math.floor(coord * 1000 + 0.5) / 1000;
+    const minX = bounds.getWest().toFixed(6);
+    const minY = bounds.getSouth().toFixed(6);
+    const maxX = bounds.getEast().toFixed(6);
+    const maxY = bounds.getNorth().toFixed(6);
 
-    const west = round(bounds.getWest());
-    const east = round(bounds.getEast());
-    const north = round(bounds.getNorth());
-    const south = round(bounds.getSouth());
+    const bboxStr = `${minX},${minY},${maxX},${maxY}`;
 
-    const url = `https://a.mapillary.com/v3/sequences?bbox=${west},${south},${east},${north}&client_id=V2RqRUsxM2dPVFBMdnlhVUliTkM0ZzoxNmI5ZDZhOTc5YzQ2MzEw`;
-    const request = await fetch(url);
-    const data = await request.json();
-
-    this.setState({
-      features: data,
-    });
-  };
-
-  bindEvents = () => {
-    if (this.eventsEnabled) {
+    if (bboxStr === this.prevFetchedBbox) {
       return;
     }
 
-    const {
-      leaflet: {map},
-    } = this.props;
+    this.prevFetchedBbox = bboxStr;
+    const minTime = format(subYears(new Date(), 2), "YYYY-MM-DD");
+
+    const url = `https://a.mapillary.com/v3/sequences?bbox=${bboxStr}&client_id=V2RqRUsxM2dPVFBMdnlhVUliTkM0ZzoxNmI5ZDZhOTc5YzQ2MzEw&per_page=500&start_time=${minTime}`;
+
+    const request = await fetch(url);
+    const data = await request.json();
+
+    this.features = data;
+
+    // Set the data imperatively since it won't update reactively.
+    if (this.geoJSONLayer.current && this.features) {
+      this.geoJSONLayer.current.leafletElement.addData(this.features);
+    }
+  };
+
+  bindEvents = () => {
+    const {map} = this.props;
+
+    if (!map || this.eventsEnabled) {
+      return;
+    }
 
     map.on("mousemove", this.onHover);
     map.on("click", this.onMapClick);
@@ -143,13 +152,11 @@ class MapillaryGeoJSONLayer extends React.Component {
   };
 
   unbindEvents = () => {
-    if (!this.eventsEnabled) {
+    const {map} = this.props;
+
+    if (!map || !this.eventsEnabled) {
       return;
     }
-
-    const {
-      leaflet: {map},
-    } = this.props;
 
     map.off("mousemove", this.onHover);
     map.off("click", this.onMapClick);
@@ -173,14 +180,17 @@ class MapillaryGeoJSONLayer extends React.Component {
 
     return (
       <FeatureGroup>
-        {layerIsActive && this.state.features && (
+        {layerIsActive && (
           <GeoJSON
+            kaye="mapillary-json"
+            pane="mapillary-lines"
+            ref={this.geoJSONLayer}
             style={() => ({
               color: "rgb(50, 200, 200)",
               weight: 3,
               opacity: 0.75,
             })}
-            data={this.state.features}
+            data={{type: "FeatureCollection", features: []}} // The data wdoes not update reactively
           />
         )}
       </FeatureGroup>
