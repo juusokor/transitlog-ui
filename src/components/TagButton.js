@@ -63,8 +63,12 @@ export const ColoredBackgroundSlot = styled.span`
 export const PlainSlot = styled.span`
   padding: 3px 8px;
   border-left: 1px solid var(--lighter-grey);
-  min-width: 5rem;
+  min-width: 6rem;
   font-weight: normal;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: left;
 `;
 
 export const PlainSlotSmallRight = styled.span`
@@ -74,7 +78,7 @@ export const PlainSlotSmallRight = styled.span`
   justify-content: center;
   border-left: 0;
   font-weight: normal;
-  min-width: 7rem;
+  min-width: 6rem;
   padding: 3px 8px;
   font-size: 1rem;
   font-family: "Courier New", Courier, monospace;

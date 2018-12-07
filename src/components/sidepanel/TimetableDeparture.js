@@ -3,6 +3,7 @@ import {observer} from "mobx-react";
 import get from "lodash/get";
 import doubleDigit from "../../helpers/doubleDigit";
 import getDelayType from "../../helpers/getDelayType";
+import timingStopIcon from "../../icon-time1.svg";
 import {diffDepartureJourney} from "../../helpers/diffDepartureJourney";
 import {TransportIcon, transportColor} from "../transportModes";
 import {
@@ -36,6 +37,14 @@ const InlineLoading = styled(Loading).attrs({inline: true, size: 18})`
   margin-top: 5px;
 `;
 
+const TimingIcon = styled.img`
+  width: 0.95rem;
+  height: 0.95rem;
+  display: block;
+  margin-left: auto;
+  margin-bottom: 0;
+`;
+
 @observer
 class TimetableDeparture extends Component {
   render() {
@@ -48,6 +57,7 @@ class TimetableDeparture extends Component {
       onClick,
       focusRef,
       loading,
+      isTimingStop,
     } = this.props;
 
     const {
@@ -89,6 +99,7 @@ class TimetableDeparture extends Component {
           </ColoredIconSlot>
           <PlainSlot>
             {doubleDigit(departure.hours)}:{doubleDigit(departure.minutes)}
+            {isTimingStop && <TimingIcon src={timingStopIcon} />}
           </PlainSlot>
           {plannedObservedDiff ? (
             <>
