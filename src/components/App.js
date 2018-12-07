@@ -11,7 +11,6 @@ import JourneyPosition from "./map/JourneyPosition";
 import MapContent from "./map/MapContent";
 import {latLng} from "leaflet";
 import SingleStopQuery from "../queries/SingleStopQuery";
-import {observable, action} from "mobx";
 import AreaHfpEvents from "./AreaHfpEvents";
 
 const DEFAULT_SIDEPANEL_WIDTH = 25;
@@ -39,30 +38,35 @@ const MapPanel = styled(Map)`
 @inject(app("Journey", "Filters"))
 @observer
 class App extends Component {
-  @observable
-  stopsBbox = null;
+  state = {
+    stopsBbox: null,
+  };
 
-  setStopsBbox = action((map) => {
+  setStopsBbox = (map) => {
     if (!map) {
       return;
     }
 
     const bounds = map.getBounds();
+    const {stopsBbox} = this.state;
 
     if (
       !bounds ||
       !invoke(bounds, "isValid") ||
-      (this.stopsBbox !== null && bounds.equals(this.stopsBbox))
+      (stopsBbox !== null && bounds.equals(stopsBbox))
     ) {
       return;
     }
 
-    this.stopsBbox = bounds;
-  });
+    this.setState({
+      stopsBbox: bounds,
+    });
+  };
 
   render() {
     const {state} = this.props;
     const {date, stop, route} = state;
+    const {stopsBbox} = this.state;
 
     const hasRoute = !!route && !!route.routeId;
 
@@ -100,7 +104,7 @@ class App extends Component {
 
                             return (
                               <MapPanel
-                                viewBbox={this.stopsBbox}
+                                viewBbox={stopsBbox}
                                 onMapChanged={this.setStopsBbox}
                                 center={centerPosition}>
                                 {({zoom, setMapBounds, setViewerLocation}) => (
@@ -112,7 +116,7 @@ class App extends Component {
                                     stop={stop}
                                     zoom={zoom}
                                     viewLocation={setViewerLocation}
-                                    stopsBbox={this.stopsBbox}
+                                    stopsBbox={stopsBbox}
                                   />
                                 )}
                               </MapPanel>

@@ -7,7 +7,6 @@ import {
   closestPointInGeometry,
 } from "../../helpers/closestPoint";
 
-@withLeaflet
 class MapillaryGeoJSONLayer extends React.Component {
   static defaultProps = {
     viewBbox: null,
@@ -16,6 +15,7 @@ class MapillaryGeoJSONLayer extends React.Component {
   highlightedLocation = false;
   marker = null;
   eventsEnabled = false;
+  prevFetchedBbox = "";
 
   state = {
     features: null,
@@ -49,11 +49,9 @@ class MapillaryGeoJSONLayer extends React.Component {
   };
 
   highlightMapillaryPoint = (position) => {
-    const {
-      leaflet: {map},
-    } = this.props;
+    const {map} = this.props;
 
-    if (position) {
+    if (map && position) {
       const marker = this.marker || this.createMarker(position);
 
       if (!this.marker) {
@@ -100,8 +98,7 @@ class MapillaryGeoJSONLayer extends React.Component {
       this.highlightMapillaryPoint(location);
     }
 
-    // Fetch only once per component instance
-    if (!this.state.features && viewBbox) {
+    if (viewBbox) {
       this.fetchFeatures(viewBbox);
     }
   }
@@ -111,17 +108,24 @@ class MapillaryGeoJSONLayer extends React.Component {
       return;
     }
 
-    // Round the coordinates to stop the fetch from refetching every small change
-    const round = (coord) => Math.floor(coord * 1000 + 0.5) / 1000;
+    const minX = bounds.getWest().toFixed(6);
+    const minY = bounds.getSouth().toFixed(6);
+    const maxX = bounds.getEast().toFixed(6);
+    const maxY = bounds.getNorth().toFixed(6);
 
-    const west = round(bounds.getWest());
-    const east = round(bounds.getEast());
-    const north = round(bounds.getNorth());
-    const south = round(bounds.getSouth());
+    const bboxStr = `${minX},${minY},${maxX},${maxY}`;
 
-    const url = `https://a.mapillary.com/v3/sequences?bbox=${west},${south},${east},${north}&client_id=V2RqRUsxM2dPVFBMdnlhVUliTkM0ZzoxNmI5ZDZhOTc5YzQ2MzEw`;
+    console.log(bboxStr);
+
+    if (bboxStr === this.prevFetchedBbox) {
+      return;
+    }
+
+    const url = `https://a.mapillary.com/v3/sequences?bbox=${bboxStr}&client_id=V2RqRUsxM2dPVFBMdnlhVUliTkM0ZzoxNmI5ZDZhOTc5YzQ2MzEw`;
     const request = await fetch(url);
     const data = await request.json();
+
+    this.prevFetchedBbox = bboxStr;
 
     this.setState({
       features: data,
@@ -129,13 +133,11 @@ class MapillaryGeoJSONLayer extends React.Component {
   };
 
   bindEvents = () => {
-    if (this.eventsEnabled) {
+    const {map} = this.props;
+
+    if (!map || this.eventsEnabled) {
       return;
     }
-
-    const {
-      leaflet: {map},
-    } = this.props;
 
     map.on("mousemove", this.onHover);
     map.on("click", this.onMapClick);
@@ -143,13 +145,11 @@ class MapillaryGeoJSONLayer extends React.Component {
   };
 
   unbindEvents = () => {
-    if (!this.eventsEnabled) {
+    const {map} = this.props;
+
+    if (!map || !this.eventsEnabled) {
       return;
     }
-
-    const {
-      leaflet: {map},
-    } = this.props;
 
     map.off("mousemove", this.onHover);
     map.off("click", this.onMapClick);

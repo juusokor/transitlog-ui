@@ -1,13 +1,12 @@
 import React, {Component} from "react";
 import {Map, TileLayer, ZoomControl, Pane, LayersControl} from "react-leaflet";
 import {latLng} from "leaflet";
+import get from "lodash/get";
 import MapillaryViewer from "./MapillaryViewer";
 import styled from "styled-components";
-import get from "lodash/get";
-import compact from "lodash/compact";
 import "leaflet/dist/leaflet.css";
 import MapillaryGeoJSONLayer from "./MapillaryGeoJSONLayer";
-import {getUrlState, setUrlValue, getUrlValue} from "../../stores/UrlManager";
+import {setUrlValue, getUrlValue} from "../../stores/UrlManager";
 
 const MapContainer = styled.div`
   width: 100%;
@@ -32,7 +31,7 @@ const MapillaryView = styled(MapillaryViewer)`
   position: relative;
 `;
 
-export class LeafletMap extends Component {
+class LeafletMap extends Component {
   state = {
     currentBaseLayer: getUrlValue("mapBaseLayer", "Digitransit"),
     currentOverlays: getUrlValue("mapOverlays", "").split(","),
@@ -139,6 +138,7 @@ export class LeafletMap extends Component {
               name="Mapillary"
               checked={currentOverlays.indexOf("Mapillary") !== -1}>
               <MapillaryGeoJSONLayer
+                map={get(mapRef, "current.leafletElement", null)}
                 viewBbox={viewBbox}
                 location={currentMapillaryMapLocation}
                 layerIsActive={currentOverlays.indexOf("Mapillary") !== -1}
@@ -165,3 +165,5 @@ export class LeafletMap extends Component {
     );
   }
 }
+
+export default LeafletMap;
