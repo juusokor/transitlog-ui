@@ -57,6 +57,7 @@ class SidePanel extends Component {
           )}
           {stop && (
             <TimetablePanel
+              loading={loading}
               name="timetables"
               label={text("sidepanel.tabs.timetables")}
             />
