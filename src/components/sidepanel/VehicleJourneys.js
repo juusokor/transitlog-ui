@@ -74,6 +74,10 @@ const NextPrevLabel = styled.div`
 @withVehicleJourneys
 @observer
 class VehicleJourneys extends Component {
+  selectedJourneyRef = React.createRef();
+  @observable
+  selectedJourneyOffset = 0;
+
   // We are modifying this in the render function so it cannot be reactive
   selectedJourneyIndex = 0;
 
@@ -115,6 +119,18 @@ class VehicleJourneys extends Component {
   };
 
   @action
+  // Set the offset where the selected journey is located so we can scroll to it.
+  setSelectedJourneyOffset() {
+    if (this.selectedJourneyRef.current && !this.selectedJourneyOffset) {
+      let offset = get(this.selectedJourneyRef, "current.offsetTop", null);
+
+      if (offset) {
+        this.selectedJourneyOffset = offset;
+      }
+    }
+  }
+
+  @action
   selectPreviousVehicleJourney = () => {
     this.nextJourneyIndex = this.selectedJourneyIndex - 1;
 
@@ -134,6 +150,12 @@ class VehicleJourneys extends Component {
       () => this.nextJourneyIndex,
       (nextJourneyIndex) => this.updateVehicleAndJourneySelection(nextJourneyIndex)
     );
+  }
+
+  componentDidUpdate() {
+    // Get the scroll offset of the currently selected or focused part of the list.
+    // Will only be set once per instance so it is safe to call here.
+    this.setSelectedJourneyOffset();
   }
 
   // Selects a journey based on its index in the list.
@@ -197,6 +219,7 @@ class VehicleJourneys extends Component {
 
     return (
       <SidepanelList
+        scrollOffset={this.selectedJourneyOffset}
         loading={loading}
         header={
           <>
@@ -252,7 +275,9 @@ class VehicleJourneys extends Component {
           }
 
           return (
-            <JourneyListRow key={`vehicle_journey_row_${journeyId}`}>
+            <JourneyListRow
+              key={`vehicle_journey_row_${journeyId}`}
+              ref={journeyIsSelected ? this.selectedJourneyRef : null}>
               <TagButton
                 selected={journeyIsSelected}
                 onClick={this.onSelectJourney(journey)}>

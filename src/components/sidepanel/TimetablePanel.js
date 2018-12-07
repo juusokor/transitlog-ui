@@ -50,7 +50,6 @@ const TimeRangeFilterContainer = styled.div`
 class TimetablePanel extends Component {
   disposeTimeRangeReaction = () => {};
   selectedJourneyRef = React.createRef();
-  clickedJourney = false;
 
   // Create debounced observable values for the timetable filters.
   routeFilter = createDebouncedObservable(getUrlValue("timetableRoute"));
@@ -93,15 +92,6 @@ class TimetablePanel extends Component {
   reactionlessTime = toJS(this.props.state.time);
 
   componentDidMount() {
-    // This part makes the list scroll to the currently selected journey
-    if (!this.clickedJourney && this.selectedJourneyRef.current) {
-      let offset = get(this.selectedJourneyRef, "current.offsetTop", null);
-
-      if (offset) {
-        this.setSelectedJourneyOffset(offset);
-      }
-    }
-
     // Reaction to automatically set a sensible time range filter.
     // Check mobx docs on reaction if this is unclear.
     this.disposeTimeRangeReaction = reaction(
@@ -149,6 +139,12 @@ class TimetablePanel extends Component {
     this.disposeTimeRangeReaction();
   }
 
+  componentDidUpdate() {
+    // Get the scroll offset of the currently selected or focused part of the list.
+    // Will only be set once per instance so it is safe to call here.
+    this.setSelectedJourneyOffset();
+  }
+
   setRouteFilter = (e) => {
     const value = get(e, "target.value", e);
     this.routeFilter.setValue(value);
@@ -191,7 +187,6 @@ class TimetablePanel extends Component {
     Filters.setRoute(route);
 
     if (departure.journey) {
-      this.clickedJourney = true;
       const {journey} = departure;
 
       Journey.setSelectedJourney(journey);
@@ -204,9 +199,13 @@ class TimetablePanel extends Component {
   };
 
   // Set the offset where the selected journey is located so we can scroll to it.
-  setSelectedJourneyOffset = action((offset) => {
-    if (offset && offset !== this.selectedJourneyOffset) {
-      this.selectedJourneyOffset = offset;
+  setSelectedJourneyOffset = action(() => {
+    if (this.selectedJourneyRef.current && !this.selectedJourneyOffset) {
+      let offset = get(this.selectedJourneyRef, "current.offsetTop", null);
+
+      if (offset) {
+        this.selectedJourneyOffset = offset;
+      }
     }
   });
 
