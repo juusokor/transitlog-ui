@@ -3,8 +3,11 @@ import {Map, TileLayer, ZoomControl, Pane, LayersControl} from "react-leaflet";
 import {latLng} from "leaflet";
 import MapillaryViewer from "./MapillaryViewer";
 import styled from "styled-components";
+import get from "lodash/get";
+import compact from "lodash/compact";
 import "leaflet/dist/leaflet.css";
 import MapillaryGeoJSONLayer from "./MapillaryGeoJSONLayer";
+import {getUrlState, setUrlValue, getUrlValue} from "../../stores/UrlManager";
 
 const MapContainer = styled.div`
   width: 100%;
@@ -31,12 +34,14 @@ const MapillaryView = styled(MapillaryViewer)`
 
 export class LeafletMap extends Component {
   state = {
-    currentBaseLayer: "Digitransit",
-    currentOverlays: [],
+    currentBaseLayer: getUrlValue("mapBaseLayer", "Digitransit"),
+    currentOverlays: getUrlValue("mapOverlays", "").split(","),
     currentMapillaryMapLocation: false,
   };
 
   onChangeBaseLayer = ({name}) => {
+    setUrlValue("mapBaseLayer", name);
+
     this.setState({
       currentBaseLayer: name,
     });
@@ -59,6 +64,11 @@ export class LeafletMap extends Component {
     } else if (action === "add") {
       overlays.push(name);
     }
+
+    setUrlValue(
+      "mapOverlays",
+      overlays.length !== 0 ? overlays.filter((name) => !!name).join(",") : null
+    );
 
     this.setState({
       currentOverlays: overlays,
