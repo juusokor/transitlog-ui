@@ -146,6 +146,8 @@ class LeafletMap extends Component {
               />
             </LayersControl.Overlay>
           </LayersControl>
+          <Pane name="mapillary-lines" style={{zIndex: 390}} />
+          <Pane name="mapillary-location" style={{zIndex: 400}} />
           <Pane name="route-lines" style={{zIndex: 410}} />
           <Pane name="hfp-lines" style={{zIndex: 420}} />
           <Pane name="hfp-markers" style={{zIndex: 430}} />

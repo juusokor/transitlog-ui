@@ -1,38 +1,38 @@
 import React from "react";
-import {GeoJSON, FeatureGroup, withLeaflet} from "react-leaflet";
+import {GeoJSON, FeatureGroup} from "react-leaflet";
 import {circleMarker} from "leaflet";
 import get from "lodash/get";
 import {
   closestPointCompareReducer,
   closestPointInGeometry,
 } from "../../helpers/closestPoint";
+import subYears from "date-fns/sub_years";
+import format from "date-fns/format";
 
-class MapillaryGeoJSONLayer extends React.Component {
+class MapillaryGeoJSONLayer extends React.PureComponent {
   static defaultProps = {
     viewBbox: null,
   };
 
+  geoJSONLayer = React.createRef();
   highlightedLocation = false;
   marker = null;
   eventsEnabled = false;
   prevFetchedBbox = "";
-
-  state = {
-    features: null,
-  };
+  features = null;
 
   onHover = (e) => {
     const {layerIsActive} = this.props;
     const {latlng} = e;
 
     // Bail if the layer isn't active or if we don't have any features
-    if (!this.state.features || !layerIsActive) {
+    if (!this.features || !layerIsActive) {
       return;
     }
 
     // Get the feature closest to where the user is hovering
     let featurePoint = closestPointCompareReducer(
-      get(this, "state.features.features", []),
+      get(this, "features.features", []),
       (feature) => closestPointInGeometry(latlng, feature.geometry, 200),
       latlng
     );
@@ -45,7 +45,11 @@ class MapillaryGeoJSONLayer extends React.Component {
   };
 
   createMarker = (position) => {
-    return circleMarker(position, {radius: 4, color: "#ff0000"});
+    return circleMarker(position, {
+      radius: 4,
+      color: "#ff0000",
+      pane: "mapillary-location",
+    });
   };
 
   highlightMapillaryPoint = (position) => {
@@ -115,21 +119,24 @@ class MapillaryGeoJSONLayer extends React.Component {
 
     const bboxStr = `${minX},${minY},${maxX},${maxY}`;
 
-    console.log(bboxStr);
-
     if (bboxStr === this.prevFetchedBbox) {
       return;
     }
 
-    const url = `https://a.mapillary.com/v3/sequences?bbox=${bboxStr}&client_id=V2RqRUsxM2dPVFBMdnlhVUliTkM0ZzoxNmI5ZDZhOTc5YzQ2MzEw`;
+    this.prevFetchedBbox = bboxStr;
+    const minTime = format(subYears(new Date(), 2), "YYYY-MM-DD");
+
+    const url = `https://a.mapillary.com/v3/sequences?bbox=${bboxStr}&client_id=V2RqRUsxM2dPVFBMdnlhVUliTkM0ZzoxNmI5ZDZhOTc5YzQ2MzEw&per_page=50&start_time=${minTime}`;
+
     const request = await fetch(url);
     const data = await request.json();
 
-    this.prevFetchedBbox = bboxStr;
+    this.features = data;
 
-    this.setState({
-      features: data,
-    });
+    // Set the data imperatively since it won't update reactively.
+    if (this.geoJSONLayer.current && this.features) {
+      this.geoJSONLayer.current.leafletElement.addData(this.features);
+    }
   };
 
   bindEvents = () => {
@@ -173,14 +180,17 @@ class MapillaryGeoJSONLayer extends React.Component {
 
     return (
       <FeatureGroup>
-        {layerIsActive && this.state.features && (
+        {layerIsActive && (
           <GeoJSON
+            kaye="mapillary-json"
+            pane="mapillary-lines"
+            ref={this.geoJSONLayer}
             style={() => ({
               color: "rgb(50, 200, 200)",
               weight: 3,
               opacity: 0.75,
             })}
-            data={this.state.features}
+            data={{type: "FeatureCollection", features: []}} // The data wdoes not update reactively
           />
         )}
       </FeatureGroup>
