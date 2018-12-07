@@ -4,7 +4,7 @@ import RailIcon from "../icons/Rail";
 import React from "react";
 import get from "lodash/get";
 
-export const transportIcon = {
+export const transportIcons = {
   BUS: BusIcon,
   TRUNK: BusIcon,
   TRAM: TramIcon,
@@ -23,7 +23,7 @@ export const TransportIcon = ({mode = ""}) => {
     return null;
   }
 
-  return React.createElement(get(transportIcon, mode, null), {
+  return React.createElement(get(transportIcons, mode, null), {
     fill: get(transportColor, mode, "var(--light-grey)"),
     width: "16",
     height: "16",

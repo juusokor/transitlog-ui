@@ -26,6 +26,13 @@ export const StopFieldsWithRouteSegmentsFragment = gql`
     modes {
       nodes
     }
+    timingStopTypes: routeSegmentsForDate(date: $date) {
+      nodes {
+        timingStopType
+        direction
+        routeId
+      }
+    }
     routeSegmentsForDate(date: $date) @include(if: $fetchRouteSegments) {
       nodes {
         line {
@@ -39,6 +46,7 @@ export const StopFieldsWithRouteSegmentsFragment = gql`
         dateEnd
         routeId
         direction
+        timingStopType
         route {
           nodes {
             ...RouteFieldsFragment

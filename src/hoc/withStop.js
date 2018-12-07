@@ -16,7 +16,9 @@ export default (fetchArgs = {}) => (Component) =>
         stop={stopId}
         date={date}
         fetchRouteSegments={fetchRouteSegments}>
-        {({stop, loading}) => <Component {...props} stop={stop} loading={loading} />}
+        {({stop, loading}) => (
+          <Component {...props} stop={stop} loading={loading || props.loading} />
+        )}
       </SingleStopQuery>
     );
   });

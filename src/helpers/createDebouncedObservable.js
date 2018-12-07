@@ -1,8 +1,12 @@
-import {action, computed, observable, toJS, extendObservable} from "mobx";
+import {action, computed, observable} from "mobx";
 import * as mobxUtils from "mobx-utils";
 
-export function createDebouncedObservable(observableValue) {
-  class DebounceObservableValue {
+export function createDebouncedObservable(
+  observableValue,
+  interval = 1000,
+  updateTimerInterval = interval
+) {
+  class DebouncedObservableValue {
     @observable
     value = observableValue;
     _lastUpdate = 0;
@@ -15,18 +19,23 @@ export function createDebouncedObservable(observableValue) {
 
     @computed
     get debouncedValue() {
-      const now = mobxUtils.now(500);
+      const now = mobxUtils.now(updateTimerInterval);
+      // Check the delta from the last update if it's time to release the latest value.
       const delta = now - this._lastUpdate;
-      const timeRange = this.value;
+      // Since this.value is also observable, this reaction will also run when the value changes.
+      // It's best to "dot into" the value here instead of in the conditional so mobx notices it.
+      const currentValue = this.value;
 
-      if (delta > 1000) {
-        this._lastValue = timeRange;
+      if (delta >= interval) {
+        // It is time for the value to be released.
+        this._lastValue = currentValue;
         this._lastUpdate = now;
       }
 
+      // Return the last value, updated or not.
       return this._lastValue;
     }
   }
 
-  return new DebounceObservableValue();
+  return new DebouncedObservableValue();
 }

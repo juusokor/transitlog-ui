@@ -11,12 +11,17 @@ export default (Component) => {
       const {
         stop,
         state: {date},
+        loading,
       } = this.props;
 
       return (
         <DeparturesQuery stop={stop} date={date}>
-          {({departures = [], loading}) => (
-            <Component {...this.props} departures={departures} loading={loading} />
+          {({departures = [], loading: departuresLoading}) => (
+            <Component
+              {...this.props}
+              departures={departures}
+              loading={departuresLoading || loading}
+            />
           )}
         </DeparturesQuery>
       );

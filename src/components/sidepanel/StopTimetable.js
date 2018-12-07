@@ -179,6 +179,17 @@ class StopTimetable extends Component {
                       );
                     }
 
+                    const timingStopDef = get(
+                      stop,
+                      "timingStopTypes.nodes",
+                      []
+                    ).find(
+                      (segment) =>
+                        segment.timingStopType !== 0 &&
+                        segment.routeId === departure.routeId &&
+                        segment.direction === departure.direction
+                    );
+
                     return (
                       <TimetableDeparture
                         key={`departure_${departureId}_${routeId}_${direction}_${
@@ -188,6 +199,7 @@ class StopTimetable extends Component {
                         routeFilter={routeFilter}
                         timeRangeFilter={timeRangeFilter}
                         selectedJourney={selectedJourney}
+                        isTimingStop={!!timingStopDef}
                         onClick={onSelectAsJourney}
                         stop={stop}
                         date={date}

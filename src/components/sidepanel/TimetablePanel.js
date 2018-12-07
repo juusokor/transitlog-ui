@@ -18,7 +18,6 @@ import meanBy from "lodash/meanBy";
 import groupBy from "lodash/groupBy";
 import memoize from "memoized-decorator";
 import {combineDateAndTime} from "../../helpers/time";
-import * as mobxUtils from "mobx-utils";
 import {createDebouncedObservable} from "../../helpers/createDebouncedObservable";
 import {getUrlValue, setUrlValue} from "../../stores/UrlManager";
 
@@ -93,7 +92,7 @@ class TimetablePanel extends Component {
   // as there is a lot to render and it would be too heavy.
   reactionlessTime = toJS(this.props.state.time);
 
-  componentDidUpdate() {
+  componentDidMount() {
     // This part makes the list scroll to the currently selected journey
     if (!this.clickedJourney && this.selectedJourneyRef.current) {
       let offset = get(this.selectedJourneyRef, "current.offsetTop", null);
@@ -103,6 +102,7 @@ class TimetablePanel extends Component {
       }
     }
 
+    // Reaction to automatically set a sensible time range filter.
     // Check mobx docs on reaction if this is unclear.
     this.disposeTimeRangeReaction = reaction(
       () => {
@@ -130,7 +130,7 @@ class TimetablePanel extends Component {
             time
           );
 
-          // While values used here will not cause a reaction, se still need to be
+          // While values used here will not cause a reaction, we still need to be
           // careful to not create infinite update loops.
           const {min, max} = nextTimeRange;
 
@@ -210,8 +210,7 @@ class TimetablePanel extends Component {
     }
   });
 
-  // getDeparturesByHour is memoized and needs a key. Although the method itself does
-  // not take arguments, provide this key as its argument for the memoization to work.
+  // Used when calling this.getDeparturesByHour as the memoization key.
   get departuresKey() {
     const {stop, date, departures} = this.props;
 
