@@ -49,6 +49,8 @@ const TimeRangeFilterContainer = styled.div`
 @observer
 class TimetablePanel extends Component {
   disposeTimeRangeReaction = () => {};
+  disposeResetScrollOffsetReaction = () => {};
+
   selectedJourneyRef = React.createRef();
 
   // Create debounced observable values for the timetable filters.
@@ -93,7 +95,6 @@ class TimetablePanel extends Component {
 
   componentDidMount() {
     // Reaction to automatically set a sensible time range filter.
-    // Check mobx docs on reaction if this is unclear.
     this.disposeTimeRangeReaction = reaction(
       () => {
         // The reaction will only react to changes in values used here in the first function.
@@ -131,12 +132,20 @@ class TimetablePanel extends Component {
       },
       {fireImmediately: true}
     );
+
+    // The list length will change when the filters are updated, so we also need
+    // to reset the scroll offset when that happens.
+    this.disposeResetScrollOffsetReaction = reaction(
+      () => [this.timeRangeFilter.debouncedValue, this.routeFilter.debouncedValue],
+      () => this.resetScrollOffset()
+    );
   }
 
   componentWillUnmount() {
     // Always dispose reactions to prevent memory leaks. This component might mount
     // an unmount often, so it is very important to do it here.
     this.disposeTimeRangeReaction();
+    this.disposeResetScrollOffsetReaction();
   }
 
   componentDidUpdate() {
@@ -198,27 +207,20 @@ class TimetablePanel extends Component {
     }
   };
 
+  resetScrollOffset = action(() => {
+    this.selectedJourneyOffset = 0;
+  });
+
   // Set the offset where the selected journey is located so we can scroll to it.
   setSelectedJourneyOffset = action(() => {
     if (this.selectedJourneyRef.current && !this.selectedJourneyOffset) {
       let offset = get(this.selectedJourneyRef, "current.offsetTop", null);
 
-      if (offset) {
+      if (offset && !this.offsetTimeout) {
         this.selectedJourneyOffset = offset;
       }
     }
   });
-
-  // Used when calling this.getDeparturesByHour as the memoization key.
-  get departuresKey() {
-    const {stop, date, departures} = this.props;
-
-    if (departures.length === 0) {
-      return "";
-    }
-
-    return `${get(stop, "stopId", stop)}_${date}`;
-  }
 
   @computed
   get avgDeparturesPerHour() {
@@ -242,6 +244,17 @@ class TimetablePanel extends Component {
         ).length;
       })
     );
+  }
+
+  // Used when calling this.getDeparturesByHour as the memoization key.
+  get departuresKey() {
+    const {stop, date, departures} = this.props;
+
+    if (departures.length === 0) {
+      return "";
+    }
+
+    return `${get(stop, "stopId", stop)}_${date}`;
   }
 
   // This will get called a few times during updates, so it is memoized.
@@ -275,6 +288,7 @@ class TimetablePanel extends Component {
     // Collect values. The filter values are read as debounced values.
     const routeFilter = this.routeFilter.debouncedValue;
     const timeRangeFilter = this.timeRangeFilter.debouncedValue;
+
     // the per hour average number of departures is used to determine if we
     // allow the app to fetch data immediately or if we need to wait for filter input.
     const departuresPerHour = this.avgDeparturesPerHour;
