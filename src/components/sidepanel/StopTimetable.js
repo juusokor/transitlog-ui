@@ -7,8 +7,9 @@ import styled from "styled-components";
 import TimetableDeparture from "./TimetableDeparture";
 import FirstDepartureQuery from "../../queries/FirstDepartureQuery";
 import {getDayTypeFromDate} from "../../helpers/getDayTypeFromDate";
+import getJourneyId from "../../helpers/getJourneyId";
 
-const TimetableGrid = styled.div`
+const TimetableList = styled.div`
   margin-bottom: 1rem;
 `;
 
@@ -20,9 +21,10 @@ export const AVG_DEPARTURES_THRESHOLD = 7;
 
 @observer
 class StopTimetable extends Component {
-  getFocusedDepartureTime = (departuresByHour, time) => {
-    let scrollToHour = false;
-    let scrollToMinute = false;
+  // Finds a departure that is closest to the given time and returns its hours and minutes.
+  getDepartureTimeByTime = (departuresByHour, time) => {
+    let selectedHour = false;
+    let selectedMinute = false;
 
     const timeHour = time.split(":")[0];
     const timeMinute = parseInt(time.split(":")[1], 10);
@@ -32,18 +34,18 @@ class StopTimetable extends Component {
     );
 
     if (selectedHourTimes) {
-      scrollToHour = parseInt(timeHour);
+      selectedHour = parseInt(timeHour);
 
       const orderByMatchingTime = orderBy(selectedHourTimes[1], (departure) =>
         Math.abs(departure.minutes - timeMinute)
       );
 
       if (orderByMatchingTime.length !== 0) {
-        scrollToMinute = get(orderByMatchingTime, "[0].minutes", false);
+        selectedMinute = get(orderByMatchingTime, "[0].minutes", false);
       }
     }
 
-    return {hours: scrollToHour, minutes: scrollToMinute};
+    return {hours: selectedHour, minutes: selectedMinute};
   };
 
   render() {
@@ -63,10 +65,7 @@ class StopTimetable extends Component {
     } = this.props;
 
     // Figure out which time the list should be scrolled to.
-    const focusedDepartureTime = this.getFocusedDepartureTime(
-      departuresByHour,
-      time
-    );
+    const focusedDepartureTime = this.getDepartureTimeByTime(departuresByHour, time);
 
     let {min, max} = timeRangeFilter;
 
@@ -116,7 +115,7 @@ class StopTimetable extends Component {
         queries={batchedFirstDepartureRequests}
         dayType={dayType}>
         {({firstDepartures, loading}) => (
-          <TimetableGrid>
+          <TimetableList>
             {!allLoading && departuresByHour.length === 0 && "No data"}
 
             {/* Loop through the hour-grouped departures */}
@@ -144,17 +143,14 @@ class StopTimetable extends Component {
               return (
                 <TimetableSection key={`hour_${stop.stopId}_${hour}`}>
                   {timetableDepartures.map((departure) => {
-                    let scrollToTime = false;
-
-                    // Check if the list should be scrolled to the current element.
-                    if (
-                      focusedDepartureTime.hours === departure.hours &&
-                      focusedDepartureTime.minutes === departure.minutes
-                    ) {
-                      scrollToTime = true;
-                    }
-
-                    const {departureId, dayType, routeId, direction} = departure;
+                    const {
+                      departureId,
+                      dayType,
+                      routeId,
+                      direction,
+                      hours,
+                      minutes,
+                    } = departure;
 
                     let departureJourney = null;
 
@@ -179,6 +175,23 @@ class StopTimetable extends Component {
                       );
                     }
 
+                    let scrollToTime = false;
+
+                    const journeyIsSelected =
+                      selectedJourney &&
+                      departureJourney &&
+                      getJourneyId(selectedJourney) ===
+                        getJourneyId(departureJourney);
+
+                    // Check if the list should be scrolled to the current element.
+                    if (
+                      journeyIsSelected ||
+                      (focusedDepartureTime.hours === hours &&
+                        focusedDepartureTime.minutes === minutes)
+                    ) {
+                      scrollToTime = true;
+                    }
+
                     const timingStopDef = get(
                       stop,
                       "timingStopTypes.nodes",
@@ -198,7 +211,7 @@ class StopTimetable extends Component {
                         focusRef={scrollToTime ? focusRef : null}
                         routeFilter={routeFilter}
                         timeRangeFilter={timeRangeFilter}
-                        selectedJourney={selectedJourney}
+                        journeyIsSelected={journeyIsSelected}
                         isTimingStop={!!timingStopDef}
                         onClick={onSelectAsJourney}
                         stop={stop}
@@ -212,7 +225,7 @@ class StopTimetable extends Component {
                 </TimetableSection>
               );
             })}
-          </TimetableGrid>
+          </TimetableList>
         )}
       </FirstDepartureQuery>
     );
