@@ -24,17 +24,10 @@ import {sortByOperationDay} from "../../helpers/sortByOperationDay";
 import {getTimelinessColor} from "../../helpers/timelinessColor";
 
 const JourneyListRow = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 0 0.75rem;
-  margin: 0.5rem 0;
-  width: 100%;
-  border: 0;
-  max-width: none;
-  font-size: 1rem;
-  font-family: var(--font-family);
-  background: white;
+  padding: ${({selected = false}) =>
+    selected ? "0.5rem 0.5rem 0.5rem 0.75rem" : "0 0.5rem 0 0.75rem"};
+  margin: ${({selected = false}) => (selected ? "0" : "0.5rem 0")};
+  background: ${({selected = false}) => (selected ? "var(--blue)" : "transparent")};
 
   &:first-child {
     margin-top: 1rem;
@@ -258,6 +251,7 @@ class VehicleJourneys extends Component {
 
             return (
               <JourneyListRow
+                selected={journeyIsSelected}
                 key={`vehicle_journey_row_${journeyId}`}
                 ref={journeyIsSelected ? scrollRef : null}>
                 <TagButton
