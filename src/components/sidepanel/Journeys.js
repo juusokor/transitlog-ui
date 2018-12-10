@@ -138,7 +138,7 @@ class Journeys extends Component {
         const fetchTimes = centerSort(
           journey.journey_start_time,
           departuresToTimes(departures)
-        ).slice(0, 7);
+        ).slice(0, 5);
 
         const journeyRequests = fetchTimes.map((time) => ({
           time,
