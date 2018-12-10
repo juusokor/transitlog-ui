@@ -19,11 +19,12 @@ import {setResetListener} from "../stores/FilterStore";
 class RouteHfpEvents extends React.Component {
   @observable.shallow
   currentView = [];
-
   currentViewKey = "";
 
   @observable
   loading = false;
+
+  loadingRequests = [];
 
   fetchReaction = () => {};
   resetReaction = () => {};
@@ -40,12 +41,12 @@ class RouteHfpEvents extends React.Component {
     this.currentViewKey = setFetchKey;
   };
 
+  // Ensures that the request has access to the full route data.
   getStateRoute = (partialRoute) => {
     const {
       state: {route},
     } = this.props;
 
-    // Ensures that the request has access to the full route data.
     if (
       route &&
       partialRoute.routeId === route.routeId &&
@@ -60,28 +61,37 @@ class RouteHfpEvents extends React.Component {
 
   fetchRequestedJourneys = async (requestedJourneys) => {
     this.setLoading(true);
-    await pMap(requestedJourneys, this.fetchJourney, {concurrency: 3});
-    await this.onFetchCompleted();
+    await pMap(requestedJourneys, this.fetchJourney, {concurrency: 5});
+    this.onFetchCompleted();
   };
 
   fetchJourney = async (journeyRequest) => {
-    const {Journey} = this.props;
-    const {route, date, time, skipCache = false} = journeyRequest;
+    const {
+      Journey,
+      state: {resolvedJourneyStates},
+    } = this.props;
+
+    const {journeyId, route, date, time, skipCache = false} = journeyRequest;
+
+    const currentFetchState = resolvedJourneyStates.get(journeyId);
+    if (
+      currentFetchState === journeyFetchStates.PENDING ||
+      currentFetchState === journeyFetchStates.RESOLVED
+    ) {
+      return;
+    }
+
+    Journey.setJourneyFetchState(journeyId, journeyFetchStates.PENDING);
 
     const useRoute = this.getStateRoute(route);
     const journeys = await fetchHfpJourney(useRoute, date, time, skipCache);
 
     if (journeys && Array.isArray(journeys)) {
       if (journeys.length === 0) {
-        Journey.setJourneyFetchState(
-          getJourneyId(
-            Journey.createCompositeJourney(date, route, journeyRequest.time)
-          ),
-          journeyFetchStates.NOTFOUND
-        );
+        Journey.setJourneyFetchState(journeyId, journeyFetchStates.NOTFOUND);
       }
 
-      this.onReceivedJourneys(journeys, journeyRequest);
+      await this.onReceivedJourneys(journeys, journeyRequest);
     } else {
       this.setLoading(false);
     }
@@ -123,9 +133,9 @@ class RouteHfpEvents extends React.Component {
     }
   };
 
-  onFetchCompleted = async () => {
+  onFetchCompleted = () => {
     this.setLoading(false);
-    await persistCache();
+    persistCache();
   };
 
   onError = (err) => {
@@ -140,13 +150,13 @@ class RouteHfpEvents extends React.Component {
         const {
           skip = false,
           route,
-          state: {route: stateRoute, requestedJourneys},
+          state: {requestedJourneys},
         } = this.props;
 
-        const reqJourneys = requestedJourneys.slice(); // Slice to tell mobx that we used this array
+        const reqJourneys = requestedJourneys.slice(); // Slice to tell mobx that we accessed this array
         const routeKey = createRouteKey(route);
 
-        if (!skip && (reqJourneys.length !== 0 && !!routeKey && !this.loading)) {
+        if (!skip && reqJourneys.length !== 0 && !!routeKey) {
           return reqJourneys;
         }
 

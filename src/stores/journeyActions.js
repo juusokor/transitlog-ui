@@ -94,11 +94,10 @@ export default (state) => {
 
       // Make sure that it isn't currently being fetched.
       if (!journeyFetchState || journeyFetchState !== journeyFetchStates.PENDING) {
-        // Set it as pending immediately
-        setJourneyFetchState(journeyId, journeyFetchStates.PENDING);
-        // And start fetching
         acceptedRequests.push({
           ...journeyRequest,
+          journeyId,
+          // Make a new request if it wasn't found previously.
           skipCache: journeyFetchState === journeyFetchStates.NOTFOUND,
         });
       }

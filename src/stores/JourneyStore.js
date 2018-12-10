@@ -1,6 +1,5 @@
 import {extendObservable, action, observable} from "mobx";
 import getJourneyId from "../helpers/getJourneyId";
-import createHistory from "history/createBrowserHistory";
 import FilterActions from "./filterActions";
 import moment from "moment-timezone";
 import journeyActions from "./journeyActions";
@@ -15,8 +14,6 @@ export const journeyFetchStates = {
 };
 
 export default (state) => {
-  const history = createHistory();
-
   extendObservable(
     state,
     {
