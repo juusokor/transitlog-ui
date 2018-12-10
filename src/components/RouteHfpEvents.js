@@ -66,39 +66,34 @@ class RouteHfpEvents extends React.Component {
   };
 
   fetchJourney = async (journeyRequest) => {
-    const {Journey} = this.props;
-    const {route, date, time, skipCache = false} = journeyRequest;
+    const {
+      Journey,
+      state: {resolvedJourneyStates},
+    } = this.props;
 
-    const useRoute = this.getStateRoute(route);
-    const fetchKey = createFetchKey(useRoute, date, time);
+    const {journeyId, route, date, time, skipCache = false} = journeyRequest;
 
-    if (this.loadingRequests.indexOf(fetchKey) !== -1) {
+    const currentFetchState = resolvedJourneyStates.get(journeyId);
+    if (
+      currentFetchState === journeyFetchStates.PENDING ||
+      currentFetchState === journeyFetchStates.RESOLVED
+    ) {
       return;
     }
 
-    this.loadingRequests.push(fetchKey);
+    Journey.setJourneyFetchState(journeyId, journeyFetchStates.PENDING);
 
+    const useRoute = this.getStateRoute(route);
     const journeys = await fetchHfpJourney(useRoute, date, time, skipCache);
 
     if (journeys && Array.isArray(journeys)) {
       if (journeys.length === 0) {
-        Journey.setJourneyFetchState(
-          getJourneyId(
-            Journey.createCompositeJourney(date, route, journeyRequest.time)
-          ),
-          journeyFetchStates.NOTFOUND
-        );
+        Journey.setJourneyFetchState(journeyId, journeyFetchStates.NOTFOUND);
       }
 
       await this.onReceivedJourneys(journeys, journeyRequest);
     } else {
       this.setLoading(false);
-    }
-
-    const loadingIndex = this.loadingRequests.indexOf(fetchKey);
-
-    if (loadingIndex !== -1) {
-      this.loadingRequests.splice(loadingIndex, 1);
     }
   };
 
