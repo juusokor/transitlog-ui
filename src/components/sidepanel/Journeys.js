@@ -73,14 +73,10 @@ const TimeSlot = styled.span`
 @withDepartures
 @observer
 class Journeys extends Component {
-  @observable
-  selectedJourneyOffset = 0;
-  selectedJourneyRef = React.createRef();
   currentFetchKey = "";
 
   componentDidUpdate() {
     this.fetchAllJourneys();
-    this.setSelectedJourneyOffset();
   }
 
   fetchAllJourneys = () => {
@@ -158,16 +154,6 @@ class Journeys extends Component {
     Journey.setSelectedJourney(journeyToSelect);
   };
 
-  setSelectedJourneyOffset = action(() => {
-    if (this.selectedJourneyRef.current && !this.selectedJourneyOffset) {
-      let offset = get(this.selectedJourneyRef, "current.offsetTop", null);
-
-      if (offset) {
-        this.selectedJourneyOffset = offset;
-      }
-    }
-  });
-
   render() {
     const {positions, loading, state, departures, Journey} = this.props;
     const {resolvedJourneyStates, date, route} = state;
@@ -222,7 +208,6 @@ class Journeys extends Component {
 
     return (
       <SidepanelList
-        scrollOffset={this.selectedJourneyOffset}
         loading={loading}
         header={
           <>
@@ -234,11 +219,49 @@ class Journeys extends Component {
             </span>
           </>
         }>
-        {departureList.map((journeyOrDeparture, index) => {
-          if (typeof journeyOrDeparture === "string") {
-            const journeyId = getJourneyId(
-              Journey.createCompositeJourney(date, route, journeyOrDeparture)
+        {(scrollRef) =>
+          departureList.map((journeyOrDeparture, index) => {
+            if (typeof journeyOrDeparture === "string") {
+              const journeyId = getJourneyId(
+                Journey.createCompositeJourney(date, route, journeyOrDeparture)
+              );
+
+              const journeyIsSelected = expr(
+                () => state.selectedJourney && selectedJourneyId === journeyId
+              );
+
+              const journeyIsFocused =
+                focusedJourney && focusedJourney === journeyId;
+
+              let fetchStatus = resolvedJourneyStates.get(journeyId);
+
+              return (
+                <JourneyListRow
+                  ref={journeyIsFocused ? scrollRef : null}
+                  key={`planned_journey_row_${journeyOrDeparture}_${index}`}
+                  selected={journeyIsSelected}
+                  onClick={this.selectJourney(journeyOrDeparture)}>
+                  <JourneyRowLeft>{journeyOrDeparture}</JourneyRowLeft>
+                  {fetchStatus === journeyFetchStates.NOTFOUND ? (
+                    <span>{text("filterpanel.journey.no_data")}</span>
+                  ) : fetchStatus === journeyFetchStates.PENDING ? (
+                    <Loading inline />
+                  ) : (
+                    <span>{text("filterpanel.journey.click_to_fetch")}</span>
+                  )}
+                </JourneyListRow>
+              );
+            }
+
+            const journeyId = getJourneyId(journeyOrDeparture);
+
+            const journeyPositions = get(
+              positions.find(({journeyId: jid}) => jid === journeyId),
+              "positions",
+              []
             );
+
+            const journeyStartPosition = findJourneyStartPosition(journeyPositions);
 
             const journeyIsSelected = expr(
               () => state.selectedJourney && selectedJourneyId === journeyId
@@ -246,96 +269,61 @@ class Journeys extends Component {
 
             const journeyIsFocused = focusedJourney && focusedJourney === journeyId;
 
-            let fetchStatus = resolvedJourneyStates.get(journeyId);
+            const [hours, minutes] = journeyStartPosition.journey_start_time.split(
+              ":"
+            );
+
+            const departure = {
+              hours: parseInt(hours, 10),
+              minutes: parseInt(minutes, 10),
+            };
+
+            const plannedObservedDiff = diffDepartureJourney(
+              journeyStartPosition,
+              departure,
+              date
+            );
+
+            const observedTimeString = plannedObservedDiff
+              ? plannedObservedDiff.observedMoment.format("HH:mm:ss")
+              : "";
+
+            const delayType = plannedObservedDiff
+              ? getDelayType(plannedObservedDiff.diff)
+              : "none";
 
             return (
               <JourneyListRow
-                ref={journeyIsFocused ? this.selectedJourneyRef : null}
-                key={`planned_journey_row_${journeyOrDeparture}_${index}`}
+                ref={journeyIsFocused ? scrollRef : null}
                 selected={journeyIsSelected}
+                key={`journey_row_${getJourneyId(journeyOrDeparture)}`}
                 onClick={this.selectJourney(journeyOrDeparture)}>
-                <JourneyRowLeft>{journeyOrDeparture}</JourneyRowLeft>
-                {fetchStatus === journeyFetchStates.NOTFOUND ? (
-                  <span>{text("filterpanel.journey.no_data")}</span>
-                ) : fetchStatus === journeyFetchStates.PENDING ? (
-                  <Loading inline />
-                ) : (
-                  <span>{text("filterpanel.journey.click_to_fetch")}</span>
+                <JourneyRowLeft>
+                  {timeToFormat(
+                    journeyOrDeparture.journey_start_timestamp,
+                    "HH:mm:ss",
+                    "Europe/Helsinki"
+                  )}
+                </JourneyRowLeft>
+                {journeyStartPosition && (
+                  <>
+                    <DelaySlot
+                      color={delayType === "late" ? "var(--dark-grey)" : "white"}
+                      backgroundColor={getTimelinessColor(
+                        delayType,
+                        "var(--light-green)"
+                      )}>
+                      {plannedObservedDiff.sign}
+                      {doubleDigit(plannedObservedDiff.minutes)}:
+                      {doubleDigit(plannedObservedDiff.seconds)}
+                    </DelaySlot>
+                    <TimeSlot>{observedTimeString}</TimeSlot>
+                  </>
                 )}
               </JourneyListRow>
             );
-          }
-
-          const journeyId = getJourneyId(journeyOrDeparture);
-
-          const journeyPositions = get(
-            positions.find(({journeyId: jid}) => jid === journeyId),
-            "positions",
-            []
-          );
-
-          const journeyStartPosition = findJourneyStartPosition(journeyPositions);
-
-          const journeyIsSelected = expr(
-            () => state.selectedJourney && selectedJourneyId === journeyId
-          );
-
-          const journeyIsFocused = focusedJourney && focusedJourney === journeyId;
-
-          const [hours, minutes] = journeyStartPosition.journey_start_time.split(
-            ":"
-          );
-
-          const departure = {
-            hours: parseInt(hours, 10),
-            minutes: parseInt(minutes, 10),
-          };
-
-          const plannedObservedDiff = diffDepartureJourney(
-            journeyStartPosition,
-            departure,
-            date
-          );
-
-          const observedTimeString = plannedObservedDiff
-            ? plannedObservedDiff.observedMoment.format("HH:mm:ss")
-            : "";
-
-          const delayType = plannedObservedDiff
-            ? getDelayType(plannedObservedDiff.diff)
-            : "none";
-
-          return (
-            <JourneyListRow
-              ref={journeyIsFocused ? this.selectedJourneyRef : null}
-              selected={journeyIsSelected}
-              key={`journey_row_${getJourneyId(journeyOrDeparture)}`}
-              onClick={this.selectJourney(journeyOrDeparture)}>
-              <JourneyRowLeft>
-                {timeToFormat(
-                  journeyOrDeparture.journey_start_timestamp,
-                  "HH:mm:ss",
-                  "Europe/Helsinki"
-                )}
-              </JourneyRowLeft>
-              {journeyStartPosition && (
-                <>
-                  <DelaySlot
-                    color={delayType === "late" ? "var(--dark-grey)" : "white"}
-                    backgroundColor={getTimelinessColor(
-                      delayType,
-                      "var(--light-green)"
-                    )}>
-                    {plannedObservedDiff.sign}
-                    {doubleDigit(plannedObservedDiff.minutes)}:
-                    {doubleDigit(plannedObservedDiff.seconds)}
-                  </DelaySlot>
-                  <TimeSlot>{observedTimeString}</TimeSlot>
-                </>
-              )}
-            </JourneyListRow>
-          );
-        })}
+          })
+        }
       </SidepanelList>
     );
   }

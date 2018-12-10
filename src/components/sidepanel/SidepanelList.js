@@ -2,6 +2,8 @@ import React, {Component} from "react";
 import {observer} from "mobx-react";
 import styled, {css} from "styled-components";
 import Loading from "../Loading";
+import {action, observable, reaction} from "mobx";
+import get from "lodash/get";
 
 const ListWrapper = styled.div`
   height: 100%;
@@ -71,6 +73,12 @@ const LoadingContainer = styled.div`
 @observer
 class SidepanelList extends Component {
   scrollElementRef = React.createRef();
+  scrollPositionRef = React.createRef();
+
+  disposeScrollOffsetReaction = () => {};
+
+  @observable
+  scrollOffset = 0;
 
   scrollTo = (offset) => {
     if (this.scrollElementRef.current) {
@@ -79,13 +87,34 @@ class SidepanelList extends Component {
     }
   };
 
-  componentDidUpdate({scrollOffset: prevScrollOffset}) {
-    const {scrollOffset = null} = this.props;
-
-    if (scrollOffset !== null && scrollOffset !== prevScrollOffset) {
-      this.scrollTo(scrollOffset);
-    }
+  componentDidMount() {
+    this.disposeScrollOffsetReaction = reaction(
+      () => this.scrollOffset,
+      (offset) => this.scrollTo(offset)
+    );
   }
+
+  componentWillUnmount() {
+    this.disposeScrollOffsetReaction();
+  }
+
+  componentDidUpdate({scrollOffset: prevScrollOffset}) {
+    this.setScrollOffset();
+  }
+
+  setScrollOffset = action(() => {
+    if (this.scrollPositionRef.current && !this.scrollOffset) {
+      let offset = get(this.scrollPositionRef, "current.offsetTop", null);
+
+      if (offset) {
+        this.scrollOffset = offset;
+      }
+    }
+  });
+
+  resetScrollOffset = action(() => {
+    this.scrollOffset = 0;
+  });
 
   render() {
     const {header, children, loading = false} = this.props;
@@ -94,7 +123,9 @@ class SidepanelList extends Component {
       <ListWrapper hasHeader={!!header}>
         {header && <ListHeader>{header}</ListHeader>}
         <ListRows ref={this.scrollElementRef}>
-          <ScrollContainer>{children}</ScrollContainer>
+          <ScrollContainer>
+            {children(this.scrollPositionRef, this.resetScrollOffset)}
+          </ScrollContainer>
         </ListRows>
         <LoadingContainer loading={loading}>
           <Loading />
