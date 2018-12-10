@@ -74,10 +74,6 @@ const NextPrevLabel = styled.div`
 @withVehicleJourneys
 @observer
 class VehicleJourneys extends Component {
-  selectedJourneyRef = React.createRef();
-  @observable
-  selectedJourneyOffset = 0;
-
   // We are modifying this in the render function so it cannot be reactive
   selectedJourneyIndex = 0;
 
@@ -119,18 +115,6 @@ class VehicleJourneys extends Component {
   };
 
   @action
-  // Set the offset where the selected journey is located so we can scroll to it.
-  setSelectedJourneyOffset() {
-    if (this.selectedJourneyRef.current && !this.selectedJourneyOffset) {
-      let offset = get(this.selectedJourneyRef, "current.offsetTop", null);
-
-      if (offset) {
-        this.selectedJourneyOffset = offset;
-      }
-    }
-  }
-
-  @action
   selectPreviousVehicleJourney = () => {
     this.nextJourneyIndex = this.selectedJourneyIndex - 1;
 
@@ -150,12 +134,6 @@ class VehicleJourneys extends Component {
       () => this.nextJourneyIndex,
       (nextJourneyIndex) => this.updateVehicleAndJourneySelection(nextJourneyIndex)
     );
-  }
-
-  componentDidUpdate() {
-    // Get the scroll offset of the currently selected or focused part of the list.
-    // Will only be set once per instance so it is safe to call here.
-    this.setSelectedJourneyOffset();
   }
 
   // Selects a journey based on its index in the list.
@@ -219,7 +197,6 @@ class VehicleJourneys extends Component {
 
     return (
       <SidepanelList
-        scrollOffset={this.selectedJourneyOffset}
         loading={loading}
         header={
           <>
@@ -243,64 +220,71 @@ class VehicleJourneys extends Component {
             </HeaderRowLeft>
           </>
         }>
-        {sortedPositions.map((journey) => {
-          journeyIndex++;
-          const journeyId = getJourneyId(journey);
+        {(scrollRef) =>
+          sortedPositions.map((journey) => {
+            journeyIndex++;
+            const journeyId = getJourneyId(journey);
 
-          const mode = get(journey, "mode", "").toUpperCase();
-          const journeyTime = get(journey, "journey_start_time", "");
-          const lineNumber = get(journey, "desi", "");
+            const mode = get(journey, "mode", "").toUpperCase();
+            const journeyTime = get(journey, "journey_start_time", "");
+            const lineNumber = get(journey, "desi", "");
 
-          const [hours, minutes] = journeyTime.split(":");
+            const [hours, minutes] = journeyTime.split(":");
 
-          const departure = {
-            hours: parseInt(hours, 10),
-            minutes: parseInt(minutes, 10),
-          };
+            const departure = {
+              hours: parseInt(hours, 10),
+              minutes: parseInt(minutes, 10),
+            };
 
-          const plannedObservedDiff = diffDepartureJourney(journey, departure, date);
-          const observedTimeString = plannedObservedDiff
-            ? plannedObservedDiff.observedMoment.format("HH:mm:ss")
-            : "";
+            const plannedObservedDiff = diffDepartureJourney(
+              journey,
+              departure,
+              date
+            );
+            const observedTimeString = plannedObservedDiff
+              ? plannedObservedDiff.observedMoment.format("HH:mm:ss")
+              : "";
 
-          const delayType = plannedObservedDiff
-            ? getDelayType(plannedObservedDiff.diff)
-            : "none";
+            const delayType = plannedObservedDiff
+              ? getDelayType(plannedObservedDiff.diff)
+              : "none";
 
-          const journeyIsSelected =
-            selectedJourney && selectedJourneyId === journeyId;
+            const journeyIsSelected =
+              selectedJourney && selectedJourneyId === journeyId;
 
-          if (journeyIsSelected) {
-            this.selectedJourneyIndex = journeyIndex;
-          }
+            if (journeyIsSelected) {
+              this.selectedJourneyIndex = journeyIndex;
+            }
 
-          return (
-            <JourneyListRow
-              key={`vehicle_journey_row_${journeyId}`}
-              ref={journeyIsSelected ? this.selectedJourneyRef : null}>
-              <TagButton
-                selected={journeyIsSelected}
-                onClick={this.onSelectJourney(journey)}>
-                <HeadsignSlot color={get(transportColor, mode, "var(--light-grey)")}>
-                  <TransportIcon mode={mode} />
-                  {lineNumber}
-                </HeadsignSlot>
-                <TimeSlot>{journeyTime}</TimeSlot>
-                <ColoredBackgroundSlot
-                  color={delayType === "late" ? "var(--dark-grey)" : "white"}
-                  backgroundColor={getTimelinessColor(
-                    delayType,
-                    "var(--light-green)"
-                  )}>
-                  {plannedObservedDiff.sign}
-                  {doubleDigit(plannedObservedDiff.minutes)}:
-                  {doubleDigit(plannedObservedDiff.seconds)}
-                </ColoredBackgroundSlot>
-                <PlainSlotSmallRight>{observedTimeString}</PlainSlotSmallRight>
-              </TagButton>
-            </JourneyListRow>
-          );
-        })}
+            return (
+              <JourneyListRow
+                key={`vehicle_journey_row_${journeyId}`}
+                ref={journeyIsSelected ? scrollRef : null}>
+                <TagButton
+                  selected={journeyIsSelected}
+                  onClick={this.onSelectJourney(journey)}>
+                  <HeadsignSlot
+                    color={get(transportColor, mode, "var(--light-grey)")}>
+                    <TransportIcon mode={mode} />
+                    {lineNumber}
+                  </HeadsignSlot>
+                  <TimeSlot>{journeyTime}</TimeSlot>
+                  <ColoredBackgroundSlot
+                    color={delayType === "late" ? "var(--dark-grey)" : "white"}
+                    backgroundColor={getTimelinessColor(
+                      delayType,
+                      "var(--light-green)"
+                    )}>
+                    {plannedObservedDiff.sign}
+                    {doubleDigit(plannedObservedDiff.minutes)}:
+                    {doubleDigit(plannedObservedDiff.seconds)}
+                  </ColoredBackgroundSlot>
+                  <PlainSlotSmallRight>{observedTimeString}</PlainSlotSmallRight>
+                </TagButton>
+              </JourneyListRow>
+            );
+          })
+        }
       </SidepanelList>
     );
   }

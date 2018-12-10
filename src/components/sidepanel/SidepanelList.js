@@ -98,22 +98,34 @@ class SidepanelList extends Component {
     this.disposeScrollOffsetReaction();
   }
 
-  componentDidUpdate({scrollOffset: prevScrollOffset}) {
-    this.setScrollOffset();
+  componentDidUpdate() {
+    this.updateScrollOffset();
   }
 
-  setScrollOffset = action(() => {
-    if (this.scrollPositionRef.current && !this.scrollOffset) {
+  updateScrollOffset = (reset = false) => {
+    const offset = this.getScrollOffset(reset);
+
+    if (offset !== this.scrollOffset) {
+      this.setScrollOffset(offset);
+    }
+  };
+
+  // This method only gets a new position if the scrollOffset has not previously been set.
+  // This behaviour can be overridden by setting the reset arg to true.
+  getScrollOffset = (reset = false) => {
+    if (this.scrollPositionRef.current && (!this.scrollOffset || reset)) {
       let offset = get(this.scrollPositionRef, "current.offsetTop", null);
 
       if (offset) {
-        this.scrollOffset = offset;
+        return offset;
       }
     }
-  });
 
-  resetScrollOffset = action(() => {
-    this.scrollOffset = 0;
+    return this.scrollOffset;
+  };
+
+  setScrollOffset = action((offset) => {
+    this.scrollOffset = offset;
   });
 
   render() {
@@ -124,7 +136,7 @@ class SidepanelList extends Component {
         {header && <ListHeader>{header}</ListHeader>}
         <ListRows ref={this.scrollElementRef}>
           <ScrollContainer>
-            {children(this.scrollPositionRef, this.resetScrollOffset)}
+            {children(this.scrollPositionRef, this.updateScrollOffset)}
           </ScrollContainer>
         </ListRows>
         <LoadingContainer loading={loading}>

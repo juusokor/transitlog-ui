@@ -5,7 +5,8 @@ import StopTimetable, {AVG_DEPARTURES_THRESHOLD} from "./StopTimetable";
 import withStop from "../../hoc/withStop";
 import {app} from "mobx-app";
 import withAllStopDepartures from "../../hoc/withAllStopDepartures";
-import {action, observable, toJS, computed, reaction} from "mobx";
+import {toJS, computed, reaction} from "mobx";
+import {expr} from "mobx-utils";
 import styled from "styled-components";
 import Input from "../Input";
 import {text} from "../../helpers/text";
@@ -49,16 +50,18 @@ const TimeRangeFilterContainer = styled.div`
 @observer
 class TimetablePanel extends Component {
   disposeTimeRangeReaction = () => {};
-  disposeResetScrollOffsetReaction = () => {};
-
-  selectedJourneyRef = React.createRef();
+  disposeScrollResetReaction = () => {};
+  updateScrollOffset = () => {};
 
   // Create debounced observable values for the timetable filters.
-  routeFilter = createDebouncedObservable(getUrlValue("timetableRoute"));
-  timeRangeFilter = createDebouncedObservable({
-    min: getUrlValue("timetableTimeRange.min"),
-    max: getUrlValue("timetableTimeRange.max"),
-  });
+  routeFilter = createDebouncedObservable(getUrlValue("timetableRoute"), 500);
+  timeRangeFilter = createDebouncedObservable(
+    {
+      min: getUrlValue("timetableTimeRange.min"),
+      max: getUrlValue("timetableTimeRange.max"),
+    },
+    500
+  );
 
   // If there are too many departures, we want to set a time range filter by default.
   // This method figures out the range to set if one needs setting.
@@ -85,9 +88,6 @@ class TimetablePanel extends Component {
 
     return {min, max};
   }
-
-  @observable
-  selectedJourneyOffset = 0;
 
   // We DON'T want this component to react to time changes,
   // as there is a lot to render and it would be too heavy.
@@ -133,11 +133,10 @@ class TimetablePanel extends Component {
       {fireImmediately: true}
     );
 
-    // The list length will change when the filters are updated, so we also need
-    // to reset the scroll offset when that happens.
-    this.disposeResetScrollOffsetReaction = reaction(
+    this.disposeScrollResetReaction = reaction(
       () => [this.timeRangeFilter.debouncedValue, this.routeFilter.debouncedValue],
-      () => this.resetScrollOffset()
+      () => this.updateScrollOffset(true),
+      {delay: 1}
     );
   }
 
@@ -145,13 +144,7 @@ class TimetablePanel extends Component {
     // Always dispose reactions to prevent memory leaks. This component might mount
     // an unmount often, so it is very important to do it here.
     this.disposeTimeRangeReaction();
-    this.disposeResetScrollOffsetReaction();
-  }
-
-  componentDidUpdate() {
-    // Get the scroll offset of the currently selected or focused part of the list.
-    // Will only be set once per instance so it is safe to call here.
-    this.setSelectedJourneyOffset();
+    this.disposeScrollResetReaction();
   }
 
   setRouteFilter = (e) => {
@@ -206,21 +199,6 @@ class TimetablePanel extends Component {
       });
     }
   };
-
-  resetScrollOffset = action(() => {
-    this.selectedJourneyOffset = 0;
-  });
-
-  // Set the offset where the selected journey is located so we can scroll to it.
-  setSelectedJourneyOffset = action(() => {
-    if (this.selectedJourneyRef.current && !this.selectedJourneyOffset) {
-      let offset = get(this.selectedJourneyRef, "current.offsetTop", null);
-
-      if (offset && !this.offsetTimeout) {
-        this.selectedJourneyOffset = offset;
-      }
-    }
-  });
 
   @computed
   get avgDeparturesPerHour() {
@@ -340,7 +318,6 @@ class TimetablePanel extends Component {
     return (
       <SidepanelList
         loading={timetableLoading}
-        scrollOffset={this.selectedJourneyOffset}
         header={
           <>
             <RouteFilterContainer>
@@ -369,34 +346,42 @@ class TimetablePanel extends Component {
             </TimeRangeFilterContainer>
           </>
         }>
-        {stop && (
-          <StopHfpQuery
-            skip={routes.length === 0} // Skip if there are no routes to fetch
-            stopId={stop.stopId}
-            routes={routes}
-            directions={directions}
-            date={date}>
-            {({journeys, loading}) => {
-              return (
-                <StopTimetable
-                  key={`stop_timetable_${stop.stopId}_${date}`}
-                  loading={timetableLoading || loading}
-                  time={this.reactionlessTime}
-                  focusRef={this.selectedJourneyRef}
-                  routeFilter={routeFilter}
-                  timeRangeFilter={timeRangeFilter}
-                  groupedJourneys={journeys}
-                  departuresByHour={departuresByHour}
-                  departuresPerHour={this.avgDeparturesPerHour}
-                  stop={stop}
-                  date={date}
-                  selectedJourney={selectedJourney}
-                  onSelectAsJourney={this.selectAsJourney}
-                />
-              );
-            }}
-          </StopHfpQuery>
-        )}
+        {(scrollRef, updateScrollOffset) => {
+          // Will be called when filters, and thus the size of the list, changes
+          this.updateScrollOffset = updateScrollOffset;
+
+          return (
+            stop && (
+              <StopHfpQuery
+                skip={routes.length === 0} // Skip if there are no routes to fetch
+                stopId={stop.stopId}
+                routes={routes}
+                directions={directions}
+                date={date}>
+                {({journeys, loading}) => {
+                  return (
+                    <StopTimetable
+                      key={`stop_timetable_${stop.stopId}_${date}`}
+                      loading={timetableLoading || loading}
+                      time={this.reactionlessTime}
+                      focusRef={scrollRef}
+                      setScrollOffset={updateScrollOffset}
+                      routeFilter={routeFilter}
+                      timeRangeFilter={timeRangeFilter}
+                      groupedJourneys={journeys}
+                      departuresByHour={departuresByHour}
+                      departuresPerHour={this.avgDeparturesPerHour}
+                      stop={stop}
+                      date={date}
+                      selectedJourney={selectedJourney}
+                      onSelectAsJourney={this.selectAsJourney}
+                    />
+                  );
+                }}
+              </StopHfpQuery>
+            )
+          );
+        }}
       </SidepanelList>
     );
   }
