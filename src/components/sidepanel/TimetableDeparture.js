@@ -13,7 +13,6 @@ import {
   TagButton,
   PlainSlotSmallRight,
 } from "../TagButton";
-import getJourneyId from "../../helpers/getJourneyId";
 import {getTimelinessColor} from "../../helpers/timelinessColor";
 import styled from "styled-components";
 import Loading from "../Loading";
@@ -51,9 +50,9 @@ class TimetableDeparture extends Component {
     const {
       departure,
       journey,
+      journeyIsSelected,
       date,
       stop,
-      selectedJourney,
       onClick,
       focusRef,
       loading,
@@ -82,9 +81,6 @@ class TimetableDeparture extends Component {
     const delayType = plannedObservedDiff
       ? getDelayType(plannedObservedDiff.diff)
       : "none";
-
-    const journeyIsSelected =
-      selectedJourney && getJourneyId(selectedJourney) === getJourneyId(journey);
 
     return (
       <ListRow selected={journeyIsSelected}>

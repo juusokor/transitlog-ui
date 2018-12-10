@@ -79,24 +79,27 @@ class AreaJourneyList extends Component {
 
     return (
       <SidepanelList>
-        {journeyHfpEvents.map(({journeyId, position}) => {
-          const {route_id, direction_id, journey_start_time} = position;
+        {(scrollRef) =>
+          journeyHfpEvents.map(({journeyId, position}) => {
+            const {route_id, direction_id, journey_start_time} = position;
 
-          const journeyIsSelected =
-            selectedJourney && selectedJourneyId === journeyId;
+            const journeyIsSelected =
+              selectedJourney && selectedJourneyId === journeyId;
 
-          return (
-            <JourneyListRow
-              key={`area_event_row_${journeyId}`}
-              selected={journeyIsSelected}
-              onClick={this.selectJourney(position)}>
-              <JourneyRowLeft>
-                {route_id} / {direction_id}
-              </JourneyRowLeft>
-              <span>{journey_start_time}</span>
-            </JourneyListRow>
-          );
-        })}
+            return (
+              <JourneyListRow
+                ref={journeyIsSelected ? scrollRef : null}
+                key={`area_event_row_${journeyId}`}
+                selected={journeyIsSelected}
+                onClick={this.selectJourney(position)}>
+                <JourneyRowLeft>
+                  {route_id} / {direction_id}
+                </JourneyRowLeft>
+                <span>{journey_start_time}</span>
+              </JourneyListRow>
+            );
+          })
+        }
       </SidepanelList>
     );
   }

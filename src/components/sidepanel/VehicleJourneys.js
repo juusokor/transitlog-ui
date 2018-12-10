@@ -220,62 +220,71 @@ class VehicleJourneys extends Component {
             </HeaderRowLeft>
           </>
         }>
-        {sortedPositions.map((journey) => {
-          journeyIndex++;
-          const journeyId = getJourneyId(journey);
+        {(scrollRef) =>
+          sortedPositions.map((journey) => {
+            journeyIndex++;
+            const journeyId = getJourneyId(journey);
 
-          const mode = get(journey, "mode", "").toUpperCase();
-          const journeyTime = get(journey, "journey_start_time", "");
-          const lineNumber = get(journey, "desi", "");
+            const mode = get(journey, "mode", "").toUpperCase();
+            const journeyTime = get(journey, "journey_start_time", "");
+            const lineNumber = get(journey, "desi", "");
 
-          const [hours, minutes] = journeyTime.split(":");
+            const [hours, minutes] = journeyTime.split(":");
 
-          const departure = {
-            hours: parseInt(hours, 10),
-            minutes: parseInt(minutes, 10),
-          };
+            const departure = {
+              hours: parseInt(hours, 10),
+              minutes: parseInt(minutes, 10),
+            };
 
-          const plannedObservedDiff = diffDepartureJourney(journey, departure, date);
-          const observedTimeString = plannedObservedDiff
-            ? plannedObservedDiff.observedMoment.format("HH:mm:ss")
-            : "";
+            const plannedObservedDiff = diffDepartureJourney(
+              journey,
+              departure,
+              date
+            );
+            const observedTimeString = plannedObservedDiff
+              ? plannedObservedDiff.observedMoment.format("HH:mm:ss")
+              : "";
 
-          const delayType = plannedObservedDiff
-            ? getDelayType(plannedObservedDiff.diff)
-            : "none";
+            const delayType = plannedObservedDiff
+              ? getDelayType(plannedObservedDiff.diff)
+              : "none";
 
-          const journeyIsSelected =
-            selectedJourney && selectedJourneyId === journeyId;
+            const journeyIsSelected =
+              selectedJourney && selectedJourneyId === journeyId;
 
-          if (journeyIsSelected) {
-            this.selectedJourneyIndex = journeyIndex;
-          }
+            if (journeyIsSelected) {
+              this.selectedJourneyIndex = journeyIndex;
+            }
 
-          return (
-            <JourneyListRow key={`vehicle_journey_row_${journeyId}`}>
-              <TagButton
-                selected={journeyIsSelected}
-                onClick={this.onSelectJourney(journey)}>
-                <HeadsignSlot color={get(transportColor, mode, "var(--light-grey)")}>
-                  <TransportIcon mode={mode} />
-                  {lineNumber}
-                </HeadsignSlot>
-                <TimeSlot>{journeyTime}</TimeSlot>
-                <ColoredBackgroundSlot
-                  color={delayType === "late" ? "var(--dark-grey)" : "white"}
-                  backgroundColor={getTimelinessColor(
-                    delayType,
-                    "var(--light-green)"
-                  )}>
-                  {plannedObservedDiff.sign}
-                  {doubleDigit(plannedObservedDiff.minutes)}:
-                  {doubleDigit(plannedObservedDiff.seconds)}
-                </ColoredBackgroundSlot>
-                <PlainSlotSmallRight>{observedTimeString}</PlainSlotSmallRight>
-              </TagButton>
-            </JourneyListRow>
-          );
-        })}
+            return (
+              <JourneyListRow
+                key={`vehicle_journey_row_${journeyId}`}
+                ref={journeyIsSelected ? scrollRef : null}>
+                <TagButton
+                  selected={journeyIsSelected}
+                  onClick={this.onSelectJourney(journey)}>
+                  <HeadsignSlot
+                    color={get(transportColor, mode, "var(--light-grey)")}>
+                    <TransportIcon mode={mode} />
+                    {lineNumber}
+                  </HeadsignSlot>
+                  <TimeSlot>{journeyTime}</TimeSlot>
+                  <ColoredBackgroundSlot
+                    color={delayType === "late" ? "var(--dark-grey)" : "white"}
+                    backgroundColor={getTimelinessColor(
+                      delayType,
+                      "var(--light-green)"
+                    )}>
+                    {plannedObservedDiff.sign}
+                    {doubleDigit(plannedObservedDiff.minutes)}:
+                    {doubleDigit(plannedObservedDiff.seconds)}
+                  </ColoredBackgroundSlot>
+                  <PlainSlotSmallRight>{observedTimeString}</PlainSlotSmallRight>
+                </TagButton>
+              </JourneyListRow>
+            );
+          })
+        }
       </SidepanelList>
     );
   }
