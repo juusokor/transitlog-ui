@@ -62,7 +62,7 @@ class RouteHfpEvents extends React.Component {
   fetchRequestedJourneys = async (requestedJourneys) => {
     this.setLoading(true);
     await pMap(requestedJourneys, this.fetchJourney, {concurrency: 5});
-    await this.onFetchCompleted();
+    this.onFetchCompleted();
   };
 
   fetchJourney = async (journeyRequest) => {
@@ -138,9 +138,9 @@ class RouteHfpEvents extends React.Component {
     }
   };
 
-  onFetchCompleted = async () => {
-    await persistCache();
+  onFetchCompleted = () => {
     this.setLoading(false);
+    persistCache();
   };
 
   onError = (err) => {
