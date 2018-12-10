@@ -19,11 +19,12 @@ import {setResetListener} from "../stores/FilterStore";
 class RouteHfpEvents extends React.Component {
   @observable.shallow
   currentView = [];
-
   currentViewKey = "";
 
   @observable
   loading = false;
+
+  loadingRequests = [];
 
   fetchReaction = () => {};
   resetReaction = () => {};
@@ -40,12 +41,12 @@ class RouteHfpEvents extends React.Component {
     this.currentViewKey = setFetchKey;
   };
 
+  // Ensures that the request has access to the full route data.
   getStateRoute = (partialRoute) => {
     const {
       state: {route},
     } = this.props;
 
-    // Ensures that the request has access to the full route data.
     if (
       route &&
       partialRoute.routeId === route.routeId &&
@@ -60,7 +61,7 @@ class RouteHfpEvents extends React.Component {
 
   fetchRequestedJourneys = async (requestedJourneys) => {
     this.setLoading(true);
-    await pMap(requestedJourneys, this.fetchJourney, {concurrency: 3});
+    await pMap(requestedJourneys, this.fetchJourney, {concurrency: 5});
     await this.onFetchCompleted();
   };
 
@@ -69,6 +70,14 @@ class RouteHfpEvents extends React.Component {
     const {route, date, time, skipCache = false} = journeyRequest;
 
     const useRoute = this.getStateRoute(route);
+    const fetchKey = createFetchKey(useRoute, date, time);
+
+    if (this.loadingRequests.indexOf(fetchKey) !== -1) {
+      return;
+    }
+
+    this.loadingRequests.push(fetchKey);
+
     const journeys = await fetchHfpJourney(useRoute, date, time, skipCache);
 
     if (journeys && Array.isArray(journeys)) {
@@ -81,9 +90,15 @@ class RouteHfpEvents extends React.Component {
         );
       }
 
-      this.onReceivedJourneys(journeys, journeyRequest);
+      await this.onReceivedJourneys(journeys, journeyRequest);
     } else {
       this.setLoading(false);
+    }
+
+    const loadingIndex = this.loadingRequests.indexOf(fetchKey);
+
+    if (loadingIndex !== -1) {
+      this.loadingRequests.splice(loadingIndex, 1);
     }
   };
 
@@ -124,8 +139,8 @@ class RouteHfpEvents extends React.Component {
   };
 
   onFetchCompleted = async () => {
-    this.setLoading(false);
     await persistCache();
+    this.setLoading(false);
   };
 
   onError = (err) => {
@@ -140,13 +155,13 @@ class RouteHfpEvents extends React.Component {
         const {
           skip = false,
           route,
-          state: {route: stateRoute, requestedJourneys},
+          state: {requestedJourneys},
         } = this.props;
 
-        const reqJourneys = requestedJourneys.slice(); // Slice to tell mobx that we used this array
+        const reqJourneys = requestedJourneys.slice(); // Slice to tell mobx that we accessed this array
         const routeKey = createRouteKey(route);
 
-        if (!skip && (reqJourneys.length !== 0 && !!routeKey && !this.loading)) {
+        if (!skip && reqJourneys.length !== 0 && !!routeKey) {
           return reqJourneys;
         }
 

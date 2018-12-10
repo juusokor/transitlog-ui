@@ -5,8 +5,6 @@ import {groupHfpPositions} from "../helpers/groupHfpPositions";
 import {extendPrototypeResult as indexedLocalforage} from "localforage-indexes";
 import lruDriver from "localforage-lru-driver";
 import {combineDateAndTime} from "./time";
-import pFinally from "p-finally";
-import idle from "./idle";
 import pAll from "p-all";
 import moment from "moment-timezone";
 
@@ -15,7 +13,6 @@ import moment from "moment-timezone";
 const DATABASE_VERSION = "1";
 const INDEX_KEY = "lruIndex";
 
-const currentPromises = new Map();
 const memoryCache = new Map();
 let isPersistingCache = false;
 
@@ -94,7 +91,6 @@ export async function persistCache() {
     }
 
     isPersistingCache = true;
-    await idle();
 
     const persistActions = [];
     const cacheEntries = memoryCache.entries();
@@ -143,34 +139,24 @@ export async function fetchHfpJourney(route, date, time, skipCache) {
     return false;
   }
 
-  let fetchPromise = currentPromises.get(fetchKey);
+  let fetchPromise = [];
 
-  if (!fetchPromise) {
-    try {
-      if (skipCache) {
-        fetchPromise = doFetch(route, date, time, fetchKey);
-      } else {
-        // Start a new fetch promise if one isn't already in progress
-        fetchPromise = getCachedJourney(fetchKey).then(async (cachedJourney) => {
-          if (cachedJourney) {
-            return cachedJourney;
-          }
+  try {
+    if (skipCache) {
+      fetchPromise = doFetch(route, date, time, fetchKey);
+    } else {
+      // Start a new fetch promise if one isn't already in progress
+      fetchPromise = getCachedJourney(fetchKey).then(async (cachedJourney) => {
+        if (cachedJourney) {
+          return cachedJourney;
+        }
 
-          return doFetch(route, date, time, fetchKey);
-        });
-      }
-    } catch (err) {
-      console.warn(`Cache or fetch error for ${fetchKey}`, err);
-      return [];
+        return doFetch(route, date, time, fetchKey);
+      });
     }
-
-    // Remove the promise when it is finished
-    fetchPromise = pFinally(fetchPromise, () => {
-      currentPromises.delete(fetchKey);
-    });
-
-    // Without awaiting it, save the promise in the promiseCache.
-    currentPromises.set(fetchKey, fetchPromise);
+  } catch (err) {
+    console.warn(`Cache or fetch error for ${fetchKey}`, err);
+    return [];
   }
 
   return fetchPromise;
