@@ -74,10 +74,8 @@ class RouteHfpEvents extends React.Component {
     const {journeyId, route, date, time, skipCache = false} = journeyRequest;
 
     const currentFetchState = resolvedJourneyStates.get(journeyId);
-    if (
-      currentFetchState === journeyFetchStates.PENDING ||
-      currentFetchState === journeyFetchStates.RESOLVED
-    ) {
+
+    if (currentFetchState === journeyFetchStates.PENDING) {
       return;
     }
 
