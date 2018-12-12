@@ -1,10 +1,11 @@
-import {extendObservable, action, observable} from "mobx";
+import {extendObservable, action, observable, reaction, runInAction} from "mobx";
 import getJourneyId from "../helpers/getJourneyId";
 import FilterActions from "./filterActions";
 import moment from "moment-timezone";
 import journeyActions from "./journeyActions";
 import {pickJourneyProps} from "../helpers/pickJourneyProps";
 import {getPathName} from "./UrlManager";
+import get from "lodash/get";
 
 export const journeyFetchStates = {
   PENDING: "pending",
@@ -91,6 +92,25 @@ export default (state) => {
   });
 
   selectJourneyFromUrl(getPathName());
+
+  reaction(
+    () => state.date,
+    (currentDate) => {
+      const currentlySelectedJourney = state.selectedJourney;
+
+      if (!currentlySelectedJourney) {
+        return;
+      }
+
+      const journeyDate = get(currentlySelectedJourney, "oday", "");
+
+      if (journeyDate !== currentDate) {
+        runInAction(() => {
+          state.selectedJourney.oday = currentDate;
+        });
+      }
+    }
+  );
 
   return {
     ...actions,
