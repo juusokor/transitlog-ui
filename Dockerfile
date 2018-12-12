@@ -8,7 +8,6 @@ WORKDIR ${WORK}
 # Install app dependencies
 COPY yarn.lock ${WORK}
 COPY package.json ${WORK}
-COPY patches/ ${WORK}/patches/
 RUN yarn
 
 COPY . ${WORK}
