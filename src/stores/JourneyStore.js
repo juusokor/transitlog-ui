@@ -93,11 +93,14 @@ export default (state) => {
 
   selectJourneyFromUrl(getPathName());
 
+  // If a journey is selected, sync the day of the selected journey when the
+  // selected date changes.
   reaction(
     () => state.date,
     (currentDate) => {
       const currentlySelectedJourney = state.selectedJourney;
 
+      // No action if there is not a selected journey
       if (!currentlySelectedJourney) {
         return;
       }
