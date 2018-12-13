@@ -123,6 +123,8 @@ class FirstDepartureQuery extends Component {
                 departure.departureId
               }`;
 
+              console.log(key);
+
               collection[key] = startTime;
               return collection;
             },

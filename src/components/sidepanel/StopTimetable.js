@@ -111,6 +111,7 @@ class StopTimetable extends Component {
 
     return (
       <FirstDepartureQuery
+        key={`first_departure_query_${date}`}
         skip={batchedFirstDepartureRequests.length === 0}
         queries={batchedFirstDepartureRequests}
         dayType={dayType}>
@@ -141,7 +142,7 @@ class StopTimetable extends Component {
               }
 
               return (
-                <TimetableSection key={`hour_${stop.stopId}_${hour}`}>
+                <TimetableSection key={`hour_${stop.stopId}_${date}_${hour}`}>
                   {timetableDepartures.map((departure) => {
                     const {
                       departureId,
@@ -168,7 +169,7 @@ class StopTimetable extends Component {
                     if (firstDepartures && firstDepartureTime) {
                       departureJourney = get(
                         groupedJourneys,
-                        `${firstDepartureTime}:${departure.routeId}:${
+                        `${date}:${firstDepartureTime}:${departure.routeId}:${
                           departure.direction
                         }`,
                         null

@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {observer, inject} from "mobx-react";
+import {observer, inject, Observer} from "mobx-react";
 import SidepanelList from "./SidepanelList";
 import StopTimetable, {AVG_DEPARTURES_THRESHOLD} from "./StopTimetable";
 import withStop from "../../hoc/withStop";
@@ -21,6 +21,7 @@ import memoize from "memoized-decorator";
 import {combineDateAndTime} from "../../helpers/time";
 import {createDebouncedObservable} from "../../helpers/createDebouncedObservable";
 import {getUrlValue, setUrlValue} from "../../stores/UrlManager";
+import getJourneyId from "../../helpers/getJourneyId";
 
 const RouteFilterContainer = styled.div`
   flex: 1 1 50%;
@@ -68,7 +69,7 @@ class TimetablePanel extends Component {
   getDefaultTimeRangeValue(timeRange, perHour, date, time) {
     let {min = "", max = ""} = timeRange;
 
-    if (!min && !max && perHour > AVG_DEPARTURES_THRESHOLD && perHour < 40) {
+    if (!min && !max && perHour > AVG_DEPARTURES_THRESHOLD) {
       const currentTime = combineDateAndTime(date, time, "Europe/Helsinki");
       // Use the average numbe of departures per hour to determine how large of a range to set.
       // More departures means narrower ranges, the idea is to not have the fetch take forever.
@@ -353,31 +354,30 @@ class TimetablePanel extends Component {
           return (
             stop && (
               <StopHfpQuery
+                key={`stop_hfp_${stop.stopId}_${date}`}
                 skip={routes.length === 0} // Skip if there are no routes to fetch
                 stopId={stop.stopId}
                 routes={routes}
                 directions={directions}
                 date={date}>
-                {({journeys, loading}) => {
-                  return (
-                    <StopTimetable
-                      key={`stop_timetable_${stop.stopId}_${date}`}
-                      loading={timetableLoading || loading}
-                      time={this.reactionlessTime}
-                      focusRef={scrollRef}
-                      setScrollOffset={updateScrollOffset}
-                      routeFilter={routeFilter}
-                      timeRangeFilter={timeRangeFilter}
-                      groupedJourneys={journeys}
-                      departuresByHour={departuresByHour}
-                      departuresPerHour={this.avgDeparturesPerHour}
-                      stop={stop}
-                      date={date}
-                      selectedJourney={selectedJourney}
-                      onSelectAsJourney={this.selectAsJourney}
-                    />
-                  );
-                }}
+                {({journeys, loading}) => (
+                  <StopTimetable
+                    key={`stop_timetable_${stop.stopId}_${date}`}
+                    loading={timetableLoading || loading}
+                    time={this.reactionlessTime}
+                    focusRef={scrollRef}
+                    setScrollOffset={updateScrollOffset}
+                    routeFilter={routeFilter}
+                    timeRangeFilter={timeRangeFilter}
+                    groupedJourneys={journeys}
+                    departuresByHour={departuresByHour}
+                    departuresPerHour={this.avgDeparturesPerHour}
+                    stop={stop}
+                    date={date}
+                    selectedJourney={selectedJourney}
+                    onSelectAsJourney={this.selectAsJourney}
+                  />
+                )}
               </StopHfpQuery>
             )
           );

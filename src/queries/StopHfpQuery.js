@@ -59,7 +59,10 @@ class StopHfpQuery extends Component {
 
           const journeysByRoute = groupBy(
             get(data, "vehicles", []),
-            (hfp) => `${hfp.journey_start_time}:${hfp.route_id}:${hfp.direction_id}`
+            (hfp) =>
+              `${hfp.oday}:${hfp.journey_start_time}:${hfp.route_id}:${
+                hfp.direction_id
+              }`
           );
 
           const journeysByRouteAndTime = reduce(
