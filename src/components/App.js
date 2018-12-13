@@ -13,12 +13,9 @@ import {latLng} from "leaflet";
 import SingleStopQuery from "../queries/SingleStopQuery";
 import AreaHfpEvents from "./AreaHfpEvents";
 
-const DEFAULT_SIDEPANEL_WIDTH = 25;
-
 const AppFrame = styled.main`
   display: grid;
-  grid-template-columns: ${({sidepanelWidth = DEFAULT_SIDEPANEL_WIDTH}) =>
-      sidepanelWidth}rem 1fr;
+  grid-template-columns: 25rem 1fr;
   grid-template-rows: 9rem 1fr;
   justify-content: stretch;
   transition: all 0.15s ease-out;
@@ -28,10 +25,8 @@ const AppFrame = styled.main`
 
 const MapPanel = styled(Map)`
   top: 9rem;
-  left: ${({sidepanelWidth = DEFAULT_SIDEPANEL_WIDTH}) => sidepanelWidth}rem;
-  width: calc(
-    100% - ${({sidepanelWidth = DEFAULT_SIDEPANEL_WIDTH}) => sidepanelWidth}rem
-  );
+  left: 25rem;
+  width: calc(100% - 25rem);
   height: calc(100% - 9rem);
 `;
 

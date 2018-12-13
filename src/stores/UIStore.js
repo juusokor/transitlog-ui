@@ -12,12 +12,12 @@ export const languageState = observable({
 
 export default (state) => {
   extendObservable(state, {
-    filterPanelVisible: true,
+    sidePanelVisible: true,
     language: languageState.language,
   });
 
-  const toggleFilterPanel = action((setTo = !state.filterPanelVisible) => {
-    state.filterPanelVisible = setTo;
+  const toggleSidePanel = action((setTo = !state.sidePanelVisible) => {
+    state.sidePanelVisible = setTo;
   });
 
   const setLanguage = action((language) => {
@@ -35,7 +35,7 @@ export default (state) => {
   );
 
   return {
-    toggleFilterPanel,
+    toggleSidePanel,
     setLanguage,
   };
 };

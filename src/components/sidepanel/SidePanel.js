@@ -8,6 +8,7 @@ import TimetablePanel from "./TimetablePanel";
 import VehicleJourneys from "./VehicleJourneys";
 import {text} from "../../helpers/text";
 import AreaJourneyList from "./AreaJourneyList";
+import ArrowLeft from "../../icons/ArrowLeft";
 
 const SidePanelContainer = styled.div`
   background: var(--lightest-grey);
@@ -17,6 +18,20 @@ const SidePanelContainer = styled.div`
   border-right: 1px solid var(--alt-grey);
   grid-row: 2;
   padding-top: 3px;
+  position: relative;
+  overflow: visible;
+`;
+
+const ToggleSidePanelButton = styled.button`
+  background: var(--blue);
+  border: 0;
+  outline: 0;
+  width: 1.5rem;
+  height: 3rem;
+  position: absolute;
+  right: -1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
 `;
 
 @inject(app("state"))
@@ -63,6 +78,9 @@ class SidePanel extends Component {
             />
           )}
         </Tabs>
+        <ToggleSidePanelButton>
+          <ArrowLeft />
+        </ToggleSidePanelButton>
       </SidePanelContainer>
     );
   }
