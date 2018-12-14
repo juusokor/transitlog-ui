@@ -190,8 +190,17 @@ class TimetablePanel extends Component {
     let routes = [];
     let directions = [];
 
+    const {min, max} = timeRangeFilter;
+
     for (const departure of departures) {
-      const {routeId, direction} = departure;
+      const {routeId, direction, hours} = departure;
+
+      // If there is a timerange filter set, ignore routes
+      // from departures that fall outside the filter.
+      if ((min && hours < parseInt(min)) || (max && hours > parseInt(max))) {
+        continue;
+      }
+
       // Clean up the routeId to be compatible with what
       // the user will enter into the filter field.
       const routeIdFilterTerm = routeId
