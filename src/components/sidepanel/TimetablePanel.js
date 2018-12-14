@@ -18,6 +18,14 @@ import meanBy from "lodash/meanBy";
 import groupBy from "lodash/groupBy";
 import {createDebouncedObservable} from "../../helpers/createDebouncedObservable";
 import {getUrlValue, setUrlValue} from "../../stores/UrlManager";
+import {Button} from "../Forms";
+import {setResetListener} from "../../stores/FilterStore";
+
+const TimetableFilters = styled.div`
+  display: flex;
+  width: 100%;
+  align-items: flex-end;
+`;
 
 const RouteFilterContainer = styled.div`
   flex: 1 1 50%;
@@ -41,11 +49,17 @@ const TimeRangeFilterContainer = styled.div`
   }
 `;
 
+const ClearButton = styled(Button).attrs({small: true, primary: true})`
+  margin-left: 0.5rem;
+  margin-bottom: 1px;
+`;
+
 @inject(app("Filters", "Journey", "Time"))
 @withStop({fetchRouteSegments: false})
 @withAllStopDepartures
 @observer
 class TimetablePanel extends Component {
+  removeResetListener = () => {};
   disposeScrollResetReaction = () => {};
   updateScrollOffset = () => {};
 
@@ -64,6 +78,8 @@ class TimetablePanel extends Component {
   reactionlessTime = toJS(this.props.state.time);
 
   componentDidMount() {
+    this.removeResetListener = setResetListener(this.onClearFilters);
+
     this.disposeScrollResetReaction = reaction(
       () => [this.timeRangeFilter.debouncedValue, this.routeFilter.debouncedValue],
       () => this.updateScrollOffset(true),
@@ -75,6 +91,9 @@ class TimetablePanel extends Component {
     // Always dispose reactions to prevent memory leaks. This component might mount
     // an unmount often, so it is very important to do it here.
     this.disposeScrollResetReaction();
+
+    // Remove the reset listener
+    this.removeResetListener();
   }
 
   setRouteFilter = (e) => {
@@ -99,6 +118,15 @@ class TimetablePanel extends Component {
 
     this.timeRangeFilter.setValue(nextValue);
     setUrlValue(`timetableTimeRange.${which}`, setValue);
+  };
+
+  onClearFilters = () => {
+    this.timeRangeFilter.setValue({min: "", max: ""});
+    this.routeFilter.setValue("");
+
+    setUrlValue(`timetableTimeRange.min`, null);
+    setUrlValue(`timetableTimeRange.max`, null);
+    setUrlValue(`timetableRoute`, null);
   };
 
   selectAsJourney = (departure) => (e) => {
@@ -230,7 +258,7 @@ class TimetablePanel extends Component {
       <SidepanelList
         loading={timetableLoading}
         header={
-          <>
+          <TimetableFilters>
             <RouteFilterContainer>
               <Input
                 value={this.routeFilter.value} // The value is not debounced here
@@ -255,7 +283,8 @@ class TimetablePanel extends Component {
                 onChange={this.setTimeRangeFilter("max")}
               />
             </TimeRangeFilterContainer>
-          </>
+            <ClearButton onClick={this.onClearFilters}>Clear</ClearButton>
+          </TimetableFilters>
         }>
         {(scrollRef, updateScrollOffset) => {
           // Will be called when filters, and thus the size of the list, changes

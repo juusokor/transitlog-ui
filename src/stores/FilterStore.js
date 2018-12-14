@@ -4,7 +4,6 @@ import JourneyActions from "./journeyActions";
 import {inflate} from "../helpers/inflate";
 import pick from "lodash/pick";
 import merge from "lodash/merge";
-import get from "lodash/get";
 import {resetUrlState} from "./UrlManager";
 
 const resetListeners = [];
