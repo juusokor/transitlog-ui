@@ -17,8 +17,6 @@ const TimetableSection = styled.div`
   margin-bottom: 1.5rem;
 `;
 
-export const AVG_DEPARTURES_THRESHOLD = 20;
-
 @observer
 class StopTimetable extends Component {
   // Finds a departure that is closest to the given time and returns its hours and minutes.
@@ -70,18 +68,13 @@ class StopTimetable extends Component {
     let {min, max} = timeRangeFilter;
 
     const dayType = getDayTypeFromDate(date);
-    let batchedFirstDepartureRequests = [];
 
-    // Only fetch the observed times if there's not too many departures. If the average
-    // number of departures per hour is over the threshold, wait for the user to filter by time.
-    if (departuresPerHour <= AVG_DEPARTURES_THRESHOLD || (min && max)) {
-      // Create batches for the firstDeparture query.
-      batchedFirstDepartureRequests = flatMap(
-        departuresByHour,
-        // Map to whole departures. The query will pick what it needs.
-        ([hour, departures]) => departures.map((dep) => dep)
-      );
-    }
+    // Create batches for the firstDeparture query.
+    let batchedFirstDepartureRequests = flatMap(
+      departuresByHour,
+      // Map to whole departures. The query will pick what it needs.
+      ([hour, departures]) => departures.map((dep) => dep)
+    );
 
     // If there is min/max hour filters set, make sure no unnecessary first departures are fetched.
     if (min || max || routeFilter) {

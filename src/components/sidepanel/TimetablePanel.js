@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import {observer, inject, Observer} from "mobx-react";
 import SidepanelList from "./SidepanelList";
-import StopTimetable, {AVG_DEPARTURES_THRESHOLD} from "./StopTimetable";
+import StopTimetable from "./StopTimetable";
 import withStop from "../../hoc/withStop";
 import {app} from "mobx-app";
 import withAllStopDepartures from "../../hoc/withAllStopDepartures";
@@ -16,7 +16,6 @@ import doubleDigit from "../../helpers/doubleDigit";
 import orderBy from "lodash/orderBy";
 import meanBy from "lodash/meanBy";
 import groupBy from "lodash/groupBy";
-import {combineDateAndTime} from "../../helpers/time";
 import {createDebouncedObservable} from "../../helpers/createDebouncedObservable";
 import {getUrlValue, setUrlValue} from "../../stores/UrlManager";
 
@@ -47,7 +46,6 @@ const TimeRangeFilterContainer = styled.div`
 @withAllStopDepartures
 @observer
 class TimetablePanel extends Component {
-  disposeTimeRangeReaction = () => {};
   disposeScrollResetReaction = () => {};
   updateScrollOffset = () => {};
 
@@ -61,76 +59,11 @@ class TimetablePanel extends Component {
     500
   );
 
-  // If there are too many departures, we want to set a time range filter by default.
-  // This method figures out the range to set if one needs setting.
-  getDefaultTimeRangeValue(timeRange, perHour, date, time) {
-    let {min = "", max = ""} = timeRange;
-
-    if (!min && !max && perHour > AVG_DEPARTURES_THRESHOLD) {
-      const currentTime = combineDateAndTime(date, time, "Europe/Helsinki");
-      // Use the average number of departures per hour to determine how large of a range to set.
-      // More departures means narrower ranges, the idea is to not have the fetch take forever.
-      const hourModifier = perHour > 40 ? 3 : perHour > 30 ? 4 : 5;
-      const modifierHalf = Math.floor(hourModifier / 2);
-
-      min = currentTime
-        .clone()
-        .subtract(modifierHalf, "hours")
-        .format("HH");
-
-      max = currentTime
-        .clone()
-        .add(modifierHalf, "hours")
-        .format("HH");
-    }
-
-    return {min, max};
-  }
-
   // We DON'T want this component to react to time changes,
   // as there is a lot to render and it would be too heavy.
   reactionlessTime = toJS(this.props.state.time);
 
   componentDidMount() {
-    // Reaction to automatically set a sensible time range filter.
-    this.disposeTimeRangeReaction = reaction(
-      () => {
-        // The reaction will only react to changes in values used here in the first function.
-        const {date} = this.props.state;
-        const time = this.reactionlessTime;
-        const perHour = this.avgDeparturesPerHour;
-        const timeRange = this.timeRangeFilter.value;
-
-        return {
-          timeRange,
-          perHour,
-          date,
-          time,
-        };
-      },
-      ({timeRange, perHour, date, time}) => {
-        const {min: prevMin, max: prevMax} = timeRange;
-
-        if (!prevMin && !prevMax) {
-          const nextTimeRange = this.getDefaultTimeRangeValue(
-            timeRange,
-            perHour,
-            date,
-            time
-          );
-
-          // While values used here will not cause a reaction, we still need to be
-          // careful to not create infinite update loops.
-          const {min, max} = nextTimeRange;
-
-          if ((min && prevMin !== min) || (max && prevMax !== max)) {
-            this.timeRangeFilter.setValue(nextTimeRange);
-          }
-        }
-      },
-      {fireImmediately: true}
-    );
-
     this.disposeScrollResetReaction = reaction(
       () => [this.timeRangeFilter.debouncedValue, this.routeFilter.debouncedValue],
       () => this.updateScrollOffset(true),
@@ -141,7 +74,6 @@ class TimetablePanel extends Component {
   componentWillUnmount() {
     // Always dispose reactions to prevent memory leaks. This component might mount
     // an unmount often, so it is very important to do it here.
-    this.disposeTimeRangeReaction();
     this.disposeScrollResetReaction();
   }
 
@@ -248,10 +180,6 @@ class TimetablePanel extends Component {
     // Collect values. The filter values are read as debounced values.
     const routeFilter = this.routeFilter.debouncedValue;
     const timeRangeFilter = this.timeRangeFilter.debouncedValue;
-
-    // the per hour average number of departures is used to determine if we
-    // allow the app to fetch data immediately or if we need to wait for filter input.
-    const departuresPerHour = this.avgDeparturesPerHour;
     const departuresByHour = this.getDeparturesByHour();
 
     // We query for the hfp data related to the routes and directions on
@@ -262,38 +190,30 @@ class TimetablePanel extends Component {
     let routes = [];
     let directions = [];
 
-    // If there isn't an ungodly amount of departures per hour, or of the route
-    // filter is set, collect all the routes and directions for the hfp query.
-    // The query will not run if the routes array is empty.
-    if (departuresPerHour < 40 || !!routeFilter) {
-      for (const departure of departures) {
-        const {routeId, direction} = departure;
-        // Clean up the routeId to be compatible with what
-        // the user will enter into the filter field.
-        const routeIdFilterTerm = routeId
-          .substring(1)
-          .replace(/^0+/, "")
-          .toLowerCase();
+    for (const departure of departures) {
+      const {routeId, direction} = departure;
+      // Clean up the routeId to be compatible with what
+      // the user will enter into the filter field.
+      const routeIdFilterTerm = routeId
+        .substring(1)
+        .replace(/^0+/, "")
+        .toLowerCase();
 
-        // If there is a route filter set, we don't want
-        // to query for routes that do not match.
-        if (
-          routeFilter &&
-          !routeIdFilterTerm.startsWith(routeFilter.toLowerCase())
-        ) {
-          continue;
-        }
+      // If there is a route filter set, we don't want
+      // to query for routes that do not match.
+      if (routeFilter && !routeIdFilterTerm.startsWith(routeFilter.toLowerCase())) {
+        continue;
+      }
 
-        // No need for more than one of everything
-        if (routes.indexOf(routeId) === -1) {
-          routes.push(routeId);
-        }
+      // No need for more than one of everything
+      if (routes.indexOf(routeId) === -1) {
+        routes.push(routeId);
+      }
 
-        const intDirection = parseInt(direction, 10);
+      const intDirection = parseInt(direction, 10);
 
-        if (directions.indexOf(intDirection) === -1) {
-          directions.push(intDirection);
-        }
+      if (directions.indexOf(intDirection) === -1) {
+        directions.push(intDirection);
       }
     }
 
