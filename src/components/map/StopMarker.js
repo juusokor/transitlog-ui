@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
-import {Popup, CircleMarker} from "react-leaflet";
+import {Popup, CircleMarker, Circle} from "react-leaflet";
 import {latLng} from "leaflet";
 import {Heading} from "../Typography";
 import get from "lodash/get";
@@ -42,17 +42,20 @@ class StopMarker extends Component {
   };
 
   render() {
-    const {stop, state} = this.props;
+    const {stop, state, showRadius = true} = this.props;
     const {stop: selectedStop} = state;
 
     const selected = selectedStop === stop.stopId;
     const mode = getPriorityMode(get(stop, "modes.nodes", []));
     const stopColor = getModeColor(mode);
+    const {stopRadius} = stop;
 
-    return (
+    const markerPosition = [stop.lat, stop.lon];
+
+    const markerElement = (
       <CircleMarker
         pane="stops"
-        center={[stop.lat, stop.lon]}
+        center={markerPosition}
         color={stopColor}
         fillColor={selected ? stopColor : "white"}
         fillOpacity={1}
@@ -78,6 +81,21 @@ class StopMarker extends Component {
           <button onClick={this.onShowStreetView}>Show in street view</button>
         </Popup>
       </CircleMarker>
+    );
+
+    return showRadius ? (
+      <Circle
+        center={markerPosition}
+        weight={1}
+        opacity={0.5}
+        color={stopColor}
+        fillColor={stopColor}
+        fillOpacity={0.15}
+        radius={stopRadius}>
+        {markerElement}
+      </Circle>
+    ) : (
+      markerElement
     );
   }
 }
