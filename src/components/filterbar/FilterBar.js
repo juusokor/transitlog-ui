@@ -24,21 +24,22 @@ import getJourneyId from "../../helpers/getJourneyId";
 import get from "lodash/get";
 
 const SiteHeader = styled(Header)`
-  flex: 0 0 25rem;
+  flex: 0 0 auto;
   z-index: 1;
+  width: 25rem;
+  height: 100%;
 `;
 
 const FilterBarWrapper = styled.div`
-  width: 100%;
   background: var(--lightest-grey);
   color: var(--dark-grey);
   border-bottom: 1px solid var(--alt-grey);
   overflow: visible;
-  grid-row: 1;
-  grid-column: 1 / span 2;
+  height: 100%;
   display: flex;
+  flex: 1 1 calc(100% - 25rem);
   flex-direction: row;
-  align-items: flex-start;
+  position: relative;
 `;
 
 const FilterBarGrid = styled.div`
@@ -50,7 +51,7 @@ const FilterBarGrid = styled.div`
 
 const BottomSlider = styled(TimeSlider)`
   position: absolute;
-  top: calc(8rem);
+  bottom: -1rem;
   right: 0;
   width: calc((100% - 25rem) + 2px);
   z-index: 10;

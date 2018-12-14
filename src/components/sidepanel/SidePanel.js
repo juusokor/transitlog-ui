@@ -16,10 +16,10 @@ const SidePanelContainer = styled.div`
   transition: transform 0.3s ease-out;
   transform: translateX(${({visible = true}) => (visible ? 0 : "calc(-100%)")});
   border-right: 1px solid var(--alt-grey);
-  grid-row: 2;
-  padding-top: 3px;
+  height: 100%;
+  width: 25rem;
   position: relative;
-  overflow: visible;
+  z-index: 1;
 `;
 
 const ToggleSidePanelButton = styled.button`

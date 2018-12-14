@@ -24,6 +24,7 @@ const TabButton = styled.button`
   text-transform: uppercase;
   background-color: ${({selected}) => (selected ? "white" : "var(--lightest-grey)")};
   border: 1px solid var(--alt-grey);
+  border-top: 0;
   border-left: 0;
   border-bottom-color: ${({selected}) =>
     selected ? "transparent" : "var(--lighter-grey)"};
