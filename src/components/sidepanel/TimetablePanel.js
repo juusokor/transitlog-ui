@@ -16,7 +16,6 @@ import doubleDigit from "../../helpers/doubleDigit";
 import orderBy from "lodash/orderBy";
 import meanBy from "lodash/meanBy";
 import groupBy from "lodash/groupBy";
-import memoize from "memoized-decorator";
 import {combineDateAndTime} from "../../helpers/time";
 import {createDebouncedObservable} from "../../helpers/createDebouncedObservable";
 import {getUrlValue, setUrlValue} from "../../stores/UrlManager";
