@@ -9,6 +9,9 @@ import VehicleJourneys from "./VehicleJourneys";
 import {text} from "../../helpers/text";
 import AreaJourneyList from "./AreaJourneyList";
 import ArrowLeft from "../../icons/ArrowLeft";
+import {observable, action} from "mobx";
+import Cross from "../../icons/Cross";
+import {Heading} from "../Typography";
 
 const SidePanelContainer = styled.div`
   background: var(--lightest-grey);
@@ -33,7 +36,7 @@ const ToggleSidePanelButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  right: -1.5rem;
+  right: ${({journeyDetailsOpen}) => (journeyDetailsOpen ? "-26.5rem" : "-1.5rem")};
   top: 50%;
   padding: 0 0.25rem 0 0;
   transform: translateY(-50%);
@@ -48,9 +51,69 @@ const ToggleSidePanelButton = styled.button`
   }
 `;
 
+const JourneyPanel = styled.div`
+  position: absolute;
+  top: 0;
+  right: calc(-25rem - 1px);
+  width: 25rem;
+  height: 100%;
+  background: white;
+  z-index: 1;
+  border-right: 1px solid var(--alt-grey);
+  display: flex;
+  flex-direction: column;
+`;
+
+const JourneyPanelHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding-left: 1rem;
+
+  h4 {
+    margin-top: 0.75rem;
+  }
+`;
+
+const JourneyPanelCloseButton = styled.button`
+  background: transparent;
+  border: 0;
+  padding: 0.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  transition: background 0.1s ease-out, transform 0.1s ease-out;
+  cursor: pointer;
+  margin-left: auto;
+  margin-right: 1px;
+  margin-top: 1px;
+
+  svg {
+    transition: color 0.1s ease-out;
+  }
+
+  &:hover {
+    background: var(--lightest-grey);
+    transform: scale(1.05);
+
+    svg {
+      fill: white;
+    }
+  }
+`;
+
+const JourneyPanelContent = styled.div`
+  padding: 1rem;
+`;
+
 @inject(app("UI"))
 @observer
 class SidePanel extends Component {
+  @observable
+  journeyDetailsOpen = true;
+
+  toggleJourneyDetails = action((setTo = !this.journeyDetailsOpen) => {
+    this.journeyDetailsOpen = setTo;
+  });
+
   render() {
     const {
       UI: {toggleSidePanel},
@@ -95,7 +158,19 @@ class SidePanel extends Component {
             )}
           </Tabs>
         )}
+        {this.journeyDetailsOpen && (
+          <JourneyPanel>
+            <JourneyPanelHeader>
+              <Heading level={4}>Journey</Heading>
+              <JourneyPanelCloseButton>
+                <Cross fill="var(--blue)" width="1.25rem" height="1.25rem" />
+              </JourneyPanelCloseButton>
+            </JourneyPanelHeader>
+            <JourneyPanelContent />
+          </JourneyPanel>
+        )}
         <ToggleSidePanelButton
+          journeyDetailsOpen={this.journeyDetailsOpen}
           isVisible={sidePanelVisible}
           onClick={() => toggleSidePanel()}>
           <ArrowLeft fill="white" height="1.2rem" width="1.2rem" />
