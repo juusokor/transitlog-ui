@@ -12,8 +12,10 @@ export const languageState = observable({
 });
 
 export default (state) => {
+  const sideBarUrlState = getUrlValue("sidePanelVisible", true);
+
   extendObservable(state, {
-    sidePanelVisible: getUrlValue("sidePanelVisible", true),
+    sidePanelVisible: !sideBarUrlState || sideBarUrlState === "false" ? false : true,
     language: languageState.language,
   });
 

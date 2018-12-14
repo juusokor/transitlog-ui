@@ -13,7 +13,7 @@ import ArrowLeft from "../../icons/ArrowLeft";
 const SidePanelContainer = styled.div`
   background: var(--lightest-grey);
   color: var(--dark-grey);
-  transition: all 0.2s ease-out;
+  transition: margin-left 0.2s ease-out;
   border-right: 1px solid var(--alt-grey);
   height: 100%;
   flex: 1 1 auto;
@@ -41,6 +41,11 @@ const ToggleSidePanelButton = styled.button`
   border-top-right-radius: 50%;
   border-bottom-right-radius: 50%;
   cursor: pointer;
+
+  svg {
+    transition: transform 0.5s ease-out;
+    transform: rotate(${({isVisible = true}) => (isVisible ? 0 : "180deg")});
+  }
 `;
 
 @inject(app("UI"))
@@ -56,39 +61,43 @@ class SidePanel extends Component {
 
     return (
       <SidePanelContainer visible={sidePanelVisible}>
-        <Tabs>
-          {(!route || !route.routeId) && positions.length !== 0 && (
-            <AreaJourneyList
-              journeys={positions}
-              name="area-journeys"
-              label={text("sidepanel.tabs.area_events")}
-            />
-          )}
-          {!!route && !!route.routeId && (
-            <Journeys
-              route={route}
-              positions={positions}
-              loading={loading}
-              name="journeys"
-              label={text("sidepanel.tabs.journeys")}
-            />
-          )}
-          {vehicle && (
-            <VehicleJourneys
-              loading={loading}
-              name="vehicle-journeys"
-              label={text("sidepanel.tabs.vehicle_journeys")}
-            />
-          )}
-          {stop && (
-            <TimetablePanel
-              loading={loading}
-              name="timetables"
-              label={text("sidepanel.tabs.timetables")}
-            />
-          )}
-        </Tabs>
-        <ToggleSidePanelButton onClick={() => toggleSidePanel()}>
+        {sidePanelVisible && (
+          <Tabs>
+            {(!route || !route.routeId) && positions.length !== 0 && (
+              <AreaJourneyList
+                journeys={positions}
+                name="area-journeys"
+                label={text("sidepanel.tabs.area_events")}
+              />
+            )}
+            {!!route && !!route.routeId && (
+              <Journeys
+                route={route}
+                positions={positions}
+                loading={loading}
+                name="journeys"
+                label={text("sidepanel.tabs.journeys")}
+              />
+            )}
+            {vehicle && (
+              <VehicleJourneys
+                loading={loading}
+                name="vehicle-journeys"
+                label={text("sidepanel.tabs.vehicle_journeys")}
+              />
+            )}
+            {stop && (
+              <TimetablePanel
+                loading={loading}
+                name="timetables"
+                label={text("sidepanel.tabs.timetables")}
+              />
+            )}
+          </Tabs>
+        )}
+        <ToggleSidePanelButton
+          isVisible={sidePanelVisible}
+          onClick={() => toggleSidePanel()}>
           <ArrowLeft fill="white" height="1.2rem" width="1.2rem" />
         </ToggleSidePanelButton>
       </SidePanelContainer>

@@ -62,7 +62,7 @@ class Map extends Component {
         }
       },
       {
-        delay: 200,
+        delay: 1000,
       }
     );
 
