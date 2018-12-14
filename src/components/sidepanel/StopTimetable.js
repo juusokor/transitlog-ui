@@ -17,7 +17,7 @@ const TimetableSection = styled.div`
   margin-bottom: 1.5rem;
 `;
 
-export const AVG_DEPARTURES_THRESHOLD = 7;
+export const AVG_DEPARTURES_THRESHOLD = 20;
 
 @observer
 class StopTimetable extends Component {

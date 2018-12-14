@@ -68,9 +68,9 @@ class TimetablePanel extends Component {
 
     if (!min && !max && perHour > AVG_DEPARTURES_THRESHOLD) {
       const currentTime = combineDateAndTime(date, time, "Europe/Helsinki");
-      // Use the average numbe of departures per hour to determine how large of a range to set.
+      // Use the average number of departures per hour to determine how large of a range to set.
       // More departures means narrower ranges, the idea is to not have the fetch take forever.
-      const hourModifier = perHour > 30 ? 2 : perHour > 20 ? 3 : 4;
+      const hourModifier = perHour > 40 ? 3 : perHour > 30 ? 4 : 5;
       const modifierHalf = Math.floor(hourModifier / 2);
 
       min = currentTime
@@ -207,19 +207,18 @@ class TimetablePanel extends Component {
     // This is used to determine if observed times can be fetched immediately,
     // or if we should wait for the user to filter the list. Filtering by
     // route should also be taken into account here.
-    return Math.round(
-      meanBy(departuresByHour, ([hour, hourDepartures]) => {
-        // The route filter will help to ease the burden of too many departures, so
-        // make sure that the average does not include routes that do not match the filter.
-        if (!routeFilter) {
-          return hourDepartures.length;
-        }
+    const avgPerHour = meanBy(departuresByHour, ([hour, hourDepartures]) => {
+      if (!routeFilter) {
+        return hourDepartures.length;
+      }
 
-        return hourDepartures.filter(
-          (departure) => departure.routeId === routeFilter
-        ).length;
-      })
-    );
+      // The route filter will help to ease the burden of too many departures, so
+      // make sure that the average does not include routes that do not match the filter.
+      return hourDepartures.filter((departure) => departure.routeId === routeFilter)
+        .length;
+    });
+
+    return Math.round(avgPerHour && !isNaN(avgPerHour) ? avgPerHour : 1);
   }
 
   getDeparturesByHour() {
