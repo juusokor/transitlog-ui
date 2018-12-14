@@ -6,18 +6,16 @@ import get from "lodash/get";
 import gql from "graphql-tag";
 import groupBy from "lodash/groupBy";
 import reduce from "lodash/reduce";
+import flatten from "lodash/flatten";
 
-const stopDelayQuery = gql`
-  query stopDelay(
-    $routes: [String]!
-    $date: date!
-    $directions: [smallint]!
-    $stopId: String!
-  ) {
-    vehicles(
+const createQueryPart = (direction, routes) => {
+  const queryName = `direction_${direction}`;
+
+  return `
+    ${queryName}: vehicles(
       where: {
-        route_id: {_in: $routes}
-        dir: {_in: $directions}
+        route_id: {_in: ["${routes.join('","')}"]}
+        direction_id: {_eq: ${direction}}
         oday: {_eq: $date}
         next_stop_id: {_eq: $stopId}
       }
@@ -29,6 +27,15 @@ const stopDelayQuery = gql`
       direction_id
       route_id
     }
+  `;
+};
+
+const stopDelayQuery = (queryParts) => gql`
+  query stopDelay(
+    $date: date!
+    $stopId: String!
+  ) {
+    ${queryParts}
   }
 `;
 
@@ -37,28 +44,46 @@ class StopHfpQuery extends Component {
   render() {
     const {
       onCompleted = () => {},
-      routes,
+      routes = {},
       date,
-      directions,
       stopId,
       skip,
       children,
     } = this.props;
+
+    /*
+     * The routes prop should be a map of routes grouped by direction, like this:
+     * {
+     *   1: [routeId, routeId, routeId...],
+     *   2: [routeId, routeId, routeId...],
+     * }
+     */
+
+    const routesList =
+      !routes || Object.keys(routes).length === 0 ? {"1": []} : routes;
+
+    const queryParts = Object.entries(routesList)
+      .map(([direction, routes]) => createQueryPart(direction, routes))
+      .join("");
+
+    const query = stopDelayQuery(queryParts);
 
     return (
       <Query
         skip={skip}
         onCompleted={onCompleted}
         client={hfpClient}
-        variables={{routes, date, directions, stopId}}
-        query={stopDelayQuery}>
+        variables={{date, stopId}}
+        query={query}>
         {({loading, data, error}) => {
           if (loading || error) {
             return children({journeys: {}, loading, error});
           }
 
+          const vehicles = flatten(Object.values(data));
+
           const journeysByRoute = groupBy(
-            get(data, "vehicles", []),
+            vehicles,
             (hfp) =>
               `${hfp.oday}:${hfp.journey_start_time}:${hfp.route_id}:${
                 hfp.direction_id

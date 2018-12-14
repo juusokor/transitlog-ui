@@ -212,11 +212,9 @@ class TimetablePanel extends Component {
 
     // We query for the hfp data related to the routes and directions on
     // this stop in one go, instead of doing one query per row. Collect
-    // all distinct routes and directions in these arrays. Yes, there
-    // are stops with more than one direction.
-
-    let routes = [];
-    let directions = [];
+    // all distinct routes and directions in this map. Yes, there
+    // are stops with more than one direction. Routes are grouped by direction.
+    let routes = {};
 
     const {min, max} = timeRangeFilter;
 
@@ -242,15 +240,15 @@ class TimetablePanel extends Component {
         continue;
       }
 
-      // No need for more than one of everything
-      if (routes.indexOf(routeId) === -1) {
-        routes.push(routeId);
+      if (!routes[direction]) {
+        routes[direction] = [];
       }
 
-      const intDirection = parseInt(direction, 10);
+      const directionRoutes = routes[direction];
 
-      if (directions.indexOf(intDirection) === -1) {
-        directions.push(intDirection);
+      // Check that the route isn't already included.
+      if (directionRoutes.indexOf(routeId) === -1) {
+        directionRoutes.push(routeId);
       }
     }
 
@@ -297,7 +295,6 @@ class TimetablePanel extends Component {
                 skip={routes.length === 0} // Skip if there are no routes to fetch
                 stopId={stop.stopId}
                 routes={routes}
-                directions={directions}
                 date={date}>
                 {({journeys, loading}) => (
                   <StopTimetable
