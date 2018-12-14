@@ -13,12 +13,13 @@ import ArrowLeft from "../../icons/ArrowLeft";
 const SidePanelContainer = styled.div`
   background: var(--lightest-grey);
   color: var(--dark-grey);
-  transition: transform 0.3s ease-out;
-  transform: translateX(${({visible = true}) => (visible ? 0 : "calc(-100%)")});
+  transition: all 0.2s ease-out;
   border-right: 1px solid var(--alt-grey);
   height: 100%;
-  width: 25rem;
+  flex: 1 1 auto;
+  max-width: 25rem;
   position: relative;
+  margin-left: ${({visible}) => (visible ? 0 : "-25rem")};
   z-index: 1;
 `;
 
@@ -29,23 +30,32 @@ const ToggleSidePanelButton = styled.button`
   width: 1.5rem;
   height: 3rem;
   position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   right: -1.5rem;
   top: 50%;
+  padding: 0 0.25rem 0 0;
   transform: translateY(-50%);
+  color: white;
+  border-top-right-radius: 50%;
+  border-bottom-right-radius: 50%;
+  cursor: pointer;
 `;
 
-@inject(app("state"))
+@inject(app("UI"))
 @observer
 class SidePanel extends Component {
   render() {
     const {
+      UI: {toggleSidePanel},
       positions,
       loading,
-      state: {stop, route, vehicle},
+      state: {stop, route, vehicle, sidePanelVisible},
     } = this.props;
 
     return (
-      <SidePanelContainer>
+      <SidePanelContainer visible={sidePanelVisible}>
         <Tabs>
           {(!route || !route.routeId) && positions.length !== 0 && (
             <AreaJourneyList
@@ -78,8 +88,8 @@ class SidePanel extends Component {
             />
           )}
         </Tabs>
-        <ToggleSidePanelButton>
-          <ArrowLeft />
+        <ToggleSidePanelButton onClick={() => toggleSidePanel()}>
+          <ArrowLeft fill="white" height="1.2rem" width="1.2rem" />
         </ToggleSidePanelButton>
       </SidePanelContainer>
     );

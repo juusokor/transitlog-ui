@@ -7,8 +7,14 @@ import invoke from "lodash/invoke";
 import get from "lodash/get";
 import debounce from "lodash/debounce";
 import {setUrlValue, getUrlValue} from "../../stores/UrlManager";
+import {reaction} from "mobx";
 
 const MAP_BOUNDS_URL_KEY = "mapBounds";
+
+/**
+ * This component contains app-specific logic and functions. It wraps LeafletMap,
+ * which contains leaflet-specific setup and components.
+ */
 
 @inject(app("Journey"))
 @observer
@@ -19,6 +25,7 @@ class Map extends Component {
     bounds: null,
   };
 
+  disposeSidePanelReaction = () => {};
   mapRef = React.createRef();
 
   state = {
@@ -44,6 +51,20 @@ class Map extends Component {
 
   componentDidMount() {
     const map = this.getLeaflet();
+
+    this.disposeSidePanelReaction = reaction(
+      () => (this.props.state.sidePanelVisible ? "visible" : "not visible"),
+      () => {
+        const leafletMap = this.getLeaflet();
+
+        if (leafletMap) {
+          leafletMap.invalidateSize();
+        }
+      },
+      {
+        delay: 200,
+      }
+    );
 
     if (map) {
       const urlBounds = getUrlValue(MAP_BOUNDS_URL_KEY);
@@ -96,6 +117,10 @@ class Map extends Component {
         lng: propsLng,
       });
     }
+  }
+
+  componentWillUnmount() {
+    this.disposeSidePanelReaction();
   }
 
   setMapBounds = (bounds = null) => {

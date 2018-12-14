@@ -27,7 +27,8 @@ const SidepanelAndMapWrapper = styled.div`
 `;
 
 const MapPanel = styled(Map)`
-  width: calc(100% - 25rem);
+  flex: 1 1 auto;
+  min-width: calc(100% - 25rem);
 `;
 
 @inject(app("Journey", "Filters"))

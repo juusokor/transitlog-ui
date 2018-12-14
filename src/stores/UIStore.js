@@ -1,4 +1,5 @@
 import {extendObservable, action, observable, reaction} from "mobx";
+import {getUrlValue, setUrlValue} from "./UrlManager";
 
 export const LANGUAGES = {
   FINNISH: "fi",
@@ -7,22 +8,24 @@ export const LANGUAGES = {
 };
 
 export const languageState = observable({
-  language: "fi",
+  language: getUrlValue("language", "fi"),
 });
 
 export default (state) => {
   extendObservable(state, {
-    sidePanelVisible: true,
+    sidePanelVisible: getUrlValue("sidePanelVisible", true),
     language: languageState.language,
   });
 
   const toggleSidePanel = action((setTo = !state.sidePanelVisible) => {
     state.sidePanelVisible = setTo;
+    setUrlValue("sidePanelVisible", state.sidePanelVisible);
   });
 
   const setLanguage = action((language) => {
     if (Object.values(LANGUAGES).includes(language)) {
       languageState.language = language;
+      setUrlValue("language", languageState.language);
     }
   });
 
