@@ -10,8 +10,7 @@ import {text} from "../../helpers/text";
 import AreaJourneyList from "./AreaJourneyList";
 import ArrowLeft from "../../icons/ArrowLeft";
 import {observable, action} from "mobx";
-import Cross from "../../icons/Cross";
-import {Heading} from "../Typography";
+import JourneyDetails from "./JourneyDetails";
 
 const SidePanelContainer = styled.div`
   background: var(--lightest-grey);
@@ -54,54 +53,15 @@ const ToggleSidePanelButton = styled.button`
 const JourneyPanel = styled.div`
   position: absolute;
   top: 0;
-  right: calc(-25rem - 1px);
-  width: 25rem;
+  transition: all 0.2s ease-out;
+  right: ${({visible}) => (visible ? "calc(-25rem - 1px)" : "0")};
+  width: ${({visible}) => (visible ? "25rem" : "0")};
   height: 100%;
   background: white;
   z-index: 1;
   border-right: 1px solid var(--alt-grey);
   display: flex;
   flex-direction: column;
-`;
-
-const JourneyPanelHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  padding-left: 1rem;
-
-  h4 {
-    margin-top: 0.75rem;
-  }
-`;
-
-const JourneyPanelCloseButton = styled.button`
-  background: transparent;
-  border: 0;
-  padding: 0.5rem;
-  width: 2.5rem;
-  height: 2.5rem;
-  transition: background 0.1s ease-out, transform 0.1s ease-out;
-  cursor: pointer;
-  margin-left: auto;
-  margin-right: 1px;
-  margin-top: 1px;
-
-  svg {
-    transition: color 0.1s ease-out;
-  }
-
-  &:hover {
-    background: var(--lightest-grey);
-    transform: scale(1.05);
-
-    svg {
-      fill: white;
-    }
-  }
-`;
-
-const JourneyPanelContent = styled.div`
-  padding: 1rem;
 `;
 
 @inject(app("UI"))
@@ -117,7 +77,7 @@ class SidePanel extends Component {
   render() {
     const {
       UI: {toggleSidePanel},
-      positions,
+      positions = [],
       loading,
       state: {stop, route, vehicle, sidePanelVisible},
     } = this.props;
@@ -158,17 +118,11 @@ class SidePanel extends Component {
             )}
           </Tabs>
         )}
-        {this.journeyDetailsOpen && (
-          <JourneyPanel>
-            <JourneyPanelHeader>
-              <Heading level={4}>Journey</Heading>
-              <JourneyPanelCloseButton>
-                <Cross fill="var(--blue)" width="1.25rem" height="1.25rem" />
-              </JourneyPanelCloseButton>
-            </JourneyPanelHeader>
-            <JourneyPanelContent />
-          </JourneyPanel>
-        )}
+        <JourneyPanel visible={this.journeyDetailsOpen}>
+          {this.journeyDetailsOpen && (
+            <JourneyDetails onToggle={this.toggleJourneyDetails} />
+          )}
+        </JourneyPanel>
         <ToggleSidePanelButton
           journeyDetailsOpen={this.journeyDetailsOpen}
           isVisible={sidePanelVisible}
