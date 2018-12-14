@@ -111,7 +111,6 @@ class StopTimetable extends Component {
 
     return (
       <FirstDepartureQuery
-        key={`first_departure_query_${date}`}
         skip={batchedFirstDepartureRequests.length === 0}
         queries={batchedFirstDepartureRequests}
         dayType={dayType}>

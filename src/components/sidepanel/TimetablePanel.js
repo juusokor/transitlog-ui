@@ -6,7 +6,6 @@ import withStop from "../../hoc/withStop";
 import {app} from "mobx-app";
 import withAllStopDepartures from "../../hoc/withAllStopDepartures";
 import {toJS, computed, reaction} from "mobx";
-import {expr} from "mobx-utils";
 import styled from "styled-components";
 import Input from "../Input";
 import {text} from "../../helpers/text";
@@ -21,7 +20,6 @@ import memoize from "memoized-decorator";
 import {combineDateAndTime} from "../../helpers/time";
 import {createDebouncedObservable} from "../../helpers/createDebouncedObservable";
 import {getUrlValue, setUrlValue} from "../../stores/UrlManager";
-import getJourneyId from "../../helpers/getJourneyId";
 
 const RouteFilterContainer = styled.div`
   flex: 1 1 50%;
@@ -203,7 +201,7 @@ class TimetablePanel extends Component {
 
   @computed
   get avgDeparturesPerHour() {
-    const departuresByHour = this.getDeparturesByHour(this.departuresKey);
+    const departuresByHour = this.getDeparturesByHour();
     const routeFilter = this.routeFilter.debouncedValue;
 
     // Figure out how many departures this stop has planned per hour on average.
@@ -225,22 +223,7 @@ class TimetablePanel extends Component {
     );
   }
 
-  // Used when calling this.getDeparturesByHour as the memoization key.
-  get departuresKey() {
-    const {stop, date, departures} = this.props;
-
-    if (departures.length === 0) {
-      return "";
-    }
-
-    return `${get(stop, "stopId", stop)}_${date}`;
-  }
-
-  // This will get called a few times during updates, so it is memoized.
-  // Although the method itself does not use the argument, always pass
-  // this.departuresKey when calling it for the memoization to work.
-  @memoize
-  getDeparturesByHour(departuresKey) {
+  getDeparturesByHour() {
     const {departures} = this.props;
     // Group into hours while making sure to separate pre-4:30 and post-4:30 departures
     const byHour = groupBy(departures, ({hours, minutes}) => {
@@ -271,7 +254,7 @@ class TimetablePanel extends Component {
     // the per hour average number of departures is used to determine if we
     // allow the app to fetch data immediately or if we need to wait for filter input.
     const departuresPerHour = this.avgDeparturesPerHour;
-    const departuresByHour = this.getDeparturesByHour(this.departuresKey);
+    const departuresByHour = this.getDeparturesByHour();
 
     // We query for the hfp data related to the routes and directions on
     // this stop in one go, instead of doing one query per row. Collect
