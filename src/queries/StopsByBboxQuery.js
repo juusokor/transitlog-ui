@@ -21,6 +21,7 @@ const stopsByBboxQuery = gql`
         nameFi
         lat
         lon
+        stopRadius
         modes {
           nodes
         }

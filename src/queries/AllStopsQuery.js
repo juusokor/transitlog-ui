@@ -13,6 +13,7 @@ const allStopsQuery = gql`
         lat
         lon
         nameFi
+        stopRadius
         __typename
       }
     }

@@ -1,5 +1,12 @@
 import React, {Component} from "react";
-import {Map, TileLayer, ZoomControl, Pane, LayersControl} from "react-leaflet";
+import {
+  Map,
+  TileLayer,
+  ZoomControl,
+  Pane,
+  LayersControl,
+  FeatureGroup,
+} from "react-leaflet";
 import {latLng} from "leaflet";
 import get from "lodash/get";
 import MapillaryViewer from "./MapillaryViewer";
@@ -7,6 +14,8 @@ import styled from "styled-components";
 import "leaflet/dist/leaflet.css";
 import MapillaryGeoJSONLayer from "./MapillaryGeoJSONLayer";
 import {setUrlValue, getUrlValue} from "../../stores/UrlManager";
+import {observer, inject} from "mobx-react";
+import {app} from "mobx-app";
 
 const MapContainer = styled.div`
   width: 100%;
@@ -31,10 +40,11 @@ const MapillaryView = styled(MapillaryViewer)`
   position: relative;
 `;
 
+@inject(app("UI"))
+@observer
 class LeafletMap extends Component {
   state = {
     currentBaseLayer: getUrlValue("mapBaseLayer", "Digitransit"),
-    currentOverlays: getUrlValue("mapOverlays", "").split(","),
     currentMapillaryMapLocation: false,
   };
 
@@ -43,34 +53,6 @@ class LeafletMap extends Component {
 
     this.setState({
       currentBaseLayer: name,
-    });
-  };
-
-  onChangeOverlay = (action) => ({name}) => {
-    const overlays = this.state.currentOverlays;
-
-    if (action === "remove") {
-      // Be sure to hide the Mapillary viewer if the mapillary layer was turned off.
-      if (name === "Mapillary") {
-        this.props.setMapillaryViewerLocation(false);
-      }
-
-      const idx = overlays.indexOf(name);
-
-      if (idx !== -1) {
-        overlays.splice(idx, 1);
-      }
-    } else if (action === "add") {
-      overlays.push(name);
-    }
-
-    setUrlValue(
-      "mapOverlays",
-      overlays.length !== 0 ? overlays.filter((name) => !!name).join(",") : null
-    );
-
-    this.setState({
-      currentOverlays: overlays,
     });
   };
 
@@ -84,6 +66,8 @@ class LeafletMap extends Component {
 
   render() {
     const {
+      state: {mapOverlays},
+      UI: {changeOverlay},
       mapRef,
       children,
       className,
@@ -94,11 +78,7 @@ class LeafletMap extends Component {
       onMapChanged = () => {},
     } = this.props;
 
-    const {
-      currentBaseLayer,
-      currentMapillaryMapLocation,
-      currentOverlays,
-    } = this.state;
+    const {currentBaseLayer, currentMapillaryMapLocation} = this.state;
 
     return (
       <MapContainer className={className}>
@@ -109,8 +89,8 @@ class LeafletMap extends Component {
           selectArea={true}
           zoomControl={false}
           onBaselayerchange={this.onChangeBaseLayer}
-          onOverlayadd={this.onChangeOverlay("add")}
-          onOverlayremove={this.onChangeOverlay("remove")}
+          onOverlayadd={changeOverlay("add")}
+          onOverlayremove={changeOverlay("remove")}
           onZoomend={onZoom}
           onMoveend={onMapChanged}>
           <LayersControl position="topright">
@@ -136,14 +116,24 @@ class LeafletMap extends Component {
             </LayersControl.BaseLayer>
             <LayersControl.Overlay
               name="Mapillary"
-              checked={currentOverlays.indexOf("Mapillary") !== -1}>
+              checked={mapOverlays.indexOf("Mapillary") !== -1}>
               <MapillaryGeoJSONLayer
                 map={get(mapRef, "current.leafletElement", null)}
                 viewBbox={viewBbox}
                 location={currentMapillaryMapLocation}
-                layerIsActive={currentOverlays.indexOf("Mapillary") !== -1}
+                layerIsActive={mapOverlays.indexOf("Mapillary") !== -1}
                 onSelectLocation={setMapillaryViewerLocation}
               />
+            </LayersControl.Overlay>
+            <LayersControl.Overlay
+              name="Stop radius"
+              checked={mapOverlays.indexOf("Stop radius") !== -1}>
+              <FeatureGroup>
+                {/*
+                  The stop radius is rendered in the StopMarker component. This featuregroup
+                  is just a dummy so that the option will show in the layer control.
+                */}
+              </FeatureGroup>
             </LayersControl.Overlay>
           </LayersControl>
           <Pane name="mapillary-lines" style={{zIndex: 390}} />
