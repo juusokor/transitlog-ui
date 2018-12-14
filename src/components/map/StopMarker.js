@@ -1,12 +1,13 @@
 import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
-import {Popup, CircleMarker, Circle} from "react-leaflet";
+import {Popup, CircleMarker} from "react-leaflet";
 import {latLng} from "leaflet";
 import {Heading} from "../Typography";
 import get from "lodash/get";
 import styled from "styled-components";
 import {app} from "mobx-app";
 import {getPriorityMode, getModeColor} from "../../helpers/vehicleColor";
+import {StopRadius} from "./StopRadius";
 
 const StopRouteList = styled.button`
   text-decoration: none;
@@ -84,16 +85,9 @@ class StopMarker extends Component {
     );
 
     return showRadius ? (
-      <Circle
-        center={markerPosition}
-        weight={1}
-        opacity={0.5}
-        color={stopColor}
-        fillColor={stopColor}
-        fillOpacity={0.15}
-        radius={stopRadius}>
+      <StopRadius center={markerPosition} color={stopColor} radius={stopRadius}>
         {markerElement}
-      </Circle>
+      </StopRadius>
     ) : (
       markerElement
     );
