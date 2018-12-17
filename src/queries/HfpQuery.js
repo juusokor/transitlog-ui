@@ -8,7 +8,7 @@ import {createCompositeJourney} from "../stores/journeyActions";
 export const hfpQuery = gql`
   query hfpQuery($route_id: String, $direction: smallint, $date: date, $time: time) {
     vehicles(
-      order_by: received_at_asc
+      order_by: {received_at: asc}
       where: {
         route_id: {_eq: $route_id}
         direction_id: {_eq: $direction}
