@@ -3,14 +3,15 @@ import {diffDepartureJourney} from "./diffDepartureJourney";
 import getDelayType from "./getDelayType";
 import {getTimelinessColor} from "./timelinessColor";
 import moment from "moment-timezone";
+import get from "lodash/get";
 
 export const stopTimes = (originDeparture, positions, departures, date) => {
-  const firstPosition = positions[0];
+  const journey = positions[0];
 
   let journeyDeparture = departures.find(
     (departure) =>
       `${doubleDigit(departure.hours)}:${doubleDigit(departure.minutes)}:00` ===
-      firstPosition.journey_start_time
+      journey.journey_start_time
   );
 
   if (!journeyDeparture) {
@@ -53,6 +54,12 @@ export const stopTimes = (originDeparture, positions, departures, date) => {
       diff: departureDiff.diff,
     },
     arrival: {
+      // Mark the arrival event as unreliable if a specific arrival event could be found.
+      // Also check that the arrival event isn't the end of the position feed.
+      unreliable:
+        !doorDidOpen ||
+        arrivalEvent.received_at_unix === departureEvent.received_at_unix ||
+        arrivalEvent.received_at_unix === positions[0].received_at_unix,
       event: arrivalEvent,
       observedMoment: moment.tz(arrivalEvent.received_at, "Europe/Helsinki"),
     },

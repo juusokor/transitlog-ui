@@ -6,7 +6,6 @@ import {observer} from "mobx-react";
 import withSelectedJourney from "../../../hoc/withSelectedJourney";
 import withRouteData from "../../../hoc/withRouteData";
 import get from "lodash/get";
-import omit from "lodash/omit";
 import {getDayTypeFromDate} from "../../../helpers/getDayTypeFromDate";
 import isWithinRange from "date-fns/is_within_range";
 import {TransportIcon} from "../../transportModes";
@@ -16,7 +15,7 @@ import doubleDigit from "../../../helpers/doubleDigit";
 const JourneyPanelHeader = styled.div`
   display: flex;
   justify-content: space-between;
-  padding-left: 1rem;
+  padding-left: 1.75rem;
 `;
 
 const JourneyPanelCloseButton = styled.button`
@@ -51,7 +50,7 @@ const LineNameHeading = styled(Heading).attrs({level: 4})`
 `;
 
 const JourneyPanelContent = styled.div`
-  padding: 1rem;
+  padding: 1rem 1rem 1rem 1.75rem;
   overflow-y: auto;
   overflow-x: visible;
 `;
@@ -74,8 +73,12 @@ const HeaderHeading = styled.div`
 class JourneyDetails extends React.Component {
   render() {
     const {onToggle, selectedJourneyHfp, date, route} = this.props;
-
     const firstPosition = selectedJourneyHfp[0];
+
+    if (!firstPosition) {
+      return null;
+    }
+
     const line = get(route, "line.nodes[0].lineId");
     const currentDayType = getDayTypeFromDate(date);
 

@@ -11,7 +11,6 @@ import AreaJourneyList from "./AreaJourneyList";
 import ArrowLeft from "../../icons/ArrowLeft";
 import {observable, action} from "mobx";
 import JourneyDetails from "./journeyDetails/JourneyDetails";
-import get from "lodash/get";
 
 const SidePanelContainer = styled.div`
   background: var(--lightest-grey);
@@ -38,8 +37,7 @@ const ToggleSidePanelButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  right: ${({journeyDetailsOpen}) =>
-    journeyDetailsOpen ? "calc(-26.5rem + 0.5px)" : "-1.5rem"};
+  right: -1.5rem;
   top: 50%;
   padding: 0 0.25rem 0 0;
   transform: translateY(-50%);
@@ -56,6 +54,7 @@ const ToggleSidePanelButton = styled.button`
 
 const JourneyPanel = styled.div`
   position: absolute;
+  z-index: 0;
   top: 0;
   transition: all 0.2s ease-out;
   right: calc(-25rem - 1px);
@@ -63,7 +62,6 @@ const JourneyPanel = styled.div`
   width: 25rem;
   height: 100%;
   background: white;
-  z-index: 1;
   border-right: 1px solid var(--alt-grey);
   display: flex;
   flex-direction: column;

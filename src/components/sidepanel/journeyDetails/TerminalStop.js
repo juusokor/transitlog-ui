@@ -31,18 +31,23 @@ export default ({stopName, stop, originDeparture, journeyPositions, date}) => {
     date
   );
 
+  const endOfStream =
+    get(stopDeparture, "event.received_at_unix", 0) ===
+    get(journeyPositions, `[${journeyPositions.length - 1}].received_at_unix`, 0);
+
   return (
     <div>
       <Heading level={5}>
         {stopName}: {stop.stopId} ({stop.shortId}) - {stop.nameFi}
       </Heading>
-
+      {endOfStream && <p>HFP stream may have ended before arrival and departure.</p>}
       {stopPositions[0] && (
         <p>
           Arrival:{" "}
           <strong style={{color: stopArrival.color}}>
             {stopArrival.observedMoment.format("HH:mm:ss")}
           </strong>
+          {stopArrival.unreliable && "(?)"}
         </p>
       )}
       <p>
