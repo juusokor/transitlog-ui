@@ -9,9 +9,10 @@ import VehicleJourneys from "./VehicleJourneys";
 import {text} from "../../helpers/text";
 import AreaJourneyList from "./AreaJourneyList";
 import ArrowLeft from "../../icons/ArrowLeft";
-import {observable, action} from "mobx";
+import {observable, action, reaction} from "mobx";
 import JourneyDetails from "./journeyDetails/JourneyDetails";
 import Info from "../../icons/Info";
+import getJourneyId from "../../helpers/getJourneyId";
 
 const SidePanelContainer = styled.div`
   background: var(--lightest-grey);
@@ -81,18 +82,34 @@ const JourneyPanel = styled.div`
 @observer
 class SidePanel extends Component {
   @observable
-  journeyDetailsOpen = true;
+  journeyDetailsOpen = false;
 
   toggleJourneyDetails = action((setTo = !this.journeyDetailsOpen) => {
     this.journeyDetailsOpen = setTo;
   });
+
+  componentDidMount() {
+    const {state} = this.props;
+
+    reaction(
+      () => getJourneyId(state.selectedJourney),
+      (selectedJourney) => {
+        if (selectedJourney) {
+          this.toggleJourneyDetails(true);
+        } else {
+          this.toggleJourneyDetails(false);
+        }
+      },
+      {fireImmediately: true}
+    );
+  }
 
   render() {
     const {
       UI: {toggleSidePanel},
       positions = [],
       loading,
-      state: {stop, route, vehicle, sidePanelVisible},
+      state: {stop, route, vehicle, selectedJourney, sidePanelVisible},
     } = this.props;
 
     return (
@@ -138,11 +155,13 @@ class SidePanel extends Component {
               onToggle={this.toggleJourneyDetails}
             />
           )}
-          <ToggleJourneyDetailsButton
-            isVisible={this.journeyDetailsOpen}
-            onClick={() => this.toggleJourneyDetails()}>
-            <Info fill="white" height="1rem" width="1rem" />
-          </ToggleJourneyDetailsButton>
+          {selectedJourney && (
+            <ToggleJourneyDetailsButton
+              isVisible={this.journeyDetailsOpen}
+              onClick={() => this.toggleJourneyDetails()}>
+              <Info fill="white" height="1rem" width="1rem" />
+            </ToggleJourneyDetailsButton>
+          )}
         </JourneyPanel>
         <ToggleSidePanelButton
           isVisible={sidePanelVisible}
