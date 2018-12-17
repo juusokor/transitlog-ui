@@ -3,6 +3,7 @@ import {Heading} from "../Typography";
 import Cross from "../../icons/Cross";
 import styled from "styled-components";
 import {observer} from "mobx-react";
+import {toJS} from "mobx";
 
 const JourneyPanelHeader = styled.div`
   display: flex;
@@ -48,7 +49,7 @@ const JourneyPanelContent = styled.div`
 @observer
 class JourneyDetails extends React.Component {
   render() {
-    const {onToggle} = this.props;
+    const {onToggle, journey} = this.props;
 
     return (
       <>
@@ -58,7 +59,9 @@ class JourneyDetails extends React.Component {
             <Cross fill="var(--blue)" width="1.25rem" height="1.25rem" />
           </JourneyPanelCloseButton>
         </JourneyPanelHeader>
-        <JourneyPanelContent>Journey data here</JourneyPanelContent>
+        <JourneyPanelContent>
+          {JSON.stringify(toJS(journey), null, 2)}
+        </JourneyPanelContent>
       </>
     );
   }

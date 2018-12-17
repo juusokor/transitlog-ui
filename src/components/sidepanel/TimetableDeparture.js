@@ -69,7 +69,7 @@ class TimetableDeparture extends Component {
     // for selecting the journey when clicked.
     const departureData = {
       ...departure,
-      journey,
+      observed: journey,
     };
 
     // Diff planned and observed times

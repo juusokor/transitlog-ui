@@ -21,7 +21,8 @@ const SidePanelContainer = styled.div`
   flex: 1 1 auto;
   max-width: 25rem;
   position: relative;
-  margin-left: ${({visible}) => (visible ? 0 : "-25rem")};
+  margin-left: ${({visible}) =>
+    visible ? 0 : "-25rem"}; // Makes the map area larger when the sidebar is hidden
   z-index: 1;
 `;
 
@@ -32,16 +33,18 @@ const ToggleSidePanelButton = styled.button`
   width: 1.5rem;
   height: 3rem;
   position: absolute;
+  z-index: 10;
   display: flex;
   align-items: center;
   justify-content: center;
-  right: ${({journeyDetailsOpen}) => (journeyDetailsOpen ? "-26.5rem" : "-1.5rem")};
+  right: ${({journeyDetailsOpen}) =>
+    journeyDetailsOpen ? "calc(-26.5rem + 0.5px)" : "-1.5rem"};
   top: 50%;
   padding: 0 0.25rem 0 0;
   transform: translateY(-50%);
   color: white;
-  border-top-right-radius: 50%;
-  border-bottom-right-radius: 50%;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
   cursor: pointer;
 
   svg {
@@ -54,8 +57,9 @@ const JourneyPanel = styled.div`
   position: absolute;
   top: 0;
   transition: all 0.2s ease-out;
-  right: ${({visible}) => (visible ? "calc(-25rem - 1px)" : "0")};
-  width: ${({visible}) => (visible ? "25rem" : "0")};
+  right: calc(-25rem - 1px);
+  transform: translateX(${({visible}) => (visible ? "0" : "-100%")});
+  width: 25rem;
   height: 100%;
   background: white;
   z-index: 1;
@@ -70,8 +74,23 @@ class SidePanel extends Component {
   @observable
   journeyDetailsOpen = true;
 
+  @observable.ref
+  selectedJourneyData = null;
+
   toggleJourneyDetails = action((setTo = !this.journeyDetailsOpen) => {
     this.journeyDetailsOpen = setTo;
+  });
+
+  onSelectJourney = action((journeyData) => {
+    if (!journeyData) {
+      this.toggleJourneyDetails(false);
+      this.selectedJourneyData = null;
+
+      return;
+    }
+
+    this.toggleJourneyDetails(true);
+    this.selectedJourneyData = journeyData;
   });
 
   render() {
@@ -79,7 +98,7 @@ class SidePanel extends Component {
       UI: {toggleSidePanel},
       positions = [],
       loading,
-      state: {stop, route, vehicle, sidePanelVisible},
+      state: {stop, route, vehicle, selectedJourney, sidePanelVisible},
     } = this.props;
 
     return (
@@ -95,6 +114,7 @@ class SidePanel extends Component {
             )}
             {!!route && !!route.routeId && (
               <Journeys
+                onSelectJourney={this.onSelectJourney}
                 route={route}
                 positions={positions}
                 loading={loading}
@@ -111,6 +131,7 @@ class SidePanel extends Component {
             )}
             {stop && (
               <TimetablePanel
+                onSelectJourney={this.onSelectJourney}
                 loading={loading}
                 name="timetables"
                 label={text("sidepanel.tabs.timetables")}
@@ -120,7 +141,10 @@ class SidePanel extends Component {
         )}
         <JourneyPanel visible={this.journeyDetailsOpen}>
           {this.journeyDetailsOpen && (
-            <JourneyDetails onToggle={this.toggleJourneyDetails} />
+            <JourneyDetails
+              journey={this.selectedJourneyData}
+              onToggle={this.toggleJourneyDetails}
+            />
           )}
         </JourneyPanel>
         <ToggleSidePanelButton
