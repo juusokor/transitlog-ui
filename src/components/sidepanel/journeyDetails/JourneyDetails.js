@@ -1,6 +1,5 @@
 import React from "react";
 import {Heading} from "../../Typography";
-import Cross from "../../../icons/Cross";
 import styled from "styled-components";
 import {observer} from "mobx-react";
 import withSelectedJourney from "../../../hoc/withSelectedJourney";
@@ -13,50 +12,7 @@ import TerminalStop from "./TerminalStop";
 import doubleDigit from "../../../helpers/doubleDigit";
 
 const JourneyPanelHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  padding-left: 1.75rem;
-`;
-
-const JourneyPanelCloseButton = styled.button`
-  background: transparent;
-  border: 0;
-  padding: 0.5rem;
-  width: 2.5rem;
-  height: 2.5rem;
-  transition: background 0.1s ease-out, transform 0.1s ease-out;
-  cursor: pointer;
-  margin-left: auto;
-  margin-right: 1px;
-  margin-top: 1px;
-  outline: 0;
-
-  svg {
-    transition: color 0.1s ease-out;
-  }
-
-  &:hover {
-    background: var(--lightest-grey);
-    transform: scale(1.05);
-
-    svg {
-      fill: white;
-    }
-  }
-`;
-
-const LineNameHeading = styled(Heading).attrs({level: 4})`
-  font-weight: normal;
-`;
-
-const JourneyPanelContent = styled.div`
-  padding: 1rem 1rem 1rem 1.75rem;
-  overflow-y: auto;
-  overflow-x: visible;
-`;
-
-const HeaderHeading = styled.div`
-  margin-top: 0.75rem;
+  padding: 1rem 1rem 0 1.75rem;
 
   > *:first-child {
     margin-top: 0;
@@ -65,6 +21,21 @@ const HeaderHeading = styled.div`
   > *:last-child {
     margin-bottom: 0;
   }
+
+  svg {
+    margin-left: -0.2rem;
+    margin-right: 0.5rem;
+  }
+`;
+
+const LineNameHeading = styled(Heading).attrs({level: 4})`
+  font-weight: normal;
+`;
+
+const JourneyPanelContent = styled.div`
+  padding: 1rem 1rem 1rem 2rem;
+  overflow-y: auto;
+  overflow-x: visible;
 `;
 
 @withSelectedJourney
@@ -72,7 +43,7 @@ const HeaderHeading = styled.div`
 @observer
 class JourneyDetails extends React.Component {
   render() {
-    const {onToggle, selectedJourneyHfp, date, route} = this.props;
+    const {selectedJourneyHfp, date, route} = this.props;
     const firstPosition = selectedJourneyHfp[0];
 
     if (!firstPosition) {
@@ -103,16 +74,11 @@ class JourneyDetails extends React.Component {
     return (
       <>
         <JourneyPanelHeader>
-          <HeaderHeading>
-            <Heading level={3}>
-              <TransportIcon width={23} height={23} mode={route.mode} />
-              {firstPosition.desi}
-            </Heading>
-            <LineNameHeading>{route.nameFi}</LineNameHeading>
-          </HeaderHeading>
-          <JourneyPanelCloseButton onClick={() => onToggle()}>
-            <Cross fill="var(--blue)" width="1.25rem" height="1.25rem" />
-          </JourneyPanelCloseButton>
+          <Heading level={3}>
+            <TransportIcon width={23} height={23} mode={route.mode} />
+            {firstPosition.desi}
+          </Heading>
+          <LineNameHeading>{route.nameFi}</LineNameHeading>
         </JourneyPanelHeader>
         <JourneyPanelContent>
           <TerminalStop

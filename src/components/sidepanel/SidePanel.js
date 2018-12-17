@@ -11,6 +11,7 @@ import AreaJourneyList from "./AreaJourneyList";
 import ArrowLeft from "../../icons/ArrowLeft";
 import {observable, action} from "mobx";
 import JourneyDetails from "./journeyDetails/JourneyDetails";
+import Info from "../../icons/Info";
 
 const SidePanelContainer = styled.div`
   background: var(--lightest-grey);
@@ -40,7 +41,7 @@ const ToggleSidePanelButton = styled.button`
   right: -1.5rem;
   top: 50%;
   padding: 0 0.25rem 0 0;
-  transform: translateY(-50%);
+  transform: translateY(calc(-100% - 0.5rem));
   color: white;
   border-top-right-radius: 5px;
   border-bottom-right-radius: 5px;
@@ -49,6 +50,15 @@ const ToggleSidePanelButton = styled.button`
   svg {
     transition: transform 0.5s ease-out;
     transform: rotate(${({isVisible = true}) => (isVisible ? 0 : "180deg")});
+  }
+`;
+
+const ToggleJourneyDetailsButton = styled(ToggleSidePanelButton)`
+  transform: translateY(0);
+  padding: 0 0.1rem 0 0;
+
+  svg {
+    transform: none;
   }
 `;
 
@@ -128,9 +138,13 @@ class SidePanel extends Component {
               onToggle={this.toggleJourneyDetails}
             />
           )}
+          <ToggleJourneyDetailsButton
+            isVisible={this.journeyDetailsOpen}
+            onClick={() => this.toggleJourneyDetails()}>
+            <Info fill="white" height="1rem" width="1rem" />
+          </ToggleJourneyDetailsButton>
         </JourneyPanel>
         <ToggleSidePanelButton
-          journeyDetailsOpen={this.journeyDetailsOpen}
           isVisible={sidePanelVisible}
           onClick={() => toggleSidePanel()}>
           <ArrowLeft fill="white" height="1.2rem" width="1.2rem" />
