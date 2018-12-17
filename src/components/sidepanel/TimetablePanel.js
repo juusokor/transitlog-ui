@@ -131,9 +131,9 @@ class TimetablePanel extends Component {
 
   selectAsJourney = (departure) => (e) => {
     e.preventDefault();
-    const {Filters, Journey, Time, onSelectJourney} = this.props;
+    const {Filters, Journey, Time} = this.props;
 
-    // Set the selected time from the departure time
+    // Set the selected time from the stopDeparture time
     const currentTime = `${doubleDigit(departure.hours)}:${doubleDigit(
       departure.minutes
     )}:00`;
@@ -148,8 +148,6 @@ class TimetablePanel extends Component {
 
     if (departure.observed) {
       const {observed} = departure;
-
-      onSelectJourney(departure);
 
       Journey.setSelectedJourney(observed);
       Journey.requestJourneys({

@@ -112,7 +112,7 @@ class Journeys extends Component {
 
   selectJourney = (journeyOrTime) => (e) => {
     e.preventDefault();
-    const {departures, Time, Journey, state, onSelectJourney} = this.props;
+    const {departures, Time, Journey, state} = this.props;
     let journeyToSelect = null;
 
     if (journeyOrTime) {
@@ -120,10 +120,6 @@ class Journeys extends Component {
         typeof journeyOrTime === "string"
           ? Journey.createCompositeJourney(state.date, state.route, journeyOrTime)
           : journeyOrTime.observed;
-
-      if (typeof journeyOrTime !== "string") {
-        onSelectJourney(journeyOrTime);
-      }
 
       const journeyId = getJourneyId(journey);
 
@@ -155,6 +151,7 @@ class Journeys extends Component {
         }
       }
     }
+
     Journey.setSelectedJourney(journeyToSelect);
   };
 
@@ -286,11 +283,6 @@ class Journeys extends Component {
               ? getDelayType(plannedObservedDiff.diff)
               : "none";
 
-            const departureData = {
-              ...(plannedDepartures[journeyStartPosition.journey_start_time] || {}),
-              observed: journeyOrDeparture,
-            };
-
             const journeyIsSelected = expr(
               () => state.selectedJourney && selectedJourneyId === journeyId
             );
@@ -302,7 +294,7 @@ class Journeys extends Component {
                 ref={journeyIsFocused ? scrollRef : null}
                 selected={journeyIsSelected}
                 key={`journey_row_${getJourneyId(journeyOrDeparture)}`}
-                onClick={this.selectJourney(departureData)}>
+                onClick={this.selectJourney(journeyOrDeparture)}>
                 <JourneyRowLeft>
                   {timeToFormat(
                     journeyOrDeparture.journey_start_timestamp,

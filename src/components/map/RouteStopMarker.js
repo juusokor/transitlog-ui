@@ -132,7 +132,7 @@ class RouteStopMarker extends React.Component {
     const {journey_start_time} = selectedJourney;
     let departure;
 
-    // Find the departure from the first stop.
+    // Find the stopDeparture from the first stop.
     const firstDeparture = departures.find(
       (departure) =>
         `${doubleDigit(departure.hours)}:${doubleDigit(departure.minutes)}:00` ===
@@ -140,12 +140,12 @@ class RouteStopMarker extends React.Component {
     );
 
     if (firstTerminal && firstDeparture) {
-      // The first stop is easy. Select the departure
-      // found above as the stop departure.
+      // The first stop is easy. Select the stopDeparture
+      // found above as the stop stopDeparture.
       departure = firstDeparture;
     } else if (firstDeparture) {
-      // For other stops, find a departure from this stop from
-      // the same departure chain as the first departure.
+      // For other stops, find a stopDeparture from this stop from
+      // the same stopDeparture chain as the first stopDeparture.
       departure = departures.find(
         (dep) =>
           dep.departureId === firstDeparture.departureId &&
@@ -153,7 +153,7 @@ class RouteStopMarker extends React.Component {
       );
     }
 
-    // If we don't have a departure, no biggie, just render the stop marker at this point.
+    // If we don't have a stopDeparture, no biggie, just render the stop marker at this point.
     if (!departure) {
       return this.createStopMarker(
         stop,
@@ -176,7 +176,7 @@ class RouteStopMarker extends React.Component {
       "desc"
     );
 
-    // Find the hfp item that matches this departure.
+    // Find the hfp item that matches this stopDeparture.
     // Sort by received_at descending and select the first element, this way we get the
     // hfp item that represents the time when the vehicle left the stop, ie the
     // last hfp item before the next_stop_id value changed.

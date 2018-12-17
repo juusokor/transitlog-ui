@@ -18,14 +18,15 @@ export const transportColor = {
   RAIL: "var(--purple)",
 };
 
-export const TransportIcon = ({mode = ""}) => {
+export const TransportIcon = ({className, mode = "", width = 16, height = 16}) => {
   if (!mode || typeof mode !== "string") {
     return null;
   }
 
   return React.createElement(get(transportIcons, mode, null), {
+    className,
     fill: get(transportColor, mode, "var(--light-grey)"),
-    width: "16",
-    height: "16",
+    width,
+    height,
   });
 };

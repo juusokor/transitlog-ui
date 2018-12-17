@@ -10,7 +10,8 @@ import {text} from "../../helpers/text";
 import AreaJourneyList from "./AreaJourneyList";
 import ArrowLeft from "../../icons/ArrowLeft";
 import {observable, action} from "mobx";
-import JourneyDetails from "./JourneyDetails";
+import JourneyDetails from "./journeyDetails/JourneyDetails";
+import get from "lodash/get";
 
 const SidePanelContainer = styled.div`
   background: var(--lightest-grey);
@@ -74,23 +75,8 @@ class SidePanel extends Component {
   @observable
   journeyDetailsOpen = true;
 
-  @observable.ref
-  selectedJourneyData = null;
-
   toggleJourneyDetails = action((setTo = !this.journeyDetailsOpen) => {
     this.journeyDetailsOpen = setTo;
-  });
-
-  onSelectJourney = action((journeyData) => {
-    if (!journeyData) {
-      this.toggleJourneyDetails(false);
-      this.selectedJourneyData = null;
-
-      return;
-    }
-
-    this.toggleJourneyDetails(true);
-    this.selectedJourneyData = journeyData;
   });
 
   render() {
@@ -98,7 +84,7 @@ class SidePanel extends Component {
       UI: {toggleSidePanel},
       positions = [],
       loading,
-      state: {stop, route, vehicle, selectedJourney, sidePanelVisible},
+      state: {stop, route, vehicle, sidePanelVisible},
     } = this.props;
 
     return (
@@ -114,7 +100,6 @@ class SidePanel extends Component {
             )}
             {!!route && !!route.routeId && (
               <Journeys
-                onSelectJourney={this.onSelectJourney}
                 route={route}
                 positions={positions}
                 loading={loading}
@@ -131,7 +116,6 @@ class SidePanel extends Component {
             )}
             {stop && (
               <TimetablePanel
-                onSelectJourney={this.onSelectJourney}
                 loading={loading}
                 name="timetables"
                 label={text("sidepanel.tabs.timetables")}
@@ -142,7 +126,7 @@ class SidePanel extends Component {
         <JourneyPanel visible={this.journeyDetailsOpen}>
           {this.journeyDetailsOpen && (
             <JourneyDetails
-              journey={this.selectedJourneyData}
+              positions={positions}
               onToggle={this.toggleJourneyDetails}
             />
           )}

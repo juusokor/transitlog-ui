@@ -1,6 +1,6 @@
 import gql from "graphql-tag";
 
-const RouteFieldsFragment = gql`
+export const RouteFieldsFragment = gql`
   fragment RouteFieldsFragment on Route {
     nodeId
     line {
@@ -17,8 +17,75 @@ const RouteFieldsFragment = gql`
     destinationFi
     originFi
     nameFi
+    destinationstopId
     originstopId
-    __typename
+  }
+`;
+
+export const ExtensiveRouteFieldsFragment = gql`
+  fragment ExtensiveRouteFieldsFragment on Route {
+    type
+    routeLength
+    mode
+    originStop: stopByOriginstopId {
+      nodeId
+      stopId
+      lat
+      lon
+      shortId
+      nameFi
+      departures: departuresByStopId(
+        condition: {routeId: $routeId, direction: $direction, dayType: $dayType}
+      ) {
+        nodes {
+          routeId
+          direction
+          hours
+          minutes
+          departureId
+          dateBegin
+          dateEnd
+          dayType
+        }
+      }
+    }
+    destinationStop: stopByDestinationstopId {
+      nodeId
+      stopId
+      lat
+      lon
+      shortId
+      nameFi
+      departures: departuresByStopId(
+        condition: {routeId: $routeId, direction: $direction, dayType: $dayType}
+      ) {
+        nodes {
+          routeId
+          direction
+          hours
+          minutes
+          departureId
+          dateBegin
+          dateEnd
+          dayType
+        }
+      }
+    }
+    #    departures {
+    #      nodes {
+    #        stopId
+    #        vehicle
+    #        hours
+    #        minutes
+    #        note
+    #        dateBegin
+    #        dateEnd
+    #        dayType
+    #        departureId
+    #        arrivalHours
+    #        arrivalMinutes
+    #      }
+    #    }
   }
 `;
 

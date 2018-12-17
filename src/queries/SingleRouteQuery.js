@@ -2,13 +2,17 @@ import React from "react";
 import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import get from "lodash/get";
-import RouteFieldsFragment from "./RouteFieldsFragment";
+import {
+  RouteFieldsFragment,
+  ExtensiveRouteFieldsFragment,
+} from "./RouteFieldsFragment";
 import {observer} from "mobx-react";
 import parse from "date-fns/parse";
 import orderBy from "lodash/orderBy";
 import first from "lodash/first";
 import isWithinRange from "date-fns/is_within_range";
 import {joreClient} from "../api";
+import {getDayTypeFromDate} from "../helpers/getDayTypeFromDate";
 
 export const singleRouteQuery = gql`
   query singleRouteQuery($routeId: String!, $direction: String!) {
@@ -19,6 +23,23 @@ export const singleRouteQuery = gql`
     }
   }
   ${RouteFieldsFragment}
+`;
+
+const extensiveSingleRouteQuery = gql`
+  query extensiveSingleRouteQuery(
+    $routeId: String!
+    $direction: String!
+    $dayType: String
+  ) {
+    allRoutes(condition: {routeId: $routeId, direction: $direction}) {
+      nodes {
+        ...RouteFieldsFragment
+        ...ExtensiveRouteFieldsFragment
+      }
+    }
+  }
+  ${RouteFieldsFragment}
+  ${ExtensiveRouteFieldsFragment}
 `;
 
 export const fetchSingleRoute = (route, date) => {
@@ -46,8 +67,10 @@ export const fetchSingleRoute = (route, date) => {
     });
 };
 
-export default observer(({children, route, date}) => (
-  <Query query={singleRouteQuery} variables={route}>
+export default observer(({children, route, date, extensive = false}) => (
+  <Query
+    query={extensive ? extensiveSingleRouteQuery : singleRouteQuery}
+    variables={{...route, dayType: getDayTypeFromDate(date), extensive}}>
     {({loading, error, data}) => {
       if (loading) return "Loading...";
       if (error) return "Error!";
