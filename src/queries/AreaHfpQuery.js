@@ -19,7 +19,7 @@ const areaHfpQuery = gql`
     $maxLong: float8!
   ) {
     vehicles(
-      order_by: received_at_asc
+      order_by: {received_at: asc}
       where: {
         oday: {_eq: $date}
         received_at: {_lte: $maxTime, _gte: $minTime}
