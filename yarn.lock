@@ -7234,13 +7234,6 @@ memoize-one@^4.0.0:
   resolved "https://registry.yarnpkg.com/memoize-one/-/memoize-one-4.1.0.tgz#a2387c58c03fff27ca390c31b764a79addf3f906"
   integrity sha512-2GApq0yI/b22J2j9rhbrAlsHb0Qcz+7yWxeLG8h+95sl1XPUgeLimQSOdur4Vw7cUhrBHwaUZxWFZueojqNRzA==
 
-memoized-decorator@^0.0.4:
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/memoized-decorator/-/memoized-decorator-0.0.4.tgz#118a409ff7320332d5e787c29b6032e363259687"
-  integrity sha512-Gcs6NqJNAxgCaubU30dOa8ZbMDOxLalND7D9/VkqSTqUe80X+uiDP1Cj+khBcK01i5RhQIfNqcji9CxtPb1AZw==
-  dependencies:
-    serialize-javascript "^1.4.0"
-
 memory-fs@^0.4.0, memory-fs@~0.4.1:
   version "0.4.1"
   resolved "https://registry.yarnpkg.com/memory-fs/-/memory-fs-0.4.1.tgz#3a9a20b8462523e447cfbc7e8bb80ed667bfc552"

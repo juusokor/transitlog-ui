@@ -15,6 +15,7 @@ const filterActions = (state) => {
     }
 
     state.date = momentValue.format("YYYY-MM-DD");
+    setUrlValue("date", state.date);
   });
 
   // Grab the stopId from the passed stop object.

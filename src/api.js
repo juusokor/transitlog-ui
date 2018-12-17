@@ -2,8 +2,19 @@ import {ApolloClient} from "apollo-client";
 import {HttpLink} from "apollo-link-http";
 import {InMemoryCache, defaultDataIdFromObject} from "apollo-cache-inmemory";
 
+const joreUrl = process.env.REACT_APP_JORE_GRAPHQL_URL;
+const hfpUrl = process.env.REACT_APP_HFP_GRAPHQL_URL;
+
+if (!joreUrl) {
+  console.error("JORE GraphQL URL not set!");
+}
+
+if (!hfpUrl) {
+  console.error("HFP GraphQL URL not set!");
+}
+
 const joreClient = new ApolloClient({
-  link: new HttpLink({uri: "https://dev-kartat.hsldev.com/jore-history/graphql"}),
+  link: new HttpLink({uri: joreUrl}),
   cache: new InMemoryCache({
     dataIdFromObject: (obj) => {
       if (obj.__typename === "Stop") {
@@ -27,7 +38,7 @@ const cache = new InMemoryCache();
 
 const hfpClient = new ApolloClient({
   link: new HttpLink({
-    uri: "https://sandbox-1.hsldev.com/v1alpha1/graphql",
+    uri: hfpUrl,
   }),
   cache,
 });
