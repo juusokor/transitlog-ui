@@ -83,11 +83,11 @@ export const ExtensiveRouteFieldsFragment = gql`
         distanceFromStart
         destinationFi
         timingStopType
-        stopByStopId {
+        stop: stopByStopId {
           nameFi
           stopId
           shortId
-          departuresByStopId(
+          departures: departuresByStopId(
             condition: {routeId: $routeId, direction: $direction, dayType: $dayType}
           ) {
             nodes {

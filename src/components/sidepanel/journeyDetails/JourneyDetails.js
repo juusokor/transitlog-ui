@@ -1,8 +1,6 @@
 import React from "react";
 import styled from "styled-components";
 import withSelectedJourney from "../../../hoc/withSelectedJourney";
-import get from "lodash/get";
-import flow from "lodash/flow";
 import {getDayTypeFromDate} from "../../../helpers/getDayTypeFromDate";
 import isWithinRange from "date-fns/is_within_range";
 import TerminalStop from "./TerminalStop";
@@ -13,6 +11,9 @@ import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import withRoute from "../../../hoc/withRoute";
 import pick from "lodash/pick";
+import sortBy from "lodash/sortBy";
+import get from "lodash/get";
+import flow from "lodash/flow";
 import SingleRouteQuery from "../../../queries/SingleRouteQuery";
 
 const JourneyPanelContent = styled.div`
@@ -57,6 +58,51 @@ const JourneyDetails = decorate(
               routeId === get(firstPosition, "route_id", "") &&
               parseInt(direction) === parseInt(get(firstPosition, "direction_id", 0))
           );
+
+          // console.log(route);
+
+          const {dateBegin, dateEnd, departureId} = originDeparture;
+
+          const journeyStops = sortBy(
+            get(route, "routeSegments.nodes", []),
+            "stopIndex"
+          ).map((routeSegment) => {
+            const stopDepartures = get(
+              routeSegment,
+              "stop.departures.nodes",
+              []
+            ).filter(
+              (departure) =>
+                departure.dateBegin === dateBegin &&
+                departure.dateEnd === dateEnd &&
+                departure.departureId === departureId
+            );
+
+            const {
+              destinationFi,
+              distanceFromPrevious,
+              distanceFromStart,
+              duration,
+              stopIndex,
+              timingStopType,
+            } = routeSegment;
+            const {nameFi, shortId, stopId} = get(routeSegment, "stop", {});
+
+            return {
+              destination: destinationFi,
+              distanceFromPrevious,
+              distanceFromStart,
+              duration,
+              stopIndex,
+              timingStopType,
+              stopName: nameFi,
+              shortId,
+              stopId,
+              stopDeparture: stopDepartures[0],
+            };
+          });
+
+          console.log(journeyStops);
 
           return (
             <>
