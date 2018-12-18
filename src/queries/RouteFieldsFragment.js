@@ -71,21 +71,39 @@ export const ExtensiveRouteFieldsFragment = gql`
         }
       }
     }
-    #    departures {
-    #      nodes {
-    #        stopId
-    #        vehicle
-    #        hours
-    #        minutes
-    #        note
-    #        dateBegin
-    #        dateEnd
-    #        dayType
-    #        departureId
-    #        arrivalHours
-    #        arrivalMinutes
-    #      }
-    #    }
+    routeSegments {
+      nodes {
+        stopId
+        nextStopId
+        dateBegin
+        dateEnd
+        duration
+        stopIndex
+        distanceFromPrevious
+        distanceFromStart
+        destinationFi
+        timingStopType
+        stopByStopId {
+          nameFi
+          stopId
+          shortId
+          departuresByStopId(
+            condition: {routeId: $routeId, direction: $direction, dayType: $dayType}
+          ) {
+            nodes {
+              routeId
+              direction
+              hours
+              minutes
+              departureId
+              dateBegin
+              dateEnd
+              dayType
+            }
+          }
+        }
+      }
+    }
   }
 `;
 

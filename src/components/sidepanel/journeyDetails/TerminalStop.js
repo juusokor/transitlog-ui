@@ -5,8 +5,32 @@ import isWithinRange from "date-fns/is_within_range";
 import orderBy from "lodash/orderBy";
 import {getDayTypeFromDate} from "../../../helpers/getDayTypeFromDate";
 import {stopTimes} from "../../../helpers/stopTimes";
+import styled from "styled-components";
 
-export default ({stopName, stop, originDeparture, journeyPositions, date}) => {
+const StopWrapper = styled.div`
+  margin-bottom: 1rem;
+  padding: 0 1rem 0.5rem 2rem;
+  border-bottom: 1px solid var(--lighter-grey);
+`;
+
+const TimeSection = styled.p`
+  margin: 0.5rem 0;
+`;
+
+const SmallLine = styled.span`
+  display: block;
+  font-size: 0.75rem;
+`;
+
+export default ({
+  stopName,
+  stop,
+  originDeparture,
+  isFirstTerminal,
+  isLastTerminal,
+  journeyPositions,
+  date,
+}) => {
   const firstPosition = journeyPositions[0];
   const dayType = getDayTypeFromDate(date);
 
@@ -21,7 +45,8 @@ export default ({stopName, stop, originDeparture, journeyPositions, date}) => {
       isWithinRange(date, departure.dateBegin, departure.dateEnd) &&
       departure.dayType === dayType &&
       departure.routeId === firstPosition.route_id &&
-      parseInt(departure.direction) === parseInt(firstPosition.direction_id)
+      parseInt(departure.direction) ===
+        parseInt(get(firstPosition, "direction_id", 0))
   );
 
   const {departure: stopDeparture, arrival: stopArrival} = stopTimes(
@@ -36,21 +61,20 @@ export default ({stopName, stop, originDeparture, journeyPositions, date}) => {
     get(journeyPositions, `[${journeyPositions.length - 1}].received_at_unix`, 0);
 
   return (
-    <div>
+    <StopWrapper>
       <Heading level={5}>
         {stopName}: {stop.stopId} ({stop.shortId}) - {stop.nameFi}
       </Heading>
-      {endOfStream && <p>HFP stream may have ended before arrival and departure.</p>}
       {stopPositions[0] && (
-        <p>
+        <TimeSection>
           Arrival:{" "}
           <strong style={{color: stopArrival.color}}>
             {stopArrival.observedMoment.format("HH:mm:ss")}
           </strong>
           {stopArrival.unreliable && "(?)"}
-        </p>
+        </TimeSection>
       )}
-      <p>
+      <TimeSection>
         Departure: {stopDeparture.plannedMoment.format("HH:mm:ss")}
         {stopPositions[0] && (
           <>
@@ -61,7 +85,10 @@ export default ({stopName, stop, originDeparture, journeyPositions, date}) => {
             </strong>
           </>
         )}
-      </p>
-    </div>
+        {endOfStream && (
+          <SmallLine>End of HFP stream used as stop departure.</SmallLine>
+        )}
+      </TimeSection>
+    </StopWrapper>
   );
 };

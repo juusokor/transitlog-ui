@@ -18,10 +18,14 @@ export default (Component) => {
       return (
         <SingleRouteQuery
           date={date}
-          extensive={true}
-          route={pick(route, "routeId", "direction")}>
-          {({route: fetchedRoute}) => (
-            <Component {...this.props} date={date} route={fetchedRoute} />
+          route={pick(route, "routeId", "direction", "dateBegin", "dateEnd")}>
+          {({route: fetchedRoute, loading}) => (
+            <Component
+              {...this.props}
+              loading={loading}
+              date={date}
+              route={fetchedRoute}
+            />
           )}
         </SingleRouteQuery>
       );

@@ -29,13 +29,18 @@ const extensiveSingleRouteQuery = gql`
   query extensiveSingleRouteQuery(
     $routeId: String!
     $direction: String!
+    $dateBegin: Date!
+    $dateEnd: Date!
     $dayType: String
   ) {
-    allRoutes(condition: {routeId: $routeId, direction: $direction}) {
-      nodes {
-        ...RouteFieldsFragment
-        ...ExtensiveRouteFieldsFragment
-      }
+    route: routeByRouteIdAndDirectionAndDateBeginAndDateEnd(
+      routeId: $routeId
+      direction: $direction
+      dateBegin: $dateBegin
+      dateEnd: $dateEnd
+    ) {
+      ...RouteFieldsFragment
+      ...ExtensiveRouteFieldsFragment
     }
   }
   ${RouteFieldsFragment}
@@ -67,32 +72,26 @@ export const fetchSingleRoute = (route, date) => {
     });
 };
 
-export default observer(({children, route, date, extensive = false}) => (
+export default observer(({children, route, date}) => (
   <Query
-    query={extensive ? extensiveSingleRouteQuery : singleRouteQuery}
-    variables={{...route, dayType: getDayTypeFromDate(date), extensive}}>
+    fetchPolicy="no-cache"
+    query={extensiveSingleRouteQuery}
+    variables={{...route, dayType: getDayTypeFromDate(date)}}>
     {({loading, error, data}) => {
-      if (loading) return "Loading...";
-      if (error) return "Error!";
+      if (loading || error) {
+        return children({
+          loading,
+          error,
+          route: null,
+        });
+      }
 
-      const queryDate = parse(`${date}T00:00:00`);
-      const routes = get(data, "allRoutes.nodes", []);
-
-      const filteredRoutes = orderBy(
-        routes.filter(({dateBegin, dateEnd}) => {
-          const begin = parse(`${dateBegin}T00:00:00`);
-          const end = parse(`${dateEnd}T23:59:00`);
-
-          return isWithinRange(queryDate, begin, end);
-        }),
-        "dateBegin",
-        "desc"
-      );
+      const fetchedRoute = get(data, "route", null);
 
       return children({
         loading,
         error,
-        route: filteredRoutes[0],
+        route: fetchedRoute,
       });
     }}
   </Query>
