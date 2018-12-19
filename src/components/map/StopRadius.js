@@ -9,7 +9,7 @@ export function StopRadius({center, radius, children, color}) {
       opacity={0.33}
       color={color}
       fillColor={color}
-      fillOpacity={0.1}
+      fillOpacity={0.133}
       radius={radius}>
       {children}
     </Circle>
