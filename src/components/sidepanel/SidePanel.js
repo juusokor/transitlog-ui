@@ -47,10 +47,15 @@ const ToggleSidePanelButton = styled.button`
   border-top-right-radius: 5px;
   border-bottom-right-radius: 5px;
   cursor: pointer;
+  transition: transform 0.2s ease-out;
 
   svg {
     transition: transform 0.5s ease-out;
     transform: rotate(${({isVisible = true}) => (isVisible ? 0 : "180deg")});
+  }
+
+  &:hover {
+    transform: scale(1.075) translateY(calc(-90% - 0.5rem));
   }
 `;
 
@@ -60,6 +65,10 @@ const ToggleJourneyDetailsButton = styled(ToggleSidePanelButton)`
 
   svg {
     transform: none;
+  }
+
+  &:hover {
+    transform: scale(1.075) translateY(0);
   }
 `;
 

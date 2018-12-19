@@ -41,6 +41,14 @@ const JourneyExpandToggle = styled(Button).attrs({small: true})`
   position: absolute;
   top: 0;
   right: 0.5rem;
+  border: 0;
+
+  &:hover {
+    background: var(--blue);
+    color: white;
+    border: 0;
+    transform: scale(1.1);
+  }
 `;
 
 @inject(app("Time"))
