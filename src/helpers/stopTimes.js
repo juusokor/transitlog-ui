@@ -3,7 +3,6 @@ import {diffDepartureJourney} from "./diffDepartureJourney";
 import getDelayType from "./getDelayType";
 import {getTimelinessColor} from "./timelinessColor";
 import moment from "moment-timezone";
-import get from "lodash/get";
 
 export const stopTimes = (originDeparture, positions, departures, date) => {
   const firstPosition = positions[0];
@@ -45,12 +44,11 @@ export const stopTimes = (originDeparture, positions, departures, date) => {
 
   return {
     departure: {
+      departure: journeyDeparture,
       event: firstPosition,
       delayType: departureDelayType,
       color: departureColor,
-      plannedMoment: departureDiff.plannedMoment,
-      observedMoment: departureDiff.observedMoment,
-      diff: departureDiff.diff,
+      ...departureDiff,
     },
     arrival: {
       // Mark the arrival event as unreliable if a specific arrival event could be found.

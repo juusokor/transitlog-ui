@@ -9,7 +9,7 @@ import {TransportIcon, transportColor} from "../transportModes";
 import {
   ColoredBackgroundSlot,
   PlainSlot,
-  ColoredIconSlot,
+  ColoredSlot,
   TagButton,
   PlainSlotSmallRight,
 } from "../TagButton";
@@ -88,11 +88,10 @@ class TimetableDeparture extends Component {
           ref={focusRef}
           selected={journeyIsSelected}
           onClick={onClick(departureData)}>
-          <ColoredIconSlot
-            color={get(transportColor, stopMode, "var(--light-grey)")}>
+          <ColoredSlot color={get(transportColor, stopMode, "var(--light-grey)")}>
             <TransportIcon mode={stopMode} />
             {parseLineNumber(departure.routeId)}
-          </ColoredIconSlot>
+          </ColoredSlot>
           <PlainSlot>
             {doubleDigit(departure.hours)}:{doubleDigit(departure.minutes)}
             {isTimingStop && <TimingIcon src={timingStopIcon} />}

@@ -34,6 +34,9 @@ export const ExtensiveRouteFieldsFragment = gql`
       lon
       shortId
       nameFi
+      modes {
+        nodes
+      }
       departures: departuresByStopId(
         condition: {routeId: $routeId, direction: $direction, dayType: $dayType}
       ) {
@@ -56,6 +59,9 @@ export const ExtensiveRouteFieldsFragment = gql`
       lon
       shortId
       nameFi
+      modes {
+        nodes
+      }
       departures: departuresByStopId(
         condition: {routeId: $routeId, direction: $direction, dayType: $dayType}
       ) {
@@ -87,6 +93,9 @@ export const ExtensiveRouteFieldsFragment = gql`
           nameFi
           stopId
           shortId
+          modes {
+            nodes
+          }
           departures: departuresByStopId(
             condition: {routeId: $routeId, direction: $direction, dayType: $dayType}
           ) {

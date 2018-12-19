@@ -6,8 +6,17 @@ import orderBy from "lodash/orderBy";
 import {getDayTypeFromDate} from "../../../helpers/getDayTypeFromDate";
 import {stopTimes} from "../../../helpers/stopTimes";
 import styled from "styled-components";
-import {SmallText, StopElementsWrapper, StopLine, StopMarker} from "./elements";
-import {TagButton, PlainSlot} from "../../TagButton";
+import {SmallText, StopElementsWrapper, StopMarker} from "./elements";
+import {
+  TagButton,
+  PlainSlot,
+  ColoredBackgroundSlot,
+  PlainSlotSmallRight,
+} from "../../TagButton";
+import {transportColor} from "../../transportModes";
+import {getTimelinessColor} from "../../../helpers/timelinessColor";
+import doubleDigit from "../../../helpers/doubleDigit";
+import {applyTimeOffset} from "./applyTimeOffset";
 
 const StopWrapper = styled.div`
   padding: 0 1rem 0 0;
@@ -18,12 +27,31 @@ const StopWrapper = styled.div`
 `;
 
 const StopContent = styled.div`
-  padding: 0.25rem 0 0.25rem 0.5rem;
+  padding: 0 1.75rem
+    ${({terminus = "destination"}) =>
+      terminus === "destination" ? "1rem" : "0.25rem"}
+    0.75rem;
+  width: 100%;
 `;
 
-const TimeSection = styled.p`
-  margin: 0.5rem 0 0;
+const StopHeading = styled(Heading).attrs({level: 5})`
+  margin-top: 0.2rem;
+  color: var(--dark-grey);
+  font-size: 1rem;
+  font-weight: normal;
 `;
+
+const TimeHeading = styled.div`
+  font-size: 0.75rem;
+  color: var(--light-grey);
+  margin-bottom: 0.2rem;
+`;
+
+const StopArrivalTime = styled(TagButton)`
+  margin: 0 0 0.5rem;
+`;
+
+const StopDepartureTime = styled(TagButton)``;
 
 export default ({
   stop,
@@ -62,45 +90,83 @@ export default ({
     get(stopDeparture, "event.received_at_unix", 0) ===
     get(journeyPositions, `[${journeyPositions.length - 1}].received_at_unix`, 0);
 
+  const stopMode = get(stop, "modes.nodes[0]", "BUS");
+  const stopColor = get(transportColor, stopMode, "var(--light-grey)");
+
+  let arrivalTimeInfo = null;
+  let arrivalWasLate = false;
+
+  if (isFirstTerminal) {
+    // The arrival at the first stop should be [terminal time]
+    // minutes before the scheduled departure.
+    // TODO: provide real terminal time when available
+    arrivalTimeInfo = applyTimeOffset(
+      stopDeparture.plannedMoment,
+      stopArrival.observedMoment,
+      3
+    );
+
+    arrivalWasLate = arrivalTimeInfo.diff < 180;
+  }
+
   return (
     <StopWrapper>
       <StopElementsWrapper
+        color={stopColor}
         terminus={
           isFirstTerminal ? "origin" : isLastTerminal ? "destination" : false
         }>
-        <StopMarker />
+        <StopMarker color={stopColor} />
       </StopElementsWrapper>
-      <StopContent>
-        <TagButton>
-          <PlainSlot>
-            {stop.stopId} ({stop.shortId}) - {stop.nameFi}
-          </PlainSlot>
-        </TagButton>
-        <Heading level={5} />
-        {stopPositions[0] && (
-          <TimeSection>
-            Arrival:{" "}
-            <strong style={{color: stopArrival.color}}>
+      <StopContent
+        terminus={
+          isFirstTerminal ? "origin" : isLastTerminal ? "destination" : false
+        }>
+        <StopHeading>
+          {stop.stopId} ({stop.shortId}) - {stop.nameFi}
+        </StopHeading>
+        <TimeHeading>Arrival</TimeHeading>
+        {arrivalTimeInfo !== null ? (
+          <StopArrivalTime>
+            <PlainSlot>{arrivalTimeInfo.offsetTime.format("HH:mm:ss")}</PlainSlot>
+            <ColoredBackgroundSlot
+              color="white"
+              backgroundColor={arrivalWasLate ? "var(--red)" : "var(--light-green)"}>
+              {arrivalTimeInfo.sign}
+              {doubleDigit(arrivalTimeInfo.diffMinutes)}:
+              {doubleDigit(arrivalTimeInfo.diffSeconds)}
+            </ColoredBackgroundSlot>
+            <PlainSlotSmallRight>
               {stopArrival.observedMoment.format("HH:mm:ss")}
-            </strong>
-            {stopArrival.unreliable && "(?)"}
-          </TimeSection>
+            </PlainSlotSmallRight>
+          </StopArrivalTime>
+        ) : (
+          <StopArrivalTime>
+            <PlainSlotSmallRight>
+              {stopArrival.observedMoment.format("HH:mm:ss")}
+            </PlainSlotSmallRight>
+          </StopArrivalTime>
         )}
-        <TimeSection>
-          Departure: {stopDeparture.plannedMoment.format("HH:mm:ss")}
-          {stopPositions[0] && (
-            <>
-              {" "}
-              /{" "}
-              <strong style={{color: stopDeparture.color}}>
-                {stopDeparture.observedMoment.format("HH:mm:ss")}
-              </strong>
-            </>
-          )}
-          {endOfStream && (
-            <SmallText>End of HFP stream used as stop departure.</SmallText>
-          )}
-        </TimeSection>
+        <TimeHeading>Departure</TimeHeading>
+        <StopDepartureTime>
+          <PlainSlot>{stopDeparture.plannedMoment.format("HH:mm:ss")}</PlainSlot>
+          <ColoredBackgroundSlot
+            color={stopDeparture.delayType === "late" ? "var(--dark-grey)" : "white"}
+            backgroundColor={getTimelinessColor(
+              stopDeparture.delayType,
+              "var(--light-green)"
+            )}>
+            {stopDeparture.sign}
+            {doubleDigit(get(stopDeparture, "minutes", 0))}:
+            {doubleDigit(get(stopDeparture, "seconds", 0))}
+          </ColoredBackgroundSlot>
+          <PlainSlotSmallRight>
+            {stopDeparture.observedMoment.format("HH:mm:ss")}
+          </PlainSlotSmallRight>
+        </StopDepartureTime>
+        {endOfStream && (
+          <SmallText>End of HFP stream used as stop departure.</SmallText>
+        )}
       </StopContent>
     </StopWrapper>
   );
