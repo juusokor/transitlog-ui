@@ -1,6 +1,6 @@
 import React from "react";
 import {observable, action} from "mobx";
-import {observer} from "mobx-react";
+import {observer, inject} from "mobx-react";
 import isWithinRange from "date-fns/is_within_range";
 import TerminalStop from "./TerminalStop";
 import doubleDigit from "../../../helpers/doubleDigit";
@@ -12,6 +12,7 @@ import Minus from "../../../icons/Minus";
 import Plus from "../../../icons/Plus";
 import {getDayTypeFromDate} from "../../../helpers/getDayTypeFromDate";
 import RouteStop from "./RouteStop";
+import {app} from "mobx-app";
 
 const StopsWrapper = styled.div``;
 
@@ -42,6 +43,7 @@ const JourneyExpandToggle = styled(Button).attrs({small: true})`
   right: 0.5rem;
 `;
 
+@inject(app("Time"))
 @observer
 class JourneyStops extends React.Component {
   @observable
@@ -51,8 +53,13 @@ class JourneyStops extends React.Component {
     this.journeyIsExpanded = setTo;
   });
 
+  onClickTime = (time) => (e) => {
+    e.preventDefault();
+    this.props.Time.setTime(time);
+  };
+
   render() {
-    const {journeyHfp, route, date} = this.props;
+    const {journeyHfp, route, date, onClickTime} = this.props;
     const currentDayType = getDayTypeFromDate(date);
     const firstPosition = journeyHfp[0];
 
@@ -115,6 +122,7 @@ class JourneyStops extends React.Component {
           stop={get(route, "originStop", {})}
           journeyPositions={journeyHfp}
           date={date}
+          onClickTime={this.onClickTime}
         />
         <JourneyStopsWrapper expanded={this.journeyIsExpanded}>
           <StopsList>
@@ -130,6 +138,7 @@ class JourneyStops extends React.Component {
                     originDeparture={originDeparture}
                     date={date}
                     journeyPositions={journeyHfp}
+                    onClickTime={this.onClickTime}
                   />
                 ))
             ) : (
@@ -150,6 +159,7 @@ class JourneyStops extends React.Component {
           stop={get(route, "destinationStop", {})}
           journeyPositions={journeyHfp}
           date={date}
+          onClickTime={this.onClickTime}
         />
       </StopsWrapper>
     );

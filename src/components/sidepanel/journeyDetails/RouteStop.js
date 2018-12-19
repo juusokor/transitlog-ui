@@ -1,9 +1,7 @@
 import React from "react";
 import {Heading} from "../../Typography";
 import get from "lodash/get";
-import isWithinRange from "date-fns/is_within_range";
 import orderBy from "lodash/orderBy";
-import {getDayTypeFromDate} from "../../../helpers/getDayTypeFromDate";
 import {stopTimes} from "../../../helpers/stopTimes";
 import styled from "styled-components";
 import {SmallText, StopElementsWrapper, StopMarker} from "./elements";
@@ -16,7 +14,6 @@ import {
 import {transportColor} from "../../transportModes";
 import {getTimelinessColor} from "../../../helpers/timelinessColor";
 import doubleDigit from "../../../helpers/doubleDigit";
-import {applyTimeOffset} from "./applyTimeOffset";
 
 const StopWrapper = styled.div`
   padding: 0;
@@ -53,7 +50,7 @@ const StopArrivalTime = styled(TagButton)`
 
 const StopDepartureTime = styled(TagButton)``;
 
-export default ({stop, originDeparture, journeyPositions, date}) => {
+export default ({stop, originDeparture, journeyPositions, date, onClickTime}) => {
   const stopPositions = orderBy(
     journeyPositions.filter((pos) => pos.next_stop_id === stop.stopId),
     "received_at_unix",
@@ -76,6 +73,8 @@ export default ({stop, originDeparture, journeyPositions, date}) => {
     get(stopDeparture, "event.received_at_unix", 0) ===
     get(journeyPositions, `[${journeyPositions.length - 1}].received_at_unix`, 0);
 
+  const stopDepartureTime = stopDeparture.observedMoment.format("HH:mm:ss");
+
   return (
     <StopWrapper>
       <StopElementsWrapper color={stopColor}>
@@ -85,7 +84,7 @@ export default ({stop, originDeparture, journeyPositions, date}) => {
         <StopHeading>
           {stop.stopId} ({stop.shortId}) - {stop.nameFi}
         </StopHeading>
-        <StopDepartureTime>
+        <StopDepartureTime onClick={onClickTime(stopDepartureTime)}>
           <PlainSlot>{stopDeparture.plannedMoment.format("HH:mm:ss")}</PlainSlot>
           <ColoredBackgroundSlot
             color={stopDeparture.delayType === "late" ? "var(--dark-grey)" : "white"}

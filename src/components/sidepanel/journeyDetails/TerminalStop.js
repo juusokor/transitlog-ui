@@ -57,6 +57,7 @@ export default ({
   isLastTerminal,
   journeyPositions,
   date,
+  onClickTime,
 }) => {
   const firstPosition = journeyPositions[0];
   const dayType = getDayTypeFromDate(date);
@@ -106,6 +107,9 @@ export default ({
     arrivalWasLate = arrivalTimeInfo.diff < 180;
   }
 
+  const stopArrivalTime = stopArrival.observedMoment.format("HH:mm:ss");
+  const stopDepartureTime = stopDeparture.observedMoment.format("HH:mm:ss");
+
   return (
     <StopWrapper>
       <StopElementsWrapper
@@ -124,7 +128,7 @@ export default ({
         </StopHeading>
         <TimeHeading>Arrival</TimeHeading>
         {arrivalTimeInfo !== null ? (
-          <StopArrivalTime>
+          <StopArrivalTime onClick={onClickTime(stopArrivalTime)}>
             <PlainSlot>{arrivalTimeInfo.offsetTime.format("HH:mm:ss")}</PlainSlot>
             <ColoredBackgroundSlot
               color="white"
@@ -138,14 +142,14 @@ export default ({
             </PlainSlotSmallRight>
           </StopArrivalTime>
         ) : (
-          <StopArrivalTime>
+          <StopArrivalTime onClick={onClickTime(stopArrivalTime)}>
             <PlainSlotSmallRight>
               {stopArrival.observedMoment.format("HH:mm:ss")}
             </PlainSlotSmallRight>
           </StopArrivalTime>
         )}
         <TimeHeading>Departure</TimeHeading>
-        <StopDepartureTime>
+        <StopDepartureTime onClick={onClickTime(stopDepartureTime)}>
           <PlainSlot>{stopDeparture.plannedMoment.format("HH:mm:ss")}</PlainSlot>
           <ColoredBackgroundSlot
             color={stopDeparture.delayType === "late" ? "var(--dark-grey)" : "white"}
