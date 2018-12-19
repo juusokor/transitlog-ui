@@ -19,15 +19,18 @@ import doubleDigit from "../../../helpers/doubleDigit";
 import {applyTimeOffset} from "./applyTimeOffset";
 
 const StopWrapper = styled.div`
-  padding: 0 1rem 0 0;
-  margin-left: 1.75rem;
+  padding: 0;
+  margin-left: 0.25rem;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
 `;
 
 const StopContent = styled.div`
-  padding: 0 1.75rem 1rem 0.75rem;
+  padding: 0 1.75rem
+    ${({terminus = "destination"}) =>
+      terminus === "destination" ? "1rem" : "0.25rem"}
+    0.75rem;
   width: 100%;
 `;
 
@@ -50,101 +53,38 @@ const StopArrivalTime = styled(TagButton)`
 
 const StopDepartureTime = styled(TagButton)``;
 
-export default ({
-  stop,
-  originDeparture,
-  isFirstTerminal,
-  isLastTerminal,
-  journeyPositions,
-  date,
-}) => {
-  const firstPosition = journeyPositions[0];
-  const dayType = getDayTypeFromDate(date);
-
+export default ({stop, originDeparture, journeyPositions, date}) => {
   const stopPositions = orderBy(
     journeyPositions.filter((pos) => pos.next_stop_id === stop.stopId),
     "received_at_unix",
     "desc"
   );
 
-  const stopDepartures = get(stop, "departures.nodes", []).filter(
-    (departure) =>
-      isWithinRange(date, departure.dateBegin, departure.dateEnd) &&
-      departure.dayType === dayType &&
-      departure.routeId === firstPosition.route_id &&
-      parseInt(departure.direction) ===
-        parseInt(get(firstPosition, "direction_id", 0))
-  );
+  const departure = stop.stopDeparture;
 
   const {departure: stopDeparture, arrival: stopArrival} = stopTimes(
     originDeparture,
     stopPositions,
-    stopDepartures,
+    departure,
     date
   );
+
+  const stopMode = get(stop, "modes.nodes[0]", "BUS");
+  const stopColor = get(transportColor, stopMode, "var(--light-grey)");
 
   const endOfStream =
     get(stopDeparture, "event.received_at_unix", 0) ===
     get(journeyPositions, `[${journeyPositions.length - 1}].received_at_unix`, 0);
 
-  const stopMode = get(stop, "modes.nodes[0]", "BUS");
-  const stopColor = get(transportColor, stopMode, "var(--light-grey)");
-
-  let arrivalTimeInfo = null;
-  let arrivalWasLate = false;
-
-  if (isFirstTerminal) {
-    // The arrival at the first stop should be [terminal time]
-    // minutes before the scheduled departure.
-    // TODO: provide real terminal time when available
-    arrivalTimeInfo = applyTimeOffset(
-      stopDeparture.plannedMoment,
-      stopArrival.observedMoment,
-      3
-    );
-
-    arrivalWasLate = arrivalTimeInfo.diff < 180;
-  }
-
   return (
     <StopWrapper>
-      <StopElementsWrapper
-        color={stopColor}
-        terminus={
-          isFirstTerminal ? "origin" : isLastTerminal ? "destination" : false
-        }>
+      <StopElementsWrapper color={stopColor}>
         <StopMarker color={stopColor} />
       </StopElementsWrapper>
-      <StopContent
-        terminus={
-          isFirstTerminal ? "origin" : isLastTerminal ? "destination" : false
-        }>
+      <StopContent>
         <StopHeading>
           {stop.stopId} ({stop.shortId}) - {stop.nameFi}
         </StopHeading>
-        <TimeHeading>Arrival</TimeHeading>
-        {arrivalTimeInfo !== null ? (
-          <StopArrivalTime>
-            <PlainSlot>{arrivalTimeInfo.offsetTime.format("HH:mm:ss")}</PlainSlot>
-            <ColoredBackgroundSlot
-              color="white"
-              backgroundColor={arrivalWasLate ? "var(--red)" : "var(--light-green)"}>
-              {arrivalTimeInfo.sign}
-              {doubleDigit(arrivalTimeInfo.diffMinutes)}:
-              {doubleDigit(arrivalTimeInfo.diffSeconds)}
-            </ColoredBackgroundSlot>
-            <PlainSlotSmallRight>
-              {stopArrival.observedMoment.format("HH:mm:ss")}
-            </PlainSlotSmallRight>
-          </StopArrivalTime>
-        ) : (
-          <StopArrivalTime>
-            <PlainSlotSmallRight>
-              {stopArrival.observedMoment.format("HH:mm:ss")}
-            </PlainSlotSmallRight>
-          </StopArrivalTime>
-        )}
-        <TimeHeading>Departure</TimeHeading>
         <StopDepartureTime>
           <PlainSlot>{stopDeparture.plannedMoment.format("HH:mm:ss")}</PlainSlot>
           <ColoredBackgroundSlot

@@ -11,17 +11,18 @@ import {Button} from "../../Forms";
 import Minus from "../../../icons/Minus";
 import Plus from "../../../icons/Plus";
 import {getDayTypeFromDate} from "../../../helpers/getDayTypeFromDate";
+import RouteStop from "./RouteStop";
 
 const StopsWrapper = styled.div``;
 
 const JourneyStopsWrapper = styled.div`
-  margin-left: calc(2.5rem - 1px);
-  border-left: 3px ${({expanded}) => (expanded ? "solid" : "dotted")}
-    var(--light-grey);
+  margin-left: ${({expanded}) => (expanded ? "0" : "calc(2.5rem - 1px)")};
+  border-left: ${({expanded}) => (expanded ? "0" : "3px dotted var(--light-grey)")};
+  padding: ${({expanded}) => (expanded ? "0" : "0.5rem 0 1.5rem")};
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  padding: 1.5rem 0;
+  position: relative;
 `;
 
 const StopsList = styled.div`
@@ -33,11 +34,12 @@ const JourneyExpandToggle = styled(Button).attrs({small: true})`
   border-radius: 50%;
   width: 1.5rem;
   height: 1.5rem;
-  margin-left: auto;
-  margin-right: 0.5rem;
   padding: 0;
   color: white;
   background: var(--blue);
+  position: absolute;
+  top: 0;
+  right: 0.5rem;
 `;
 
 @observer
@@ -88,7 +90,7 @@ class JourneyStops extends React.Component {
         timingStopType,
       } = routeSegment;
 
-      const {nameFi, shortId, stopId} = get(routeSegment, "stop", {});
+      const {nameFi, shortId, stopId, modes} = get(routeSegment, "stop", {});
 
       return {
         destination: destinationFi,
@@ -97,9 +99,10 @@ class JourneyStops extends React.Component {
         duration,
         stopIndex,
         timingStopType,
-        stopName: nameFi,
+        nameFi,
         shortId,
         stopId,
+        modes,
         stopDeparture: stopDepartures[0],
       };
     });
@@ -114,7 +117,25 @@ class JourneyStops extends React.Component {
           date={date}
         />
         <JourneyStopsWrapper expanded={this.journeyIsExpanded}>
-          <StopsList>{journeyStops.length} stops hidden</StopsList>
+          <StopsList>
+            {this.journeyIsExpanded ? (
+              journeyStops
+                .slice(1, journeyStops.length - 2)
+                .map((journeyStop) => (
+                  <RouteStop
+                    key={`journey_stop_${journeyStop.stopId}_${
+                      journeyStop.stopIndex
+                    }`}
+                    stop={journeyStop}
+                    originDeparture={originDeparture}
+                    date={date}
+                    journeyPositions={journeyHfp}
+                  />
+                ))
+            ) : (
+              <>{journeyStops.length - 2} stops hidden</>
+            )}
+          </StopsList>
           <JourneyExpandToggle onClick={() => this.toggleJourneyExpanded()}>
             {this.journeyIsExpanded ? (
               <Minus fill="white" width="0.75rem" height="0.75rem" />

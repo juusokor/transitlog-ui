@@ -4,19 +4,28 @@ import getDelayType from "./getDelayType";
 import {getTimelinessColor} from "./timelinessColor";
 import moment from "moment-timezone";
 
-export const stopTimes = (originDeparture, positions, departures, date) => {
+export const stopTimes = (
+  originDeparture,
+  positions,
+  departuresOrDeparture,
+  date
+) => {
   const firstPosition = positions[0];
 
-  let journeyDeparture = departures.find(
-    (departure) =>
-      `${doubleDigit(departure.hours)}:${doubleDigit(departure.minutes)}:00` ===
-      firstPosition.journey_start_time
-  );
+  let journeyDeparture = departuresOrDeparture;
 
-  if (!journeyDeparture) {
-    journeyDeparture = departures.find(
-      (dep) => dep.departureId === originDeparture.departureId
+  if (Array.isArray(departuresOrDeparture)) {
+    journeyDeparture = departuresOrDeparture.find(
+      (departure) =>
+        `${doubleDigit(departure.hours)}:${doubleDigit(departure.minutes)}:00` ===
+        firstPosition.journey_start_time
     );
+
+    if (!journeyDeparture) {
+      journeyDeparture = departuresOrDeparture.find(
+        (dep) => dep.departureId === originDeparture.departureId
+      );
+    }
   }
 
   const departureDiff = diffDepartureJourney(firstPosition, journeyDeparture, date);
