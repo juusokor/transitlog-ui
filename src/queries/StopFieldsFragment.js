@@ -9,6 +9,7 @@ export const StopFieldsFragment = gql`
     lon
     shortId
     nameFi
+    stopRadius
     modes {
       nodes
     }
@@ -23,6 +24,7 @@ export const StopFieldsWithRouteSegmentsFragment = gql`
     lon
     shortId
     nameFi
+    stopRadius
     modes {
       nodes
     }
