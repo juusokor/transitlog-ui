@@ -1,5 +1,7 @@
 import React from "react";
 import styled from "styled-components";
+import get from "lodash/get";
+import ArrowRightLong from "../../../icons/ArrowRightLong";
 
 const JourneyInfo = styled.div`
   margin-top: 1rem;
@@ -7,8 +9,9 @@ const JourneyInfo = styled.div`
 
 const JourneyInfoRow = styled.div`
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  align-items: flex-start;
+  flex-direction: column;
+  justify-content: flex-start;
   width: 100%;
   padding: 0.75rem 1rem 0.75rem 2rem;
   background: var(--lightest-grey);
@@ -20,19 +23,34 @@ const JourneyInfoRow = styled.div`
   }
 `;
 
-export default (props) => (
+const Line = styled.div`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  line-height: 1.5;
+  justify-content: ${({right = false}) => (right ? "flex-end" : "space-between")};
+`;
+
+export default ({journey}) => (
   <JourneyInfo>
     <JourneyInfoRow>
-      <span>Terminal time</span>
-      <strong>3 min</strong>
+      <Line>
+        <span>Terminal time</span>
+        <strong>3 min</strong>
+      </Line>
     </JourneyInfoRow>
     <JourneyInfoRow>
-      <span>Recovery time</span>
-      <strong>3 min</strong>
+      <Line>
+        <span>Recovery time</span>
+        <strong>3 min</strong>
+      </Line>
     </JourneyInfoRow>
     <JourneyInfoRow>
-      <span>Equipment requirement</span>
-      <strong>D, teli</strong>
+      <Line>
+        <span>Equipment requirement</span>
+        <strong>D, teli</strong>
+      </Line>
+      <Line right={true}>{get(journey, "unique_vehicle_id", "")}</Line>
     </JourneyInfoRow>
   </JourneyInfo>
 );

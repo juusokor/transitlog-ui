@@ -58,7 +58,7 @@ class JourneyDetails extends React.Component {
                 desi={get(firstPosition, "desi")}
                 name={get(route, "nameFi")}
               />
-              <JourneyInfo />
+              <JourneyInfo journey={firstPosition} />
               <JourneyPanelContent>
                 <JourneyStops
                   journeyHfp={selectedJourneyHfp}
