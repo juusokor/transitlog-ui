@@ -7,6 +7,7 @@ import get from "lodash/get";
 import styled from "styled-components";
 import {app} from "mobx-app";
 import {getPriorityMode, getModeColor} from "../../helpers/vehicleColor";
+import {StopRadius} from "./StopRadius";
 
 const StopRouteList = styled.button`
   text-decoration: none;
@@ -42,17 +43,20 @@ class StopMarker extends Component {
   };
 
   render() {
-    const {stop, state} = this.props;
+    const {stop, state, showRadius = true} = this.props;
     const {stop: selectedStop} = state;
 
     const selected = selectedStop === stop.stopId;
     const mode = getPriorityMode(get(stop, "modes.nodes", []));
     const stopColor = getModeColor(mode);
+    const {stopRadius} = stop;
 
-    return (
+    const markerPosition = [stop.lat, stop.lon];
+
+    const markerElement = (
       <CircleMarker
         pane="stops"
-        center={[stop.lat, stop.lon]}
+        center={markerPosition}
         color={stopColor}
         fillColor={selected ? stopColor : "white"}
         fillOpacity={1}
@@ -78,6 +82,14 @@ class StopMarker extends Component {
           <button onClick={this.onShowStreetView}>Show in street view</button>
         </Popup>
       </CircleMarker>
+    );
+
+    return showRadius ? (
+      <StopRadius center={markerPosition} color={stopColor} radius={stopRadius}>
+        {markerElement}
+      </StopRadius>
+    ) : (
+      markerElement
     );
   }
 }

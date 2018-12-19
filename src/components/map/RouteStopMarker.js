@@ -14,6 +14,7 @@ import {getTimelinessColor} from "../../helpers/timelinessColor";
 import moment from "moment-timezone";
 import {getPriorityMode, getModeColor} from "../../helpers/vehicleColor";
 import get from "lodash/get";
+import {StopRadius} from "./StopRadius";
 
 const PopupParagraph = styled(P)`
   font-size: 1rem;
@@ -30,15 +31,9 @@ const ObservedTime = styled(ColoredBackgroundSlot)`
 
 @observer
 class RouteStopMarker extends React.Component {
-  createStopMarker = (
-    stop,
-    delayType,
-    color,
-    isSelected,
-    isTerminal,
-    onSelect,
-    children
-  ) => {
+  createStopMarker = (delayType, color, isTerminal, children) => {
+    const {stop, showRadius, isSelected, onSelect} = this.props;
+
     const timingStopIcon = icon({
       iconUrl: TimingStopIcon,
       iconSize: [30, 30],
@@ -50,13 +45,15 @@ class RouteStopMarker extends React.Component {
     const mode = getPriorityMode(get(stop, "modes.nodes", []));
     const stopColor = getModeColor(mode);
 
-    return React.createElement(
+    const markerPosition = [stop.lat, stop.lon];
+
+    const markerElement = React.createElement(
       stop.timingStopType ? Marker : CircleMarker,
       {
         pane: "stops",
         icon: stop.timingStopType ? timingStopIcon : null,
-        center: [stop.lat, stop.lon], // One marker type uses center...
-        position: [stop.lat, stop.lon], // ...the other uses position.
+        center: markerPosition, // One marker type uses center...
+        position: markerPosition, // ...the other uses position.
         color: color,
         fillColor: isSelected ? stopColor : "white",
         fillOpacity: 1,
@@ -65,6 +62,14 @@ class RouteStopMarker extends React.Component {
         onClick: onSelect,
       },
       <React.Fragment>{children}</React.Fragment>
+    );
+
+    return showRadius ? (
+      <StopRadius center={markerPosition} radius={stop.stopRadius} color={color}>
+        {markerElement}
+      </StopRadius>
+    ) : (
+      markerElement
     );
   };
 
@@ -118,15 +123,7 @@ class RouteStopMarker extends React.Component {
 
     // Show a marker without the popup if we don't have any data
     if (departures.length === 0 || positions.length === 0 || !selectedJourney) {
-      return this.createStopMarker(
-        stop,
-        delayType,
-        color,
-        selected,
-        isTerminal,
-        onSelect,
-        markerChildren
-      );
+      return this.createStopMarker(delayType, color, isTerminal, markerChildren);
     }
 
     const {journey_start_time} = selectedJourney;
@@ -155,15 +152,7 @@ class RouteStopMarker extends React.Component {
 
     // If we don't have a departure, no biggie, just render the stop marker at this point.
     if (!departure) {
-      return this.createStopMarker(
-        stop,
-        delayType,
-        color,
-        selected,
-        isTerminal,
-        onSelect,
-        markerChildren
-      );
+      return this.createStopMarker(delayType, color, isTerminal, markerChildren);
     }
 
     const stopPositions = orderBy(
@@ -184,15 +173,7 @@ class RouteStopMarker extends React.Component {
 
     // Again, render the marker at this point if we didn't find an hfp item.
     if (!departureHfpItem) {
-      return this.createStopMarker(
-        stop,
-        delayType,
-        color,
-        selected,
-        isTerminal,
-        onSelect,
-        markerChildren
-      );
+      return this.createStopMarker(delayType, color, isTerminal, markerChildren);
     }
 
     // Find out when the vehicle arrived at the stop
@@ -274,15 +255,7 @@ class RouteStopMarker extends React.Component {
       markerChildren = [stopTooltip, stopPopup];
     }
 
-    return this.createStopMarker(
-      stop,
-      delayType,
-      color,
-      selected,
-      isTerminal,
-      onSelect,
-      markerChildren
-    );
+    return this.createStopMarker(delayType, color, isTerminal, markerChildren);
   }
 }
 

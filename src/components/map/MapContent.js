@@ -12,6 +12,7 @@ import HfpMarkerLayer from "./HfpMarkerLayer";
 import {app} from "mobx-app";
 import RouteStopsLayer from "./RouteStopsLayer";
 import AreaSelect from "./AreaSelect";
+import {expr} from "mobx-utils";
 
 @inject(app("Journey", "Filters"))
 @observer
@@ -35,10 +36,11 @@ class MapContent extends Component {
       setMapBounds,
       viewLocation,
       queryBounds,
-      state: {vehicle, selectedJourney, date},
+      state: {vehicle, selectedJourney, date, mapOverlays},
     } = this.props;
 
     const hasRoute = !!route && !!route.routeId;
+    const showStopRadius = expr(() => mapOverlays.indexOf("Stop radius") !== -1);
 
     return (
       <>
@@ -47,12 +49,14 @@ class MapContent extends Component {
           <>
             {zoom > 14 ? (
               <StopLayer
+                showRadius={showStopRadius}
                 onViewLocation={viewLocation}
                 date={date}
                 bounds={stopsBbox}
               />
             ) : stop ? (
               <StopMarker
+                showRadius={showStopRadius}
                 onViewLocation={viewLocation}
                 stop={stop}
                 selected={true}

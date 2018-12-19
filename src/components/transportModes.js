@@ -19,11 +19,11 @@ export const transportColor = {
 };
 
 export const TransportIcon = ({mode = ""}) => {
-  if (!mode || typeof mode !== "string") {
+  if (!mode || typeof mode !== "string" || !get(transportIcons, mode, false)) {
     return null;
   }
 
-  return React.createElement(get(transportIcons, mode, null), {
+  return React.createElement(get(transportIcons, mode), {
     fill: get(transportColor, mode, "var(--light-grey)"),
     width: "16",
     height: "16",

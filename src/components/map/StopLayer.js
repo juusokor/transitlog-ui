@@ -6,7 +6,7 @@ import StopMarker from "./StopMarker";
 @observer
 class StopLayer extends Component {
   render() {
-    const {bounds, date, onViewLocation} = this.props;
+    const {bounds, date, onViewLocation, showRadius} = this.props;
 
     const bbox = {
       minLat: bounds.getSouth(),
@@ -20,6 +20,7 @@ class StopLayer extends Component {
         {({stops}) =>
           stops.map((stop) => (
             <StopMarker
+              showRadius={showRadius}
               onViewLocation={onViewLocation}
               key={`stops_${stop.stopId}`}
               stop={stop}
