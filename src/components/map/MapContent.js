@@ -101,6 +101,7 @@ class MapContent extends Component {
               (selectedJourney.route_id !== route.routeId ||
                 positions.length === 0)) && (
               <RouteStopsLayer
+                showRadius={showStopRadius}
                 onViewLocation={viewLocation}
                 route={route}
                 positions={[]}
@@ -129,6 +130,7 @@ class MapContent extends Component {
                   ) : null,
                   isSelectedJourney ? (
                     <RouteStopsLayer
+                      showRadius={showStopRadius}
                       onViewLocation={viewLocation}
                       key={`journey_stops_${journeyId}`}
                       route={route}
