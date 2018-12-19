@@ -65,7 +65,7 @@ class RouteStopMarker extends React.Component {
     );
 
     return showRadius ? (
-      <StopRadius center={markerPosition} radius={stop.stopRadius} color={color}>
+      <StopRadius center={markerPosition} radius={stop.stopRadius} color={stopColor}>
         {markerElement}
       </StopRadius>
     ) : (

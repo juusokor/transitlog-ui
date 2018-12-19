@@ -29,6 +29,7 @@ class RouteStopsLayer extends Component {
       route,
       state: {date, selectedJourney},
       onViewLocation,
+      showRadius,
     } = this.props;
 
     return (
@@ -45,6 +46,7 @@ class RouteStopsLayer extends Component {
         onViewLocation={onViewLocation}
         routeOriginStopId={get(route, "originstopId", "")}
         onSelect={this.onSelectStop(stop.stopId)}
+        showRadius={showRadius}
       />
     );
   };
