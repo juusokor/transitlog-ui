@@ -1,7 +1,6 @@
 import React from "react";
 import styled from "styled-components";
 import withSelectedJourney from "../../../hoc/withSelectedJourney";
-import {getDayTypeFromDate} from "../../../helpers/getDayTypeFromDate";
 import JourneyDetailsHeader from "./JourneyDetailsHeader";
 import Equipment from "./Equipment";
 import {observer, inject, Observer} from "mobx-react";
@@ -17,6 +16,25 @@ const JourneyPanelContent = styled.div`
   padding: 2rem 0 1rem;
   overflow-y: auto;
   overflow-x: visible;
+`;
+
+const JourneyInfo = styled.div`
+  margin-top: 1rem;
+`;
+
+const JourneyInfoRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2rem;
+  background: var(--lightest-grey);
+  font-size: 1rem;
+  font-family: inherit;
+
+  &:nth-child(even) {
+    background: rgba(0, 0, 0, 0.01);
+  }
 `;
 
 @withRoute
@@ -51,11 +69,27 @@ class JourneyDetails extends React.Component {
           return (
             <>
               <JourneyDetailsHeader
+                date={date}
+                time={firstPosition.journey_start_time}
                 mode={get(route, "mode", "BUS")}
                 routeId={get(route, "routeId", "")}
                 desi={get(firstPosition, "desi")}
                 name={get(route, "nameFi")}
               />
+              <JourneyInfo>
+                <JourneyInfoRow>
+                  <span>Terminal time</span>
+                  <strong>3 min</strong>
+                </JourneyInfoRow>
+                <JourneyInfoRow>
+                  <span>Recovery time</span>
+                  <strong>3 min</strong>
+                </JourneyInfoRow>
+                <JourneyInfoRow>
+                  <span>Equipment requirement</span>
+                  <strong>D, teli</strong>
+                </JourneyInfoRow>
+              </JourneyInfo>
               <JourneyPanelContent>
                 <JourneyStops
                   journeyHfp={selectedJourneyHfp}

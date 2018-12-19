@@ -17,7 +17,6 @@ export const StopMarker = styled.div`
   height: 1.5rem;
   background: white;
   border: 3px solid ${({color = "var(--blue)"}) => color};
-  margin-left: -1px;
 `;
 
 export const StopElementsWrapper = styled.div`
