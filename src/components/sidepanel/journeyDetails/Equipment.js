@@ -3,7 +3,7 @@ import gql from "graphql-tag";
 import styled from "styled-components";
 
 const EquipmentWrapper = styled.div`
-  padding: 0 1rem 0 2rem;
+  padding: 2rem 1rem 0 2rem;
 `;
 
 // const vehicleTypeQuery = gql``;

@@ -48,7 +48,7 @@ const TimingIcon = styled.img`
 class TimetableDeparture extends Component {
   render() {
     const {
-      stopDeparture,
+      departure,
       journey,
       journeyIsSelected,
       date,
@@ -65,15 +65,15 @@ class TimetableDeparture extends Component {
 
     const stopMode = modes[0];
 
-    // Bake the hfp data into the stopDeparture object
+    // Bake the hfp data into the departure object
     // for selecting the journey when clicked.
     const departureData = {
-      ...stopDeparture,
+      ...departure,
       observed: journey,
     };
 
     // Diff planned and observed times
-    const plannedObservedDiff = diffDepartureJourney(journey, stopDeparture, date);
+    const plannedObservedDiff = diffDepartureJourney(journey, departure, date);
     const observedTimeString = plannedObservedDiff
       ? plannedObservedDiff.observedMoment.format("HH:mm:ss")
       : "";
@@ -91,10 +91,10 @@ class TimetableDeparture extends Component {
           <ColoredIconSlot
             color={get(transportColor, stopMode, "var(--light-grey)")}>
             <TransportIcon mode={stopMode} />
-            {parseLineNumber(stopDeparture.routeId)}
+            {parseLineNumber(departure.routeId)}
           </ColoredIconSlot>
           <PlainSlot>
-            {doubleDigit(stopDeparture.hours)}:{doubleDigit(stopDeparture.minutes)}
+            {doubleDigit(departure.hours)}:{doubleDigit(departure.minutes)}
             {isTimingStop && <TimingIcon src={timingStopIcon} />}
           </PlainSlot>
           {plannedObservedDiff ? (

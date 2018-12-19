@@ -6,24 +6,26 @@ import orderBy from "lodash/orderBy";
 import {getDayTypeFromDate} from "../../../helpers/getDayTypeFromDate";
 import {stopTimes} from "../../../helpers/stopTimes";
 import styled from "styled-components";
+import {SmallText, StopElementsWrapper, StopLine, StopMarker} from "./elements";
+import {TagButton, PlainSlot} from "../../TagButton";
 
 const StopWrapper = styled.div`
-  margin-bottom: 1rem;
-  padding: 0 1rem 0.5rem 2rem;
-  border-bottom: 1px solid var(--lighter-grey);
+  padding: 0 1rem 0 0;
+  margin-left: 1.75rem;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+`;
+
+const StopContent = styled.div`
+  padding: 0.25rem 0 0.25rem 0.5rem;
 `;
 
 const TimeSection = styled.p`
-  margin: 0.5rem 0;
-`;
-
-const SmallLine = styled.span`
-  display: block;
-  font-size: 0.75rem;
+  margin: 0.5rem 0 0;
 `;
 
 export default ({
-  stopName,
   stop,
   originDeparture,
   isFirstTerminal,
@@ -62,33 +64,44 @@ export default ({
 
   return (
     <StopWrapper>
-      <Heading level={5}>
-        {stopName}: {stop.stopId} ({stop.shortId}) - {stop.nameFi}
-      </Heading>
-      {stopPositions[0] && (
-        <TimeSection>
-          Arrival:{" "}
-          <strong style={{color: stopArrival.color}}>
-            {stopArrival.observedMoment.format("HH:mm:ss")}
-          </strong>
-          {stopArrival.unreliable && "(?)"}
-        </TimeSection>
-      )}
-      <TimeSection>
-        Departure: {stopDeparture.plannedMoment.format("HH:mm:ss")}
+      <StopElementsWrapper
+        terminus={
+          isFirstTerminal ? "origin" : isLastTerminal ? "destination" : false
+        }>
+        <StopMarker />
+      </StopElementsWrapper>
+      <StopContent>
+        <TagButton>
+          <PlainSlot>
+            {stop.stopId} ({stop.shortId}) - {stop.nameFi}
+          </PlainSlot>
+        </TagButton>
+        <Heading level={5} />
         {stopPositions[0] && (
-          <>
-            {" "}
-            /{" "}
-            <strong style={{color: stopDeparture.color}}>
-              {stopDeparture.observedMoment.format("HH:mm:ss")}
+          <TimeSection>
+            Arrival:{" "}
+            <strong style={{color: stopArrival.color}}>
+              {stopArrival.observedMoment.format("HH:mm:ss")}
             </strong>
-          </>
+            {stopArrival.unreliable && "(?)"}
+          </TimeSection>
         )}
-        {endOfStream && (
-          <SmallLine>End of HFP stream used as stop departure.</SmallLine>
-        )}
-      </TimeSection>
+        <TimeSection>
+          Departure: {stopDeparture.plannedMoment.format("HH:mm:ss")}
+          {stopPositions[0] && (
+            <>
+              {" "}
+              /{" "}
+              <strong style={{color: stopDeparture.color}}>
+                {stopDeparture.observedMoment.format("HH:mm:ss")}
+              </strong>
+            </>
+          )}
+          {endOfStream && (
+            <SmallText>End of HFP stream used as stop departure.</SmallText>
+          )}
+        </TimeSection>
+      </StopContent>
     </StopWrapper>
   );
 };

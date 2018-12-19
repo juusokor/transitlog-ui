@@ -74,11 +74,10 @@ export const fetchSingleRoute = (route, date) => {
 
 export default observer(({children, route, date}) => (
   <Query
-    fetchPolicy="no-cache"
     query={extensiveSingleRouteQuery}
     variables={{...route, dayType: getDayTypeFromDate(date)}}>
     {({loading, error, data}) => {
-      if (loading || error) {
+      if (loading || error || !data) {
         return children({
           loading,
           error,
