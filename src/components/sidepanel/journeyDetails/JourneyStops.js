@@ -1,25 +1,18 @@
 import React from "react";
 import {observable, action} from "mobx";
-import {observer, inject} from "mobx-react";
-import isWithinRange from "date-fns/is_within_range";
-import TerminalStop from "./TerminalStop";
-import doubleDigit from "../../../helpers/doubleDigit";
+import {observer} from "mobx-react";
 import get from "lodash/get";
 import sortBy from "lodash/sortBy";
 import styled from "styled-components";
 import {Button} from "../../Forms";
 import Minus from "../../../icons/Minus";
 import Plus from "../../../icons/Plus";
-import {getDayTypeFromDate} from "../../../helpers/getDayTypeFromDate";
-import RouteStop from "./RouteStop";
-import {app} from "mobx-app";
-
-const StopsWrapper = styled.div``;
+import JourneyStop from "./JourneyStop";
 
 const JourneyStopsWrapper = styled.div`
   margin-left: ${({expanded}) => (expanded ? "0" : "calc(2.5rem - 1px)")};
   border-left: ${({expanded}) => (expanded ? "0" : "3px dotted var(--light-grey)")};
-  padding: ${({expanded}) => (expanded ? "0" : "0.5rem 0 1.5rem")};
+  padding: ${({expanded}) => (expanded ? "0" : "1rem 0")};
   display: flex;
   flex-direction: row;
   align-items: flex-start;
@@ -39,7 +32,8 @@ const JourneyExpandToggle = styled(Button).attrs({small: true})`
   color: white;
   background: var(--blue);
   position: absolute;
-  top: 0;
+  top: 50%;
+  margin-top: -0.75rem;
   right: 0.5rem;
   border: 0;
 
@@ -51,7 +45,6 @@ const JourneyExpandToggle = styled(Button).attrs({small: true})`
   }
 `;
 
-@inject(app("Time"))
 @observer
 class JourneyStops extends React.Component {
   @observable
@@ -61,28 +54,8 @@ class JourneyStops extends React.Component {
     this.journeyIsExpanded = setTo;
   });
 
-  onClickTime = (time) => (e) => {
-    e.preventDefault();
-    this.props.Time.setTime(time);
-  };
-
   render() {
-    const {journeyHfp, route, date, onClickTime} = this.props;
-    const currentDayType = getDayTypeFromDate(date);
-    const firstPosition = journeyHfp[0];
-
-    // Get the first departure of the journey from the origin stop departures
-    const originDeparture =
-      get(route, "originStop.departures.nodes", []).find(
-        ({hours, minutes, dayType, routeId, direction, dateBegin, dateEnd}) =>
-          `${doubleDigit(hours)}:${doubleDigit(minutes)}:00` ===
-            get(firstPosition, "journey_start_time", "") &&
-          isWithinRange(date, dateBegin, dateEnd) &&
-          dayType === currentDayType &&
-          routeId === get(firstPosition, "route_id", "") &&
-          parseInt(direction) === parseInt(get(firstPosition, "direction_id", 0))
-      ) || {};
-
+    const {journeyHfp, route, date, originDeparture, onClickTime} = this.props;
     const {dateBegin, dateEnd, departureId} = originDeparture;
 
     const journeyStops = sortBy(
@@ -123,53 +96,33 @@ class JourneyStops extends React.Component {
     });
 
     return (
-      <StopsWrapper>
-        <TerminalStop
-          isFirstTerminal={true}
-          originDeparture={originDeparture}
-          stop={get(route, "originStop", {})}
-          journeyPositions={journeyHfp}
-          date={date}
-          onClickTime={this.onClickTime}
-        />
-        <JourneyStopsWrapper expanded={this.journeyIsExpanded}>
-          <StopsList>
-            {this.journeyIsExpanded ? (
-              journeyStops
-                .slice(1, journeyStops.length - 2)
-                .map((journeyStop) => (
-                  <RouteStop
-                    key={`journey_stop_${journeyStop.stopId}_${
-                      journeyStop.stopIndex
-                    }`}
-                    stop={journeyStop}
-                    originDeparture={originDeparture}
-                    date={date}
-                    journeyPositions={journeyHfp}
-                    onClickTime={this.onClickTime}
-                  />
-                ))
-            ) : (
-              <>{journeyStops.length - 2} stops hidden</>
-            )}
-          </StopsList>
-          <JourneyExpandToggle onClick={() => this.toggleJourneyExpanded()}>
-            {this.journeyIsExpanded ? (
-              <Minus fill="white" width="0.75rem" height="0.75rem" />
-            ) : (
-              <Plus fill="white" width="0.75rem" height="0.75rem" />
-            )}
-          </JourneyExpandToggle>
-        </JourneyStopsWrapper>
-        <TerminalStop
-          isLastTerminal={true}
-          originDeparture={originDeparture}
-          stop={get(route, "destinationStop", {})}
-          journeyPositions={journeyHfp}
-          date={date}
-          onClickTime={this.onClickTime}
-        />
-      </StopsWrapper>
+      <JourneyStopsWrapper expanded={this.journeyIsExpanded}>
+        <StopsList>
+          {this.journeyIsExpanded ? (
+            journeyStops
+              .slice(1, journeyStops.length - 2)
+              .map((journeyStop) => (
+                <JourneyStop
+                  key={`journey_stop_${journeyStop.stopId}_${journeyStop.stopIndex}`}
+                  stop={journeyStop}
+                  originDeparture={originDeparture}
+                  date={date}
+                  journeyPositions={journeyHfp}
+                  onClickTime={onClickTime}
+                />
+              ))
+          ) : (
+            <>{journeyStops.length - 2} stops hidden</>
+          )}
+        </StopsList>
+        <JourneyExpandToggle onClick={() => this.toggleJourneyExpanded()}>
+          {this.journeyIsExpanded ? (
+            <Minus fill="white" width="0.75rem" height="0.75rem" />
+          ) : (
+            <Plus fill="white" width="0.75rem" height="0.75rem" />
+          )}
+        </JourneyExpandToggle>
+      </JourneyStopsWrapper>
     );
   }
 }

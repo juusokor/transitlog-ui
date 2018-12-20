@@ -4,7 +4,7 @@ import get from "lodash/get";
 import isWithinRange from "date-fns/is_within_range";
 import orderBy from "lodash/orderBy";
 import {getDayTypeFromDate} from "../../../helpers/getDayTypeFromDate";
-import {stopTimes} from "../../../helpers/stopTimes";
+import {stopTimes as getStopTimes} from "../../../helpers/stopTimes";
 import styled from "styled-components";
 import {SmallText, StopElementsWrapper, StopMarker} from "./elements";
 import {
@@ -16,7 +16,7 @@ import {
 import {transportColor} from "../../transportModes";
 import {getTimelinessColor} from "../../../helpers/timelinessColor";
 import doubleDigit from "../../../helpers/doubleDigit";
-import {applyTimeOffset} from "./applyTimeOffset";
+import CalculateTerminalTime from "./CalculateTerminalTime";
 
 const StopWrapper = styled.div`
   padding: 0 1rem 0 0;
@@ -58,31 +58,37 @@ export default ({
   journeyPositions,
   date,
   onClickTime,
+  // The origin stop times are needed in other places too,
+  // so we can get it here if it has already been calculated.
+  stopTimes: precalculatedStopTimes,
 }) => {
-  const firstPosition = journeyPositions[0];
-  const dayType = getDayTypeFromDate(date);
+  let stopTimes = null;
 
-  const stopPositions = orderBy(
-    journeyPositions.filter((pos) => pos.next_stop_id === stop.stopId),
-    "received_at_unix",
-    "desc"
-  );
+  if (precalculatedStopTimes) {
+    stopTimes = precalculatedStopTimes;
+  } else {
+    const firstPosition = journeyPositions[0];
+    const dayType = getDayTypeFromDate(date);
 
-  const stopDepartures = get(stop, "departures.nodes", []).filter(
-    (departure) =>
-      isWithinRange(date, departure.dateBegin, departure.dateEnd) &&
-      departure.dayType === dayType &&
-      departure.routeId === firstPosition.route_id &&
-      parseInt(departure.direction) ===
-        parseInt(get(firstPosition, "direction_id", 0))
-  );
+    const stopPositions = orderBy(
+      journeyPositions.filter((pos) => pos.next_stop_id === stop.stopId),
+      "received_at_unix",
+      "desc"
+    );
 
-  const {departure: stopDeparture, arrival: stopArrival} = stopTimes(
-    originDeparture,
-    stopPositions,
-    stopDepartures,
-    date
-  );
+    const stopDepartures = get(stop, "departures.nodes", []).filter(
+      (departure) =>
+        isWithinRange(date, departure.dateBegin, departure.dateEnd) &&
+        departure.dayType === dayType &&
+        departure.routeId === firstPosition.route_id &&
+        parseInt(departure.direction) ===
+          parseInt(get(firstPosition, "direction_id", 0))
+    );
+
+    stopTimes = getStopTimes(originDeparture, stopPositions, stopDepartures, date);
+  }
+
+  const {departure: stopDeparture, arrival: stopArrival} = stopTimes;
 
   const endOfStream =
     get(stopDeparture, "event.received_at_unix", 0) ===
@@ -90,22 +96,6 @@ export default ({
 
   const stopMode = get(stop, "modes.nodes[0]", "BUS");
   const stopColor = get(transportColor, stopMode, "var(--light-grey)");
-
-  let arrivalTimeInfo = null;
-  let arrivalWasLate = false;
-
-  if (isFirstTerminal) {
-    // The arrival at the first stop should be [terminal time]
-    // minutes before the scheduled departure.
-    // TODO: provide real terminal time when available
-    arrivalTimeInfo = applyTimeOffset(
-      stopDeparture.plannedMoment,
-      stopArrival.observedMoment,
-      3
-    );
-
-    arrivalWasLate = arrivalTimeInfo.diff < 180;
-  }
 
   const stopArrivalTime = stopArrival.observedMoment.format("HH:mm:ss");
   const stopDepartureTime = stopDeparture.observedMoment.format("HH:mm:ss");
@@ -127,20 +117,24 @@ export default ({
           {stop.stopId} ({stop.shortId}) - {stop.nameFi}
         </StopHeading>
         <TimeHeading>Arrival</TimeHeading>
-        {arrivalTimeInfo !== null ? (
-          <StopArrivalTime onClick={onClickTime(stopArrivalTime)}>
-            <PlainSlot>{arrivalTimeInfo.offsetTime.format("HH:mm:ss")}</PlainSlot>
-            <ColoredBackgroundSlot
-              color="white"
-              backgroundColor={arrivalWasLate ? "var(--red)" : "var(--light-green)"}>
-              {arrivalTimeInfo.sign}
-              {doubleDigit(arrivalTimeInfo.diffMinutes)}:
-              {doubleDigit(arrivalTimeInfo.diffSeconds)}
-            </ColoredBackgroundSlot>
-            <PlainSlotSmallRight>
-              {stopArrival.observedMoment.format("HH:mm:ss")}
-            </PlainSlotSmallRight>
-          </StopArrivalTime>
+        {isFirstTerminal ? (
+          <CalculateTerminalTime
+            date={date}
+            departure={stopDeparture.departure}
+            event={stopArrival.event}>
+            {({offsetTime, wasLate, diffMinutes, diffSeconds, sign}) => (
+              <StopArrivalTime onClick={onClickTime(stopArrivalTime)}>
+                <PlainSlot>{offsetTime.format("HH:mm:ss")}</PlainSlot>
+                <ColoredBackgroundSlot
+                  color="white"
+                  backgroundColor={wasLate ? "var(--red)" : "var(--light-green)"}>
+                  {sign}
+                  {doubleDigit(diffMinutes)}:{doubleDigit(diffSeconds)}
+                </ColoredBackgroundSlot>
+                <PlainSlotSmallRight>{stopArrivalTime}</PlainSlotSmallRight>
+              </StopArrivalTime>
+            )}
+          </CalculateTerminalTime>
         ) : (
           <StopArrivalTime onClick={onClickTime(stopArrivalTime)}>
             <PlainSlotSmallRight>
