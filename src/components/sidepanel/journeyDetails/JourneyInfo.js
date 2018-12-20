@@ -38,41 +38,51 @@ const Line = styled.div`
 export default ({journey, date, originStopTimes}) => {
   return (
     <JourneyInfo>
-      <JourneyInfoRow>
-        <Line>
-          <span>Terminal time</span>
-          <strong>
-            {get(originStopTimes.departure.departure, "terminalTime", 3)} min
-          </strong>
-        </Line>
-        <CalculateTerminalTime
-          date={date}
-          departure={originStopTimes.departure.departure}
-          event={originStopTimes.arrival.event}>
-          {({diffMinutes, diffSeconds, wasLate}) => (
+      {originStopTimes && (
+        <>
+          <JourneyInfoRow>
             <Line>
-              <span>Observed terminal time</span>
-              <strong style={{color: wasLate ? "var(--red)" : "inherit"}}>
-                {doubleDigit(diffMinutes)}:{doubleDigit(diffSeconds)}
+              <span>Terminal time</span>
+              <span>
+                <CalculateTerminalTime
+                  date={date}
+                  departure={originStopTimes.departure.departure}
+                  event={originStopTimes.arrival.event}>
+                  {({diffMinutes, diffSeconds, wasLate}) => (
+                    <strong style={{color: wasLate ? "var(--red)" : "inherit"}}>
+                      {doubleDigit(diffMinutes)}:{doubleDigit(diffSeconds)}
+                    </strong>
+                  )}
+                </CalculateTerminalTime>{" "}
+                / {get(originStopTimes.departure.departure, "terminalTime", 3)} min
+              </span>
+            </Line>
+          </JourneyInfoRow>
+          <JourneyInfoRow>
+            <Line>
+              <span>Recovery time</span>
+              <strong>
+                {get(originStopTimes.departure.departure, "recoveryTime", 3)}
               </strong>
             </Line>
-          )}
-        </CalculateTerminalTime>
-      </JourneyInfoRow>
+          </JourneyInfoRow>
+        </>
+      )}
       <JourneyInfoRow>
         <Line>
-          <span>Recovery time</span>
-          <strong>3 min</strong>
+          <span>Vehicle ID</span>
+          <strong>{journey.unique_vehicle_id}</strong>
         </Line>
       </JourneyInfoRow>
       <JourneyInfoRow>
         <Line>
           <span>Equipment required</span>
-          <strong>D, teli</strong>
-        </Line>
-        <Line>
-          <span>Equipment observed</span>
-          <Equipment journey={journey} />
+          <span>
+            <strong>
+              <Equipment journey={journey} />
+            </strong>{" "}
+            / <span>D, teli</span>
+          </span>
         </Line>
       </JourneyInfoRow>
     </JourneyInfo>

@@ -55,7 +55,7 @@ class JourneyStops extends React.Component {
 
   render() {
     const {journeyHfp, route, date, originDeparture, onClickTime} = this.props;
-    const {dateBegin, dateEnd, departureId} = originDeparture;
+    const {dateBegin = "", dateEnd = "", departureId = 0} = originDeparture || {};
 
     const journeyStops = sortBy(
       get(route, "routeSegments.nodes", []),

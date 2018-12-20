@@ -68,15 +68,30 @@ export default ({
 
   const departure = stop.stopDeparture;
 
+  const stopMode = get(stop, "modes.nodes[0]", "BUS");
+  const stopColor = get(transportColor, stopMode, "var(--light-grey)");
+
+  if (!departure) {
+    return (
+      <StopWrapper>
+        <StopElementsWrapper color={stopColor}>
+          <StopMarker color={stopColor} />
+        </StopElementsWrapper>
+        <StopContent>
+          <StopHeading>
+            {stop.stopId} ({stop.shortId}) - {stop.nameFi}
+          </StopHeading>
+        </StopContent>
+      </StopWrapper>
+    );
+  }
+
   const {departure: stopDeparture, arrival: stopArrival} = stopTimes(
     originDeparture,
     stopPositions,
     departure,
     date
   );
-
-  const stopMode = get(stop, "modes.nodes[0]", "BUS");
-  const stopColor = get(transportColor, stopMode, "var(--light-grey)");
 
   const endOfStream =
     get(stopDeparture, "event.received_at_unix", 0) ===

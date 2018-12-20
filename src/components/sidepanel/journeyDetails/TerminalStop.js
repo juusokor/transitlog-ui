@@ -79,7 +79,7 @@ export default ({
 
   if (precalculatedStopTimes) {
     stopTimes = precalculatedStopTimes;
-  } else {
+  } else if (stop.departures && stop.departures.nodes.length !== 0) {
     const firstPosition = journeyPositions[0];
     const dayType = getDayTypeFromDate(date);
 
@@ -101,14 +101,29 @@ export default ({
     stopTimes = getStopTimes(originDeparture, stopPositions, stopDepartures, date);
   }
 
+  const stopMode = get(stop, "modes.nodes[0]", "BUS");
+  const stopColor = get(transportColor, stopMode, "var(--light-grey)");
+
+  if (!stopTimes) {
+    return (
+      <StopWrapper>
+        <StopElementsWrapper color={stopColor}>
+          <StopMarker color={stopColor} />
+        </StopElementsWrapper>
+        <StopContent>
+          <StopHeading>
+            {stop.stopId} ({stop.shortId}) - {stop.nameFi}
+          </StopHeading>
+        </StopContent>
+      </StopWrapper>
+    );
+  }
+
   const {departure: stopDeparture, arrival: stopArrival} = stopTimes;
 
   const endOfStream =
     get(stopDeparture, "event.received_at_unix", 0) ===
     get(journeyPositions, `[${journeyPositions.length - 1}].received_at_unix`, 0);
-
-  const stopMode = get(stop, "modes.nodes[0]", "BUS");
-  const stopColor = get(transportColor, stopMode, "var(--light-grey)");
 
   const stopArrivalTime = stopArrival.observedMoment.format("HH:mm:ss");
   const stopDepartureTime = stopDeparture.observedMoment.format("HH:mm:ss");

@@ -82,20 +82,24 @@ class JourneyDetails extends React.Component {
                 dayType === currentDayType &&
                 routeId === get(journey, "route_id", "") &&
                 parseInt(direction) === parseInt(get(journey, "direction_id", 0))
-            ) || {};
+            ) || null;
 
           const originStopId = get(route, "originstopId", "");
 
-          const originStopTimes = stopTimes(
-            originDeparture,
-            orderBy(
-              selectedJourneyHfp.filter((pos) => pos.next_stop_id === originStopId),
-              "received_at_unix",
-              "desc"
-            ),
-            originDeparture,
-            date
-          );
+          const originStopTimes = originDeparture
+            ? stopTimes(
+                originDeparture,
+                orderBy(
+                  selectedJourneyHfp.filter(
+                    (pos) => pos.next_stop_id === originStopId
+                  ),
+                  "received_at_unix",
+                  "desc"
+                ),
+                originDeparture,
+                date
+              )
+            : null;
 
           return (
             <>
