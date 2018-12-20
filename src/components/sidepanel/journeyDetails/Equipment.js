@@ -4,6 +4,7 @@ import styled from "styled-components";
 import {Query} from "react-apollo";
 import get from "lodash/get";
 import pick from "lodash/pick";
+import compact from "lodash/compact";
 
 const EquipmentWrapper = styled.span``;
 
@@ -30,14 +31,23 @@ export default ({journey}) => {
   return (
     <Query query={vehicleTypeQuery} variables={{vehicleId}}>
       {({data, loading, error}) => {
-        if (loading || error) return "...";
+        if (loading || error) return null;
 
-        const vehicle = get(data, "allEquipment.nodes[0]", {});
+        const vehicle = get(data, "allEquipment.nodes[0]", null);
+
+        if (!vehicle) {
+          return null;
+        }
+
+        const multiAxleValue = vehicle.multiAxle ? "teli" : "";
+        vehicle.multiAxle = multiAxleValue;
 
         return (
           <EquipmentWrapper>
-            {Object.values(
-              pick(vehicle, "type", "multiAxle", "exteriorColor", "class")
+            {compact(
+              Object.values(
+                pick(vehicle, "type", "class", "multiAxle", "exteriorColor")
+              )
             ).join(", ")}
           </EquipmentWrapper>
         );

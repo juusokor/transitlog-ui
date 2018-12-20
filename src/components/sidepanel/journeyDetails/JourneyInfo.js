@@ -36,6 +36,8 @@ const Line = styled.div`
 `;
 
 export default ({journey, date, originStopTimes}) => {
+  const equipment = <Equipment journey={journey} />;
+
   return (
     <JourneyInfo>
       {originStopTimes && (
@@ -44,26 +46,28 @@ export default ({journey, date, originStopTimes}) => {
             <Line>
               <span>Terminal time</span>
               <span>
-                <CalculateTerminalTime
-                  date={date}
-                  departure={originStopTimes.departure.departure}
-                  event={originStopTimes.arrival.event}>
-                  {({diffMinutes, diffSeconds, wasLate}) => (
-                    <strong style={{color: wasLate ? "var(--red)" : "inherit"}}>
-                      {doubleDigit(diffMinutes)}:{doubleDigit(diffSeconds)}
-                    </strong>
-                  )}
-                </CalculateTerminalTime>{" "}
-                / {get(originStopTimes.departure.departure, "terminalTime", 3)} min
+                {get(originStopTimes.departure.departure, "terminalTime", 3)} min
               </span>
+            </Line>
+            <Line right>
+              <CalculateTerminalTime
+                date={date}
+                departure={originStopTimes.departure.departure}
+                event={originStopTimes.arrival.event}>
+                {({diffMinutes, diffSeconds, wasLate}) => (
+                  <strong style={{color: wasLate ? "var(--red)" : "inherit"}}>
+                    {doubleDigit(diffMinutes)}:{doubleDigit(diffSeconds)}
+                  </strong>
+                )}
+              </CalculateTerminalTime>
             </Line>
           </JourneyInfoRow>
           <JourneyInfoRow>
             <Line>
               <span>Recovery time</span>
-              <strong>
-                {get(originStopTimes.departure.departure, "recoveryTime", 3)}
-              </strong>
+              <span>
+                {get(originStopTimes.departure.departure, "recoveryTime", 3)} min
+              </span>
             </Line>
           </JourneyInfoRow>
         </>
@@ -78,12 +82,14 @@ export default ({journey, date, originStopTimes}) => {
         <Line>
           <span>Equipment required</span>
           <span>
-            <strong>
-              <Equipment journey={journey} />
-            </strong>{" "}
-            / <span>D, teli</span>
+            <span>D, teli</span>
           </span>
         </Line>
+        {equipment && (
+          <Line right>
+            <strong>{equipment}</strong>
+          </Line>
+        )}
       </JourneyInfoRow>
     </JourneyInfo>
   );
