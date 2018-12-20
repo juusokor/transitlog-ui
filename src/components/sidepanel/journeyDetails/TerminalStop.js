@@ -17,6 +17,7 @@ import {transportColor} from "../../transportModes";
 import {getTimelinessColor} from "../../../helpers/timelinessColor";
 import doubleDigit from "../../../helpers/doubleDigit";
 import CalculateTerminalTime from "./CalculateTerminalTime";
+import ArrowRightLong from "../../../icons/ArrowRightLong";
 
 const StopWrapper = styled.div`
   padding: 0 1rem 0 0;
@@ -46,6 +47,18 @@ const TimeHeading = styled.div`
 
 const StopArrivalTime = styled(TagButton)`
   margin: 0 0 0.5rem;
+`;
+
+const SimpleStopArrivalTime = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  color: var(--dark-grey);
+  font-size: 0.875rem;
+
+  svg {
+    margin-right: 0.5rem;
+  }
 `;
 
 const StopDepartureTime = styled(TagButton)``;
@@ -116,33 +129,34 @@ export default ({
         <StopHeading>
           {stop.stopId} ({stop.shortId}) - {stop.nameFi}
         </StopHeading>
-        <TimeHeading>Arrival</TimeHeading>
         {isFirstTerminal ? (
           <CalculateTerminalTime
             date={date}
             departure={stopDeparture.departure}
             event={stopArrival.event}>
             {({offsetTime, wasLate, diffMinutes, diffSeconds, sign}) => (
-              <StopArrivalTime onClick={onClickTime(stopArrivalTime)}>
-                <PlainSlot>{offsetTime.format("HH:mm:ss")}</PlainSlot>
-                <ColoredBackgroundSlot
-                  color="white"
-                  backgroundColor={wasLate ? "var(--red)" : "var(--light-green)"}>
-                  {sign}
-                  {doubleDigit(diffMinutes)}:{doubleDigit(diffSeconds)}
-                </ColoredBackgroundSlot>
-                <PlainSlotSmallRight>{stopArrivalTime}</PlainSlotSmallRight>
-              </StopArrivalTime>
+              <>
+                <TimeHeading>Arrival</TimeHeading>
+                <StopArrivalTime onClick={onClickTime(stopArrivalTime)}>
+                  <PlainSlot>{offsetTime.format("HH:mm:ss")}</PlainSlot>
+                  <ColoredBackgroundSlot
+                    color="white"
+                    backgroundColor={wasLate ? "var(--red)" : "var(--light-green)"}>
+                    {sign}
+                    {doubleDigit(diffMinutes)}:{doubleDigit(diffSeconds)}
+                  </ColoredBackgroundSlot>
+                  <PlainSlotSmallRight>{stopArrivalTime}</PlainSlotSmallRight>
+                </StopArrivalTime>
+              </>
             )}
           </CalculateTerminalTime>
         ) : (
-          <StopArrivalTime onClick={onClickTime(stopArrivalTime)}>
-            <PlainSlotSmallRight>
-              {stopArrival.observedMoment.format("HH:mm:ss")}
-            </PlainSlotSmallRight>
-          </StopArrivalTime>
+          <SimpleStopArrivalTime>
+            <ArrowRightLong fill="var(--blue)" width="0.75rem" height="0.75rem" />
+            {stopArrival.observedMoment.format("HH:mm:ss")}
+          </SimpleStopArrivalTime>
         )}
-        <TimeHeading>Departure</TimeHeading>
+        {isFirstTerminal && <TimeHeading>Departure</TimeHeading>}
         <StopDepartureTime onClick={onClickTime(stopDepartureTime)}>
           <PlainSlot>{stopDeparture.plannedMoment.format("HH:mm:ss")}</PlainSlot>
           <ColoredBackgroundSlot

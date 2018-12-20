@@ -14,6 +14,7 @@ import {
 import {transportColor} from "../../transportModes";
 import {getTimelinessColor} from "../../../helpers/timelinessColor";
 import doubleDigit from "../../../helpers/doubleDigit";
+import ArrowRightLong from "../../../icons/ArrowRightLong";
 
 const StopWrapper = styled.div`
   padding: 0;
@@ -38,19 +39,27 @@ const StopHeading = styled(Heading).attrs({level: 5})`
   font-weight: normal;
 `;
 
-const TimeHeading = styled.div`
-  font-size: 0.75rem;
-  color: var(--light-grey);
-  margin-bottom: 0.2rem;
-`;
+const StopArrivalTime = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  color: var(--dark-grey);
+  font-size: 0.875rem;
 
-const StopArrivalTime = styled(TagButton)`
-  margin: 0 0 0.5rem;
+  svg {
+    margin-right: 0.5rem;
+  }
 `;
 
 const StopDepartureTime = styled(TagButton)``;
 
-export default ({stop, originDeparture, journeyPositions, date, onClickTime}) => {
+export default ({
+  stop,
+  originDeparture,
+  journeyPositions = [],
+  date,
+  onClickTime,
+}) => {
   const stopPositions = orderBy(
     journeyPositions.filter((pos) => pos.next_stop_id === stop.stopId),
     "received_at_unix",
@@ -84,6 +93,10 @@ export default ({stop, originDeparture, journeyPositions, date, onClickTime}) =>
         <StopHeading>
           {stop.stopId} ({stop.shortId}) - {stop.nameFi}
         </StopHeading>
+        <StopArrivalTime>
+          <ArrowRightLong fill="var(--blue)" width="0.75rem" height="0.75rem" />
+          {stopArrival.observedMoment.format("HH:mm:ss")}
+        </StopArrivalTime>
         <StopDepartureTime onClick={onClickTime(stopDepartureTime)}>
           <PlainSlot>{stopDeparture.plannedMoment.format("HH:mm:ss")}</PlainSlot>
           <ColoredBackgroundSlot

@@ -32,8 +32,7 @@ const JourneyExpandToggle = styled(Button).attrs({small: true})`
   color: white;
   background: var(--blue);
   position: absolute;
-  top: 50%;
-  margin-top: -0.75rem;
+  top: 0.75rem;
   right: 0.5rem;
   border: 0;
 
@@ -100,7 +99,7 @@ class JourneyStops extends React.Component {
         <StopsList>
           {this.journeyIsExpanded ? (
             journeyStops
-              .slice(1, journeyStops.length - 2)
+              .slice(1, journeyStops.length - 1)
               .map((journeyStop) => (
                 <JourneyStop
                   key={`journey_stop_${journeyStop.stopId}_${journeyStop.stopIndex}`}
