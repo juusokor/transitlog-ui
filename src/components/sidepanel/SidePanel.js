@@ -4,15 +4,18 @@ import Journeys from "./Journeys";
 import styled from "styled-components";
 import {app} from "mobx-app";
 import Tabs from "./Tabs";
+import get from "lodash/get";
 import TimetablePanel from "./TimetablePanel";
 import VehicleJourneys from "./VehicleJourneys";
 import {text} from "../../helpers/text";
 import AreaJourneyList from "./AreaJourneyList";
 import ArrowLeft from "../../icons/ArrowLeft";
-import {observable, action, reaction} from "mobx";
+import {observable, action, reaction, computed} from "mobx";
 import JourneyDetails from "./journeyDetails/JourneyDetails";
 import Info from "../../icons/Info";
 import getJourneyId from "../../helpers/getJourneyId";
+import {expr} from "mobx-utils";
+import {getUrlValue, setUrlValue} from "../../stores/UrlManager";
 
 const SidePanelContainer = styled.div`
   background: var(--lightest-grey);
@@ -91,25 +94,29 @@ const JourneyPanel = styled.div`
 @observer
 class SidePanel extends Component {
   @observable
-  journeyDetailsOpen = false;
+  journeyDetailsOpen = getUrlValue("journeyDetailsOpen", false);
 
   toggleJourneyDetails = action((setTo = !this.journeyDetailsOpen) => {
-    this.journeyDetailsOpen = setTo;
+    this.journeyDetailsOpen = !!setTo;
+    setUrlValue("journeyDetailsOpen", setTo);
   });
 
-  componentDidMount() {
+  @computed
+  get journeyDetailsCanOpen() {
     const {state} = this.props;
 
-    reaction(
-      () => getJourneyId(state.selectedJourney),
-      (selectedJourney) => {
-        if (selectedJourney) {
-          this.toggleJourneyDetails(true);
-        } else {
-          this.toggleJourneyDetails(false);
-        }
-      },
-      {fireImmediately: true}
+    const route_id = get(state, "selectedJourney.route_id", "");
+    const direction_id = parseInt(
+      get(state, "selectedJourney.direction_id", ""),
+      10
+    );
+    const routeId = get(state, "route.routeId", "");
+    const direction = parseInt(get(state, "route.direction", ""), 10);
+
+    return !!(
+      route_id === routeId &&
+      direction === direction_id &&
+      getJourneyId(state.selectedJourney)
     );
   }
 
@@ -118,8 +125,11 @@ class SidePanel extends Component {
       UI: {toggleSidePanel},
       positions = [],
       loading,
-      state: {stop, route, vehicle, selectedJourney, sidePanelVisible},
+      state: {stop, route, vehicle, sidePanelVisible},
     } = this.props;
+
+    const journeyDetailsAreOpen =
+      this.journeyDetailsCanOpen && this.journeyDetailsOpen;
 
     return (
       <SidePanelContainer visible={sidePanelVisible}>
@@ -157,14 +167,9 @@ class SidePanel extends Component {
             )}
           </Tabs>
         )}
-        <JourneyPanel visible={this.journeyDetailsOpen}>
-          {this.journeyDetailsOpen && (
-            <JourneyDetails
-              positions={positions}
-              onToggle={this.toggleJourneyDetails}
-            />
-          )}
-          {selectedJourney && (
+        <JourneyPanel visible={journeyDetailsAreOpen}>
+          {journeyDetailsAreOpen && <JourneyDetails positions={positions} />}
+          {this.journeyDetailsCanOpen && (
             <ToggleJourneyDetailsButton
               isVisible={this.journeyDetailsOpen}
               onClick={() => this.toggleJourneyDetails()}>

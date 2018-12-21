@@ -39,7 +39,12 @@ export const getUrlState = () => {
 
 export const getUrlValue = (key, defaultValue = "") => {
   const values = getUrlState();
-  return get(values, key, defaultValue);
+  const value = get(values, key, defaultValue);
+
+  if (value === "true") return true;
+  if (value === "false") return false;
+
+  return value;
 };
 
 export const setPathName = (pathName, historyAction = "replace") => {
