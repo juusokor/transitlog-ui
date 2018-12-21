@@ -19,7 +19,7 @@ const TimetableSection = styled.div`
 
 @observer
 class StopTimetable extends Component {
-  // Finds a stopDeparture that is closest to the given time and returns its hours and minutes.
+  // Finds a departure that is closest to the given time and returns its hours and minutes.
   getDepartureTimeByTime = (departuresByHour, time) => {
     let selectedHour = false;
     let selectedMinute = false;

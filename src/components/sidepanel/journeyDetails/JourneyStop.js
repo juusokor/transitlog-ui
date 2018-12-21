@@ -83,6 +83,7 @@ export default ({
   const stopMode = get(stop, "modes.nodes[0]", "BUS");
   const stopColor = get(transportColor, stopMode, "var(--light-grey)");
 
+  // Bail early if we don't have all the data yet.
   if (!departure || stopPositions.length === 0) {
     return (
       <StopWrapper>
@@ -91,7 +92,7 @@ export default ({
         </StopElementsWrapper>
         <StopContent>
           <StopHeading>
-            {stop.stopId} ({stop.shortId}) - {stop.nameFi}
+            <strong>{stop.nameFi}</strong> {stop.stopId} ({stop.shortId})
           </StopHeading>
         </StopContent>
       </StopWrapper>

@@ -117,7 +117,7 @@ export default ({
         </StopElementsWrapper>
         <StopContent>
           <StopHeading>
-            {stop.stopId} ({stop.shortId}) - {stop.nameFi}
+            <strong>{stop.nameFi}</strong> {stop.stopId} ({stop.shortId})
           </StopHeading>
         </StopContent>
       </StopWrapper>
@@ -157,7 +157,7 @@ export default ({
           isFirstTerminal ? "origin" : isLastTerminal ? "destination" : false
         }>
         <StopHeading>
-          {stop.stopId} ({stop.shortId}) - {stop.nameFi}
+          <strong>{stop.nameFi}</strong> {stop.stopId} ({stop.shortId})
         </StopHeading>
         {isFirstTerminal ? (
           <CalculateTerminalTime

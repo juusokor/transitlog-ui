@@ -6,6 +6,10 @@ import moment from "moment-timezone";
 import {getAdjustedDepartureDate} from "./getAdjustedDepartureDate";
 import get from "lodash/get";
 
+/*
+  TODO: Use this in all places where calculations like this need to be made.
+ */
+
 export const stopTimes = (
   originDeparture,
   positions = [],

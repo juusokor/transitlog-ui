@@ -133,7 +133,7 @@ class TimetablePanel extends Component {
     e.preventDefault();
     const {Filters, Journey, Time} = this.props;
 
-    // Set the selected time from the stopDeparture time
+    // Set the selected time from the departure time
     const currentTime = `${doubleDigit(departure.hours)}:${doubleDigit(
       departure.minutes
     )}:00`;

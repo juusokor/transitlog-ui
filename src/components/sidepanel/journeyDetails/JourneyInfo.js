@@ -74,6 +74,7 @@ export default ({journey, date, originStopTimes}) => {
         <Line>
           <span>Equipment required</span>
           <span>
+            {/* TODO: placeholder data until we get a JORE export with the data. */}
             <span>C, teli</span>
           </span>
         </Line>

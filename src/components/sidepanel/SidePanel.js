@@ -93,6 +93,7 @@ const JourneyPanel = styled.div`
 @inject(app("UI"))
 @observer
 class SidePanel extends Component {
+  // This is the master toggle for if the user wants the journey details to be open.
   @observable
   journeyDetailsOpen = getUrlValue("journeyDetailsOpen", false);
 
@@ -101,6 +102,8 @@ class SidePanel extends Component {
     setUrlValue("journeyDetailsOpen", setTo);
   });
 
+  // This is a computed check to see if we have anything to show in the journey details sidebar.
+  // When this returns false the sidebar will hide regardless of the above setting.
   @computed
   get journeyDetailsCanOpen() {
     const {state} = this.props;
@@ -113,6 +116,8 @@ class SidePanel extends Component {
     const routeId = get(state, "route.routeId", "");
     const direction = parseInt(get(state, "route.direction", ""), 10);
 
+    // Make sure the route of the selected journey matches the currently selected route.
+    // Otherwise the journey details can open even though the user has not made a selection.
     return !!(
       route_id === routeId &&
       direction === direction_id &&
@@ -168,6 +173,7 @@ class SidePanel extends Component {
           </Tabs>
         )}
         <JourneyPanel visible={journeyDetailsAreOpen}>
+          {/* The content of the sidebar is independent from the sidebar wrapper so that we can animate it. */}
           {journeyDetailsAreOpen && <JourneyDetails positions={positions} />}
           {this.journeyDetailsCanOpen && (
             <ToggleJourneyDetailsButton

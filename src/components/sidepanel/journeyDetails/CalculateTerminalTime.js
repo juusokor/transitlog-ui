@@ -2,6 +2,9 @@ import get from "lodash/get";
 import moment from "moment-timezone";
 import {getAdjustedDepartureDate} from "../../../helpers/getAdjustedDepartureDate";
 
+// Reusable higher-order function for calculating the planned arrival time from
+// the departure time and the terminal time for the first stop of a route.
+
 export default function CalculateTerminalTime({departure, event, date, children}) {
   const receivedAt = get(event, "received_at", null);
   const observedDepartureTime = moment.tz(receivedAt, "Europe/Helsinki");
