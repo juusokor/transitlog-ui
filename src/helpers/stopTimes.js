@@ -4,10 +4,11 @@ import getDelayType from "./getDelayType";
 import {getTimelinessColor} from "./timelinessColor";
 import moment from "moment-timezone";
 import {getAdjustedDepartureDate} from "./getAdjustedDepartureDate";
+import get from "lodash/get";
 
 export const stopTimes = (
   originDeparture,
-  positions,
+  positions = [],
   departuresOrDeparture,
   date
 ) => {
@@ -31,7 +32,7 @@ export const stopTimes = (
 
   const departureDiff = diffDepartureJourney(departureEvent, journeyDeparture, date);
 
-  const departureDelayType = getDelayType(departureDiff.diff);
+  const departureDelayType = getDelayType(get(departureDiff, "diff", false));
   const departureColor = getTimelinessColor(departureDelayType, "#000");
 
   // Find out when the vehicle arrived at the stop
@@ -39,17 +40,32 @@ export const stopTimes = (
   let doorDidOpen = false;
   let arrivalEvent = departureEvent;
 
-  for (const positionIndex in positions) {
-    const position = positions[positionIndex];
+  if (departureEvent) {
+    for (const positionIndex in positions) {
+      const position = positions[positionIndex];
 
-    if (doorDidOpen && !position.drst) {
-      arrivalEvent = positions[positionIndex - 1];
-      break;
-    }
+      if (doorDidOpen && !position.drst) {
+        arrivalEvent = positions[positionIndex - 1];
+        break;
+      }
 
-    if (!doorDidOpen && !!position.drst) {
-      doorDidOpen = true;
+      if (!doorDidOpen && !!position.drst) {
+        doorDidOpen = true;
+      }
     }
+  }
+
+  const arrivalTime = get(arrivalEvent, "received_at", null);
+  let arrivalMoment = null;
+
+  if (arrivalTime) {
+    arrivalMoment = moment.tz(arrivalTime, "Europe/Helsinki");
+  }
+
+  let plannedDepartureMoment = get(departureDiff, "plannedMoment", null);
+
+  if (!plannedDepartureMoment) {
+    plannedDepartureMoment = getAdjustedDepartureDate(journeyDeparture, date);
   }
 
   return {
@@ -58,8 +74,8 @@ export const stopTimes = (
     delayType: departureDelayType,
     color: departureColor,
     departureDiff,
-    departureMoment: departureDiff.observedMoment,
-    plannedDepartureMoment: departureDiff.plannedMoment,
+    departureMoment: get(departureDiff, "observedMoment", null),
+    plannedDepartureMoment,
     // Mark the arrival event as unreliable if a specific arrival event could be found.
     // Also check that the arrival event isn't the end of the position feed.
     arrivalIsUnreliable:
@@ -67,7 +83,7 @@ export const stopTimes = (
       arrivalEvent.received_at_unix === departureEvent.received_at_unix ||
       arrivalEvent.received_at_unix === departureEvent.received_at_unix,
     arrivalEvent,
-    arrivalMoment: moment.tz(arrivalEvent.received_at, "Europe/Helsinki"),
+    arrivalMoment: arrivalMoment,
     plannedArrivalMoment: getAdjustedDepartureDate(journeyDeparture, date, true),
   };
 };

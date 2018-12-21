@@ -100,13 +100,13 @@ export default ({
     get(departureEvent, "received_at_unix", 0) ===
     get(journeyPositions, `[${journeyPositions.length - 1}].received_at_unix`, 0);
 
-  const stopDepartureTime = departureMoment.format("HH:mm:ss");
+  const stopDepartureTime = departureMoment
+    ? departureMoment.format("HH:mm:ss")
+    : "";
+
+  const stopArrivalTime = arrivalMoment ? arrivalMoment.format("HH:mm:ss") : "";
 
   let showPlannedArrivalTime = !plannedDepartureMoment.isSame(plannedArrivalMoment);
-  console.log(
-    plannedArrivalMoment.format("HH:mm:ss"),
-    plannedDepartureMoment.format("HH:mm:ss")
-  );
 
   return (
     <StopWrapper>
@@ -117,28 +117,38 @@ export default ({
         <StopHeading>
           {stop.stopId} ({stop.shortId}) - {stop.nameFi}
         </StopHeading>
-        <StopArrivalTime>
-          <ArrowRightLong fill="var(--blue)" width="0.75rem" height="0.75rem" />
-          {arrivalMoment.format("HH:mm:ss")}
-        </StopArrivalTime>
-        <StopDepartureTime onClick={onClickTime(stopDepartureTime)}>
-          <PlainSlot>{plannedDepartureMoment.format("HH:mm:ss")}</PlainSlot>
-          <ColoredBackgroundSlot
-            color={departureDelayType === "late" ? "var(--dark-grey)" : "white"}
-            backgroundColor={getTimelinessColor(
-              departureDelayType,
-              "var(--light-green)"
-            )}>
-            {departureDiff.sign}
-            {doubleDigit(get(departureDiff, "minutes", 0))}:
-            {doubleDigit(get(departureDiff, "seconds", 0))}
-          </ColoredBackgroundSlot>
-          <PlainSlotSmallRight>
-            {departureMoment.format("HH:mm:ss")}
-          </PlainSlotSmallRight>
-        </StopDepartureTime>
-        {endOfStream && (
-          <SmallText>End of HFP stream used as stop departure.</SmallText>
+        {stopArrivalTime ? (
+          <StopArrivalTime>
+            <ArrowRightLong fill="var(--blue)" width="0.75rem" height="0.75rem" />
+            {stopArrivalTime}
+          </StopArrivalTime>
+        ) : (
+          <SmallText>No data for stop arrival.</SmallText>
+        )}
+        {stopDepartureTime ? (
+          <>
+            <StopDepartureTime onClick={onClickTime(stopDepartureTime)}>
+              <PlainSlot>{plannedDepartureMoment.format("HH:mm:ss")}</PlainSlot>
+              <ColoredBackgroundSlot
+                color={departureDelayType === "late" ? "var(--dark-grey)" : "white"}
+                backgroundColor={getTimelinessColor(
+                  departureDelayType,
+                  "var(--light-green)"
+                )}>
+                {departureDiff.sign}
+                {doubleDigit(get(departureDiff, "minutes", 0))}:
+                {doubleDigit(get(departureDiff, "seconds", 0))}
+              </ColoredBackgroundSlot>
+              <PlainSlotSmallRight>
+                {departureMoment.format("HH:mm:ss")}
+              </PlainSlotSmallRight>
+            </StopDepartureTime>
+            {endOfStream && (
+              <SmallText>End of HFP stream used as stop departure.</SmallText>
+            )}
+          </>
+        ) : (
+          <SmallText>No data for stop departure.</SmallText>
         )}
       </StopContent>
     </StopWrapper>
