@@ -16,7 +16,7 @@ export const stopTimes = (
 
   let journeyDeparture = departuresOrDeparture;
 
-  if (Array.isArray(departuresOrDeparture)) {
+  if (Array.isArray(departuresOrDeparture) && departureEvent) {
     journeyDeparture = departuresOrDeparture.find(
       (departure) =>
         `${doubleDigit(departure.hours)}:${doubleDigit(departure.minutes)}:00` ===
@@ -28,6 +28,10 @@ export const stopTimes = (
         (dep) => dep.departureId === originDeparture.departureId
       );
     }
+  }
+
+  if (!journeyDeparture || !departureEvent) {
+    return false;
   }
 
   const departureDiff = diffDepartureJourney(departureEvent, journeyDeparture, date);

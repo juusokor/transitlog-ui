@@ -28,7 +28,7 @@ const StopWrapper = styled.div`
 `;
 
 const StopContent = styled.div`
-  padding: 0 1.75rem 1rem 0.75rem;
+  padding: 0 1.75rem 2rem 0.75rem;
   width: 100%;
 `;
 
@@ -68,18 +68,22 @@ export default ({
   originDeparture,
   isFirstTerminal,
   isLastTerminal,
-  journeyPositions,
+  journeyPositions = [],
   date,
   onClickTime,
   // The origin stop times are needed in other places too,
   // so we can get it here if it has already been calculated.
   stopTimes: precalculatedStopTimes,
 }) => {
-  let stopTimes = null;
+  let stopTimes = false;
 
   if (precalculatedStopTimes) {
     stopTimes = precalculatedStopTimes;
-  } else if (stop.departures && stop.departures.nodes.length !== 0) {
+  } else if (
+    stop.departures &&
+    stop.departures.nodes.length !== 0 &&
+    journeyPositions.length !== 0
+  ) {
     const firstPosition = journeyPositions[0];
     const dayType = getDayTypeFromDate(date);
 
@@ -131,8 +135,6 @@ export default ({
     departureDelayType,
     departureDiff,
   } = stopTimes;
-
-  let showPlannedArrivalTime = !plannedDepartureMoment.isSame(plannedArrivalMoment);
 
   const endOfStream =
     get(departureEvent, "received_at_unix", 0) ===

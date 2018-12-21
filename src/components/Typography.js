@@ -11,7 +11,4 @@ export const Heading = styled(({level, ...rest}) =>
   margin: 1rem 0;
   font-family: var(--font-family);
   color: ${({color = "var(--dark-grey)"}) => color};
-  display: flex;
-  flex-direction: row;
-  align-items: center;
 `;

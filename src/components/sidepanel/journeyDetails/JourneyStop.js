@@ -30,11 +30,14 @@ const StopWrapper = styled.div`
 `;
 
 const StopContent = styled.div`
-  padding: 0 1.75rem
-    ${({terminus = "destination"}) =>
-      terminus === "destination" ? "1rem" : "0.25rem"}
-    0.75rem;
+  padding: 0 1.75rem 2rem 0.75rem;
   width: 100%;
+`;
+
+const TimeHeading = styled.div`
+  font-size: 0.75rem;
+  color: var(--light-grey);
+  margin-bottom: 0.2rem;
 `;
 
 const StopHeading = styled(Heading).attrs({level: 5})`
@@ -44,10 +47,14 @@ const StopHeading = styled(Heading).attrs({level: 5})`
   font-weight: normal;
 `;
 
-const StopArrivalTime = styled.div`
+const StopArrivalTime = styled(TagButton)`
+  margin: 0 0 0.5rem;
+`;
+
+const SimpleStopArrivalTime = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
   color: var(--dark-grey);
   font-size: 0.875rem;
 
@@ -76,7 +83,7 @@ export default ({
   const stopMode = get(stop, "modes.nodes[0]", "BUS");
   const stopColor = get(transportColor, stopMode, "var(--light-grey)");
 
-  if (!departure) {
+  if (!departure || stopPositions.length === 0) {
     return (
       <StopWrapper>
         <StopElementsWrapper color={stopColor}>
@@ -111,9 +118,11 @@ export default ({
 
   const stopArrivalTime = arrivalMoment ? arrivalMoment.format("HH:mm:ss") : "";
 
-  let showPlannedArrivalTime = !plannedDepartureMoment.isSame(plannedArrivalMoment);
-
   const isTimingStop = stop.timingStopType > 0;
+
+  let showPlannedArrivalTime =
+    (isTimingStop || !plannedDepartureMoment.isSame(plannedArrivalMoment)) &&
+    stopArrivalTime;
 
   return (
     <StopWrapper>
@@ -126,18 +135,27 @@ export default ({
       </StopElementsWrapper>
       <StopContent>
         <StopHeading>
-          {stop.stopId} ({stop.shortId}) - {stop.nameFi}
+          <strong>{stop.nameFi}</strong> {stop.stopId} ({stop.shortId})
         </StopHeading>
-        {stopArrivalTime ? (
-          <StopArrivalTime>
+        {showPlannedArrivalTime ? (
+          <>
+            <TimeHeading>Arrival</TimeHeading>
+            <StopArrivalTime onClick={onClickTime(stopArrivalTime)}>
+              <PlainSlot>{plannedArrivalMoment.format("HH:mm:ss")}</PlainSlot>
+              <PlainSlotSmallRight>{stopArrivalTime}</PlainSlotSmallRight>
+            </StopArrivalTime>
+          </>
+        ) : stopArrivalTime ? (
+          <SimpleStopArrivalTime>
             <ArrowRightLong fill="var(--blue)" width="0.75rem" height="0.75rem" />
             {stopArrivalTime}
-          </StopArrivalTime>
+          </SimpleStopArrivalTime>
         ) : (
           <SmallText>No data for stop arrival.</SmallText>
         )}
         {stopDepartureTime ? (
           <>
+            {showPlannedArrivalTime && <TimeHeading>Departure</TimeHeading>}
             <StopDepartureTime onClick={onClickTime(stopDepartureTime)}>
               <PlainSlot>{plannedDepartureMoment.format("HH:mm:ss")}</PlainSlot>
               <ColoredBackgroundSlot
