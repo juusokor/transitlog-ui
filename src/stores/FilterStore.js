@@ -5,6 +5,7 @@ import {inflate} from "../helpers/inflate";
 import pick from "lodash/pick";
 import merge from "lodash/merge";
 import {resetUrlState} from "./UrlManager";
+import {timeToFormat} from "../helpers/time";
 
 const resetListeners = [];
 
@@ -22,7 +23,7 @@ export function setResetListener(cb) {
 
 export default (state, initialState) => {
   const emptyState = {
-    date: "2018-05-07",
+    date: timeToFormat(new Date(), "YYYY-MM-DD", "Europe/Helsinki"),
     stop: "",
     vehicle: "",
     line: {
