@@ -1,11 +1,9 @@
 import React from "react";
 import styled from "styled-components";
 import get from "lodash/get";
-import orderBy from "lodash/orderBy";
 import Equipment from "./Equipment";
 import CalculateTerminalTime from "./CalculateTerminalTime";
 import doubleDigit from "../../../helpers/doubleDigit";
-import {stopTimes} from "../../../helpers/stopTimes";
 
 const JourneyInfo = styled.div`
   margin-top: 1rem;
@@ -45,15 +43,13 @@ export default ({journey, date, originStopTimes}) => {
           <JourneyInfoRow>
             <Line>
               <span>Terminal time</span>
-              <span>
-                {get(originStopTimes.departure.departure, "terminalTime", 3)} min
-              </span>
+              <span>{get(originStopTimes.departure, "terminalTime", 3)} min</span>
             </Line>
             <Line right>
               <CalculateTerminalTime
                 date={date}
-                departure={originStopTimes.departure.departure}
-                event={originStopTimes.arrival.event}>
+                departure={originStopTimes.departure}
+                event={originStopTimes.arrivalEvent}>
                 {({diffMinutes, diffSeconds, wasLate}) => (
                   <strong style={{color: wasLate ? "var(--red)" : "inherit"}}>
                     {doubleDigit(diffMinutes)}:{doubleDigit(diffSeconds)}
@@ -65,9 +61,7 @@ export default ({journey, date, originStopTimes}) => {
           <JourneyInfoRow>
             <Line>
               <span>Recovery time</span>
-              <span>
-                {get(originStopTimes.departure.departure, "recoveryTime", 3)} min
-              </span>
+              <span>{get(originStopTimes.departure, "recoveryTime", 3)} min</span>
             </Line>
           </JourneyInfoRow>
         </>
@@ -82,7 +76,7 @@ export default ({journey, date, originStopTimes}) => {
         <Line>
           <span>Equipment required</span>
           <span>
-            <span>D, teli</span>
+            <span>C, teli</span>
           </span>
         </Line>
         {equipment && (

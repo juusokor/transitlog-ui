@@ -46,6 +46,8 @@ export const ExtensiveRouteFieldsFragment = gql`
           direction
           hours
           minutes
+          arrivalHours
+          arrivalMinutes
           departureId
           dateBegin
           dateEnd
@@ -72,6 +74,8 @@ export const ExtensiveRouteFieldsFragment = gql`
           direction
           hours
           minutes
+          arrivalHours
+          arrivalMinutes
           departureId
           dateBegin
           dateEnd
@@ -106,6 +110,8 @@ export const ExtensiveRouteFieldsFragment = gql`
               direction
               hours
               minutes
+              arrivalHours
+              arrivalMinutes
               departureId
               dateBegin
               dateEnd

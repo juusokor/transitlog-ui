@@ -1,7 +1,5 @@
 import get from "lodash/get";
 import moment from "moment-timezone";
-import {combineDateAndTime} from "./time";
-import doubleDigit from "./doubleDigit";
 import {getAdjustedDepartureDate} from "./getAdjustedDepartureDate";
 
 export function diffDepartureJourney(journey, departure, date) {

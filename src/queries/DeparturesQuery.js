@@ -37,6 +37,8 @@ const departuresQuery = gql`
         dayType
         hours
         minutes
+        arrivalHours
+        arrivalMinutes
         dateBegin
         dateEnd
         routeId

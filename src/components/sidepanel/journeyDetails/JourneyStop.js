@@ -86,18 +86,27 @@ export default ({
     );
   }
 
-  const {departure: stopDeparture, arrival: stopArrival} = stopTimes(
-    originDeparture,
-    stopPositions,
-    departure,
-    date
-  );
+  const {
+    departureEvent,
+    plannedDepartureMoment,
+    departureMoment,
+    arrivalMoment,
+    plannedArrivalMoment,
+    departureDelayType,
+    departureDiff,
+  } = stopTimes(originDeparture, stopPositions, departure, date);
 
   const endOfStream =
-    get(stopDeparture, "event.received_at_unix", 0) ===
+    get(departureEvent, "received_at_unix", 0) ===
     get(journeyPositions, `[${journeyPositions.length - 1}].received_at_unix`, 0);
 
-  const stopDepartureTime = stopDeparture.observedMoment.format("HH:mm:ss");
+  const stopDepartureTime = departureMoment.format("HH:mm:ss");
+
+  let showPlannedArrivalTime = !plannedDepartureMoment.isSame(plannedArrivalMoment);
+  console.log(
+    plannedArrivalMoment.format("HH:mm:ss"),
+    plannedDepartureMoment.format("HH:mm:ss")
+  );
 
   return (
     <StopWrapper>
@@ -110,22 +119,22 @@ export default ({
         </StopHeading>
         <StopArrivalTime>
           <ArrowRightLong fill="var(--blue)" width="0.75rem" height="0.75rem" />
-          {stopArrival.observedMoment.format("HH:mm:ss")}
+          {arrivalMoment.format("HH:mm:ss")}
         </StopArrivalTime>
         <StopDepartureTime onClick={onClickTime(stopDepartureTime)}>
-          <PlainSlot>{stopDeparture.plannedMoment.format("HH:mm:ss")}</PlainSlot>
+          <PlainSlot>{plannedDepartureMoment.format("HH:mm:ss")}</PlainSlot>
           <ColoredBackgroundSlot
-            color={stopDeparture.delayType === "late" ? "var(--dark-grey)" : "white"}
+            color={departureDelayType === "late" ? "var(--dark-grey)" : "white"}
             backgroundColor={getTimelinessColor(
-              stopDeparture.delayType,
+              departureDelayType,
               "var(--light-green)"
             )}>
-            {stopDeparture.sign}
-            {doubleDigit(get(stopDeparture, "minutes", 0))}:
-            {doubleDigit(get(stopDeparture, "seconds", 0))}
+            {departureDiff.sign}
+            {doubleDigit(get(departureDiff, "minutes", 0))}:
+            {doubleDigit(get(departureDiff, "seconds", 0))}
           </ColoredBackgroundSlot>
           <PlainSlotSmallRight>
-            {stopDeparture.observedMoment.format("HH:mm:ss")}
+            {departureMoment.format("HH:mm:ss")}
           </PlainSlotSmallRight>
         </StopDepartureTime>
         {endOfStream && (

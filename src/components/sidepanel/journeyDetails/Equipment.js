@@ -1,46 +1,19 @@
 import React from "react";
-import gql from "graphql-tag";
 import styled from "styled-components";
-import {Query} from "react-apollo";
-import get from "lodash/get";
 import pick from "lodash/pick";
 import compact from "lodash/compact";
+import EquipmentQuery from "../../../queries/EquipmentQuery";
 
 const EquipmentWrapper = styled.span``;
 
-const vehicleTypeQuery = gql`
-  query vehicleInfo($vehicleId: String) {
-    allEquipment(condition: {vehicleId: $vehicleId}) {
-      nodes {
-        vehicleId
-        registryNr
-        age
-        type
-        multiAxle
-        exteriorColor
-        class
-      }
-    }
-  }
-`;
-
 export default ({journey}) => {
   const {unique_vehicle_id} = journey;
-  const vehicleId = unique_vehicle_id.split("/")[0];
+  const vehicleId = parseInt(unique_vehicle_id.split("/")[0], 10) + "";
 
   return (
-    <Query query={vehicleTypeQuery} variables={{vehicleId}}>
-      {({data, loading, error}) => {
-        if (loading || error) return null;
-
-        const vehicle = get(data, "allEquipment.nodes[0]", null);
-
-        if (!vehicle) {
-          return null;
-        }
-
-        const multiAxleValue = vehicle.multiAxle ? "teli" : "";
-        vehicle.multiAxle = multiAxleValue;
+    <EquipmentQuery vehicleId={vehicleId}>
+      {({vehicle, loading}) => {
+        if (!vehicle || loading) return null;
 
         return (
           <EquipmentWrapper>
@@ -52,6 +25,6 @@ export default ({journey}) => {
           </EquipmentWrapper>
         );
       }}
-    </Query>
+    </EquipmentQuery>
   );
 };
