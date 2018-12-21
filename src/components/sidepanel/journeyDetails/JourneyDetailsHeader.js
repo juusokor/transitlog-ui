@@ -7,7 +7,8 @@ import JourneyPlanner from "../../../icons/JourneyPlanner";
 import Time2 from "../../../icons/Time2";
 
 const JourneyPanelHeader = styled.div`
-  padding: 1rem 1rem 0 2rem;
+  padding: 1rem 1rem 1.5rem 2rem;
+  border-bottom: 1px solid var(--lighter-grey);
 
   > *:first-child {
     margin-top: 0;

@@ -19,9 +19,12 @@ import TerminalStop from "./TerminalStop";
 import {stopTimes} from "../../../helpers/stopTimes";
 
 const JourneyPanelContent = styled.div`
-  padding: 2rem 0 1rem;
   overflow-y: auto;
   overflow-x: visible;
+`;
+
+const StopsListWrapper = styled.div`
+  padding: 2rem 0 1rem;
 `;
 
 const LoadingContainer = styled.div`
@@ -111,36 +114,38 @@ class JourneyDetails extends React.Component {
                 desi={get(journey, "desi")}
                 name={get(route, "nameFi")}
               />
-              <JourneyInfo
-                date={date}
-                journey={journey}
-                journeyHfp={selectedJourneyHfp}
-                originStopTimes={originStopTimes}
-              />
               <JourneyPanelContent>
-                <TerminalStop
-                  isFirstTerminal={true}
-                  stopTimes={originStopTimes} // TerminalStop can receive precalculated stop times.
-                  stop={get(route, "originStop", {})}
-                  journeyPositions={selectedJourneyHfp}
+                <JourneyInfo
                   date={date}
-                  onClickTime={this.onClickTime}
-                />
-                <JourneyStops
-                  originDeparture={originDeparture}
+                  journey={journey}
                   journeyHfp={selectedJourneyHfp}
-                  date={date}
-                  route={route}
-                  onClickTime={this.onClickTime}
+                  originStopTimes={originStopTimes}
                 />
-                <TerminalStop
-                  isLastTerminal={true}
-                  originDeparture={originDeparture}
-                  stop={get(route, "destinationStop", {})}
-                  journeyPositions={selectedJourneyHfp}
-                  date={date}
-                  onClickTime={this.onClickTime}
-                />
+                <StopsListWrapper>
+                  <TerminalStop
+                    isFirstTerminal={true}
+                    stopTimes={originStopTimes} // TerminalStop can receive precalculated stop times.
+                    stop={get(route, "originStop", {})}
+                    journeyPositions={selectedJourneyHfp}
+                    date={date}
+                    onClickTime={this.onClickTime}
+                  />
+                  <JourneyStops
+                    originDeparture={originDeparture}
+                    journeyHfp={selectedJourneyHfp}
+                    date={date}
+                    route={route}
+                    onClickTime={this.onClickTime}
+                  />
+                  <TerminalStop
+                    isLastTerminal={true}
+                    originDeparture={originDeparture}
+                    stop={get(route, "destinationStop", {})}
+                    journeyPositions={selectedJourneyHfp}
+                    date={date}
+                    onClickTime={this.onClickTime}
+                  />
+                </StopsListWrapper>
               </JourneyPanelContent>
             </>
           );

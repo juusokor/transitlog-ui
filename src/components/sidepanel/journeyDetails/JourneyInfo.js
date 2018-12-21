@@ -5,9 +5,7 @@ import Equipment from "./Equipment";
 import CalculateTerminalTime from "./CalculateTerminalTime";
 import doubleDigit from "../../../helpers/doubleDigit";
 
-const JourneyInfo = styled.div`
-  margin-top: 1rem;
-`;
+const JourneyInfo = styled.div``;
 
 const JourneyInfoRow = styled.div`
   display: flex;
