@@ -4,7 +4,12 @@ import get from "lodash/get";
 import orderBy from "lodash/orderBy";
 import {stopTimes} from "../../../helpers/stopTimes";
 import styled from "styled-components";
-import {SmallText, StopElementsWrapper, StopMarker} from "./elements";
+import {
+  SmallText,
+  StopElementsWrapper,
+  StopMarker,
+  TimingStopMarker,
+} from "./elements";
 import {
   TagButton,
   PlainSlot,
@@ -108,10 +113,16 @@ export default ({
 
   let showPlannedArrivalTime = !plannedDepartureMoment.isSame(plannedArrivalMoment);
 
+  const isTimingStop = stop.timingStopType > 0;
+
   return (
     <StopWrapper>
       <StopElementsWrapper color={stopColor}>
-        <StopMarker color={stopColor} />
+        {isTimingStop ? (
+          <TimingStopMarker color={stopColor} />
+        ) : (
+          <StopMarker color={stopColor} />
+        )}
       </StopElementsWrapper>
       <StopContent>
         <StopHeading>

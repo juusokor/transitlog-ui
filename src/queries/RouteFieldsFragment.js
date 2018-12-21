@@ -99,6 +99,7 @@ export const ExtensiveRouteFieldsFragment = gql`
           nameFi
           stopId
           shortId
+          stopType
           modes {
             nodes
           }

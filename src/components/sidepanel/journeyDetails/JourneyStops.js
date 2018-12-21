@@ -3,6 +3,7 @@ import {observable, action} from "mobx";
 import {observer} from "mobx-react";
 import get from "lodash/get";
 import sortBy from "lodash/sortBy";
+import omit from "lodash/omit";
 import styled from "styled-components";
 import {Button} from "../../Forms";
 import Minus from "../../../icons/Minus";
@@ -77,8 +78,6 @@ class JourneyStops extends React.Component {
         timingStopType,
       } = routeSegment;
 
-      const {nameFi, shortId, stopId, modes} = get(routeSegment, "stop", {});
-
       return {
         destination: destinationFi,
         distanceFromPrevious,
@@ -86,10 +85,7 @@ class JourneyStops extends React.Component {
         duration,
         stopIndex,
         timingStopType,
-        nameFi,
-        shortId,
-        stopId,
-        modes,
+        ...omit(get(routeSegment, "stop", {}), "departures", "__typename"),
         stopDeparture: stopDepartures[0],
       };
     });
