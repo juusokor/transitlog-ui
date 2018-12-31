@@ -80,9 +80,7 @@ class RouteHfpEvents extends React.Component {
     Journey.setJourneyFetchState(journeyId, journeyFetchStates.PENDING);
 
     const useRoute = this.getStateRoute(route);
-    let journeys = await fetchHfpJourney(useRoute, date, time, skipCache);
-
-    journeys = JSON.parse(journeys);
+    const journeys = await fetchHfpJourney(useRoute, date, time, skipCache);
 
     if (journeys && Array.isArray(journeys)) {
       if (journeys.length === 0) {
