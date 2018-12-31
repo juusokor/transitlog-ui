@@ -11,10 +11,10 @@ import get from "lodash/get";
 import {createFetchKey, createRouteKey} from "../helpers/keys";
 import pMap from "p-map";
 import {setResetListener} from "../stores/FilterStore";
-import HfpWorker from "workerize-loader?inline!../workers/getHfp.worker";
+import HfpWorker from "workerize-loader!../workers/getHfp.worker";
 
 // Instantiate worker
-const hfpWorker = new HfpWorker();
+const hfpWorker = HfpWorker();
 
 @inject(app("Journey", "Filters"))
 @withRoute
@@ -61,11 +61,9 @@ class RouteHfpEvents extends React.Component {
   };
 
   fetchRequestedJourneys = async (requestedJourneys) => {
-    console.time("Fetch");
     this.setLoading(true);
     await pMap(requestedJourneys, this.fetchJourney, {concurrency: 5});
     await this.onFetchCompleted();
-    console.timeEnd("Fetch");
   };
 
   fetchJourney = async (journeyRequest) => {
