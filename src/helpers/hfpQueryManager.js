@@ -8,9 +8,8 @@ import {combineDateAndTime} from "./time";
 import pAll from "p-all";
 import moment from "moment-timezone";
 
-// Bump db version if you change something concering the local cache.
+// Bump db version if you change something concerning the local cache.
 // That will make all client's databases clear out.
-const DATABASE_VERSION = "1";
 const INDEX_KEY = "lruIndex";
 
 const memoryCache = new Map();
@@ -24,14 +23,6 @@ const localforage = indexedLocalforage.defineDriver(lruDriver).then(async () => 
   });
 
   await lf.ready();
-
-  const dbVersion = localStorage.getItem("DATABASE_VERSION");
-
-  if (dbVersion !== DATABASE_VERSION) {
-    console.log("Clearing cache");
-    lf.clear();
-    localStorage.setItem("DATABASE_VERSION", DATABASE_VERSION);
-  }
 
   return lf;
 });
@@ -77,8 +68,6 @@ export async function loadCache() {
     memoryCache.set(cachedKey, cachedJourney);
     data.push(cachedJourney);
   }
-
-  return data;
 }
 
 // Persists the memory cache in localstorage
