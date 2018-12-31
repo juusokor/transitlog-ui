@@ -11,10 +11,7 @@ import get from "lodash/get";
 import {createFetchKey, createRouteKey} from "../helpers/keys";
 import pMap from "p-map";
 import {setResetListener} from "../stores/FilterStore";
-import HfpWorker from "workerize-loader!../workers/getHfp.worker";
-
-// Instantiate worker
-const hfpWorker = HfpWorker();
+import {fetchHfpJourney, loadCache, persistCache} from "../helpers/hfpQueryManager";
 
 @inject(app("Journey", "Filters"))
 @withRoute
@@ -83,12 +80,7 @@ class RouteHfpEvents extends React.Component {
     Journey.setJourneyFetchState(journeyId, journeyFetchStates.PENDING);
 
     const useRoute = this.getStateRoute(route);
-    let journeys = await hfpWorker.getHfp(
-      JSON.stringify(useRoute),
-      date,
-      time,
-      skipCache
-    );
+    let journeys = await fetchHfpJourney(useRoute, date, time, skipCache);
 
     journeys = JSON.parse(journeys);
 
@@ -141,7 +133,7 @@ class RouteHfpEvents extends React.Component {
 
   onFetchCompleted = async () => {
     this.setLoading(false);
-    await hfpWorker.saveCache();
+    await persistCache();
   };
 
   onError = (err) => {
@@ -189,7 +181,7 @@ class RouteHfpEvents extends React.Component {
       {fireImmediately: true}
     );
 
-    await hfpWorker.hydrateCache();
+    await loadCache();
   }
 
   componentWillUnmount() {

@@ -8,7 +8,6 @@ import TimetablePanel from "./TimetablePanel";
 import VehicleJourneys from "./VehicleJourneys";
 import {text} from "../../helpers/text";
 import AreaJourneyList from "./AreaJourneyList";
-import WorkerTest from "./WorkerTest";
 
 const SidePanelContainer = styled.div`
   background: var(--lightest-grey);
@@ -33,9 +32,6 @@ class SidePanel extends Component {
     return (
       <SidePanelContainer>
         <Tabs>
-          {(!route || !route.routeId) && positions.length === 0 && (
-            <WorkerTest name="worker" label="Worker" />
-          )}
           {(!route || !route.routeId) && positions.length !== 0 && (
             <AreaJourneyList
               journeys={positions}

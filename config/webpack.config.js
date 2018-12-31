@@ -323,6 +323,12 @@ module.exports = function(webpackEnv) {
             {
               test: /\.(js|mjs|jsx|ts|tsx)$/,
               include: paths.appSrc,
+              rules: [
+                {
+                  test: /\.worker\.js$/,
+                  use: {loader: "worker-loader"},
+                },
+              ],
               loader: require.resolve("babel-loader"),
               options: {
                 customize: require.resolve(
