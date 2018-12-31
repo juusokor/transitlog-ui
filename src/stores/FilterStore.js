@@ -23,7 +23,7 @@ export function setResetListener(cb) {
 
 export default (state, initialState) => {
   const emptyState = {
-    date: timeToFormat(new Date(), "YYYY-MM-DD", "Europe/Helsinki"),
+    date: "2018-05-07", // timeToFormat(new Date(), "YYYY-MM-DD", "Europe/Helsinki"),
     stop: "",
     vehicle: "",
     line: {
