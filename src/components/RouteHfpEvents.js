@@ -11,7 +11,10 @@ import get from "lodash/get";
 import {createFetchKey, createRouteKey} from "../helpers/keys";
 import pMap from "p-map";
 import {setResetListener} from "../stores/FilterStore";
-import {fetchHfpJourney} from "../helpers/hfpQueryManager";
+import HfpWorker from "../workers/fetchHfp.worker";
+
+const hfpWorker = HfpWorker();
+const {fetchHfpJourney} = hfpWorker;
 
 @inject(app("Journey", "Filters"))
 @withRoute
