@@ -2,7 +2,6 @@ import React, {Component} from "react";
 import {observer} from "mobx-react";
 import {Query} from "react-apollo";
 import {hfpClient} from "../api";
-import get from "lodash/get";
 import gql from "graphql-tag";
 import groupBy from "lodash/groupBy";
 import reduce from "lodash/reduce";

@@ -1,11 +1,10 @@
-import {extendObservable, action, toJS} from "mobx";
+import {extendObservable, action} from "mobx";
 import filterActions from "./filterActions";
 import JourneyActions from "./journeyActions";
 import {inflate} from "../helpers/inflate";
 import pick from "lodash/pick";
 import merge from "lodash/merge";
 import {resetUrlState} from "./UrlManager";
-import {timeToFormat} from "../helpers/time";
 
 const resetListeners = [];
 

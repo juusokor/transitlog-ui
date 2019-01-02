@@ -322,19 +322,18 @@ module.exports = function(webpackEnv) {
               test: /\.worker.(js|mjs|jsx|ts|tsx)$/,
               include: paths.appSrc,
               use: [
-                require.resolve("workerize-loader"),
                 {
                   loader: require.resolve("babel-loader"),
                   options: {
                     customize: require.resolve(
                       "babel-preset-react-app/webpack-overrides"
                     ),
-                    // cacheDirectory does not work with workerize-loader.
-                    cacheDirectory: false,
+                    cacheDirectory: true,
                     cacheCompression: isEnvProduction,
                     compact: isEnvProduction,
                   },
                 },
+                require.resolve("workerize-loader"),
               ],
             },
             // Process application JS with Babel.
@@ -343,6 +342,12 @@ module.exports = function(webpackEnv) {
               test: /\.(js|mjs|jsx|ts|tsx)$/,
               include: paths.appSrc,
               loader: require.resolve("babel-loader"),
+              rules: [
+                {
+                  test: /\.worker.(js|mjs|jsx|ts|tsx)$/,
+                  loader: require.resolve("workerize-loader"),
+                },
+              ],
               options: {
                 customize: require.resolve(
                   "babel-preset-react-app/webpack-overrides"
@@ -363,7 +368,7 @@ module.exports = function(webpackEnv) {
                 // This is a feature of `babel-loader` for webpack (not Babel itself).
                 // It enables caching results in ./node_modules/.cache/babel-loader/
                 // directory for faster rebuilds.
-                cacheDirectory: false,
+                cacheDirectory: true,
                 cacheCompression: isEnvProduction,
                 compact: isEnvProduction,
               },

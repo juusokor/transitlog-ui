@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {observer, inject, Observer} from "mobx-react";
+import {observer, inject} from "mobx-react";
 import SidepanelList from "./SidepanelList";
 import StopTimetable from "./StopTimetable";
 import withStop from "../../hoc/withStop";
