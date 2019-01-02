@@ -12,6 +12,7 @@ import MapContent from "./map/MapContent";
 import {latLng} from "leaflet";
 import SingleStopQuery from "../queries/SingleStopQuery";
 import AreaHfpEvents from "./AreaHfpEvents";
+import TestWorker from "../workers/fetchHfp.worker";
 
 const DEFAULT_SIDEPANEL_WIDTH = 25;
 

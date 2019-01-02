@@ -318,17 +318,30 @@ module.exports = function(webpackEnv) {
                 name: "static/media/[name].[hash:8].[ext]",
               },
             },
+            {
+              test: /\.worker.(js|mjs|jsx|ts|tsx)$/,
+              include: paths.appSrc,
+              use: [
+                require.resolve("workerize-loader"),
+                {
+                  loader: require.resolve("babel-loader"),
+                  options: {
+                    customize: require.resolve(
+                      "babel-preset-react-app/webpack-overrides"
+                    ),
+                    // cacheDirectory does not work with workerize-loader.
+                    cacheDirectory: false,
+                    cacheCompression: isEnvProduction,
+                    compact: isEnvProduction,
+                  },
+                },
+              ],
+            },
             // Process application JS with Babel.
             // The preset includes JSX, Flow, TypeScript, and some ESnext features.
             {
               test: /\.(js|mjs|jsx|ts|tsx)$/,
               include: paths.appSrc,
-              rules: [
-                {
-                  test: /\.worker\.js$/,
-                  use: {loader: "worker-loader"},
-                },
-              ],
               loader: require.resolve("babel-loader"),
               options: {
                 customize: require.resolve(
@@ -350,7 +363,7 @@ module.exports = function(webpackEnv) {
                 // This is a feature of `babel-loader` for webpack (not Babel itself).
                 // It enables caching results in ./node_modules/.cache/babel-loader/
                 // directory for faster rebuilds.
-                cacheDirectory: true,
+                cacheDirectory: false,
                 cacheCompression: isEnvProduction,
                 compact: isEnvProduction,
               },
