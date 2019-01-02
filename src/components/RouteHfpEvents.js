@@ -2,7 +2,7 @@ import {inject, observer} from "mobx-react";
 import {app} from "mobx-app";
 import React from "react";
 import withRoute from "../hoc/withRoute";
-import {observable, reaction, action, runInAction} from "mobx";
+import {observable, reaction, action, runInAction, toJS} from "mobx";
 import {journeyFetchStates} from "../stores/JourneyStore";
 import getJourneyId from "../helpers/getJourneyId";
 import orderBy from "lodash/orderBy";
@@ -11,7 +11,7 @@ import get from "lodash/get";
 import {createFetchKey, createRouteKey} from "../helpers/keys";
 import pMap from "p-map";
 import {setResetListener} from "../stores/FilterStore";
-import HfpWorker from "../workers/fetchHfp.worker";
+import {fetchHfpJourney} from "../helpers/hfpQueryManager";
 
 @inject(app("Journey", "Filters"))
 @withRoute
@@ -23,8 +23,6 @@ class RouteHfpEvents extends React.Component {
 
   @observable
   loading = false;
-
-  worker = HfpWorker();
 
   fetchReaction = () => {};
   resetReaction = () => {};
@@ -82,13 +80,7 @@ class RouteHfpEvents extends React.Component {
     Journey.setJourneyFetchState(journeyId, journeyFetchStates.PENDING);
 
     const useRoute = this.getStateRoute(route);
-    let journeys = await this.worker.fetchHfpJourney(
-      JSON.stringify(useRoute),
-      date,
-      time,
-      skipCache
-    );
-    journeys = JSON.parse(journeys);
+    const journeys = await fetchHfpJourney(toJS(useRoute), date, time, skipCache);
 
     if (journeys && Array.isArray(journeys)) {
       if (journeys.length === 0) {
