@@ -8,6 +8,9 @@ const TabsWrapper = styled.div`
   height: 100%;
   display: grid;
   grid-template-rows: auto 1fr;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
 `;
 
 const TabButtonsWrapper = styled.div`
@@ -24,6 +27,7 @@ const TabButton = styled.button`
   text-transform: uppercase;
   background-color: ${({selected}) => (selected ? "white" : "var(--lightest-grey)")};
   border: 1px solid var(--alt-grey);
+  border-top: 0;
   border-left: 0;
   border-bottom-color: ${({selected}) =>
     selected ? "transparent" : "var(--lighter-grey)"};

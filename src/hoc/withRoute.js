@@ -56,7 +56,11 @@ export default (Component) => {
       const fetchedRoute = await fetchSingleRoute(route, date);
       const stateRoute = this.props.state.route;
 
-      if (fetchedRoute && stateRoute.routeId === fetchedRoute.routeId) {
+      if (
+        shouldFetch(stateRoute) &&
+        fetchedRoute &&
+        stateRoute.routeId === fetchedRoute.routeId
+      ) {
         Filters.setRoute(fetchedRoute);
       }
     };

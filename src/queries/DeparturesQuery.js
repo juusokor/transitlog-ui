@@ -37,6 +37,8 @@ const departuresQuery = gql`
         dayType
         hours
         minutes
+        arrivalHours
+        arrivalMinutes
         dateBegin
         dateEnd
         routeId
@@ -89,7 +91,7 @@ class DeparturesQuery extends Component {
       departureId,
       limit,
       children,
-      skip,
+      skip = false,
     } = this.props;
 
     const queryDayType = getDayTypeFromDate(date);
@@ -102,7 +104,7 @@ class DeparturesQuery extends Component {
         dayType: queryDayType,
         stopId: originstopId ? originstopId : stopId,
         routeId,
-        direction: direction,
+        direction: "" + direction, // make sure it is a string
         departureId,
         dateBegin,
         dateEnd,

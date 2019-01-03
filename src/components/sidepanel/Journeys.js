@@ -263,12 +263,6 @@ class Journeys extends Component {
 
             const journeyStartPosition = findJourneyStartPosition(journeyPositions);
 
-            const journeyIsSelected = expr(
-              () => state.selectedJourney && selectedJourneyId === journeyId
-            );
-
-            const journeyIsFocused = focusedJourney && focusedJourney === journeyId;
-
             const [hours, minutes] = journeyStartPosition.journey_start_time.split(
               ":"
             );
@@ -291,6 +285,12 @@ class Journeys extends Component {
             const delayType = plannedObservedDiff
               ? getDelayType(plannedObservedDiff.diff)
               : "none";
+
+            const journeyIsSelected = expr(
+              () => state.selectedJourney && selectedJourneyId === journeyId
+            );
+
+            const journeyIsFocused = focusedJourney && focusedJourney === journeyId;
 
             return (
               <JourneyListRow

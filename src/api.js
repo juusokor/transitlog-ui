@@ -1,7 +1,7 @@
 import {ApolloClient} from "apollo-client";
 import {BatchHttpLink} from "apollo-link-batch-http";
 import {HttpLink} from "apollo-link-http";
-import {InMemoryCache, defaultDataIdFromObject} from "apollo-cache-inmemory";
+import {InMemoryCache} from "apollo-cache-inmemory";
 import {persistCache} from "apollo-cache-persist";
 import localforage from "localforage";
 
@@ -16,23 +16,7 @@ if (!hfpUrl) {
   console.error("HFP GraphQL URL not set!");
 }
 
-const joreCache = new InMemoryCache({
-  dataIdFromObject: (obj) => {
-    if (obj.__typename === "Stop") {
-      return `Stop:${obj.stopId}`;
-    }
-
-    if (typeof obj.nodeId !== "undefined") {
-      return obj.nodeId;
-    }
-
-    if (obj.__typename === "Line") {
-      return `${obj.lineId}:${obj.dateBegin}:${obj.dateEnd}`;
-    }
-
-    return defaultDataIdFromObject(obj);
-  },
-});
+const joreCache = new InMemoryCache();
 
 const joreStorage = localforage.createInstance({
   name: "joreStorage",

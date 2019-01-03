@@ -146,14 +146,14 @@ class TimetablePanel extends Component {
     Time.setTime(currentTime);
     Filters.setRoute(route);
 
-    if (departure.journey) {
-      const {journey} = departure;
+    if (departure.observed) {
+      const {observed} = departure;
 
-      Journey.setSelectedJourney(journey);
+      Journey.setSelectedJourney(observed);
       Journey.requestJourneys({
-        time: journey.journey_start_time,
+        time: observed.journey_start_time,
         route,
-        date: journey.oday,
+        date: observed.oday,
       });
     }
   };

@@ -1,6 +1,6 @@
 import gql from "graphql-tag";
 
-const RouteFieldsFragment = gql`
+export const RouteFieldsFragment = gql`
   fragment RouteFieldsFragment on Route {
     nodeId
     line {
@@ -17,8 +17,111 @@ const RouteFieldsFragment = gql`
     destinationFi
     originFi
     nameFi
+    destinationstopId
     originstopId
-    __typename
+  }
+`;
+
+export const ExtensiveRouteFieldsFragment = gql`
+  fragment ExtensiveRouteFieldsFragment on Route {
+    type
+    routeLength
+    mode
+    originStop: stopByOriginstopId {
+      nodeId
+      stopId
+      lat
+      lon
+      shortId
+      nameFi
+      modes {
+        nodes
+      }
+      departures: departuresByStopId(
+        condition: {routeId: $routeId, direction: $direction, dayType: $dayType}
+      ) {
+        nodes {
+          stopId
+          routeId
+          direction
+          hours
+          minutes
+          arrivalHours
+          arrivalMinutes
+          departureId
+          dateBegin
+          dateEnd
+          dayType
+        }
+      }
+    }
+    destinationStop: stopByDestinationstopId {
+      nodeId
+      stopId
+      lat
+      lon
+      shortId
+      nameFi
+      modes {
+        nodes
+      }
+      departures: departuresByStopId(
+        condition: {routeId: $routeId, direction: $direction, dayType: $dayType}
+      ) {
+        nodes {
+          stopId
+          routeId
+          direction
+          hours
+          minutes
+          arrivalHours
+          arrivalMinutes
+          departureId
+          dateBegin
+          dateEnd
+          dayType
+        }
+      }
+    }
+    routeSegments {
+      nodes {
+        stopId
+        nextStopId
+        dateBegin
+        dateEnd
+        duration
+        stopIndex
+        distanceFromPrevious
+        distanceFromStart
+        destinationFi
+        timingStopType
+        stop: stopByStopId {
+          nameFi
+          stopId
+          shortId
+          stopType
+          modes {
+            nodes
+          }
+          departures: departuresByStopId(
+            condition: {routeId: $routeId, direction: $direction, dayType: $dayType}
+          ) {
+            nodes {
+              routeId
+              direction
+              hours
+              minutes
+              arrivalHours
+              arrivalMinutes
+              departureId
+              dateBegin
+              dateEnd
+              dayType
+            }
+          }
+        }
+      }
+    }
   }
 `;
 
