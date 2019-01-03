@@ -1,15 +1,13 @@
 import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
-import {latLngBounds} from "leaflet";
 import LeafletMap from "./LeafletMap";
 import {app} from "mobx-app";
 import invoke from "lodash/invoke";
 import get from "lodash/get";
 import debounce from "lodash/debounce";
 import {setUrlValue, getUrlValue} from "../../stores/UrlManager";
-import {boundsFromBBoxString} from "../../helpers/boundsFromBBoxString";
 
-const MAP_BOUNDS_URL_KEY = "mapBounds";
+const MAP_BOUNDS_URL_KEY = "mapView";
 
 @inject(app("Journey"))
 @observer
@@ -19,6 +17,8 @@ class Map extends Component {
     onMapChange: () => {},
     bounds: null,
   };
+
+  didSetUrlPosition = !getUrlValue(MAP_BOUNDS_URL_KEY);
 
   mapRef = React.createRef();
 
@@ -47,30 +47,32 @@ class Map extends Component {
     const map = this.getLeaflet();
 
     if (map) {
-      const urlBounds = getUrlValue(MAP_BOUNDS_URL_KEY);
+      const urlCenter = getUrlValue(MAP_BOUNDS_URL_KEY);
 
-      if (urlBounds) {
-        const bounds = boundsFromBBoxString(urlBounds);
+      const [
+        lat = 60.170988,
+        lng = 24.940842,
+        zoom = this.state.zoom,
+      ] = urlCenter.split(",");
 
-        if (bounds) {
-          this.setMapBounds(bounds);
-        }
-      } else {
-        map.setView(
-          {
-            lat: 60.170988,
-            lng: 24.940842,
-          },
-          this.state.zoom
-        );
-      }
+      map.setView(
+        {
+          lat,
+          lng,
+        },
+        zoom
+      );
+
+      setTimeout(() => {
+        this.didSetUrlPosition = true;
+      }, 1000);
     }
   }
 
   componentDidUpdate({center: prevCenter}) {
     const {center} = this.props;
 
-    if (!center) {
+    if (!this.didSetUrlPosition || !center) {
       return;
     }
 
@@ -97,7 +99,7 @@ class Map extends Component {
   }
 
   setMapBounds = (bounds = null) => {
-    if (bounds && invoke(bounds, "isValid")) {
+    if (this.didSetUrlPosition && bounds && invoke(bounds, "isValid")) {
       const map = this.getLeaflet();
 
       if (map) {
@@ -109,11 +111,14 @@ class Map extends Component {
   onMapChanged = () => {
     const map = this.getLeaflet();
     this.props.onMapChanged(map);
-
-    this.setMapUrlBounds(map.getBounds().toBBoxString());
+    this.setMapUrlState(map.getCenter(), map.getZoom());
   };
 
-  setMapUrlBounds = debounce((val) => setUrlValue(MAP_BOUNDS_URL_KEY, val), 500);
+  setMapUrlState = debounce(
+    (center, zoom) =>
+      setUrlValue(MAP_BOUNDS_URL_KEY, `${center.lat},${center.lng},${zoom}`),
+    500
+  );
 
   onZoom = (event) => {
     const zoom = event.target.getZoom();

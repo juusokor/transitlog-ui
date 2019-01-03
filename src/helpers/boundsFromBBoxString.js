@@ -1,11 +1,9 @@
-import {latLngBounds} from "leaflet";
+import {latLngBounds, latLng} from "leaflet";
 
 export function boundsFromBBoxString(bboxString) {
-  const bboxParts = bboxString.split(",");
+  const [west, south, east, north] = bboxString.split(",").map(parseFloat);
 
-  if (bboxParts.length === 0) {
-    return false;
-  }
+  console.log(west);
 
-  return latLngBounds([bboxParts[1], bboxParts[0]], [bboxParts[3], bboxParts[2]]);
+  return latLngBounds(latLng(south, west), latLng(north, east));
 }
