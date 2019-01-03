@@ -8,23 +8,27 @@ export const LANGUAGES = {
 };
 
 export const languageState = observable({
-  language: "fi",
+  language: getUrlValue("language", "fi"),
 });
 
 export default (state) => {
+  const sideBarUrlState = getUrlValue("sidePanelVisible", true);
+
   extendObservable(state, {
-    filterPanelVisible: true,
+    sidePanelVisible: !sideBarUrlState || sideBarUrlState === "false" ? false : true,
     mapOverlays: getUrlValue("mapOverlays", "").split(","),
     language: languageState.language,
   });
 
-  const toggleFilterPanel = action((setTo = !state.filterPanelVisible) => {
-    state.filterPanelVisible = setTo;
+  const toggleSidePanel = action((setTo = !state.sidePanelVisible) => {
+    state.sidePanelVisible = setTo;
+    setUrlValue("sidePanelVisible", state.sidePanelVisible);
   });
 
   const setLanguage = action((language) => {
     if (Object.values(LANGUAGES).includes(language)) {
       languageState.language = language;
+      setUrlValue("language", languageState.language);
     }
   });
 
@@ -65,7 +69,7 @@ export default (state) => {
   );
 
   return {
-    toggleFilterPanel,
+    toggleSidePanel,
     setLanguage,
     changeOverlay,
   };

@@ -19,7 +19,7 @@ export const TagButton = styled.button`
   cursor: pointer;
 `;
 
-export const ColoredIconSlot = styled.span`
+export const ColoredSlot = styled.span`
   padding: 3px 3px 3px 5px;
   background-color: transparent;
   color: ${({color}) => color};
