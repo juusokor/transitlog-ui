@@ -46,7 +46,7 @@ class StopMarker extends Component {
     const {stop, state, showRadius = true} = this.props;
     const {stop: selectedStop} = state;
 
-    const selected = selectedStop === stop.stopId;
+    const isSelected = selectedStop === stop.stopId;
     const mode = getPriorityMode(get(stop, "modes.nodes", []));
     const stopColor = getModeColor(mode);
     const {stopRadius} = stop;
@@ -58,10 +58,10 @@ class StopMarker extends Component {
         pane="stops"
         center={markerPosition}
         color={stopColor}
-        fillColor={selected ? stopColor : "white"}
+        fillColor={isSelected ? stopColor : "white"}
         fillOpacity={1}
         onClick={this.selectStop}
-        radius={selected ? 10 : 8}>
+        radius={isSelected ? 10 : 8}>
         <Popup
           autoPan={false}
           autoClose={false}
@@ -85,7 +85,15 @@ class StopMarker extends Component {
     );
 
     return showRadius ? (
-      <StopRadius center={markerPosition} color={stopColor} radius={stopRadius}>
+      <StopRadius
+        // The "pane" prop on the Circle element is not dynamic, so the
+        // StopRadius component should be remounted when selected or
+        // deselected for the circle to appear on the correct layer.
+        key={`stop_radius_${stop.stopId}${isSelected ? "_selected" : ""}`}
+        isHighlighted={isSelected}
+        center={markerPosition}
+        color={stopColor}
+        radius={stopRadius}>
         {markerElement}
       </StopRadius>
     ) : (
