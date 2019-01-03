@@ -5,9 +5,9 @@ import {EditControl} from "react-leaflet-draw";
 import {inject, observer} from "mobx-react";
 import {app} from "mobx-app";
 import {getUrlValue, setUrlValue} from "../../stores/UrlManager";
-import {latLngBounds} from "leaflet";
 import {observable, action} from "mobx";
 import {setResetListener} from "../../stores/FilterStore";
+import {boundsFromBBoxString} from "../../helpers/boundsFromBBoxString";
 
 // The key under which the bounds will be recorded in the URL.
 const AREA_BOUNDS_URL_KEY = "areaBounds";
@@ -69,18 +69,15 @@ class AreaSelect extends Component {
     const urlBounds = getUrlValue(AREA_BOUNDS_URL_KEY);
 
     if (urlBounds) {
-      const splitUrlBounds = urlBounds.split(",");
-
       // Make sure the parts go into the correct places. Check leaflet docs if unsure.
-      const bounds = latLngBounds(
-        [splitUrlBounds[1], splitUrlBounds[0]],
-        [splitUrlBounds[3], splitUrlBounds[2]]
-      );
+      const bounds = boundsFromBBoxString(urlBounds);
 
-      // Trigger the queries of the hfp events inside the bounds area.
-      this.onBoundsSelected(bounds);
-      // Set the bounds from the url into local state so it can be shown on the map as a rectangle.
-      this.setInitialRectangle(bounds);
+      if (bounds) {
+        // Trigger the queries of the hfp events inside the bounds area.
+        this.onBoundsSelected(bounds);
+        // Set the bounds from the url into local state so it can be shown on the map as a rectangle.
+        this.setInitialRectangle(bounds);
+      }
     }
   }
 

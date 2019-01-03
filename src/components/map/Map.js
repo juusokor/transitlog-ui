@@ -7,6 +7,7 @@ import invoke from "lodash/invoke";
 import get from "lodash/get";
 import debounce from "lodash/debounce";
 import {setUrlValue, getUrlValue} from "../../stores/UrlManager";
+import {boundsFromBBoxString} from "../../helpers/boundsFromBBoxString";
 
 const MAP_BOUNDS_URL_KEY = "mapBounds";
 
@@ -49,14 +50,11 @@ class Map extends Component {
       const urlBounds = getUrlValue(MAP_BOUNDS_URL_KEY);
 
       if (urlBounds) {
-        const splitUrlBounds = urlBounds.split(",");
+        const bounds = boundsFromBBoxString(urlBounds);
 
-        const bounds = latLngBounds(
-          [splitUrlBounds[1], splitUrlBounds[0]],
-          [splitUrlBounds[3], splitUrlBounds[2]]
-        );
-
-        this.setMapBounds(bounds);
+        if (bounds) {
+          this.setMapBounds(bounds);
+        }
       } else {
         map.setView(
           {

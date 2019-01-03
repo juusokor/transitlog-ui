@@ -9,7 +9,7 @@ import {app} from "mobx-app";
 import {getPriorityMode, getModeColor} from "../../helpers/vehicleColor";
 import {StopRadius} from "./StopRadius";
 
-const StopRouteList = styled.button`
+const StopOptionButton = styled.button`
   text-decoration: none;
   padding: 2px 4px;
   border-radius: 3px;
@@ -73,11 +73,11 @@ class StopMarker extends Component {
             {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
           </Heading>
           {get(stop, "routeSegmentsForDate.nodes", []).map((routeSegment) => (
-            <StopRouteList
+            <StopOptionButton
               key={`route_${routeSegment.routeId}_${routeSegment.direction}`}
               onClick={this.selectRoute(get(routeSegment, "route.nodes[0]", null))}>
               {routeSegment.routeId.substring(1).replace(/^0+/, "")}
-            </StopRouteList>
+            </StopOptionButton>
           ))}
           <button onClick={this.onShowStreetView}>Show in street view</button>
         </Popup>
