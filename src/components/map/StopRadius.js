@@ -13,7 +13,7 @@ export function StopRadius({
       interactive={false}
       pane={isHighlighted ? "selected-stop-radius" : "stop-radius"}
       center={center}
-      weight={isHighlighted ? 3 : 1}
+      weight={isHighlighted ? 2 : 1}
       opacity={isHighlighted ? 0.875 : 0.33}
       color={isHighlighted ? "white" : color}
       fillColor={color}
