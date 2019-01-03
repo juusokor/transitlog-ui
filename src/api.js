@@ -1,6 +1,6 @@
 import {ApolloClient} from "apollo-client";
 import {HttpLink} from "apollo-link-http";
-import {InMemoryCache, defaultDataIdFromObject} from "apollo-cache-inmemory";
+import {InMemoryCache} from "apollo-cache-inmemory";
 
 const joreUrl = process.env.REACT_APP_JORE_GRAPHQL_URL;
 const hfpUrl = process.env.REACT_APP_HFP_GRAPHQL_URL;
@@ -13,39 +13,20 @@ if (!hfpUrl) {
   console.error("HFP GraphQL URL not set!");
 }
 
+const joreCache = new InMemoryCache();
+
 const joreClient = new ApolloClient({
   link: new HttpLink({uri: joreUrl}),
-  cache: new InMemoryCache({
-    dataIdFromObject: (obj) => {
-      if (obj.__typename === "Stop") {
-        return `Stop:${obj.stopId}`;
-      }
-
-      if (typeof obj.nodeId !== "undefined") {
-        return obj.nodeId;
-      }
-
-      if (obj.__typename === "Line") {
-        return `${obj.lineId}:${obj.dateBegin}:${obj.dateEnd}`;
-      }
-
-      return defaultDataIdFromObject(obj);
-    },
-  }),
+  cache: joreCache,
 });
 
-const cache = new InMemoryCache();
+const hfpCache = new InMemoryCache();
 
 const hfpClient = new ApolloClient({
   link: new HttpLink({
     uri: hfpUrl,
   }),
-  cache,
+  cache: hfpCache,
 });
 
-const digiTransitClient = new ApolloClient({
-  link: new HttpLink({uri: "https://api.digitransit.fi/graphql"}),
-  cache: new InMemoryCache(),
-});
-
-export {joreClient, hfpClient, digiTransitClient};
+export {joreClient, hfpClient};

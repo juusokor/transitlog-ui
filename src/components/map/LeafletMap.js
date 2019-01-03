@@ -18,10 +18,7 @@ import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 
 const MapContainer = styled.div`
-  width: 100%;
-  height: 100%;
   overflow: hidden;
-  position: fixed;
   display: flex;
   flex-direction: column;
 

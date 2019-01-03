@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import RouteStopMarker from "./RouteStopMarker";
-import {inject, observer, Observer} from "mobx-react";
+import {inject, observer} from "mobx-react";
 import {app} from "mobx-app";
 import DeparturesQuery from "../../queries/DeparturesQuery";
 import get from "lodash/get";
@@ -98,9 +98,7 @@ class RouteStopsLayer extends Component {
                 routeId: route_id,
                 direction: direction_id,
               }}>
-              {({departures}) => (
-                <Observer>{() => this.renderStops(stops, departures)}</Observer>
-              )}
+              {({departures}) => this.renderStops(stops, departures)}
             </DeparturesQuery>
           );
         }}
