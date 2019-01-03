@@ -3,6 +3,17 @@ import flatten from "lodash/flatten";
 import zip from "lodash/zip";
 import get from "lodash/get";
 
+/*
+  This function sorts an array of timestrings (like 12:30:20) so that the centerValue
+  is first, followed by the next value from the centerValue in ascending order,
+  followed by the value preceding centerValue and so on. The array is essentially
+  centered around the centerValue. Example:
+  
+  centerValue: 5
+  valuesToSort: [1, 3, 5, 7, 10]
+  result: [5, 7, 3, 10, 1]
+ */
+
 export function centerSort(centerValue, valuesToSort = []) {
   if (valuesToSort.length === 0) {
     return [];
@@ -13,9 +24,12 @@ export function centerSort(centerValue, valuesToSort = []) {
   let centerIndex = values.indexOf(firstValue);
 
   // Get a numerical time that we can diff
-  let firstValueInt = parseInt(firstValue.replace(":", ""), 10);
+  let firstValueInt =
+    typeof firstValue === "string"
+      ? parseInt(firstValue.replace(":", ""), 10)
+      : firstValue;
 
-  // If the exact value was not found in the values we want to sort,
+  // If the exact centerValue was not found in the values we want to sort,
   // we need to figure out which value would be closest to it.
   // This function deals with times or numerical values
   // only, as that's all we need for now.
@@ -23,9 +37,12 @@ export function centerSort(centerValue, valuesToSort = []) {
     let prevDifference = false;
 
     centerIndex = values.reduce((prevIndex, candidate, index) => {
-      const diff = Math.abs(
-        firstValueInt - parseInt(candidate.replace(":", ""), 10)
-      );
+      const candidateVal =
+        typeof candidate === "string"
+          ? parseInt(candidate.replace(":", ""), 10)
+          : candidate;
+
+      const diff = Math.abs(firstValueInt - candidateVal);
 
       if (prevDifference === false || diff < prevDifference) {
         prevDifference = diff;
