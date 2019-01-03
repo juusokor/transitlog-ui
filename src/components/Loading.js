@@ -18,6 +18,8 @@ const Loading = styled.div`
   padding: 0.75rem;
   box-shadow: 2px 2px 10px 0 rgba(0, 0, 0, 0.2);
   color: white;
+  width: 3.7rem;
+  height: 3.7rem;
 
   ${({inline}) =>
     inline

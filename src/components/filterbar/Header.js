@@ -30,7 +30,7 @@ const MainHeading = styled(Heading).attrs({level: 1})`
   flex: 1 1 auto;
   margin: 0 1rem 0 0;
   font-size: 1.5rem;
-  text-align: right;
+  justify-content: flex-end;
 `;
 
 const LangSelectContainer = styled.div`

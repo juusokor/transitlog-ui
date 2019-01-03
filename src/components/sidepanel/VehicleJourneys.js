@@ -8,7 +8,7 @@ import {app} from "mobx-app";
 import getJourneyId from "../../helpers/getJourneyId";
 import {transportColor, TransportIcon} from "../transportModes";
 import {
-  ColoredIconSlot,
+  ColoredSlot,
   TagButton,
   PlainSlot,
   ColoredBackgroundSlot,
@@ -40,7 +40,7 @@ const HeaderRowLeft = styled.span`
   width: 100%;
 `;
 
-const HeadsignSlot = styled(ColoredIconSlot)`
+const HeadsignSlot = styled(ColoredSlot)`
   min-width: 4rem;
 `;
 
