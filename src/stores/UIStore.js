@@ -13,16 +13,24 @@ export const languageState = observable({
 
 export default (state) => {
   const sideBarUrlState = getUrlValue("sidePanelVisible", true);
+  const journeyDetailsUrlState = getUrlValue("journeyDetailsOpen", true);
 
   extendObservable(state, {
     sidePanelVisible: !sideBarUrlState || sideBarUrlState === "false" ? false : true,
+    journeyDetailsOpen:
+      !journeyDetailsUrlState || journeyDetailsUrlState === "false" ? false : true,
     mapOverlays: getUrlValue("mapOverlays", "").split(","),
     language: languageState.language,
   });
 
   const toggleSidePanel = action((setTo = !state.sidePanelVisible) => {
-    state.sidePanelVisible = setTo;
+    state.sidePanelVisible = !!setTo;
     setUrlValue("sidePanelVisible", state.sidePanelVisible);
+  });
+
+  const toggleJourneyDetails = action((setTo = !state.journeyDetailsOpen) => {
+    state.journeyDetailsOpen = !!setTo;
+    setUrlValue("journeyDetailsOpen", state.journeyDetailsOpen);
   });
 
   const setLanguage = action((language) => {
@@ -70,6 +78,7 @@ export default (state) => {
 
   return {
     toggleSidePanel,
+    toggleJourneyDetails,
     setLanguage,
     changeOverlay,
   };
