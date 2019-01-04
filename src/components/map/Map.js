@@ -3,6 +3,7 @@ import {observer, inject} from "mobx-react";
 import LeafletMap from "./LeafletMap";
 import {app} from "mobx-app";
 import invoke from "lodash/invoke";
+import trim from "lodash/trim";
 import get from "lodash/get";
 import debounce from "lodash/debounce";
 import {setUrlValue, getUrlValue} from "../../stores/UrlManager";
@@ -72,11 +73,15 @@ class Map extends Component {
     if (map) {
       const urlCenter = getUrlValue(MAP_BOUNDS_URL_KEY);
 
-      const [
-        lat = 60.170988,
-        lng = 24.940842,
-        zoom = this.state.zoom,
-      ] = urlCenter.split(",");
+      let [lat = "", lng = "", zoom = this.state.zoom] = urlCenter.split(",");
+
+      if (!lat || !trim(lat) || !parseInt(lat)) {
+        lat = 60.170988;
+      }
+
+      if (!lng || !trim(lng) || !parseInt(lng)) {
+        lng = 24.940842;
+      }
 
       map.setView(
         {
@@ -143,6 +148,9 @@ class Map extends Component {
 
   setMapUrlState = debounce(
     (center, zoom) =>
+      center.lat &&
+      center.lng &&
+      zoom &&
       setUrlValue(MAP_BOUNDS_URL_KEY, `${center.lat},${center.lng},${zoom}`),
     500
   );
