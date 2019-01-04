@@ -87,13 +87,11 @@ class RouteStopMarker extends React.Component {
     const {
       stop,
       routeOriginStopId,
-      selected,
       firstTerminal,
       lastTerminal,
       departures = [],
       positions = [],
       date,
-      onSelect,
       selectedJourney,
     } = this.props;
 
@@ -208,12 +206,13 @@ class RouteStopMarker extends React.Component {
     );
 
     delayType = getDelayType(diff);
-
     color = getTimelinessColor(delayType, stopColor);
 
     if (observedMoment) {
       const observedTime = (
-        <ObservedTime backgroundColor={color} color="white">
+        <ObservedTime
+          backgroundColor={color}
+          color={delayType === "late" ? "var(--dark-grey)" : "white"}>
           {observedMoment.format("HH:mm:ss")}
         </ObservedTime>
       );
