@@ -14,7 +14,6 @@ import {observable, action, reaction, computed} from "mobx";
 import JourneyDetails from "./journeyDetails/JourneyDetails";
 import Info from "../../icons/Info";
 import getJourneyId from "../../helpers/getJourneyId";
-import {expr} from "mobx-utils";
 import {getUrlValue, setUrlValue} from "../../stores/UrlManager";
 
 const SidePanelContainer = styled.div`
@@ -138,40 +137,38 @@ class SidePanel extends Component {
 
     return (
       <SidePanelContainer visible={sidePanelVisible}>
-        {sidePanelVisible && (
-          <Tabs>
-            {(!route || !route.routeId) && positions.length !== 0 && (
-              <AreaJourneyList
-                journeys={positions}
-                name="area-journeys"
-                label={text("sidepanel.tabs.area_events")}
-              />
-            )}
-            {!!route && !!route.routeId && (
-              <Journeys
-                route={route}
-                positions={positions}
-                loading={loading}
-                name="journeys"
-                label={text("sidepanel.tabs.journeys")}
-              />
-            )}
-            {vehicle && (
-              <VehicleJourneys
-                loading={loading}
-                name="vehicle-journeys"
-                label={text("sidepanel.tabs.vehicle_journeys")}
-              />
-            )}
-            {stop && (
-              <TimetablePanel
-                loading={loading}
-                name="timetables"
-                label={text("sidepanel.tabs.timetables")}
-              />
-            )}
-          </Tabs>
-        )}
+        <Tabs>
+          {(!route || !route.routeId) && positions.length !== 0 && (
+            <AreaJourneyList
+              journeys={positions}
+              name="area-journeys"
+              label={text("sidepanel.tabs.area_events")}
+            />
+          )}
+          {!!route && !!route.routeId && (
+            <Journeys
+              route={route}
+              positions={positions}
+              loading={loading}
+              name="journeys"
+              label={text("sidepanel.tabs.journeys")}
+            />
+          )}
+          {vehicle && (
+            <VehicleJourneys
+              loading={loading}
+              name="vehicle-journeys"
+              label={text("sidepanel.tabs.vehicle_journeys")}
+            />
+          )}
+          {stop && (
+            <TimetablePanel
+              loading={loading}
+              name="timetables"
+              label={text("sidepanel.tabs.timetables")}
+            />
+          )}
+        </Tabs>
         <JourneyPanel visible={journeyDetailsAreOpen}>
           {/* The content of the sidebar is independent from the sidebar wrapper so that we can animate it. */}
           {journeyDetailsAreOpen && <JourneyDetails positions={positions} />}
