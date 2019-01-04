@@ -1,9 +1,11 @@
 import React from "react";
 import styled from "styled-components";
 import get from "lodash/get";
+import map from "lodash/map";
 import Equipment from "./Equipment";
 import CalculateTerminalTime from "./CalculateTerminalTime";
 import doubleDigit from "../../../helpers/doubleDigit";
+import {getEquipmentType, getFeature, checkRequirements} from "./equipmentType";
 
 const JourneyInfo = styled.div``;
 
@@ -29,10 +31,16 @@ const Line = styled.div`
   align-items: center;
   line-height: 1.5;
   justify-content: ${({right = false}) => (right ? "flex-end" : "space-between")};
+  color: var(--dark-grey);
+
+  span:first-child {
+    color: var(--grey);
+  }
 `;
 
-export default ({journey, date, originStopTimes}) => {
-  const equipment = <Equipment journey={journey} />;
+export default ({journey, departure, date, originStopTimes}) => {
+  const equipment = <Equipment journey={journey} departure={departure} />;
+  const equipmentType = getEquipmentType(departure.equipmentType);
 
   return (
     <JourneyInfo>
@@ -66,23 +74,14 @@ export default ({journey, date, originStopTimes}) => {
       )}
       <JourneyInfoRow>
         <Line>
-          <span>Vehicle ID</span>
-          <strong>{journey.unique_vehicle_id}</strong>
-        </Line>
-      </JourneyInfoRow>
-      <JourneyInfoRow>
-        <Line>
-          <span>Equipment required</span>
           <span>
-            {/* TODO: placeholder data until we get a JORE export with the data. */}
-            <span>C, teli</span>
+            Equipment {departure.equipmentRequired ? "required" : "planned"}
+          </span>
+          <span>
+            {equipmentType} ({getFeature(equipmentType)})
           </span>
         </Line>
-        {equipment && (
-          <Line right>
-            <strong>{equipment}</strong>
-          </Line>
-        )}
+        {equipment && <Line right>{equipment}</Line>}
       </JourneyInfoRow>
     </JourneyInfo>
   );

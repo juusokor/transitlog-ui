@@ -5,6 +5,10 @@ const HfpFieldsFragment = gql`
     journey_start_time
     next_stop_id
     received_at
+    owner_operator_id
+    oper
+    vehicle_number
+    veh
     lat
     long
     unique_vehicle_id

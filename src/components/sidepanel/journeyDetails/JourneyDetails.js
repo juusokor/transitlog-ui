@@ -117,6 +117,7 @@ class JourneyDetails extends React.Component {
               <JourneyPanelContent>
                 <JourneyInfo
                   date={date}
+                  departure={originDeparture}
                   journey={journey}
                   journeyHfp={selectedJourneyHfp}
                   originStopTimes={originStopTimes}
