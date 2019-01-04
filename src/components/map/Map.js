@@ -59,11 +59,11 @@ class Map extends Component {
         const leafletMap = this.getLeaflet();
 
         if (leafletMap) {
-          leafletMap.invalidateSize();
+          leafletMap.invalidateSize(true);
         }
       },
       {
-        delay: 1000,
+        delay: 500,
       }
     );
 
