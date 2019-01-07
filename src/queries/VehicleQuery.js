@@ -8,7 +8,7 @@ import HfpFieldsFragment from "./HfpFieldsFragment";
 const vehiclesQuery = gql`
   query vehiclesQuery($vehicleId: String, $date: Date) {
     allVehicles(
-      orderBy: RECEIVED_AT_ASC
+      order_by: {received_at: asc}
       condition: {unique_vehicle_id: $vehicleId, oday: $date, geohashLevel: 0}
     ) {
       nodes {
