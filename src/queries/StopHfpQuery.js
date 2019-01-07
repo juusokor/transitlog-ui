@@ -12,6 +12,7 @@ const createQueryPart = (direction, routes) => {
 
   return `
     ${queryName}: vehicles(
+      order_by: {received_at: asc}
       where: {
         route_id: {_in: ["${routes.join('","')}"]}
         direction_id: {_eq: ${direction}}
