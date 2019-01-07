@@ -7,9 +7,14 @@ const timeActions = (state) => {
   // in the url doesn't slow down the app.
   const setUrlTime = debounce((time) => setUrlValue("time", time), 1000);
 
-  const setTime = action((timeValue) => {
+  const setTime = action((timeValue, setUrlImmediately = false) => {
     state.time = timeValue;
-    setUrlTime(state.time);
+
+    if (!setUrlImmediately) {
+      setUrlTime(state.time);
+    } else {
+      setUrlValue("time", state.time);
+    }
   });
 
   const setTimeIncrement = action(
