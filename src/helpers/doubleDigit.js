@@ -1,2 +1,5 @@
-const doubleDigit = (val) => ("0" + val).slice(-2);
+const doubleDigit = (val, padEnd = false) => {
+  const padded = !padEnd ? "0" + val : val + "0";
+  return padded.slice(-2);
+};
 export default doubleDigit;
