@@ -65,7 +65,12 @@ class RouteStopMarker extends React.Component {
     );
 
     return showRadius ? (
-      <StopRadius center={markerPosition} radius={stop.stopRadius} color={stopColor}>
+      <StopRadius
+        key={`stop_radius_${stop.stopId}${isSelected ? "_selected" : ""}`}
+        isHighlighted={isSelected}
+        center={markerPosition}
+        radius={stop.stopRadius}
+        color={stopColor}>
         {markerElement}
       </StopRadius>
     ) : (
@@ -201,12 +206,13 @@ class RouteStopMarker extends React.Component {
     );
 
     delayType = getDelayType(diff);
-
     color = getTimelinessColor(delayType, stopColor);
 
     if (observedMoment) {
       const observedTime = (
-        <ObservedTime backgroundColor={color} color="white">
+        <ObservedTime
+          backgroundColor={color}
+          color={delayType === "late" ? "var(--dark-grey)" : "white"}>
           {observedMoment.format("HH:mm:ss")}
         </ObservedTime>
       );

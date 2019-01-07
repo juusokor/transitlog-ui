@@ -8,21 +8,34 @@ import styled from "styled-components";
 import {app} from "mobx-app";
 import {getPriorityMode, getModeColor} from "../../helpers/vehicleColor";
 import {StopRadius} from "./StopRadius";
+import {observable, action} from "mobx";
 
-const StopRouteList = styled.button`
+const StopOptionButton = styled.button`
   text-decoration: none;
-  padding: 2px 4px;
-  border-radius: 3px;
-  background: #e6e6e6;
-  margin: 0 0 3px 3px;
-  display: inline-block;
-  border: 0;
+  padding: 0.25rem 0.5rem;
+  border-radius: 5px;
+  background: var(--lightest-grey);
+  margin: 0 0 0.5rem 0;
+  display: block;
+  border: ${({color = "var(--lightest-grey)"}) =>
+    color ? `3px solid ${color}` : "3px solid var(--lightest-grey)"};
   cursor: pointer;
+
+  &:hover {
+    background-color: var(--lighter-grey);
+  }
 `;
 
 @inject(app("Filters"))
 @observer
 class StopMarker extends Component {
+  @observable
+  popupOpen = false;
+
+  togglePopupOpen = action((setTo = !this.popupOpen) => {
+    this.popupOpen = setTo;
+  });
+
   selectRoute = (route) => () => {
     if (route) {
       this.props.Filters.setRoute(route);
@@ -31,6 +44,8 @@ class StopMarker extends Component {
 
   selectStop = () => {
     const {stop, Filters} = this.props;
+
+    this.togglePopupOpen();
 
     if (stop) {
       Filters.setStop(stop.stopId);
@@ -46,50 +61,70 @@ class StopMarker extends Component {
     const {stop, state, showRadius = true} = this.props;
     const {stop: selectedStop} = state;
 
-    const selected = selectedStop === stop.stopId;
+    const isSelected = selectedStop === stop.stopId;
     const mode = getPriorityMode(get(stop, "modes.nodes", []));
     const stopColor = getModeColor(mode);
     const {stopRadius} = stop;
 
-    const markerPosition = [stop.lat, stop.lon];
+    const markerPosition = latLng(stop.lat, stop.lon);
 
     const markerElement = (
       <CircleMarker
         pane="stops"
         center={markerPosition}
         color={stopColor}
-        fillColor={selected ? stopColor : "white"}
+        fillColor={isSelected ? stopColor : "white"}
         fillOpacity={1}
         onClick={this.selectStop}
-        radius={selected ? 10 : 8}>
-        <Popup
-          autoPan={false}
-          autoClose={false}
-          keepInView={false}
-          minWidth={300}
-          maxHeight={750}
-          maxWidth={550}>
-          <Heading level={4}>
-            {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
-          </Heading>
-          {get(stop, "routeSegmentsForDate.nodes", []).map((routeSegment) => (
-            <StopRouteList
-              key={`route_${routeSegment.routeId}_${routeSegment.direction}`}
-              onClick={this.selectRoute(get(routeSegment, "route.nodes[0]", null))}>
-              {routeSegment.routeId.substring(1).replace(/^0+/, "")}
-            </StopRouteList>
-          ))}
-          <button onClick={this.onShowStreetView}>Show in street view</button>
-        </Popup>
-      </CircleMarker>
+        radius={isSelected ? 10 : 8}
+      />
     );
 
-    return showRadius ? (
-      <StopRadius center={markerPosition} color={stopColor} radius={stopRadius}>
+    const stopMarkerElement = showRadius ? (
+      <StopRadius
+        // The "pane" prop on the Circle element is not dynamic, so the
+        // StopRadius component should be remounted when selected or
+        // deselected for the circle to appear on the correct layer.
+        key={`stop_radius_${stop.stopId}${isSelected ? "_selected" : ""}`}
+        isHighlighted={isSelected}
+        center={markerPosition}
+        color={stopColor}
+        radius={stopRadius}>
         {markerElement}
       </StopRadius>
     ) : (
       markerElement
+    );
+
+    const popupElement = (
+      <Popup
+        position={markerPosition}
+        autoPan={false}
+        autoClose={false}
+        keepInView={false}
+        minWidth={300}
+        maxHeight={750}
+        maxWidth={550}>
+        <Heading level={4}>
+          {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
+        </Heading>
+        {get(stop, "routeSegmentsForDate.nodes", []).map((routeSegment) => (
+          <StopOptionButton
+            color={stopColor}
+            key={`route_${routeSegment.routeId}_${routeSegment.direction}`}
+            onClick={this.selectRoute(get(routeSegment, "route.nodes[0]", null))}>
+            {routeSegment.routeId.substring(1).replace(/^0+/, "")}
+          </StopOptionButton>
+        ))}
+        <button onClick={this.onShowStreetView}>Show in street view</button>
+      </Popup>
+    );
+
+    return (
+      <>
+        {stopMarkerElement}
+        {this.popupOpen && popupElement}
+      </>
     );
   }
 }

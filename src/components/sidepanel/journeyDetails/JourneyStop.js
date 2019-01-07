@@ -105,7 +105,7 @@ export default ({
     departureMoment,
     arrivalMoment,
     plannedArrivalMoment,
-    departureDelayType,
+    delayType,
     departureDiff,
   } = stopTimes(originDeparture, stopPositions, departure, date);
 
@@ -160,9 +160,9 @@ export default ({
             <StopDepartureTime onClick={onClickTime(stopDepartureTime)}>
               <PlainSlot>{plannedDepartureMoment.format("HH:mm:ss")}</PlainSlot>
               <ColoredBackgroundSlot
-                color={departureDelayType === "late" ? "var(--dark-grey)" : "white"}
+                color={delayType === "late" ? "var(--dark-grey)" : "white"}
                 backgroundColor={getTimelinessColor(
-                  departureDelayType,
+                  delayType,
                   "var(--light-green)"
                 )}>
                 {departureDiff.sign}

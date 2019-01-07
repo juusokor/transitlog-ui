@@ -39,7 +39,6 @@ export const stopTimes = (
   }
 
   const departureDiff = diffDepartureJourney(departureEvent, journeyDeparture, date);
-
   const departureDelayType = getDelayType(get(departureDiff, "diff", false));
   const departureColor = getTimelinessColor(departureDelayType, "#000");
 

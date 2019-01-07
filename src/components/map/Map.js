@@ -1,15 +1,15 @@
 import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
-import {latLngBounds} from "leaflet";
 import LeafletMap from "./LeafletMap";
 import {app} from "mobx-app";
 import invoke from "lodash/invoke";
+import trim from "lodash/trim";
 import get from "lodash/get";
 import debounce from "lodash/debounce";
 import {setUrlValue, getUrlValue} from "../../stores/UrlManager";
 import {reaction} from "mobx";
 
-const MAP_BOUNDS_URL_KEY = "mapBounds";
+const MAP_BOUNDS_URL_KEY = "mapView";
 
 /**
  * This component contains app-specific logic and functions. It wraps LeafletMap,
@@ -24,6 +24,8 @@ class Map extends Component {
     onMapChange: () => {},
     bounds: null,
   };
+
+  didSetUrlPosition = !getUrlValue(MAP_BOUNDS_URL_KEY);
 
   disposeSidePanelReaction = () => {};
   mapRef = React.createRef();
@@ -53,47 +55,52 @@ class Map extends Component {
     const map = this.getLeaflet();
 
     this.disposeSidePanelReaction = reaction(
-      () => (this.props.state.sidePanelVisible ? "visible" : "not visible"),
+      () =>
+        (this.props.state.sidePanelVisible ? "visible" : "not visible") +
+        (this.props.state.journeyDetailsOpen ? " details open" : " details closed"),
       () => {
         const leafletMap = this.getLeaflet();
 
         if (leafletMap) {
-          leafletMap.invalidateSize();
+          leafletMap.invalidateSize(true);
         }
       },
       {
-        delay: 1000,
+        delay: 500,
       }
     );
 
     if (map) {
-      const urlBounds = getUrlValue(MAP_BOUNDS_URL_KEY);
+      const urlCenter = getUrlValue(MAP_BOUNDS_URL_KEY);
 
-      if (urlBounds) {
-        const splitUrlBounds = urlBounds.split(",");
+      let [lat = "", lng = "", zoom = this.state.zoom] = urlCenter.split(",");
 
-        const bounds = latLngBounds(
-          [splitUrlBounds[1], splitUrlBounds[0]],
-          [splitUrlBounds[3], splitUrlBounds[2]]
-        );
-
-        this.setMapBounds(bounds);
-      } else {
-        map.setView(
-          {
-            lat: 60.170988,
-            lng: 24.940842,
-          },
-          this.state.zoom
-        );
+      if (!lat || !trim(lat) || !parseInt(lat)) {
+        lat = 60.170988;
       }
+
+      if (!lng || !trim(lng) || !parseInt(lng)) {
+        lng = 24.940842;
+      }
+
+      map.setView(
+        {
+          lat,
+          lng,
+        },
+        zoom
+      );
+
+      setTimeout(() => {
+        this.didSetUrlPosition = true;
+      }, 1000);
     }
   }
 
   componentDidUpdate({center: prevCenter}) {
     const {center} = this.props;
 
-    if (!center) {
+    if (!this.didSetUrlPosition || !center) {
       return;
     }
 
@@ -124,7 +131,7 @@ class Map extends Component {
   }
 
   setMapBounds = (bounds = null) => {
-    if (bounds && invoke(bounds, "isValid")) {
+    if (this.didSetUrlPosition && bounds && invoke(bounds, "isValid")) {
       const map = this.getLeaflet();
 
       if (map) {
@@ -136,11 +143,17 @@ class Map extends Component {
   onMapChanged = () => {
     const map = this.getLeaflet();
     this.props.onMapChanged(map);
-
-    this.setMapUrlBounds(map.getBounds().toBBoxString());
+    this.setMapUrlState(map.getCenter(), map.getZoom());
   };
 
-  setMapUrlBounds = debounce((val) => setUrlValue(MAP_BOUNDS_URL_KEY, val), 500);
+  setMapUrlState = debounce(
+    (center, zoom) =>
+      center.lat &&
+      center.lng &&
+      zoom &&
+      setUrlValue(MAP_BOUNDS_URL_KEY, `${center.lat},${center.lng},${zoom}`),
+    500
+  );
 
   onZoom = (event) => {
     const zoom = event.target.getZoom();

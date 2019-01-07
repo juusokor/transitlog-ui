@@ -14,21 +14,19 @@ import {observable, action, reaction, computed} from "mobx";
 import JourneyDetails from "./journeyDetails/JourneyDetails";
 import Info from "../../icons/Info";
 import getJourneyId from "../../helpers/getJourneyId";
-import {expr} from "mobx-utils";
 import {getUrlValue, setUrlValue} from "../../stores/UrlManager";
 
 const SidePanelContainer = styled.div`
   background: var(--lightest-grey);
   color: var(--dark-grey);
-  transition: margin-left 0.2s ease-out;
-  border-right: 1px solid var(--alt-grey);
   height: 100%;
   flex: 1 1 auto;
-  max-width: 25rem;
   position: relative;
+  z-index: 1;
+  display: flex;
   margin-left: ${({visible}) =>
     visible ? 0 : "-25rem"}; // Makes the map area larger when the sidebar is hidden
-  z-index: 1;
+  transition: margin-left 0.2s ease-out;
 `;
 
 const ToggleSidePanelButton = styled.button`
@@ -75,13 +73,16 @@ const ToggleJourneyDetailsButton = styled(ToggleSidePanelButton)`
   }
 `;
 
+const MainSidePanel = styled.div`
+  height: 100%;
+  border-right: 1px solid var(--alt-grey);
+  width: 25rem;
+`;
+
 const JourneyPanel = styled.div`
-  position: absolute;
-  z-index: 0;
-  top: 0;
-  transition: all 0.2s ease-out;
-  right: calc(-25rem - 1px);
-  transform: translateX(${({visible}) => (visible ? "0" : "-100%")});
+  transition: margin-left 0.2s ease-out;
+  margin-left: ${({visible}) =>
+    visible ? 0 : "-25rem"}; // Makes the map area larger when the sidebar is hidden
   width: 25rem;
   height: 100%;
   background: white;
@@ -93,17 +94,8 @@ const JourneyPanel = styled.div`
 @inject(app("UI"))
 @observer
 class SidePanel extends Component {
-  // This is the master toggle for if the user wants the journey details to be open.
-  @observable
-  journeyDetailsOpen = getUrlValue("journeyDetailsOpen", false);
-
-  toggleJourneyDetails = action((setTo = !this.journeyDetailsOpen) => {
-    this.journeyDetailsOpen = !!setTo;
-    setUrlValue("journeyDetailsOpen", setTo);
-  });
-
   // This is a computed check to see if we have anything to show in the journey details sidebar.
-  // When this returns false the sidebar will hide regardless of the above setting.
+  // When this returns false the sidebar will hide regardless of the journeyDetailsOpen setting.
   @computed
   get journeyDetailsCanOpen() {
     const {state} = this.props;
@@ -127,18 +119,17 @@ class SidePanel extends Component {
 
   render() {
     const {
-      UI: {toggleSidePanel},
+      UI: {toggleSidePanel, toggleJourneyDetails},
       positions = [],
       loading,
-      state: {stop, route, vehicle, sidePanelVisible},
+      state: {stop, route, vehicle, sidePanelVisible, journeyDetailsOpen},
     } = this.props;
 
-    const journeyDetailsAreOpen =
-      this.journeyDetailsCanOpen && this.journeyDetailsOpen;
+    const journeyDetailsAreOpen = this.journeyDetailsCanOpen && journeyDetailsOpen;
 
     return (
       <SidePanelContainer visible={sidePanelVisible}>
-        {sidePanelVisible && (
+        <MainSidePanel>
           <Tabs>
             {(!route || !route.routeId) && positions.length !== 0 && (
               <AreaJourneyList
@@ -171,14 +162,14 @@ class SidePanel extends Component {
               />
             )}
           </Tabs>
-        )}
+        </MainSidePanel>
         <JourneyPanel visible={journeyDetailsAreOpen}>
           {/* The content of the sidebar is independent from the sidebar wrapper so that we can animate it. */}
           {journeyDetailsAreOpen && <JourneyDetails positions={positions} />}
           {this.journeyDetailsCanOpen && (
             <ToggleJourneyDetailsButton
-              isVisible={this.journeyDetailsOpen}
-              onClick={() => this.toggleJourneyDetails()}>
+              isVisible={journeyDetailsOpen}
+              onClick={() => toggleJourneyDetails()}>
               <Info fill="white" height="1rem" width="1rem" />
             </ToggleJourneyDetailsButton>
           )}

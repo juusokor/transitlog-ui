@@ -69,22 +69,13 @@ class JourneyStops extends React.Component {
           departure.departureId === departureId
       );
 
-      const {
-        destinationFi,
-        distanceFromPrevious,
-        distanceFromStart,
-        duration,
-        stopIndex,
-        timingStopType,
-      } = routeSegment;
-
       return {
-        destination: destinationFi,
-        distanceFromPrevious,
-        distanceFromStart,
-        duration,
-        stopIndex,
-        timingStopType,
+        destination: routeSegment.destinationFi,
+        distanceFromPrevious: routeSegment.distanceFromPrevious,
+        distanceFromStart: routeSegment.distanceFromStart,
+        duration: routeSegment.duration,
+        stopIndex: routeSegment.stopIndex,
+        timingStopType: routeSegment.timingStopType,
         ...omit(get(routeSegment, "stop", {}), "departures", "__typename"),
         stopDeparture: stopDepartures[0],
       };

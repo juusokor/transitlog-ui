@@ -28,7 +28,8 @@ const Logo = styled.img`
 const MainHeading = styled(Heading).attrs({level: 1})`
   color: white;
   flex: 1 1 auto;
-  margin: 0 1rem 0 0;
+  margin: 0 1.25rem 0 1rem;
+  text-align: right;
   font-size: 1.5rem;
   justify-content: flex-end;
 `;
