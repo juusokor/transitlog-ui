@@ -52,6 +52,9 @@ export const ExtensiveRouteFieldsFragment = gql`
           dateBegin
           dateEnd
           dayType
+          equipmentRequired
+          equipmentType
+          trunkColorRequired
         }
       }
     }
@@ -80,6 +83,9 @@ export const ExtensiveRouteFieldsFragment = gql`
           dateBegin
           dateEnd
           dayType
+          equipmentRequired
+          equipmentType
+          trunkColorRequired
         }
       }
     }
@@ -117,6 +123,9 @@ export const ExtensiveRouteFieldsFragment = gql`
               dateBegin
               dateEnd
               dayType
+              equipmentRequired
+              equipmentType
+              trunkColorRequired
             }
           }
         }

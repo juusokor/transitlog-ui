@@ -4,10 +4,11 @@ import get from "lodash/get";
 import React from "react";
 
 const vehicleTypeQuery = gql`
-  query vehicleInfo($vehicleId: String) {
-    allEquipment(condition: {vehicleId: $vehicleId}) {
+  query vehicleInfo($vehicleId: String, $operatorId: String) {
+    allEquipment(condition: {vehicleId: $vehicleId, operatorId: $operatorId}) {
       nodes {
         vehicleId
+        operatorId
         registryNr
         age
         type
@@ -19,9 +20,9 @@ const vehicleTypeQuery = gql`
   }
 `;
 
-export default ({vehicleId, skip = false, children}) => {
+export default ({vehicleId, operatorId, skip = false, children}) => {
   return (
-    <Query query={vehicleTypeQuery} variables={{vehicleId}} skip={skip}>
+    <Query query={vehicleTypeQuery} variables={{vehicleId, operatorId}} skip={skip}>
       {({data, loading, error}) => {
         if (error) {
           console.error(error);
@@ -34,10 +35,6 @@ export default ({vehicleId, skip = false, children}) => {
         if (!vehicle) {
           return children({vehicle: null, loading});
         }
-
-        // TODO: Translate "teli"
-        const multiAxleValue = vehicle.multiAxle ? "teli" : "";
-        vehicle.multiAxle = multiAxleValue;
 
         return children({vehicle, loading});
       }}
