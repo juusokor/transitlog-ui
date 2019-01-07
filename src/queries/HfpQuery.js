@@ -3,7 +3,23 @@ import get from "lodash/get";
 import gql from "graphql-tag";
 import HfpFieldsFragment from "./HfpFieldsFragment";
 import getJourneyId from "../helpers/getJourneyId";
-import {createCompositeJourney} from "../stores/journeyActions";
+import {combineDateAndTime} from "../helpers/time";
+
+function createCompositeJourney(date, route, time) {
+  if (!route || !route.routeId || !date || !time) {
+    return false;
+  }
+
+  const journey = {
+    oday: date,
+    journey_start_time: time,
+    journey_start_timestamp: combineDateAndTime(date, time, "Europe/Helsinki"),
+    route_id: route.routeId,
+    direction_id: route.direction,
+  };
+
+  return journey;
+}
 
 export const hfpQuery = gql`
   query hfpQuery($route_id: String, $direction: smallint, $date: date, $time: time) {
@@ -28,7 +44,6 @@ export const queryHfp = (route, date, time) => {
 
   return hfpClient
     .query({
-      fetchPolicy: "no-cache", // Cached manually
       query: hfpQuery,
       variables: {
         route_id: routeId,

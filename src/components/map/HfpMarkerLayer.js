@@ -9,7 +9,7 @@ import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import {Text} from "../../helpers/text";
 import "./Map.css";
-import {observable, action, reaction, runInAction} from "mobx";
+import {observable, action, reaction} from "mobx";
 import animationFrame from "../../helpers/animationFrame";
 import {getTimelinessColor} from "../../helpers/timelinessColor";
 

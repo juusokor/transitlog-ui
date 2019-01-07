@@ -138,6 +138,7 @@ module.exports = function(webpackEnv) {
       // changing JS code would still trigger a refresh.
     ].filter(Boolean),
     output: {
+      globalObject: "self",
       // The build folder.
       path: isEnvProduction ? paths.appBuild : undefined,
       // Add /* filename */ comments to generated require()s in the output.
@@ -317,12 +318,36 @@ module.exports = function(webpackEnv) {
                 name: "static/media/[name].[hash:8].[ext]",
               },
             },
+            {
+              test: /\.worker.(js|mjs|jsx|ts|tsx)$/,
+              include: paths.appSrc,
+              use: [
+                {
+                  loader: require.resolve("babel-loader"),
+                  options: {
+                    customize: require.resolve(
+                      "babel-preset-react-app/webpack-overrides"
+                    ),
+                    cacheDirectory: true,
+                    cacheCompression: isEnvProduction,
+                    compact: isEnvProduction,
+                  },
+                },
+                require.resolve("workerize-loader"),
+              ],
+            },
             // Process application JS with Babel.
             // The preset includes JSX, Flow, TypeScript, and some ESnext features.
             {
               test: /\.(js|mjs|jsx|ts|tsx)$/,
               include: paths.appSrc,
               loader: require.resolve("babel-loader"),
+              rules: [
+                {
+                  test: /\.worker.(js|mjs|jsx|ts|tsx)$/,
+                  loader: require.resolve("workerize-loader"),
+                },
+              ],
               options: {
                 customize: require.resolve(
                   "babel-preset-react-app/webpack-overrides"

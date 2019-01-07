@@ -10,7 +10,7 @@ import {timeToFormat} from "../../helpers/time";
 import {Text, text} from "../../helpers/text";
 import withDepartures from "../../hoc/withRouteStopDepartures";
 import doubleDigit from "../../helpers/doubleDigit";
-import {observable, action, toJS} from "mobx";
+import {toJS} from "mobx";
 import Loading from "../Loading";
 import SidepanelList from "./SidepanelList";
 import {journeyFetchStates} from "../../stores/JourneyStore";

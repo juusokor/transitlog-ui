@@ -2,8 +2,7 @@ import {inject, observer} from "mobx-react";
 import {app} from "mobx-app";
 import React from "react";
 import withRoute from "../hoc/withRoute";
-import {fetchHfpJourney, loadCache, persistCache} from "../helpers/hfpQueryManager";
-import {observable, reaction, action, runInAction} from "mobx";
+import {observable, reaction, action, runInAction, toJS} from "mobx";
 import {journeyFetchStates} from "../stores/JourneyStore";
 import getJourneyId from "../helpers/getJourneyId";
 import orderBy from "lodash/orderBy";
@@ -12,6 +11,10 @@ import get from "lodash/get";
 import {createFetchKey, createRouteKey} from "../helpers/keys";
 import pMap from "p-map";
 import {setResetListener} from "../stores/FilterStore";
+import HfpWorker from "../workers/fetchHfp.worker";
+
+const hfpWorker = HfpWorker();
+const {fetchHfpJourney} = hfpWorker;
 
 @inject(app("Journey", "Filters"))
 @withRoute
@@ -23,8 +26,6 @@ class RouteHfpEvents extends React.Component {
 
   @observable
   loading = false;
-
-  loadingRequests = [];
 
   fetchReaction = () => {};
   resetReaction = () => {};
@@ -62,7 +63,7 @@ class RouteHfpEvents extends React.Component {
   fetchRequestedJourneys = async (requestedJourneys) => {
     this.setLoading(true);
     await pMap(requestedJourneys, this.fetchJourney, {concurrency: 5});
-    this.onFetchCompleted();
+    await this.onFetchCompleted();
   };
 
   fetchJourney = async (journeyRequest) => {
@@ -82,7 +83,7 @@ class RouteHfpEvents extends React.Component {
     Journey.setJourneyFetchState(journeyId, journeyFetchStates.PENDING);
 
     const useRoute = this.getStateRoute(route);
-    const journeys = await fetchHfpJourney(useRoute, date, time, skipCache);
+    const journeys = await fetchHfpJourney(toJS(useRoute), date, time, skipCache);
 
     if (journeys && Array.isArray(journeys)) {
       if (journeys.length === 0) {
@@ -131,9 +132,8 @@ class RouteHfpEvents extends React.Component {
     }
   };
 
-  onFetchCompleted = () => {
+  onFetchCompleted = async () => {
     this.setLoading(false);
-    persistCache();
   };
 
   onError = (err) => {
@@ -142,7 +142,7 @@ class RouteHfpEvents extends React.Component {
     console.log(err);
   };
 
-  componentDidMount() {
+  async componentDidMount() {
     this.fetchReaction = reaction(
       () => {
         const {
@@ -180,8 +180,6 @@ class RouteHfpEvents extends React.Component {
       },
       {fireImmediately: true}
     );
-
-    loadCache();
   }
 
   componentWillUnmount() {

@@ -1,4 +1,4 @@
-import {extendObservable, action, toJS} from "mobx";
+import {extendObservable, action} from "mobx";
 import filterActions from "./filterActions";
 import JourneyActions from "./journeyActions";
 import {inflate} from "../helpers/inflate";

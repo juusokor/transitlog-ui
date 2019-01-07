@@ -6,7 +6,7 @@ import get from "lodash/get";
 import gql from "graphql-tag";
 import {groupHfpPositions} from "../helpers/groupHfpPositions";
 import getJourneyId from "../helpers/getJourneyId";
-import {createHfpItem} from "../helpers/hfpQueryManager";
+import {createHfpItem} from "../helpers/createHfpItem";
 
 const areaHfpQuery = gql`
   query stopDelay(

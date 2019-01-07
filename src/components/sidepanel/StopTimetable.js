@@ -51,7 +51,6 @@ class StopTimetable extends Component {
       routeFilter,
       timeRangeFilter,
       departuresByHour,
-      departuresPerHour,
       groupedJourneys,
       date,
       selectedJourney,

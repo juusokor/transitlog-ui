@@ -82,13 +82,11 @@ class RouteStopMarker extends React.Component {
     const {
       stop,
       routeOriginStopId,
-      selected,
       firstTerminal,
       lastTerminal,
       departures = [],
       positions = [],
       date,
-      onSelect,
       selectedJourney,
     } = this.props;
 
