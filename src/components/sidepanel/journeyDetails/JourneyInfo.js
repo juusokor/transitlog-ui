@@ -34,7 +34,7 @@ const Line = styled.div`
   justify-content: ${({right = false}) => (right ? "flex-end" : "space-between")};
   color: var(--dark-grey);
 
-  span:first-child {
+  > span:first-child {
     color: var(--grey);
   }
 `;

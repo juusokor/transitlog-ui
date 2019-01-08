@@ -34,9 +34,9 @@ export default ({journey, departure}) => {
 
         return (
           <EquipmentWrapper>
-            <span>{vehicle.class}</span>,{" "}
             {map(equipmentRequirements, ({observed, required}, prop) => {
               const isRequired = required !== false;
+
               const color = isRequired
                 ? observed === required
                   ? "var(--light-green)"
