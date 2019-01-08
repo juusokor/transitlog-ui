@@ -42,6 +42,8 @@ export default ({journey, departure, date, originStopTimes}) => {
   const equipment = <Equipment journey={journey} departure={departure} />;
   const equipmentType = getEquipmentType(departure.equipmentType);
 
+  console.log(equipmentType);
+
   return (
     <JourneyInfo>
       {originStopTimes && (
@@ -78,7 +80,13 @@ export default ({journey, departure, date, originStopTimes}) => {
             Equipment {departure.equipmentRequired ? "required" : "planned"}
           </span>
           <span>
-            {equipmentType} ({getFeature(equipmentType)})
+            {equipmentType ? (
+              <>
+                {equipmentType} ({getFeature(equipmentType)})
+              </>
+            ) : (
+              "No data"
+            )}
           </span>
         </Line>
         {equipment && <Line right>{equipment}</Line>}
