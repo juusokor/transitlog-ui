@@ -123,6 +123,7 @@ class JourneyDetails extends React.Component {
           return (
             <JourneyPanelWrapper>
               <JourneyDetailsHeader
+                vehicleId={journey.unique_vehicle_id}
                 date={date}
                 time={journey.journey_start_time}
                 mode={get(route, "mode", "BUS")}
