@@ -16,6 +16,7 @@
   "filterpanel.real_start_time": "Observed start time",
   "filterpanel.journey.unrealized": "Unrealized",
   "filterpanel.journey.no_data": "No data",
+  "filterpanel.journey.incomplete_data": "Incomplete data",
   "filterpanel.journey.click_to_fetch": "Fetch",
 
   "sidepanel.tabs.journeys": "Journeys",

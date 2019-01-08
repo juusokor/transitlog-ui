@@ -16,6 +16,7 @@
   "filterpanel.real_start_time": "Toteutunut lähtöaika",
   "filterpanel.journey.unrealized": "Toteutumaton",
   "filterpanel.journey.no_data": "Ei tietoja",
+  "filterpanel.journey.incomplete_data": "Puutteelliset tiedot",
   "filterpanel.journey.click_to_fetch": "Hae",
 
   "sidepanel.tabs.journeys": "Lähdöt",

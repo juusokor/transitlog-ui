@@ -261,30 +261,53 @@ class Journeys extends Component {
               []
             );
 
-            const journeyStartPosition = findJourneyStartPosition(journeyPositions);
-
-            const [hours, minutes] = journeyStartPosition.journey_start_time.split(
-              ":"
+            const journeyStartPosition = findJourneyStartPosition(
+              journeyPositions,
+              route.originstopId
             );
 
-            const departure = {
-              hours: parseInt(hours, 10),
-              minutes: parseInt(minutes, 10),
-            };
+            let observedJourney = <Text>filterpanel.journey.incomplete_data</Text>;
 
-            const plannedObservedDiff = diffDepartureJourney(
-              journeyStartPosition,
-              departure,
-              date
-            );
+            if (journeyStartPosition) {
+              const [hours, minutes] = journeyStartPosition.journey_start_time.split(
+                ":"
+              );
 
-            const observedTimeString = plannedObservedDiff
-              ? plannedObservedDiff.observedMoment.format("HH:mm:ss")
-              : "";
+              const departure = {
+                hours: parseInt(hours, 10),
+                minutes: parseInt(minutes, 10),
+              };
 
-            const delayType = plannedObservedDiff
-              ? getDelayType(plannedObservedDiff.diff)
-              : "none";
+              const plannedObservedDiff = diffDepartureJourney(
+                journeyStartPosition,
+                departure,
+                date
+              );
+
+              const observedTimeString = plannedObservedDiff
+                ? plannedObservedDiff.observedMoment.format("HH:mm:ss")
+                : "";
+
+              const delayType = plannedObservedDiff
+                ? getDelayType(plannedObservedDiff.diff)
+                : "none";
+
+              observedJourney = (
+                <>
+                  <DelaySlot
+                    color={delayType === "late" ? "var(--dark-grey)" : "white"}
+                    backgroundColor={getTimelinessColor(
+                      delayType,
+                      "var(--light-green)"
+                    )}>
+                    {plannedObservedDiff.sign}
+                    {doubleDigit(plannedObservedDiff.minutes)}:
+                    {doubleDigit(plannedObservedDiff.seconds)}
+                  </DelaySlot>
+                  <TimeSlot>{observedTimeString}</TimeSlot>
+                </>
+              );
+            }
 
             const journeyIsSelected = expr(
               () => state.selectedJourney && selectedJourneyId === journeyId
@@ -305,21 +328,7 @@ class Journeys extends Component {
                     "Europe/Helsinki"
                   )}
                 </JourneyRowLeft>
-                {journeyStartPosition && (
-                  <>
-                    <DelaySlot
-                      color={delayType === "late" ? "var(--dark-grey)" : "white"}
-                      backgroundColor={getTimelinessColor(
-                        delayType,
-                        "var(--light-green)"
-                      )}>
-                      {plannedObservedDiff.sign}
-                      {doubleDigit(plannedObservedDiff.minutes)}:
-                      {doubleDigit(plannedObservedDiff.seconds)}
-                    </DelaySlot>
-                    <TimeSlot>{observedTimeString}</TimeSlot>
-                  </>
-                )}
+                {observedJourney}
               </JourneyListRow>
             );
           })
