@@ -1,13 +1,14 @@
 import React from "react";
 import styled from "styled-components";
 import get from "lodash/get";
-import map from "lodash/map";
 import Equipment from "./Equipment";
 import CalculateTerminalTime from "./CalculateTerminalTime";
 import doubleDigit from "../../../helpers/doubleDigit";
-import {getEquipmentType, getFeature, checkRequirements} from "./equipmentType";
+import {getEquipmentType, getFeature} from "./equipmentType";
 
-const JourneyInfo = styled.div``;
+const JourneyInfo = styled.div`
+  flex: none;
+`;
 
 const JourneyInfoRow = styled.div`
   display: flex;
@@ -41,8 +42,6 @@ const Line = styled.div`
 export default ({journey, departure, date, originStopTimes}) => {
   const equipment = <Equipment journey={journey} departure={departure} />;
   const equipmentType = getEquipmentType(departure.equipmentType);
-
-  console.log(equipmentType);
 
   return (
     <JourneyInfo>

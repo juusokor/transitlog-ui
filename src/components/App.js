@@ -19,16 +19,20 @@ const AppFrame = styled.main`
   height: 100%;
   display: grid;
   grid-template-rows: 9rem 1fr;
+  align-content: stretch;
+  align-items: stretch;
 `;
 
 const SidepanelAndMapWrapper = styled.div`
   display: flex;
   width: 100%;
+  height: 100%;
 `;
 
 const MapPanel = styled(Map)`
   flex: 1 1 auto;
   width: 100%;
+  height: 100%;
 `;
 
 @inject(app("Journey", "Filters"))

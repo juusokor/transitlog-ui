@@ -10,17 +10,15 @@ import VehicleJourneys from "./VehicleJourneys";
 import {text} from "../../helpers/text";
 import AreaJourneyList from "./AreaJourneyList";
 import ArrowLeft from "../../icons/ArrowLeft";
-import {observable, action, reaction, computed} from "mobx";
+import {computed} from "mobx";
 import JourneyDetails from "./journeyDetails/JourneyDetails";
 import Info from "../../icons/Info";
 import getJourneyId from "../../helpers/getJourneyId";
-import {getUrlValue, setUrlValue} from "../../stores/UrlManager";
 
 const SidePanelContainer = styled.div`
   background: var(--lightest-grey);
   color: var(--dark-grey);
   height: 100%;
-  flex: 1 1 auto;
   position: relative;
   z-index: 1;
   display: flex;
@@ -87,8 +85,6 @@ const JourneyPanel = styled.div`
   height: 100%;
   background: white;
   border-right: 1px solid var(--alt-grey);
-  display: flex;
-  flex-direction: column;
 `;
 
 @inject(app("UI"))
