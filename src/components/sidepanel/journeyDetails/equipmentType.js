@@ -37,7 +37,7 @@ export function getFeature(type) {
 
 export function checkRequirements(departure, equipment) {
   const {trunkColorRequired, equipmentRequired, equipmentType} = departure;
-  const {type, multiAxle, exteriorColor} = equipment;
+  const {type, exteriorColor} = equipment;
 
   const plannedEquipmentType = getEquipmentType(equipmentType);
   const plannedFeature = getFeature(plannedEquipmentType);

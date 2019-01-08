@@ -13,12 +13,20 @@ import {latLng} from "leaflet";
 import SingleStopQuery from "../queries/SingleStopQuery";
 import AreaHfpEvents from "./AreaHfpEvents";
 import {observable, action} from "mobx";
+import ErrorMessages from "./ErrorMessages";
 
 const AppFrame = styled.main`
   width: 100%;
   height: 100%;
+  overflow: hidden;
+  position: relative;
+`;
+
+const AppGrid = styled.div`
+  width: 100%;
+  height: 100%;
   display: grid;
-  grid-template-rows: 9rem 1fr;
+  grid-template-rows: 9rem 1fr auto;
   align-content: stretch;
   align-items: stretch;
 `;
@@ -81,7 +89,7 @@ class App extends Component {
                     : [];
 
                 return (
-                  <>
+                  <AppGrid>
                     <FilterBar timeRange={timeRange} positions={positions} />
                     <SidepanelAndMapWrapper>
                       <SidePanel
@@ -124,12 +132,13 @@ class App extends Component {
                         )}
                       </JourneyPosition>
                     </SidepanelAndMapWrapper>
-                  </>
+                  </AppGrid>
                 );
               }}
             </RouteHfpEvents>
           )}
         </AreaHfpEvents>
+        <ErrorMessages />
       </AppFrame>
     );
   }

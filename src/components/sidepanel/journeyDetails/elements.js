@@ -9,9 +9,6 @@ export const SmallText = styled.span`
   color: var(--light-grey);
 `;
 
-const getTerminus = (origin, destination, not) => ({terminus = false}) =>
-  terminus === "origin" ? origin : terminus === "destination" ? destination : not;
-
 export const StopMarker = styled.div`
   border-radius: 50%;
   flex: 0 0 1.5rem;

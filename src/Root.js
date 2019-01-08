@@ -1,12 +1,13 @@
 import React from "react";
 import {hot} from "react-hot-loader";
 import App from "./components/App";
-import {client} from "./api";
+import {getClient} from "./api";
 import {ApolloProvider} from "react-apollo";
-import {observer} from "mobx-react";
+import {observer, inject} from "mobx-react";
 import DevTools from "mobx-react-devtools";
 import {configureDevtool} from "mobx-react-devtools";
 import {GlobalFormStyle} from "./components/Forms";
+import {app} from "mobx-app";
 
 configureDevtool({
   logEnabled: false,
@@ -16,14 +17,24 @@ configureDevtool({
   logFilter: (change) => change.type === "action",
 });
 
-const Root = observer(() => (
-  <ApolloProvider client={client}>
-    <>
-      <GlobalFormStyle />
-      <App />
-      <DevTools />
-    </>
-  </ApolloProvider>
-));
+@inject(app("UI"))
+@observer
+class Root extends React.Component {
+  render() {
+    const {UI} = this.props;
+
+    const client = getClient(UI);
+
+    return (
+      <ApolloProvider client={client}>
+        <>
+          <GlobalFormStyle />
+          <App />
+          <DevTools />
+        </>
+      </ApolloProvider>
+    );
+  }
+}
 
 export default hot(module)(Root);

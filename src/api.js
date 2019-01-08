@@ -19,76 +19,86 @@ if (!hfpUrl) {
   console.error("HFP GraphQL URL not set!");
 }
 
-const errorLink = onError(({graphQLErrors, networkError}) => {
-  if (process.env.NODE_ENV !== "development") {
-    return;
+let createdClient = null;
+
+export const getClient = (UIStore) => {
+  if (createdClient) {
+    return createdClient;
   }
 
-  if (graphQLErrors)
-    graphQLErrors.map(({message, locations, path}) =>
-      console.log(
-        `[GraphQL error]: Message: ${message}, Location: ${JSON.stringify(
-          locations
-        )}, Path: ${path}`
-      )
-    );
+  function notifyError(type, message) {
+    if (UIStore) {
+      return UIStore.addError(type, message);
+    }
 
-  if (networkError) {
-    console.log(`[Network error]: ${networkError}`);
+    console.warn(`${type} error: ${message}`);
   }
-});
 
-const cache = new InMemoryCache();
-
-const cacheStorage = localforage.createInstance({
-  name: "transitlogStorage",
-  storeName: "transitlog_storage",
-  driver: localforage.INDEXEDDB,
-});
-
-persistCache({
-  cache: cache,
-  storage: cacheStorage,
-  serialize: false,
-  key: "persisted_transitlog_cache",
-  maxSize: 4000000000, // 4 gb
-});
-
-const joreLink = new BatchHttpLink({
-  uri: joreUrl,
-  batchMax: 100,
-  batchInterval: 10,
-});
-
-const hfpLink = new HttpLink({
-  uri: hfpUrl,
-});
-
-const splitLink = split(
-  (operation) => {
-    if (operation.operationName === "hfpQuery") {
-      return false;
+  const errorLink = onError(({graphQLErrors, networkError}) => {
+    if (process.env.NODE_ENV !== "development") {
+      return;
     }
 
-    if (
-      get(
-        operation,
-        "query.definitions[0].selectionSet.selections[0].name.value",
-        "none"
-      ) === "vehicles"
-    ) {
-      return false;
+    if (graphQLErrors)
+      graphQLErrors.map(({message}) => notifyError("GraphQL", message));
+
+    if (networkError) {
+      notifyError("Network", networkError);
     }
+  });
 
-    return true;
-  },
-  joreLink,
-  hfpLink
-);
+  const cache = new InMemoryCache();
 
-const client = new ApolloClient({
-  link: concat(errorLink, splitLink),
-  cache: cache,
-});
+  const cacheStorage = localforage.createInstance({
+    name: "transitlogStorage",
+    storeName: "transitlog_storage",
+    driver: localforage.INDEXEDDB,
+  });
 
-export {client};
+  persistCache({
+    cache: cache,
+    storage: cacheStorage,
+    serialize: false,
+    key: "persisted_transitlog_cache",
+    maxSize: 4000000000, // 4 gb
+  });
+
+  const joreLink = new BatchHttpLink({
+    uri: joreUrl,
+    batchMax: 100,
+    batchInterval: 10,
+  });
+
+  const hfpLink = new HttpLink({
+    uri: hfpUrl,
+  });
+
+  const splitLink = split(
+    (operation) => {
+      if (operation.operationName === "hfpQuery") {
+        return false;
+      }
+
+      if (
+        get(
+          operation,
+          "query.definitions[0].selectionSet.selections[0].name.value",
+          "none"
+        ) === "vehicles"
+      ) {
+        return false;
+      }
+
+      return true;
+    },
+    joreLink,
+    hfpLink
+  );
+
+  createdClient = new ApolloClient({
+    link: concat(errorLink, splitLink),
+    cache: cache,
+  });
+
+  return createdClient;
+};

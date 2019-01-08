@@ -5,7 +5,6 @@ import styled from "styled-components";
 import Calendar from "../../../icons/Calendar";
 import JourneyPlanner from "../../../icons/JourneyPlanner";
 import Time2 from "../../../icons/Time2";
-import Bus from "../../../icons/Bus";
 
 const JourneyPanelHeader = styled.div`
   flex: none;

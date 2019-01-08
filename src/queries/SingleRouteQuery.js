@@ -11,7 +11,6 @@ import parse from "date-fns/parse";
 import orderBy from "lodash/orderBy";
 import first from "lodash/first";
 import isWithinRange from "date-fns/is_within_range";
-import {client} from "../api";
 import {getDayTypeFromDate} from "../helpers/getDayTypeFromDate";
 
 export const singleRouteQuery = gql`
@@ -47,7 +46,7 @@ const extensiveSingleRouteQuery = gql`
   ${ExtensiveRouteFieldsFragment}
 `;
 
-export const fetchSingleRoute = (route, date) => {
+export const fetchSingleRoute = (route, date, client) => {
   return client
     .query({
       query: singleRouteQuery,

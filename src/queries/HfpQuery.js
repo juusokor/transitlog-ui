@@ -1,9 +1,11 @@
-import {client} from "../api";
+import {getClient} from "../api";
 import get from "lodash/get";
 import gql from "graphql-tag";
 import HfpFieldsFragment from "./HfpFieldsFragment";
 import getJourneyId from "../helpers/getJourneyId";
 import {combineDateAndTime} from "../helpers/time";
+
+const client = getClient();
 
 function createCompositeJourney(date, route, time) {
   if (!route || !route.routeId || !date || !time) {

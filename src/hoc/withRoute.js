@@ -1,4 +1,5 @@
 import React from "react";
+import {withApollo} from "react-apollo";
 import {fetchSingleRoute} from "../queries/SingleRouteQuery";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
@@ -28,6 +29,7 @@ function shouldFetch(route) {
 
 export default (Component) => {
   @inject(app("Filters"))
+  @withApollo
   @observer
   class WithRouteComponent extends React.Component {
     disposeReaction = () => {};
@@ -49,11 +51,12 @@ export default (Component) => {
 
     updateRoute = async (route) => {
       const {
+        client,
         Filters,
         state: {date},
       } = this.props;
 
-      const fetchedRoute = await fetchSingleRoute(route, date);
+      const fetchedRoute = await fetchSingleRoute(route, date, client);
       const stateRoute = this.props.state.route;
 
       if (

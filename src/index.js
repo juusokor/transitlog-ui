@@ -27,7 +27,7 @@ const render = () => {
 
   ReactDOM.render(
     <Provider state={state} actions={actions}>
-      <Root />
+      <Root errorBoundary={false} />
     </Provider>,
     root
   );
