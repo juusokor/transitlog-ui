@@ -18,9 +18,25 @@ import orderBy from "lodash/orderBy";
 import TerminalStop from "./TerminalStop";
 import {stopTimes} from "../../../helpers/stopTimes";
 
+const JourneyPanelWrapper = styled.div`
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  align-items: stretch;
+`;
+
+const ScrollContainer = styled.div`
+  height: 100%;
+  position: relative;
+  overflow: auto;
+`;
+
 const JourneyPanelContent = styled.div`
-  overflow-y: auto;
-  overflow-x: visible;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: auto;
+  width: 100%;
 `;
 
 const StopsListWrapper = styled.div`
@@ -105,8 +121,9 @@ class JourneyDetails extends React.Component {
             : null;
 
           return (
-            <>
+            <JourneyPanelWrapper>
               <JourneyDetailsHeader
+                vehicleId={journey.unique_vehicle_id}
                 date={date}
                 time={journey.journey_start_time}
                 mode={get(route, "mode", "BUS")}
@@ -114,41 +131,43 @@ class JourneyDetails extends React.Component {
                 desi={get(journey, "desi")}
                 name={get(route, "nameFi")}
               />
-              <JourneyPanelContent>
-                <JourneyInfo
-                  date={date}
-                  departure={originDeparture}
-                  journey={journey}
-                  journeyHfp={selectedJourneyHfp}
-                  originStopTimes={originStopTimes}
-                />
-                <StopsListWrapper>
-                  <TerminalStop
-                    isFirstTerminal={true}
-                    stopTimes={originStopTimes} // TerminalStop can receive precalculated stop times.
-                    stop={get(route, "originStop", {})}
-                    journeyPositions={selectedJourneyHfp}
+              <ScrollContainer>
+                <JourneyPanelContent>
+                  <JourneyInfo
                     date={date}
-                    onClickTime={this.onClickTime}
-                  />
-                  <JourneyStops
-                    originDeparture={originDeparture}
+                    departure={originDeparture}
+                    journey={journey}
                     journeyHfp={selectedJourneyHfp}
-                    date={date}
-                    route={route}
-                    onClickTime={this.onClickTime}
+                    originStopTimes={originStopTimes}
                   />
-                  <TerminalStop
-                    isLastTerminal={true}
-                    originDeparture={originDeparture}
-                    stop={get(route, "destinationStop", {})}
-                    journeyPositions={selectedJourneyHfp}
-                    date={date}
-                    onClickTime={this.onClickTime}
-                  />
-                </StopsListWrapper>
-              </JourneyPanelContent>
-            </>
+                  <StopsListWrapper>
+                    <TerminalStop
+                      isFirstTerminal={true}
+                      stopTimes={originStopTimes} // TerminalStop can receive precalculated stop times.
+                      stop={get(route, "originStop", {})}
+                      journeyPositions={selectedJourneyHfp}
+                      date={date}
+                      onClickTime={this.onClickTime}
+                    />
+                    <JourneyStops
+                      originDeparture={originDeparture}
+                      journeyHfp={selectedJourneyHfp}
+                      date={date}
+                      route={route}
+                      onClickTime={this.onClickTime}
+                    />
+                    <TerminalStop
+                      isLastTerminal={true}
+                      originDeparture={originDeparture}
+                      stop={get(route, "destinationStop", {})}
+                      journeyPositions={selectedJourneyHfp}
+                      date={date}
+                      onClickTime={this.onClickTime}
+                    />
+                  </StopsListWrapper>
+                </JourneyPanelContent>
+              </ScrollContainer>
+            </JourneyPanelWrapper>
           );
         }}
       </SingleRouteQuery>

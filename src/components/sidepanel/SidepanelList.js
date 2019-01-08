@@ -39,10 +39,8 @@ const ScrollContainer = styled.div`
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
   width: 100%;
-  height: 100%;
+  height: auto;
 `;
 
 const LoadingContainer = styled.div`
@@ -75,6 +73,8 @@ class SidepanelList extends Component {
   scrollElementRef = React.createRef();
   scrollPositionRef = React.createRef();
 
+  prevRef = null;
+
   disposeScrollOffsetReaction = () => {};
 
   @observable
@@ -99,7 +99,8 @@ class SidepanelList extends Component {
   }
 
   componentDidUpdate() {
-    this.updateScrollOffset();
+    let {reset} = this.props;
+    this.updateScrollOffset(reset);
   }
 
   updateScrollOffset = (reset = false) => {

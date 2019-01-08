@@ -1,7 +1,6 @@
 import React, {Component} from "react";
 import {observer} from "mobx-react";
 import {Query} from "react-apollo";
-import {hfpClient} from "../api";
 import get from "lodash/get";
 import gql from "graphql-tag";
 import {groupHfpPositions} from "../helpers/groupHfpPositions";
@@ -54,7 +53,6 @@ class AreaHfpQuery extends Component {
     return (
       <Query
         skip={skip}
-        client={hfpClient}
         variables={{date, minTime, maxTime, minLat, maxLat, minLong, maxLong}}
         query={areaHfpQuery}>
         {({loading, data, error}) => {

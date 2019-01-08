@@ -1,7 +1,6 @@
 import React, {Component} from "react";
 import {observer} from "mobx-react";
 import {Query} from "react-apollo";
-import {hfpClient} from "../api";
 import gql from "graphql-tag";
 import groupBy from "lodash/groupBy";
 import reduce from "lodash/reduce";
@@ -71,7 +70,6 @@ class StopHfpQuery extends Component {
       <Query
         skip={skip}
         onCompleted={onCompleted}
-        client={hfpClient}
         variables={{date, stopId}}
         query={query}>
         {({loading, data, error}) => {

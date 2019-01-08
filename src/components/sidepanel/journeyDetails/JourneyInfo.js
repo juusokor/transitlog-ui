@@ -1,13 +1,14 @@
 import React from "react";
 import styled from "styled-components";
 import get from "lodash/get";
-import map from "lodash/map";
 import Equipment from "./Equipment";
 import CalculateTerminalTime from "./CalculateTerminalTime";
 import doubleDigit from "../../../helpers/doubleDigit";
-import {getEquipmentType, getFeature, checkRequirements} from "./equipmentType";
+import {getEquipmentType, getFeature} from "./equipmentType";
 
-const JourneyInfo = styled.div``;
+const JourneyInfo = styled.div`
+  flex: none;
+`;
 
 const JourneyInfoRow = styled.div`
   display: flex;
@@ -78,7 +79,13 @@ export default ({journey, departure, date, originStopTimes}) => {
             Equipment {departure.equipmentRequired ? "required" : "planned"}
           </span>
           <span>
-            {equipmentType} ({getFeature(equipmentType)})
+            {equipmentType ? (
+              <>
+                {equipmentType} ({getFeature(equipmentType)})
+              </>
+            ) : (
+              "No data"
+            )}
           </span>
         </Line>
         {equipment && <Line right>{equipment}</Line>}

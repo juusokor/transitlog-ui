@@ -7,8 +7,14 @@ import JourneyPlanner from "../../../icons/JourneyPlanner";
 import Time2 from "../../../icons/Time2";
 
 const JourneyPanelHeader = styled.div`
+  flex: none;
   padding: 1rem 1rem 1.5rem 2rem;
   border-bottom: 1px solid var(--lighter-grey);
+
+  > * {
+    display: flex;
+    align-items: flex-end;
+  }
 
   > *:first-child {
     margin-top: 0;
@@ -33,6 +39,8 @@ const HeaderText = styled.span`
   margin-left: 1.5rem;
   display: inline-flex;
   align-items: center;
+  font-size: 0.875rem;
+  padding-bottom: 1px;
 
   &:first-child {
     margin-left: 0;
@@ -45,26 +53,32 @@ const HeaderText = styled.span`
 
 const DateTimeHeading = styled.div``;
 
-export default ({mode, desi, routeId, date, time, name}) => (
-  <JourneyPanelHeader>
-    <Heading level={3}>
-      <TransportIcon width={23} height={23} mode={mode} />
-      {desi}
-      <HeaderText>
-        <JourneyPlanner fill="var(--blue)" width="1rem" height="1rem" />
-        {routeId}
-      </HeaderText>
-    </Heading>
-    <DateTimeHeading>
-      <HeaderText>
-        <Calendar fill="var(--blue)" width="1rem" height="1rem" />
-        {date}
-      </HeaderText>
-      <HeaderText>
-        <Time2 fill="var(--blue)" width="1rem" height="1rem" />
-        {time}
-      </HeaderText>
-    </DateTimeHeading>
-    <LineNameHeading>{name}</LineNameHeading>
-  </JourneyPanelHeader>
-);
+export default ({mode, desi, routeId, date, time, name, vehicleId}) => {
+  return (
+    <JourneyPanelHeader>
+      <Heading level={3}>
+        <TransportIcon width={23} height={23} mode={mode} />
+        {desi}
+        <HeaderText>
+          <JourneyPlanner fill="var(--blue)" width="1rem" height="1rem" />
+          {routeId}
+        </HeaderText>
+        <HeaderText>
+          <TransportIcon mode={mode} width={17} height={17} />
+          {vehicleId}
+        </HeaderText>
+      </Heading>
+      <DateTimeHeading>
+        <HeaderText>
+          <Calendar fill="var(--blue)" width="1rem" height="1rem" />
+          {date}
+        </HeaderText>
+        <HeaderText>
+          <Time2 fill="var(--blue)" width="1rem" height="1rem" />
+          {time}
+        </HeaderText>
+      </DateTimeHeading>
+      <LineNameHeading>{name}</LineNameHeading>
+    </JourneyPanelHeader>
+  );
+};

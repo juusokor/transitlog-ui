@@ -66,8 +66,8 @@ const StopDepartureTime = styled(TagButton)``;
 export default ({
   stop,
   originDeparture,
-  isFirstTerminal,
-  isLastTerminal,
+  isFirstTerminal = false,
+  isLastTerminal = false,
   journeyPositions = [],
   date,
   onClickTime,
@@ -112,7 +112,11 @@ export default ({
   if (!stopTimes) {
     return (
       <StopWrapper>
-        <StopElementsWrapper color={stopColor}>
+        <StopElementsWrapper
+          color={stopColor}
+          terminus={
+            isFirstTerminal ? "origin" : isLastTerminal ? "destination" : false
+          }>
           <StopMarker color={stopColor} />
         </StopElementsWrapper>
         <StopContent>
@@ -131,7 +135,6 @@ export default ({
     departureMoment,
     arrivalEvent,
     arrivalMoment,
-    plannedArrivalMoment,
     departureDelayType,
     departureDiff,
   } = stopTimes;

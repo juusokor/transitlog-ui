@@ -37,10 +37,12 @@ export function getFeature(type) {
 
 export function checkRequirements(departure, equipment) {
   const {trunkColorRequired, equipmentRequired, equipmentType} = departure;
-  const {type, multiAxle, exteriorColor} = equipment;
+  const {type, exteriorColor} = equipment;
 
   const plannedEquipmentType = getEquipmentType(equipmentType);
   const plannedFeature = getFeature(plannedEquipmentType);
+
+  const observedFeature = getFeature(type);
 
   // Map observed equipment features to planned ones. For each category, the observed
   // value goes in the "observed" prop and the "required" prop has the planned
@@ -49,12 +51,16 @@ export function checkRequirements(departure, equipment) {
   // should match for the requirement to be considered fulfilled.
 
   const observedEquipment = {
+    type: {
+      observed: type,
+      required: equipmentRequired ? plannedEquipmentType : false,
+    },
     exteriorColor: {
       observed: exteriorColor,
       required: trunkColorRequired ? "HSL-orans" : false,
     },
     multiAxle: {
-      observed: multiAxle ? "multi-axle" : "two-axle",
+      observed: observedFeature,
       required: equipmentRequired ? plannedFeature : false,
     },
   };

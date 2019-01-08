@@ -1,5 +1,4 @@
 import React from "react";
-import {hfpClient} from "../api";
 import get from "lodash/get";
 import gql from "graphql-tag";
 import HfpFieldsFragment from "./HfpFieldsFragment";
@@ -22,7 +21,6 @@ export const HfpVehicleQuery = observer(({date, vehicleId, children}) => {
   return (
     <Query
       query={hfpQuery}
-      client={hfpClient}
       variables={{
         date,
         vehicle_id: vehicleId,

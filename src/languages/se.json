@@ -16,6 +16,7 @@
   "filterpanel.real_start_time": "Realiserad starttid",
   "filterpanel.journey.unrealized": "Ogenomförd",
   "filterpanel.journey.no_data": "Ingen data",
+  "filterpanel.journey.incomplete_data": "Ofullständig data",
   "filterpanel.journey.click_to_fetch": "Hämta",
 
   "sidepanel.tabs.journeys": "Resor",

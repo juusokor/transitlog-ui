@@ -1,8 +1,13 @@
-export const findJourneyStartPosition = (journeyPositions) => {
+export const findJourneyStartPosition = (journeyPositions, originStopId = "") => {
   // Default to the first hfp event, ie when the data stream from this vehicle started
   let journeyStartPosition = journeyPositions[0];
 
-  if (!journeyStartPosition) {
+  if (
+    !journeyStartPosition ||
+    (journeyStartPosition &&
+      originStopId &&
+      journeyStartPosition.next_stop_id !== originStopId)
+  ) {
     return null;
   }
 

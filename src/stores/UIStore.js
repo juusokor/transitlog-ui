@@ -21,6 +21,7 @@ export default (state) => {
       !journeyDetailsUrlState || journeyDetailsUrlState === "false" ? false : true,
     mapOverlays: getUrlValue("mapOverlays", "").split(","),
     language: languageState.language,
+    errors: [],
   });
 
   const toggleSidePanel = action((setTo = !state.sidePanelVisible) => {
@@ -40,16 +41,40 @@ export default (state) => {
     }
   });
 
+  const addError = (type, message) => {
+    if (!type || !message) {
+      return;
+    }
+
+    const error = {
+      type,
+      message,
+      code: `${type}_${Math.random()
+        .toString(36)
+        .substr(2, 9)}`,
+    };
+
+    state.errors.push(error);
+  };
+
+  const removeError = (errorCode) => {
+    const errorIdx = state.errors.findIndex((err) => err.code === errorCode);
+
+    if (errorIdx !== -1) {
+      state.errors.splice(errorIdx, 1);
+    }
+  };
+
   const changeOverlay = (changeAction) =>
     action(({name}) => {
       const overlays = state.mapOverlays;
 
       if (changeAction === "remove") {
         /* TODO: fix this
-      // Be sure to hide the Mapillary viewer if the mapillary layer was turned off.
-      if( name === "Mapillary" ) {
-        this.props.setMapillaryViewerLocation(false);
-      }*/
+        // Be sure to hide the Mapillary viewer if the mapillary layer was turned off.
+        if( name === "Mapillary" ) {
+          this.props.setMapillaryViewerLocation(false);
+        }*/
 
         const idx = overlays.indexOf(name);
 
@@ -81,5 +106,7 @@ export default (state) => {
     toggleJourneyDetails,
     setLanguage,
     changeOverlay,
+    addError,
+    removeError,
   };
 };
