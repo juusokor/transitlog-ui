@@ -1,7 +1,7 @@
 import React from "react";
 import {hot} from "react-hot-loader";
 import App from "./components/App";
-import {joreClient} from "./api";
+import {client} from "./api";
 import {ApolloProvider} from "react-apollo";
 import {observer} from "mobx-react";
 import DevTools from "mobx-react-devtools";
@@ -17,7 +17,7 @@ configureDevtool({
 });
 
 const Root = observer(() => (
-  <ApolloProvider client={joreClient}>
+  <ApolloProvider client={client}>
     <>
       <GlobalFormStyle />
       <App />

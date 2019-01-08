@@ -1,4 +1,4 @@
-import {hfpClient} from "../api";
+import {client} from "../api";
 import get from "lodash/get";
 import gql from "graphql-tag";
 import HfpFieldsFragment from "./HfpFieldsFragment";
@@ -42,7 +42,7 @@ export const queryHfp = (route, date, time) => {
   const {routeId, direction} = route;
   const fetchedJourneyId = getJourneyId(createCompositeJourney(date, route, time));
 
-  return hfpClient
+  return client
     .query({
       query: hfpQuery,
       variables: {

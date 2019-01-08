@@ -2,7 +2,6 @@ import React from "react";
 import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import get from "lodash/get";
-import {hfpClient} from "../api";
 import HfpFieldsFragment from "./HfpFieldsFragment";
 
 const vehiclesQuery = gql`
@@ -20,7 +19,7 @@ const vehiclesQuery = gql`
 `;
 
 export default ({children, vehicleId, date}) => (
-  <Query client={hfpClient} query={vehiclesQuery} variables={{vehicleId, date}}>
+  <Query query={vehiclesQuery} variables={{vehicleId, date}}>
     {({loading, error, data}) => {
       if (loading) return "Loading...";
       if (error) return "Error!";

@@ -11,7 +11,7 @@ import parse from "date-fns/parse";
 import orderBy from "lodash/orderBy";
 import first from "lodash/first";
 import isWithinRange from "date-fns/is_within_range";
-import {joreClient} from "../api";
+import {client} from "../api";
 import {getDayTypeFromDate} from "../helpers/getDayTypeFromDate";
 
 export const singleRouteQuery = gql`
@@ -48,7 +48,7 @@ const extensiveSingleRouteQuery = gql`
 `;
 
 export const fetchSingleRoute = (route, date) => {
-  return joreClient
+  return client
     .query({
       query: singleRouteQuery,
       variables: route,
