@@ -57,7 +57,6 @@ const DateTimeHeading = styled.div``;
 export default ({mode, desi, routeId, date, time, name, vehicleId}) => {
   return (
     <JourneyPanelHeader>
-      {console.log(mode)}
       <Heading level={3}>
         <TransportIcon width={23} height={23} mode={mode} />
         {desi}
