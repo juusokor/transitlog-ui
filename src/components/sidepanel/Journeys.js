@@ -208,6 +208,9 @@ class Journeys extends Component {
 
     return (
       <SidepanelList
+        reset={
+          !focusedJourney || plannedDepartures.length === 0 || positions.length === 0
+        }
         loading={loading}
         header={
           <>
