@@ -39,9 +39,17 @@ const Line = styled.div`
   }
 `;
 
-export default ({journey, departure, date, originStopTimes}) => {
+export default ({
+  journey,
+  departure,
+  date,
+  originStopTimes,
+  destinationStopTimes,
+}) => {
   const equipment = <Equipment journey={journey} departure={departure} />;
   const equipmentType = getEquipmentType(departure.equipmentType);
+
+  console.log(originStopTimes.departure);
 
   return (
     <JourneyInfo>
@@ -50,14 +58,14 @@ export default ({journey, departure, date, originStopTimes}) => {
           <JourneyInfoRow>
             <Line>
               <span>Terminal time</span>
-              <span>{get(originStopTimes.departure, "terminalTime", 3)} min</span>
+              <span>{get(originStopTimes.departure, "terminalTime", 0)} min</span>
             </Line>
             <Line right>
               <CalculateTerminalTime
                 date={date}
                 departure={originStopTimes.departure}
                 event={originStopTimes.arrivalEvent}>
-                {({diffMinutes, diffSeconds, wasLate}) => (
+                {({diffMinutes, diffSeconds, wasLate, sign}) => (
                   <strong style={{color: wasLate ? "var(--red)" : "inherit"}}>
                     {doubleDigit(diffMinutes)}:{doubleDigit(diffSeconds)}
                   </strong>
@@ -68,7 +76,21 @@ export default ({journey, departure, date, originStopTimes}) => {
           <JourneyInfoRow>
             <Line>
               <span>Recovery time</span>
-              <span>{get(originStopTimes.departure, "recoveryTime", 3)} min</span>
+              <span>{get(originStopTimes.departure, "recoveryTime", 0)} min</span>
+            </Line>
+            <Line right>
+              <CalculateTerminalTime
+                recovery={true}
+                date={date}
+                departure={destinationStopTimes.departure}
+                event={destinationStopTimes.arrivalEvent}>
+                {({diffMinutes, diffSeconds, wasLate, sign}) => (
+                  <strong style={{color: wasLate ? "var(--red)" : "inherit"}}>
+                    {sign === "-" ? "-" : ""}
+                    {doubleDigit(diffMinutes)}:{doubleDigit(diffSeconds)}
+                  </strong>
+                )}
+              </CalculateTerminalTime>
             </Line>
           </JourneyInfoRow>
         </>

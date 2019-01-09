@@ -6,7 +6,7 @@ import orderBy from "lodash/orderBy";
 import {getDayTypeFromDate} from "../../../helpers/getDayTypeFromDate";
 import {stopTimes as getStopTimes} from "../../../helpers/stopTimes";
 import styled from "styled-components";
-import {SmallText, StopElementsWrapper, StopMarker} from "./elements";
+import {StopElementsWrapper, StopMarker, SmallText} from "./elements";
 import {
   TagButton,
   PlainSlot,
@@ -43,6 +43,7 @@ const TimeHeading = styled.div`
   font-size: 0.75rem;
   color: var(--light-grey);
   margin-bottom: 0.2rem;
+  margin-top: 1rem;
 `;
 
 const StopArrivalTime = styled(TagButton)`
@@ -130,7 +131,6 @@ export default ({
 
   const {
     departure,
-    departureEvent,
     plannedDepartureMoment,
     departureMoment,
     arrivalEvent,
@@ -138,10 +138,6 @@ export default ({
     departureDelayType,
     departureDiff,
   } = stopTimes;
-
-  const endOfStream =
-    get(departureEvent, "received_at_unix", 0) ===
-    get(journeyPositions, `[${journeyPositions.length - 1}].received_at_unix`, 0);
 
   const stopArrivalTime = arrivalMoment.format("HH:mm:ss");
   const stopDepartureTime = departureMoment.format("HH:mm:ss");
@@ -162,8 +158,54 @@ export default ({
         <StopHeading>
           <strong>{stop.nameFi}</strong> {stop.stopId} ({stop.shortId})
         </StopHeading>
-        {isFirstTerminal ? (
+        {isFirstTerminal && (
           <CalculateTerminalTime
+            date={date}
+            departure={departure}
+            event={arrivalEvent}>
+            {({offsetTime, wasLate, diffMinutes, diffSeconds, sign}) => (
+              <>
+                <TimeHeading>Arrival</TimeHeading>
+                <StopArrivalTime onClick={onClickTime(stopArrivalTime)}>
+                  <PlainSlot style={{fontStyle: "italic"}}>
+                    {offsetTime.format("HH:mm:ss")}*
+                  </PlainSlot>
+                  <ColoredBackgroundSlot
+                    color="white"
+                    backgroundColor={wasLate ? "var(--red)" : "var(--light-green)"}>
+                    {sign}
+                    {doubleDigit(diffMinutes)}:{doubleDigit(diffSeconds)}
+                  </ColoredBackgroundSlot>
+                  <PlainSlotSmallRight>{stopArrivalTime}</PlainSlotSmallRight>
+                </StopArrivalTime>
+                <SmallText>* Departure time - terminal time.</SmallText>
+              </>
+            )}
+          </CalculateTerminalTime>
+        )}
+        {isFirstTerminal ? (
+          <>
+            <TimeHeading>Departure</TimeHeading>
+            <StopDepartureTime onClick={onClickTime(stopDepartureTime)}>
+              <PlainSlot>{plannedDepartureMoment.format("HH:mm:ss")}</PlainSlot>
+              <ColoredBackgroundSlot
+                color={departureDelayType === "late" ? "var(--dark-grey)" : "white"}
+                backgroundColor={getTimelinessColor(
+                  departureDelayType,
+                  "var(--light-green)"
+                )}>
+                {departureDiff.sign}
+                {doubleDigit(get(departureDiff, "minutes", 0))}:
+                {doubleDigit(get(departureDiff, "seconds", 0))}
+              </ColoredBackgroundSlot>
+              <PlainSlotSmallRight>
+                {departureMoment.format("HH:mm:ss")}
+              </PlainSlotSmallRight>
+            </StopDepartureTime>
+          </>
+        ) : isLastTerminal ? (
+          <CalculateTerminalTime
+            recovery={true}
             date={date}
             departure={departure}
             event={arrivalEvent}>
@@ -183,32 +225,7 @@ export default ({
               </>
             )}
           </CalculateTerminalTime>
-        ) : (
-          <SimpleStopArrivalTime>
-            <ArrowRightLong fill="var(--blue)" width="0.75rem" height="0.75rem" />
-            {arrivalMoment.format("HH:mm:ss")}
-          </SimpleStopArrivalTime>
-        )}
-        {isFirstTerminal && <TimeHeading>Departure</TimeHeading>}
-        <StopDepartureTime onClick={onClickTime(stopDepartureTime)}>
-          <PlainSlot>{plannedDepartureMoment.format("HH:mm:ss")}</PlainSlot>
-          <ColoredBackgroundSlot
-            color={departureDelayType === "late" ? "var(--dark-grey)" : "white"}
-            backgroundColor={getTimelinessColor(
-              departureDelayType,
-              "var(--light-green)"
-            )}>
-            {departureDiff.sign}
-            {doubleDigit(get(departureDiff, "minutes", 0))}:
-            {doubleDigit(get(departureDiff, "seconds", 0))}
-          </ColoredBackgroundSlot>
-          <PlainSlotSmallRight>
-            {departureMoment.format("HH:mm:ss")}
-          </PlainSlotSmallRight>
-        </StopDepartureTime>
-        {endOfStream && (
-          <SmallText>End of HFP stream used as stop departure.</SmallText>
-        )}
+        ) : null}
       </StopContent>
     </StopWrapper>
   );
