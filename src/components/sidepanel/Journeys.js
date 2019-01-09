@@ -182,7 +182,7 @@ class Journeys extends Component {
     });
 
     let focusedJourney = expr(() => {
-      if (selectedJourneyId) {
+      if (selectedJourneyId && state.selectedJourney.route_id === route.routeId) {
         return selectedJourneyId;
       }
 

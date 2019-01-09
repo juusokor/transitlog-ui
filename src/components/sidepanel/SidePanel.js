@@ -14,6 +14,7 @@ import {computed} from "mobx";
 import JourneyDetails from "./journeyDetails/JourneyDetails";
 import Info from "../../icons/Info";
 import getJourneyId from "../../helpers/getJourneyId";
+import {createRouteKey} from "../../helpers/keys";
 
 const SidePanelContainer = styled.div`
   background: var(--lightest-grey);
@@ -118,7 +119,7 @@ class SidePanel extends Component {
       UI: {toggleSidePanel, toggleJourneyDetails},
       positions = [],
       loading,
-      state: {stop, route, vehicle, sidePanelVisible, journeyDetailsOpen},
+      state: {stop, route, date, vehicle, sidePanelVisible, journeyDetailsOpen},
     } = this.props;
 
     const journeyDetailsAreOpen = this.journeyDetailsCanOpen && journeyDetailsOpen;
@@ -136,6 +137,7 @@ class SidePanel extends Component {
             )}
             {!!route && !!route.routeId && (
               <Journeys
+                key={`route_journeys_${createRouteKey(route, true)}_${date}`}
                 route={route}
                 positions={positions}
                 loading={loading}
