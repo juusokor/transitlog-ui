@@ -101,7 +101,11 @@ export default ({
         <Line>
           <span>Equipment required</span>
           <span>
-            {equipmentType ? <>{equipmentType}</> : "No type"}
+            {equipmentType
+              ? equipmentType
+              : departure.equipmentType
+              ? departure.equipmentType
+              : "No type"}
             {departure.trunkColorRequired === 1 && <>, HSL-orans</>}
           </span>
         </Line>

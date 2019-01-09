@@ -42,7 +42,7 @@ export const queryHfp = async (route, date, time) => {
   const {routeId, direction} = route;
   const fetchedJourneyId = getJourneyId(createCompositeJourney(date, route, time));
 
-  const client = await getClient();
+  const client = getClient();
 
   const {data} = await client.query({
     query: hfpQuery,

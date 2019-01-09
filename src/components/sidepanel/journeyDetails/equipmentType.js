@@ -17,22 +17,13 @@ const equipment = {
   "20": "A1",
   "21": "A1",
   "22": "A2",
-};
-
-const featureMap = {
-  "multi-axle": "C",
-  joint: "D",
-  high: "B",
-  short: "A1",
-  long: "A2",
+  R2: "R2",
+  R3: "R3",
+  R4: "R4",
 };
 
 export function getEquipmentType(code) {
-  return get(equipment, code + "", `code: ${code}`);
-}
-
-export function getFeature(type) {
-  return get(invert(featureMap), type, null);
+  return get(equipment, code + "", false);
 }
 
 export function checkRequirements(departure, equipment) {

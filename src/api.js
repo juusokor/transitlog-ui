@@ -8,9 +8,6 @@ import {onError} from "apollo-link-error";
 import localforage from "localforage";
 import get from "lodash/get";
 
-const SCHEMA_VERSION = "1"; // Must be a string.
-const SCHEMA_VERSION_KEY = "apollo-schema-version";
-
 const joreUrl = process.env.REACT_APP_JORE_GRAPHQL_URL;
 const hfpUrl = process.env.REACT_APP_HFP_GRAPHQL_URL;
 
@@ -24,7 +21,7 @@ if (!hfpUrl) {
 
 let createdClient = null;
 
-export const getClient = async (UIStore) => {
+export const getClient = (UIStore) => {
   if (createdClient) {
     return createdClient;
   }
@@ -51,35 +48,6 @@ export const getClient = async (UIStore) => {
   });
 
   const cache = new InMemoryCache();
-
-  const cacheStorage = localforage.createInstance({
-    name: "transitlogStorage",
-    storeName: "transitlog_storage",
-    driver: localforage.INDEXEDDB,
-    size: 10000000000,
-  });
-
-  const persistor = new CachePersistor({
-    cache: cache,
-    storage: cacheStorage,
-    serialize: false,
-    key: "persisted_transitlog_cache",
-    maxSize: 10000000000, // 4 gb
-  });
-
-  // Read the current schema version from AsyncStorage.
-  const currentVersion = await localforage.getItem(SCHEMA_VERSION_KEY);
-
-  if (currentVersion === SCHEMA_VERSION) {
-    // If the current version matches the latest version,
-    // we're good to go and can restore the cache.
-    await persistor.restore();
-  } else {
-    // Otherwise, we'll want to purge the outdated persisted cache
-    // and mark ourselves as having updated to the latest version.
-    await persistor.purge();
-    await localforage.setItem(SCHEMA_VERSION_KEY, SCHEMA_VERSION);
-  }
 
   const joreLink = new BatchHttpLink({
     uri: joreUrl,
