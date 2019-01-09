@@ -28,7 +28,7 @@ const featureMap = {
 };
 
 export function getEquipmentType(code) {
-  return get(equipment, code + "", null);
+  return get(equipment, code + "", `code: ${code}`);
 }
 
 export function getFeature(type) {
@@ -50,7 +50,7 @@ export function checkRequirements(departure, equipment) {
   const observedEquipment = {
     type: {
       observed: type,
-      required: equipmentRequired != 0 ? plannedEquipmentType : false,
+      required: equipmentRequired !== 0 ? plannedEquipmentType : false,
     },
     exteriorColor: {
       observed: exteriorColor,

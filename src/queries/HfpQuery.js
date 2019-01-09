@@ -5,8 +5,6 @@ import HfpFieldsFragment from "./HfpFieldsFragment";
 import getJourneyId from "../helpers/getJourneyId";
 import {combineDateAndTime} from "../helpers/time";
 
-const client = getClient();
-
 function createCompositeJourney(date, route, time) {
   if (!route || !route.routeId || !date || !time) {
     return false;
@@ -40,19 +38,21 @@ export const hfpQuery = gql`
   ${HfpFieldsFragment}
 `;
 
-export const queryHfp = (route, date, time) => {
+export const queryHfp = async (route, date, time) => {
   const {routeId, direction} = route;
   const fetchedJourneyId = getJourneyId(createCompositeJourney(date, route, time));
 
-  return client
-    .query({
-      query: hfpQuery,
-      variables: {
-        route_id: routeId,
-        direction: parseInt(direction, 10),
-        date,
-        time,
-      },
-    })
-    .then(({data}) => ({data: get(data, "vehicles", []), fetchedJourneyId}));
+  const client = await getClient();
+
+  const {data} = await client.query({
+    query: hfpQuery,
+    variables: {
+      route_id: routeId,
+      direction: parseInt(direction, 10),
+      date,
+      time,
+    },
+  });
+
+  return {data: get(data, "vehicles", []), fetchedJourneyId};
 };

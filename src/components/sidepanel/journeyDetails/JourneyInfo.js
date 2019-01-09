@@ -4,7 +4,7 @@ import get from "lodash/get";
 import Equipment from "./Equipment";
 import CalculateTerminalTime from "./CalculateTerminalTime";
 import doubleDigit from "../../../helpers/doubleDigit";
-import {getEquipmentType, getFeature} from "./equipmentType";
+import {getEquipmentType} from "./equipmentType";
 
 const JourneyInfo = styled.div`
   flex: none;
@@ -49,8 +49,6 @@ export default ({
   const equipment = <Equipment journey={journey} departure={departure} />;
   const equipmentType = getEquipmentType(departure.equipmentType);
 
-  console.log(originStopTimes.departure);
-
   return (
     <JourneyInfo>
       {originStopTimes && (
@@ -65,7 +63,7 @@ export default ({
                 date={date}
                 departure={originStopTimes.departure}
                 event={originStopTimes.arrivalEvent}>
-                {({diffMinutes, diffSeconds, wasLate, sign}) => (
+                {({diffMinutes, diffSeconds, wasLate}) => (
                   <strong style={{color: wasLate ? "var(--red)" : "inherit"}}>
                     {doubleDigit(diffMinutes)}:{doubleDigit(diffSeconds)}
                   </strong>
@@ -73,6 +71,10 @@ export default ({
               </CalculateTerminalTime>
             </Line>
           </JourneyInfoRow>
+        </>
+      )}
+      {destinationStopTimes && (
+        <>
           <JourneyInfoRow>
             <Line>
               <span>Recovery time</span>
@@ -97,17 +99,10 @@ export default ({
       )}
       <JourneyInfoRow>
         <Line>
+          <span>Equipment required</span>
           <span>
-            Equipment {departure.equipmentRequired ? "required" : "planned"}
-          </span>
-          <span>
-            {equipmentType ? (
-              <>
-                {equipmentType} ({getFeature(equipmentType)})
-              </>
-            ) : (
-              "No data"
-            )}
+            {equipmentType ? <>{equipmentType}</> : "No type"}
+            {departure.trunkColorRequired === 1 && <>, HSL-orans</>}
           </span>
         </Line>
         {equipment && <Line right>{equipment}</Line>}
