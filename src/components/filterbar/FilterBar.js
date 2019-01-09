@@ -22,6 +22,7 @@ import {
 } from "../../helpers/getTimeRangeFromPositions";
 import getJourneyId from "../../helpers/getJourneyId";
 import get from "lodash/get";
+import VehicleSettings from "./VehicleSettings";
 
 const SiteHeader = styled(Header)`
   flex: 0 0 auto;
@@ -65,8 +66,8 @@ class FilterBar extends Component {
   };
 
   render() {
-    const {state, Filters, positions, timeRange = null} = this.props;
-    const {selectedJourney, vehicle, stop, route, sidePanelVisible: visible} = state;
+    const {state, Filters, positions = [], timeRange = null} = this.props;
+    const {selectedJourney, stop, route, sidePanelVisible: visible} = state;
 
     const selectedJourneyId = getJourneyId(selectedJourney);
     let selectedJourneyPositions = [];
@@ -105,17 +106,7 @@ class FilterBar extends Component {
             <LineSettings />
           </FilterSection>
           <FilterSection>
-            <ControlGroup>
-              <Input
-                label={text("filterpanel.filter_by_vehicle")}
-                animatedLabel={false}>
-                <VehicleInput
-                  positions={positions}
-                  value={vehicle}
-                  onSelect={this.onChangeQueryVehicle}
-                />
-              </Input>
-            </ControlGroup>
+            <VehicleSettings positions={positions} />
           </FilterSection>
           <FilterSection>
             <ControlGroup>
