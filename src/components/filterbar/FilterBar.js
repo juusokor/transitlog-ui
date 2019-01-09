@@ -58,13 +58,9 @@ const BottomSlider = styled(TimeSlider)`
   z-index: 10;
 `;
 
-@inject(app("Filters", "UI"))
+@inject(app("Filters"))
 @observer
 class FilterBar extends Component {
-  onChangeQueryVehicle = (value) => {
-    this.props.Filters.setVehicle(value);
-  };
-
   render() {
     const {state, Filters, positions = [], timeRange = null} = this.props;
     const {selectedJourney, stop, route, sidePanelVisible: visible} = state;
