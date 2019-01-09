@@ -23,7 +23,7 @@ export default ({journey, departure}) => {
   const {owner_operator_id, vehicle_number} = journey;
 
   const operatorId = (owner_operator_id + "").padStart(4, "0");
-  const vehicleId = (vehicle_number + "").padStart(4, "0");
+  const vehicleId = vehicle_number.toString();
 
   return (
     <EquipmentQuery vehicleId={vehicleId} operatorId={operatorId}>
