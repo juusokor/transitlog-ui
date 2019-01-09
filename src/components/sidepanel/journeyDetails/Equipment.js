@@ -35,6 +35,10 @@ export default ({journey, departure}) => {
         return (
           <EquipmentWrapper>
             {map(equipmentRequirements, ({observed, required}, prop) => {
+              if (!observed) {
+                return null;
+              }
+
               const isRequired = required !== false;
 
               const color = isRequired
