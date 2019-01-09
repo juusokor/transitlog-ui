@@ -49,16 +49,24 @@ export default decorate(function ErrorMessages({state, UI}) {
 
   return (
     <ErrorsWrapper visible={errors.length !== 0}>
-      {errors.map((error) => (
-        <Error key={`error_${error.code}`}>
-          <span>
-            {error.type} error: {error.message}
-          </span>
-          <DismissButton onClick={() => UI.removeError(get(error, "code", null))}>
-            Dismiss
-          </DismissButton>
-        </Error>
-      ))}
+      {errors.map((error) => {
+        let msg = get(error, "message", "");
+
+        if (typeof msg !== "string") {
+          msg = JSON.stringify(msg);
+        }
+
+        return (
+          <Error key={`error_${error.code}`}>
+            <span>
+              {error.type} error: {msg}
+            </span>
+            <DismissButton onClick={() => UI.removeError(get(error, "code", null))}>
+              Dismiss
+            </DismissButton>
+          </Error>
+        );
+      })}
     </ErrorsWrapper>
   );
 });
