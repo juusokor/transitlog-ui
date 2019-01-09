@@ -16,7 +16,7 @@ const JourneyInfoRow = styled.div`
   flex-direction: column;
   justify-content: flex-start;
   width: 100%;
-  padding: 0.75rem 1rem 0.75rem 2rem;
+  padding: 0.75rem 1rem 0.75rem 1rem;
   background: var(--lightest-grey);
   font-size: 1rem;
   font-family: inherit;

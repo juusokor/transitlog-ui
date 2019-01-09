@@ -8,7 +8,7 @@ import Time2 from "../../../icons/Time2";
 
 const JourneyPanelHeader = styled.div`
   flex: none;
-  padding: 1rem 1rem 1.5rem 2rem;
+  padding: 1rem 1rem 1.5rem 1rem;
   border-bottom: 1px solid var(--lighter-grey);
 
   > * {
@@ -36,7 +36,7 @@ const LineNameHeading = styled(Heading).attrs({level: 4})`
 
 const HeaderText = styled.span`
   font-weight: normal;
-  margin-left: 1.5rem;
+  margin-left: 1.25rem;
   display: inline-flex;
   align-items: center;
   font-size: 0.875rem;

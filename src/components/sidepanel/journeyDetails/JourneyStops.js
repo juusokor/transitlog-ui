@@ -11,7 +11,7 @@ import Plus from "../../../icons/Plus";
 import JourneyStop from "./JourneyStop";
 
 const JourneyStopsWrapper = styled.div`
-  margin-left: ${({expanded}) => (expanded ? "0" : "calc(2.5rem - 1px)")};
+  margin-left: ${({expanded}) => (expanded ? "0" : "calc(1.5rem - 1px)")};
   border-left: ${({expanded}) => (expanded ? "0" : "3px dotted var(--light-grey)")};
   padding: ${({expanded}) => (expanded ? "0" : "1rem 0")};
   display: flex;
@@ -21,7 +21,8 @@ const JourneyStopsWrapper = styled.div`
 `;
 
 const StopsList = styled.div`
-  padding: 0 1rem 0 1.5rem;
+  padding: 0 0.5rem 0 0.5rem;
+  width: 100%;
   color: var(--light-grey);
 `;
 
