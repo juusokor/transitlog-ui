@@ -23,7 +23,7 @@ export default ({journey, departure}) => {
   const {owner_operator_id, vehicle_number} = journey;
 
   const operatorId = (owner_operator_id + "").padStart(4, "0");
-  const vehicleId = (vehicle_number + "").padStart(4, "0");
+  const vehicleId = vehicle_number.toString();
 
   return (
     <EquipmentQuery vehicleId={vehicleId} operatorId={operatorId}>
@@ -34,9 +34,13 @@ export default ({journey, departure}) => {
 
         return (
           <EquipmentWrapper>
-            <span>{vehicle.class}</span>,{" "}
             {map(equipmentRequirements, ({observed, required}, prop) => {
+              if (!observed) {
+                return null;
+              }
+
               const isRequired = required !== false;
+
               const color = isRequired
                 ? observed === required
                   ? "var(--light-green)"

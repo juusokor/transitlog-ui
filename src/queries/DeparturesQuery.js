@@ -39,6 +39,12 @@ const departuresQuery = gql`
         minutes
         arrivalHours
         arrivalMinutes
+        terminalTime
+        recoveryTime
+        equipmentRequired
+        equipmentType
+        trunkColorRequired
+        operatorId
         dateBegin
         dateEnd
         routeId

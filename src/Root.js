@@ -22,7 +22,6 @@ configureDevtool({
 class Root extends React.Component {
   render() {
     const {UI} = this.props;
-
     const client = getClient(UI);
 
     return (

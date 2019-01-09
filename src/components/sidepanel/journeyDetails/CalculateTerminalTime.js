@@ -5,20 +5,40 @@ import {getAdjustedDepartureDate} from "../../../helpers/getAdjustedDepartureDat
 // Reusable higher-order function for calculating the planned arrival time from
 // the departure time and the terminal time for the first stop of a route.
 
-export default function CalculateTerminalTime({departure, event, date, children}) {
+export default function CalculateTerminalTime({
+  departure,
+  event,
+  date,
+  recovery = false,
+  children,
+}) {
   const receivedAt = get(event, "received_at", null);
-  const observedDepartureTime = moment.tz(receivedAt, "Europe/Helsinki");
-  const plannedDepartureTime = getAdjustedDepartureDate(departure, date);
-  const terminalTime = get(departure, "terminalTime", 3);
+  const observedTime = moment.tz(receivedAt, "Europe/Helsinki");
+  const plannedTime = getAdjustedDepartureDate(departure, date, recovery);
+  const bufferTime = get(departure, recovery ? "recoveryTime" : "terminalTime", 0);
 
-  const offsetTime = plannedDepartureTime.clone().subtract(terminalTime, "minutes");
-  const diff = plannedDepartureTime.diff(observedDepartureTime, "seconds");
+  const diff = observedTime.diff(plannedTime, "seconds");
+  const sign = diff < 0 ? "-" : diff > 0 ? "+" : "";
 
-  const sign = diff < 0 ? "+" : diff > 0 ? "-" : "";
   const diffSeconds = Math.abs(diff) % 60;
   const diffMinutes = Math.floor(Math.abs(diff) / 60);
 
-  const wasLate = diff < terminalTime * 60;
+  let wasLate;
+  let offsetTime;
 
-  return children({offsetTime, wasLate, diffMinutes, diffSeconds, sign});
+  if (recovery) {
+    wasLate = diff < 0 ? false : diff > bufferTime * 60;
+    offsetTime = plannedTime;
+  } else {
+    wasLate = diff < bufferTime * 60;
+    offsetTime = plannedTime.clone().subtract(bufferTime, "minutes");
+  }
+
+  return children({
+    offsetTime,
+    wasLate,
+    diffMinutes,
+    diffSeconds,
+    sign,
+  });
 }

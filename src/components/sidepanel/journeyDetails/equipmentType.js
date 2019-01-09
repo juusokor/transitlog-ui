@@ -17,22 +17,13 @@ const equipment = {
   "20": "A1",
   "21": "A1",
   "22": "A2",
-};
-
-const featureMap = {
-  "multi-axle": "C",
-  joint: "D",
-  high: "B",
-  short: "A1",
-  long: "A2",
+  R2: "R2",
+  R3: "R3",
+  R4: "R4",
 };
 
 export function getEquipmentType(code) {
-  return get(equipment, code + "", null);
-}
-
-export function getFeature(type) {
-  return get(invert(featureMap), type, null);
+  return get(equipment, code + "", false);
 }
 
 export function checkRequirements(departure, equipment) {
@@ -40,9 +31,6 @@ export function checkRequirements(departure, equipment) {
   const {type, exteriorColor} = equipment;
 
   const plannedEquipmentType = getEquipmentType(equipmentType);
-  const plannedFeature = getFeature(plannedEquipmentType);
-
-  const observedFeature = getFeature(type);
 
   // Map observed equipment features to planned ones. For each category, the observed
   // value goes in the "observed" prop and the "required" prop has the planned
@@ -53,15 +41,11 @@ export function checkRequirements(departure, equipment) {
   const observedEquipment = {
     type: {
       observed: type,
-      required: equipmentRequired ? plannedEquipmentType : false,
+      required: equipmentRequired !== 0 ? plannedEquipmentType : false,
     },
     exteriorColor: {
       observed: exteriorColor,
       required: trunkColorRequired ? "HSL-orans" : false,
-    },
-    multiAxle: {
-      observed: observedFeature,
-      required: equipmentRequired ? plannedFeature : false,
     },
   };
 

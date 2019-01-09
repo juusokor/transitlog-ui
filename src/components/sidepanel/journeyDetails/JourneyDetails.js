@@ -91,6 +91,10 @@ class JourneyDetails extends React.Component {
 
           const currentDayType = getDayTypeFromDate(date);
 
+          /*
+            Origin stop times
+           */
+
           // Get the first departure of the journey from the origin stop departures
           const originDeparture =
             get(route, "originStop.departures.nodes", []).find(
@@ -105,17 +109,49 @@ class JourneyDetails extends React.Component {
 
           const originStopId = get(route, "originstopId", "");
 
+          const originStopHfp = orderBy(
+            selectedJourneyHfp.filter((pos) => pos.next_stop_id === originStopId),
+            "received_at_unix",
+            "desc"
+          );
+
           const originStopTimes = originDeparture
+            ? stopTimes(originDeparture, originStopHfp, originDeparture, date)
+            : null;
+
+          /*
+            Destination stop times
+           */
+
+          // Get the journey's destination stop departure by matching the
+          // departureId of the originStop departure.
+          const destinationDeparture =
+            (originDeparture
+              ? get(route, "destinationStop.departures.nodes", []).find(
+                  ({departureId, dayType, routeId, direction, dateBegin, dateEnd}) =>
+                    departureId === get(originDeparture, "departureId", 0) &&
+                    isWithinRange(date, dateBegin, dateEnd) &&
+                    dayType === currentDayType &&
+                    routeId === get(journey, "route_id", "") &&
+                    parseInt(direction) === parseInt(get(journey, "direction_id", 0))
+                )
+              : null) || null;
+
+          const destinationStopId = get(route, "destinationStop.stopId", "");
+
+          const destinationStopHfp = orderBy(
+            selectedJourneyHfp.filter(
+              (pos) => pos.next_stop_id === destinationStopId
+            ),
+            "received_at_unix",
+            "desc"
+          );
+
+          const destinationStopTimes = destinationDeparture
             ? stopTimes(
-                originDeparture,
-                orderBy(
-                  selectedJourneyHfp.filter(
-                    (pos) => pos.next_stop_id === originStopId
-                  ),
-                  "received_at_unix",
-                  "desc"
-                ),
-                originDeparture,
+                destinationDeparture,
+                destinationStopHfp,
+                destinationDeparture,
                 date
               )
             : null;
@@ -139,6 +175,7 @@ class JourneyDetails extends React.Component {
                     journey={journey}
                     journeyHfp={selectedJourneyHfp}
                     originStopTimes={originStopTimes}
+                    destinationStopTimes={destinationStopTimes}
                   />
                   <StopsListWrapper>
                     <TerminalStop

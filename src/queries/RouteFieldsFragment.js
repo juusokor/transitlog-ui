@@ -52,9 +52,12 @@ export const ExtensiveRouteFieldsFragment = gql`
           dateBegin
           dateEnd
           dayType
+          terminalTime
+          recoveryTime
           equipmentRequired
           equipmentType
           trunkColorRequired
+          operatorId
         }
       }
     }
@@ -83,9 +86,12 @@ export const ExtensiveRouteFieldsFragment = gql`
           dateBegin
           dateEnd
           dayType
+          terminalTime
+          recoveryTime
           equipmentRequired
           equipmentType
           trunkColorRequired
+          operatorId
         }
       }
     }
@@ -123,9 +129,12 @@ export const ExtensiveRouteFieldsFragment = gql`
               dateBegin
               dateEnd
               dayType
+              terminalTime
+              recoveryTime
               equipmentRequired
               equipmentType
               trunkColorRequired
+              operatorId
             }
           }
         }

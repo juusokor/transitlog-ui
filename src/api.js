@@ -3,7 +3,7 @@ import {concat, split} from "apollo-link";
 import {BatchHttpLink} from "apollo-link-batch-http";
 import {HttpLink} from "apollo-link-http";
 import {InMemoryCache} from "apollo-cache-inmemory";
-import {persistCache} from "apollo-cache-persist";
+import {CachePersistor} from "apollo-cache-persist";
 import {onError} from "apollo-link-error";
 import localforage from "localforage";
 import get from "lodash/get";
@@ -48,20 +48,6 @@ export const getClient = (UIStore) => {
   });
 
   const cache = new InMemoryCache();
-
-  const cacheStorage = localforage.createInstance({
-    name: "transitlogStorage",
-    storeName: "transitlog_storage",
-    driver: localforage.INDEXEDDB,
-  });
-
-  persistCache({
-    cache: cache,
-    storage: cacheStorage,
-    serialize: false,
-    key: "persisted_transitlog_cache",
-    maxSize: 4000000000, // 4 gb
-  });
 
   const joreLink = new BatchHttpLink({
     uri: joreUrl,
