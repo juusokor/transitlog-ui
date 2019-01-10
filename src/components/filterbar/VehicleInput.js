@@ -35,7 +35,7 @@ const renderSuggestion = (suggestion, {query, isHighlighted}) => (
 
 const renderSectionTitle = (section) => (
   <SuggestionSectionTitle>
-    {section.operatorName} ({section.vehicles.length})
+    {section.operatorName} ({section.operatorId})
   </SuggestionSectionTitle>
 );
 
