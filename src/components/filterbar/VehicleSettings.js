@@ -22,6 +22,20 @@ class VehicleSettings extends React.Component {
     this.props.Filters.setVehicle(get(value, "unique_vehicle_id", ""));
   };
 
+  renderInput(children, value, isDisabled = false) {
+    return (
+      <ControlGroup>
+        <Input
+          label={text("filterpanel.filter_by_vehicle")}
+          animatedLabel={false}
+          value={value}
+          disabled={isDisabled}>
+          {children}
+        </Input>
+      </ControlGroup>
+    );
+  }
+
   render() {
     const {state} = this.props;
     const {vehicle = "", date, route, selectedJourney} = state;
@@ -29,16 +43,7 @@ class VehicleSettings extends React.Component {
     const isDisabled = !!selectedJourney;
 
     if (isDisabled) {
-      return (
-        <ControlGroup>
-          <Input
-            label={text("filterpanel.filter_by_vehicle")}
-            animatedLabel={false}
-            value={vehicle}
-            disabled
-          />
-        </ControlGroup>
-      );
+      return this.renderInput(undefined, vehicle, true);
     }
 
     return (
@@ -56,18 +61,13 @@ class VehicleSettings extends React.Component {
               }
             );
 
-            return (
-              <ControlGroup>
-                <Input
-                  label={text("filterpanel.filter_by_vehicle")}
-                  animatedLabel={false}>
-                  <VehicleInput
-                    options={groupedVehicles}
-                    value={vehicle}
-                    onSelect={this.onChangeQueryVehicle}
-                  />
-                </Input>
-              </ControlGroup>
+            return this.renderInput(
+              <VehicleInput
+                options={groupedVehicles}
+                value={vehicle}
+                onSelect={this.onChangeQueryVehicle}
+              />,
+              vehicle
             );
           }}
         </VehicleOptionsQuery>

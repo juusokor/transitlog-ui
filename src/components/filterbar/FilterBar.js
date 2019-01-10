@@ -57,32 +57,7 @@ const BottomSlider = styled(TimeSlider)`
 class FilterBar extends Component {
   render() {
     const {state, positions = [], timeRange = null} = this.props;
-    const {selectedJourney, route, sidePanelVisible: visible} = state;
-
-    const selectedJourneyId = getJourneyId(selectedJourney);
-    let selectedJourneyPositions = [];
-
-    if (selectedJourneyId && positions.length !== 0) {
-      selectedJourneyPositions = get(
-        positions.find(({journeyId}) => journeyId === selectedJourneyId),
-        "positions",
-        []
-      );
-    }
-
-    const useTimeRange =
-      (!route || !route.routeId) && timeRange
-        ? {
-            min: dateToSeconds(timeRange.min),
-            max: dateToSeconds(timeRange.max),
-          }
-        : selectedJourneyPositions.length !== 0
-        ? getTimeRangeFromPositions(
-            selectedJourneyPositions,
-            TIME_SLIDER_MIN,
-            TIME_SLIDER_MAX
-          )
-        : {};
+    const {sidePanelVisible: visible} = state;
 
     return (
       <FilterBarWrapper visible={visible}>
@@ -102,7 +77,7 @@ class FilterBar extends Component {
             <StopSettings />
           </FilterSection>
         </FilterBarGrid>
-        <BottomSlider {...useTimeRange} />
+        <BottomSlider positions={positions} timeRange={timeRange} />
       </FilterBarWrapper>
     );
   }
