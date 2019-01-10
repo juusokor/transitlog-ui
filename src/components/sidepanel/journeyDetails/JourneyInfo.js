@@ -51,52 +51,48 @@ export default ({
 
   return (
     <JourneyInfo>
-      {originStopTimes && (
-        <>
-          <JourneyInfoRow>
-            <Line>
-              <span>Terminal time</span>
-              <span>{get(originStopTimes.departure, "terminalTime", 0)} min</span>
-            </Line>
-            <Line right>
-              <CalculateTerminalTime
-                date={date}
-                departure={originStopTimes.departure}
-                event={originStopTimes.arrivalEvent}>
-                {({diffMinutes, diffSeconds, wasLate}) => (
-                  <strong style={{color: wasLate ? "var(--red)" : "inherit"}}>
-                    {doubleDigit(diffMinutes)}:{doubleDigit(diffSeconds)}
-                  </strong>
-                )}
-              </CalculateTerminalTime>
-            </Line>
-          </JourneyInfoRow>
-        </>
-      )}
-      {destinationStopTimes && (
-        <>
-          <JourneyInfoRow>
-            <Line>
-              <span>Recovery time</span>
-              <span>{get(originStopTimes.departure, "recoveryTime", 0)} min</span>
-            </Line>
-            <Line right>
-              <CalculateTerminalTime
-                recovery={true}
-                date={date}
-                departure={destinationStopTimes.departure}
-                event={destinationStopTimes.arrivalEvent}>
-                {({diffMinutes, diffSeconds, wasLate, sign}) => (
-                  <strong style={{color: wasLate ? "var(--red)" : "inherit"}}>
-                    {sign === "-" ? "-" : ""}
-                    {doubleDigit(diffMinutes)}:{doubleDigit(diffSeconds)}
-                  </strong>
-                )}
-              </CalculateTerminalTime>
-            </Line>
-          </JourneyInfoRow>
-        </>
-      )}
+      <JourneyInfoRow>
+        <Line>
+          <span>Terminal time</span>
+          <span>{get(departure, "terminalTime", 0)} min</span>
+        </Line>
+        {originStopTimes && (
+          <Line right>
+            <CalculateTerminalTime
+              date={date}
+              departure={originStopTimes.departure}
+              event={originStopTimes.arrivalEvent}>
+              {({diffMinutes, diffSeconds, wasLate}) => (
+                <strong style={{color: wasLate ? "var(--red)" : "inherit"}}>
+                  {doubleDigit(diffMinutes)}:{doubleDigit(diffSeconds)}
+                </strong>
+              )}
+            </CalculateTerminalTime>
+          </Line>
+        )}
+      </JourneyInfoRow>
+      <JourneyInfoRow>
+        <Line>
+          <span>Recovery time</span>
+          <span>{get(departure, "recoveryTime", 0)} min</span>
+        </Line>
+        {destinationStopTimes && (
+          <Line right>
+            <CalculateTerminalTime
+              recovery={true}
+              date={date}
+              departure={destinationStopTimes.departure}
+              event={destinationStopTimes.arrivalEvent}>
+              {({diffMinutes, diffSeconds, wasLate, sign}) => (
+                <strong style={{color: wasLate ? "var(--red)" : "inherit"}}>
+                  {sign === "-" ? "-" : ""}
+                  {doubleDigit(diffMinutes)}:{doubleDigit(diffSeconds)}
+                </strong>
+              )}
+            </CalculateTerminalTime>
+          </Line>
+        )}
+      </JourneyInfoRow>
       <JourneyInfoRow>
         <Line>
           <span>Equipment required</span>
