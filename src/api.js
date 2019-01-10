@@ -35,15 +35,19 @@ export const getClient = (UIStore) => {
   }
 
   const errorLink = onError(({graphQLErrors, networkError}) => {
-    if (process.env.NODE_ENV !== "development") {
-      return;
+    if (graphQLErrors && process.env.NODE_ENV === "development") {
+      graphQLErrors.map(({message}) => console.warn(message));
     }
 
-    if (graphQLErrors)
-      graphQLErrors.map(({message}) => notifyError("GraphQL", message));
-
     if (networkError) {
-      notifyError("Network", networkError);
+      notifyError(
+        "Network",
+        get(
+          networkError,
+          "message",
+          JSON.stringify(get(networkError, "result", networkError))
+        )
+      );
     }
   });
 

@@ -44,15 +44,15 @@ export const queryHfp = async (route, date, time) => {
 
   const client = getClient();
 
-  const {data} = await client.query({
-    query: hfpQuery,
-    variables: {
-      route_id: routeId,
-      direction: parseInt(direction, 10),
-      date,
-      time,
-    },
-  });
-
-  return {data: get(data, "vehicles", []), fetchedJourneyId};
+  return client
+    .query({
+      query: hfpQuery,
+      variables: {
+        route_id: routeId,
+        direction: parseInt(direction, 10),
+        date,
+        time,
+      },
+    })
+    .then(({data}) => ({data: get(data, "vehicles", []), fetchedJourneyId}));
 };

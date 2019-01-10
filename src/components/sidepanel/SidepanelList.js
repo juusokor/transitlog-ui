@@ -73,8 +73,6 @@ class SidepanelList extends Component {
   scrollElementRef = React.createRef();
   scrollPositionRef = React.createRef();
 
-  prevRef = null;
-
   disposeScrollOffsetReaction = () => {};
 
   @observable
@@ -106,7 +104,7 @@ class SidepanelList extends Component {
   updateScrollOffset = (reset = false) => {
     const offset = this.getScrollOffset(reset);
 
-    if (offset !== this.scrollOffset) {
+    if (!this.scrollOffset || offset !== this.scrollOffset) {
       this.setScrollOffset(offset);
     }
   };

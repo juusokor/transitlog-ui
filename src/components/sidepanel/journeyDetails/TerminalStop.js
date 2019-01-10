@@ -17,18 +17,17 @@ import {transportColor} from "../../transportModes";
 import {getTimelinessColor} from "../../../helpers/timelinessColor";
 import doubleDigit from "../../../helpers/doubleDigit";
 import CalculateTerminalTime from "./CalculateTerminalTime";
-import ArrowRightLong from "../../../icons/ArrowRightLong";
 
 const StopWrapper = styled.div`
   padding: 0 1rem 0 0;
-  margin-left: 1.75rem;
+  margin-left: 0.75rem;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
 `;
 
 const StopContent = styled.div`
-  padding: 0 1.75rem 2rem 0.75rem;
+  padding: 0 1.25rem 2rem 0.75rem;
   width: 100%;
 `;
 
@@ -99,6 +98,7 @@ export default ({
         isWithinRange(date, departure.dateBegin, departure.dateEnd) &&
         departure.dayType === dayType &&
         departure.routeId === firstPosition.route_id &&
+        departure.departureId === originDeparture.departureId &&
         parseInt(departure.direction) ===
           parseInt(get(firstPosition, "direction_id", 0))
     );
