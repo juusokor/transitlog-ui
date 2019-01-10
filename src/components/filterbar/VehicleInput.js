@@ -49,6 +49,13 @@ const getSuggestions = (operators) => (value = "") => {
     inputLength === 0 || operators.length === 0
       ? operators
       : operators.reduce((matches, operator) => {
+          // Match input value to operator name first.
+          if (operator.operatorName.toLowerCase().includes(inputValue)) {
+            matches.push(operator);
+            return matches;
+          }
+
+          // Search operator vehicles and return the matching ones.
           const matchingVehicles = operator.vehicles.filter((vehicle) =>
             get(vehicle, "unique_vehicle_id", "").includes(inputValue)
           );
