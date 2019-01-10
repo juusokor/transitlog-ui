@@ -65,16 +65,16 @@ class FilterBar extends Component {
   };
 
   render() {
-    const {state, Filters, positions, timeRange = null} = this.props;
+    const {state, Filters, journeys, timeRange = null} = this.props;
     const {selectedJourney, vehicle, stop, route, sidePanelVisible: visible} = state;
 
     const selectedJourneyId = getJourneyId(selectedJourney);
     let selectedJourneyPositions = [];
 
-    if (selectedJourneyId && positions.length !== 0) {
+    if (selectedJourneyId && journeys.length !== 0) {
       selectedJourneyPositions = get(
-        positions.find(({journeyId}) => journeyId === selectedJourneyId),
-        "positions",
+        journeys.find(({journeyId}) => journeyId === selectedJourneyId),
+        "events",
         []
       );
     }
@@ -110,7 +110,7 @@ class FilterBar extends Component {
                 label={text("filterpanel.filter_by_vehicle")}
                 animatedLabel={false}>
                 <VehicleInput
-                  positions={positions}
+                  journeys={journeys}
                   value={vehicle}
                   onSelect={this.onChangeQueryVehicle}
                 />

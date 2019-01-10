@@ -1,35 +1,21 @@
-import {getClient} from "../api";
+import React from "react";
 import get from "lodash/get";
 import gql from "graphql-tag";
 import HfpFieldsFragment from "./HfpFieldsFragment";
 import getJourneyId from "../helpers/getJourneyId";
-import {combineDateAndTime} from "../helpers/time";
-
-function createCompositeJourney(date, route, time) {
-  if (!route || !route.routeId || !date || !time) {
-    return false;
-  }
-
-  const journey = {
-    oday: date,
-    journey_start_time: time,
-    journey_start_timestamp: combineDateAndTime(date, time, "Europe/Helsinki"),
-    route_id: route.routeId,
-    direction_id: route.direction,
-  };
-
-  return journey;
-}
+import {Query} from "react-apollo";
+import {groupHfpPositions} from "../helpers/groupHfpPositions";
+import {createHfpItem} from "../helpers/createHfpItem";
+import {observer} from "mobx-react";
 
 export const hfpQuery = gql`
-  query hfpQuery($route_id: String, $direction: smallint, $date: date, $time: time) {
+  query hfpQuery($route_id: String, $direction: smallint, $date: date) {
     vehicles(
       order_by: {received_at: asc}
       where: {
         route_id: {_eq: $route_id}
         direction_id: {_eq: $direction}
         oday: {_eq: $date}
-        journey_start_time: {_eq: $time}
       }
     ) {
       ...HfpFieldsFragment
@@ -38,21 +24,45 @@ export const hfpQuery = gql`
   ${HfpFieldsFragment}
 `;
 
-export const queryHfp = async (route, date, time) => {
-  const {routeId, direction} = route;
-  const fetchedJourneyId = getJourneyId(createCompositeJourney(date, route, time));
+@observer
+class HfpQuery extends React.Component {
+  prevResult = [];
 
-  const client = getClient();
+  render() {
+    const {children, route, date} = this.props;
+    const {routeId, direction} = route;
 
-  return client
-    .query({
-      query: hfpQuery,
-      variables: {
-        route_id: routeId,
-        direction: parseInt(direction, 10),
-        date,
-        time,
-      },
-    })
-    .then(({data}) => ({data: get(data, "vehicles", []), fetchedJourneyId}));
-};
+    return (
+      <Query
+        query={hfpQuery}
+        variables={{
+          route_id: routeId,
+          direction: parseInt(direction, 10),
+          date,
+        }}>
+        {({data, error, loading}) => {
+          if (!data || loading) {
+            return children({journeys: this.prevResult, loading, error});
+          }
+
+          const vehicles = get(data, "vehicles", []);
+
+          const groupedJourneys = groupHfpPositions(
+            vehicles
+              // TODO: Change this when we have to deal with null positions
+              .filter((pos) => !!pos && !!pos.lat && !!pos.long)
+              .map(createHfpItem),
+            getJourneyId,
+            "journeyId"
+            // Make sure all returned journeys were requested
+          );
+
+          this.prevResult = groupedJourneys;
+          return children({journeys: groupedJourneys, loading, error});
+        }}
+      </Query>
+    );
+  }
+}
+
+export default HfpQuery;

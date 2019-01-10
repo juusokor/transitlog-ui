@@ -70,9 +70,9 @@ class AreaJourneyList extends Component {
       state: {selectedJourney},
     } = this.props;
 
-    const journeyHfpEvents = map(journeys, ({journeyId, positions}) => ({
+    const journeyHfpEvents = map(journeys, ({journeyId, events}) => ({
       journeyId,
-      position: positions[0],
+      position: events[0],
     }));
 
     const selectedJourneyId = getJourneyId(selectedJourney);

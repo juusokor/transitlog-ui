@@ -65,11 +65,11 @@ class MapContent extends Component {
             ) : null}
             <AreaSelect enabled={zoom > 14} onSelectArea={queryBounds} />
             {positions.length !== 0 &&
-              positions.map(({journeyId, positions}) => (
+              positions.map(({journeyId, events}) => (
                 <HfpMarkerLayer
                   key={`hfp_markers_${journeyId}`}
                   onMarkerClick={this.onClickVehicleMarker}
-                  positions={positions}
+                  positions={events}
                   journeyId={journeyId}
                   maxTimeDiff={3}
                 />
@@ -108,7 +108,7 @@ class MapContent extends Component {
               />
             )}
             {positions.length > 0 &&
-              positions.map(({positions: journeyPositions, journeyId}) => {
+              positions.map(({events: journeyPositions, journeyId}) => {
                 if (
                   vehicle &&
                   get(journeyPositions, "[0].unique_vehicle_id", "") !== vehicle

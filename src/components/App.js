@@ -80,8 +80,8 @@ class App extends Component {
         <AreaHfpEvents>
           {({queryBounds, events: areaEvents = [], timeRange}) => (
             <RouteHfpEvents>
-              {({positions: routeEvents = [], loading}) => {
-                let positions =
+              {({journeys: routeEvents = [], loading}) => {
+                let journeys =
                   !hasRoute && areaEvents.length !== 0
                     ? areaEvents
                     : hasRoute && routeEvents.length
@@ -90,14 +90,14 @@ class App extends Component {
 
                 return (
                   <AppGrid>
-                    <FilterBar timeRange={timeRange} positions={positions} />
+                    <FilterBar timeRange={timeRange} journeys={journeys} />
                     <SidepanelAndMapWrapper>
                       <SidePanel
                         loading={loading}
-                        positions={positions}
+                        journeys={journeys}
                         route={route}
                       />
-                      <JourneyPosition positions={positions}>
+                      <JourneyPosition positions={journeys}>
                         {(journeyPosition) => (
                           <SingleStopQuery stop={stop} date={date}>
                             {({stop}) => {
@@ -117,7 +117,7 @@ class App extends Component {
                                     <MapContent
                                       queryBounds={queryBounds}
                                       setMapBounds={setMapBounds}
-                                      positions={positions}
+                                      positions={journeys}
                                       route={route}
                                       stop={stop}
                                       zoom={zoom}

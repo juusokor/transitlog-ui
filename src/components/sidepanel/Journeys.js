@@ -8,15 +8,11 @@ import getJourneyId from "../../helpers/getJourneyId";
 import styled from "styled-components";
 import {timeToFormat} from "../../helpers/time";
 import {Text, text} from "../../helpers/text";
-import withDepartures from "../../hoc/withRouteStopDepartures";
 import doubleDigit from "../../helpers/doubleDigit";
-import {toJS} from "mobx";
 import Loading from "../Loading";
 import SidepanelList from "./SidepanelList";
 import {journeyFetchStates} from "../../stores/JourneyStore";
-import {createFetchKey, createRouteId} from "../../helpers/keys";
-import {centerSort} from "../../helpers/centerSort";
-import {departuresToTimes} from "../../helpers/departuresToTimes";
+import {createRouteId} from "../../helpers/keys";
 import {findJourneyStartPosition} from "../../helpers/findJourneyStartPosition";
 import {ColoredBackgroundSlot} from "../TagButton";
 import {diffDepartureJourney} from "../../helpers/diffDepartureJourney";
@@ -70,49 +66,11 @@ const TimeSlot = styled.span`
 `;
 
 @inject(app("Journey", "Time", "Filters"))
-@withDepartures
 @observer
 class Journeys extends Component {
-  currentFetchKey = "";
-
-  componentDidUpdate() {
-    this.fetchAllJourneys();
-  }
-
-  fetchAllJourneys = () => {
-    const {
-      Journey,
-      departures,
-      state: {date, route, time, selectedJourney},
-    } = this.props;
-
-    // Create fetchKey key without time
-    const fetchKey = createFetchKey(route, date, true);
-
-    if (fetchKey && fetchKey !== this.currentFetchKey) {
-      // Format to an array of string times, like 12:30:00
-      let fetchTimes = departuresToTimes(departures);
-
-      if (fetchTimes.length !== 0) {
-        // Find which time we want to fetch first.
-        let firstTime = selectedJourney ? selectedJourney.journey_start_time : time;
-        fetchTimes = centerSort(firstTime, fetchTimes).slice(0, 5);
-
-        const journeyRequests = fetchTimes.map((time) => ({
-          time,
-          route: toJS(route),
-          date,
-        }));
-
-        Journey.requestJourneys(journeyRequests);
-        this.currentFetchKey = fetchKey;
-      }
-    }
-  };
-
   selectJourney = (journeyOrTime) => (e) => {
     e.preventDefault();
-    const {departures, Time, Journey, state} = this.props;
+    const {Time, Journey, state} = this.props;
     let journeyToSelect = null;
 
     if (journeyOrTime) {
@@ -134,36 +92,21 @@ class Journeys extends Component {
         );
 
         journeyToSelect = journey;
-
-        const fetchTimes = centerSort(
-          journey.journey_start_time,
-          departuresToTimes(departures)
-        ).slice(0, 5);
-
-        const journeyRequests = fetchTimes.map((time) => ({
-          time,
-          route: {routeId: journey.route_id, direction: journey.direction_id},
-          date: journey.oday,
-        }));
-
-        if (fetchTimes.length !== 0) {
-          Journey.requestJourneys(journeyRequests);
-        }
       }
     }
     Journey.setSelectedJourney(journeyToSelect);
   };
 
   render() {
-    const {positions, loading, state, departures, Journey} = this.props;
+    const {journeys, loading, state, Journey} = this.props;
     const {resolvedJourneyStates, date, route} = state;
 
     // Pick the first hfp event to represent a journey
     // if it belongs to the currently selected route.
-    const journeys = reduce(
-      positions,
-      (selectedJourneys, {positions}) => {
-        const journey = positions[0];
+    const routeJourneys = reduce(
+      journeys,
+      (selectedJourneys, {events}) => {
+        const journey = events[0];
 
         if (journey && createRouteId(journey) === createRouteId(route)) {
           selectedJourneys.push(journey);
@@ -176,12 +119,12 @@ class Journeys extends Component {
 
     const selectedJourneyId = expr(() => getJourneyId(state.selectedJourney));
 
-    const plannedDepartures = departures.reduce((planned, departure) => {
+    const plannedDepartures = journeys.reduce((planned, {departure}) => {
       const timeStr = `${doubleDigit(departure.hours)}:${doubleDigit(
         departure.minutes
       )}:00`;
 
-      if (journeys.some((j) => j.journey_start_time === timeStr)) {
+      if (routeJourneys.some((j) => j.journey_start_time === timeStr)) {
         return planned;
       }
 
@@ -189,12 +132,15 @@ class Journeys extends Component {
       return planned;
     }, []);
 
-    const departureList = sortBy([...journeys, ...plannedDepartures], (value) => {
-      const sortByTime =
-        typeof value === "string" ? value : get(value, "journey_start_time");
+    const departureList = sortBy(
+      [...routeJourneys, ...plannedDepartures],
+      (value) => {
+        const sortByTime =
+          typeof value === "string" ? value : get(value, "journey_start_time");
 
-      return sortByOperationDay(sortByTime);
-    });
+        return sortByOperationDay(sortByTime);
+      }
+    );
 
     let focusedJourney = expr(() => {
       // Make sure that the selected journey belongs to the currently selected route.
@@ -229,7 +175,7 @@ class Journeys extends Component {
     return (
       <SidepanelList
         reset={
-          !focusedJourney || plannedDepartures.length === 0 || positions.length === 0
+          !focusedJourney || plannedDepartures.length === 0 || journeys.length === 0
         }
         loading={loading}
         header={
@@ -279,8 +225,8 @@ class Journeys extends Component {
             const journeyId = getJourneyId(journeyOrDeparture);
 
             const journeyPositions = get(
-              positions.find(({journeyId: jid}) => jid === journeyId),
-              "positions",
+              journeys.find(({journeyId: jid}) => jid === journeyId),
+              "events",
               []
             );
 
