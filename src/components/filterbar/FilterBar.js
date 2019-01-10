@@ -96,7 +96,7 @@ class FilterBar extends Component {
             <LineSettings />
           </FilterSection>
           <FilterSection>
-            <VehicleSettings positions={positions} />
+            <VehicleSettings />
           </FilterSection>
           <FilterSection>
             <StopSettings />

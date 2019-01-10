@@ -24,7 +24,22 @@ class VehicleSettings extends React.Component {
 
   render() {
     const {state} = this.props;
-    const {vehicle = "", date, route} = state;
+    const {vehicle = "", date, route, selectedJourney} = state;
+
+    const isDisabled = !!selectedJourney;
+
+    if (isDisabled) {
+      return (
+        <ControlGroup>
+          <Input
+            label={text("filterpanel.filter_by_vehicle")}
+            animatedLabel={false}
+            value={vehicle}
+            disabled
+          />
+        </ControlGroup>
+      );
+    }
 
     return (
       <>
