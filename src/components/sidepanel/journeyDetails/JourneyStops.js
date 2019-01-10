@@ -26,23 +26,32 @@ const StopsList = styled.div`
   color: var(--light-grey);
 `;
 
+const HiddenStopsMessage = styled.span`
+  padding-left: 0.875rem;
+`;
+
 const JourneyExpandToggle = styled(Button).attrs({small: true})`
+  box-sizing: content-box;
   border-radius: 50%;
   width: 1.5rem;
   height: 1.5rem;
   padding: 0;
   color: white;
   background: var(--blue);
-  position: absolute;
-  top: 0.75rem;
-  right: 0.5rem;
-  border: 0;
+  position: fixed;
+  transform: translateX(
+    ${({isExpanded = false}) => (isExpanded ? "22.2rem" : "21.5rem")}
+  );
+  transition: border-width 0.1s ease-out;
+  border: 0 solid var(--blue);
 
   &:hover {
     background: var(--blue);
     color: white;
-    border: 0;
-    transform: scale(1.1);
+    border-width: 1px;
+    transform: translateX(
+      ${({isExpanded = false}) => (isExpanded ? "22.2rem" : "21.5rem")}
+    );
   }
 `;
 
@@ -99,10 +108,14 @@ class JourneyStops extends React.Component {
                 />
               ))
           ) : (
-            <>{journeyStops.length - 2} stops hidden</>
+            <HiddenStopsMessage>
+              {journeyStops.length - 2} stops hidden
+            </HiddenStopsMessage>
           )}
         </StopsList>
-        <JourneyExpandToggle onClick={() => this.toggleJourneyExpanded()}>
+        <JourneyExpandToggle
+          isExpanded={this.journeyIsExpanded}
+          onClick={() => this.toggleJourneyExpanded()}>
           {this.journeyIsExpanded ? (
             <Minus fill="white" width="0.75rem" height="0.75rem" />
           ) : (
