@@ -98,6 +98,7 @@ export default ({
         isWithinRange(date, departure.dateBegin, departure.dateEnd) &&
         departure.dayType === dayType &&
         departure.routeId === firstPosition.route_id &&
+        departure.departureId === originDeparture.departureId &&
         parseInt(departure.direction) ===
           parseInt(get(firstPosition, "direction_id", 0))
     );
@@ -140,6 +141,8 @@ export default ({
 
   const stopArrivalTime = arrivalMoment.format("HH:mm:ss");
   const stopDepartureTime = departureMoment.format("HH:mm:ss");
+
+  console.log(departure);
 
   return (
     <StopWrapper>
