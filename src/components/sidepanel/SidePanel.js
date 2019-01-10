@@ -9,12 +9,12 @@ import TimetablePanel from "./TimetablePanel";
 import VehicleJourneys from "./VehicleJourneys";
 import {text} from "../../helpers/text";
 import AreaJourneyList from "./AreaJourneyList";
-import ArrowLeft from "../../icons/ArrowLeft";
 import {computed} from "mobx";
 import JourneyDetails from "./journeyDetails/JourneyDetails";
 import Info from "../../icons/Info";
 import getJourneyId from "../../helpers/getJourneyId";
 import {createRouteKey} from "../../helpers/keys";
+import Timetable from "../../icons/Timetable";
 
 const SidePanelContainer = styled.div`
   background: var(--lightest-grey);
@@ -41,18 +41,13 @@ const ToggleSidePanelButton = styled.button`
   justify-content: center;
   right: -1.5rem;
   top: 50%;
-  padding: 0 0.25rem 0 0;
+  padding: 0 0.1rem 0;
   transform: translateY(calc(-100% - 0.5rem));
   color: white;
   border-top-right-radius: 5px;
   border-bottom-right-radius: 5px;
   cursor: pointer;
   transition: transform 0.2s ease-out;
-
-  svg {
-    transition: transform 0.5s ease-out;
-    transform: rotate(${({isVisible = true}) => (isVisible ? 0 : "180deg")});
-  }
 
   &:hover {
     transform: scale(1.075) translateY(calc(-90% - 0.5rem));
@@ -175,7 +170,7 @@ class SidePanel extends Component {
         <ToggleSidePanelButton
           isVisible={sidePanelVisible}
           onClick={() => toggleSidePanel()}>
-          <ArrowLeft fill="white" height="1.2rem" width="1.2rem" />
+          <Timetable fill="white" height="1.2rem" width="1rem" />
         </ToggleSidePanelButton>
       </SidePanelContainer>
     );
