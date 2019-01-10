@@ -4,15 +4,12 @@ import Journeys from "./Journeys";
 import styled from "styled-components";
 import {app} from "mobx-app";
 import Tabs from "./Tabs";
-import get from "lodash/get";
 import TimetablePanel from "./TimetablePanel";
 import VehicleJourneys from "./VehicleJourneys";
 import {text} from "../../helpers/text";
 import AreaJourneyList from "./AreaJourneyList";
-import {computed} from "mobx";
 import JourneyDetails from "./journeyDetails/JourneyDetails";
 import Info from "../../icons/Info";
-import getJourneyId from "../../helpers/getJourneyId";
 import {createRouteKey} from "../../helpers/keys";
 import Timetable from "../../icons/Timetable";
 
@@ -86,38 +83,21 @@ const JourneyPanel = styled.div`
 @inject(app("UI"))
 @observer
 class SidePanel extends Component {
-  // This is a computed check to see if we have anything to show in the journey details sidebar.
-  // When this returns false the sidebar will hide regardless of the journeyDetailsOpen setting.
-  @computed
-  get journeyDetailsCanOpen() {
-    const {state} = this.props;
-
-    const route_id = get(state, "selectedJourney.route_id", "");
-    const direction_id = parseInt(
-      get(state, "selectedJourney.direction_id", ""),
-      10
-    );
-    const routeId = get(state, "route.routeId", "");
-    const direction = parseInt(get(state, "route.direction", ""), 10);
-
-    // Make sure the route of the selected journey matches the currently selected route.
-    // Otherwise the journey details can open even though the user has not made a selection.
-    return !!(
-      route_id === routeId &&
-      direction === direction_id &&
-      getJourneyId(state.selectedJourney)
-    );
-  }
-
   render() {
     const {
       UI: {toggleSidePanel, toggleJourneyDetails},
       positions = [],
       loading,
-      state: {stop, route, date, vehicle, sidePanelVisible, journeyDetailsOpen},
+      state: {
+        stop,
+        route,
+        date,
+        vehicle,
+        sidePanelVisible,
+        journeyDetailsAreOpen,
+        journeyDetailsCanOpen,
+      },
     } = this.props;
-
-    const journeyDetailsAreOpen = this.journeyDetailsCanOpen && journeyDetailsOpen;
 
     return (
       <SidePanelContainer visible={sidePanelVisible}>
@@ -159,9 +139,9 @@ class SidePanel extends Component {
         <JourneyPanel visible={journeyDetailsAreOpen}>
           {/* The content of the sidebar is independent from the sidebar wrapper so that we can animate it. */}
           {journeyDetailsAreOpen && <JourneyDetails positions={positions} />}
-          {this.journeyDetailsCanOpen && (
+          {journeyDetailsCanOpen && (
             <ToggleJourneyDetailsButton
-              isVisible={journeyDetailsOpen}
+              isVisible={journeyDetailsAreOpen}
               onClick={() => toggleJourneyDetails()}>
               <Info fill="white" height="1rem" width="1rem" />
             </ToggleJourneyDetailsButton>

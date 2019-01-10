@@ -57,7 +57,9 @@ class Map extends Component {
     this.disposeSidePanelReaction = reaction(
       () =>
         (this.props.state.sidePanelVisible ? "visible" : "not visible") +
-        (this.props.state.journeyDetailsOpen ? " details open" : " details closed"),
+        (this.props.state.journeyDetailsAreOpen
+          ? " details open"
+          : " details closed"),
       () => {
         const leafletMap = this.getLeaflet();
 
