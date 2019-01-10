@@ -26,3 +26,13 @@ export function createRouteKey(route, allowPartial = false) {
   // Join into string and ensure no dots
   return keyParts.join("_").replace(".", "-");
 }
+
+// Supports both JORE routes as well as HFP journeys.
+export function createRouteId(route) {
+  const keyParts = [
+    get(route, "routeId", get(route, "route_id", "")),
+    get(route, "direction", get(route, "direction_id", "")),
+  ];
+
+  return compact(keyParts).join("_");
+}
