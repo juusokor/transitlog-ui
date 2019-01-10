@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
-import map from "lodash/map";
+import reduce from "lodash/reduce";
 import get from "lodash/get";
 import sortBy from "lodash/sortBy";
 import {app} from "mobx-app";
@@ -14,7 +14,7 @@ import {toJS} from "mobx";
 import Loading from "../Loading";
 import SidepanelList from "./SidepanelList";
 import {journeyFetchStates} from "../../stores/JourneyStore";
-import {createFetchKey} from "../../helpers/keys";
+import {createFetchKey, createRouteId} from "../../helpers/keys";
 import {centerSort} from "../../helpers/centerSort";
 import {departuresToTimes} from "../../helpers/departuresToTimes";
 import {findJourneyStartPosition} from "../../helpers/findJourneyStartPosition";
@@ -158,7 +158,22 @@ class Journeys extends Component {
     const {positions, loading, state, departures, Journey} = this.props;
     const {resolvedJourneyStates, date, route} = state;
 
-    const journeys = map(positions, ({positions}) => positions[0]);
+    // Pick the first hfp event to represent a journey
+    // if it belongs to the currently selected route.
+    const journeys = reduce(
+      positions,
+      (selectedJourneys, {positions}) => {
+        const journey = positions[0];
+
+        if (journey && createRouteId(journey) === createRouteId(route)) {
+          selectedJourneys.push(journey);
+        }
+
+        return selectedJourneys;
+      },
+      []
+    );
+
     const selectedJourneyId = expr(() => getJourneyId(state.selectedJourney));
 
     const plannedDepartures = departures.reduce((planned, departure) => {
@@ -182,7 +197,12 @@ class Journeys extends Component {
     });
 
     let focusedJourney = expr(() => {
-      if (selectedJourneyId) {
+      // Make sure that the selected journey belongs to the currently selected route.
+      if (
+        selectedJourneyId &&
+        state.selectedJourney &&
+        createRouteId(state.selectedJourney) === createRouteId(route)
+      ) {
         return selectedJourneyId;
       }
 

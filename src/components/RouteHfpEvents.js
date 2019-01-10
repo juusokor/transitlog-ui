@@ -72,7 +72,7 @@ class RouteHfpEvents extends React.Component {
       state: {resolvedJourneyStates},
     } = this.props;
 
-    const {journeyId, route, date, time, skipCache = false} = journeyRequest;
+    const {journeyId, route, date, time} = journeyRequest;
 
     const currentFetchState = resolvedJourneyStates.get(journeyId);
 
@@ -83,7 +83,7 @@ class RouteHfpEvents extends React.Component {
     Journey.setJourneyFetchState(journeyId, journeyFetchStates.PENDING);
 
     const useRoute = this.getStateRoute(route);
-    const journeys = await fetchHfpJourney(toJS(useRoute), date, time, skipCache);
+    const journeys = await fetchHfpJourney(toJS(useRoute), date, time);
 
     if (journeys && Array.isArray(journeys)) {
       if (journeys.length === 0) {
