@@ -24,7 +24,8 @@ const SuggestionSectionTitle = styled.div`
   font-weight: bold;
 `;
 
-const getSuggestionValue = (suggestion) => get(suggestion, "unique_vehicle_id", "");
+const getSuggestionValue = (suggestion) =>
+  get(suggestion, "unique_vehicle_id", suggestion);
 
 const renderSuggestion = (suggestion, {query, isHighlighted}) => (
   <SuggestionContent isHighlighted={isHighlighted}>

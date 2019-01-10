@@ -1,6 +1,6 @@
 import React from "react";
 import {text} from "../../helpers/text";
-import {ControlGroup} from "../Forms";
+import {ControlGroup, Button} from "../Forms";
 import {inject, observer} from "mobx-react";
 import {app} from "mobx-app";
 import VehicleInput from "./VehicleInput";
@@ -27,34 +27,44 @@ class VehicleSettings extends React.Component {
     const {vehicle = "", date, route} = state;
 
     return (
-      <VehicleOptionsQuery date={date} route={route}>
-        {({vehicles}) => {
-          const groupedVehicles = map(
-            groupBy(vehicles, ({owner_operator_id}) => owner_operator_id),
-            (vehicles, operatorId) => {
-              return {
-                operatorName: getOperatorName(operatorId),
-                operatorId: operatorId,
-                vehicles,
-              };
-            }
-          );
+      <>
+        <VehicleOptionsQuery date={date} route={route}>
+          {({vehicles}) => {
+            const groupedVehicles = map(
+              groupBy(vehicles, ({owner_operator_id}) => owner_operator_id),
+              (vehicles, operatorId) => {
+                return {
+                  operatorName: getOperatorName(operatorId),
+                  operatorId: operatorId,
+                  vehicles,
+                };
+              }
+            );
 
-          return (
-            <ControlGroup>
-              <Input
-                label={text("filterpanel.filter_by_vehicle")}
-                animatedLabel={false}>
-                <VehicleInput
-                  options={groupedVehicles}
-                  value={vehicle}
-                  onSelect={this.onChangeQueryVehicle}
-                />
-              </Input>
-            </ControlGroup>
-          );
-        }}
-      </VehicleOptionsQuery>
+            return (
+              <ControlGroup>
+                <Input
+                  label={text("filterpanel.filter_by_vehicle")}
+                  animatedLabel={false}>
+                  <VehicleInput
+                    options={groupedVehicles}
+                    value={vehicle}
+                    onSelect={this.onChangeQueryVehicle}
+                  />
+                </Input>
+              </ControlGroup>
+            );
+          }}
+        </VehicleOptionsQuery>
+        {!!vehicle && (
+          <Button
+            primary={false}
+            small={true}
+            onClick={() => this.onChangeQueryVehicle("")}>
+            Clear vehicle
+          </Button>
+        )}
+      </>
     );
   }
 }
