@@ -142,8 +142,6 @@ export default ({
   const stopArrivalTime = arrivalMoment.format("HH:mm:ss");
   const stopDepartureTime = departureMoment.format("HH:mm:ss");
 
-  console.log(departure);
-
   return (
     <StopWrapper>
       <StopElementsWrapper
