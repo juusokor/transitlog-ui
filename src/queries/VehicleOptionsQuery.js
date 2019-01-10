@@ -3,12 +3,14 @@ import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import get from "lodash/get";
 
+// TODO: Remove other where clauses than oday.
+
 const vehiclesQuery = gql`
   query vehiclesQuery($date: date) {
     vehicles(
-      distinct_on: unique_vehicle_id
-      order_by: {unique_vehicle_id: asc}
-      where: {oday: {_eq: $date}}
+      distinct_on: [unique_vehicle_id]
+      order_by: [{unique_vehicle_id: asc}]
+      where: {oday: {_eq: $date}, geohash_level: {_eq: 1}}
     ) {
       unique_vehicle_id
       vehicle_number
