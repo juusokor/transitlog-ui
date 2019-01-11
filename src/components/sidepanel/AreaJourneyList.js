@@ -56,12 +56,6 @@ class AreaJourneyList extends Component {
 
         Filters.setRoute(route);
         Journey.setSelectedJourney(journey);
-
-        Journey.requestJourneys({
-          time: journey.journey_start_time,
-          route,
-          date: journey.oday,
-        });
       }
     }
   };

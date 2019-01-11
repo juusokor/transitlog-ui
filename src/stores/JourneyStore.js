@@ -1,4 +1,4 @@
-import {extendObservable, action, observable, reaction, runInAction} from "mobx";
+import {extendObservable, action, reaction, runInAction} from "mobx";
 import getJourneyId from "../helpers/getJourneyId";
 import FilterActions from "./filterActions";
 import moment from "moment-timezone";
@@ -7,25 +7,10 @@ import {pickJourneyProps} from "../helpers/pickJourneyProps";
 import {getPathName} from "./UrlManager";
 import get from "lodash/get";
 
-export const journeyFetchStates = {
-  PENDING: "pending",
-  RESOLVED: "resolved",
-  NOTFOUND: "notfound",
-  ERROR: "error",
-};
-
 export default (state) => {
-  extendObservable(
-    state,
-    {
-      selectedJourney: null,
-      requestedJourneys: [],
-      resolvedJourneyStates: new Map(),
-    },
-    {
-      requestedJourneys: observable.shallow,
-    }
-  );
+  extendObservable(state, {
+    selectedJourney: null,
+  });
 
   const filterActions = FilterActions(state);
   const actions = journeyActions(state);
@@ -81,11 +66,6 @@ export default (state) => {
 
         if (getJourneyId(state.selectedJourney) !== getJourneyId(journey)) {
           state.selectedJourney = journey;
-          actions.requestJourneys({
-            time: timeStr,
-            route: {routeId: route_id, direction: direction_id},
-            date: dateStr,
-          });
         }
       }
     }

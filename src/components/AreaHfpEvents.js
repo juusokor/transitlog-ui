@@ -5,8 +5,6 @@ import {app} from "mobx-app";
 import {combineDateAndTime} from "../helpers/time";
 import AreaHfpQuery from "../queries/AreaHfpQuery";
 import {setResetListener} from "../stores/FilterStore";
-import {areaEventsStyles} from "../stores/UIStore";
-import isWithinRange from "date-fns/is_within_range";
 
 const defaultQueryParams = {
   minTime: null,

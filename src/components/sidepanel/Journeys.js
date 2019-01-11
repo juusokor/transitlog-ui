@@ -1,8 +1,6 @@
 import React, {Component} from "react";
 import {observer, inject, Observer} from "mobx-react";
-import reduce from "lodash/reduce";
 import get from "lodash/get";
-import sortBy from "lodash/sortBy";
 import {app} from "mobx-app";
 import getJourneyId from "../../helpers/getJourneyId";
 import styled from "styled-components";

@@ -126,9 +126,8 @@ class VehicleJourneys extends Component {
   // Selects a journey based on its index in the list.
   updateVehicleAndJourneySelection = (nextJourneyIndex) => {
     const {
-      state: {selectedJourney, vehicle, date, route},
+      state: {selectedJourney},
       positions: journeys,
-      Journey,
     } = this.props;
 
     let useIndex = nextJourneyIndex;
@@ -153,17 +152,6 @@ class VehicleJourneys extends Component {
         !selectedJourney)
     ) {
       this.selectJourney(nextSelectedJourney);
-
-      const vehicleId = get(nextSelectedJourney, "unique_vehicle_id", "");
-
-      // If the vehicle ID changed, fetch the journeys for the vehicle.
-      if (vehicleId && vehicleId !== vehicle) {
-        Journey.requestJourneys({
-          vehicleId,
-          date,
-          route,
-        });
-      }
     }
   };
 

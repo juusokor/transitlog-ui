@@ -49,18 +49,6 @@ const StopArrivalTime = styled(TagButton)`
   margin: 0 0 0.5rem;
 `;
 
-const SimpleStopArrivalTime = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: 0.5rem;
-  color: var(--dark-grey);
-  font-size: 0.875rem;
-
-  svg {
-    margin-right: 0.5rem;
-  }
-`;
-
 const StopDepartureTime = styled(TagButton)``;
 
 export default ({

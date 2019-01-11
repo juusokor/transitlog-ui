@@ -1,7 +1,6 @@
 import React, {Component} from "react";
 import {inject, observer} from "mobx-react";
 import {app} from "mobx-app";
-import {createRouteId} from "../helpers/keys";
 import {createHfpItem} from "../helpers/createHfpItem";
 import {SelectedJourneyQuery} from "../queries/SelectedJourneyQuery";
 import getJourneyId from "../helpers/getJourneyId";

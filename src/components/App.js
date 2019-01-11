@@ -1,6 +1,5 @@
 import React, {Component} from "react";
 import FilterBar from "./filterbar/FilterBar";
-import RouteJourneys from "./RouteJourneys";
 import {app} from "mobx-app";
 import {inject, observer} from "mobx-react";
 import Map from "./map/Map";
