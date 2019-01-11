@@ -5,6 +5,8 @@ import {app} from "mobx-app";
 import {combineDateAndTime} from "../helpers/time";
 import AreaHfpQuery from "../queries/AreaHfpQuery";
 import {setResetListener} from "../stores/FilterStore";
+import {areaEventsStyles} from "../stores/UIStore";
+import isWithinRange from "date-fns/is_within_range";
 
 const defaultQueryParams = {
   minTime: null,
@@ -42,9 +44,9 @@ class AreaHfpEvents extends Component {
   });
 
   // When the query bounds change, update the params.
-  setQueryParams = action((bounds) => {
+  setQueryParams = action(([bounds, date]) => {
     const {
-      state: {date, time, areaSearchRangeMinutes = 10},
+      state: {time, areaSearchRangeMinutes = 60},
     } = this.props;
 
     if (!bounds || (typeof bounds.isValid === "function" && !bounds.isValid())) {
@@ -53,11 +55,14 @@ class AreaHfpEvents extends Component {
 
     const moment = combineDateAndTime(date, time, "Europe/Helsinki");
 
+    const minTime = moment.clone().subtract(areaSearchRangeMinutes / 2, "minutes");
+    const maxTime = moment.clone().add(areaSearchRangeMinutes / 2, "minutes");
+
     // Translate the bounding box to a min/max query for the HFP api and create a time range.
     this.queryParams = {
       date,
-      minTime: moment.clone().subtract(areaSearchRangeMinutes / 2, "minutes"),
-      maxTime: moment.clone().add(areaSearchRangeMinutes / 2, "minutes"),
+      minTime,
+      maxTime,
       minLong: bounds.getWest(),
       maxLong: bounds.getEast(),
       minLat: bounds.getSouth(),
@@ -69,7 +74,7 @@ class AreaHfpEvents extends Component {
     setResetListener(this.onReset);
 
     this.disposeQueryReaction = reaction(
-      () => this.currentBounds,
+      () => [this.currentBounds, this.props.state.date],
       this.setQueryParams
     );
   }

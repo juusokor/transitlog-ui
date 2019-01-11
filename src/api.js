@@ -5,7 +5,6 @@ import {HttpLink} from "apollo-link-http";
 import {Hermes} from "apollo-cache-hermes";
 import {onError} from "apollo-link-error";
 import get from "lodash/get";
-import getJourneyId from "./helpers/getJourneyId";
 
 const joreUrl = process.env.REACT_APP_JORE_GRAPHQL_URL;
 const hfpUrl = process.env.REACT_APP_HFP_GRAPHQL_URL;

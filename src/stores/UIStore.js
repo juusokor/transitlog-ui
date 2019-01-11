@@ -13,6 +13,11 @@ export const languageState = observable({
   language: getUrlValue("language", "fi"),
 });
 
+export const areaEventsStyles = {
+  MARKERS: "markers",
+  POLYLINES: "polylines",
+};
+
 export default (state) => {
   const sideBarUrlState = getUrlValue("sidePanelVisible", true);
   const journeyDetailsUrlState = getUrlValue("journeyDetailsOpen", true);
@@ -22,6 +27,7 @@ export default (state) => {
     journeyDetailsOpen:
       !journeyDetailsUrlState || journeyDetailsUrlState === "false" ? false : true,
     mapOverlays: getUrlValue("mapOverlays", "").split(","),
+    areaEventsStyle: areaEventsStyles.MARKERS,
     language: languageState.language,
     errors: [],
     // This is a computed check to see if we have anything to show in the journey details sidebar.
@@ -53,6 +59,12 @@ export default (state) => {
     if (Object.values(LANGUAGES).includes(language)) {
       languageState.language = language;
       setUrlValue("language", languageState.language);
+    }
+  });
+
+  const setAreaEventsStyle = action((style = areaEventsStyles.MARKERS) => {
+    if (Object.values(areaEventsStyles).indexOf(style) !== -1) {
+      state.areaEventsStyle = style;
     }
   });
 
@@ -123,5 +135,6 @@ export default (state) => {
     changeOverlay,
     addError,
     removeError,
+    setAreaEventsStyle,
   };
 };
