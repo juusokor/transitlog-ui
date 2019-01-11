@@ -1397,20 +1397,6 @@ anymatch@^2.0.0:
     micromatch "^3.1.4"
     normalize-path "^2.1.1"
 
-apollo-cache-hermes@^0.8.7:
-  version "0.8.7"
-  resolved "https://registry.yarnpkg.com/apollo-cache-hermes/-/apollo-cache-hermes-0.8.7.tgz#a263a04814389a314fc48d7bbd1af979c9b52faa"
-  integrity sha512-Ps8P4iM1QhKo23Q3Q+Z1a778fmVJ2XdMwrcxVe1y4yqlQMP8NKeAlUcJZS80/jY/WLsUrnISxpg3kBh3pgr/dw==
-  dependencies:
-    apollo-cache "^1.0.0"
-    apollo-utilities "^1.0.0"
-    deep-freeze-strict "^1.0.0"
-    lodash.findindex "^4.0.0"
-    lodash.isequal "^4.5.0"
-    lodash.set "^4.0.0"
-    make-error "^1.3.0"
-    tslib "^1.9.0"
-
 apollo-cache-inmemory@^1.3.12:
   version "1.3.12"
   resolved "https://registry.yarnpkg.com/apollo-cache-inmemory/-/apollo-cache-inmemory-1.3.12.tgz#cf7ef7c15730d0b6787d79047d5c06087ac31991"
@@ -1425,7 +1411,7 @@ apollo-cache-persist@^0.1.1:
   resolved "https://registry.yarnpkg.com/apollo-cache-persist/-/apollo-cache-persist-0.1.1.tgz#e6cfe1983b998982a679aaf05241d3ed395edb1e"
   integrity sha512-/7GAyblPR169ryW3ugbtHqiU0UGkhIt10NeaO2gn2ClxjLHF/nIkJD5mx/0OCF2vLNbbnzLZVDeIO1pf72TrEA==
 
-apollo-cache@1.1.22, apollo-cache@^1.0.0, apollo-cache@^1.1.22:
+apollo-cache@1.1.22, apollo-cache@^1.1.22:
   version "1.1.22"
   resolved "https://registry.yarnpkg.com/apollo-cache/-/apollo-cache-1.1.22.tgz#d4682ea6e8b2508a934f61c2fd9e36b4a65041d9"
   integrity sha512-8PoxhQLISj2oHwT7i/r4l+ly4y3RKZls+dtXzAewu3U77P9dNZKhYkRNAhx9iEfsrNoHgXBV8vMp64hb1uYh+g==
@@ -3428,11 +3414,6 @@ deep-extend@^0.6.0:
   version "0.6.0"
   resolved "https://registry.yarnpkg.com/deep-extend/-/deep-extend-0.6.0.tgz#c4fa7c95404a17a9c3e8ca7e1537312b736330ac"
   integrity sha512-LOHxIOaPYdHlJRtCQfDIVZtfw/ufM8+rVj649RIHzcm/vGwQRXFt6OPqIFWsm2XEMrNIEtWR64sY1LEKD2vAOA==
-
-deep-freeze-strict@^1.0.0:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/deep-freeze-strict/-/deep-freeze-strict-1.1.1.tgz#77d0583ca24a69be4bbd9ac2fae415d55523e5b0"
-  integrity sha1-d9BYPKJKab5LvZrC+uQV1VUj5bA=
 
 deep-is@~0.1.3:
   version "0.1.3"
@@ -7057,11 +7038,6 @@ lodash.debounce@^4.0.8:
   resolved "https://registry.yarnpkg.com/lodash.debounce/-/lodash.debounce-4.0.8.tgz#82d79bff30a67c4005ffd5e2515300ad9ca4d7af"
   integrity sha1-gteb/zCmfEAF/9XiUVMArZyk168=
 
-lodash.findindex@^4.0.0:
-  version "4.6.0"
-  resolved "https://registry.yarnpkg.com/lodash.findindex/-/lodash.findindex-4.6.0.tgz#a3245dee61fb9b6e0624b535125624bb69c11106"
-  integrity sha1-oyRd7mH7m24GJLU1ElYku2nBEQY=
-
 lodash.flowright@^3.5.0:
   version "3.5.0"
   resolved "https://registry.yarnpkg.com/lodash.flowright/-/lodash.flowright-3.5.0.tgz#2b5fff399716d7e7dc5724fe9349f67065184d67"
@@ -7081,11 +7057,6 @@ lodash.merge@^4.6.1:
   version "4.6.1"
   resolved "https://registry.yarnpkg.com/lodash.merge/-/lodash.merge-4.6.1.tgz#adc25d9cb99b9391c59624f379fbba60d7111d54"
   integrity sha512-AOYza4+Hf5z1/0Hztxpm2/xiPZgi/cjMqdnKTUWTBSKchJlxXXuUSxCCl8rJlf4g6yww/j6mA8nC8Hw/EZWxKQ==
-
-lodash.set@^4.0.0:
-  version "4.3.2"
-  resolved "https://registry.yarnpkg.com/lodash.set/-/lodash.set-4.3.2.tgz#d8757b1da807dde24816b0d6a84bea1a76230b23"
-  integrity sha1-2HV7HagH3eJIFrDWqEvqGnYjCyM=
 
 lodash.sortby@^4.7.0:
   version "4.7.0"
@@ -7188,11 +7159,6 @@ make-dir@^1.0.0:
   integrity sha512-2w31R7SJtieJJnQtGc7RVL2StM2vGYVfqUOvUDxH6bC6aJTxPxTF0GnIgCyu7tjockiUWAYQRbxa7vKn34s5sQ==
   dependencies:
     pify "^3.0.0"
-
-make-error@^1.3.0:
-  version "1.3.5"
-  resolved "https://registry.yarnpkg.com/make-error/-/make-error-1.3.5.tgz#efe4e81f6db28cadd605c70f29c831b58ef776c8"
-  integrity sha512-c3sIjNUow0+8swNwVpqoH4YCShKNFkMaw6oH1mNS2haDZQqkeZFlHS3dhoeEbKKmJB4vXpJucU6oH75aDYeE9g==
 
 makeerror@1.0.x:
   version "1.0.11"
