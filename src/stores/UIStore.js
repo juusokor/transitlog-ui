@@ -27,7 +27,7 @@ export default (state) => {
     journeyDetailsOpen:
       !journeyDetailsUrlState || journeyDetailsUrlState === "false" ? false : true,
     mapOverlays: getUrlValue("mapOverlays", "").split(","),
-    areaEventsStyle: areaEventsStyles.MARKERS,
+    areaEventsStyle: getUrlValue("areaEventsStyle", areaEventsStyles.MARKERS),
     language: languageState.language,
     errors: [],
     // This is a computed check to see if we have anything to show in the journey details sidebar.
@@ -65,6 +65,7 @@ export default (state) => {
   const setAreaEventsStyle = action((style = areaEventsStyles.MARKERS) => {
     if (Object.values(areaEventsStyles).indexOf(style) !== -1) {
       state.areaEventsStyle = style;
+      setUrlValue("areaEventsStyle", state.areaEventsStyle);
     }
   });
 

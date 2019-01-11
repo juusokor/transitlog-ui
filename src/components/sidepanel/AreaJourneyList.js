@@ -80,7 +80,6 @@ class AreaJourneyList extends Component {
   render() {
     const {
       journeys,
-      UI,
       state: {selectedJourney, areaEventsStyle},
     } = this.props;
 

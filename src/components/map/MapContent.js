@@ -13,6 +13,8 @@ import {app} from "mobx-app";
 import RouteStopsLayer from "./RouteStopsLayer";
 import AreaSelect from "./AreaSelect";
 import {expr} from "mobx-utils";
+import {areaEventsStyles} from "../../stores/UIStore";
+import SimpleHfpLayer from "./SimpleHfpLayer";
 
 @inject(app("Journey", "Filters"))
 @observer
@@ -36,7 +38,7 @@ class MapContent extends Component {
       setMapBounds,
       viewLocation,
       queryBounds,
-      state: {vehicle, selectedJourney, date, mapOverlays},
+      state: {vehicle, selectedJourney, date, mapOverlays, areaEventsStyle},
     } = this.props;
 
     const hasRoute = !!route && !!route.routeId;
@@ -65,15 +67,24 @@ class MapContent extends Component {
             ) : null}
             <AreaSelect enabled={zoom > 14} onSelectArea={queryBounds} />
             {positions.length !== 0 &&
-              positions.map(({journeyId, events}) => (
-                <HfpMarkerLayer
-                  key={`hfp_markers_${journeyId}`}
-                  onMarkerClick={this.onClickVehicleMarker}
-                  positions={events}
-                  journeyId={journeyId}
-                  maxTimeDiff={3}
-                />
-              ))}
+              positions.map(({journeyId, events}) =>
+                areaEventsStyle === areaEventsStyles.MARKERS ? (
+                  <HfpMarkerLayer
+                    key={`hfp_markers_${journeyId}`}
+                    onMarkerClick={this.onClickVehicleMarker}
+                    positions={events}
+                    journeyId={journeyId}
+                    maxTimeDiff={3}
+                  />
+                ) : (
+                  <SimpleHfpLayer
+                    zoom={zoom}
+                    name={journeyId}
+                    key={`hfp_polyline_${journeyId}`}
+                    positions={events}
+                  />
+                )
+              )}
           </>
         )}
         {/* When a route IS selected... */}
