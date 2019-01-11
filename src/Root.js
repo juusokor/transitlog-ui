@@ -8,6 +8,8 @@ import DevTools from "mobx-react-devtools";
 import {configureDevtool} from "mobx-react-devtools";
 import {GlobalFormStyle} from "./components/Forms";
 import {app} from "mobx-app";
+import {observable, runInAction} from "mobx";
+import Loading from "./components/Loading";
 
 configureDevtool({
   logEnabled: false,
@@ -20,12 +22,23 @@ configureDevtool({
 @inject(app("UI"))
 @observer
 class Root extends React.Component {
-  render() {
+  @observable.ref
+  client = null;
+
+  async componentDidMount() {
     const {UI} = this.props;
-    const client = getClient(UI);
+    const client = await getClient(UI);
+
+    runInAction(() => (this.client = client));
+  }
+
+  render() {
+    if (!this.client) {
+      return <Loading />;
+    }
 
     return (
-      <ApolloProvider client={client}>
+      <ApolloProvider client={this.client}>
         <>
           <GlobalFormStyle />
           <App />

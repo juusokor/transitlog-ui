@@ -2,11 +2,10 @@ import {ApolloClient} from "apollo-client";
 import {concat, split} from "apollo-link";
 import {BatchHttpLink} from "apollo-link-batch-http";
 import {HttpLink} from "apollo-link-http";
-import {InMemoryCache} from "apollo-cache-inmemory";
-import {CachePersistor} from "apollo-cache-persist";
+import {Hermes} from "apollo-cache-hermes";
 import {onError} from "apollo-link-error";
-import localforage from "localforage";
 import get from "lodash/get";
+import getJourneyId from "./helpers/getJourneyId";
 
 const joreUrl = process.env.REACT_APP_JORE_GRAPHQL_URL;
 const hfpUrl = process.env.REACT_APP_HFP_GRAPHQL_URL;
@@ -21,7 +20,7 @@ if (!hfpUrl) {
 
 let createdClient = null;
 
-export const getClient = (UIStore) => {
+export const getClient = async (UIStore) => {
   if (createdClient) {
     return createdClient;
   }
@@ -51,7 +50,7 @@ export const getClient = (UIStore) => {
     }
   });
 
-  const cache = new InMemoryCache();
+  const cache = new Hermes();
 
   const joreLink = new BatchHttpLink({
     uri: joreUrl,
