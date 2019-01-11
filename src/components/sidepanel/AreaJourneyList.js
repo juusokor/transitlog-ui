@@ -5,6 +5,8 @@ import SidepanelList from "./SidepanelList";
 import styled from "styled-components";
 import map from "lodash/map";
 import getJourneyId from "../../helpers/getJourneyId";
+import ToggleButton from "../ToggleButton";
+import {areaEventsStyles} from "../../stores/UIStore";
 
 const JourneyListRow = styled.button`
   display: flex;
@@ -35,7 +37,7 @@ const JourneyRowLeft = styled.span`
   text-align: left;
 `;
 
-@inject(app("Journey", "Time", "Filters"))
+@inject(app("Journey", "Time", "Filters", "UI"))
 @observer
 class AreaJourneyList extends Component {
   selectJourney = (journey) => (e) => {
@@ -64,10 +66,22 @@ class AreaJourneyList extends Component {
     }
   };
 
+  onChangeDisplayStyle = (e) => {
+    const {UI} = this.props;
+    const value = e.target.value;
+
+    UI.setAreaEventsStyle(
+      value === areaEventsStyles.MARKERS
+        ? areaEventsStyles.POLYLINES
+        : areaEventsStyles.MARKERS
+    );
+  };
+
   render() {
     const {
       journeys,
-      state: {selectedJourney},
+      UI,
+      state: {selectedJourney, areaEventsStyle},
     } = this.props;
 
     const journeyHfpEvents = map(journeys, ({journeyId, events}) => ({
@@ -78,7 +92,19 @@ class AreaJourneyList extends Component {
     const selectedJourneyId = getJourneyId(selectedJourney);
 
     return (
-      <SidepanelList>
+      <SidepanelList
+        header={
+          <ToggleButton
+            type="checkbox"
+            onChange={this.onChangeDisplayStyle}
+            name="area_events_style"
+            isSwitch={true}
+            preLabel="Show as polylines"
+            label="Show as markers"
+            checked={areaEventsStyle === areaEventsStyles.MARKERS}
+            value={areaEventsStyle}
+          />
+        }>
         {(scrollRef) =>
           journeyHfpEvents.map(({journeyId, position}) => {
             const {route_id, direction_id, journey_start_time} = position;
