@@ -85,7 +85,12 @@ class App extends Component {
     return (
       <AppFrame>
         <AreaHfpEvents>
-          {({queryBounds, events: areaEvents = [], timeRange}) => (
+          {({
+            queryBounds,
+            events: areaEvents = [],
+            timeRange,
+            loading: areaEventsLoading,
+          }) => (
             <SelectedJourneyEvents>
               {({events: selectedJourneyEvents = [], loading}) => {
                 let areaHfp = !hasRoute && areaEvents.length !== 0 ? areaEvents : [];
@@ -99,6 +104,7 @@ class App extends Component {
                     />
                     <SidepanelAndMapWrapper>
                       <SidePanel
+                        areaEventsLoading={areaEventsLoading}
                         loading={loading}
                         areaEvents={areaHfp}
                         selectedJourneyEvents={selectedJourneyEvents}

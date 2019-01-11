@@ -89,6 +89,7 @@ class SidePanel extends Component {
       areaEvents = [],
       selectedJourneyEvents = [],
       loading = false,
+      areaEventsLoading = false,
       state: {
         stop,
         route,
@@ -100,18 +101,21 @@ class SidePanel extends Component {
       },
     } = this.props;
 
+    const hasRoute = !!route && !!route.routeId;
+
     return (
       <SidePanelContainer visible={sidePanelVisible}>
         <MainSidePanel>
           <Tabs>
-            {(!route || !route.routeId) && areaEvents.length !== 0 && (
+            {!hasRoute && (areaEventsLoading || areaEvents.length !== 0) && (
               <AreaJourneyList
+                loading={areaEventsLoading}
                 journeys={areaEvents}
                 name="area-journeys"
                 label={text("sidepanel.tabs.area_events")}
               />
             )}
-            {!!route && !!route.routeId && (
+            {hasRoute && (
               <Journeys
                 key={`route_journeys_${createRouteKey(route, true)}_${date}`}
                 route={route}

@@ -80,6 +80,7 @@ class AreaJourneyList extends Component {
   render() {
     const {
       journeys,
+      loading,
       state: {selectedJourney, areaEventsStyle},
     } = this.props;
 
@@ -92,13 +93,14 @@ class AreaJourneyList extends Component {
 
     return (
       <SidepanelList
+        loading={loading}
         header={
           <ToggleButton
             type="checkbox"
             onChange={this.onChangeDisplayStyle}
             name="area_events_style"
             isSwitch={true}
-            preLabel="Show as polylines"
+            preLabel="Show as heatmap"
             label="Show as markers"
             checked={areaEventsStyle === areaEventsStyles.MARKERS}
             value={areaEventsStyle}
