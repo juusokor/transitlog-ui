@@ -63,10 +63,11 @@ class JourneyDetails extends React.Component {
   render() {
     const {
       state: {date, route: stateRoute},
-      selectedJourneyHfp,
+      selectedJourneyEvents,
     } = this.props;
     // Select the first event to define the journey
-    const journey = selectedJourneyHfp[0];
+    const events = get(selectedJourneyEvents, "[0].events", []);
+    const journey = events[0];
 
     if (!journey || !stateRoute || !stateRoute.routeId) {
       return (
@@ -110,7 +111,7 @@ class JourneyDetails extends React.Component {
           const originStopId = get(route, "originstopId", "");
 
           const originStopHfp = orderBy(
-            selectedJourneyHfp.filter((pos) => pos.next_stop_id === originStopId),
+            events.filter((pos) => pos.next_stop_id === originStopId),
             "received_at_unix",
             "desc"
           );
@@ -140,9 +141,7 @@ class JourneyDetails extends React.Component {
           const destinationStopId = get(route, "destinationStop.stopId", "");
 
           const destinationStopHfp = orderBy(
-            selectedJourneyHfp.filter(
-              (pos) => pos.next_stop_id === destinationStopId
-            ),
+            events.filter((pos) => pos.next_stop_id === destinationStopId),
             "received_at_unix",
             "desc"
           );
@@ -173,7 +172,7 @@ class JourneyDetails extends React.Component {
                     date={date}
                     departure={originDeparture}
                     journey={journey}
-                    journeyHfp={selectedJourneyHfp}
+                    journeyHfp={events}
                     originStopTimes={originStopTimes}
                     destinationStopTimes={destinationStopTimes}
                   />
@@ -182,13 +181,13 @@ class JourneyDetails extends React.Component {
                       isFirstTerminal={true}
                       stopTimes={originStopTimes} // TerminalStop can receive precalculated stop times.
                       stop={get(route, "originStop", {})}
-                      journeyPositions={selectedJourneyHfp}
+                      journeyPositions={events}
                       date={date}
                       onClickTime={this.onClickTime}
                     />
                     <JourneyStops
                       originDeparture={originDeparture}
-                      journeyHfp={selectedJourneyHfp}
+                      journeyHfp={events}
                       date={date}
                       route={route}
                       onClickTime={this.onClickTime}
@@ -197,7 +196,7 @@ class JourneyDetails extends React.Component {
                       isLastTerminal={true}
                       originDeparture={originDeparture}
                       stop={get(route, "destinationStop", {})}
-                      journeyPositions={selectedJourneyHfp}
+                      journeyPositions={events}
                       date={date}
                       onClickTime={this.onClickTime}
                     />

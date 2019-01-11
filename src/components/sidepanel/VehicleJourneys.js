@@ -91,12 +91,6 @@ class VehicleJourneys extends Component {
       };
 
       Filters.setRoute(route);
-
-      Journey.requestJourneys({
-        time: journey.journey_start_time,
-        route,
-        date: journey.oday,
-      });
     }
 
     Journey.setSelectedJourney(journey);

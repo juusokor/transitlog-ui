@@ -4,6 +4,7 @@ import React from "react";
 import withRoute from "../hoc/withRoute";
 import getJourneyId from "../helpers/getJourneyId";
 import sortBy from "lodash/sortBy";
+import uniqBy from "lodash/uniqBy";
 import get from "lodash/get";
 import DeparturesQuery from "../queries/DeparturesQuery";
 import JourneysByDateQuery from "../queries/JourneysByDateQuery";
@@ -34,31 +35,34 @@ class RouteJourneys extends React.Component {
                 const isLoading = departuresLoading || journeysLoading;
 
                 const sortedJourneys = sortBy(
-                  departures.map((departure) => {
-                    const timeStr = `${doubleDigit(departure.hours)}:${doubleDigit(
-                      departure.minutes
-                    )}:00`;
+                  uniqBy(
+                    departures.map((departure) => {
+                      const timeStr = `${doubleDigit(departure.hours)}:${doubleDigit(
+                        departure.minutes
+                      )}:00`;
 
-                    const departureRoute = {
-                      routeId: departure.routeId,
-                      direction: departure.direction,
-                    };
+                      const departureRoute = {
+                        routeId: departure.routeId,
+                        direction: departure.direction,
+                      };
 
-                    const departureJourney = createCompositeJourney(
-                      date,
-                      departureRoute,
-                      timeStr
-                    );
+                      const departureJourney = createCompositeJourney(
+                        date,
+                        departureRoute,
+                        timeStr
+                      );
 
-                    const journeyId = getJourneyId(departureJourney);
+                      const journeyId = getJourneyId(departureJourney);
 
-                    return {
-                      journeyId,
-                      events: journeyHfpStates.LOADING,
-                      departure,
-                      time: timeStr,
-                    };
-                  }),
+                      return {
+                        journeyId,
+                        events: journeyHfpStates.LOADING,
+                        departure,
+                        time: timeStr,
+                      };
+                    }),
+                    "journeyId"
+                  ),
                   ({time}) => sortByOperationDay(time)
                 );
 

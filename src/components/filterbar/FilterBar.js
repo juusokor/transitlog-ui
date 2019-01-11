@@ -65,8 +65,21 @@ class FilterBar extends Component {
   };
 
   render() {
-    const {state, Filters, journeys, timeRange = null} = this.props;
+    const {
+      state,
+      Filters,
+      selectedJourneyEvents,
+      areaEvents,
+      timeRange = null,
+    } = this.props;
     const {selectedJourney, vehicle, stop, route, sidePanelVisible: visible} = state;
+
+    const journeys =
+      selectedJourneyEvents.length !== 0
+        ? selectedJourneyEvents
+        : areaEvents.length !== 0
+        ? areaEvents
+        : [];
 
     const selectedJourneyId = getJourneyId(selectedJourney);
     let selectedJourneyPositions = [];

@@ -33,7 +33,7 @@ const enhance = flow(
 
 export default enhance(({value = "", onSelect, positions}) => {
   const options = unionBy(
-    flatMap(positions, (group) => group.positions),
+    flatMap(positions, (group) => group.events),
     "unique_vehicle_id"
   ).map((pos) => pos.unique_vehicle_id);
 

@@ -86,7 +86,8 @@ class SidePanel extends Component {
   render() {
     const {
       UI: {toggleSidePanel, toggleJourneyDetails},
-      journeys = [],
+      areaEvents = [],
+      selectedJourneyEvents = [],
       loading = false,
       state: {
         stop,
@@ -103,9 +104,9 @@ class SidePanel extends Component {
       <SidePanelContainer visible={sidePanelVisible}>
         <MainSidePanel>
           <Tabs>
-            {(!route || !route.routeId) && journeys.length !== 0 && (
+            {(!route || !route.routeId) && areaEvents.length !== 0 && (
               <AreaJourneyList
-                journeys={journeys}
+                journeys={areaEvents}
                 name="area-journeys"
                 label={text("sidepanel.tabs.area_events")}
               />
@@ -137,7 +138,9 @@ class SidePanel extends Component {
         </MainSidePanel>
         <JourneyPanel visible={journeyDetailsAreOpen}>
           {/* The content of the sidebar is independent from the sidebar wrapper so that we can animate it. */}
-          {journeyDetailsAreOpen && <JourneyDetails positions={journeys} />}
+          {journeyDetailsAreOpen && (
+            <JourneyDetails selectedJourneyEvents={selectedJourneyEvents} />
+          )}
           {journeyDetailsCanOpen && (
             <ToggleJourneyDetailsButton
               isVisible={journeyDetailsAreOpen}

@@ -44,7 +44,7 @@ const filterActions = (state) => {
 
   const setRoute = action("Set route", (route) => {
     state.route.routeId = get(route, "routeId", "");
-    state.route.direction = get(route, "direction", "");
+    state.route.direction = get(route, "direction", "") + "";
     state.route.dateBegin = get(route, "dateBegin", "");
     state.route.dateEnd = get(route, "dateEnd", "");
     state.route.originstopId = get(route, "originstopId", "");
