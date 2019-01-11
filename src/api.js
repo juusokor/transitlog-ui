@@ -64,17 +64,13 @@ export const getClient = async (UIStore) => {
 
   const splitLink = split(
     (operation) => {
-      if (operation.operationName === "hfpQuery") {
-        return false;
-      }
+      const queryName = get(
+        operation,
+        "query.definitions[0].selectionSet.selections[0].name.value",
+        "none"
+      );
 
-      if (
-        get(
-          operation,
-          "query.definitions[0].selectionSet.selections[0].name.value",
-          "none"
-        ) === "vehicles"
-      ) {
+      if (operation.operationName === "hfpQuery" || queryName === "vehicles") {
         return false;
       }
 
