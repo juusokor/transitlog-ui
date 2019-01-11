@@ -87,7 +87,7 @@ class SidePanel extends Component {
     const {
       UI: {toggleSidePanel, toggleJourneyDetails},
       journeys = [],
-      loading,
+      loading = false,
       state: {
         stop,
         route,
@@ -114,7 +114,6 @@ class SidePanel extends Component {
               <Journeys
                 key={`route_journeys_${createRouteKey(route, true)}_${date}`}
                 route={route}
-                journeys={journeys}
                 loading={loading}
                 name="journeys"
                 label={text("sidepanel.tabs.journeys")}

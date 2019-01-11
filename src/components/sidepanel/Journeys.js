@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {observer, inject} from "mobx-react";
+import {observer, inject, Observer} from "mobx-react";
 import reduce from "lodash/reduce";
 import get from "lodash/get";
 import sortBy from "lodash/sortBy";
@@ -20,6 +20,7 @@ import getDelayType from "../../helpers/getDelayType";
 import {sortByOperationDay} from "../../helpers/sortByOperationDay";
 import {getTimelinessColor} from "../../helpers/timelinessColor";
 import {expr} from "mobx-utils";
+import RouteJourneys, {journeyHfpStates} from "../RouteJourneys";
 
 const JourneyListRow = styled.button`
   display: flex;
@@ -98,211 +99,175 @@ class Journeys extends Component {
   };
 
   render() {
-    const {journeys, loading, state, Journey} = this.props;
-    const {resolvedJourneyStates, date, route} = state;
-
-    // Pick the first hfp event to represent a journey
-    // if it belongs to the currently selected route.
-    const routeJourneys = reduce(
-      journeys,
-      (selectedJourneys, {events}) => {
-        const journey = events[0];
-
-        if (journey && createRouteId(journey) === createRouteId(route)) {
-          selectedJourneys.push(journey);
-        }
-
-        return selectedJourneys;
-      },
-      []
-    );
+    const {state} = this.props;
+    const {date, route} = state;
 
     const selectedJourneyId = expr(() => getJourneyId(state.selectedJourney));
 
-    const plannedDepartures = journeys.reduce((planned, {departure}) => {
-      const timeStr = `${doubleDigit(departure.hours)}:${doubleDigit(
-        departure.minutes
-      )}:00`;
-
-      if (routeJourneys.some((j) => j.journey_start_time === timeStr)) {
-        return planned;
-      }
-
-      planned.push(timeStr);
-      return planned;
-    }, []);
-
-    const departureList = sortBy(
-      [...routeJourneys, ...plannedDepartures],
-      (value) => {
-        const sortByTime =
-          typeof value === "string" ? value : get(value, "journey_start_time");
-
-        return sortByOperationDay(sortByTime);
-      }
-    );
-
-    let focusedJourney = expr(() => {
-      // Make sure that the selected journey belongs to the currently selected route.
-      if (
-        selectedJourneyId &&
-        state.selectedJourney &&
-        createRouteId(state.selectedJourney) === createRouteId(route)
-      ) {
-        return selectedJourneyId;
-      }
-
-      const time = parseInt(state.time.replace(":", ""));
-      let closestDeparture = "";
-      let prevDiff = -1;
-
-      for (const departure of departureList) {
-        const departureTime = get(departure, "journey_start_time", departure);
-        const departureTimeNum = parseInt(departureTime.replace(":", ""));
-        const diff = Math.abs(departureTimeNum - time);
-
-        if (prevDiff === -1 || diff < prevDiff) {
-          prevDiff = diff;
-          closestDeparture = departureTime;
-        }
-      }
-
-      return closestDeparture
-        ? getJourneyId(Journey.createCompositeJourney(date, route, closestDeparture))
-        : null;
-    });
-
     return (
-      <SidepanelList
-        reset={
-          !focusedJourney || plannedDepartures.length === 0 || journeys.length === 0
-        }
-        loading={loading}
-        header={
-          <>
-            <JourneyRowLeft>
-              <Text>filterpanel.planned_start_time</Text>
-            </JourneyRowLeft>
-            <span>
-              <Text>filterpanel.real_start_time</Text>
-            </span>
-          </>
-        }>
-        {(scrollRef) =>
-          departureList.map((journeyOrDeparture, index) => {
-            if (typeof journeyOrDeparture === "string") {
-              const journeyId = getJourneyId(
-                Journey.createCompositeJourney(date, route, journeyOrDeparture)
-              );
+      <RouteJourneys>
+        {({journeys, loading}) => (
+          <Observer>
+            {() => {
+              let focusedJourney = expr(() => {
+                // Make sure that the selected journey belongs to the currently selected route.
+                if (
+                  selectedJourneyId &&
+                  state.selectedJourney &&
+                  createRouteId(state.selectedJourney) === createRouteId(route)
+                ) {
+                  return selectedJourneyId;
+                }
 
-              const journeyIsSelected = expr(
-                () => state.selectedJourney && selectedJourneyId === journeyId
-              );
+                const time = parseInt(state.time.replace(":", "").slice(0, 4));
+                let closestDeparture = null;
+                let prevDiff = -1;
 
-              const journeyIsFocused =
-                focusedJourney && focusedJourney === journeyId;
+                for (const departure of journeys) {
+                  const departureTime = get(departure, "time", "");
 
-              let fetchStatus = resolvedJourneyStates.get(journeyId);
+                  if (!departureTime) {
+                    continue;
+                  }
+
+                  const departureTimeNum = parseInt(
+                    departureTime.replace(":", "").slice(0, 4)
+                  );
+                  const diff = Math.abs(departureTimeNum - time);
+
+                  if (prevDiff === -1 || diff < prevDiff) {
+                    prevDiff = diff;
+                    closestDeparture = departure;
+                  }
+                }
+
+                return closestDeparture
+                  ? get(closestDeparture, "journeyId", null)
+                  : null;
+              });
 
               return (
-                <JourneyListRow
-                  ref={journeyIsFocused ? scrollRef : null}
-                  key={`planned_journey_row_${journeyOrDeparture}_${index}`}
-                  selected={journeyIsSelected}
-                  onClick={this.selectJourney(journeyOrDeparture)}>
-                  <JourneyRowLeft>{journeyOrDeparture}</JourneyRowLeft>
-                  {fetchStatus === journeyFetchStates.NOTFOUND ? (
-                    <span>{text("filterpanel.journey.no_data")}</span>
-                  ) : fetchStatus === journeyFetchStates.PENDING ? (
-                    <Loading inline />
-                  ) : (
-                    <span>{text("filterpanel.journey.click_to_fetch")}</span>
-                  )}
-                </JourneyListRow>
+                <SidepanelList
+                  reset={!focusedJourney || journeys.length === 0}
+                  loading={loading}
+                  header={
+                    <>
+                      <JourneyRowLeft>
+                        <Text>filterpanel.planned_start_time</Text>
+                      </JourneyRowLeft>
+                      <span>
+                        <Text>filterpanel.real_start_time</Text>
+                      </span>
+                    </>
+                  }>
+                  {(scrollRef) =>
+                    journeys.map((journey) => {
+                      if (!journey.events || typeof journey.events === "string") {
+                        const journeyId = journey.journeyId;
+
+                        const journeyIsSelected = expr(
+                          () =>
+                            state.selectedJourney && selectedJourneyId === journeyId
+                        );
+
+                        const journeyIsFocused =
+                          focusedJourney && focusedJourney === journeyId;
+
+                        let fetchStatus = journey.events;
+
+                        return (
+                          <JourneyListRow
+                            ref={journeyIsFocused ? scrollRef : null}
+                            key={`planned_journey_row_${journeyId}`}
+                            selected={journeyIsSelected}
+                            onClick={this.selectJourney(journey.time)}>
+                            <JourneyRowLeft>{journey.time}</JourneyRowLeft>
+                            {fetchStatus === journeyHfpStates.NOT_FOUND ? (
+                              <span>{text("filterpanel.journey.no_data")}</span>
+                            ) : fetchStatus === journeyHfpStates.LOADING ? (
+                              <Loading inline />
+                            ) : (
+                              <span>
+                                {text("filterpanel.journey.click_to_fetch")}
+                              </span>
+                            )}
+                          </JourneyListRow>
+                        );
+                      }
+
+                      const journeyId = journey.journeyId;
+                      const journeyEvent = get(journey, "events[0]", null);
+
+                      let observedJourney = (
+                        <Text>filterpanel.journey.incomplete_data</Text>
+                      );
+
+                      if (journeyEvent) {
+                        const plannedObservedDiff = diffDepartureJourney(
+                          journeyEvent,
+                          journey.departure,
+                          date
+                        );
+
+                        const observedTimeString = plannedObservedDiff
+                          ? plannedObservedDiff.observedMoment.format("HH:mm:ss")
+                          : "";
+
+                        const delayType = plannedObservedDiff
+                          ? getDelayType(plannedObservedDiff.diff)
+                          : "none";
+
+                        observedJourney = (
+                          <>
+                            <DelaySlot
+                              color={
+                                delayType === "late" ? "var(--dark-grey)" : "white"
+                              }
+                              backgroundColor={getTimelinessColor(
+                                delayType,
+                                "var(--light-green)"
+                              )}>
+                              {plannedObservedDiff.sign}
+                              {doubleDigit(plannedObservedDiff.minutes)}:
+                              {doubleDigit(plannedObservedDiff.seconds)}
+                            </DelaySlot>
+                            <TimeSlot>{observedTimeString}</TimeSlot>
+                          </>
+                        );
+                      }
+
+                      const journeyIsSelected = expr(
+                        () =>
+                          state.selectedJourney && selectedJourneyId === journeyId
+                      );
+
+                      const journeyIsFocused =
+                        focusedJourney && focusedJourney === journeyId;
+
+                      return (
+                        <JourneyListRow
+                          ref={journeyIsFocused ? scrollRef : null}
+                          selected={journeyIsSelected}
+                          key={`journey_row_${journeyId}`}
+                          onClick={this.selectJourney(journeyEvent)}>
+                          <JourneyRowLeft>
+                            {timeToFormat(
+                              journeyEvent.journey_start_timestamp,
+                              "HH:mm:ss",
+                              "Europe/Helsinki"
+                            )}
+                          </JourneyRowLeft>
+                          {observedJourney}
+                        </JourneyListRow>
+                      );
+                    })
+                  }
+                </SidepanelList>
               );
-            }
-
-            const journeyId = getJourneyId(journeyOrDeparture);
-
-            const journeyPositions = get(
-              journeys.find(({journeyId: jid}) => jid === journeyId),
-              "events",
-              []
-            );
-
-            const journeyStartPosition = findJourneyStartPosition(
-              journeyPositions,
-              route.originstopId
-            );
-
-            let observedJourney = <Text>filterpanel.journey.incomplete_data</Text>;
-
-            if (journeyStartPosition) {
-              const [hours, minutes] = journeyStartPosition.journey_start_time.split(
-                ":"
-              );
-
-              const departure = {
-                hours: parseInt(hours, 10),
-                minutes: parseInt(minutes, 10),
-              };
-
-              const plannedObservedDiff = diffDepartureJourney(
-                journeyStartPosition,
-                departure,
-                date
-              );
-
-              const observedTimeString = plannedObservedDiff
-                ? plannedObservedDiff.observedMoment.format("HH:mm:ss")
-                : "";
-
-              const delayType = plannedObservedDiff
-                ? getDelayType(plannedObservedDiff.diff)
-                : "none";
-
-              observedJourney = (
-                <>
-                  <DelaySlot
-                    color={delayType === "late" ? "var(--dark-grey)" : "white"}
-                    backgroundColor={getTimelinessColor(
-                      delayType,
-                      "var(--light-green)"
-                    )}>
-                    {plannedObservedDiff.sign}
-                    {doubleDigit(plannedObservedDiff.minutes)}:
-                    {doubleDigit(plannedObservedDiff.seconds)}
-                  </DelaySlot>
-                  <TimeSlot>{observedTimeString}</TimeSlot>
-                </>
-              );
-            }
-
-            const journeyIsSelected = expr(
-              () => state.selectedJourney && selectedJourneyId === journeyId
-            );
-
-            const journeyIsFocused = focusedJourney && focusedJourney === journeyId;
-
-            return (
-              <JourneyListRow
-                ref={journeyIsFocused ? scrollRef : null}
-                selected={journeyIsSelected}
-                key={`journey_row_${getJourneyId(journeyOrDeparture)}`}
-                onClick={this.selectJourney(journeyOrDeparture)}>
-                <JourneyRowLeft>
-                  {timeToFormat(
-                    journeyOrDeparture.journey_start_timestamp,
-                    "HH:mm:ss",
-                    "Europe/Helsinki"
-                  )}
-                </JourneyRowLeft>
-                {observedJourney}
-              </JourneyListRow>
-            );
-          })
-        }
-      </SidepanelList>
+            }}
+          </Observer>
+        )}
+      </RouteJourneys>
     );
   }
 }
