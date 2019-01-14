@@ -2,6 +2,10 @@ import React from "react";
 import StyledModal from "styled-react-modal";
 import styled from "styled-components";
 import {Button} from "./Forms";
+import copy from "copy-text-to-clipboard";
+import {observable, action} from "mobx";
+import {observer} from "mobx-react";
+import Checkmark from "../icons/Checkmark";
 
 const ShareModal = StyledModal.styled`
   width: 40vw;
@@ -35,33 +39,58 @@ const ModalContent = styled.div`
 
 const CopyButton = styled(Button)`
   margin-left: auto;
+  background: ${({copied = false}) =>
+    copied ? "var(--light-green)" : "var(--blue)"};
+  border: 0;
+
+  svg {
+    margin-right: 0.5rem;
+    margin-left: -0.5rem;
+  }
 `;
 
-function copyToClipboard(str) {
-  console.log(`Copied ${str}`);
+@observer
+class SharingModal extends React.Component {
+  @observable
+  copied = false;
+
+  onCopy = action((shareUrl) => {
+    copy(shareUrl);
+    this.copied = true;
+  });
+
+  render() {
+    const {isOpen, onClose} = this.props;
+
+    const prodOrigin = process.env.REACT_APP_PRODUCTION_URL;
+    const currentOrigin = window.location.origin;
+
+    let shareUrl = window.location.href;
+
+    if (prodOrigin !== currentOrigin) {
+      shareUrl = shareUrl.replace(currentOrigin, prodOrigin);
+    }
+
+    return (
+      <ShareModal
+        isOpen={isOpen}
+        onBackgroundClick={onClose}
+        onEscapeKeydown={onClose}>
+        <ModalContent>
+          <UrlDisplay resizeable={false} rows={4} value={shareUrl} disabled={true} />
+          <CopyButton
+            copied={this.copied}
+            primary
+            onClick={() => this.onCopy(shareUrl)}>
+            {this.copied && (
+              <Checkmark width="1.5rem" height="1.5rem" fill="white" />
+            )}{" "}
+            {this.copied ? "Copied!" : "Copy"}
+          </CopyButton>
+        </ModalContent>
+      </ShareModal>
+    );
+  }
 }
 
-export default ({isOpen, onClose}) => {
-  const prodOrigin = process.env.REACT_APP_PRODUCTION_URL;
-  const currentOrigin = window.location.origin;
-
-  let shareUrl = window.location.href;
-
-  if (prodOrigin !== currentOrigin) {
-    shareUrl = shareUrl.replace(currentOrigin, prodOrigin);
-  }
-
-  return (
-    <ShareModal
-      isOpen={isOpen}
-      onBackgroundClick={onClose}
-      onEscapeKeydown={onClose}>
-      <ModalContent>
-        <UrlDisplay resizeable={false} rows={4} value={shareUrl} disabled={true} />
-        <CopyButton primary onClick={() => copyToClipboard(shareUrl)}>
-          Copy
-        </CopyButton>
-      </ModalContent>
-    </ShareModal>
-  );
-};
+export default SharingModal;
