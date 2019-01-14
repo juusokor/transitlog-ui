@@ -12,6 +12,7 @@ import JourneyDetails from "./journeyDetails/JourneyDetails";
 import Info from "../../icons/Info";
 import {createRouteKey} from "../../helpers/keys";
 import Timetable from "../../icons/Timetable";
+import ControlBar from "./ControlBar";
 
 const SidePanelContainer = styled.div`
   background: var(--lightest-grey);
@@ -68,6 +69,8 @@ const MainSidePanel = styled.div`
   height: 100%;
   border-right: 1px solid var(--alt-grey);
   width: 25rem;
+  position: relative;
+  z-index: 1;
 `;
 
 const JourneyPanel = styled.div`
@@ -80,16 +83,18 @@ const JourneyPanel = styled.div`
   border-right: 1px solid var(--alt-grey);
 `;
 
-@inject(app("UI"))
+@inject(app("UI", "Filters"))
 @observer
 class SidePanel extends Component {
   render() {
     const {
       UI: {toggleSidePanel, toggleJourneyDetails},
+      Filters,
       areaEvents = [],
       selectedJourneyEvents = [],
       loading = false,
       areaEventsLoading = false,
+      updateAll,
       state: {
         stop,
         route,
@@ -106,6 +111,7 @@ class SidePanel extends Component {
     return (
       <SidePanelContainer visible={sidePanelVisible}>
         <MainSidePanel>
+          <ControlBar onUpdateClick={updateAll} onResetClick={Filters.reset} />
           <Tabs>
             {!hasRoute && (
               <AreaJourneyList
