@@ -1,7 +1,7 @@
 import {inject, observer} from "mobx-react";
 import {app} from "mobx-app";
 import React from "react";
-import {HfpVehicleQuery} from "../queries/HfpVehicleQuery";
+import HfpVehicleQuery from "../queries/HfpVehicleQuery";
 import map from "lodash/map";
 import groupBy from "lodash/groupBy";
 import orderBy from "lodash/orderBy";

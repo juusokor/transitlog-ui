@@ -48,12 +48,8 @@ const areaHfpQuery = gql`
 const updateListenerName = "area hfp query";
 
 class AreaHfpQuery extends Component {
-  disposeUpdateListener = () => {
-    removeUpdateListener(updateListenerName);
-  };
-
   componentWillUnmount() {
-    this.disposeUpdateListener();
+    removeUpdateListener(updateListenerName);
   }
 
   onUpdate = (refetch) => () => {

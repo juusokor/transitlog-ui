@@ -30,13 +30,13 @@ export const hfpQuery = gql`
   ${HfpFieldsFragment}
 `;
 
-const updateCallbackName = "selected journey";
+const updateListenerName = "selected journey";
 
 @inject(app("state"))
 @observer
 class SelectedJourneyQuery extends React.Component {
   componentWillUnmount() {
-    removeUpdateListener(updateCallbackName);
+    removeUpdateListener(updateListenerName);
   }
 
   onUpdate = (refetch) => () => {
@@ -59,7 +59,7 @@ class SelectedJourneyQuery extends React.Component {
         query={hfpQuery}
         variables={selectedJourney}>
         {({data, loading, error, refetch}) => {
-          setUpdateListener(updateCallbackName, this.onUpdate(refetch));
+          setUpdateListener(updateListenerName, this.onUpdate(refetch));
 
           const vehicles = get(data, "vehicles", []);
           return children({positions: vehicles, loading, error});
