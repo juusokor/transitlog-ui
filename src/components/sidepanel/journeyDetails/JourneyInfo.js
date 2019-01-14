@@ -46,8 +46,13 @@ export default ({
   originStopTimes,
   destinationStopTimes,
 }) => {
+  if (!departure) {
+    return null;
+  }
+
   const equipment = <Equipment journey={journey} departure={departure} />;
-  const equipmentType = getEquipmentType(departure.equipmentType);
+  const equipmentCode = get(departure, "equipmentType", "");
+  const equipmentType = getEquipmentType(equipmentCode);
 
   return (
     <JourneyInfo>
@@ -99,10 +104,10 @@ export default ({
           <span>
             {equipmentType
               ? equipmentType
-              : departure.equipmentType
-              ? departure.equipmentType
+              : equipmentCode
+              ? equipmentCode
               : "No type"}
-            {departure.trunkColorRequired === 1 && <>, HSL-orans</>}
+            {get(departure, "trunkColorRequired", 0) === 1 && <>, HSL-orans</>}
           </span>
         </Line>
         {equipment && <Line right>{equipment}</Line>}

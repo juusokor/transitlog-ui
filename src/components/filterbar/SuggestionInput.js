@@ -24,8 +24,6 @@ class SuggestionInput extends Component {
   @observable
   suggestions = [];
 
-  unbindResetListener = () => {};
-
   @action
   setValue(value) {
     this.inputValue = value;
@@ -80,6 +78,9 @@ class SuggestionInput extends Component {
       getValue,
       renderSuggestion,
       minimumInput = 3,
+      multiSection,
+      renderSectionTitle,
+      getSectionSuggestions,
     } = this.props;
 
     const inputProps = {
@@ -97,6 +98,10 @@ class SuggestionInput extends Component {
           onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
           onSuggestionsClearRequested={this.onSuggestionsClearRequested}
           getSuggestionValue={getValue}
+          highlightFirstSuggestion={true}
+          multiSection={multiSection}
+          renderSectionTitle={renderSectionTitle}
+          getSectionSuggestions={getSectionSuggestions}
           renderSuggestion={renderSuggestion}
           inputProps={inputProps}
         />
