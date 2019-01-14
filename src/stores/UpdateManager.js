@@ -50,7 +50,8 @@ export default (state) => {
         cancelAnimationFrame(updateTimerHandle.value);
         updateTimerHandle = null;
       }
-    }
+    },
+    {fireImmediately: true}
   );
 
   return {
