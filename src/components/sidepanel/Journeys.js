@@ -1,29 +1,21 @@
 import React, {Component} from "react";
-import {observer, inject} from "mobx-react";
-import reduce from "lodash/reduce";
+import {observer, inject, Observer} from "mobx-react";
 import get from "lodash/get";
-import sortBy from "lodash/sortBy";
 import {app} from "mobx-app";
 import getJourneyId from "../../helpers/getJourneyId";
 import styled from "styled-components";
 import {timeToFormat} from "../../helpers/time";
 import {Text, text} from "../../helpers/text";
-import withDepartures from "../../hoc/withRouteStopDepartures";
 import doubleDigit from "../../helpers/doubleDigit";
-import {toJS} from "mobx";
 import Loading from "../Loading";
 import SidepanelList from "./SidepanelList";
-import {journeyFetchStates} from "../../stores/JourneyStore";
-import {createFetchKey, createRouteId} from "../../helpers/keys";
-import {centerSort} from "../../helpers/centerSort";
-import {departuresToTimes} from "../../helpers/departuresToTimes";
-import {findJourneyStartPosition} from "../../helpers/findJourneyStartPosition";
+import {createRouteId} from "../../helpers/keys";
 import {ColoredBackgroundSlot} from "../TagButton";
 import {diffDepartureJourney} from "../../helpers/diffDepartureJourney";
 import getDelayType from "../../helpers/getDelayType";
-import {sortByOperationDay} from "../../helpers/sortByOperationDay";
 import {getTimelinessColor} from "../../helpers/timelinessColor";
 import {expr} from "mobx-utils";
+import RouteJourneys, {journeyHfpStates} from "../RouteJourneys";
 
 const JourneyListRow = styled.button`
   display: flex;
@@ -70,49 +62,11 @@ const TimeSlot = styled.span`
 `;
 
 @inject(app("Journey", "Time", "Filters"))
-@withDepartures
 @observer
 class Journeys extends Component {
-  currentFetchKey = "";
-
-  componentDidUpdate() {
-    this.fetchAllJourneys();
-  }
-
-  fetchAllJourneys = () => {
-    const {
-      Journey,
-      departures,
-      state: {date, route, time, selectedJourney},
-    } = this.props;
-
-    // Create fetchKey key without time
-    const fetchKey = createFetchKey(route, date, true);
-
-    if (fetchKey && fetchKey !== this.currentFetchKey) {
-      // Format to an array of string times, like 12:30:00
-      let fetchTimes = departuresToTimes(departures);
-
-      if (fetchTimes.length !== 0) {
-        // Find which time we want to fetch first.
-        let firstTime = selectedJourney ? selectedJourney.journey_start_time : time;
-        fetchTimes = centerSort(firstTime, fetchTimes).slice(0, 5);
-
-        const journeyRequests = fetchTimes.map((time) => ({
-          time,
-          route: toJS(route),
-          date,
-        }));
-
-        Journey.requestJourneys(journeyRequests);
-        this.currentFetchKey = fetchKey;
-      }
-    }
-  };
-
   selectJourney = (journeyOrTime) => (e) => {
     e.preventDefault();
-    const {departures, Time, Journey, state} = this.props;
+    const {Time, Journey, state} = this.props;
     let journeyToSelect = null;
 
     if (journeyOrTime) {
@@ -134,229 +88,181 @@ class Journeys extends Component {
         );
 
         journeyToSelect = journey;
-
-        const fetchTimes = centerSort(
-          journey.journey_start_time,
-          departuresToTimes(departures)
-        ).slice(0, 5);
-
-        const journeyRequests = fetchTimes.map((time) => ({
-          time,
-          route: {routeId: journey.route_id, direction: journey.direction_id},
-          date: journey.oday,
-        }));
-
-        if (fetchTimes.length !== 0) {
-          Journey.requestJourneys(journeyRequests);
-        }
       }
     }
     Journey.setSelectedJourney(journeyToSelect);
   };
 
   render() {
-    const {positions, loading, state, departures, Journey} = this.props;
-    const {resolvedJourneyStates, date, route} = state;
-
-    // Pick the first hfp event to represent a journey
-    // if it belongs to the currently selected route.
-    const journeys = reduce(
-      positions,
-      (selectedJourneys, {positions}) => {
-        const journey = positions[0];
-
-        if (journey && createRouteId(journey) === createRouteId(route)) {
-          selectedJourneys.push(journey);
-        }
-
-        return selectedJourneys;
-      },
-      []
-    );
+    const {state} = this.props;
+    const {date, route} = state;
 
     const selectedJourneyId = expr(() => getJourneyId(state.selectedJourney));
 
-    const plannedDepartures = departures.reduce((planned, departure) => {
-      const timeStr = `${doubleDigit(departure.hours)}:${doubleDigit(
-        departure.minutes
-      )}:00`;
-
-      if (journeys.some((j) => j.journey_start_time === timeStr)) {
-        return planned;
-      }
-
-      planned.push(timeStr);
-      return planned;
-    }, []);
-
-    const departureList = sortBy([...journeys, ...plannedDepartures], (value) => {
-      const sortByTime =
-        typeof value === "string" ? value : get(value, "journey_start_time");
-
-      return sortByOperationDay(sortByTime);
-    });
-
-    let focusedJourney = expr(() => {
-      // Make sure that the selected journey belongs to the currently selected route.
-      if (
-        selectedJourneyId &&
-        state.selectedJourney &&
-        createRouteId(state.selectedJourney) === createRouteId(route)
-      ) {
-        return selectedJourneyId;
-      }
-
-      const time = parseInt(state.time.replace(":", ""));
-      let closestDeparture = "";
-      let prevDiff = -1;
-
-      for (const departure of departureList) {
-        const departureTime = get(departure, "journey_start_time", departure);
-        const departureTimeNum = parseInt(departureTime.replace(":", ""));
-        const diff = Math.abs(departureTimeNum - time);
-
-        if (prevDiff === -1 || diff < prevDiff) {
-          prevDiff = diff;
-          closestDeparture = departureTime;
-        }
-      }
-
-      return closestDeparture
-        ? getJourneyId(Journey.createCompositeJourney(date, route, closestDeparture))
-        : null;
-    });
-
     return (
-      <SidepanelList
-        reset={
-          !focusedJourney || plannedDepartures.length === 0 || positions.length === 0
-        }
-        loading={loading}
-        header={
-          <>
-            <JourneyRowLeft>
-              <Text>filterpanel.planned_start_time</Text>
-            </JourneyRowLeft>
-            <span>
-              <Text>filterpanel.real_start_time</Text>
-            </span>
-          </>
-        }>
-        {(scrollRef) =>
-          departureList.map((journeyOrDeparture, index) => {
-            if (typeof journeyOrDeparture === "string") {
-              const journeyId = getJourneyId(
-                Journey.createCompositeJourney(date, route, journeyOrDeparture)
-              );
+      <RouteJourneys>
+        {({journeys, loading}) => (
+          <Observer>
+            {() => {
+              let focusedJourney = expr(() => {
+                // Make sure that the selected journey belongs to the currently selected route.
+                if (
+                  selectedJourneyId &&
+                  state.selectedJourney &&
+                  createRouteId(state.selectedJourney) === createRouteId(route)
+                ) {
+                  return selectedJourneyId;
+                }
 
-              const journeyIsSelected = expr(
-                () => state.selectedJourney && selectedJourneyId === journeyId
-              );
+                const time = parseInt(state.time.replace(":", "").slice(0, 4));
+                let closestDeparture = null;
+                let prevDiff = -1;
 
-              const journeyIsFocused =
-                focusedJourney && focusedJourney === journeyId;
+                for (const departure of journeys) {
+                  const departureTime = get(departure, "time", "");
 
-              let fetchStatus = resolvedJourneyStates.get(journeyId);
+                  if (!departureTime) {
+                    continue;
+                  }
+
+                  const departureTimeNum = parseInt(
+                    departureTime.replace(":", "").slice(0, 4)
+                  );
+                  const diff = Math.abs(departureTimeNum - time);
+
+                  if (prevDiff === -1 || diff < prevDiff) {
+                    prevDiff = diff;
+                    closestDeparture = departure;
+                  }
+                }
+
+                return closestDeparture
+                  ? get(closestDeparture, "journeyId", null)
+                  : null;
+              });
 
               return (
-                <JourneyListRow
-                  ref={journeyIsFocused ? scrollRef : null}
-                  key={`planned_journey_row_${journeyOrDeparture}_${index}`}
-                  selected={journeyIsSelected}
-                  onClick={this.selectJourney(journeyOrDeparture)}>
-                  <JourneyRowLeft>{journeyOrDeparture}</JourneyRowLeft>
-                  {fetchStatus === journeyFetchStates.NOTFOUND ? (
-                    <span>{text("filterpanel.journey.no_data")}</span>
-                  ) : fetchStatus === journeyFetchStates.PENDING ? (
-                    <Loading inline />
-                  ) : (
-                    <span>{text("filterpanel.journey.click_to_fetch")}</span>
-                  )}
-                </JourneyListRow>
+                <SidepanelList
+                  reset={!focusedJourney || journeys.length === 0}
+                  loading={loading}
+                  header={
+                    <>
+                      <JourneyRowLeft>
+                        <Text>filterpanel.planned_start_time</Text>
+                      </JourneyRowLeft>
+                      <span>
+                        <Text>filterpanel.real_start_time</Text>
+                      </span>
+                    </>
+                  }>
+                  {(scrollRef) =>
+                    journeys.map((journey, index) => {
+                      if (!journey.events || typeof journey.events === "string") {
+                        const journeyId = journey.journeyId;
+
+                        const journeyIsSelected = expr(
+                          () =>
+                            state.selectedJourney && selectedJourneyId === journeyId
+                        );
+
+                        const journeyIsFocused =
+                          focusedJourney && focusedJourney === journeyId;
+
+                        let fetchStatus = journey.events;
+
+                        return (
+                          <JourneyListRow
+                            ref={journeyIsFocused ? scrollRef : null}
+                            key={`planned_journey_row_${journeyId}`}
+                            selected={journeyIsSelected}
+                            onClick={this.selectJourney(journey.time)}>
+                            <JourneyRowLeft>{journey.time}</JourneyRowLeft>
+                            {fetchStatus === journeyHfpStates.NOT_FOUND ? (
+                              <span>{text("filterpanel.journey.no_data")}</span>
+                            ) : fetchStatus === journeyHfpStates.LOADING ? (
+                              <Loading inline />
+                            ) : (
+                              <span>
+                                {text("filterpanel.journey.click_to_fetch")}
+                              </span>
+                            )}
+                          </JourneyListRow>
+                        );
+                      }
+
+                      const journeyId = journey.journeyId;
+                      const journeyEvent = get(journey, "events[0]", null);
+
+                      let observedJourney = (
+                        <Text>filterpanel.journey.incomplete_data</Text>
+                      );
+
+                      if (journeyEvent) {
+                        const plannedObservedDiff = diffDepartureJourney(
+                          journeyEvent,
+                          journey.departure,
+                          date
+                        );
+
+                        const observedTimeString = plannedObservedDiff
+                          ? plannedObservedDiff.observedMoment.format("HH:mm:ss")
+                          : "";
+
+                        const delayType = plannedObservedDiff
+                          ? getDelayType(plannedObservedDiff.diff)
+                          : "none";
+
+                        observedJourney = (
+                          <>
+                            <DelaySlot
+                              color={
+                                delayType === "late" ? "var(--dark-grey)" : "white"
+                              }
+                              backgroundColor={getTimelinessColor(
+                                delayType,
+                                "var(--light-green)"
+                              )}>
+                              {plannedObservedDiff.sign}
+                              {doubleDigit(plannedObservedDiff.minutes)}:
+                              {doubleDigit(plannedObservedDiff.seconds)}
+                            </DelaySlot>
+                            <TimeSlot>{observedTimeString}</TimeSlot>
+                          </>
+                        );
+                      }
+
+                      const journeyIsSelected = expr(
+                        () =>
+                          state.selectedJourney && selectedJourneyId === journeyId
+                      );
+
+                      const journeyIsFocused =
+                        focusedJourney && focusedJourney === journeyId;
+
+                      return (
+                        <JourneyListRow
+                          ref={journeyIsFocused ? scrollRef : null}
+                          selected={journeyIsSelected}
+                          key={`journey_row_${journeyId}`}
+                          onClick={this.selectJourney(journeyEvent)}>
+                          <JourneyRowLeft>
+                            {timeToFormat(
+                              journeyEvent.journey_start_timestamp,
+                              "HH:mm:ss",
+                              "Europe/Helsinki"
+                            )}
+                          </JourneyRowLeft>
+                          {observedJourney}
+                        </JourneyListRow>
+                      );
+                    })
+                  }
+                </SidepanelList>
               );
-            }
-
-            const journeyId = getJourneyId(journeyOrDeparture);
-
-            const journeyPositions = get(
-              positions.find(({journeyId: jid}) => jid === journeyId),
-              "positions",
-              []
-            );
-
-            const journeyStartPosition = findJourneyStartPosition(
-              journeyPositions,
-              route.originstopId
-            );
-
-            let observedJourney = <Text>filterpanel.journey.incomplete_data</Text>;
-
-            if (journeyStartPosition) {
-              const [hours, minutes] = journeyStartPosition.journey_start_time.split(
-                ":"
-              );
-
-              const departure = {
-                hours: parseInt(hours, 10),
-                minutes: parseInt(minutes, 10),
-              };
-
-              const plannedObservedDiff = diffDepartureJourney(
-                journeyStartPosition,
-                departure,
-                date
-              );
-
-              const observedTimeString = plannedObservedDiff
-                ? plannedObservedDiff.observedMoment.format("HH:mm:ss")
-                : "";
-
-              const delayType = plannedObservedDiff
-                ? getDelayType(plannedObservedDiff.diff)
-                : "none";
-
-              observedJourney = (
-                <>
-                  <DelaySlot
-                    color={delayType === "late" ? "var(--dark-grey)" : "white"}
-                    backgroundColor={getTimelinessColor(
-                      delayType,
-                      "var(--light-green)"
-                    )}>
-                    {plannedObservedDiff.sign}
-                    {doubleDigit(plannedObservedDiff.minutes)}:
-                    {doubleDigit(plannedObservedDiff.seconds)}
-                  </DelaySlot>
-                  <TimeSlot>{observedTimeString}</TimeSlot>
-                </>
-              );
-            }
-
-            const journeyIsSelected = expr(
-              () => state.selectedJourney && selectedJourneyId === journeyId
-            );
-
-            const journeyIsFocused = focusedJourney && focusedJourney === journeyId;
-
-            return (
-              <JourneyListRow
-                ref={journeyIsFocused ? scrollRef : null}
-                selected={journeyIsSelected}
-                key={`journey_row_${getJourneyId(journeyOrDeparture)}`}
-                onClick={this.selectJourney(journeyOrDeparture)}>
-                <JourneyRowLeft>
-                  {timeToFormat(
-                    journeyOrDeparture.journey_start_timestamp,
-                    "HH:mm:ss",
-                    "Europe/Helsinki"
-                  )}
-                </JourneyRowLeft>
-                {observedJourney}
-              </JourneyListRow>
-            );
-          })
-        }
-      </SidepanelList>
+            }}
+          </Observer>
+        )}
+      </RouteJourneys>
     );
   }
 }

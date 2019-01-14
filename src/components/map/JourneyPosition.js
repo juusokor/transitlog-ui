@@ -35,7 +35,7 @@ class JourneyPosition extends Component {
 
       const journeyPositions = get(
         positions.find((j) => j.journeyId === journeyId),
-        "positions",
+        "events",
         []
       );
 

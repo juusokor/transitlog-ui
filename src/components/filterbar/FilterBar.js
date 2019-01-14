@@ -3,17 +3,11 @@ import DateSettings from "./DateSettings";
 import TimeSettings from "./TimeSettings";
 import {observer, inject} from "mobx-react";
 import styled from "styled-components";
-import TimeSlider, {TIME_SLIDER_MIN, TIME_SLIDER_MAX} from "./TimeSlider";
+import TimeSlider from "./TimeSlider";
 import AdditionalTimeSettings from "./AdditionalTimeSettings";
 import LineSettings from "./LineSettings";
 import FilterSection from "./FilterSection";
 import Header from "./Header";
-import {
-  getTimeRangeFromPositions,
-  dateToSeconds,
-} from "../../helpers/getTimeRangeFromPositions";
-import getJourneyId from "../../helpers/getJourneyId";
-import get from "lodash/get";
 import VehicleSettings from "./VehicleSettings";
 import StopSettings from "./StopSettings";
 import {app} from "mobx-app";

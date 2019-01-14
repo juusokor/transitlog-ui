@@ -1,5 +1,4 @@
 import get from "lodash/get";
-import invert from "lodash/invert";
 
 const equipment = {
   "0": "C",

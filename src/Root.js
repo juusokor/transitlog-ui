@@ -4,10 +4,11 @@ import App from "./components/App";
 import {getClient} from "./api";
 import {ApolloProvider} from "react-apollo";
 import {observer, inject} from "mobx-react";
-import DevTools from "mobx-react-devtools";
-import {configureDevtool} from "mobx-react-devtools";
+import DevTools, {configureDevtool} from "mobx-react-devtools";
 import {GlobalFormStyle} from "./components/Forms";
 import {app} from "mobx-app";
+import {observable, runInAction} from "mobx";
+import Loading from "./components/Loading";
 import {ModalProvider, BaseModalBackground} from "styled-react-modal";
 import styled from "styled-components";
 
@@ -27,12 +28,23 @@ configureDevtool({
 @inject(app("UI"))
 @observer
 class Root extends React.Component {
-  render() {
+  @observable.ref
+  client = null;
+
+  async componentDidMount() {
     const {UI} = this.props;
-    const client = getClient(UI);
+    const client = await getClient(UI);
+
+    runInAction(() => (this.client = client));
+  }
+
+  render() {
+    if (!this.client) {
+      return <Loading />;
+    }
 
     return (
-      <ApolloProvider client={client}>
+      <ApolloProvider client={this.client}>
         <ModalProvider backgroundComponent={SpecialModalBackground}>
           <>
             <GlobalFormStyle />

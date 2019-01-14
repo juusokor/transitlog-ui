@@ -86,8 +86,10 @@ class SidePanel extends Component {
   render() {
     const {
       UI: {toggleSidePanel, toggleJourneyDetails},
-      positions = [],
-      loading,
+      areaEvents = [],
+      selectedJourneyEvents = [],
+      loading = false,
+      areaEventsLoading = false,
       state: {
         stop,
         route,
@@ -99,22 +101,24 @@ class SidePanel extends Component {
       },
     } = this.props;
 
+    const hasRoute = !!route && !!route.routeId;
+
     return (
       <SidePanelContainer visible={sidePanelVisible}>
         <MainSidePanel>
           <Tabs>
-            {(!route || !route.routeId) && positions.length !== 0 && (
+            {!hasRoute && (
               <AreaJourneyList
-                journeys={positions}
+                loading={areaEventsLoading}
+                journeys={areaEvents}
                 name="area-journeys"
                 label={text("sidepanel.tabs.area_events")}
               />
             )}
-            {!!route && !!route.routeId && (
+            {hasRoute && (
               <Journeys
                 key={`route_journeys_${createRouteKey(route, true)}_${date}`}
                 route={route}
-                positions={positions}
                 loading={loading}
                 name="journeys"
                 label={text("sidepanel.tabs.journeys")}
@@ -138,7 +142,9 @@ class SidePanel extends Component {
         </MainSidePanel>
         <JourneyPanel visible={journeyDetailsAreOpen}>
           {/* The content of the sidebar is independent from the sidebar wrapper so that we can animate it. */}
-          {journeyDetailsAreOpen && <JourneyDetails positions={positions} />}
+          {journeyDetailsAreOpen && (
+            <JourneyDetails selectedJourneyEvents={selectedJourneyEvents} />
+          )}
           {journeyDetailsCanOpen && (
             <ToggleJourneyDetailsButton
               isVisible={journeyDetailsAreOpen}

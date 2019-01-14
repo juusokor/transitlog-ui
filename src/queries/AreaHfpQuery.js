@@ -1,5 +1,4 @@
 import React, {Component} from "react";
-import {observer} from "mobx-react";
 import {Query} from "react-apollo";
 import get from "lodash/get";
 import gql from "graphql-tag";
@@ -8,7 +7,7 @@ import getJourneyId from "../helpers/getJourneyId";
 import {createHfpItem} from "../helpers/createHfpItem";
 
 const areaHfpQuery = gql`
-  query stopDelay(
+  query areaHfpQuery(
     $date: date!
     $minTime: timestamptz!
     $maxTime: timestamptz!
@@ -43,11 +42,9 @@ const areaHfpQuery = gql`
   }
 `;
 
-@observer
 class AreaHfpQuery extends Component {
   render() {
     const {date, minTime, maxTime, area, skip, children} = this.props;
-
     const {minLat, maxLat, minLong, maxLong} = area;
 
     return (

@@ -5,7 +5,7 @@ import moment from "moment";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import {text} from "../../helpers/text";
-import {createColor} from "../../helpers/vehicleColor";
+import {interpolateRange} from "../../helpers/interpolateRange";
 
 @inject(app("state"))
 @observer
@@ -20,16 +20,12 @@ class SimpleHfpLayer extends Component {
     return hfpItem || null;
   };
 
-  onMouseout = (event) => {
-    const line = event.target;
-    line.setStyle({weight: 2});
+  onMouseout = () => {
     this.mouseOver = false;
   };
 
-  onHover = (event) => {
+  onHover = () => {
     this.mouseOver = true;
-    const line = event.target;
-    line.setStyle({weight: 4});
   };
 
   onMousemove = (positions) => (event) => {
@@ -57,21 +53,23 @@ ${text("vehicle.speed")}: ${Math.round((hfpItem.spd * 18) / 5)} km/h`;
   };
 
   render() {
-    const {name, positions} = this.props;
+    const {zoom, name, positions} = this.props;
+
+    const opacity = interpolateRange(zoom, 15, 20, 0.05, 0.5, 0.2);
+    const weight = interpolateRange(zoom, 15, 20, 2, 5, 0.2);
 
     return (
-      <React.Fragment>
-        <Polyline
-          key={`hfp_polyline_${name}`}
-          onMousemove={this.onMousemove(positions)}
-          onMouseover={this.onHover}
-          onMouseout={this.onMouseout}
-          pane="hfp-lines"
-          weight={2}
-          color={createColor()}
-          positions={positions.map((pos) => [pos.lat, pos.long])}
-        />
-      </React.Fragment>
+      <Polyline
+        key={`hfp_polyline_${name}`}
+        onMousemove={this.onMousemove(positions)}
+        onMouseover={this.onHover}
+        onMouseout={this.onMouseout}
+        pane="hfp-lines"
+        weight={weight}
+        color="var(--red)"
+        opacity={opacity}
+        positions={positions.map((pos) => [pos.lat, pos.long])}
+      />
     );
   }
 }

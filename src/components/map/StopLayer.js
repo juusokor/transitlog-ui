@@ -10,15 +10,17 @@ class StopLayer extends Component {
   render() {
     const {bounds, date, onViewLocation, showRadius} = this.props;
 
-    const bbox = {
-      minLat: bounds.getSouth(),
-      minLon: bounds.getWest(),
-      maxLat: bounds.getNorth(),
-      maxLon: bounds.getEast(),
-    };
+    const bbox = bounds
+      ? {
+          minLat: bounds.getSouth(),
+          minLon: bounds.getWest(),
+          maxLat: bounds.getNorth(),
+          maxLon: bounds.getEast(),
+        }
+      : {};
 
     return (
-      <StopsByBboxQuery variables={{...bbox, date}}>
+      <StopsByBboxQuery skip={!bounds} variables={{...bbox, date}}>
         {({stops}) => {
           const stopAreas = stops.reduce((groups, stop) => {
             const pos = latLng(stop.lat, stop.lon);

@@ -45,6 +45,7 @@ class AreaSelect extends Component {
   };
 
   clearAreas = () => {
+    const {onSelectArea} = this.props;
     // Remove all current layers if we're about to draw a new one or have resetted the UI.
     if (this.featureLayer.current) {
       this.featureLayer.current.leafletElement.clearLayers();
@@ -52,6 +53,7 @@ class AreaSelect extends Component {
 
     // Also clear the URL value
     setUrlValue(AREA_BOUNDS_URL_KEY, "");
+    onSelectArea(null);
   };
 
   onBoundsSelected = (bounds) => {
@@ -59,6 +61,8 @@ class AreaSelect extends Component {
 
     if (bounds && bounds.isValid()) {
       onSelectArea(bounds);
+    } else {
+      onSelectArea(null);
     }
   };
 

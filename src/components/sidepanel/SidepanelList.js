@@ -128,7 +128,7 @@ class SidepanelList extends Component {
   });
 
   render() {
-    const {header, children, loading = false} = this.props;
+    const {header, children = () => {}, loading = false} = this.props;
 
     return (
       <ListWrapper hasHeader={!!header}>

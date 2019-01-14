@@ -21,7 +21,7 @@ export default (state, initialState) => {
     playing: false,
     timeIncrement: 5,
     marginMinutes: 5,
-    areaSearchRangeMinutes: 10,
+    areaSearchRangeMinutes: 60,
   });
 
   const actions = timeActions(state);
