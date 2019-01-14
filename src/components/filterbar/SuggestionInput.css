@@ -31,6 +31,8 @@
 
 .react-autosuggest__suggestions-container {
   display: none;
+  max-height: 80vh;
+  overflow: auto;
 }
 
 .react-autosuggest__suggestions-list {

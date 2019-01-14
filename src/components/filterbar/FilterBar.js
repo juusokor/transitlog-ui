@@ -1,19 +1,11 @@
 import React, {Component} from "react";
-import StopInput from "./StopInput";
-import AllStopsQuery from "../../queries/AllStopsQuery";
-import StopsByRouteQuery from "../../queries/StopsByRouteQuery";
 import DateSettings from "./DateSettings";
 import TimeSettings from "./TimeSettings";
 import {observer, inject} from "mobx-react";
-import {app} from "mobx-app";
-import VehicleInput from "./VehicleInput";
 import styled from "styled-components";
 import TimeSlider, {TIME_SLIDER_MIN, TIME_SLIDER_MAX} from "./TimeSlider";
 import AdditionalTimeSettings from "./AdditionalTimeSettings";
 import LineSettings from "./LineSettings";
-import Input from "../Input";
-import {ControlGroup} from "../Forms";
-import {text} from "../../helpers/text";
 import FilterSection from "./FilterSection";
 import Header from "./Header";
 import {
@@ -22,6 +14,9 @@ import {
 } from "../../helpers/getTimeRangeFromPositions";
 import getJourneyId from "../../helpers/getJourneyId";
 import get from "lodash/get";
+import VehicleSettings from "./VehicleSettings";
+import StopSettings from "./StopSettings";
+import {app} from "mobx-app";
 
 const SiteHeader = styled(Header)`
   flex: 0 0 auto;
@@ -57,54 +52,12 @@ const BottomSlider = styled(TimeSlider)`
   z-index: 10;
 `;
 
-@inject(app("Filters", "UI"))
+@inject(app("state"))
 @observer
 class FilterBar extends Component {
-  onChangeQueryVehicle = (value) => {
-    this.props.Filters.setVehicle(value);
-  };
-
   render() {
-    const {
-      state,
-      Filters,
-      selectedJourneyEvents,
-      areaEvents,
-      timeRange = null,
-    } = this.props;
-    const {selectedJourney, vehicle, stop, route, sidePanelVisible: visible} = state;
-
-    const journeys =
-      selectedJourneyEvents.length !== 0
-        ? selectedJourneyEvents
-        : areaEvents.length !== 0
-        ? areaEvents
-        : [];
-
-    const selectedJourneyId = getJourneyId(selectedJourney);
-    let selectedJourneyPositions = [];
-
-    if (selectedJourneyId && journeys.length !== 0) {
-      selectedJourneyPositions = get(
-        journeys.find(({journeyId}) => journeyId === selectedJourneyId),
-        "events",
-        []
-      );
-    }
-
-    const useTimeRange =
-      (!route || !route.routeId) && timeRange
-        ? {
-            min: dateToSeconds(timeRange.min),
-            max: dateToSeconds(timeRange.max),
-          }
-        : selectedJourneyPositions.length !== 0
-        ? getTimeRangeFromPositions(
-            selectedJourneyPositions,
-            TIME_SLIDER_MIN,
-            TIME_SLIDER_MAX
-          )
-        : {};
+    const {state, positions = [], timeRange = null} = this.props;
+    const {sidePanelVisible: visible} = state;
 
     return (
       <FilterBarWrapper visible={visible}>
@@ -118,51 +71,13 @@ class FilterBar extends Component {
             <LineSettings />
           </FilterSection>
           <FilterSection>
-            <ControlGroup>
-              <Input
-                label={text("filterpanel.filter_by_vehicle")}
-                animatedLabel={false}>
-                <VehicleInput
-                  journeys={journeys}
-                  value={vehicle}
-                  onSelect={this.onChangeQueryVehicle}
-                />
-              </Input>
-            </ControlGroup>
+            <VehicleSettings />
           </FilterSection>
           <FilterSection>
-            <ControlGroup>
-              <Input
-                label={text("filterpanel.filter_by_stop")}
-                animatedLabel={false}>
-                {!route.routeId ? (
-                  <AllStopsQuery key="all_stops">
-                    {({stops}) => (
-                      <StopInput
-                        onSelect={Filters.setStop}
-                        stop={stop}
-                        stops={stops}
-                      />
-                    )}
-                  </AllStopsQuery>
-                ) : (
-                  <StopsByRouteQuery
-                    key={`stop_input_by_route_${route.routeId}`}
-                    route={route}>
-                    {({stops}) => (
-                      <StopInput
-                        onSelect={Filters.setStop}
-                        stop={stop}
-                        stops={stops}
-                      />
-                    )}
-                  </StopsByRouteQuery>
-                )}
-              </Input>
-            </ControlGroup>
+            <StopSettings />
           </FilterSection>
         </FilterBarGrid>
-        <BottomSlider {...useTimeRange} />
+        <BottomSlider positions={positions} timeRange={timeRange} />
       </FilterBarWrapper>
     );
   }
