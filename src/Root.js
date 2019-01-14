@@ -8,6 +8,13 @@ import DevTools from "mobx-react-devtools";
 import {configureDevtool} from "mobx-react-devtools";
 import {GlobalFormStyle} from "./components/Forms";
 import {app} from "mobx-app";
+import {ModalProvider, BaseModalBackground} from "styled-react-modal";
+import styled from "styled-components";
+
+const SpecialModalBackground = styled(BaseModalBackground)`
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.1);
+`;
 
 configureDevtool({
   logEnabled: false,
@@ -26,11 +33,13 @@ class Root extends React.Component {
 
     return (
       <ApolloProvider client={client}>
-        <>
-          <GlobalFormStyle />
-          <App />
-          <DevTools />
-        </>
+        <ModalProvider backgroundComponent={SpecialModalBackground}>
+          <>
+            <GlobalFormStyle />
+            <App />
+            <DevTools />
+          </>
+        </ModalProvider>
       </ApolloProvider>
     );
   }

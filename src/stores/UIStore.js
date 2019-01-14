@@ -24,6 +24,7 @@ export default (state) => {
     mapOverlays: getUrlValue("mapOverlays", "").split(","),
     language: languageState.language,
     errors: [],
+    shareModalOpen: false,
     // This is a computed check to see if we have anything to show in the journey details sidebar.
     // When this returns false the sidebar will hide regardless of the journeyDetailsOpen setting.
     get journeyDetailsCanOpen() {
@@ -37,6 +38,10 @@ export default (state) => {
     get journeyDetailsAreOpen() {
       return state.journeyDetailsCanOpen && state.journeyDetailsOpen;
     },
+  });
+
+  const toggleShareModal = action((setTo = !state.shareModalOpen) => {
+    state.shareModalOpen = setTo;
   });
 
   const toggleSidePanel = action((setTo = !state.sidePanelVisible) => {
@@ -117,6 +122,7 @@ export default (state) => {
   );
 
   return {
+    toggleShareModal,
     toggleSidePanel,
     toggleJourneyDetails,
     setLanguage,

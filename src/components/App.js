@@ -14,6 +14,7 @@ import SingleStopQuery from "../queries/SingleStopQuery";
 import AreaHfpEvents from "./AreaHfpEvents";
 import {observable, action} from "mobx";
 import ErrorMessages from "./ErrorMessages";
+import SharingModal from "./SharingModal";
 
 const AppFrame = styled.main`
   width: 100%;
@@ -43,7 +44,7 @@ const MapPanel = styled(Map)`
   height: 100%;
 `;
 
-@inject(app("Journey", "Filters"))
+@inject(app("Journey", "Filters", "UI"))
 @observer
 class App extends Component {
   @observable
@@ -69,8 +70,8 @@ class App extends Component {
   });
 
   render() {
-    const {state} = this.props;
-    const {date, stop, route} = state;
+    const {state, UI} = this.props;
+    const {date, stop, route, shareModalOpen} = state;
     const {stopsBbox} = this;
 
     const hasRoute = !!route && !!route.routeId;
@@ -139,6 +140,10 @@ class App extends Component {
           )}
         </AreaHfpEvents>
         <ErrorMessages />
+        <SharingModal
+          isOpen={shareModalOpen}
+          onClose={() => UI.toggleShareModal(false)}
+        />
       </AppFrame>
     );
   }

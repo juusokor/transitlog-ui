@@ -4,8 +4,10 @@ import {Text} from "../../helpers/text";
 import styled from "styled-components";
 import {Heading} from "../Typography";
 import LanguageSelect from "./LanguageSelect";
-import {observer} from "mobx-react";
+import {observer, inject} from "mobx-react";
 import {Button} from "../Forms";
+import {app} from "mobx-app";
+import flow from "lodash/flow";
 
 const Header = styled.header`
   width: 100%;
@@ -53,14 +55,19 @@ const BottomRow = styled.div`
   flex: 1 0 100%;
 `;
 
-export default observer(({Filters, className}) => (
+const decorate = flow(
+  observer,
+  inject(app("UI"))
+);
+
+export default decorate(({UI, className}) => (
   <Header className={className}>
     <Logo src={logo} alt="logo" />
     <MainHeading>
       <Text>filterpanel.heading</Text>
     </MainHeading>
     <BottomRow>
-      <Button small transparent onClick={() => console.log("share")}>
+      <Button small transparent onClick={() => UI.toggleShareModal(true)}>
         Share
       </Button>
       <LangSelectContainer>
