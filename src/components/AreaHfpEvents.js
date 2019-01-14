@@ -69,8 +69,6 @@ class AreaHfpEvents extends Component {
     const queryParams = this.getQueryParams(useBounds, date);
     const {minTime, maxTime, ...area} = queryParams;
 
-    console.log(queryParams);
-
     return (
       <AreaHfpQuery
         skip={
