@@ -8,6 +8,7 @@ const Container = styled.label`
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
+  flex-wrap: nowrap;
   position: relative;
   padding-top: 0.3rem;
   padding-bottom: 0.3rem;
@@ -57,14 +58,14 @@ const ToggleContainer = styled.div`
 const TextContainer = styled.div`
   font-family: var(--font-family);
   flex: 1 1 40%;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: flex-start;
   align-items: flex-start;
   color: ${({disabled}) => (disabled ? "var(--light-grey)" : "var(--blue)")};
   margin-left: ${({isPreLabel = false}) => (isPreLabel ? "0" : "1rem")};
   margin-right: ${({isPreLabel = false}) => (isPreLabel ? "1rem" : "0")};
   text-align: ${({isPreLabel = false}) => (isPreLabel ? "right" : "left")};
-  font-size: 1rem;
+  font-size: 0.875rem;
 `;
 
 @observer

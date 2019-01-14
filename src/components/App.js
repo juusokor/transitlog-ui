@@ -1,6 +1,5 @@
 import React, {Component} from "react";
 import FilterBar from "./filterbar/FilterBar";
-import RouteHfpEvents from "./RouteHfpEvents";
 import {app} from "mobx-app";
 import {inject, observer} from "mobx-react";
 import Map from "./map/Map";
@@ -14,6 +13,7 @@ import SingleStopQuery from "../queries/SingleStopQuery";
 import AreaHfpEvents from "./AreaHfpEvents";
 import {observable, action} from "mobx";
 import ErrorMessages from "./ErrorMessages";
+import SelectedJourneyEvents from "./SelectedJourneyEvents";
 
 const AppFrame = styled.main`
   width: 100%;
@@ -54,6 +54,12 @@ class App extends Component {
       return;
     }
 
+    const {route} = this.props.state;
+
+    if (route && route.routeId) {
+      return;
+    }
+
     const bounds = map.getBounds();
     const {stopsBbox} = this;
 
@@ -77,27 +83,33 @@ class App extends Component {
 
     return (
       <AppFrame>
-        <AreaHfpEvents>
-          {({queryBounds, events: areaEvents = [], timeRange}) => (
-            <RouteHfpEvents>
-              {({positions: routeEvents = [], loading}) => {
-                let positions =
-                  !hasRoute && areaEvents.length !== 0
-                    ? areaEvents
-                    : hasRoute && routeEvents.length
-                    ? routeEvents
-                    : [];
+        <AreaHfpEvents date={date}>
+          {({
+            queryBounds,
+            events: areaEvents = [],
+            timeRange,
+            loading: areaEventsLoading,
+          }) => (
+            <SelectedJourneyEvents>
+              {({events: selectedJourneyEvents = [], loading}) => {
+                let areaHfp = !hasRoute && areaEvents.length !== 0 ? areaEvents : [];
 
                 return (
                   <AppGrid>
-                    <FilterBar timeRange={timeRange} positions={positions} />
+                    <FilterBar
+                      timeRange={timeRange}
+                      areaEvents={areaHfp}
+                      selectedJourneyEvents={selectedJourneyEvents}
+                    />
                     <SidepanelAndMapWrapper>
                       <SidePanel
+                        areaEventsLoading={areaEventsLoading}
                         loading={loading}
-                        positions={positions}
+                        areaEvents={areaHfp}
+                        selectedJourneyEvents={selectedJourneyEvents}
                         route={route}
                       />
-                      <JourneyPosition positions={positions}>
+                      <JourneyPosition positions={selectedJourneyEvents}>
                         {(journeyPosition) => (
                           <SingleStopQuery stop={stop} date={date}>
                             {({stop}) => {
@@ -107,6 +119,11 @@ class App extends Component {
                               const centerPosition = stopPosition
                                 ? stopPosition
                                 : journeyPosition;
+
+                              const positions =
+                                areaHfp.length !== 0
+                                  ? areaHfp
+                                  : selectedJourneyEvents;
 
                               return (
                                 <MapPanel
@@ -135,7 +152,7 @@ class App extends Component {
                   </AppGrid>
                 );
               }}
-            </RouteHfpEvents>
+            </SelectedJourneyEvents>
           )}
         </AreaHfpEvents>
         <ErrorMessages />

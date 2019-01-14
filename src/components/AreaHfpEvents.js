@@ -1,90 +1,80 @@
 import React, {Component} from "react";
-import {inject, observer} from "mobx-react";
-import {observable, action, reaction} from "mobx";
+import {inject} from "mobx-react";
 import {app} from "mobx-app";
 import {combineDateAndTime} from "../helpers/time";
 import AreaHfpQuery from "../queries/AreaHfpQuery";
-import {setResetListener} from "../stores/FilterStore";
-
-const defaultQueryParams = {
-  minTime: null,
-  maxTime: null,
-  minLong: null,
-  maxLong: null,
-  minLat: null,
-  maxLat: null,
-};
+import invoke from "lodash/invoke";
 
 @inject(app("state"))
-@observer
 class AreaHfpEvents extends Component {
-  disposeQueryReaction = () => {};
+  state = {
+    bounds: null,
+  };
 
-  // A listener listens to changes to the bounds, and updates the query params
-  // themselves if needed.
-  @observable
-  currentBounds = null;
+  setQueryBounds = (bounds) => {
+    this.setState((state) => {
+      const current = state.bounds;
 
-  // Changing the query params is what actually triggers the query, since it's the
-  // only observable value that the render method listens to.
-  @observable
-  queryParams = defaultQueryParams;
+      if (!bounds || !invoke(bounds, "isValid")) {
+        return {
+          bounds: null,
+        };
+      }
 
-  onReset = action(() => {
-    this.queryParams = defaultQueryParams;
-    this.currentBounds = null;
-  });
+      if (!current || (current && current.isValid() && !current.equals(bounds))) {
+        return {
+          bounds,
+        };
+      }
 
-  setQueryBounds = action((bounds) => {
-    if (!this.currentBounds || !this.currentBounds.equals(bounds)) {
-      this.currentBounds = bounds;
-    }
-  });
+      return {
+        bounds: current,
+      };
+    });
+  };
 
   // When the query bounds change, update the params.
-  setQueryParams = action((bounds) => {
+  getQueryParams = (bounds, date) => {
     const {
-      state: {date, time, areaSearchRangeMinutes = 10},
+      state: {time, areaSearchRangeMinutes = 60},
     } = this.props;
 
     if (!bounds || (typeof bounds.isValid === "function" && !bounds.isValid())) {
-      return;
+      return {};
     }
 
     const moment = combineDateAndTime(date, time, "Europe/Helsinki");
 
+    const minTime = moment.clone().subtract(areaSearchRangeMinutes / 2, "minutes");
+    const maxTime = moment.clone().add(areaSearchRangeMinutes / 2, "minutes");
+
     // Translate the bounding box to a min/max query for the HFP api and create a time range.
-    this.queryParams = {
-      date,
-      minTime: moment.clone().subtract(areaSearchRangeMinutes / 2, "minutes"),
-      maxTime: moment.clone().add(areaSearchRangeMinutes / 2, "minutes"),
+    return {
+      minTime,
+      maxTime,
       minLong: bounds.getWest(),
       maxLong: bounds.getEast(),
       minLat: bounds.getSouth(),
       maxLat: bounds.getNorth(),
     };
-  });
-
-  componentDidMount() {
-    setResetListener(this.onReset);
-
-    this.disposeQueryReaction = reaction(
-      () => this.currentBounds,
-      this.setQueryParams
-    );
-  }
-
-  componentWillUnmount() {
-    this.disposeQueryReaction();
-  }
+  };
 
   render() {
-    const {children} = this.props;
-    const {date, minTime, maxTime, ...area} = this.queryParams;
+    const {children, date, defaultBounds} = this.props;
+    const {bounds} = this.state;
+
+    const useBounds =
+      bounds || (defaultBounds ? defaultBounds.getCenter().toBounds(1000) : null);
+
+    const queryParams = this.getQueryParams(useBounds, date);
+    const {minTime, maxTime, ...area} = queryParams;
 
     return (
       <AreaHfpQuery
-        skip={Object.values(this.queryParams).some((p) => !p)} // Skip query if some params are falsy
+        skip={
+          Object.keys(queryParams).length === 0 ||
+          Object.values(queryParams).some((p) => !p)
+        } // Skip query if some params are falsy
         date={date}
         minTime={minTime ? minTime.toISOString() : null}
         maxTime={maxTime ? maxTime.toISOString() : null}

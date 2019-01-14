@@ -148,13 +148,7 @@ class TimetablePanel extends Component {
 
     if (departure.observed) {
       const {observed} = departure;
-
       Journey.setSelectedJourney(observed);
-      Journey.requestJourneys({
-        time: observed.journey_start_time,
-        route,
-        date: observed.oday,
-      });
     }
   };
 

@@ -38,9 +38,16 @@ class AdditionalTimeSettings extends Component {
           <IncrementValueInput
             label="Area search minutes range"
             type="number"
-            max={20}
-            min={2}
+            max={60 * 12}
+            min={5}
             maxLength={2}
+            value={areaSearchRangeMinutes}
+            onChange={(e) => Time.setAreaSearchMinutes(e.target.value)}
+          />
+          <input
+            type="range"
+            max={60 * 12}
+            min={5}
             value={areaSearchRangeMinutes}
             onChange={(e) => Time.setAreaSearchMinutes(e.target.value)}
           />

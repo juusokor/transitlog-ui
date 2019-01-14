@@ -7,9 +7,9 @@ export function groupHfpPositions(hfpData, groupKey, groupNameKey) {
   }
 
   const groupedData = groupBy(hfpData, groupKey);
-  const vehicleGroups = map(groupedData, (positions, groupName) => ({
+  const vehicleGroups = map(groupedData, (events, groupName) => ({
     [groupNameKey]: groupName,
-    positions,
+    events,
   }));
 
   return vehicleGroups;

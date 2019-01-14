@@ -3,9 +3,7 @@ import {concat, split} from "apollo-link";
 import {BatchHttpLink} from "apollo-link-batch-http";
 import {HttpLink} from "apollo-link-http";
 import {InMemoryCache} from "apollo-cache-inmemory";
-import {CachePersistor} from "apollo-cache-persist";
 import {onError} from "apollo-link-error";
-import localforage from "localforage";
 import get from "lodash/get";
 
 const joreUrl = process.env.REACT_APP_JORE_GRAPHQL_URL;
@@ -21,7 +19,7 @@ if (!hfpUrl) {
 
 let createdClient = null;
 
-export const getClient = (UIStore) => {
+export const getClient = async (UIStore) => {
   if (createdClient) {
     return createdClient;
   }
@@ -65,17 +63,13 @@ export const getClient = (UIStore) => {
 
   const splitLink = split(
     (operation) => {
-      if (operation.operationName === "hfpQuery") {
-        return false;
-      }
+      const queryName = get(
+        operation,
+        "query.definitions[0].selectionSet.selections[0].name.value",
+        "none"
+      );
 
-      if (
-        get(
-          operation,
-          "query.definitions[0].selectionSet.selections[0].name.value",
-          "none"
-        ) === "vehicles"
-      ) {
+      if (operation.operationName === "hfpQuery" || queryName === "vehicles") {
         return false;
       }
 

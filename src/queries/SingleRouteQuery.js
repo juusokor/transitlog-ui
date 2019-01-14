@@ -47,10 +47,12 @@ const extensiveSingleRouteQuery = gql`
 `;
 
 export const fetchSingleRoute = (route, date, client) => {
+  const {direction} = route;
+
   return client
     .query({
       query: singleRouteQuery,
-      variables: route,
+      variables: {...route, direction: direction + ""},
     })
     .then(({data}) => get(data, "allRoutes.nodes", []))
     .then((routes) => {

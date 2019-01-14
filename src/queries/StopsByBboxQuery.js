@@ -49,10 +49,10 @@ class StopsByBboxQuery extends Component {
   prevQueryResult = [];
 
   render() {
-    const {children, variables} = this.props;
+    const {children, variables, skip} = this.props;
 
     return (
-      <Query query={stopsByBboxQuery} variables={variables}>
+      <Query skip={skip} query={stopsByBboxQuery} variables={variables}>
         {({loading, data, error}) => {
           if (loading) return children({stops: this.prevQueryResult, loading: true});
           if (error) return children({stops: this.prevQueryResult, loading: false});

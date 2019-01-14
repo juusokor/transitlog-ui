@@ -24,7 +24,7 @@ export default (Component) => {
       return (
         <Component
           {...this.props}
-          selectedJourneyHfp={get(journeyHfp, "positions", [])}
+          selectedJourneyHfp={get(journeyHfp, "events", [])}
         />
       );
     }
