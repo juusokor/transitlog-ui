@@ -88,7 +88,7 @@ const JourneyPanel = styled.div`
 class SidePanel extends Component {
   render() {
     const {
-      UI: {toggleSidePanel, toggleJourneyDetails},
+      UI: {toggleSidePanel, toggleJourneyDetails, togglePolling},
       Filters,
       Update,
       areaEvents = [],
@@ -103,6 +103,7 @@ class SidePanel extends Component {
         sidePanelVisible,
         journeyDetailsAreOpen,
         journeyDetailsCanOpen,
+        pollingEnabled = false,
       },
     } = this.props;
 
@@ -111,7 +112,12 @@ class SidePanel extends Component {
     return (
       <SidePanelContainer visible={sidePanelVisible}>
         <MainSidePanel>
-          <ControlBar onUpdateClick={Update.update} onResetClick={Filters.reset} />
+          <ControlBar
+            pollingEnabled={pollingEnabled}
+            onTogglePolling={togglePolling}
+            onUpdateClick={Update.update}
+            onResetClick={Filters.reset}
+          />
           <Tabs>
             {!hasRoute && (
               <AreaJourneyList
