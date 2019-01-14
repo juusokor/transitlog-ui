@@ -59,9 +59,13 @@ class AreaHfpEvents extends Component {
   };
 
   render() {
-    const {children, date} = this.props;
+    const {children, date, defaultBounds} = this.props;
     const {bounds} = this.state;
-    const queryParams = this.getQueryParams(bounds, date);
+
+    const useBounds =
+      bounds || (defaultBounds ? defaultBounds.getCenter().toBounds(1000) : null);
+
+    const queryParams = this.getQueryParams(useBounds, date);
     const {minTime, maxTime, ...area} = queryParams;
 
     return (
