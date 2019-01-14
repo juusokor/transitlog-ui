@@ -3,6 +3,7 @@ import {inject} from "mobx-react";
 import {app} from "mobx-app";
 import {combineDateAndTime} from "../helpers/time";
 import AreaHfpQuery from "../queries/AreaHfpQuery";
+import invoke from "lodash/invoke";
 
 @inject(app("state"))
 class AreaHfpEvents extends Component {
@@ -13,14 +14,14 @@ class AreaHfpEvents extends Component {
   setQueryBounds = (bounds) => {
     this.setState((state) => {
       const current = state.bounds;
-      if (
-        !current ||
-        (current &&
-          bounds &&
-          bounds.isValid() &&
-          current.isValid() &&
-          !current.equals(bounds))
-      ) {
+
+      if (!bounds || !invoke(bounds, "isValid")) {
+        return {
+          bounds: null,
+        };
+      }
+
+      if (!current || (current && current.isValid() && !current.equals(bounds))) {
         return {
           bounds,
         };
@@ -67,6 +68,8 @@ class AreaHfpEvents extends Component {
 
     const queryParams = this.getQueryParams(useBounds, date);
     const {minTime, maxTime, ...area} = queryParams;
+
+    console.log(queryParams);
 
     return (
       <AreaHfpQuery
