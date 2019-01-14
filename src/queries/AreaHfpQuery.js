@@ -56,7 +56,7 @@ class AreaHfpQuery extends Component {
     this.disposeUpdateListener();
   }
 
-  update = (refetch) => () => {
+  onUpdate = (refetch) => () => {
     const {date, minTime, maxTime, area, skip} = this.props;
     const {minLat, maxLat, minLong, maxLong} = area;
 
@@ -66,17 +66,18 @@ class AreaHfpQuery extends Component {
   };
 
   render() {
-    const {date, minTime, maxTime, area, skip, children} = this.props;
+    const {date, minTime, maxTime, area, skip, children, poll} = this.props;
     const {minLat, maxLat, minLong, maxLong} = area;
 
     return (
       <Query
+        pollInterval={poll ? 5000 : 0}
         partialRefetch={true}
         skip={skip}
         variables={{date, minTime, maxTime, minLat, maxLat, minLong, maxLong}}
         query={areaHfpQuery}>
         {({loading, data, error, refetch}) => {
-          setUpdateListener(updateListenerName, this.update(refetch));
+          setUpdateListener(updateListenerName, this.onUpdate(refetch));
 
           if (loading || error) {
             return children({events: [], loading, error});

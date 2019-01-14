@@ -50,7 +50,7 @@ const ToggleContainer = styled.div`
     border-color: var(--blue);
 
     ${ToggleMarker} {
-      transform: translate(15px, 0);
+      transform: translate(16px, 0);
     }
   }
 `;

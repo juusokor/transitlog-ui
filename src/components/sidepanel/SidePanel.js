@@ -71,6 +71,8 @@ const MainSidePanel = styled.div`
   width: 25rem;
   position: relative;
   z-index: 1;
+  display: flex;
+  flex-direction: column;
 `;
 
 const JourneyPanel = styled.div`
