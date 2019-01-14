@@ -57,9 +57,7 @@ export default (state, initialState) => {
     }
 
     resetStateWith(emptyState);
-
     journeyActions.setSelectedJourney(null);
-    state.requestedJourneys.clear();
 
     resetListeners.forEach((cb) => {
       if (typeof cb === "function") {
