@@ -74,10 +74,6 @@ class App extends Component {
     this.stopsBbox = bounds;
   });
 
-  updateAll = () => {
-    console.log("update all");
-  };
-
   render() {
     const {state} = this.props;
     const {date, stop, route} = state;
@@ -107,7 +103,6 @@ class App extends Component {
                     />
                     <SidepanelAndMapWrapper>
                       <SidePanel
-                        updateAll={this.updateAll}
                         areaEventsLoading={areaEventsLoading}
                         loading={loading}
                         areaEvents={areaHfp}

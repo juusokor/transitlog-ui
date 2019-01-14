@@ -83,18 +83,18 @@ const JourneyPanel = styled.div`
   border-right: 1px solid var(--alt-grey);
 `;
 
-@inject(app("UI", "Filters"))
+@inject(app("UI", "Filters", "Update"))
 @observer
 class SidePanel extends Component {
   render() {
     const {
       UI: {toggleSidePanel, toggleJourneyDetails},
       Filters,
+      Update,
       areaEvents = [],
       selectedJourneyEvents = [],
       loading = false,
       areaEventsLoading = false,
-      updateAll,
       state: {
         stop,
         route,
@@ -111,7 +111,7 @@ class SidePanel extends Component {
     return (
       <SidePanelContainer visible={sidePanelVisible}>
         <MainSidePanel>
-          <ControlBar onUpdateClick={updateAll} onResetClick={Filters.reset} />
+          <ControlBar onUpdateClick={Update.update} onResetClick={Filters.reset} />
           <Tabs>
             {!hasRoute && (
               <AreaJourneyList
