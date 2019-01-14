@@ -58,7 +58,7 @@ class JourneyPosition extends Component {
 
     this.followReaction = reaction(
       () => {
-        const {time, selectedJourney} = state;
+        const {time, selectedJourney, pollingEnabled} = state;
         const selectedJourneyId = getJourneyId(selectedJourney);
 
         /*
@@ -67,6 +67,11 @@ class JourneyPosition extends Component {
         in this exact order for this to work, otherwise the map may
         recenter when changing journeys, which we don't want.
          */
+
+        // Bail if polling is enabled as it would be hard to move the map.
+        if (pollingEnabled) {
+          return false;
+        }
 
         // 1. Change the journey key when the selected journey changes.
         if (

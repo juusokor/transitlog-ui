@@ -8,6 +8,7 @@ import UIStore from "./stores/UIStore";
 import {Provider} from "mobx-react";
 import JourneyStore from "./stores/JourneyStore";
 import {getUrlState} from "./stores/UrlManager";
+import UpdateManager from "./stores/UpdateManager";
 
 const root = document.getElementById("root");
 const initialState = getUrlState();
@@ -18,6 +19,7 @@ const {state, actions} = createStore(
     Time: TimeStore,
     UI: UIStore,
     Journey: JourneyStore,
+    Update: UpdateManager,
   },
   initialState
 );

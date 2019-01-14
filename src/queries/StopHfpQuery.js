@@ -5,6 +5,7 @@ import gql from "graphql-tag";
 import groupBy from "lodash/groupBy";
 import reduce from "lodash/reduce";
 import flatten from "lodash/flatten";
+import {removeUpdateListener, setUpdateListener} from "../stores/UpdateManager";
 
 const createQueryPart = (direction, routes) => {
   const queryName = `direction_${direction}`;
@@ -37,8 +38,22 @@ const stopDelayQuery = (queryParts) => gql`
   }
 `;
 
+const updateListenerName = "stop hfp query";
+
 @observer
 class StopHfpQuery extends Component {
+  componentWillUnmount() {
+    removeUpdateListener(updateListenerName);
+  }
+
+  onUpdate = (refetch) => () => {
+    const {date, stopId, skip} = this.props;
+
+    if (!skip) {
+      refetch({date, stopId});
+    }
+  };
+
   render() {
     const {
       onCompleted = () => {},
@@ -72,7 +87,9 @@ class StopHfpQuery extends Component {
         onCompleted={onCompleted}
         variables={{date, stopId}}
         query={query}>
-        {({loading, data, error}) => {
+        {({loading, data, error, refetch}) => {
+          setUpdateListener(updateListenerName, this.onUpdate(refetch), false);
+
           if (loading || error) {
             return children({journeys: {}, loading, error});
           }

@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import {inject, observer} from "mobx-react";
 import {app} from "mobx-app";
 import {createHfpItem} from "../helpers/createHfpItem";
-import {SelectedJourneyQuery} from "../queries/SelectedJourneyQuery";
+import SelectedJourneyQuery from "../queries/SelectedJourneyQuery";
 import getJourneyId from "../helpers/getJourneyId";
 
 @inject(app("state"))

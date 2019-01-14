@@ -24,33 +24,33 @@ const ToggleInput = styled.input`
 
 const ToggleMarker = styled.div`
   position: absolute;
-  top: -1px;
-  transform: translate(-1px, 0);
+  top: 1px;
   left: 0;
-  width: 30px;
-  height: 30px;
-  background-color: white;
-  border: 1px solid var(--blue);
+  width: 16px;
+  height: 16px;
+  background-color: ${({checked}) => (!checked ? "#aaa" : "white")};
+  border: 1px solid ${({checked}) => (!checked ? "transparent" : "var(--blue)")};
   border-radius: 15px;
   transition: transform 0.1s ease-out;
+  transform: translate(1px, 0);
 `;
 
 const ToggleContainer = styled.div`
   position: relative;
-  width: 50px;
-  height: 30px;
+  width: 35px;
+  height: 20px;
   border: 1px solid ${({isSwitch}) => (isSwitch ? "var(--blue)" : "var(--grey)")};
   background: ${({isSwitch}) => (isSwitch ? "var(--blue)" : "white")};
   border-radius: 15px;
   transition: background 0.2s ease-out;
-  flex: 0 0 50px;
+  flex: 0 0 35px;
 
   ${ToggleInput}:checked + & {
     background: var(--blue);
     border-color: var(--blue);
 
     ${ToggleMarker} {
-      transform: translate(20px, 0);
+      transform: translate(16px, 0);
     }
   }
 `;
@@ -82,10 +82,11 @@ class ToggleButton extends Component {
       children,
       label = children,
       preLabel,
+      className,
     } = this.props;
 
     return (
-      <Container>
+      <Container className={className}>
         {preLabel && <TextContainer isPreLabel={true}>{preLabel}</TextContainer>}
         <ToggleInput
           type={type}
@@ -96,7 +97,10 @@ class ToggleButton extends Component {
           checked={checked}
         />
         <ToggleContainer isSwitch={isSwitch} checked={checked} disabled={disabled}>
-          <ToggleMarker checked={checked} disabled={disabled} />
+          <ToggleMarker
+            checked={!checked ? isSwitch : checked}
+            disabled={disabled}
+          />
         </ToggleContainer>
         <TextContainer>{label}</TextContainer>
       </Container>
