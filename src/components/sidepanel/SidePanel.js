@@ -117,8 +117,8 @@ class SidePanel extends Component {
           <ControlBar
             pollingEnabled={pollingEnabled}
             onTogglePolling={togglePolling}
-            onUpdateClick={Update.update}
-            onResetClick={Filters.reset}
+            onUpdateClick={() => Update.update()}
+            onResetClick={() => Filters.reset()}
           />
           <Tabs>
             {!hasRoute && (

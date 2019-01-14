@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {inject, Observer} from "mobx-react";
+import {inject} from "mobx-react";
 import {app} from "mobx-app";
 import {combineDateAndTime} from "../helpers/time";
 import AreaHfpQuery from "../queries/AreaHfpQuery";
@@ -70,36 +70,31 @@ class AreaHfpEvents extends Component {
     const {minTime, maxTime, ...area} = queryParams;
 
     return (
-      <Observer>
-        {() => (
-          <AreaHfpQuery
-            poll={this.props.state.pollingEnabled && !skip}
-            skip={
-              skip ||
-              Object.keys(queryParams).length === 0 ||
-              Object.values(queryParams).some((p) => !p)
-            } // Skip query if some params are falsy
-            date={date}
-            minTime={minTime ? minTime.toISOString() : null}
-            maxTime={maxTime ? maxTime.toISOString() : null}
-            area={area}>
-            {({events, loading, error}) => {
-              return children({
-                queryBounds: this.setQueryBounds,
-                events,
-                loading,
-                error,
-                timeRange: minTime
-                  ? {
-                      min: minTime,
-                      max: maxTime,
-                    }
-                  : null,
-              });
-            }}
-          </AreaHfpQuery>
-        )}
-      </Observer>
+      <AreaHfpQuery
+        skip={
+          skip ||
+          Object.keys(queryParams).length === 0 ||
+          Object.values(queryParams).some((p) => !p)
+        } // Skip query if some params are falsy
+        date={date}
+        minTime={minTime ? minTime.toISOString() : null}
+        maxTime={maxTime ? maxTime.toISOString() : null}
+        area={area}>
+        {({events, loading, error}) => {
+          return children({
+            queryBounds: this.setQueryBounds,
+            events,
+            loading,
+            error,
+            timeRange: minTime
+              ? {
+                  min: minTime,
+                  max: maxTime,
+                }
+              : null,
+          });
+        }}
+      </AreaHfpQuery>
     );
   }
 }

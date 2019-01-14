@@ -66,12 +66,11 @@ class AreaHfpQuery extends Component {
   };
 
   render() {
-    const {date, minTime, maxTime, area, skip, children, poll} = this.props;
+    const {date, minTime, maxTime, area, skip, children} = this.props;
     const {minLat, maxLat, minLong, maxLong} = area;
 
     return (
       <Query
-        pollInterval={poll ? 5000 : 0}
         partialRefetch={true}
         skip={skip}
         variables={{date, minTime, maxTime, minLat, maxLat, minLong, maxLong}}

@@ -45,7 +45,7 @@ class ControlBar extends Component {
           type="checkbox"
           onChange={() => onTogglePolling()}
           name="query_polling"
-          label="Poll"
+          label="Auto"
           checked={pollingEnabled}
           value="enabled"
         />

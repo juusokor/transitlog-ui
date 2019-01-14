@@ -51,16 +51,10 @@ class SelectedJourneyQuery extends React.Component {
   };
 
   render() {
-    const {
-      state: {pollingEnabled},
-      skip,
-      selectedJourney,
-      children,
-    } = this.props;
+    const {skip, selectedJourney, children} = this.props;
     return (
       <Query
         partialRefetch={true}
-        pollInterval={pollingEnabled ? 3000 : 0}
         skip={skip || !selectedJourney}
         query={hfpQuery}
         variables={selectedJourney}>
