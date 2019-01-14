@@ -107,7 +107,7 @@ class SidePanel extends Component {
       <SidePanelContainer visible={sidePanelVisible}>
         <MainSidePanel>
           <Tabs>
-            {!hasRoute && (areaEventsLoading || areaEvents.length !== 0) && (
+            {!hasRoute && (
               <AreaJourneyList
                 loading={areaEventsLoading}
                 journeys={areaEvents}

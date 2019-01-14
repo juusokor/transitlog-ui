@@ -83,7 +83,7 @@ class App extends Component {
 
     return (
       <AppFrame>
-        <AreaHfpEvents>
+        <AreaHfpEvents date={date}>
           {({
             queryBounds,
             events: areaEvents = [],
