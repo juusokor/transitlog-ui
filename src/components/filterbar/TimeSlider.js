@@ -3,6 +3,12 @@ import moment from "moment-timezone";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import RangeInput from "../RangeInput";
+import {
+  dateToSeconds,
+  getTimeRangeFromPositions,
+} from "../../helpers/getTimeRangeFromPositions";
+import getJourneyId from "../../helpers/getJourneyId";
+import get from "lodash/get";
 
 export const TIME_SLIDER_MAX = 86399;
 export const TIME_SLIDER_MIN = 15000;
@@ -51,13 +57,45 @@ class TimeSlider extends Component {
     Time.setTime(timeValue);
   };
 
+  getRange = () => {
+    const {
+      positions,
+      timeRange,
+      state: {selectedJourney, route},
+    } = this.props;
+
+    const selectedJourneyId = getJourneyId(selectedJourney);
+    let selectedJourneyPositions = [];
+
+    if (selectedJourneyId && positions.length !== 0) {
+      selectedJourneyPositions = get(
+        positions.find(({journeyId}) => journeyId === selectedJourneyId),
+        "positions",
+        []
+      );
+    }
+
+    return (!route || !route.routeId) && timeRange
+      ? {
+          min: dateToSeconds(timeRange.min),
+          max: dateToSeconds(timeRange.max),
+        }
+      : selectedJourneyPositions.length !== 0
+      ? getTimeRangeFromPositions(
+          selectedJourneyPositions,
+          TIME_SLIDER_MIN,
+          TIME_SLIDER_MAX
+        )
+      : {};
+  };
+
   render() {
     const {
       className,
       state: {date, time},
-      min = TIME_SLIDER_MIN,
-      max = TIME_SLIDER_MAX,
     } = this.props;
+
+    const {min = TIME_SLIDER_MIN, max = TIME_SLIDER_MAX} = this.getRange();
 
     return (
       <div className={className}>
