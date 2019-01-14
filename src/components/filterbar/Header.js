@@ -4,19 +4,17 @@ import {Text} from "../../helpers/text";
 import styled from "styled-components";
 import {Heading} from "../Typography";
 import LanguageSelect from "./LanguageSelect";
-import {inject, observer} from "mobx-react";
-import {app} from "mobx-app";
+import {observer} from "mobx-react";
 import {Button} from "../Forms";
 
 const Header = styled.header`
   width: 100%;
-  height: calc(9rem + 3px);
   background: var(--blue);
   padding: 1rem;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-start;
   justify-content: flex-start;
 `;
 
@@ -28,45 +26,46 @@ const Logo = styled.img`
 const MainHeading = styled(Heading).attrs({level: 1})`
   color: white;
   flex: 1 1 auto;
-  margin: 0 1.25rem 0 1rem;
+  margin: 0.5rem 1.25rem 0 1rem;
   text-align: right;
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   justify-content: flex-end;
 `;
 
 const LangSelectContainer = styled.div`
-  flex: 1 0 100%;
-  margin-top: 1rem;
   display: flex;
-  align-items: center;
-  justify-content: flex-start;
+  align-items: flex-start;
+  justify-content: flex-end;
+  margin-left: auto;
 
   div {
     flex: 0 0 auto;
     margin-right: 1rem;
   }
-
-  button {
-    flex: 0 1 auto;
-    margin-left: auto;
-  }
 `;
 
-export default inject(app("Filters"))(
-  observer(({Filters, className}) => {
-    return (
-      <Header className={className}>
-        <Logo src={logo} alt="logo" />
-        <MainHeading>
-          <Text>filterpanel.heading</Text>
-        </MainHeading>
-        <LangSelectContainer>
-          <LanguageSelect />
-          <Button small primary onClick={Filters.reset}>
-            <Text>filterpanel.reset</Text>
-          </Button>
-        </LangSelectContainer>
-      </Header>
-    );
-  })
-);
+const BottomRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 1.5rem;
+  flex: 1 0 100%;
+`;
+
+export default observer(({Filters, className}) => (
+  <Header className={className}>
+    <Logo src={logo} alt="logo" />
+    <MainHeading>
+      <Text>filterpanel.heading</Text>
+    </MainHeading>
+    <BottomRow>
+      <Button small transparent onClick={() => console.log("share")}>
+        Share
+      </Button>
+      <LangSelectContainer>
+        <LanguageSelect />
+      </LangSelectContainer>
+    </BottomRow>
+  </Header>
+));
