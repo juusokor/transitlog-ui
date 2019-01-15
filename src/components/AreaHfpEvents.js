@@ -68,8 +68,6 @@ class AreaHfpEvents extends PureComponent {
     const {children, date, defaultBounds, skip} = this.props;
     const {bounds} = this.state;
 
-    console.log(date);
-
     const useBounds =
       bounds || (defaultBounds ? defaultBounds.getCenter().toBounds(1000) : null);
 
