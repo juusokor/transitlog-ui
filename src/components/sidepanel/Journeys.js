@@ -156,7 +156,7 @@ class Journeys extends Component {
                     </>
                   }>
                   {(scrollRef) =>
-                    journeys.map((journey, index) => {
+                    journeys.map((journey) => {
                       if (!journey.events || typeof journey.events === "string") {
                         const journeyId = journey.journeyId;
 

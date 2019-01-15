@@ -56,7 +56,9 @@ class RouteJourneys extends React.Component {
 
                       return {
                         journeyId,
-                        events: journeyHfpStates.LOADING,
+                        events: journeysLoading
+                          ? journeyHfpStates.LOADING
+                          : journeyHfpStates.NOT_FOUND,
                         departure,
                         time: timeStr,
                       };
