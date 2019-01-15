@@ -6,6 +6,10 @@ import {ControlGroup} from "../Forms";
 import styled from "styled-components";
 import Input from "../Input";
 
+const SettingsWrapper = styled.div`
+  padding-top: 0.5rem;
+`;
+
 const IncrementValueInput = styled(Input)`
   flex: 0 1 50%;
 `;
@@ -18,7 +22,7 @@ class AdditionalTimeSettings extends Component {
     const {timeIncrement, areaSearchRangeMinutes} = state;
 
     return (
-      <>
+      <SettingsWrapper>
         <ControlGroup>
           <IncrementValueInput
             label={text("filterpanel.time_increment")}
@@ -47,7 +51,7 @@ class AdditionalTimeSettings extends Component {
             onChange={(e) => Time.setAreaSearchMinutes(e.target.value)}
           />
         </ControlGroup>
-      </>
+      </SettingsWrapper>
     );
   }
 }

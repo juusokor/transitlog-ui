@@ -9,6 +9,10 @@ import doubleDigit from "../../helpers/doubleDigit";
 import {observable, action, computed} from "mobx";
 import {setResetListener} from "../../stores/FilterStore";
 
+const TimeControlGroup = styled(ControlGroup)`
+  margin-bottom: 1.25rem;
+`;
+
 const TimeInput = styled(InputBase)`
   text-align: center;
   border-color: var(--blue);
@@ -119,7 +123,7 @@ class TimeSettings extends Component {
     const {timeIncrement} = state;
 
     return (
-      <ControlGroup>
+      <TimeControlGroup>
         <PlusMinusInput
           onIncrease={this.onTimeButtonClick(timeIncrement)}
           onDecrease={this.onTimeButtonClick(-timeIncrement)}>
@@ -129,7 +133,7 @@ class TimeSettings extends Component {
             onChange={(e) => this.setTimeValue(e.target.value, true)}
           />
         </PlusMinusInput>
-      </ControlGroup>
+      </TimeControlGroup>
     );
   }
 }

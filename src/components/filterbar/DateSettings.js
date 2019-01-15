@@ -12,7 +12,7 @@ import Input from "../Input";
 import styled from "styled-components";
 
 const DateControlGroup = styled(ControlGroup)`
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
   position: relative;
   z-index: 100;
 `;
