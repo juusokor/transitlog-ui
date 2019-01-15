@@ -32,6 +32,7 @@ class Map extends Component {
 
   state = {
     zoom: 13,
+    mapView: null,
     currentMapillaryViewerLocation: false,
   };
 
@@ -142,9 +143,38 @@ class Map extends Component {
     }
   };
 
+  setMapView = (map) => {
+    if (!map) {
+      return;
+    }
+
+    const {route} = this.props.state;
+
+    if (route && route.routeId) {
+      return;
+    }
+
+    this.setState((state) => {
+      const bounds = map.getBounds();
+      const {mapView} = state;
+
+      if (
+        !bounds ||
+        !invoke(bounds, "isValid") ||
+        (mapView && bounds.equals(mapView))
+      ) {
+        return state;
+      }
+
+      return {
+        mapView: bounds,
+      };
+    });
+  };
+
   onMapChanged = () => {
     const map = this.getLeaflet();
-    this.props.onMapChanged(map);
+    this.setMapView(map);
     this.setMapUrlState(map.getCenter(), map.getZoom());
   };
 
@@ -163,8 +193,8 @@ class Map extends Component {
   };
 
   render() {
-    const {zoom, currentMapillaryViewerLocation} = this.state;
-    const {children, className, viewBbox} = this.props;
+    const {zoom, currentMapillaryViewerLocation, mapView} = this.state;
+    const {children, className} = this.props;
 
     const child = (props) => (
       <>{typeof children === "function" ? children(props) : children}</>
@@ -174,14 +204,15 @@ class Map extends Component {
       <LeafletMap
         setMapillaryViewerLocation={this.setMapillaryViewerLocation}
         currentMapillaryViewerLocation={currentMapillaryViewerLocation}
-        viewBbox={viewBbox}
         mapRef={this.mapRef}
+        mapView={mapView}
         className={className}
         onMapChanged={this.onMapChanged}
         onZoom={this.onZoom}>
         {child({
           setViewerLocation: this.setMapillaryViewerLocation,
           zoom,
+          mapView,
           setMapBounds: this.setMapBounds,
         })}
       </LeafletMap>

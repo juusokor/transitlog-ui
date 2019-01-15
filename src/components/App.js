@@ -3,7 +3,6 @@ import FilterBar from "./filterbar/FilterBar";
 import {app} from "mobx-app";
 import {inject, observer} from "mobx-react";
 import Map from "./map/Map";
-import invoke from "lodash/invoke";
 import styled from "styled-components";
 import SidePanel from "./sidepanel/SidePanel";
 import JourneyPosition from "./map/JourneyPosition";
@@ -11,7 +10,6 @@ import MapContent from "./map/MapContent";
 import {latLng} from "leaflet";
 import SingleStopQuery from "../queries/SingleStopQuery";
 import AreaHfpEvents from "./AreaHfpEvents";
-import {observable, action} from "mobx";
 import ErrorMessages from "./ErrorMessages";
 import SelectedJourneyEvents from "./SelectedJourneyEvents";
 
@@ -46,38 +44,9 @@ const MapPanel = styled(Map)`
 @inject(app("Journey", "Filters"))
 @observer
 class App extends Component {
-  @observable
-  stopsBbox = null;
-
-  setStopsBbox = action((map) => {
-    if (!map) {
-      return;
-    }
-
-    const {route} = this.props.state;
-
-    if (route && route.routeId) {
-      return;
-    }
-
-    const bounds = map.getBounds();
-    const {stopsBbox} = this;
-
-    if (
-      !bounds ||
-      !invoke(bounds, "isValid") ||
-      (stopsBbox !== null && bounds.equals(stopsBbox))
-    ) {
-      return;
-    }
-
-    this.stopsBbox = bounds;
-  });
-
   render() {
     const {state} = this.props;
     const {date, stop, route} = state;
-    const {stopsBbox} = this;
 
     const hasRoute = !!route && !!route.routeId;
 
@@ -126,11 +95,13 @@ class App extends Component {
                                   : selectedJourneyEvents;
 
                               return (
-                                <MapPanel
-                                  viewBbox={stopsBbox}
-                                  onMapChanged={this.setStopsBbox}
-                                  center={centerPosition}>
-                                  {({zoom, setMapBounds, setViewerLocation}) => (
+                                <MapPanel center={centerPosition}>
+                                  {({
+                                    zoom,
+                                    setMapBounds,
+                                    setViewerLocation,
+                                    mapView,
+                                  }) => (
                                     <MapContent
                                       queryBounds={queryBounds}
                                       setMapBounds={setMapBounds}
@@ -139,7 +110,7 @@ class App extends Component {
                                       stop={stop}
                                       zoom={zoom}
                                       viewLocation={setViewerLocation}
-                                      stopsBbox={stopsBbox}
+                                      stopsBbox={mapView}
                                     />
                                   )}
                                 </MapPanel>

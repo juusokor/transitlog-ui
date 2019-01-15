@@ -16,6 +16,8 @@ import MapillaryGeoJSONLayer from "./MapillaryGeoJSONLayer";
 import {setUrlValue, getUrlValue} from "../../stores/UrlManager";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
+import {action} from "mobx";
+import invoke from "lodash/invoke";
 
 const MapContainer = styled.div`
   overflow: hidden;
@@ -68,7 +70,7 @@ class LeafletMap extends Component {
       mapRef,
       children,
       className,
-      viewBbox,
+      mapView,
       currentMapillaryViewerLocation,
       setMapillaryViewerLocation,
       onZoom = () => {},
@@ -116,7 +118,7 @@ class LeafletMap extends Component {
               checked={mapOverlays.indexOf("Mapillary") !== -1}>
               <MapillaryGeoJSONLayer
                 map={get(mapRef, "current.leafletElement", null)}
-                viewBbox={viewBbox}
+                viewBbox={mapView}
                 location={currentMapillaryMapLocation}
                 layerIsActive={mapOverlays.indexOf("Mapillary") !== -1}
                 onSelectLocation={setMapillaryViewerLocation}
