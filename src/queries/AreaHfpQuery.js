@@ -2,6 +2,7 @@ import React, {Component} from "react";
 import {Query} from "react-apollo";
 import get from "lodash/get";
 import sortBy from "lodash/sortBy";
+import debounce from "lodash/debounce";
 import gql from "graphql-tag";
 import {groupHfpPositions} from "../helpers/groupHfpPositions";
 import getJourneyId from "../helpers/getJourneyId";
@@ -48,16 +49,27 @@ const areaHfpQuery = gql`
 const updateListenerName = "area hfp query";
 
 class AreaHfpQuery extends Component {
+  prevResults = {};
+
   componentWillUnmount() {
     removeUpdateListener(updateListenerName);
   }
 
   onUpdate = (refetch) => () => {
-    const {date, minTime, maxTime, area, skip} = this.props;
+    const {date, getQueryParams, skip} = this.props;
+    const {minTime, maxTime, ...area} = getQueryParams();
     const {minLat, maxLat, minLong, maxLong} = area;
 
     if (!skip) {
-      refetch({date, minTime, maxTime, minLat, maxLat, minLong, maxLong});
+      refetch({
+        date,
+        minTime: minTime.toISOString(),
+        maxTime: maxTime.toISOString(),
+        minLat,
+        maxLat,
+        minLong,
+        maxLong,
+      });
     }
   };
 
@@ -75,22 +87,25 @@ class AreaHfpQuery extends Component {
           setUpdateListener(updateListenerName, this.onUpdate(refetch));
 
           if (loading || error) {
-            return children({events: [], loading, error});
+            return children({events: this.prevResults, loading, error});
           }
 
           // Make sure the data is in the same format as the normal hfp events are.
-          const groupedEvents = groupHfpPositions(
-            sortBy(
-              get(data, "vehicles", []).filter(
-                // Filter out null positions. Can't draw them on the map.
-                (evt) => !!evt && !!evt.lat && !!evt.long
-              ),
-              ({journey_start_time = ""}) => sortByOperationDay(journey_start_time)
-            ).map(createHfpItem),
-            getJourneyId,
-            "journeyId"
+          const groupedEvents = sortBy(
+            groupHfpPositions(
+              get(data, "vehicles", [])
+                .filter(
+                  // Filter out null positions. Can't draw them on the map.
+                  (evt) => !!evt && !!evt.lat && !!evt.long
+                )
+                .map(createHfpItem),
+              getJourneyId,
+              "journeyId"
+            ),
+            ({journey_start_time = ""}) => sortByOperationDay(journey_start_time)
           );
 
+          this.prevResults = groupedEvents;
           return children({events: groupedEvents, loading, error});
         }}
       </Query>

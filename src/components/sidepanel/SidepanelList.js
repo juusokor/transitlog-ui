@@ -1,9 +1,10 @@
 import React, {Component} from "react";
-import {observer} from "mobx-react";
+import {observer, inject} from "mobx-react";
 import styled, {css} from "styled-components";
 import Loading from "../Loading";
 import {action, observable, reaction} from "mobx";
 import get from "lodash/get";
+import {app} from "mobx-app";
 
 const ListWrapper = styled.div`
   height: 100%;
@@ -68,6 +69,7 @@ const LoadingContainer = styled.div`
       : ""};
 `;
 
+@inject(app("state"))
 @observer
 class SidepanelList extends Component {
   scrollElementRef = React.createRef();
@@ -128,7 +130,12 @@ class SidepanelList extends Component {
   });
 
   render() {
-    const {header, children = () => {}, loading = false} = this.props;
+    const {
+      state: {pollingEnabled},
+      header,
+      children = () => {},
+      loading = false,
+    } = this.props;
 
     return (
       <ListWrapper hasHeader={!!header}>
@@ -138,9 +145,11 @@ class SidepanelList extends Component {
             {children(this.scrollPositionRef, this.updateScrollOffset)}
           </ScrollContainer>
         </ListRows>
-        <LoadingContainer loading={loading}>
-          <Loading />
-        </LoadingContainer>
+        {!pollingEnabled && (
+          <LoadingContainer loading={loading}>
+            <Loading />
+          </LoadingContainer>
+        )}
       </ListWrapper>
     );
   }

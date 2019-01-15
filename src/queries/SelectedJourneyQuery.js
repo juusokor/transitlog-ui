@@ -1,6 +1,5 @@
 import React from "react";
 import get from "lodash/get";
-import flow from "lodash/flow";
 import gql from "graphql-tag";
 import HfpFieldsFragment from "./HfpFieldsFragment";
 import {observer, inject} from "mobx-react";

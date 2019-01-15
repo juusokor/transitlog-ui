@@ -16,8 +16,6 @@ import MapillaryGeoJSONLayer from "./MapillaryGeoJSONLayer";
 import {setUrlValue, getUrlValue} from "../../stores/UrlManager";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
-import {action} from "mobx";
-import invoke from "lodash/invoke";
 
 const MapContainer = styled.div`
   overflow: hidden;

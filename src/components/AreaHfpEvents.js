@@ -36,17 +36,21 @@ class AreaHfpEvents extends Component {
   // When the query bounds change, update the params.
   getQueryParams = (bounds, date) => {
     const {
-      state: {time, areaSearchRangeMinutes = 60},
+      state: {time, areaSearchRangeMinutes = 60, pollingEnabled},
     } = this.props;
 
     if (!bounds || (typeof bounds.isValid === "function" && !bounds.isValid())) {
       return {};
     }
 
+    // Constrain search time span to 10 minutes when auto-polling.
+    // Since future data doesn't exist, this effectively means
+    // searching 5 minutes into the past.
+    const timespan = pollingEnabled ? 10 : areaSearchRangeMinutes;
     const moment = combineDateAndTime(date, time, "Europe/Helsinki");
 
-    const minTime = moment.clone().subtract(areaSearchRangeMinutes / 2, "minutes");
-    const maxTime = moment.clone().add(areaSearchRangeMinutes / 2, "minutes");
+    const minTime = moment.clone().subtract(Math.round(timespan / 2), "minutes");
+    const maxTime = moment.clone().add(Math.round(timespan / 2), "minutes");
 
     // Translate the bounding box to a min/max query for the HFP api and create a time range.
     return {
@@ -79,6 +83,7 @@ class AreaHfpEvents extends Component {
         date={date}
         minTime={minTime ? minTime.toISOString() : null}
         maxTime={maxTime ? maxTime.toISOString() : null}
+        getQueryParams={() => this.getQueryParams(useBounds, date)}
         area={area}>
         {({events, loading, error}) => {
           return children({
