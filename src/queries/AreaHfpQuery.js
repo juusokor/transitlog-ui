@@ -2,7 +2,6 @@ import React, {Component} from "react";
 import {Query} from "react-apollo";
 import get from "lodash/get";
 import sortBy from "lodash/sortBy";
-import debounce from "lodash/debounce";
 import gql from "graphql-tag";
 import {groupHfpPositions} from "../helpers/groupHfpPositions";
 import getJourneyId from "../helpers/getJourneyId";
@@ -60,7 +59,7 @@ class AreaHfpQuery extends Component {
     const {minTime, maxTime, ...area} = getQueryParams();
     const {minLat, maxLat, minLong, maxLong} = area;
 
-    if (!skip) {
+    if (!skip && Object.keys(area).length !== 0) {
       refetch({
         date,
         minTime: minTime.toISOString(),
