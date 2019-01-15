@@ -63,12 +63,16 @@ class App extends Component {
               {({events: selectedJourneyEvents = [], loading}) => {
                 let areaHfp = !hasRoute && areaEvents.length !== 0 ? areaEvents : [];
 
+                // The currently fetched positions, either area hfp or selected journey hfp.
+                const currentPositions =
+                  areaHfp.length !== 0 ? areaHfp : selectedJourneyEvents;
+
                 return (
                   <AppGrid>
                     <FilterBar
                       timeRange={timeRange}
                       areaEvents={areaHfp}
-                      selectedJourneyEvents={selectedJourneyEvents}
+                      positions={currentPositions}
                     />
                     <SidepanelAndMapWrapper>
                       <SidePanel
@@ -89,11 +93,6 @@ class App extends Component {
                                 ? stopPosition
                                 : journeyPosition;
 
-                              const positions =
-                                areaHfp.length !== 0
-                                  ? areaHfp
-                                  : selectedJourneyEvents;
-
                               return (
                                 <MapPanel center={centerPosition}>
                                   {({
@@ -105,7 +104,7 @@ class App extends Component {
                                     <MapContent
                                       queryBounds={queryBounds}
                                       setMapBounds={setMapBounds}
-                                      positions={positions}
+                                      positions={currentPositions}
                                       route={route}
                                       stop={stop}
                                       zoom={zoom}

@@ -70,7 +70,7 @@ class TimeSlider extends Component {
     if (selectedJourneyId && positions.length !== 0) {
       selectedJourneyPositions = get(
         positions.find(({journeyId}) => journeyId === selectedJourneyId),
-        "positions",
+        "events",
         []
       );
     }
