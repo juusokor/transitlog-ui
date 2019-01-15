@@ -23,6 +23,8 @@
   "sidepanel.tabs.timetables": "Tidtabeller",
   "sidepanel.tabs.vehicle_journeys": "Fordonsresor",
   "sidepanel.tabs.area_events": "Områdets resor",
+  "sidepanel.area_events.show_lines": "Visa som streck",
+  "sidepanel.area_events.show_markers": "Visa som markörer",
 
   "map.stops.arrive": "Anländningstid",
   "map.stops.depart": "Avgångstid",
@@ -32,6 +34,14 @@
   "vehicle.delay.late": "Försenad",
   "vehicle.delay.early": "Tidig",
   "vehicle.delay.ontime": "I tid",
+
+  "journey.terminal_time": "Terminaltid",
+  "journey.recovery_time": "Återhämtningstid",
+  "journey.requested_equipment": "Begärd utrustning",
+  "journey.departure_minus_terminal": "avgångstid - terminaltid",
+  "journey.stops_hidden": "hållplatser gömda",
+  "journey.arrival": "Ankomst",
+  "journey.departure": "Avfärd",
 
   "domain.line": "Linje",
   "domain.route": "Rutt",
@@ -45,5 +55,8 @@
   "general.seconds.short": "sek.",
   "general.loading": "Laddar",
   "general.error": "Fel",
-  "general.journey": "resa"
+  "general.journey": "resa",
+  "general.update": "Uppdatera",
+  "general.live": "Live",
+  "general.no_type": "Ingen typ"
 }

@@ -5,6 +5,7 @@ import Equipment from "./Equipment";
 import CalculateTerminalTime from "./CalculateTerminalTime";
 import doubleDigit from "../../../helpers/doubleDigit";
 import {getEquipmentType} from "./equipmentType";
+import {Text, text} from "../../../helpers/text";
 
 const JourneyInfo = styled.div`
   flex: none;
@@ -58,7 +59,9 @@ export default ({
     <JourneyInfo>
       <JourneyInfoRow>
         <Line>
-          <span>Terminal time</span>
+          <span>
+            <Text>journey.terminal_time</Text>
+          </span>
           <span>{get(departure, "terminalTime", 0)} min</span>
         </Line>
         {originStopTimes && (
@@ -78,7 +81,9 @@ export default ({
       </JourneyInfoRow>
       <JourneyInfoRow>
         <Line>
-          <span>Recovery time</span>
+          <span>
+            <Text>journey.recovery_time</Text>
+          </span>
           <span>{get(departure, "recoveryTime", 0)} min</span>
         </Line>
         {destinationStopTimes && (
@@ -100,13 +105,15 @@ export default ({
       </JourneyInfoRow>
       <JourneyInfoRow>
         <Line>
-          <span>Equipment required</span>
+          <span>
+            <Text>journey.requested_equipment</Text>
+          </span>
           <span>
             {equipmentType
               ? equipmentType
               : equipmentCode
               ? equipmentCode
-              : "No type"}
+              : text("general.no_type")}
             {get(departure, "trunkColorRequired", 0) === 1 && <>, HSL-orans</>}
           </span>
         </Line>

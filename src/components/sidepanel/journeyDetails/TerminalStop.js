@@ -17,6 +17,7 @@ import {transportColor} from "../../transportModes";
 import {getTimelinessColor} from "../../../helpers/timelinessColor";
 import doubleDigit from "../../../helpers/doubleDigit";
 import CalculateTerminalTime from "./CalculateTerminalTime";
+import {Text} from "../../../helpers/text";
 
 const StopWrapper = styled.div`
   padding: 0 1rem 0 0;
@@ -158,7 +159,9 @@ export default ({
             event={arrivalEvent}>
             {({offsetTime, wasLate, diffMinutes, diffSeconds, sign}) => (
               <>
-                <TimeHeading>Arrival</TimeHeading>
+                <TimeHeading>
+                  <Text>journey.arrival</Text>
+                </TimeHeading>
                 <StopArrivalTime onClick={onClickTime(stopArrivalTime)}>
                   <PlainSlot style={{fontStyle: "italic"}}>
                     {offsetTime.format("HH:mm:ss")}*
@@ -171,14 +174,18 @@ export default ({
                   </ColoredBackgroundSlot>
                   <PlainSlotSmallRight>{stopArrivalTime}</PlainSlotSmallRight>
                 </StopArrivalTime>
-                <SmallText>* Departure time - terminal time.</SmallText>
+                <SmallText>
+                  * <Text>journey.departure_minus_terminal</Text>
+                </SmallText>
               </>
             )}
           </CalculateTerminalTime>
         )}
         {isFirstTerminal ? (
           <>
-            <TimeHeading>Departure</TimeHeading>
+            <TimeHeading>
+              <Text>journey.departure</Text>
+            </TimeHeading>
             <StopDepartureTime onClick={onClickTime(stopDepartureTime)}>
               <PlainSlot>{plannedDepartureMoment.format("HH:mm:ss")}</PlainSlot>
               <ColoredBackgroundSlot
@@ -204,7 +211,9 @@ export default ({
             event={arrivalEvent}>
             {({offsetTime, wasLate, diffMinutes, diffSeconds, sign}) => (
               <>
-                <TimeHeading>Arrival</TimeHeading>
+                <TimeHeading>
+                  <Text>journey.arrival</Text>
+                </TimeHeading>
                 <StopArrivalTime onClick={onClickTime(stopArrivalTime)}>
                   <PlainSlot>{offsetTime.format("HH:mm:ss")}</PlainSlot>
                   <ColoredBackgroundSlot

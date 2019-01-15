@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import styled from "styled-components";
-import {Text} from "../../helpers/text";
+import {Text, text} from "../../helpers/text";
 import {Button} from "../Forms";
 import {observer} from "mobx-react";
 import ToggleButton from "../ToggleButton";
@@ -39,13 +39,13 @@ class ControlBar extends Component {
           <Text>filterpanel.reset</Text>
         </ControlButton>
         <ControlButton onClick={onUpdateClick}>
-          <Text>Update</Text>
+          <Text>general.update</Text>
         </ControlButton>
         <PollToggle
           type="checkbox"
           onChange={() => onTogglePolling()}
           name="query_polling"
-          label="Auto"
+          label={text("general.live")}
           checked={pollingEnabled}
           value="enabled"
         />
