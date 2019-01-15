@@ -79,7 +79,10 @@ class FilterBar extends Component {
             <StopSettings />
           </FilterSection>
         </FilterBarGrid>
-        <BottomSlider positions={currentPositions} timeRange={timeRange} />
+        <BottomSlider
+          positions={currentPositions}
+          timeRange={areaEvents.length !== 0 ? timeRange : null}
+        />
       </FilterBarWrapper>
     );
   }

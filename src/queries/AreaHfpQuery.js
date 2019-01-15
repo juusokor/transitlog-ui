@@ -76,6 +76,10 @@ class AreaHfpQuery extends Component {
     const {date, minTime, maxTime, area, skip, children} = this.props;
     const {minLat, maxLat, minLong, maxLong} = area;
 
+    if (skip) {
+      this.prevResults = [];
+    }
+
     return (
       <Query
         partialRefetch={true}

@@ -5,9 +5,12 @@ import AreaHfpQuery from "../queries/AreaHfpQuery";
 import invoke from "lodash/invoke";
 import moment from "moment-timezone";
 import {combineDateAndTime} from "../helpers/time";
+import {setResetListener} from "../stores/FilterStore";
 
 @inject(app("state"))
 class AreaHfpEvents extends PureComponent {
+  disposeResetListener = () => {};
+
   state = {
     bounds: null,
   };
@@ -67,6 +70,16 @@ class AreaHfpEvents extends PureComponent {
       maxLat: bounds.getNorth(),
     };
   };
+
+  componentDidMount() {
+    this.disposeResetListener = setResetListener(() =>
+      this.setState({bounds: null})
+    );
+  }
+
+  componentWillUnmount() {
+    this.disposeResetListener();
+  }
 
   render() {
     const {children, date, defaultBounds, skip} = this.props;
