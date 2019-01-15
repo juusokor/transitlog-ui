@@ -58,7 +58,9 @@ class SelectedJourneyQuery extends React.Component {
         query={hfpQuery}
         variables={selectedJourney}>
         {({data, loading, error, refetch}) => {
-          setUpdateListener(updateListenerName, this.onUpdate(refetch));
+          if (!loading) {
+            setUpdateListener(updateListenerName, this.onUpdate(refetch));
+          }
 
           const vehicles = get(data, "vehicles", []);
           return children({positions: vehicles, loading, error});

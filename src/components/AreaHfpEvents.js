@@ -1,10 +1,10 @@
 import React, {PureComponent} from "react";
 import {inject} from "mobx-react";
 import {app} from "mobx-app";
-import {combineDateAndTime} from "../helpers/time";
 import AreaHfpQuery from "../queries/AreaHfpQuery";
 import invoke from "lodash/invoke";
 import moment from "moment-timezone";
+import {combineDateAndTime} from "../helpers/time";
 
 @inject(app("state"))
 class AreaHfpEvents extends PureComponent {
@@ -35,28 +35,32 @@ class AreaHfpEvents extends PureComponent {
   };
 
   // When the query bounds change, update the params.
-  getQueryParams = (bounds, date) => {
-    const {
-      state: {time, areaSearchRangeMinutes = 60, pollingEnabled},
-    } = this.props;
+  getQueryParams = (bounds) => {
+    const {state} = this.props;
 
     if (!bounds || (typeof bounds.isValid === "function" && !bounds.isValid())) {
       return {};
     }
 
+    const {
+      areaSearchRangeMinutes = 10,
+      pollingEnabled,
+      timeIsCurrent,
+      time,
+      date,
+    } = state;
+
     // Constrain search time span to 10 minutes when auto-polling.
-    // Since future data doesn't exist, this effectively means
-    // searching 5 minutes into the past.
-    const timespan = pollingEnabled ? 10 : areaSearchRangeMinutes;
+    const timespan = pollingEnabled && timeIsCurrent ? 10 : areaSearchRangeMinutes;
     const moment = combineDateAndTime(date, time, "Europe/Helsinki");
 
-    const minTime = moment.clone().subtract(Math.round(timespan / 2), "minutes");
-    const maxTime = moment.clone().add(Math.round(timespan / 2), "minutes");
+    const min = moment.clone().subtract(Math.round(timespan / 2), "minutes");
+    const max = moment.clone().add(Math.round(timespan / 2), "minutes");
 
     // Translate the bounding box to a min/max query for the HFP api and create a time range.
     return {
-      minTime,
-      maxTime,
+      minTime: min,
+      maxTime: max,
       minLong: bounds.getWest(),
       maxLong: bounds.getEast(),
       minLat: bounds.getSouth(),
@@ -71,7 +75,7 @@ class AreaHfpEvents extends PureComponent {
     const useBounds =
       bounds || (defaultBounds ? defaultBounds.getCenter().toBounds(1000) : null);
 
-    const queryParams = this.getQueryParams(useBounds, date);
+    const queryParams = this.getQueryParams(useBounds);
     const {minTime, maxTime, ...area} = queryParams;
 
     return (
@@ -84,7 +88,7 @@ class AreaHfpEvents extends PureComponent {
         date={date}
         minTime={minTime ? minTime.toISOString() : null}
         maxTime={maxTime ? maxTime.toISOString() : null}
-        getQueryParams={() => this.getQueryParams(useBounds, date)}
+        getQueryParams={() => this.getQueryParams(useBounds)}
         area={area}>
         {({events, loading, error, variables: {minTime, maxTime}}) =>
           children({

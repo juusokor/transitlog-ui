@@ -85,14 +85,12 @@ const JourneyPanel = styled.div`
   border-right: 1px solid var(--alt-grey);
 `;
 
-@inject(app("UI", "Filters", "Update"))
+@inject(app("UI"))
 @observer
 class SidePanel extends Component {
   render() {
     const {
-      UI: {toggleSidePanel, toggleJourneyDetails, togglePolling},
-      Filters,
-      Update,
+      UI: {toggleSidePanel, toggleJourneyDetails},
       areaEvents = [],
       selectedJourneyEvents = [],
       loading = false,
@@ -105,7 +103,6 @@ class SidePanel extends Component {
         sidePanelVisible,
         journeyDetailsAreOpen,
         journeyDetailsCanOpen,
-        pollingEnabled = false,
       },
     } = this.props;
 
@@ -114,12 +111,7 @@ class SidePanel extends Component {
     return (
       <SidePanelContainer visible={sidePanelVisible}>
         <MainSidePanel>
-          <ControlBar
-            pollingEnabled={pollingEnabled}
-            onTogglePolling={togglePolling}
-            onUpdateClick={() => Update.update()}
-            onResetClick={() => Filters.reset()}
-          />
+          <ControlBar />
           <Tabs>
             {!hasRoute && (
               <AreaJourneyList

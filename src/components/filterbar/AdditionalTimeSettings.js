@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import {text} from "../../helpers/text";
-import {Button, ControlGroup} from "../Forms";
+import {ControlGroup} from "../Forms";
 import styled from "styled-components";
 import Input from "../Input";
 
@@ -15,7 +15,7 @@ const IncrementValueInput = styled(Input)`
 class AdditionalTimeSettings extends Component {
   render() {
     const {state, Time} = this.props;
-    const {timeIncrement, playing, areaSearchRangeMinutes} = state;
+    const {timeIncrement, areaSearchRangeMinutes} = state;
 
     return (
       <>
@@ -28,11 +28,6 @@ class AdditionalTimeSettings extends Component {
             value={timeIncrement}
             onChange={(e) => Time.setTimeIncrement(e.target.value)}
           />
-          <Button small onClick={Time.toggleAutoplay}>
-            {playing
-              ? text("filterpanel.simulate.stop")
-              : text("filterpanel.simulate.start")}
-          </Button>
         </ControlGroup>
         <ControlGroup>
           <IncrementValueInput

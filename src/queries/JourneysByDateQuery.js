@@ -81,8 +81,6 @@ class JourneysByDateQuery extends React.Component {
           date,
         }}>
         {({data, error, loading, refetch}) => {
-          setUpdateListener(updateListenerName, this.onUpdate(refetch), false);
-
           if (!data || loading) {
             return children({journeys: {}, loading, error});
           }
@@ -94,6 +92,7 @@ class JourneysByDateQuery extends React.Component {
             return journeys;
           }, {});
 
+          setUpdateListener(updateListenerName, this.onUpdate(refetch), false);
           return children({journeys: journeyItems, loading, error});
         }}
       </Query>

@@ -64,7 +64,7 @@ const Calendar = styled(InputBase.withComponent(DatePicker))`
   border-color: var(--blue);
 `;
 
-@inject(app("Filters"))
+@inject(app("Filters", "UI"))
 @observer
 class DateSettings extends Component {
   onDateButtonClick = (modifier) => () => {
@@ -73,17 +73,36 @@ class DateSettings extends Component {
     if (!state.date) {
       Filters.setDate("");
     } else {
-      const nextDate = moment
-        .tz(state.date, "YYYY-MM-DD", "Europe/Helsinki")
-        .add(modifier, "days");
+      const nextDate = moment.tz(state.date, "YYYY-MM-DD", "Europe/Helsinki");
 
-      Filters.setDate(nextDate);
+      if (modifier < 0) {
+        nextDate.subtract(Math.abs(modifier), "days");
+      } else {
+        nextDate.add(Math.abs(modifier), "days");
+      }
+
+      this.setDate(nextDate);
     }
   };
 
+  setDate = (dateVal) => {
+    const {
+      Filters,
+      UI,
+      state: {pollingEnabled},
+    } = this.props;
+
+    if (pollingEnabled) {
+      UI.togglePolling(false);
+    }
+
+    Filters.setDate(dateVal);
+  };
+
   render() {
-    const {Filters, state} = this.props;
-    const {date} = state;
+    const {
+      state: {date},
+    } = this.props;
 
     return (
       <DateControlGroup>
@@ -101,7 +120,7 @@ class DateSettings extends Component {
               <Calendar
                 dateFormat="yyyy-MM-dd"
                 selected={moment.tz(date, "Europe/Helsinki").toDate()}
-                onChange={Filters.setDate}
+                onChange={this.setDate}
                 className="calendar"
               />
             </DateInput>

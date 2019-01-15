@@ -50,8 +50,16 @@ const BottomSlider = styled(TimeSlider)`
 @observer
 class FilterBar extends Component {
   render() {
-    const {state, positions = [], timeRange = null} = this.props;
+    const {
+      state,
+      selectedJourneyEvents = [],
+      areaEvents = [],
+      timeRange,
+    } = this.props;
     const {sidePanelVisible: visible} = state;
+
+    const currentPositions =
+      areaEvents.length !== 0 ? areaEvents : selectedJourneyEvents;
 
     return (
       <FilterBarWrapper visible={visible}>
@@ -71,7 +79,7 @@ class FilterBar extends Component {
             <StopSettings />
           </FilterSection>
         </FilterBarGrid>
-        <BottomSlider positions={positions} timeRange={timeRange} />
+        <BottomSlider positions={currentPositions} timeRange={timeRange} />
       </FilterBarWrapper>
     );
   }

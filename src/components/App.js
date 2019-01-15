@@ -56,8 +56,8 @@ class App extends Component {
           {({
             queryBounds,
             events: areaEvents = [],
-            timeRange,
             loading: areaEventsLoading,
+            timeRange,
           }) => (
             <SelectedJourneyEvents>
               {({events: selectedJourneyEvents = [], loading}) => {
@@ -72,7 +72,7 @@ class App extends Component {
                     <FilterBar
                       timeRange={timeRange}
                       areaEvents={areaHfp}
-                      positions={currentPositions}
+                      selectedJourneyEvents={selectedJourneyEvents}
                     />
                     <SidepanelAndMapWrapper>
                       <SidePanel
@@ -89,6 +89,7 @@ class App extends Component {
                               const stopPosition = stop
                                 ? latLng(stop.lat, stop.lon)
                                 : false;
+
                               const centerPosition = stopPosition
                                 ? stopPosition
                                 : journeyPosition;

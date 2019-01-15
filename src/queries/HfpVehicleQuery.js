@@ -48,7 +48,9 @@ class HfpVehicleQuery extends React.Component {
           vehicle_id: vehicleId,
         }}>
         {({data, loading, refetch}) => {
-          setUpdateListener(updateListenerName, this.onUpdate(refetch));
+          if (!loading) {
+            setUpdateListener(updateListenerName, this.onUpdate(refetch));
+          }
 
           const vehicles = get(data, "vehicles", []);
           return children({positions: vehicles, loading});

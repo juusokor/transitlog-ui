@@ -30,7 +30,7 @@ class MapContent extends Component {
 
   render() {
     const {
-      positions,
+      positions = [],
       route,
       zoom,
       stopsBbox,

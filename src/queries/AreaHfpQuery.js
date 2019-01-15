@@ -48,7 +48,7 @@ const areaHfpQuery = gql`
 const updateListenerName = "area hfp query";
 
 class AreaHfpQuery extends Component {
-  prevResults = {};
+  prevResults = [];
 
   componentWillUnmount() {
     removeUpdateListener(updateListenerName);
@@ -83,9 +83,7 @@ class AreaHfpQuery extends Component {
         variables={{date, minTime, maxTime, minLat, maxLat, minLong, maxLong}}
         query={areaHfpQuery}>
         {({loading, data, error, refetch, ...rest}) => {
-          setUpdateListener(updateListenerName, this.onUpdate(refetch));
-
-          if (loading || error) {
+          if (!data || loading) {
             return children({events: this.prevResults, loading, error, ...rest});
           }
 
@@ -105,6 +103,8 @@ class AreaHfpQuery extends Component {
           );
 
           this.prevResults = groupedEvents;
+          setUpdateListener(updateListenerName, this.onUpdate(refetch));
+
           return children({events: groupedEvents, loading, error, ...rest});
         }}
       </Query>

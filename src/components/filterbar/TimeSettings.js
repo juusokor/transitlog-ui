@@ -16,7 +16,7 @@ const TimeInput = styled(InputBase)`
   height: calc(2rem + 2px);
 `;
 
-@inject(app("Time"))
+@inject(app("Time", "UI"))
 @observer
 class TimeSettings extends Component {
   resetListener = () => {};
@@ -53,11 +53,13 @@ class TimeSettings extends Component {
     const {
       state: {date, time},
       Time,
+      UI,
     } = this.props;
 
     const currentTime = combineDateAndTime(date, time, "Europe/Helsinki");
     const nextTime = currentTime.add(modifier, "seconds").format("HH:mm:ss");
 
+    UI.togglePolling(false);
     Time.setTime(nextTime);
   };
 

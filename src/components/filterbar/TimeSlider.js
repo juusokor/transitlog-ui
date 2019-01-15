@@ -13,11 +13,12 @@ import get from "lodash/get";
 export const TIME_SLIDER_MAX = 86399;
 export const TIME_SLIDER_MIN = 15000;
 
-@inject(app("Time"))
+@inject(app("Time", "UI"))
 @observer
 class TimeSlider extends Component {
   getNumericValue = (value = "", date) => {
-    const {max = TIME_SLIDER_MAX} = this.props;
+    const {timeRange} = this.props;
+    const max = get(timeRange, "maxTime", TIME_SLIDER_MAX);
 
     const val = moment.tz(date, "Europe/Helsinki").startOf("day");
 
@@ -50,10 +51,16 @@ class TimeSlider extends Component {
   onChange = (e) => {
     const {
       Time,
-      state: {date},
+      UI,
+      state: {date, pollingEnabled},
     } = this.props;
 
     const timeValue = this.getTimeValue(e.target.value, date);
+
+    if (pollingEnabled) {
+      UI.togglePolling(false);
+    }
+
     Time.setTime(timeValue);
   };
 

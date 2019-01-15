@@ -2,8 +2,9 @@ import React, {Component} from "react";
 import styled from "styled-components";
 import {Text, text} from "../../helpers/text";
 import {Button} from "../Forms";
-import {observer} from "mobx-react";
+import {observer, inject} from "mobx-react";
 import ToggleButton from "../ToggleButton";
+import {app} from "mobx-app";
 
 const Bar = styled.div`
   padding: 0.5rem 1rem;
@@ -23,27 +24,29 @@ const PollToggle = styled(ToggleButton)`
   flex: 0;
 `;
 
+@inject(app("Filters", "Update", "UI"))
 @observer
 class ControlBar extends Component {
+  onClickReset = () => this.props.Filters.reset();
+  onClickUpdate = () => this.props.Update.update();
+  onToggleLive = () => this.props.UI.togglePolling();
+
   render() {
     const {
-      pollingEnabled,
-      onTogglePolling,
-      onResetClick,
-      onUpdateClick,
+      state: {pollingEnabled},
     } = this.props;
 
     return (
       <Bar>
-        <ControlButton onClick={onResetClick}>
+        <ControlButton onClick={this.onClickReset}>
           <Text>filterpanel.reset</Text>
         </ControlButton>
-        <ControlButton onClick={onUpdateClick}>
+        <ControlButton onClick={this.onClickUpdate}>
           <Text>general.update</Text>
         </ControlButton>
         <PollToggle
           type="checkbox"
-          onChange={() => onTogglePolling()}
+          onChange={this.onToggleLive}
           name="query_polling"
           label={text("general.live")}
           checked={pollingEnabled}

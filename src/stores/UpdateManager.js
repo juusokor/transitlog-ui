@@ -1,8 +1,13 @@
 import {action, reaction} from "mobx";
 import moment from "moment-timezone";
 import set from "lodash/set";
+import get from "lodash/get";
 import unset from "lodash/unset";
 import timer from "../helpers/timer";
+import TimeActions from "./timeActions";
+import FilterActions from "./filterActions";
+import {combineDateAndTime} from "../helpers/time";
+import UiActions from "./uiActions";
 
 const updateListeners = {};
 
@@ -20,16 +25,34 @@ export function removeUpdateListener(name) {
 
 export default (state) => {
   let updateTimerHandle = null;
+  const timeActions = TimeActions(state);
+  const filterActions = FilterActions(state);
+  const uiActions = UiActions(state);
 
-  const updateTime = action(() => {
+  const updateTime = action((setCurrent = true) => {
+    const {time, timeIncrement, date} = state;
+    const selectedMoment = combineDateAndTime(date, time, "Europe/Helsinki");
     const nowMoment = moment.tz(new Date(), "Europe/Helsinki");
 
-    state.time = nowMoment.format("HH:mm:ss");
-    state.date = nowMoment.format("YYYY-MM-DD");
+    if (!setCurrent) {
+      const nextTimeValue = selectedMoment
+        .clone()
+        .add(timeIncrement, "seconds")
+        .format("HH:mm:ss");
+
+      timeActions.setTime(nextTimeValue);
+    } else {
+      timeActions.setTime(nowMoment.format("HH:mm:ss"));
+      filterActions.setDate(nowMoment.format("YYYY-MM-DD"));
+    }
   });
 
-  const update = (isAuto = false) => {
-    updateTime();
+  const update = (isAuto = false, setCurrentTime = !isAuto) => {
+    if (!isAuto) {
+      uiActions.togglePolling(false);
+    }
+
+    updateTime(setCurrentTime);
 
     Object.values(updateListeners).forEach(({auto, cb}) => {
       // Check that the cb should run when auto-updating if this is an auto-update.
@@ -40,12 +63,15 @@ export default (state) => {
   };
 
   reaction(
-    () => state.pollingEnabled && !state.playing,
+    () => state.pollingEnabled,
     (isPolling) => {
+      const {timeIsCurrent, date} = state;
+
       if (isPolling && !updateTimerHandle) {
         // timer() is a setInterval alternative that uses requestAnimationFrame.
         // This makes it more performant and can "pause" when the tab is not focused.
-        updateTimerHandle = timer(() => update(true), 1000);
+        updateTimerHandle = timer(() => update(true, timeIsCurrent), 1000);
+        updateTimerHandle.date = date;
       } else if (!isPolling && !!updateTimerHandle) {
         cancelAnimationFrame(updateTimerHandle.value);
         updateTimerHandle = null;

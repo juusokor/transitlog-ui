@@ -2,6 +2,7 @@ import React from "react";
 import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import get from "lodash/get";
+import {setUpdateListener} from "../stores/UpdateManager";
 
 // TODO: Remove other where clauses than oday.
 
@@ -19,9 +20,13 @@ const vehiclesQuery = gql`
   }
 `;
 
+const updateListenerName = "vehicle options query";
+
 export default ({children, date}) => (
   <Query query={vehiclesQuery} variables={{date}}>
-    {({loading, error, data}) => {
+    {({loading, error, data, refetch}) => {
+      setUpdateListener(updateListenerName, refetch, false);
+
       if (loading || !data) {
         return children({loading, error, vehicles: []});
       }
