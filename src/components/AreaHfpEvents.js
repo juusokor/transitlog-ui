@@ -1,12 +1,13 @@
-import React, {Component} from "react";
+import React, {PureComponent} from "react";
 import {inject} from "mobx-react";
 import {app} from "mobx-app";
 import {combineDateAndTime} from "../helpers/time";
 import AreaHfpQuery from "../queries/AreaHfpQuery";
 import invoke from "lodash/invoke";
+import moment from "moment-timezone";
 
 @inject(app("state"))
-class AreaHfpEvents extends Component {
+class AreaHfpEvents extends PureComponent {
   state = {
     bounds: null,
   };
@@ -67,6 +68,8 @@ class AreaHfpEvents extends Component {
     const {children, date, defaultBounds, skip} = this.props;
     const {bounds} = this.state;
 
+    console.log(date);
+
     const useBounds =
       bounds || (defaultBounds ? defaultBounds.getCenter().toBounds(1000) : null);
 
@@ -85,20 +88,20 @@ class AreaHfpEvents extends Component {
         maxTime={maxTime ? maxTime.toISOString() : null}
         getQueryParams={() => this.getQueryParams(useBounds, date)}
         area={area}>
-        {({events, loading, error}) => {
-          return children({
+        {({events, loading, error, variables: {minTime, maxTime}}) =>
+          children({
             queryBounds: this.setQueryBounds,
             events,
             loading,
             error,
             timeRange: minTime
               ? {
-                  min: minTime,
-                  max: maxTime,
+                  min: moment.tz(minTime, "Europe/Helsinki"),
+                  max: moment.tz(maxTime, "Europe/Helsinki"),
                 }
               : null,
-          });
-        }}
+          })
+        }
       </AreaHfpQuery>
     );
   }

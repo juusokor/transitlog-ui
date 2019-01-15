@@ -82,11 +82,11 @@ class AreaHfpQuery extends Component {
         skip={skip}
         variables={{date, minTime, maxTime, minLat, maxLat, minLong, maxLong}}
         query={areaHfpQuery}>
-        {({loading, data, error, refetch}) => {
+        {({loading, data, error, refetch, ...rest}) => {
           setUpdateListener(updateListenerName, this.onUpdate(refetch));
 
           if (loading || error) {
-            return children({events: this.prevResults, loading, error});
+            return children({events: this.prevResults, loading, error, ...rest});
           }
 
           // Make sure the data is in the same format as the normal hfp events are.
@@ -105,7 +105,7 @@ class AreaHfpQuery extends Component {
           );
 
           this.prevResults = groupedEvents;
-          return children({events: groupedEvents, loading, error});
+          return children({events: groupedEvents, loading, error, ...rest});
         }}
       </Query>
     );
