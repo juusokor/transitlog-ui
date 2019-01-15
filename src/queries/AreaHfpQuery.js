@@ -1,10 +1,13 @@
 import React, {Component} from "react";
 import {Query} from "react-apollo";
 import get from "lodash/get";
+import sortBy from "lodash/sortBy";
 import gql from "graphql-tag";
 import {groupHfpPositions} from "../helpers/groupHfpPositions";
 import getJourneyId from "../helpers/getJourneyId";
 import {createHfpItem} from "../helpers/createHfpItem";
+import {setUpdateListener, removeUpdateListener} from "../stores/UpdateManager";
+import {sortByOperationDay} from "../helpers/sortByOperationDay";
 
 const areaHfpQuery = gql`
   query areaHfpQuery(
@@ -42,29 +45,48 @@ const areaHfpQuery = gql`
   }
 `;
 
+const updateListenerName = "area hfp query";
+
 class AreaHfpQuery extends Component {
+  componentWillUnmount() {
+    removeUpdateListener(updateListenerName);
+  }
+
+  onUpdate = (refetch) => () => {
+    const {date, minTime, maxTime, area, skip} = this.props;
+    const {minLat, maxLat, minLong, maxLong} = area;
+
+    if (!skip) {
+      refetch({date, minTime, maxTime, minLat, maxLat, minLong, maxLong});
+    }
+  };
+
   render() {
     const {date, minTime, maxTime, area, skip, children} = this.props;
     const {minLat, maxLat, minLong, maxLong} = area;
 
     return (
       <Query
+        partialRefetch={true}
         skip={skip}
         variables={{date, minTime, maxTime, minLat, maxLat, minLong, maxLong}}
         query={areaHfpQuery}>
-        {({loading, data, error}) => {
+        {({loading, data, error, refetch}) => {
+          setUpdateListener(updateListenerName, this.onUpdate(refetch));
+
           if (loading || error) {
             return children({events: [], loading, error});
           }
 
           // Make sure the data is in the same format as the normal hfp events are.
           const groupedEvents = groupHfpPositions(
-            get(data, "vehicles", [])
-              .filter(
+            sortBy(
+              get(data, "vehicles", []).filter(
                 // Filter out null positions. Can't draw them on the map.
                 (evt) => !!evt && !!evt.lat && !!evt.long
-              )
-              .map(createHfpItem),
+              ),
+              ({journey_start_time = ""}) => sortByOperationDay(journey_start_time)
+            ).map(createHfpItem),
             getJourneyId,
             "journeyId"
           );

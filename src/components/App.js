@@ -84,7 +84,7 @@ class App extends Component {
 
     return (
       <AppFrame>
-        <AreaHfpEvents date={date}>
+        <AreaHfpEvents date={date} skip={hasRoute}>
           {({
             queryBounds,
             events: areaEvents = [],

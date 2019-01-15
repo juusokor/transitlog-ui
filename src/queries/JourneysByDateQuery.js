@@ -5,6 +5,7 @@ import {Query} from "react-apollo";
 import {createHfpItem} from "../helpers/createHfpItem";
 import {observer} from "mobx-react";
 import getJourneyId from "../helpers/getJourneyId";
+import {removeUpdateListener, setUpdateListener} from "../stores/UpdateManager";
 
 export const journeysByDateQuery = gql`
   query journeysByDateQuery(
@@ -43,14 +44,35 @@ export const journeysByDateQuery = gql`
   }
 `;
 
+const updateListenerName = "journey list query";
+
 @observer
 class JourneysByDateQuery extends React.Component {
+  componentWillUnmount() {
+    removeUpdateListener(updateListenerName);
+  }
+
+  onUpdate = (refetch) => () => {
+    const {route, date, skip = false} = this.props;
+    const {routeId, direction, originstopId} = route;
+
+    if (route && route.routeId && !skip) {
+      refetch({
+        route_id: routeId,
+        direction: parseInt(direction, 10),
+        stopId: originstopId,
+        date,
+      });
+    }
+  };
+
   render() {
     const {children, route, date} = this.props;
     const {routeId, direction, originstopId} = route;
 
     return (
       <Query
+        fetchPolicy="cache-and-network"
         query={journeysByDateQuery}
         variables={{
           route_id: routeId,
@@ -58,7 +80,9 @@ class JourneysByDateQuery extends React.Component {
           stopId: originstopId,
           date,
         }}>
-        {({data, error, loading}) => {
+        {({data, error, loading, refetch}) => {
+          setUpdateListener(updateListenerName, this.onUpdate(refetch), false);
+
           if (!data || loading) {
             return children({journeys: {}, loading, error});
           }

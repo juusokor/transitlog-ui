@@ -21,6 +21,7 @@ class HfpMarkerLayer extends Component {
   };
 
   prevJourneyId = "";
+  prevPositionsLength = 0;
   positions = new Map();
 
   @observable.ref
@@ -110,9 +111,14 @@ class HfpMarkerLayer extends Component {
     const {journeyId, positions} = this.props;
 
     // If the positions changed we need to index again.
-    if (positions.length !== 0 && journeyId !== this.prevJourneyId) {
+    if (
+      positions.length !== 0 &&
+      (journeyId !== this.prevJourneyId ||
+        positions.length !== this.prevPositionsLength)
+    ) {
       this.indexPositions(positions);
       this.prevJourneyId = journeyId;
+      this.prevPositionsLength = positions.length;
     }
   }
 

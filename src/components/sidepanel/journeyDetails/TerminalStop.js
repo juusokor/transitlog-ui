@@ -83,10 +83,15 @@ export default ({
 
     const stopDepartures = get(stop, "departures.nodes", []).filter(
       (departure) =>
-        isWithinRange(date, departure.dateBegin, departure.dateEnd) &&
-        departure.dayType === dayType &&
-        departure.routeId === firstPosition.route_id &&
-        departure.departureId === originDeparture.departureId &&
+        isWithinRange(
+          date,
+          get(departure, "dateBegin"),
+          get(departure, "dateEnd")
+        ) &&
+        get(departure, "dayType") === dayType &&
+        get(departure, "routeId") === get(firstPosition, "route_id") &&
+        get(departure, "departureId", -1) ===
+          get(originDeparture, "departureId", 0) &&
         parseInt(departure.direction) ===
           parseInt(get(firstPosition, "direction_id", 0))
     );

@@ -60,7 +60,7 @@ class AreaHfpEvents extends Component {
   };
 
   render() {
-    const {children, date, defaultBounds} = this.props;
+    const {children, date, defaultBounds, skip} = this.props;
     const {bounds} = this.state;
 
     const useBounds =
@@ -72,6 +72,7 @@ class AreaHfpEvents extends Component {
     return (
       <AreaHfpQuery
         skip={
+          skip ||
           Object.keys(queryParams).length === 0 ||
           Object.values(queryParams).some((p) => !p)
         } // Skip query if some params are falsy

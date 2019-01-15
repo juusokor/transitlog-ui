@@ -39,7 +39,7 @@ export default (state, initialState) => {
   });
 
   reaction(
-    () => state.playing,
+    () => state.playing && !state.pollingEnabled,
     (isPlaying) => {
       if (isPlaying && !timerHandle) {
         // timer() is a setInterval alternative that uses requestAnimationFrame.
