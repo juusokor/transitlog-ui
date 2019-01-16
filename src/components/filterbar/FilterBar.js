@@ -33,7 +33,7 @@ const FilterBarWrapper = styled.div`
 
 const FilterBarGrid = styled.div`
   display: grid;
-  grid-template-columns: 21rem repeat(3, 13rem);
+  grid-template-columns: 21rem repeat(3, 15rem);
   height: 100%;
   width: 100%;
   align-items: stretch;
@@ -66,7 +66,7 @@ class FilterBar extends Component {
       <FilterBarWrapper visible={visible}>
         <SiteHeader />
         <FilterBarGrid>
-          <FilterSection>
+          <FilterSection scrollable={true}>
             <DateSettings />
             <TimeSettings />
             <AdditionalTimeSettings />

@@ -70,8 +70,9 @@ export default ({
               date={date}
               departure={originStopTimes.departure}
               event={originStopTimes.arrivalEvent}>
-              {({diffMinutes, diffSeconds, wasLate}) => (
+              {({diffMinutes, diffSeconds, sign, wasLate}) => (
                 <strong style={{color: wasLate ? "var(--red)" : "inherit"}}>
+                  {sign === "-" ? "-" : ""}
                   {doubleDigit(diffMinutes)}:{doubleDigit(diffSeconds)}
                 </strong>
               )}

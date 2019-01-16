@@ -197,6 +197,11 @@ class Journeys extends Component {
                         <Text>filterpanel.journey.incomplete_data</Text>
                       );
 
+                      const journeyIsSelected = expr(
+                        () =>
+                          state.selectedJourney && selectedJourneyId === journeyId
+                      );
+
                       if (journeyEvent) {
                         const plannedObservedDiff = diffDepartureJourney(
                           journeyEvent,
@@ -230,11 +235,6 @@ class Journeys extends Component {
                           </>
                         );
                       }
-
-                      const journeyIsSelected = expr(
-                        () =>
-                          state.selectedJourney && selectedJourneyId === journeyId
-                      );
 
                       const journeyIsFocused =
                         focusedJourney && focusedJourney === journeyId;
