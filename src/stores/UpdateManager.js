@@ -29,12 +29,12 @@ export default (state) => {
   const filterActions = FilterActions(state);
   const uiActions = UiActions(state);
 
-  const updateTime = action((setCurrent = true) => {
-    const {time, timeIncrement, date} = state;
+  const updateTime = action((forceCurrent = false) => {
+    const {time, timeIncrement, date, timeIsCurrent} = state;
     const selectedMoment = combineDateAndTime(date, time, "Europe/Helsinki");
     const nowMoment = moment.tz(new Date(), "Europe/Helsinki");
 
-    if (!setCurrent) {
+    if (!timeIsCurrent && !forceCurrent) {
       const nextTimeValue = selectedMoment
         .clone()
         .add(timeIncrement, "seconds")
@@ -47,12 +47,12 @@ export default (state) => {
     }
   });
 
-  const update = (isAuto = false, setCurrentTime = !isAuto) => {
+  const update = (isAuto = false) => {
     if (!isAuto) {
       uiActions.togglePolling(false);
     }
 
-    updateTime(setCurrentTime);
+    updateTime(!isAuto);
 
     Object.values(updateListeners).forEach(({auto, cb}) => {
       // Check that the cb should run when auto-updating if this is an auto-update.
@@ -65,12 +65,12 @@ export default (state) => {
   reaction(
     () => state.pollingEnabled,
     (isPolling) => {
-      const {timeIsCurrent, date} = state;
+      const {date} = state;
 
       if (isPolling && !updateTimerHandle) {
         // timer() is a setInterval alternative that uses requestAnimationFrame.
         // This makes it more performant and can "pause" when the tab is not focused.
-        updateTimerHandle = timer(() => update(true, timeIsCurrent), 1000);
+        updateTimerHandle = timer(() => update(true), 1000);
         updateTimerHandle.date = date;
       } else if (!isPolling && !!updateTimerHandle) {
         cancelAnimationFrame(updateTimerHandle.value);
