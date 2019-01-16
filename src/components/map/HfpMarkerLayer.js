@@ -12,6 +12,7 @@ import "./Map.css";
 import {observable, action, reaction} from "mobx";
 import animationFrame from "../../helpers/animationFrame";
 import {getTimelinessColor} from "../../helpers/timelinessColor";
+import {getModeColor} from "../../helpers/vehicleColor";
 
 @inject(app("state"))
 @observer
@@ -136,15 +137,21 @@ class HfpMarkerLayer extends Component {
       return null;
     }
 
-    const delayType = getDelayType(position.dl);
-    const color = getTimelinessColor(delayType, "var(--light-green)");
+    const modeColor = getModeColor(get(position, "mode", "").toUpperCase());
 
     const markerIcon = divIcon({
       className: `hfp-icon`,
-      iconSize: 32,
-      html: `<span class="hfp-marker-wrapper" style="background-color: ${color}">
-<span class="hfp-marker-icon ${get(position, "mode", "").toUpperCase()}" />
-${position.drst ? `<span class="hfp-marker-drst" />` : ""}
+      iconSize: 36,
+      html: `<span class="hfp-marker-wrapper" style="background-color: ${modeColor}">
+<span class="hfp-marker-icon ${get(
+        position,
+        "mode",
+        ""
+      ).toUpperCase()}" style="transform: rotate(${position.hdg - 180}deg)"></span>
+${position.drst ? `<span class="hfp-marker-drst"></span>` : ""}
+<span class="hfp-marker-heading" style="transform: rotate(${
+        position.hdg
+      }deg) translate(0, -82%); border-bottom-color: ${modeColor}"></span>
 </span>`,
     });
 

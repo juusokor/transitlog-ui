@@ -39,6 +39,7 @@ const areaHfpQuery = gql`
       spd
       mode
       oday
+      hdg
       direction_id
       route_id
     }
