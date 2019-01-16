@@ -5,7 +5,7 @@ export const TagButton = styled.button`
   flex-direction: row;
   flex-wrap: nowrap;
   align-items: stretch;
-  justify-content: flex-start;
+  justify-content: space-between;
   border-radius: 4px;
   border: 1px solid
     ${({selected}) => (selected ? "var(--blue)" : "var(--lighter-grey)")};
@@ -71,8 +71,7 @@ export const PlainSlot = styled.span`
   justify-content: left;
 `;
 
-export const PlainSlotSmallRight = styled.span`
-  margin-left: auto;
+export const PlainSlotSmall = styled.span`
   display: inline-flex;
   align-items: center;
   justify-content: center;

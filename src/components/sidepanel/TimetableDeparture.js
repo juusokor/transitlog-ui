@@ -11,7 +11,7 @@ import {
   PlainSlot,
   ColoredSlot,
   TagButton,
-  PlainSlotSmallRight,
+  PlainSlotSmall,
 } from "../TagButton";
 import {getTimelinessColor} from "../../helpers/timelinessColor";
 import styled from "styled-components";
@@ -108,7 +108,7 @@ class TimetableDeparture extends Component {
                 {doubleDigit(plannedObservedDiff.minutes)}:
                 {doubleDigit(plannedObservedDiff.seconds)}
               </ColoredBackgroundSlot>
-              <PlainSlotSmallRight>{observedTimeString}</PlainSlotSmallRight>
+              <PlainSlotSmall>{observedTimeString}</PlainSlotSmall>
             </>
           ) : loading ? (
             <InlineLoading />

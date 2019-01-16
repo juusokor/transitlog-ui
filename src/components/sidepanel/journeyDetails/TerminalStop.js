@@ -11,7 +11,7 @@ import {
   TagButton,
   PlainSlot,
   ColoredBackgroundSlot,
-  PlainSlotSmallRight,
+  PlainSlotSmall,
 } from "../../TagButton";
 import {transportColor} from "../../transportModes";
 import {getTimelinessColor} from "../../../helpers/timelinessColor";
@@ -172,7 +172,7 @@ export default ({
                     {sign}
                     {doubleDigit(diffMinutes)}:{doubleDigit(diffSeconds)}
                   </ColoredBackgroundSlot>
-                  <PlainSlotSmallRight>{stopArrivalTime}</PlainSlotSmallRight>
+                  <PlainSlotSmall>{stopArrivalTime}</PlainSlotSmall>
                 </StopArrivalTime>
                 <SmallText>
                   * <Text>journey.departure_minus_terminal</Text>
@@ -198,9 +198,7 @@ export default ({
                 {doubleDigit(get(departureDiff, "minutes", 0))}:
                 {doubleDigit(get(departureDiff, "seconds", 0))}
               </ColoredBackgroundSlot>
-              <PlainSlotSmallRight>
-                {departureMoment.format("HH:mm:ss")}
-              </PlainSlotSmallRight>
+              <PlainSlotSmall>{departureMoment.format("HH:mm:ss")}</PlainSlotSmall>
             </StopDepartureTime>
           </>
         ) : isLastTerminal ? (
@@ -222,7 +220,7 @@ export default ({
                     {sign}
                     {doubleDigit(diffMinutes)}:{doubleDigit(diffSeconds)}
                   </ColoredBackgroundSlot>
-                  <PlainSlotSmallRight>{stopArrivalTime}</PlainSlotSmallRight>
+                  <PlainSlotSmall>{stopArrivalTime}</PlainSlotSmall>
                 </StopArrivalTime>
               </>
             )}

@@ -14,7 +14,7 @@ import {
   TagButton,
   PlainSlot,
   ColoredBackgroundSlot,
-  PlainSlotSmallRight,
+  PlainSlotSmall,
 } from "../../TagButton";
 import {transportColor} from "../../transportModes";
 import {getTimelinessColor} from "../../../helpers/timelinessColor";
@@ -146,7 +146,7 @@ export default ({
             </TimeHeading>
             <StopArrivalTime onClick={onClickTime(stopArrivalTime)}>
               <PlainSlot>{plannedArrivalMoment.format("HH:mm:ss")}</PlainSlot>
-              <PlainSlotSmallRight>{stopArrivalTime}</PlainSlotSmallRight>
+              <PlainSlotSmall>{stopArrivalTime}</PlainSlotSmall>
             </StopArrivalTime>
           </>
         ) : stopArrivalTime ? (
@@ -178,9 +178,7 @@ export default ({
                 {doubleDigit(get(departureDiff, "minutes", 0))}:
                 {doubleDigit(get(departureDiff, "seconds", 0))}
               </ColoredBackgroundSlot>
-              <PlainSlotSmallRight>
-                {departureMoment.format("HH:mm:ss")}
-              </PlainSlotSmallRight>
+              <PlainSlotSmall>{departureMoment.format("HH:mm:ss")}</PlainSlotSmall>
             </StopDepartureTime>
             {endOfStream && (
               <SmallText>End of HFP stream used as stop departure.</SmallText>
