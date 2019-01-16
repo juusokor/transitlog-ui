@@ -42,9 +42,9 @@ class HfpMarkerLayer extends Component {
       let i = 0;
       let checkSeconds = time;
 
-      // Max iterations is 30, which means events can be at most 15 seconds before
+      // Max iterations is 10, which means events can be at most 60 seconds before
       // or after i to be displayed.
-      while (!nextHfpPosition && i <= 30) {
+      while (!nextHfpPosition && i <= 120) {
         nextHfpPosition = this.positions.get(checkSeconds);
 
         // Alternately check after (even i) and before (odd i) `time`
