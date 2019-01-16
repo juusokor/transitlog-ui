@@ -52,11 +52,11 @@ const CopyButton = styled(Button)`
 @observer
 class SharingModal extends React.Component {
   @observable
-  copied = false;
+  copied = "";
 
   onCopy = action((shareUrl) => {
     copy(shareUrl);
-    this.copied = true;
+    this.copied = shareUrl;
   });
 
   render() {
@@ -79,13 +79,13 @@ class SharingModal extends React.Component {
         <ModalContent>
           <UrlDisplay resizeable={false} rows={4} value={shareUrl} disabled={true} />
           <CopyButton
-            copied={this.copied}
+            copied={this.copied === shareUrl}
             primary
             onClick={() => this.onCopy(shareUrl)}>
-            {this.copied && (
+            {this.copied === shareUrl && (
               <Checkmark width="1.5rem" height="1.5rem" fill="white" />
             )}{" "}
-            {this.copied ? "Copied!" : "Copy"}
+            {this.copied === shareUrl ? "Copied!" : "Copy"}
           </CopyButton>
         </ModalContent>
       </ShareModal>
