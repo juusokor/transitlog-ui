@@ -25,9 +25,11 @@ class Map extends Component {
     bounds: null,
   };
 
-  didSetUrlPosition = !getUrlValue(MAP_BOUNDS_URL_KEY);
+  canSetView = false;
 
   disposeSidePanelReaction = () => {};
+  disposeCanSetViewReaction = () => {};
+
   mapRef = React.createRef();
 
   state = {
@@ -53,14 +55,18 @@ class Map extends Component {
   };
 
   componentDidMount() {
+    const {state} = this.props;
     const map = this.getLeaflet();
+
+    this.disposeCanSetViewReaction = reaction(
+      () => (!this.canSetView ? [state.time, state.route] : false),
+      (change) => change !== false && (this.canSetView = true)
+    );
 
     this.disposeSidePanelReaction = reaction(
       () =>
-        (this.props.state.sidePanelVisible ? "visible" : "not visible") +
-        (this.props.state.journeyDetailsAreOpen
-          ? " details open"
-          : " details closed"),
+        (state.sidePanelVisible ? "visible" : "not visible") +
+        (state.journeyDetailsAreOpen ? " details open" : " details closed"),
       () => {
         const leafletMap = this.getLeaflet();
 
@@ -93,17 +99,13 @@ class Map extends Component {
         },
         zoom
       );
-
-      setTimeout(() => {
-        this.didSetUrlPosition = true;
-      }, 1000);
     }
   }
 
   componentDidUpdate({center: prevCenter}) {
     const {center} = this.props;
 
-    if (!this.didSetUrlPosition || !center) {
+    if (!this.canSetView || !center) {
       return;
     }
 
@@ -131,10 +133,11 @@ class Map extends Component {
 
   componentWillUnmount() {
     this.disposeSidePanelReaction();
+    this.disposeCanSetViewReaction();
   }
 
   setMapBounds = (bounds = null) => {
-    if (this.didSetUrlPosition && bounds && invoke(bounds, "isValid")) {
+    if (this.canSetView && bounds && invoke(bounds, "isValid")) {
       const map = this.getLeaflet();
 
       if (map) {
