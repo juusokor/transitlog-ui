@@ -9,6 +9,7 @@ import {combineDateAndTime} from "../helpers/time";
 import UiActions from "./uiActions";
 
 const updateListeners = {};
+let pollingStart = 0;
 
 // Add update callbacks by name to enable overwriting the callback with
 // a new instance without needing to remove the previous one.
@@ -61,19 +62,29 @@ export default (state) => {
     });
   };
 
+  function cancelTimer() {
+    cancelAnimationFrame(updateTimerHandle.value);
+    updateTimerHandle = null;
+  }
+
   reaction(
     () => state.pollingEnabled,
     (isPolling) => {
-      const {date} = state;
+      if (updateTimerHandle) {
+        cancelTimer();
+      }
 
-      if (isPolling && !updateTimerHandle) {
+      if (isPolling) {
+        pollingStart = Date.now();
         // timer() is a setInterval alternative that uses requestAnimationFrame.
         // This makes it more performant and can "pause" when the tab is not focused.
-        updateTimerHandle = timer(() => update(true), 1000);
-        updateTimerHandle.date = date;
-      } else if (!isPolling && !!updateTimerHandle) {
-        cancelAnimationFrame(updateTimerHandle.value);
-        updateTimerHandle = null;
+        updateTimerHandle = timer(() => {
+          if (Date.now() - pollingStart > 5000 * 60) {
+            uiActions.togglePolling(false);
+          }
+
+          update(true);
+        }, 1000);
       }
     },
     {fireImmediately: true}
