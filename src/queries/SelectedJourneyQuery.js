@@ -53,6 +53,7 @@ class SelectedJourneyQuery extends React.Component {
     const {skip, selectedJourney, children} = this.props;
     return (
       <Query
+        fetchPolicy="no-cache"
         partialRefetch={true}
         skip={skip || !selectedJourney}
         query={hfpQuery}
