@@ -15,6 +15,27 @@ const AutosuggestWrapper = styled.div`
   }
 `;
 
+export const SuggestionContent = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  background: ${({isHighlighted = false}) =>
+    isHighlighted ? "var(--light-blue)" : "transparent"};
+  color: ${({isHighlighted = false}) =>
+    isHighlighted ? "white" : "var(--dark-grey)"};
+`;
+
+export const SuggestionText = styled.div`
+  font-family: var(--font-family);
+  line-height: 1.3;
+`;
+
+export const SuggestionSectionTitle = styled.div`
+  font-weight: bold;
+  margin: 0.5rem 0;
+  padding: 0.25rem;
+`;
+
 @observer
 class SuggestionInput extends Component {
   @observable
