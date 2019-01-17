@@ -14,6 +14,7 @@ const queryPart = (variables) => {
     dateBegin = "",
     dateEnd = "",
     direction = "",
+    dayType,
   } = variables;
 
   // It's important to give each query part an unique alias.
@@ -21,7 +22,7 @@ const queryPart = (variables) => {
   // It also needs a string prefix, ie it can't begin with a number.
   const queryName =
     routeId && departureId && direction
-      ? `query_${routeId.replace(/\s/g, "")}_dir${direction}_${departureId}`
+      ? `query_${routeId.replace(/\s/g, "")}_${direction}_${departureId}_${dayType}`
       : "allDepartures";
 
   return `
@@ -34,7 +35,7 @@ const queryPart = (variables) => {
         dateBegin: "${dateBegin}"
         dateEnd: "${dateEnd}"
         departureId: ${departureId}
-        dayType: $dayType
+        dayType: "${dayType}"
       }
     ) {
       nodes {
@@ -50,9 +51,7 @@ const queryPart = (variables) => {
 
 // The container for the query or queries
 const firstDepartureQuery = (getQueryParts = queryPart) => gql`
-  query allDepartures(
-    $dayType: String!
-  ) {
+  query allDepartures {
     ${getQueryParts()}
   }
 `;
@@ -73,16 +72,15 @@ class FirstDepartureQuery extends Component {
         departureId: PropTypes.number.isRequired,
         dateBegin: PropTypes.string.isRequired,
         dateEnd: PropTypes.string.isRequired,
+        dayType: PropTypes.string.isRequired,
         direction: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
           .isRequired,
       })
     ),
-    // Only supports querying by one day at a time
-    dayType: PropTypes.string.isRequired,
   };
 
   render() {
-    const {queries = [], dayType, children, skip} = this.props;
+    const {queries = [], children, skip} = this.props;
 
     let query;
 
@@ -93,12 +91,7 @@ class FirstDepartureQuery extends Component {
     }
 
     return (
-      <Query
-        skip={skip}
-        query={query}
-        variables={{
-          dayType,
-        }}>
+      <Query skip={skip} query={query}>
         {({loading, error, data}) => {
           if (loading || error) {
             return children({firstDepartures: null, loading, error});

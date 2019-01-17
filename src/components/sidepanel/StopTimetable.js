@@ -2,11 +2,12 @@ import React, {Component} from "react";
 import orderBy from "lodash/orderBy";
 import flatMap from "lodash/flatMap";
 import get from "lodash/get";
+import pick from "lodash/pick";
+import uniqBy from "lodash/uniqBy";
 import {observer} from "mobx-react";
 import styled from "styled-components";
 import TimetableDeparture from "./TimetableDeparture";
 import FirstDepartureQuery from "../../queries/FirstDepartureQuery";
-import {getDayTypeFromDate} from "../../helpers/getDayTypeFromDate";
 import getJourneyId from "../../helpers/getJourneyId";
 
 const TimetableList = styled.div`
@@ -66,13 +67,16 @@ class StopTimetable extends Component {
 
     let {min, max} = timeRangeFilter;
 
-    const dayType = getDayTypeFromDate(date);
-
     // Create batches for the firstDeparture query.
     let batchedFirstDepartureRequests = flatMap(
       departuresByHour,
       // Map to whole departures. The query will pick what it needs.
-      ([hour, departures]) => departures.map((dep) => dep)
+      ([hour, departures]) =>
+        uniqBy(departures, (dep) =>
+          Object.values(
+            pick(dep, "routeId", "direction", "departureId", "dayType")
+          ).join("_")
+        )
     );
 
     // If there is min/max hour filters set, make sure no unnecessary first departures are fetched.
@@ -104,8 +108,7 @@ class StopTimetable extends Component {
     return (
       <FirstDepartureQuery
         skip={batchedFirstDepartureRequests.length === 0}
-        queries={batchedFirstDepartureRequests}
-        dayType={dayType}>
+        queries={batchedFirstDepartureRequests}>
         {({firstDepartures, loading}) => (
           <TimetableList>
             {!allLoading && departuresByHour.length === 0 && "No data"}
@@ -134,7 +137,7 @@ class StopTimetable extends Component {
 
               return (
                 <TimetableSection key={`hour_${stop.stopId}_${date}_${hour}`}>
-                  {timetableDepartures.map((departure) => {
+                  {timetableDepartures.map((departure, index) => {
                     const {
                       departureId,
                       dayType,
@@ -199,7 +202,9 @@ class StopTimetable extends Component {
                       <TimetableDeparture
                         key={`departure_${departureId}_${routeId}_${direction}_${
                           stop.stopId
-                        }_${dayType}_${departure.hours}:${departure.minutes}`}
+                        }_${dayType}_${departure.hours}_${
+                          departure.minutes
+                        }_${index}`}
                         focusRef={scrollToTime ? focusRef : null}
                         routeFilter={routeFilter}
                         timeRangeFilter={timeRangeFilter}
