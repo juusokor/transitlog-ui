@@ -4,8 +4,10 @@ import {Text} from "../../helpers/text";
 import styled from "styled-components";
 import {Heading} from "../Typography";
 import LanguageSelect from "./LanguageSelect";
-import {inject, observer} from "mobx-react";
+import {observer, inject} from "mobx-react";
+import {Button} from "../Forms";
 import {app} from "mobx-app";
+import flow from "lodash/flow";
 
 const Header = styled.header`
   width: 100%;
@@ -33,7 +35,6 @@ const MainHeading = styled(Heading).attrs({level: 1})`
 `;
 
 const LangSelectContainer = styled.div`
-  margin-top: -1rem;
   display: flex;
   align-items: flex-start;
   justify-content: flex-end;
@@ -45,18 +46,33 @@ const LangSelectContainer = styled.div`
   }
 `;
 
-export default inject(app("Filters"))(
-  observer(({Filters, className}) => {
-    return (
-      <Header className={className}>
-        <Logo src={logo} alt="logo" />
-        <MainHeading>
-          <Text>filterpanel.heading</Text>
-        </MainHeading>
-        <LangSelectContainer>
-          <LanguageSelect />
-        </LangSelectContainer>
-      </Header>
-    );
-  })
+const BottomRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 1.5rem;
+  flex: 1 0 100%;
+`;
+
+const decorate = flow(
+  observer,
+  inject(app("UI"))
 );
+
+export default decorate(({UI, className}) => (
+  <Header className={className}>
+    <Logo src={logo} alt="logo" />
+    <MainHeading>
+      <Text>filterpanel.heading</Text>
+    </MainHeading>
+    <BottomRow>
+      <Button small transparent onClick={() => UI.toggleShareModal(true)}>
+        Share
+      </Button>
+      <LangSelectContainer>
+        <LanguageSelect />
+      </LangSelectContainer>
+    </BottomRow>
+  </Header>
+));

@@ -30,6 +30,7 @@ export default (state) => {
     areaEventsStyle: getUrlValue("areaEventsStyle", areaEventsStyles.MARKERS),
     language: languageState.language,
     errors: [],
+    shareModalOpen: false,
     pollingEnabled: getUrlValue("pollingEnabled", false),
     // This is a computed check to see if we have anything to show in the journey details sidebar.
     // When this returns false the sidebar will hide regardless of the journeyDetailsOpen setting.
@@ -44,6 +45,10 @@ export default (state) => {
     get journeyDetailsAreOpen() {
       return state.journeyDetailsCanOpen && state.journeyDetailsOpen;
     },
+  });
+
+  const toggleShareModal = action((setTo = !state.shareModalOpen) => {
+    state.shareModalOpen = setTo;
   });
 
   const togglePolling = action((setTo = !state.pollingEnabled) => {
@@ -136,6 +141,7 @@ export default (state) => {
   );
 
   return {
+    toggleShareModal,
     togglePolling,
     toggleSidePanel,
     toggleJourneyDetails,
