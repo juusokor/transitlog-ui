@@ -4,14 +4,12 @@ import {Tooltip, Marker} from "react-leaflet";
 import get from "lodash/get";
 import moment from "moment";
 import {divIcon} from "leaflet";
-import getDelayType from "../../helpers/getDelayType";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import {Text} from "../../helpers/text";
 import "./Map.css";
 import {observable, action, reaction} from "mobx";
 import animationFrame from "../../helpers/animationFrame";
-import {getTimelinessColor} from "../../helpers/timelinessColor";
 import {getModeColor} from "../../helpers/vehicleColor";
 
 @inject(app("state"))

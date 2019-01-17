@@ -1,7 +1,6 @@
 import {action, reaction} from "mobx";
 import moment from "moment-timezone";
 import set from "lodash/set";
-import get from "lodash/get";
 import unset from "lodash/unset";
 import timer from "../helpers/timer";
 import TimeActions from "./timeActions";

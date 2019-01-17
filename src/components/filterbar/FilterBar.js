@@ -33,7 +33,7 @@ const FilterBarWrapper = styled.div`
 
 const FilterBarGrid = styled.div`
   display: grid;
-  grid-template-columns: 21rem repeat(3, 15rem);
+  grid-template-columns: 21rem repeat(3, 1fr);
   height: 100%;
   width: 100%;
   align-items: stretch;
