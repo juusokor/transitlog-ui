@@ -152,29 +152,6 @@ class TimetablePanel extends Component {
     }
   };
 
-  @computed
-  get avgDeparturesPerHour() {
-    const departuresByHour = this.getDeparturesByHour();
-    const routeFilter = this.routeFilter.debouncedValue;
-
-    // Figure out how many departures this stop has planned per hour on average.
-    // This is used to determine if observed times can be fetched immediately,
-    // or if we should wait for the user to filter the list. Filtering by
-    // route should also be taken into account here.
-    const avgPerHour = meanBy(departuresByHour, ([hour, hourDepartures]) => {
-      if (!routeFilter) {
-        return hourDepartures.length;
-      }
-
-      // The route filter will help to ease the burden of too many departures, so
-      // make sure that the average does not include routes that do not match the filter.
-      return hourDepartures.filter((departure) => departure.routeId === routeFilter)
-        .length;
-    });
-
-    return Math.round(avgPerHour && !isNaN(avgPerHour) ? avgPerHour : 1);
-  }
-
   getDeparturesByHour() {
     const {departures} = this.props;
     // Group into hours while making sure to separate pre-4:30 and post-4:30 departures
@@ -204,11 +181,8 @@ class TimetablePanel extends Component {
     const timeRangeFilter = this.timeRangeFilter.debouncedValue;
     const departuresByHour = this.getDeparturesByHour();
 
-    // We query for the hfp data related to the routes and directions on
-    // this stop in one go, instead of doing one query per row. Collect
-    // all distinct routes and directions in this map. Yes, there
-    // are stops with more than one direction. Routes are grouped by direction.
-    let routes = {};
+    // Collect all routes that are going to be queried for
+    let routes = [];
 
     const {min, max} = timeRangeFilter;
 
@@ -222,7 +196,7 @@ class TimetablePanel extends Component {
       }
 
       // Clean up the routeId to be compatible with what
-      // the user will enter into the filter field.
+      // the user would enter into the filter field.
       const routeIdFilterTerm = routeId
         .substring(1)
         .replace(/^0+/, "")
@@ -234,15 +208,8 @@ class TimetablePanel extends Component {
         continue;
       }
 
-      if (!routes[direction]) {
-        routes[direction] = [];
-      }
-
-      const directionRoutes = routes[direction];
-
-      // Check that the route isn't already included.
-      if (directionRoutes.indexOf(routeId) === -1) {
-        directionRoutes.push(routeId);
+      if (!routes.find((r) => r.routeId === routeId && r.direction === direction)) {
+        routes.push({routeId, direction});
       }
     }
 
@@ -301,7 +268,6 @@ class TimetablePanel extends Component {
                     timeRangeFilter={timeRangeFilter}
                     groupedJourneys={journeys}
                     departuresByHour={departuresByHour}
-                    departuresPerHour={this.avgDeparturesPerHour}
                     stop={stop}
                     date={date}
                     selectedJourney={selectedJourney}

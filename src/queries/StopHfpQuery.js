@@ -4,17 +4,22 @@ import {Query} from "react-apollo";
 import gql from "graphql-tag";
 import groupBy from "lodash/groupBy";
 import reduce from "lodash/reduce";
-import flatten from "lodash/flatten";
+import get from "lodash/get";
 import {removeUpdateListener, setUpdateListener} from "../stores/UpdateManager";
 
-const createQueryPart = (direction, routes) => {
-  const queryName = `direction_${direction}`;
-
-  return `
-    ${queryName}: vehicles(
+const stopDelayQuery = gql`
+  query stopDelay(
+    $date: date!
+    $stopId: String!
+    $routeIds: [String]!
+    $directionIds: [smallint]!
+  ) {
+    vehicles(
+      distinct_on: journey_start_time
+      order_by: [{journey_start_time: asc}, {received_at: desc}]
       where: {
-        route_id: {_in: ["${routes.join('","')}"]}
-        direction_id: {_eq: ${direction}}
+        route_id: {_in: $routeIds}
+        direction_id: {_in: $directionIds}
         oday: {_eq: $date}
         next_stop_id: {_eq: $stopId}
       }
@@ -26,15 +31,6 @@ const createQueryPart = (direction, routes) => {
       direction_id
       route_id
     }
-  `;
-};
-
-const stopDelayQuery = (queryParts) => gql`
-  query stopDelay(
-    $date: date!
-    $stopId: String!
-  ) {
-    ${queryParts}
   }
 `;
 
@@ -42,6 +38,8 @@ const updateListenerName = "stop hfp query";
 
 @observer
 class StopHfpQuery extends Component {
+  prevResult = {};
+
   componentWillUnmount() {
     removeUpdateListener(updateListenerName);
   }
@@ -57,44 +55,54 @@ class StopHfpQuery extends Component {
   render() {
     const {
       onCompleted = () => {},
-      routes = {},
+      routes = [],
       date,
       stopId,
       skip,
       children,
     } = this.props;
 
-    /*
-     * The routes prop should be a map of routes grouped by direction, like this:
-     * {
-     *   1: [routeId, routeId, routeId...],
-     *   2: [routeId, routeId, routeId...],
-     * }
-     */
+    const routesList = !routes || routes.length === 0 ? [] : routes;
 
-    const routesList =
-      !routes || Object.keys(routes).length === 0 ? {"1": []} : routes;
+    if (routesList.length === 0) {
+      return children({journeys: this.prevResult, loading: false, error: null});
+    }
 
-    const queryParts = Object.entries(routesList)
-      .map(([direction, routes]) => createQueryPart(direction, routes))
-      .join("");
+    const queryRoutes = [];
+    const queryDirections = [];
 
-    const query = stopDelayQuery(queryParts);
+    routes.forEach(({routeId, direction}) => {
+      if (queryRoutes.indexOf(routeId) === -1) {
+        queryRoutes.push(routeId);
+      }
+
+      const dirInt = parseInt(direction, 10);
+      if (queryDirections.indexOf(dirInt) === -1) {
+        queryDirections.push(dirInt);
+      }
+    });
+
+    // TODO: Investigate why this is refetched
 
     return (
       <Query
-        skip={skip}
+        skip={skip || routesList.length === 0}
         onCompleted={onCompleted}
-        variables={{date, stopId}}
-        query={query}>
+        variables={{
+          date,
+          stopId,
+          routeIds: queryRoutes,
+          directionIds: queryDirections,
+        }}
+        query={stopDelayQuery}>
         {({loading, data, error, refetch}) => {
           setUpdateListener(updateListenerName, this.onUpdate(refetch), false);
 
           if (loading || error) {
-            return children({journeys: {}, loading, error});
+            return children({journeys: this.prevResult, loading, error});
           }
 
-          const vehicles = flatten(Object.values(data));
+          const vehicles = get(data, "vehicles", []);
 
           const journeysByRoute = groupBy(
             vehicles,
@@ -107,12 +115,14 @@ class StopHfpQuery extends Component {
           const journeysByRouteAndTime = reduce(
             journeysByRoute,
             (groups, hfpItems, groupKey) => {
-              groups[groupKey] = hfpItems[hfpItems.length - 1];
+              console.log(hfpItems);
+              groups[groupKey] = hfpItems[0];
               return groups;
             },
             {}
           );
 
+          this.prevResult = journeysByRouteAndTime;
           return children({journeys: journeysByRouteAndTime, loading});
         }}
       </Query>
