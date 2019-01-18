@@ -9,6 +9,7 @@ import styled from "styled-components";
 import TimetableDeparture from "./TimetableDeparture";
 import FirstDepartureQuery from "../../queries/FirstDepartureQuery";
 import getJourneyId from "../../helpers/getJourneyId";
+import {createRouteId} from "../../helpers/keys";
 
 const TimetableList = styled.div`
   margin-bottom: 1rem;
@@ -52,7 +53,7 @@ class StopTimetable extends Component {
       routeFilter,
       timeRangeFilter,
       departuresByHour,
-      groupedJourneys,
+      journeys,
       date,
       selectedJourney,
       stop,
@@ -161,12 +162,11 @@ class StopTimetable extends Component {
                     // If we have the scheduled time from the first stop, we can
                     // find the correct hfp item.
                     if (firstDepartures && firstDepartureTime) {
-                      departureJourney = get(
-                        groupedJourneys,
-                        `${date}:${firstDepartureTime}:${departure.routeId}:${
-                          departure.direction
-                        }`,
-                        null
+                      departureJourney = journeys.find(
+                        (journey) =>
+                          journey.oday === date &&
+                          journey.journey_start_time === firstDepartureTime &&
+                          createRouteId(journey) === createRouteId(departure)
                       );
                     }
 
@@ -215,6 +215,7 @@ class StopTimetable extends Component {
                         date={date}
                         journey={departureJourney}
                         departure={departure}
+                        firstDepartureTime={firstDepartureTime}
                         loading={allLoading || loading}
                       />
                     );

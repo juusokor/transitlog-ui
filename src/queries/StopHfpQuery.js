@@ -2,8 +2,6 @@ import React, {Component} from "react";
 import {observer} from "mobx-react";
 import {Query} from "react-apollo";
 import gql from "graphql-tag";
-import groupBy from "lodash/groupBy";
-import reduce from "lodash/reduce";
 import get from "lodash/get";
 import {removeUpdateListener, setUpdateListener} from "../stores/UpdateManager";
 
@@ -15,8 +13,14 @@ const stopDelayQuery = gql`
     $directionIds: [smallint]!
   ) {
     vehicles(
-      distinct_on: journey_start_time
-      order_by: [{journey_start_time: asc}, {received_at: desc}]
+      distinct_on: [oday, route_id, direction_id, journey_start_time]
+      order_by: [
+        {oday: asc}
+        {route_id: asc}
+        {direction_id: asc}
+        {journey_start_time: asc}
+        {received_at: desc}
+      ]
       where: {
         route_id: {_in: $routeIds}
         direction_id: {_in: $directionIds}
@@ -30,6 +34,7 @@ const stopDelayQuery = gql`
       oday
       direction_id
       route_id
+      unique_vehicle_id
     }
   }
 `;
@@ -38,7 +43,7 @@ const updateListenerName = "stop hfp query";
 
 @observer
 class StopHfpQuery extends Component {
-  prevResult = {};
+  prevResult = [];
 
   componentWillUnmount() {
     removeUpdateListener(updateListenerName);
@@ -60,6 +65,7 @@ class StopHfpQuery extends Component {
       stopId,
       skip,
       children,
+      routeFilter,
     } = this.props;
 
     const routesList = !routes || routes.length === 0 ? [] : routes;
@@ -68,7 +74,11 @@ class StopHfpQuery extends Component {
     const queryDirections = [];
 
     routesList.forEach(({routeId, direction}) => {
-      if (queryRoutes.indexOf(routeId) === -1) {
+      if (
+        queryRoutes.indexOf(routeId) === -1 &&
+        (!routeFilter ||
+          (routeFilter && routeId.startsWith(routeFilter.toLowerCase())))
+      ) {
         queryRoutes.push(routeId);
       }
 
@@ -80,7 +90,6 @@ class StopHfpQuery extends Component {
 
     return (
       <Query
-        fetchPolicy="no-cache"
         skip={skip || queryRoutes.length === 0}
         onCompleted={onCompleted}
         variables={{
@@ -98,25 +107,8 @@ class StopHfpQuery extends Component {
             return children({journeys: this.prevResult, loading, error});
           }
 
-          const journeysByRoute = groupBy(
-            vehicles,
-            (hfp) =>
-              `${hfp.oday}:${hfp.journey_start_time}:${hfp.route_id}:${
-                hfp.direction_id
-              }`
-          );
-
-          const journeysByRouteAndTime = reduce(
-            journeysByRoute,
-            (groups, hfpItems, groupKey) => {
-              groups[groupKey] = hfpItems[hfpItems.length - 1];
-              return groups;
-            },
-            {}
-          );
-
-          this.prevResult = journeysByRouteAndTime;
-          return children({journeys: journeysByRouteAndTime, loading});
+          this.prevResult = vehicles;
+          return children({journeys: vehicles, loading});
         }}
       </Query>
     );

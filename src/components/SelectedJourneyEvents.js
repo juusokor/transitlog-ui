@@ -5,7 +5,9 @@ import {createHfpItem} from "../helpers/createHfpItem";
 import SelectedJourneyQuery from "../queries/SelectedJourneyQuery";
 import getJourneyId from "../helpers/getJourneyId";
 import get from "lodash/get";
+import withRoute from "../hoc/withRoute";
 
+@withRoute
 @inject(app("state"))
 @observer
 class SelectedJourneyEvents extends Component {

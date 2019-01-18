@@ -251,20 +251,22 @@ class TimetablePanel extends Component {
           return (
             stop && (
               <StopHfpQuery
+                key={`stop_hfp_${stop.stopId}_${date}`}
                 skip={routes.length === 0} // Skip if there are no routes to fetch
                 stopId={stop.stopId}
                 routes={routes}
+                routeFilter={routeFilter.value}
                 date={date}>
                 {({journeys, loading}) => (
                   <StopTimetable
                     key={`stop_timetable_${stop.stopId}_${date}`}
-                    loading={loading}
+                    loading={loading || timetableLoading}
                     time={this.reactionlessTime}
                     focusRef={scrollRef}
                     setScrollOffset={updateScrollOffset}
                     routeFilter={routeFilter}
                     timeRangeFilter={timeRangeFilter}
-                    groupedJourneys={journeys}
+                    journeys={journeys}
                     departuresByHour={departuresByHour}
                     stop={stop}
                     date={date}

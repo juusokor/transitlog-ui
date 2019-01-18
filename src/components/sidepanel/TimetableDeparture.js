@@ -65,6 +65,7 @@ class TimetableDeparture extends Component {
       focusRef,
       loading,
       isTimingStop,
+      firstDepartureTime,
     } = this.props;
 
     const {
@@ -77,6 +78,7 @@ class TimetableDeparture extends Component {
     // for selecting the journey when clicked.
     const departureData = {
       ...departure,
+      firstDepartureTime,
       observed: journey,
     };
 
