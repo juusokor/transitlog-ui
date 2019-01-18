@@ -23,7 +23,7 @@ const TabButtonsWrapper = styled.div`
 
 const TabButton = styled.button`
   font-family: inherit;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
   background-color: ${({selected}) => (selected ? "white" : "var(--lightest-grey)")};
   border: 1px solid var(--alt-grey);
@@ -38,7 +38,7 @@ const TabButton = styled.button`
   justify-content: center;
   cursor: pointer;
   outline: 0;
-  padding: 1rem 0.5rem;
+  padding: 0.75rem 0.5rem;
 
   &:last-child {
     border-right: 0;

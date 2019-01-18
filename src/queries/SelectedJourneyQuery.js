@@ -1,6 +1,5 @@
 import React from "react";
 import get from "lodash/get";
-import flow from "lodash/flow";
 import gql from "graphql-tag";
 import HfpFieldsFragment from "./HfpFieldsFragment";
 import {observer, inject} from "mobx-react";
@@ -54,12 +53,15 @@ class SelectedJourneyQuery extends React.Component {
     const {skip, selectedJourney, children} = this.props;
     return (
       <Query
+        fetchPolicy="no-cache"
         partialRefetch={true}
         skip={skip || !selectedJourney}
         query={hfpQuery}
         variables={selectedJourney}>
         {({data, loading, error, refetch}) => {
-          setUpdateListener(updateListenerName, this.onUpdate(refetch));
+          if (!loading) {
+            setUpdateListener(updateListenerName, this.onUpdate(refetch));
+          }
 
           const vehicles = get(data, "vehicles", []);
           return children({positions: vehicles, loading, error});

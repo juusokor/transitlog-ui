@@ -14,12 +14,13 @@ import {
   TagButton,
   PlainSlot,
   ColoredBackgroundSlot,
-  PlainSlotSmallRight,
+  PlainSlotSmall,
 } from "../../TagButton";
 import {transportColor} from "../../transportModes";
 import {getTimelinessColor} from "../../../helpers/timelinessColor";
 import doubleDigit from "../../../helpers/doubleDigit";
 import ArrowRightLong from "../../../icons/ArrowRightLong";
+import {Text} from "../../../helpers/text";
 
 const StopWrapper = styled.div`
   padding: 0;
@@ -140,10 +141,12 @@ export default ({
         </StopHeading>
         {showPlannedArrivalTime ? (
           <>
-            <TimeHeading>Arrival</TimeHeading>
+            <TimeHeading>
+              <Text>journey.arrival</Text>
+            </TimeHeading>
             <StopArrivalTime onClick={onClickTime(stopArrivalTime)}>
               <PlainSlot>{plannedArrivalMoment.format("HH:mm:ss")}</PlainSlot>
-              <PlainSlotSmallRight>{stopArrivalTime}</PlainSlotSmallRight>
+              <PlainSlotSmall>{stopArrivalTime}</PlainSlotSmall>
             </StopArrivalTime>
           </>
         ) : stopArrivalTime ? (
@@ -152,11 +155,17 @@ export default ({
             {stopArrivalTime}
           </SimpleStopArrivalTime>
         ) : (
-          <SmallText>No data for stop arrival.</SmallText>
+          <SmallText>
+            <Text>filterpanel.journey.no_data</Text>
+          </SmallText>
         )}
         {stopDepartureTime ? (
           <>
-            {showPlannedArrivalTime && <TimeHeading>Departure</TimeHeading>}
+            {showPlannedArrivalTime && (
+              <TimeHeading>
+                <Text>journey.departure</Text>
+              </TimeHeading>
+            )}
             <StopDepartureTime onClick={onClickTime(stopDepartureTime)}>
               <PlainSlot>{plannedDepartureMoment.format("HH:mm:ss")}</PlainSlot>
               <ColoredBackgroundSlot
@@ -169,16 +178,16 @@ export default ({
                 {doubleDigit(get(departureDiff, "minutes", 0))}:
                 {doubleDigit(get(departureDiff, "seconds", 0))}
               </ColoredBackgroundSlot>
-              <PlainSlotSmallRight>
-                {departureMoment.format("HH:mm:ss")}
-              </PlainSlotSmallRight>
+              <PlainSlotSmall>{departureMoment.format("HH:mm:ss")}</PlainSlotSmall>
             </StopDepartureTime>
             {endOfStream && (
               <SmallText>End of HFP stream used as stop departure.</SmallText>
             )}
           </>
         ) : (
-          <SmallText>No data for stop departure.</SmallText>
+          <SmallText>
+            <Text>filterpanel.journey.no_data</Text>
+          </SmallText>
         )}
       </StopContent>
     </StopWrapper>

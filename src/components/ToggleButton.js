@@ -32,7 +32,7 @@ const ToggleMarker = styled.div`
   border: 1px solid ${({checked}) => (!checked ? "transparent" : "var(--blue)")};
   border-radius: 15px;
   transition: transform 0.1s ease-out;
-  transform: translate(1px, 0);
+  transform: translate(2px, 0);
 `;
 
 const ToggleContainer = styled.div`

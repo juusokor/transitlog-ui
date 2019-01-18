@@ -23,6 +23,8 @@
   "sidepanel.tabs.timetables": "Aikataulut",
   "sidepanel.tabs.vehicle_journeys": "Lähtöketju",
   "sidepanel.tabs.area_events": "Alueen matkat",
+  "sidepanel.area_events.show_lines": "Näytä viivoina",
+  "sidepanel.area_events.show_markers": "Näytä merkkeinä",
 
   "map.stops.arrive": "Saapumisaika",
   "map.stops.depart": "Lähtöaika",
@@ -32,6 +34,14 @@
   "vehicle.delay.late": "Myöhässä",
   "vehicle.delay.early": "Etuajassa",
   "vehicle.delay.ontime": "Ajallaan",
+
+  "journey.terminal_time": "Terminaaliaika",
+  "journey.recovery_time": "Elpymisaika",
+  "journey.requested_equipment": "Vaadittu kalusto",
+  "journey.departure_minus_terminal": "Lähtöaika - terminaaliaika",
+  "journey.stops_hidden": "pysäkkiä piilossa",
+  "journey.arrival": "Saapuminen",
+  "journey.departure": "Lähtö",
 
   "domain.line": "Linja",
   "domain.route": "Reitti",
@@ -45,5 +55,8 @@
   "general.seconds.short": "sek.",
   "general.loading": "Ladataan",
   "general.error": "Virhe",
-  "general.journey": "lähtö"
+  "general.journey": "lähtö",
+  "general.update": "Päivitä",
+  "general.live": "Elävä",
+  "general.no_type": "Ei tyyppiä"
 }

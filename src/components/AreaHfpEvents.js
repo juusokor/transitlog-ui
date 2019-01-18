@@ -1,12 +1,16 @@
-import React, {Component} from "react";
+import React, {PureComponent} from "react";
 import {inject} from "mobx-react";
 import {app} from "mobx-app";
-import {combineDateAndTime} from "../helpers/time";
 import AreaHfpQuery from "../queries/AreaHfpQuery";
 import invoke from "lodash/invoke";
+import moment from "moment-timezone";
+import {combineDateAndTime} from "../helpers/time";
+import {setResetListener} from "../stores/FilterStore";
 
 @inject(app("state"))
-class AreaHfpEvents extends Component {
+class AreaHfpEvents extends PureComponent {
+  disposeResetListener = () => {};
+
   state = {
     bounds: null,
   };
@@ -34,30 +38,48 @@ class AreaHfpEvents extends Component {
   };
 
   // When the query bounds change, update the params.
-  getQueryParams = (bounds, date) => {
-    const {
-      state: {time, areaSearchRangeMinutes = 60},
-    } = this.props;
+  getQueryParams = (bounds) => {
+    const {state} = this.props;
 
     if (!bounds || (typeof bounds.isValid === "function" && !bounds.isValid())) {
       return {};
     }
 
+    const {
+      areaSearchRangeMinutes = 10,
+      pollingEnabled,
+      timeIsCurrent,
+      time,
+      date,
+    } = state;
+
+    // Constrain search time span to 5 minutes when auto-polling.
+    const timespan = pollingEnabled && timeIsCurrent ? 5 : areaSearchRangeMinutes;
     const moment = combineDateAndTime(date, time, "Europe/Helsinki");
 
-    const minTime = moment.clone().subtract(areaSearchRangeMinutes / 2, "minutes");
-    const maxTime = moment.clone().add(areaSearchRangeMinutes / 2, "minutes");
+    const min = moment.clone().subtract(Math.round(timespan / 2), "minutes");
+    const max = moment.clone().add(Math.round(timespan / 2), "minutes");
 
     // Translate the bounding box to a min/max query for the HFP api and create a time range.
     return {
-      minTime,
-      maxTime,
+      minTime: min,
+      maxTime: max,
       minLong: bounds.getWest(),
       maxLong: bounds.getEast(),
       minLat: bounds.getSouth(),
       maxLat: bounds.getNorth(),
     };
   };
+
+  componentDidMount() {
+    this.disposeResetListener = setResetListener(() =>
+      this.setState({bounds: null})
+    );
+  }
+
+  componentWillUnmount() {
+    this.disposeResetListener();
+  }
 
   render() {
     const {children, date, defaultBounds, skip} = this.props;
@@ -66,7 +88,7 @@ class AreaHfpEvents extends Component {
     const useBounds =
       bounds || (defaultBounds ? defaultBounds.getCenter().toBounds(1000) : null);
 
-    const queryParams = this.getQueryParams(useBounds, date);
+    const queryParams = this.getQueryParams(useBounds);
     const {minTime, maxTime, ...area} = queryParams;
 
     return (
@@ -79,21 +101,22 @@ class AreaHfpEvents extends Component {
         date={date}
         minTime={minTime ? minTime.toISOString() : null}
         maxTime={maxTime ? maxTime.toISOString() : null}
+        getQueryParams={() => this.getQueryParams(useBounds)}
         area={area}>
-        {({events, loading, error}) => {
-          return children({
+        {({events, loading, error, variables: {minTime, maxTime}}) =>
+          children({
             queryBounds: this.setQueryBounds,
             events,
             loading,
             error,
             timeRange: minTime
               ? {
-                  min: minTime,
-                  max: maxTime,
+                  min: moment.tz(minTime, "Europe/Helsinki"),
+                  max: moment.tz(maxTime, "Europe/Helsinki"),
                 }
               : null,
-          });
-        }}
+          })
+        }
       </AreaHfpQuery>
     );
   }

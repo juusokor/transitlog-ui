@@ -23,6 +23,8 @@
   "sidepanel.tabs.timetables": "Timetables",
   "sidepanel.tabs.vehicle_journeys": "Vehicle Journeys",
   "sidepanel.tabs.area_events": "Area journeys",
+  "sidepanel.area_events.show_lines": "Show as heatmap",
+  "sidepanel.area_events.show_markers": "Show as markers",
 
   "map.stops.arrive": "Arrival",
   "map.stops.depart": "Departure",
@@ -32,6 +34,14 @@
   "vehicle.delay.late": "Late",
   "vehicle.delay.early": "Early",
   "vehicle.delay.ontime": "On time",
+
+  "journey.terminal_time": "Terminal time",
+  "journey.recovery_time": "Recovery time",
+  "journey.requested_equipment": "Requested equipment",
+  "journey.departure_minus_terminal": "departure time - terminal time",
+  "journey.stops_hidden": "stops hidden",
+  "journey.arrival": "Arrival",
+  "journey.departure": "Departure",
 
   "domain.line": "Line",
   "domain.route": "Route",
@@ -45,5 +55,8 @@
   "general.seconds.short": "sec.",
   "general.loading": "Loading",
   "general.error": "Error",
-  "general.journey": "journey"
+  "general.journey": "journey",
+  "general.update": "Update",
+  "general.live": "Live",
+  "general.no_type": "No type"
 }

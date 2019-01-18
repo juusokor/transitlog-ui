@@ -33,8 +33,9 @@ const FilterBarWrapper = styled.div`
 
 const FilterBarGrid = styled.div`
   display: grid;
-  grid-template-columns: 23rem 1fr 1fr 1fr;
+  grid-template-columns: 21rem repeat(3, 1fr);
   height: 100%;
+  width: 100%;
   align-items: stretch;
 `;
 
@@ -50,16 +51,25 @@ const BottomSlider = styled(TimeSlider)`
 @observer
 class FilterBar extends Component {
   render() {
-    const {state, positions = [], timeRange = null} = this.props;
+    const {
+      state,
+      selectedJourneyEvents = [],
+      areaEvents = [],
+      timeRange,
+    } = this.props;
     const {sidePanelVisible: visible} = state;
+
+    const currentPositions =
+      areaEvents.length !== 0 ? areaEvents : selectedJourneyEvents;
 
     return (
       <FilterBarWrapper visible={visible}>
         <SiteHeader />
         <FilterBarGrid>
-          <FilterSection expandable={<AdditionalTimeSettings />}>
+          <FilterSection scrollable={true}>
             <DateSettings />
             <TimeSettings />
+            <AdditionalTimeSettings />
           </FilterSection>
           <FilterSection>
             <LineSettings />
@@ -71,7 +81,10 @@ class FilterBar extends Component {
             <StopSettings />
           </FilterSection>
         </FilterBarGrid>
-        <BottomSlider positions={positions} timeRange={timeRange} />
+        <BottomSlider
+          positions={currentPositions}
+          timeRange={areaEvents.length !== 0 ? timeRange : null}
+        />
       </FilterBarWrapper>
     );
   }

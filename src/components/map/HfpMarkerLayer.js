@@ -4,14 +4,13 @@ import {Tooltip, Marker} from "react-leaflet";
 import get from "lodash/get";
 import moment from "moment";
 import {divIcon} from "leaflet";
-import getDelayType from "../../helpers/getDelayType";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import {Text} from "../../helpers/text";
 import "./Map.css";
 import {observable, action, reaction} from "mobx";
 import animationFrame from "../../helpers/animationFrame";
-import {getTimelinessColor} from "../../helpers/timelinessColor";
+import {getModeColor} from "../../helpers/vehicleColor";
 
 @inject(app("state"))
 @observer
@@ -41,9 +40,9 @@ class HfpMarkerLayer extends Component {
       let i = 0;
       let checkSeconds = time;
 
-      // Max iterations is 30, which means events can be at most 15 seconds before
+      // Max iterations is 10, which means events can be at most 60 seconds before
       // or after i to be displayed.
-      while (!nextHfpPosition && i <= 30) {
+      while (!nextHfpPosition && i <= 120) {
         nextHfpPosition = this.positions.get(checkSeconds);
 
         // Alternately check after (even i) and before (odd i) `time`
@@ -136,15 +135,21 @@ class HfpMarkerLayer extends Component {
       return null;
     }
 
-    const delayType = getDelayType(position.dl);
-    const color = getTimelinessColor(delayType, "var(--light-green)");
+    const modeColor = getModeColor(get(position, "mode", "").toUpperCase());
 
     const markerIcon = divIcon({
       className: `hfp-icon`,
-      iconSize: 32,
-      html: `<span class="hfp-marker-wrapper" style="background-color: ${color}">
-<span class="hfp-marker-icon ${get(position, "mode", "").toUpperCase()}" />
-${position.drst ? `<span class="hfp-marker-drst" />` : ""}
+      iconSize: 36,
+      html: `<span class="hfp-marker-wrapper" style="background-color: ${modeColor}">
+<span class="hfp-marker-icon ${get(
+        position,
+        "mode",
+        ""
+      ).toUpperCase()}" style="transform: rotate(${position.hdg - 180}deg)"></span>
+${position.drst ? `<span class="hfp-marker-drst"></span>` : ""}
+<span class="hfp-marker-heading" style="transform: rotate(${
+        position.hdg
+      }deg) translate(0, -82%); border-bottom-color: ${modeColor}"></span>
 </span>`,
     });
 

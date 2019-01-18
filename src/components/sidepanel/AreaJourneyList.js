@@ -7,6 +7,7 @@ import map from "lodash/map";
 import getJourneyId from "../../helpers/getJourneyId";
 import ToggleButton from "../ToggleButton";
 import {areaEventsStyles} from "../../stores/UIStore";
+import {text} from "../../helpers/text";
 
 const JourneyListRow = styled.button`
   display: flex;
@@ -94,8 +95,8 @@ class AreaJourneyList extends Component {
             onChange={this.onChangeDisplayStyle}
             name="area_events_style"
             isSwitch={true}
-            preLabel="Show as heatmap"
-            label="Show as markers"
+            preLabel={text("sidepanel.area_events.show_lines")}
+            label={text("sidepanel.area_events.show_markers")}
             checked={areaEventsStyle === areaEventsStyles.MARKERS}
             value={areaEventsStyle}
           />

@@ -9,6 +9,7 @@ import {Button} from "../../Forms";
 import Minus from "../../../icons/Minus";
 import Plus from "../../../icons/Plus";
 import JourneyStop from "./JourneyStop";
+import {Text} from "../../../helpers/text";
 
 const JourneyStopsWrapper = styled.div`
   margin-left: ${({expanded}) => (expanded ? "0" : "calc(1.5rem - 1px)")};
@@ -109,7 +110,7 @@ class JourneyStops extends React.Component {
               ))
           ) : (
             <HiddenStopsMessage>
-              {journeyStops.length - 2} stops hidden
+              {journeyStops.length - 2} <Text>journey.stops_hidden</Text>
             </HiddenStopsMessage>
           )}
         </StopsList>

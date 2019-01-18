@@ -12,7 +12,7 @@ import {
   TagButton,
   PlainSlot,
   ColoredBackgroundSlot,
-  PlainSlotSmallRight,
+  PlainSlotSmall,
 } from "../TagButton";
 import {diffDepartureJourney} from "../../helpers/diffDepartureJourney";
 import getDelayType from "../../helpers/getDelayType";
@@ -255,7 +255,7 @@ class VehicleJourneys extends Component {
                     {doubleDigit(plannedObservedDiff.minutes)}:
                     {doubleDigit(plannedObservedDiff.seconds)}
                   </ColoredBackgroundSlot>
-                  <PlainSlotSmallRight>{observedTimeString}</PlainSlotSmallRight>
+                  <PlainSlotSmall>{observedTimeString}</PlainSlotSmall>
                 </TagButton>
               </JourneyListRow>
             );

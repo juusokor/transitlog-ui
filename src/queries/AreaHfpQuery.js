@@ -39,6 +39,7 @@ const areaHfpQuery = gql`
       spd
       mode
       oday
+      hdg
       direction_id
       route_id
     }
@@ -48,16 +49,27 @@ const areaHfpQuery = gql`
 const updateListenerName = "area hfp query";
 
 class AreaHfpQuery extends Component {
+  prevResults = [];
+
   componentWillUnmount() {
     removeUpdateListener(updateListenerName);
   }
 
   onUpdate = (refetch) => () => {
-    const {date, minTime, maxTime, area, skip} = this.props;
+    const {date, getQueryParams, skip} = this.props;
+    const {minTime, maxTime, ...area} = getQueryParams();
     const {minLat, maxLat, minLong, maxLong} = area;
 
-    if (!skip) {
-      refetch({date, minTime, maxTime, minLat, maxLat, minLong, maxLong});
+    if (!skip && Object.keys(area).length !== 0) {
+      refetch({
+        date,
+        minTime: minTime.toISOString(),
+        maxTime: maxTime.toISOString(),
+        minLat,
+        maxLat,
+        minLong,
+        maxLong,
+      });
     }
   };
 
@@ -65,33 +77,41 @@ class AreaHfpQuery extends Component {
     const {date, minTime, maxTime, area, skip, children} = this.props;
     const {minLat, maxLat, minLong, maxLong} = area;
 
+    if (skip) {
+      this.prevResults = [];
+    }
+
     return (
       <Query
+        fetchPolicy="no-cache"
         partialRefetch={true}
         skip={skip}
         variables={{date, minTime, maxTime, minLat, maxLat, minLong, maxLong}}
         query={areaHfpQuery}>
-        {({loading, data, error, refetch}) => {
-          setUpdateListener(updateListenerName, this.onUpdate(refetch));
-
-          if (loading || error) {
-            return children({events: [], loading, error});
+        {({loading, data, error, refetch, ...rest}) => {
+          if (!data || loading) {
+            return children({events: this.prevResults, loading, error, ...rest});
           }
 
           // Make sure the data is in the same format as the normal hfp events are.
-          const groupedEvents = groupHfpPositions(
-            sortBy(
-              get(data, "vehicles", []).filter(
-                // Filter out null positions. Can't draw them on the map.
-                (evt) => !!evt && !!evt.lat && !!evt.long
-              ),
-              ({journey_start_time = ""}) => sortByOperationDay(journey_start_time)
-            ).map(createHfpItem),
-            getJourneyId,
-            "journeyId"
+          const groupedEvents = sortBy(
+            groupHfpPositions(
+              get(data, "vehicles", [])
+                .filter(
+                  // Filter out null positions. Can't draw them on the map.
+                  (evt) => !!evt && !!evt.lat && !!evt.long
+                )
+                .map(createHfpItem),
+              getJourneyId,
+              "journeyId"
+            ),
+            ({journey_start_time = ""}) => sortByOperationDay(journey_start_time)
           );
 
-          return children({events: groupedEvents, loading, error});
+          this.prevResults = groupedEvents;
+          setUpdateListener(updateListenerName, this.onUpdate(refetch));
+
+          return children({events: groupedEvents, loading, error, ...rest});
         }}
       </Query>
     );

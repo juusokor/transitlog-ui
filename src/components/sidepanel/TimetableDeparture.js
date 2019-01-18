@@ -11,7 +11,7 @@ import {
   PlainSlot,
   ColoredSlot,
   TagButton,
-  PlainSlotSmallRight,
+  PlainSlotSmall,
 } from "../TagButton";
 import {getTimelinessColor} from "../../helpers/timelinessColor";
 import styled from "styled-components";
@@ -42,6 +42,14 @@ const TimingIcon = styled.img`
   display: block;
   margin-left: auto;
   margin-bottom: 0;
+`;
+
+const TimetableButton = styled(TagButton)`
+  justify-content: flex-start;
+`;
+
+const ObservedTimeDisplay = styled(PlainSlotSmall)`
+  margin-left: auto;
 `;
 
 @observer
@@ -84,7 +92,8 @@ class TimetableDeparture extends Component {
 
     return (
       <ListRow selected={journeyIsSelected}>
-        <TagButton
+        <TimetableButton
+          hasData={!!plannedObservedDiff}
           ref={focusRef}
           selected={journeyIsSelected}
           onClick={onClick(departureData)}>
@@ -108,12 +117,12 @@ class TimetableDeparture extends Component {
                 {doubleDigit(plannedObservedDiff.minutes)}:
                 {doubleDigit(plannedObservedDiff.seconds)}
               </ColoredBackgroundSlot>
-              <PlainSlotSmallRight>{observedTimeString}</PlainSlotSmallRight>
+              <ObservedTimeDisplay>{observedTimeString}</ObservedTimeDisplay>
             </>
           ) : loading ? (
             <InlineLoading />
           ) : null}
-        </TagButton>
+        </TimetableButton>
       </ListRow>
     );
   }

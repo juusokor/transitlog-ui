@@ -4,15 +4,21 @@ import {app} from "mobx-app";
 import {createHfpItem} from "../helpers/createHfpItem";
 import SelectedJourneyQuery from "../queries/SelectedJourneyQuery";
 import getJourneyId from "../helpers/getJourneyId";
+import get from "lodash/get";
 
 @inject(app("state"))
 @observer
 class SelectedJourneyEvents extends Component {
   render() {
     const {children, state} = this.props;
-    const {selectedJourney} = state;
+    const {selectedJourney, route} = state;
 
-    const selectedJourneyValid = !!selectedJourney;
+    // Hide fetched selected journey HFP if the route is not selected
+    const selectedJourneyValid =
+      !!selectedJourney &&
+      get(route, "routeId", "") === selectedJourney.route_id &&
+      parseInt(get(route, "direction", 0), 10) ===
+        parseInt(selectedJourney.direction_id, 10);
 
     return (
       <SelectedJourneyQuery

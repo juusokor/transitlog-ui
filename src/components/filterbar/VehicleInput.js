@@ -1,28 +1,13 @@
 import React from "react";
-import SuggestionInput from "./SuggestionInput";
+import SuggestionInput, {
+  SuggestionContent,
+  SuggestionText,
+  SuggestionSectionTitle,
+} from "./SuggestionInput";
 import flow from "lodash/flow";
 import get from "lodash/get";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
-import styled from "styled-components";
-
-const SuggestionContent = styled.div`
-  display: flex;
-  align-items: center;
-  background: ${({isHighlighted = false}) =>
-    isHighlighted ? "var(--blue)" : "transparent"};
-  color: ${({isHighlighted = false}) =>
-    isHighlighted ? "white" : "var(--dark-grey)"};
-`;
-
-const SuggestionText = styled.div`
-  font-family: var(--font-family);
-  line-height: 1.5;
-`;
-
-const SuggestionSectionTitle = styled.div`
-  font-weight: bold;
-`;
 
 const getSuggestionValue = (suggestion) =>
   get(suggestion, "unique_vehicle_id", suggestion);

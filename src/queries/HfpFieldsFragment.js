@@ -16,7 +16,7 @@ const HfpFieldsFragment = gql`
     spd
     mode
     dl
-    jrn
+    hdg
     oday
     direction_id
     route_id

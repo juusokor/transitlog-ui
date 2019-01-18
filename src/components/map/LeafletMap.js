@@ -68,7 +68,7 @@ class LeafletMap extends Component {
       mapRef,
       children,
       className,
-      viewBbox,
+      mapView,
       currentMapillaryViewerLocation,
       setMapillaryViewerLocation,
       onZoom = () => {},
@@ -116,7 +116,7 @@ class LeafletMap extends Component {
               checked={mapOverlays.indexOf("Mapillary") !== -1}>
               <MapillaryGeoJSONLayer
                 map={get(mapRef, "current.leafletElement", null)}
-                viewBbox={viewBbox}
+                viewBbox={mapView}
                 location={currentMapillaryMapLocation}
                 layerIsActive={mapOverlays.indexOf("Mapillary") !== -1}
                 onSelectLocation={setMapillaryViewerLocation}
