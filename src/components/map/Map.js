@@ -1,5 +1,5 @@
-import React, {Component} from "react";
-import {observer, inject} from "mobx-react";
+import React, {PureComponent} from "react";
+import {inject} from "mobx-react";
 import LeafletMap from "./LeafletMap";
 import {app} from "mobx-app";
 import invoke from "lodash/invoke";
@@ -17,8 +17,7 @@ const MAP_BOUNDS_URL_KEY = "mapView";
  */
 
 @inject(app("Journey"))
-@observer
-class Map extends Component {
+class Map extends PureComponent {
   static defaultProps = {
     onMapChanged: () => {},
     onMapChange: () => {},
@@ -26,6 +25,7 @@ class Map extends Component {
   };
 
   canSetView = false;
+  prevCenter = null;
 
   disposeSidePanelReaction = () => {};
   disposeCanSetViewReaction = () => {};
@@ -102,34 +102,20 @@ class Map extends Component {
     }
   }
 
-  componentDidUpdate({center: prevCenter}) {
-    const {center} = this.props;
+  setMapCenter = (center) => {
+    const map = this.getLeaflet();
 
-    if (!this.canSetView || !center) {
+    if (!this.canSetView || !center || !map) {
       return;
     }
 
-    const propsLat = get(center, "lat", "");
-    const propsLng = get(center, "lng", "");
+    const prevCenter = this.prevCenter;
 
-    const prevLat = get(prevCenter, "lat", "");
-    const prevLng = get(prevCenter, "lng", "");
-
-    const map = this.getLeaflet();
-
-    if (
-      map &&
-      propsLat &&
-      propsLng &&
-      propsLat !== prevLat &&
-      propsLng !== prevLng
-    ) {
-      map.setView({
-        lat: propsLat,
-        lng: propsLng,
-      });
+    if (!prevCenter || (prevCenter && !center.equals(prevCenter))) {
+      this.prevCenter = center;
+      map.setView(center);
     }
-  }
+  };
 
   componentWillUnmount() {
     this.disposeSidePanelReaction();
@@ -217,6 +203,7 @@ class Map extends Component {
           zoom,
           mapView,
           setMapBounds: this.setMapBounds,
+          setMapCenter: this.setMapCenter,
         })}
       </LeafletMap>
     );
