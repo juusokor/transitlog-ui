@@ -56,16 +56,19 @@ export const InputBase = styled.input`
 
 export const Button = styled.button`
   font-family: var(--font-family);
-  font-size: ${({small = false}) => (small ? "0.875rem" : "1rem")};
+  font-size: ${({small = false}) => (small ? "0.75rem" : "1rem")};
   font-weight: 500;
   appearance: none;
   outline: none;
   border-radius: 2.5rem;
-  border: 1px solid var(--blue);
-  background: ${({primary = false}) => (primary ? "var(--blue)" : "white")};
+  border: 1px solid
+    ${({transparent = false}) => (!transparent ? "var(--blue)" : "white")};
+  background: ${({primary = false, transparent = false}) =>
+    primary ? "var(--blue)" : transparent ? "transparent" : "white"};
   letter-spacing: -0.6px;
   padding: 0 ${({small = false}) => (small ? "1.25rem" : "1.65em")};
-  color: ${({primary = false}) => (primary ? "white" : "var(--blue)")};
+  color: ${({primary = false, transparent = false}) =>
+    primary || transparent ? "white" : "var(--blue)"};
   user-select: none;
   display: flex;
   align-items: center;
@@ -77,7 +80,8 @@ export const Button = styled.button`
   transition: background-color 0.15s ease-out, transform 0.2s ease-out;
 
   &:hover {
-    background: ${({primary = false}) => (primary ? "var(--dark-blue)" : "#eeeeee")};
+    background: ${({primary = false, transparent}) =>
+      primary || transparent ? "var(--dark-blue)" : "#eeeeee"};
     transform: scale(1.05);
   }
 `;

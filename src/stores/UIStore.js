@@ -1,4 +1,4 @@
-import {extendObservable, observable, reaction} from "mobx";
+import {extendObservable, action, observable, reaction} from "mobx";
 import {getUrlValue} from "./UrlManager";
 import getJourneyId from "../helpers/getJourneyId";
 import {createRouteId} from "../helpers/keys";
@@ -31,6 +31,7 @@ export default (state) => {
     areaEventsStyle: getUrlValue("areaEventsStyle", areaEventsStyles.MARKERS),
     language: languageState.language,
     errors: [],
+    shareModalOpen: false,
     pollingEnabled: getUrlValue("pollingEnabled", false),
     // This is a computed check to see if we have anything to show in the journey details sidebar.
     // When this returns false the sidebar will hide regardless of the journeyDetailsOpen setting.
@@ -47,6 +48,10 @@ export default (state) => {
     },
   });
 
+  const toggleShareModal = action((setTo = !state.shareModalOpen) => {
+    state.shareModalOpen = setTo;
+  });
+
   const actions = uiActions(state);
 
   // Sync external languageState with app state.
@@ -57,5 +62,8 @@ export default (state) => {
     }
   );
 
-  return actions;
+  return {
+    ...actions,
+    toggleShareModal,
+  };
 };
