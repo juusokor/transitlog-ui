@@ -4,7 +4,7 @@ import get from "lodash/get";
 import {app} from "mobx-app";
 import getJourneyId from "../../helpers/getJourneyId";
 import styled from "styled-components";
-import {timeToFormat} from "../../helpers/time";
+import {timeToFormat, combineDateAndTime} from "../../helpers/time";
 import {Text, text} from "../../helpers/text";
 import doubleDigit from "../../helpers/doubleDigit";
 import Loading from "../Loading";
@@ -79,14 +79,7 @@ class Journeys extends Component {
 
       // Only set these if the journey is truthy and was not already selected
       if (journeyId && getJourneyId(state.selectedJourney) !== journeyId) {
-        Time.setTime(
-          timeToFormat(
-            journey.journey_start_timestamp,
-            "HH:mm:ss",
-            "Europe/Helsinki"
-          )
-        );
-
+        Time.setTime(journey.journey_start_time);
         journeyToSelect = journey;
       }
     }
@@ -246,11 +239,7 @@ class Journeys extends Component {
                           key={`journey_row_${journeyId}`}
                           onClick={this.selectJourney(journeyEvent)}>
                           <JourneyRowLeft>
-                            {timeToFormat(
-                              journeyEvent.journey_start_timestamp,
-                              "HH:mm:ss",
-                              "Europe/Helsinki"
-                            )}
+                            {journeyEvent.journey_start_time}
                           </JourneyRowLeft>
                           {observedJourney}
                         </JourneyListRow>

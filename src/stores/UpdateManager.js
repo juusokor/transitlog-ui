@@ -23,8 +23,9 @@ export function removeUpdateListener(name) {
   return unset(updateListeners, name);
 }
 
+let updateTimerHandle = null;
+
 export default (state) => {
-  let updateTimerHandle = null;
   const timeActions = TimeActions(state);
   const filterActions = FilterActions(state);
   const uiActions = UiActions(state);
@@ -87,7 +88,7 @@ export default (state) => {
         }, 1000);
       }
     },
-    {fireImmediately: true}
+    {fireImmediately: true, delay: 100}
   );
 
   return {

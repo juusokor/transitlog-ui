@@ -91,14 +91,18 @@ class HfpMarkerLayer extends Component {
 
   async componentDidMount() {
     const {state, positions} = this.props;
-    // Index once when mounted.
-    await this.indexPositions(positions);
+    const {pollingEnabled} = state;
+
+    if (!pollingEnabled) {
+      // Index once when mounted.
+      await this.indexPositions(positions);
+    }
 
     // A reaction to set the hfp event that matches the currently selected time
     this.positionReaction = reaction(
-      () => [state.unixTime, this.positions.size],
-      ([time, positionsSize]) => {
-        if (time && positionsSize !== 0) {
+      () => [state.unixTime, this.positions.size, state.pollingEnabled],
+      ([time, positionsSize, pollingEnabled]) => {
+        if (!pollingEnabled && time && positionsSize !== 0) {
           this.getHfpPosition(time);
         }
       },
@@ -106,11 +110,16 @@ class HfpMarkerLayer extends Component {
     );
   }
 
-  componentDidUpdate() {
-    const {journeyId, positions} = this.props;
+  async componentDidUpdate() {
+    const {
+      journeyId,
+      positions = [],
+      state: {pollingEnabled},
+    } = this.props;
 
     // If the positions changed we need to index again.
     if (
+      !pollingEnabled &&
       positions.length !== 0 &&
       (journeyId !== this.prevJourneyId ||
         positions.length !== this.prevPositionsLength)
@@ -118,6 +127,11 @@ class HfpMarkerLayer extends Component {
       this.indexPositions(positions);
       this.prevJourneyId = journeyId;
       this.prevPositionsLength = positions.length;
+    }
+
+    if (pollingEnabled && positions.length !== 0) {
+      await animationFrame();
+      this.setHfpPosition(positions[positions.length - 1]);
     }
   }
 

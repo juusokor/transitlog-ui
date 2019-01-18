@@ -3,6 +3,7 @@ import {getUrlValue} from "./UrlManager";
 import getJourneyId from "../helpers/getJourneyId";
 import {createRouteId} from "../helpers/keys";
 import uiActions from "./uiActions";
+import {setResetListener} from "./FilterStore";
 
 export const LANGUAGES = {
   FINNISH: "fi",
@@ -53,6 +54,8 @@ export default (state) => {
       state.language = currentLanguage;
     }
   );
+
+  setResetListener(() => actions.togglePolling(false));
 
   return actions;
 };

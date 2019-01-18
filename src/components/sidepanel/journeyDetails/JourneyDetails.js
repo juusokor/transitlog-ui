@@ -2,7 +2,6 @@ import React from "react";
 import styled from "styled-components";
 import JourneyDetailsHeader from "./JourneyDetailsHeader";
 import {observer, inject} from "mobx-react";
-import {trace} from "mobx";
 import {app} from "mobx-app";
 import pick from "lodash/pick";
 import get from "lodash/get";
