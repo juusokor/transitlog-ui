@@ -6,6 +6,7 @@ import SelectedJourneyQuery from "../queries/SelectedJourneyQuery";
 import getJourneyId from "../helpers/getJourneyId";
 import get from "lodash/get";
 import withRoute from "../hoc/withRoute";
+import EnsureJourneySelection from "../helpers/EnsureJourneySelection";
 
 @withRoute
 @inject(app("state"))
@@ -27,8 +28,26 @@ class SelectedJourneyEvents extends Component {
         skip={!selectedJourneyValid}
         selectedJourney={selectedJourney}>
         {({positions = [], loading, error}) => {
+          if ((!positions || positions.length === 0) && !loading) {
+            return (
+              <EnsureJourneySelection
+                events={null}
+                eventsLoading={loading}
+                error={error}>
+                {children}
+              </EnsureJourneySelection>
+            );
+          }
+
           if (!positions || positions.length === 0 || loading) {
-            return children({events: [], loading, error});
+            return (
+              <EnsureJourneySelection
+                events={[]}
+                eventsLoading={loading}
+                error={error}>
+                {children}
+              </EnsureJourneySelection>
+            );
           }
 
           const events = positions
@@ -38,11 +57,14 @@ class SelectedJourneyEvents extends Component {
 
           const journeyId = getJourneyId(events[0]);
 
-          return children({
-            events: [{journeyId, events}],
-            loading,
-            error,
-          });
+          return (
+            <EnsureJourneySelection
+              events={[{journeyId, events}]}
+              eventsLoading={loading}
+              error={error}>
+              {children}
+            </EnsureJourneySelection>
+          );
         }}
       </SelectedJourneyQuery>
     );
