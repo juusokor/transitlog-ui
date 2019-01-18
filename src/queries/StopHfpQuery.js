@@ -64,14 +64,10 @@ class StopHfpQuery extends Component {
 
     const routesList = !routes || routes.length === 0 ? [] : routes;
 
-    if (routesList.length === 0) {
-      return children({journeys: this.prevResult, loading: false, error: null});
-    }
-
     const queryRoutes = [];
     const queryDirections = [];
 
-    routes.forEach(({routeId, direction}) => {
+    routesList.forEach(({routeId, direction}) => {
       if (queryRoutes.indexOf(routeId) === -1) {
         queryRoutes.push(routeId);
       }
@@ -82,11 +78,10 @@ class StopHfpQuery extends Component {
       }
     });
 
-    // TODO: Investigate why this is refetched
-
     return (
       <Query
-        skip={skip || routesList.length === 0}
+        fetchPolicy="no-cache"
+        skip={skip || queryRoutes.length === 0}
         onCompleted={onCompleted}
         variables={{
           date,
@@ -97,12 +92,11 @@ class StopHfpQuery extends Component {
         query={stopDelayQuery}>
         {({loading, data, error, refetch}) => {
           setUpdateListener(updateListenerName, this.onUpdate(refetch), false);
+          const vehicles = get(data, "vehicles", []);
 
-          if (loading || error) {
+          if (vehicles.length === 0 || loading || error) {
             return children({journeys: this.prevResult, loading, error});
           }
-
-          const vehicles = get(data, "vehicles", []);
 
           const journeysByRoute = groupBy(
             vehicles,
@@ -115,8 +109,7 @@ class StopHfpQuery extends Component {
           const journeysByRouteAndTime = reduce(
             journeysByRoute,
             (groups, hfpItems, groupKey) => {
-              console.log(hfpItems);
-              groups[groupKey] = hfpItems[0];
+              groups[groupKey] = hfpItems[hfpItems.length - 1];
               return groups;
             },
             {}

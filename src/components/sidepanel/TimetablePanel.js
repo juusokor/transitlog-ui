@@ -5,7 +5,7 @@ import StopTimetable from "./StopTimetable";
 import withStop from "../../hoc/withStop";
 import {app} from "mobx-app";
 import withAllStopDepartures from "../../hoc/withAllStopDepartures";
-import {toJS, computed, reaction} from "mobx";
+import {toJS, reaction} from "mobx";
 import styled from "styled-components";
 import Input from "../Input";
 import {text} from "../../helpers/text";
@@ -14,7 +14,6 @@ import StopHfpQuery from "../../queries/StopHfpQuery";
 import {sortByOperationDay} from "../../helpers/sortByOperationDay";
 import doubleDigit from "../../helpers/doubleDigit";
 import orderBy from "lodash/orderBy";
-import meanBy from "lodash/meanBy";
 import groupBy from "lodash/groupBy";
 import {createDebouncedObservable} from "../../helpers/createDebouncedObservable";
 import {getUrlValue, setUrlValue} from "../../stores/UrlManager";
@@ -252,7 +251,6 @@ class TimetablePanel extends Component {
           return (
             stop && (
               <StopHfpQuery
-                key={`stop_hfp_${stop.stopId}_${date}`}
                 skip={routes.length === 0} // Skip if there are no routes to fetch
                 stopId={stop.stopId}
                 routes={routes}
@@ -260,7 +258,7 @@ class TimetablePanel extends Component {
                 {({journeys, loading}) => (
                   <StopTimetable
                     key={`stop_timetable_${stop.stopId}_${date}`}
-                    loading={timetableLoading || loading}
+                    loading={loading}
                     time={this.reactionlessTime}
                     focusRef={scrollRef}
                     setScrollOffset={updateScrollOffset}
