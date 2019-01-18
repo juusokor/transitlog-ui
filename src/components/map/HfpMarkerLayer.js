@@ -141,11 +141,11 @@ class HfpMarkerLayer extends Component {
       className: `hfp-icon`,
       iconSize: 36,
       html: `<span class="hfp-marker-wrapper" style="background-color: ${modeColor}">
-<span class="hfp-marker-icon ${get(
+<div class="hfp-marker-icon ${get(
         position,
         "mode",
         ""
-      ).toUpperCase()}" style="transform: rotate(${position.hdg - 180}deg)"></span>
+      ).toUpperCase()}" style="transform: rotate(${position.hdg - 180}deg)"></div>
 ${position.drst ? `<span class="hfp-marker-drst"></span>` : ""}
 <span class="hfp-marker-heading" style="transform: rotate(${
         position.hdg
