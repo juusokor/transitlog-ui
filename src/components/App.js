@@ -11,6 +11,7 @@ import {latLng} from "leaflet";
 import SingleStopQuery from "../queries/SingleStopQuery";
 import AreaHfpEvents from "./AreaHfpEvents";
 import ErrorMessages from "./ErrorMessages";
+import SharingModal from "./SharingModal";
 import SelectedJourneyEvents from "./SelectedJourneyEvents";
 
 const AppFrame = styled.main`
@@ -41,12 +42,12 @@ const MapPanel = styled(Map)`
   height: 100%;
 `;
 
-@inject(app("Journey", "Filters"))
+@inject(app("Journey", "Filters", "UI"))
 @observer
 class App extends Component {
   render() {
-    const {state} = this.props;
-    const {date, stop, route} = state;
+    const {state, UI} = this.props;
+    const {date, stop, route, shareModalOpen} = state;
 
     const hasRoute = !!route && !!route.routeId;
 
@@ -127,6 +128,10 @@ class App extends Component {
           )}
         </AreaHfpEvents>
         <ErrorMessages />
+        <SharingModal
+          isOpen={shareModalOpen}
+          onClose={() => UI.toggleShareModal(false)}
+        />
       </AppFrame>
     );
   }

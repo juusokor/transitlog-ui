@@ -1,4 +1,4 @@
-import {extendObservable, observable, reaction} from "mobx";
+import {extendObservable, action, observable, reaction} from "mobx";
 import {getUrlValue} from "./UrlManager";
 import getJourneyId from "../helpers/getJourneyId";
 import {createRouteId} from "../helpers/keys";
@@ -20,17 +20,14 @@ export const areaEventsStyles = {
 };
 
 export default (state) => {
-  const sideBarUrlState = getUrlValue("sidePanelVisible", true);
-  const journeyDetailsUrlState = getUrlValue("journeyDetailsOpen", true);
-
   extendObservable(state, {
-    sidePanelVisible: !sideBarUrlState || sideBarUrlState === "false" ? false : true,
-    journeyDetailsOpen:
-      !journeyDetailsUrlState || journeyDetailsUrlState === "false" ? false : true,
+    sidePanelVisible: getUrlValue("sidePanelVisible", true),
+    journeyDetailsOpen: getUrlValue("journeyDetailsOpen", true),
     mapOverlays: getUrlValue("mapOverlays", "").split(","),
     areaEventsStyle: getUrlValue("areaEventsStyle", areaEventsStyles.MARKERS),
     language: languageState.language,
     errors: [],
+    shareModalOpen: false,
     pollingEnabled: getUrlValue("pollingEnabled", false),
     // This is a computed check to see if we have anything to show in the journey details sidebar.
     // When this returns false the sidebar will hide regardless of the journeyDetailsOpen setting.

@@ -38,7 +38,7 @@ const TabButton = styled.button`
   justify-content: center;
   cursor: pointer;
   outline: 0;
-  padding: 0.5rem 0.5rem;
+  padding: 0.75rem 0.5rem;
 
   &:last-child {
     border-right: 0;

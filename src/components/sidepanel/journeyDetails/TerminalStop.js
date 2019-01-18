@@ -163,7 +163,12 @@ export default ({
                   <Text>journey.arrival</Text>
                 </TimeHeading>
                 <StopArrivalTime onClick={onClickTime(stopArrivalTime)}>
-                  <PlainSlot style={{fontStyle: "italic"}}>
+                  <PlainSlot
+                    style={{
+                      fontStyle: "italic",
+                      fontSize: "0.925rem",
+                      lineHeight: "1.2rem",
+                    }}>
                     {offsetTime.format("HH:mm:ss")}*
                   </PlainSlot>
                   <ColoredBackgroundSlot
