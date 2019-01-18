@@ -20,13 +20,9 @@ export const areaEventsStyles = {
 };
 
 export default (state) => {
-  const sideBarUrlState = getUrlValue("sidePanelVisible", true);
-  const journeyDetailsUrlState = getUrlValue("journeyDetailsOpen", true);
-
   extendObservable(state, {
-    sidePanelVisible: !sideBarUrlState || sideBarUrlState === "false" ? false : true,
-    journeyDetailsOpen:
-      !journeyDetailsUrlState || journeyDetailsUrlState === "false" ? false : true,
+    sidePanelVisible: getUrlValue("sidePanelVisible", true),
+    journeyDetailsOpen: getUrlValue("journeyDetailsOpen", true),
     mapOverlays: getUrlValue("mapOverlays", "").split(","),
     areaEventsStyle: getUrlValue("areaEventsStyle", areaEventsStyles.MARKERS),
     language: languageState.language,
@@ -48,10 +44,6 @@ export default (state) => {
     },
   });
 
-  const toggleShareModal = action((setTo = !state.shareModalOpen) => {
-    state.shareModalOpen = setTo;
-  });
-
   const actions = uiActions(state);
 
   // Sync external languageState with app state.
@@ -62,8 +54,5 @@ export default (state) => {
     }
   );
 
-  return {
-    ...actions,
-    toggleShareModal,
-  };
+  return actions;
 };

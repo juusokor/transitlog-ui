@@ -3,6 +3,10 @@ import {setUrlValue} from "./UrlManager";
 import {LANGUAGES, languageState, areaEventsStyles} from "./UIStore";
 
 export default (state) => {
+  const toggleShareModal = action((setTo = !state.shareModalOpen) => {
+    state.shareModalOpen = setTo;
+  });
+
   const togglePolling = action((setTo = !state.pollingEnabled) => {
     state.pollingEnabled = setTo;
     setUrlValue("pollingEnabled", state.pollingEnabled);
@@ -93,5 +97,6 @@ export default (state) => {
     addError,
     removeError,
     setAreaEventsStyle,
+    toggleShareModal,
   };
 };
