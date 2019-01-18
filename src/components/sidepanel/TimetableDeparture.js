@@ -44,6 +44,14 @@ const TimingIcon = styled.img`
   margin-bottom: 0;
 `;
 
+const TimetableButton = styled(TagButton)`
+  justify-content: flex-start;
+`;
+
+const ObservedTimeDisplay = styled(PlainSlotSmall)`
+  margin-left: auto;
+`;
+
 @observer
 class TimetableDeparture extends Component {
   render() {
@@ -84,7 +92,8 @@ class TimetableDeparture extends Component {
 
     return (
       <ListRow selected={journeyIsSelected}>
-        <TagButton
+        <TimetableButton
+          hasData={!!plannedObservedDiff}
           ref={focusRef}
           selected={journeyIsSelected}
           onClick={onClick(departureData)}>
@@ -108,12 +117,12 @@ class TimetableDeparture extends Component {
                 {doubleDigit(plannedObservedDiff.minutes)}:
                 {doubleDigit(plannedObservedDiff.seconds)}
               </ColoredBackgroundSlot>
-              <PlainSlotSmall>{observedTimeString}</PlainSlotSmall>
+              <ObservedTimeDisplay>{observedTimeString}</ObservedTimeDisplay>
             </>
           ) : loading ? (
             <InlineLoading />
           ) : null}
-        </TagButton>
+        </TimetableButton>
       </ListRow>
     );
   }
