@@ -18,16 +18,24 @@ const AutosuggestWrapper = styled.div`
 export const SuggestionContent = styled.div`
   display: flex;
   align-items: center;
-  padding: 0.25rem 0.5rem;
   background: ${({isHighlighted = false}) =>
-    isHighlighted ? "var(--light-blue)" : "transparent"};
+      isHighlighted ? "var(--light-blue)" : "transparent"}
+    no-repeat;
   color: ${({isHighlighted = false}) =>
     isHighlighted ? "white" : "var(--dark-grey)"};
+  padding: 0.25rem 0.5rem;
+
+  &:before {
+    content: "";
+    width: 1.25rem;
+    height: 1.25rem;
+  }
 `;
 
 export const SuggestionText = styled.div`
   font-family: var(--font-family);
   line-height: 1.3;
+  margin-left: ${({withIcon = false}) => (withIcon ? "0.5rem" : "0")};
 `;
 
 export const SuggestionSectionTitle = styled.div`
