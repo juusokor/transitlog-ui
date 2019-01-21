@@ -3,9 +3,7 @@ import {observer, inject} from "mobx-react";
 import styled, {css} from "styled-components";
 import Loading from "../Loading";
 import {action, observable, reaction} from "mobx";
-import get from "lodash/get";
 import {app} from "mobx-app";
-import animationFrame from "../../helpers/animationFrame";
 
 const ListWrapper = styled.div`
   height: 100%;

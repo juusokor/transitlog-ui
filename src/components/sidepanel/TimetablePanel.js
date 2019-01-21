@@ -1,7 +1,5 @@
 import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
-import SidepanelList from "./SidepanelList";
-import StopTimetable from "./StopTimetable";
 import withStop from "../../hoc/withStop";
 import {app} from "mobx-app";
 import withAllStopDepartures from "../../hoc/withAllStopDepartures";
@@ -10,15 +8,18 @@ import styled from "styled-components";
 import Input from "../Input";
 import {text} from "../../helpers/text";
 import get from "lodash/get";
-import StopHfpQuery from "../../queries/StopHfpQuery";
 import {sortByOperationDay} from "../../helpers/sortByOperationDay";
 import doubleDigit from "../../helpers/doubleDigit";
-import orderBy from "lodash/orderBy";
-import groupBy from "lodash/groupBy";
+import sortBy from "lodash/sortBy";
 import {createDebouncedObservable} from "../../helpers/createDebouncedObservable";
 import {getUrlValue, setUrlValue} from "../../stores/UrlManager";
 import {Button} from "../Forms";
 import {setResetListener} from "../../stores/FilterStore";
+import VirtualizedSidepanelList from "./VirtualizedSidepanelList";
+import TimetableDeparture from "./TimetableDeparture";
+import uniqBy from "lodash/uniqBy";
+import pick from "lodash/pick";
+import FirstDepartureQuery from "../../queries/FirstDepartureQuery";
 
 const TimetableFilters = styled.div`
   display: flex;
@@ -151,21 +152,36 @@ class TimetablePanel extends Component {
     }
   };
 
-  getDeparturesByHour() {
-    const {departures} = this.props;
-    // Group into hours while making sure to separate pre-4:30 and post-4:30 departures
-    const byHour = groupBy(departures, ({hours, minutes}) => {
+  sortDepartures(departures) {
+    return sortBy(departures, ({hours, minutes}) => {
+      let time = `${doubleDigit(hours)}:00`;
+
       if (hours === 4 && minutes >= 30) {
-        return `${doubleDigit(hours)}:30`;
+        time = `${doubleDigit(hours)}:30`;
       }
 
-      return `${doubleDigit(hours)}:00`;
+      return sortByOperationDay(time);
     });
-
-    // Ensure that night departures from the same operation
-    // day comes last in the timetable list.
-    return orderBy(Object.entries(byHour), ([hour]) => sortByOperationDay(hour));
   }
+
+  renderRow = (list, props) => ({key, index, style, isScrolling, isVisible}) => {
+    const departure = list[index];
+
+    return (
+      <div
+        style={style}
+        key={`departure_${departure.departureId}_${departure.routeId}_${
+          departure.direction
+        }_${departure.hours}_${departure.minutes}`}>
+        <TimetableDeparture
+          isScrolling={isScrolling}
+          isVisible={isVisible}
+          departure={departure}
+          {...props}
+        />
+      </div>
+    );
+  };
 
   render() {
     const {
@@ -178,111 +194,105 @@ class TimetablePanel extends Component {
     // Collect values. The filter values are read as debounced values.
     const routeFilter = this.routeFilter.debouncedValue;
     const timeRangeFilter = this.timeRangeFilter.debouncedValue;
-    const departuresByHour = this.getDeparturesByHour();
-
-    // Collect all routes that are going to be queried for
-    let routes = [];
 
     const {min, max} = timeRangeFilter;
 
-    for (const departure of departures) {
-      const {routeId, direction, hours} = departure;
+    const sortedDepartures = this.sortDepartures(
+      departures.filter(({routeId, hours}) => {
+        // If there is a timerange filter set, ignore routes
+        // from departures that fall outside the filter.
+        if ((min && hours < parseInt(min)) || (max && hours > parseInt(max))) {
+          return false;
+        }
 
-      // If there is a timerange filter set, ignore routes
-      // from departures that fall outside the filter.
-      if ((min && hours < parseInt(min)) || (max && hours > parseInt(max))) {
-        continue;
-      }
+        // Clean up the routeId to be compatible with what
+        // the user would enter into the filter field.
+        const routeIdFilterTerm = routeId
+          .substring(1)
+          .replace(/^0+/, "")
+          .toLowerCase();
 
-      // Clean up the routeId to be compatible with what
-      // the user would enter into the filter field.
-      const routeIdFilterTerm = routeId
-        .substring(1)
-        .replace(/^0+/, "")
-        .toLowerCase();
+        // If there is a route filter set, we don't want
+        // to query for routes that do not match.
+        if (
+          routeFilter &&
+          !routeIdFilterTerm.startsWith(routeFilter.toLowerCase())
+        ) {
+          return false;
+        }
 
-      // If there is a route filter set, we don't want
-      // to query for routes that do not match.
-      if (routeFilter && !routeIdFilterTerm.startsWith(routeFilter.toLowerCase())) {
-        continue;
-      }
+        return true;
+      })
+    );
 
-      if (!routes.find((r) => r.routeId === routeId && r.direction === direction)) {
-        routes.push({routeId, direction});
-      }
-    }
+    const batchedFirstDepartureRequests = uniqBy(sortedDepartures, (dep) =>
+      Object.values(
+        pick(dep, "routeId", "direction", "departureId", "dayType")
+      ).join("_")
+    );
+
+    // TODO: Add an originDeparture field to jore-history departures and
+    //  get rid of FirstDepartureQuery.
 
     return (
-      stop && (
-        <StopHfpQuery
-          key={`stop_hfp_${stop.stopId}_${date}`}
-          skip={routes.length === 0} // Skip if there are no routes to fetch
-          stopId={stop.stopId}
-          routes={routes}
-          routeFilter={routeFilter.value}
-          date={date}>
-          {({journeys, loading}) => (
-            <SidepanelList
-              loading={timetableLoading || loading}
-              header={
-                <TimetableFilters>
-                  <RouteFilterContainer>
-                    <Input
-                      value={this.routeFilter.value} // The value is not debounced here
-                      animatedLabel={false}
-                      onChange={this.setRouteFilter}
-                      label={text("domain.route")}
-                    />
-                  </RouteFilterContainer>
-                  <TimeRangeFilterContainer>
-                    <Input
-                      type="number"
-                      value={this.timeRangeFilter.value.min} // The value is not debounced here either
-                      animatedLabel={false}
-                      label={`${text("general.timerange.min")} ${text(
-                        "general.hour"
-                      )}`}
-                      onChange={this.setTimeRangeFilter("min")}
-                    />
-                    <Input
-                      type="number"
-                      value={this.timeRangeFilter.value.max} // Nor is it debounced here :)
-                      animatedLabel={false}
-                      label={`${text("general.timerange.max")} ${text(
-                        "general.hour"
-                      )}`}
-                      onChange={this.setTimeRangeFilter("max")}
-                    />
-                  </TimeRangeFilterContainer>
-                  <ClearButton onClick={this.onClearFilters}>Clear</ClearButton>
-                </TimetableFilters>
-              }>
-              {(scrollRef, updateScrollOffset) => {
-                // Will be called when filters, and thus the size of the list, changes
-                this.updateScrollOffset = updateScrollOffset;
+      <FirstDepartureQuery
+        skip={batchedFirstDepartureRequests.length === 0}
+        queries={batchedFirstDepartureRequests}>
+        {({firstDepartures, loading: firstDeparturesLoading}) => {
+          const rowRenderer = this.renderRow(sortedDepartures, {
+            selectedJourney,
+            onClick: this.selectAsJourney,
+            stop,
+            date,
+            firstDepartures,
+            loading: firstDeparturesLoading,
+          });
 
-                return (
-                  <StopTimetable
-                    key={`stop_timetable_${stop.stopId}_${date}`}
-                    loading={loading || timetableLoading}
-                    time={this.reactionlessTime}
-                    focusRef={scrollRef}
-                    setScrollOffset={updateScrollOffset}
-                    routeFilter={routeFilter}
-                    timeRangeFilter={timeRangeFilter}
-                    journeys={journeys}
-                    departuresByHour={departuresByHour}
-                    stop={stop}
-                    date={date}
-                    selectedJourney={selectedJourney}
-                    onSelectAsJourney={this.selectAsJourney}
-                  />
-                );
-              }}
-            </SidepanelList>
-          )}
-        </StopHfpQuery>
-      )
+          return (
+            stop && (
+              <VirtualizedSidepanelList
+                list={sortedDepartures}
+                renderRow={rowRenderer}
+                rowHeight={35}
+                loading={timetableLoading || firstDeparturesLoading}
+                header={
+                  <TimetableFilters>
+                    <RouteFilterContainer>
+                      <Input
+                        value={this.routeFilter.value} // The value is not debounced here
+                        animatedLabel={false}
+                        onChange={this.setRouteFilter}
+                        label={text("domain.route")}
+                      />
+                    </RouteFilterContainer>
+                    <TimeRangeFilterContainer>
+                      <Input
+                        type="number"
+                        value={this.timeRangeFilter.value.min} // The value is not debounced here either
+                        animatedLabel={false}
+                        label={`${text("general.timerange.min")} ${text(
+                          "general.hour"
+                        )}`}
+                        onChange={this.setTimeRangeFilter("min")}
+                      />
+                      <Input
+                        type="number"
+                        value={this.timeRangeFilter.value.max} // Nor is it debounced here :)
+                        animatedLabel={false}
+                        label={`${text("general.timerange.max")} ${text(
+                          "general.hour"
+                        )}`}
+                        onChange={this.setTimeRangeFilter("max")}
+                      />
+                    </TimeRangeFilterContainer>
+                    <ClearButton onClick={this.onClearFilters}>Clear</ClearButton>
+                  </TimetableFilters>
+                }
+              />
+            )
+          );
+        }}
+      </FirstDepartureQuery>
     );
   }
 }

@@ -9,8 +9,9 @@ const stopDelayQuery = gql`
   query stopDelay(
     $date: date!
     $stopId: String!
-    $routeIds: [String]!
-    $directionIds: [smallint]!
+    $routeId: String!
+    $directionId: smallint!
+    $journeyStartTime: time
   ) {
     vehicles(
       distinct_on: [oday, route_id, direction_id, journey_start_time]
@@ -22,8 +23,9 @@ const stopDelayQuery = gql`
         {received_at: desc}
       ]
       where: {
-        route_id: {_in: $routeIds}
-        direction_id: {_in: $directionIds}
+        journey_start_time: {_eq: $journeyStartTime}
+        route_id: {_eq: $routeId}
+        direction_id: {_eq: $directionId}
         oday: {_eq: $date}
         next_stop_id: {_eq: $stopId}
       }
@@ -45,9 +47,7 @@ const stopDelayQuery = gql`
 const updateListenerName = "stop hfp query";
 
 @observer
-class StopHfpQuery extends Component {
-  prevResult = [];
-
+class DepartureHfpQuery extends Component {
   componentWillUnmount() {
     removeUpdateListener(updateListenerName);
   }
@@ -62,44 +62,24 @@ class StopHfpQuery extends Component {
 
   render() {
     const {
-      onCompleted = () => {},
-      routes = [],
+      routeId,
+      direction,
       date,
       stopId,
+      journeyStartTime,
       skip,
       children,
-      routeFilter,
     } = this.props;
-
-    const routesList = !routes || routes.length === 0 ? [] : routes;
-
-    const queryRoutes = [];
-    const queryDirections = [];
-
-    routesList.forEach(({routeId, direction}) => {
-      if (
-        queryRoutes.indexOf(routeId) === -1 &&
-        (!routeFilter ||
-          (routeFilter && routeId.startsWith(routeFilter.toLowerCase())))
-      ) {
-        queryRoutes.push(routeId);
-      }
-
-      const dirInt = parseInt(direction, 10);
-      if (queryDirections.indexOf(dirInt) === -1) {
-        queryDirections.push(dirInt);
-      }
-    });
 
     return (
       <Query
-        skip={skip || queryRoutes.length === 0}
-        onCompleted={onCompleted}
+        skip={skip}
         variables={{
           date,
           stopId,
-          routeIds: queryRoutes,
-          directionIds: queryDirections,
+          routeId,
+          journeyStartTime,
+          directionId: direction,
         }}
         query={stopDelayQuery}>
         {({loading, data, error, refetch}) => {
@@ -107,15 +87,14 @@ class StopHfpQuery extends Component {
           const vehicles = get(data, "vehicles", []);
 
           if (vehicles.length === 0 || loading || error) {
-            return children({journeys: this.prevResult, loading, error});
+            return children({event: null, loading, error});
           }
 
-          this.prevResult = vehicles;
-          return children({journeys: vehicles, loading});
+          return children({event: vehicles[0], loading, error});
         }}
       </Query>
     );
   }
 }
 
-export default StopHfpQuery;
+export default DepartureHfpQuery;
