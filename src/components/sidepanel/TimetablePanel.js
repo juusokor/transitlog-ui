@@ -21,6 +21,8 @@ import uniqBy from "lodash/uniqBy";
 import pick from "lodash/pick";
 import FirstDepartureQuery from "../../queries/FirstDepartureQuery";
 import {getDepartureByTime} from "../../helpers/getDepartureByTime";
+import getJourneyId from "../../helpers/getJourneyId";
+import {createCompositeJourney} from "../../stores/journeyActions";
 
 const TimetableFilters = styled.div`
   display: flex;
@@ -231,14 +233,6 @@ class TimetablePanel extends Component {
       ).join("_")
     );
 
-    const focusedDeparture = getDepartureByTime(
-      sortedDepartures,
-      this.reactionlessTime
-    );
-    const focusedIndex = sortedDepartures.findIndex(
-      (departure) => departure === focusedDeparture
-    );
-
     // TODO: Add an originDeparture field to jore-history departures and
     //  get rid of FirstDepartureQuery.
 
@@ -255,6 +249,33 @@ class TimetablePanel extends Component {
             firstDepartures,
             loading: firstDeparturesLoading,
           });
+
+          const selectedJourneyId = getJourneyId(selectedJourney);
+
+          const focusedDeparture = selectedJourneyId
+            ? sortedDepartures.find((departure) => {
+                const firstDepartureTime = get(
+                  firstDepartures,
+                  `${departure.routeId}_${departure.direction}_${
+                    departure.departureId
+                  }`,
+                  null
+                );
+
+                return (
+                  selectedJourneyId ===
+                  getJourneyId(
+                    createCompositeJourney(date, departure, firstDepartureTime)
+                  )
+                );
+              })
+            : getDepartureByTime(sortedDepartures, this.reactionlessTime);
+
+          const focusedIndex = focusedDeparture
+            ? sortedDepartures.findIndex(
+                (departure) => departure === focusedDeparture
+              )
+            : -1;
 
           return (
             stop && (
