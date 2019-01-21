@@ -4,7 +4,6 @@ import get from "lodash/get";
 import {app} from "mobx-app";
 import getJourneyId from "../../helpers/getJourneyId";
 import styled from "styled-components";
-import {timeToFormat, combineDateAndTime} from "../../helpers/time";
 import {Text, text} from "../../helpers/text";
 import doubleDigit from "../../helpers/doubleDigit";
 import Loading from "../Loading";

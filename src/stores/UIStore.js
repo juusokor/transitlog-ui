@@ -1,4 +1,4 @@
-import {extendObservable, action, observable, reaction} from "mobx";
+import {extendObservable, observable, reaction} from "mobx";
 import {getUrlValue} from "./UrlManager";
 import getJourneyId from "../helpers/getJourneyId";
 import {createRouteId} from "../helpers/keys";
