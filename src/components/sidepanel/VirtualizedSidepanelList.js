@@ -1,11 +1,13 @@
 import React, {Component} from "react";
-import {observer, inject} from "mobx-react";
+import {observer} from "mobx-react";
 import styled, {css} from "styled-components";
 import Loading from "../Loading";
 import {List, AutoSizer} from "react-virtualized";
 
 const ListWrapper = styled.div`
   height: 100%;
+  display: grid;
+  grid-template-rows: ${({hasHeader}) => (hasHeader ? "auto 1fr" : "1fr")};
 `;
 
 const ListHeader = styled.header`
@@ -66,19 +68,21 @@ class VirtualizedSidepanelList extends Component {
     return (
       <ListWrapper hasHeader={!!header}>
         {header && <ListHeader>{header}</ListHeader>}
-        <AutoSizer>
-          {({height, width}) => (
-            <List
-              scrollToIndex={scrollToIndex}
-              estimatedRowSize={30}
-              height={height}
-              width={width}
-              rowCount={list.length}
-              rowHeight={rowHeight}
-              rowRenderer={renderRow}
-            />
-          )}
-        </AutoSizer>
+        <div>
+          <AutoSizer>
+            {({height, width}) => (
+              <List
+                scrollToIndex={scrollToIndex}
+                estimatedRowSize={35}
+                height={height}
+                width={width}
+                rowCount={list.length}
+                rowHeight={rowHeight}
+                rowRenderer={renderRow}
+              />
+            )}
+          </AutoSizer>
+        </div>
         <LoadingContainer loading={loading}>
           <Loading />
         </LoadingContainer>
