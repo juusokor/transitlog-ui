@@ -2,7 +2,6 @@ import {inject, observer} from "mobx-react";
 import {app} from "mobx-app";
 import React from "react";
 import DeparturesQuery from "../queries/DeparturesQuery";
-import withStop from "./withStop";
 
 export default (Component) => {
   @inject(app("state"))

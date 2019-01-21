@@ -1,4 +1,4 @@
-import {action, reaction} from "mobx";
+import {reaction} from "mobx";
 import moment from "moment-timezone";
 import set from "lodash/set";
 import unset from "lodash/unset";
