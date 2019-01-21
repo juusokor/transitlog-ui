@@ -1,5 +1,4 @@
 import diffDates from "date-fns/difference_in_seconds";
-import animationFrame from "./animationFrame";
 
 // getJourneyFollowBounds caches the previously matched index so that
 // consecutive lookups will be much faster. It saves around 3 ms.
@@ -14,14 +13,7 @@ const TOLERANCE = 15; // Tolerate 15 seconds off from time
 
 // This function is not as precise as the ones used
 // for the HFP markers. But it is a lot cheaper and more performant!
-async function getCoarsePositionForTime(
-  positions,
-  time,
-  cacheKey,
-  tolerance = TOLERANCE
-) {
-  await animationFrame();
-
+function getCoarsePositionForTime(positions, time, cacheKey, tolerance = TOLERANCE) {
   let followPosition = null;
 
   // If we have a previous position, start the loop from its index.

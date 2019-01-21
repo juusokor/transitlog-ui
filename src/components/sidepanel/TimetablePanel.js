@@ -213,51 +213,55 @@ class TimetablePanel extends Component {
     }
 
     return (
-      <SidepanelList
-        loading={timetableLoading}
-        header={
-          <TimetableFilters>
-            <RouteFilterContainer>
-              <Input
-                value={this.routeFilter.value} // The value is not debounced here
-                animatedLabel={false}
-                onChange={this.setRouteFilter}
-                label={text("domain.route")}
-              />
-            </RouteFilterContainer>
-            <TimeRangeFilterContainer>
-              <Input
-                type="number"
-                value={this.timeRangeFilter.value.min} // The value is not debounced here either
-                animatedLabel={false}
-                label={`${text("general.timerange.min")} ${text("general.hour")}`}
-                onChange={this.setTimeRangeFilter("min")}
-              />
-              <Input
-                type="number"
-                value={this.timeRangeFilter.value.max} // Nor is it debounced here :)
-                animatedLabel={false}
-                label={`${text("general.timerange.max")} ${text("general.hour")}`}
-                onChange={this.setTimeRangeFilter("max")}
-              />
-            </TimeRangeFilterContainer>
-            <ClearButton onClick={this.onClearFilters}>Clear</ClearButton>
-          </TimetableFilters>
-        }>
-        {(scrollRef, updateScrollOffset) => {
-          // Will be called when filters, and thus the size of the list, changes
-          this.updateScrollOffset = updateScrollOffset;
+      stop && (
+        <StopHfpQuery
+          key={`stop_hfp_${stop.stopId}_${date}`}
+          skip={routes.length === 0} // Skip if there are no routes to fetch
+          stopId={stop.stopId}
+          routes={routes}
+          routeFilter={routeFilter.value}
+          date={date}>
+          {({journeys, loading}) => (
+            <SidepanelList
+              loading={timetableLoading || loading}
+              header={
+                <TimetableFilters>
+                  <RouteFilterContainer>
+                    <Input
+                      value={this.routeFilter.value} // The value is not debounced here
+                      animatedLabel={false}
+                      onChange={this.setRouteFilter}
+                      label={text("domain.route")}
+                    />
+                  </RouteFilterContainer>
+                  <TimeRangeFilterContainer>
+                    <Input
+                      type="number"
+                      value={this.timeRangeFilter.value.min} // The value is not debounced here either
+                      animatedLabel={false}
+                      label={`${text("general.timerange.min")} ${text(
+                        "general.hour"
+                      )}`}
+                      onChange={this.setTimeRangeFilter("min")}
+                    />
+                    <Input
+                      type="number"
+                      value={this.timeRangeFilter.value.max} // Nor is it debounced here :)
+                      animatedLabel={false}
+                      label={`${text("general.timerange.max")} ${text(
+                        "general.hour"
+                      )}`}
+                      onChange={this.setTimeRangeFilter("max")}
+                    />
+                  </TimeRangeFilterContainer>
+                  <ClearButton onClick={this.onClearFilters}>Clear</ClearButton>
+                </TimetableFilters>
+              }>
+              {(scrollRef, updateScrollOffset) => {
+                // Will be called when filters, and thus the size of the list, changes
+                this.updateScrollOffset = updateScrollOffset;
 
-          return (
-            stop && (
-              <StopHfpQuery
-                key={`stop_hfp_${stop.stopId}_${date}`}
-                skip={routes.length === 0} // Skip if there are no routes to fetch
-                stopId={stop.stopId}
-                routes={routes}
-                routeFilter={routeFilter.value}
-                date={date}>
-                {({journeys, loading}) => (
+                return (
                   <StopTimetable
                     key={`stop_timetable_${stop.stopId}_${date}`}
                     loading={loading || timetableLoading}
@@ -273,12 +277,12 @@ class TimetablePanel extends Component {
                     selectedJourney={selectedJourney}
                     onSelectAsJourney={this.selectAsJourney}
                   />
-                )}
-              </StopHfpQuery>
-            )
-          );
-        }}
-      </SidepanelList>
+                );
+              }}
+            </SidepanelList>
+          )}
+        </StopHfpQuery>
+      )
     );
   }
 }

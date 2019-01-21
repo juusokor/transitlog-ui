@@ -92,6 +92,8 @@ class TimetableDeparture extends Component {
       ? getDelayType(plannedObservedDiff.diff)
       : "none";
 
+    const currentTransportColor = get(transportColor, stopMode, "var(--light-grey)");
+
     return (
       <ListRow selected={journeyIsSelected}>
         <TimetableButton
@@ -99,7 +101,7 @@ class TimetableDeparture extends Component {
           ref={focusRef}
           selected={journeyIsSelected}
           onClick={onClick(departureData)}>
-          <ColoredSlot color={get(transportColor, stopMode, "var(--light-grey)")}>
+          <ColoredSlot color={currentTransportColor}>
             <TransportIcon mode={stopMode} />
             {parseLineNumber(departure.routeId)}
           </ColoredSlot>

@@ -5,6 +5,7 @@ import Loading from "../Loading";
 import {action, observable, reaction} from "mobx";
 import get from "lodash/get";
 import {app} from "mobx-app";
+import animationFrame from "../../helpers/animationFrame";
 
 const ListWrapper = styled.div`
   height: 100%;
@@ -80,27 +81,48 @@ class SidepanelList extends Component {
   @observable
   scrollOffset = 0;
 
+  listHeight = 0;
+
+  updateScrollOffsetTimer = 0;
+
   scrollTo = (offset) => {
     if (this.scrollElementRef.current) {
-      const listHeight = this.scrollElementRef.current.clientHeight;
-      this.scrollElementRef.current.scrollTop = offset - listHeight / 2;
+      this.scrollElementRef.current.scrollTop = offset - this.listHeight / 2;
     }
   };
 
   componentDidMount() {
     this.disposeScrollOffsetReaction = reaction(
       () => this.scrollOffset,
-      (offset) => this.scrollTo(offset)
+      (offset) => {
+        if (!this.props.loading) {
+          this.scrollTo(offset);
+        }
+      }
     );
+
+    if (this.scrollElementRef.current) {
+      this.listHeight = this.scrollElementRef.current.getBoundingClientRect().height;
+    }
   }
 
   componentWillUnmount() {
     this.disposeScrollOffsetReaction();
   }
 
-  componentDidUpdate() {
-    let {reset} = this.props;
-    this.updateScrollOffset(reset);
+  async componentDidUpdate() {
+    let {reset, loading} = this.props;
+
+    if (!loading) {
+      if (this.updateScrollOffsetTimer) {
+        clearTimeout(this.updateScrollOffsetTimer);
+      }
+
+      this.updateScrollOffsetTimer = setTimeout(
+        () => this.updateScrollOffset(reset),
+        500
+      );
+    }
   }
 
   updateScrollOffset = (reset = false) => {
@@ -115,7 +137,7 @@ class SidepanelList extends Component {
   // This behaviour can be overridden by setting the reset arg to true.
   getScrollOffset = (reset = false) => {
     if (this.scrollPositionRef.current && (!this.scrollOffset || reset)) {
-      let offset = get(this.scrollPositionRef, "current.offsetTop", null);
+      let offset = this.scrollPositionRef.current.offsetTop;
 
       if (offset) {
         return offset;
