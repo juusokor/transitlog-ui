@@ -56,37 +56,27 @@ const ObservedTimeDisplay = styled(PlainSlotSmall)`
 
 @observer
 class TimetableDeparture extends Component {
-  prevChildren = null;
-
   renderListRow = (journeyIsSelected, departure, color, mode, isTimingStop) => (
     children = null,
     onClick
-  ) => {
-    const renderChildren = children || this.prevChildren;
-
-    if (children) {
-      this.prevChildren = children;
-    }
-
-    return (
-      <ListRow selected={journeyIsSelected}>
-        <TimetableButton
-          hasData={!!children}
-          selected={journeyIsSelected}
-          onClick={onClick}>
-          <ColoredSlot color={color}>
-            <TransportIcon mode={mode} />
-            {parseLineNumber(departure.routeId)}
-          </ColoredSlot>
-          <PlainSlot>
-            {doubleDigit(departure.hours)}:{doubleDigit(departure.minutes)}
-            {isTimingStop && <TimingIcon src={timingStopIcon} />}
-          </PlainSlot>
-          {renderChildren}
-        </TimetableButton>
-      </ListRow>
-    );
-  };
+  ) => (
+    <ListRow selected={journeyIsSelected}>
+      <TimetableButton
+        hasData={!!children}
+        selected={journeyIsSelected}
+        onClick={onClick}>
+        <ColoredSlot color={color}>
+          <TransportIcon mode={mode} />
+          {parseLineNumber(departure.routeId)}
+        </ColoredSlot>
+        <PlainSlot>
+          {doubleDigit(departure.hours)}:{doubleDigit(departure.minutes)}
+          {isTimingStop && <TimingIcon src={timingStopIcon} />}
+        </PlainSlot>
+        {children}
+      </TimetableButton>
+    </ListRow>
+  );
 
   render() {
     const {
@@ -137,18 +127,19 @@ class TimetableDeparture extends Component {
 
     const skipQuery = !isVisible || !firstDepartureTime;
 
-    if (skipQuery) {
-      return renderListRow(null, onClick(departure));
-    }
-
     return (
       <DepartureHfpQuery
+        skip={skipQuery}
         date={date}
         stopId={stop.stopId}
         routeId={departure.routeId}
         journeyStartTime={firstDepartureTime}
         direction={parseInt(departure.direction, 10)}>
         {({event, loading}) => {
+          if (!event && !loading) {
+            return renderListRow(null, onClick(departure));
+          }
+
           if (loading || firstDeparturesLoading) {
             return renderListRow(<InlineLoading />, onClick(departure));
           }
