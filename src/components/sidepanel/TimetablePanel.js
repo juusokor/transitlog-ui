@@ -17,9 +17,6 @@ import {Button} from "../Forms";
 import {setResetListener} from "../../stores/FilterStore";
 import VirtualizedSidepanelList from "./VirtualizedSidepanelList";
 import TimetableDeparture from "./TimetableDeparture";
-import uniqBy from "lodash/uniqBy";
-import pick from "lodash/pick";
-import FirstDepartureQuery from "../../queries/FirstDepartureQuery";
 import {getDepartureByTime} from "../../helpers/getDepartureByTime";
 import getJourneyId from "../../helpers/getJourneyId";
 import {createCompositeJourney} from "../../stores/journeyActions";
@@ -227,103 +224,75 @@ class TimetablePanel extends Component {
       })
     );
 
-    const batchedFirstDepartureRequests = uniqBy(sortedDepartures, (dep) =>
-      Object.values(
-        pick(dep, "routeId", "direction", "departureId", "dayType")
-      ).join("_")
-    );
+    const rowRenderer = this.renderRow(sortedDepartures, {
+      selectedJourney,
+      onClick: this.selectAsJourney,
+      stop,
+      date,
+    });
 
-    // TODO: Add an originDeparture field to jore-history departures and
-    //  get rid of FirstDepartureQuery.
+    const selectedJourneyId = getJourneyId(selectedJourney);
 
-    return (
-      <FirstDepartureQuery
-        skip={batchedFirstDepartureRequests.length === 0}
-        queries={batchedFirstDepartureRequests}>
-        {({firstDepartures, loading: firstDeparturesLoading}) => {
-          const rowRenderer = this.renderRow(sortedDepartures, {
-            selectedJourney,
-            onClick: this.selectAsJourney,
-            stop,
-            date,
-            firstDepartures,
-            loading: firstDeparturesLoading,
-          });
-
-          const selectedJourneyId = getJourneyId(selectedJourney);
-
-          const focusedDeparture = selectedJourneyId
-            ? sortedDepartures.find((departure) => {
-                const firstDepartureTime = get(
-                  firstDepartures,
-                  `${departure.routeId}_${departure.direction}_${
-                    departure.departureId
-                  }`,
-                  null
-                );
-
-                return (
-                  selectedJourneyId ===
-                  getJourneyId(
-                    createCompositeJourney(date, departure, firstDepartureTime)
-                  )
-                );
-              })
-            : getDepartureByTime(sortedDepartures, this.reactionlessTime);
-
-          const focusedIndex = focusedDeparture
-            ? sortedDepartures.findIndex(
-                (departure) => departure === focusedDeparture
-              )
-            : -1;
+    const focusedDeparture = selectedJourneyId
+      ? sortedDepartures.find((departure) => {
+          const originDeparture = get(departure, "originDeparture", {});
+          const originDepartureTime = `${originDeparture.hours}:${
+            originDeparture.minutes
+          }:00`;
 
           return (
-            stop && (
-              <VirtualizedSidepanelList
-                key={`timetable_${stop.stopId}_${date}`}
-                scrollToIndex={focusedIndex !== -1 ? focusedIndex : undefined}
-                list={sortedDepartures}
-                renderRow={rowRenderer}
-                rowHeight={35}
-                loading={timetableLoading || firstDeparturesLoading}
-                header={
-                  <TimetableFilters>
-                    <RouteFilterContainer>
-                      <Input
-                        value={this.routeFilter.value} // The value is not debounced here
-                        animatedLabel={false}
-                        onChange={this.setRouteFilter}
-                        label={text("domain.route")}
-                      />
-                    </RouteFilterContainer>
-                    <TimeRangeFilterContainer>
-                      <Input
-                        type="number"
-                        value={this.timeRangeFilter.value.min} // The value is not debounced here either
-                        animatedLabel={false}
-                        label={`${text("general.timerange.min")} ${text(
-                          "general.hour"
-                        )}`}
-                        onChange={this.setTimeRangeFilter("min")}
-                      />
-                      <Input
-                        type="number"
-                        value={this.timeRangeFilter.value.max} // Nor is it debounced here :)
-                        animatedLabel={false}
-                        label={`${text("general.timerange.max")} ${text(
-                          "general.hour"
-                        )}`}
-                        onChange={this.setTimeRangeFilter("max")}
-                      />
-                    </TimeRangeFilterContainer>
-                    <ClearButton onClick={this.onClearFilters}>Clear</ClearButton>
-                  </TimetableFilters>
-                }
-              />
+            selectedJourneyId ===
+            getJourneyId(
+              createCompositeJourney(date, departure, originDepartureTime)
             )
           );
-        }}
-      </FirstDepartureQuery>
+        })
+      : getDepartureByTime(sortedDepartures, this.reactionlessTime);
+
+    const focusedIndex = focusedDeparture
+      ? sortedDepartures.findIndex((departure) => departure === focusedDeparture)
+      : -1;
+
+    return (
+      stop && (
+        <VirtualizedSidepanelList
+          key={`timetable_${stop.stopId}_${date}`}
+          scrollToIndex={focusedIndex !== -1 ? focusedIndex : undefined}
+          list={sortedDepartures}
+          renderRow={rowRenderer}
+          rowHeight={35}
+          loading={timetableLoading}
+          header={
+            <TimetableFilters>
+              <RouteFilterContainer>
+                <Input
+                  value={this.routeFilter.value} // The value is not debounced here
+                  animatedLabel={false}
+                  onChange={this.setRouteFilter}
+                  label={text("domain.route")}
+                />
+              </RouteFilterContainer>
+              <TimeRangeFilterContainer>
+                <Input
+                  type="number"
+                  value={this.timeRangeFilter.value.min} // The value is not debounced here either
+                  animatedLabel={false}
+                  label={`${text("general.timerange.min")} ${text("general.hour")}`}
+                  onChange={this.setTimeRangeFilter("min")}
+                />
+                <Input
+                  type="number"
+                  value={this.timeRangeFilter.value.max} // Nor is it debounced here :)
+                  animatedLabel={false}
+                  label={`${text("general.timerange.max")} ${text("general.hour")}`}
+                  onChange={this.setTimeRangeFilter("max")}
+                />
+              </TimeRangeFilterContainer>
+              <ClearButton onClick={this.onClearFilters}>Clear</ClearButton>
+            </TimetableFilters>
+          }
+        />
+      )
     );
   }
 }

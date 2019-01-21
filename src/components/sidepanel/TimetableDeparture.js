@@ -79,16 +79,7 @@ class TimetableDeparture extends Component {
   );
 
   render() {
-    const {
-      departure,
-      date,
-      stop,
-      onClick,
-      selectedJourney,
-      isVisible,
-      firstDepartures,
-      firstDeparturesLoading,
-    } = this.props;
+    const {departure, date, stop, onClick, selectedJourney, isVisible} = this.props;
 
     const {
       modes: {nodes: modes},
@@ -104,18 +95,16 @@ class TimetableDeparture extends Component {
         segment.direction === departure.direction
     );
 
-    // Find the scheduled time for the first stop in order
-    // to get the correct hfp item.
-    const firstDepartureTime = get(
-      firstDepartures,
-      `${departure.routeId}_${departure.direction}_${departure.departureId}`,
-      null
-    );
+    const originDeparture = get(departure, "originDeparture", null);
+    const originDepartureTime = `${get(originDeparture, "hours")}:${get(
+      originDeparture,
+      "minutes"
+    )}:00`;
 
     const journeyIsSelected =
       !!selectedJourneyId &&
       selectedJourneyId ===
-        getJourneyId(createCompositeJourney(date, departure, firstDepartureTime));
+        getJourneyId(createCompositeJourney(date, departure, originDepartureTime));
 
     const renderListRow = this.renderListRow(
       journeyIsSelected,
@@ -125,7 +114,7 @@ class TimetableDeparture extends Component {
       isTimingStop
     );
 
-    const skipQuery = !isVisible || !firstDepartureTime;
+    const skipQuery = !isVisible || !originDeparture;
 
     return (
       <DepartureHfpQuery
@@ -133,14 +122,14 @@ class TimetableDeparture extends Component {
         date={date}
         stopId={stop.stopId}
         routeId={departure.routeId}
-        journeyStartTime={firstDepartureTime}
+        journeyStartTime={originDepartureTime}
         direction={parseInt(departure.direction, 10)}>
         {({event, loading}) => {
           if (!event && !loading) {
             return renderListRow(null, onClick(departure));
           }
 
-          if (loading || firstDeparturesLoading) {
+          if (loading) {
             return renderListRow(<InlineLoading />, onClick(departure));
           }
 
