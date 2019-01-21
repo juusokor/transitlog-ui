@@ -41,14 +41,9 @@ class RouteJourneys extends React.Component {
                         departure.minutes
                       )}:00`;
 
-                      const departureRoute = {
-                        routeId: departure.routeId,
-                        direction: departure.direction,
-                      };
-
                       const departureJourney = createCompositeJourney(
                         date,
-                        departureRoute,
+                        departure,
                         timeStr
                       );
 

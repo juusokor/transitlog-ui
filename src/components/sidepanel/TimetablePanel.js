@@ -20,6 +20,7 @@ import TimetableDeparture from "./TimetableDeparture";
 import uniqBy from "lodash/uniqBy";
 import pick from "lodash/pick";
 import FirstDepartureQuery from "../../queries/FirstDepartureQuery";
+import {getDepartureByTime} from "../../helpers/getDepartureByTime";
 
 const TimetableFilters = styled.div`
   display: flex;
@@ -168,12 +169,11 @@ class TimetablePanel extends Component {
     const departure = list[index];
 
     return (
-      <div
-        style={style}
-        key={`departure_${departure.departureId}_${departure.routeId}_${
-          departure.direction
-        }_${departure.hours}_${departure.minutes}`}>
+      <div style={style} key={key}>
         <TimetableDeparture
+          key={`departure_${departure.departureId}_${departure.routeId}_${
+            departure.direction
+          }_${departure.hours}_${departure.minutes}`}
           isScrolling={isScrolling}
           isVisible={isVisible}
           departure={departure}
@@ -231,6 +231,14 @@ class TimetablePanel extends Component {
       ).join("_")
     );
 
+    const focusedDeparture = getDepartureByTime(
+      sortedDepartures,
+      this.reactionlessTime
+    );
+    const focusedIndex = sortedDepartures.findIndex(
+      (departure) => departure === focusedDeparture
+    );
+
     // TODO: Add an originDeparture field to jore-history departures and
     //  get rid of FirstDepartureQuery.
 
@@ -251,6 +259,7 @@ class TimetablePanel extends Component {
           return (
             stop && (
               <VirtualizedSidepanelList
+                scrollToIndex={focusedIndex !== -1 ? focusedIndex : undefined}
                 list={sortedDepartures}
                 renderRow={rowRenderer}
                 rowHeight={35}
