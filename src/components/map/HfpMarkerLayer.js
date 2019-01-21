@@ -35,7 +35,7 @@ class HfpMarkerLayer extends Component {
   positionReaction = () => {};
 
   // Matches the current time setting with a HFP position from this journey.
-  getHfpPosition = async (time) => {
+  getHfpPosition = (time) => {
     // Attempt to find the correct hfp item from the indexed positions
     let nextHfpPosition = this.positions.get(time);
 
