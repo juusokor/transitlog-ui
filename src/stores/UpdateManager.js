@@ -6,7 +6,6 @@ import timer from "../helpers/timer";
 import TimeActions from "./timeActions";
 import FilterActions from "./filterActions";
 import {combineDateAndTime} from "../helpers/time";
-import UiActions from "./uiActions";
 
 const updateListeners = {};
 let pollingStart = 0;
@@ -28,9 +27,8 @@ let updateTimerHandle = null;
 export default (state) => {
   const timeActions = TimeActions(state);
   const filterActions = FilterActions(state);
-  const uiActions = UiActions(state);
 
-  const updateTime = action((forceCurrent = false) => {
+  const updateTime = (forceCurrent = false) => {
     const {time, timeIncrement, date, timeIsCurrent} = state;
     const selectedMoment = combineDateAndTime(date, time, "Europe/Helsinki");
     const nowMoment = moment.tz(new Date(), "Europe/Helsinki");
@@ -46,21 +44,23 @@ export default (state) => {
       timeActions.setTime(nowMoment.format("HH:mm:ss"));
       filterActions.setDate(nowMoment.format("YYYY-MM-DD"));
     }
-  });
+  };
 
   const update = (isAuto = false) => {
     if (!isAuto) {
-      uiActions.togglePolling(false);
+      timeActions.toggleLive(false);
     }
 
     updateTime(!isAuto);
 
-    Object.values(updateListeners).forEach(({auto, cb}) => {
-      // Check that the cb should run when auto-updating if this is an auto-update.
-      if (typeof cb === "function" && (!isAuto || (isAuto && auto))) {
-        cb();
-      }
-    });
+    if (state.timeIsCurrent) {
+      Object.values(updateListeners).forEach(({auto, cb}) => {
+        // Check that the cb should run when auto-updating if this is an auto-update.
+        if (typeof cb === "function" && (!isAuto || (isAuto && auto))) {
+          cb();
+        }
+      });
+    }
   };
 
   function cancelTimer() {
@@ -69,7 +69,7 @@ export default (state) => {
   }
 
   reaction(
-    () => state.pollingEnabled,
+    () => state.live,
     (isPolling) => {
       if (updateTimerHandle) {
         cancelTimer();
@@ -81,7 +81,7 @@ export default (state) => {
         // This makes it more performant and can "pause" when the tab is not focused.
         updateTimerHandle = timer(() => {
           if (Date.now() - pollingStart > 5000 * 60) {
-            uiActions.togglePolling(false);
+            timeActions.toggleLive(false);
           }
 
           update(true);

@@ -3,9 +3,12 @@ import timeActions from "./timeActions";
 import {combineDateAndTime, timeToFormat} from "../helpers/time";
 import get from "lodash/get";
 import moment from "moment-timezone";
+import {getUrlValue} from "./UrlManager";
+import {setResetListener} from "./FilterStore";
 
 export default (state, initialState) => {
   extendObservable(state, {
+    live: getUrlValue("live", false),
     time: get(
       initialState,
       "time",
@@ -30,5 +33,8 @@ export default (state, initialState) => {
   });
 
   const actions = timeActions(state);
+
+  setResetListener(() => actions.toggleLive(false));
+
   return actions;
 };

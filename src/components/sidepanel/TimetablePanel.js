@@ -280,6 +280,7 @@ class TimetablePanel extends Component {
           return (
             stop && (
               <VirtualizedSidepanelList
+                key={`timetable_${stop.stopId}_${date}`}
                 scrollToIndex={focusedIndex !== -1 ? focusedIndex : undefined}
                 list={sortedDepartures}
                 renderRow={rowRenderer}

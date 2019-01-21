@@ -151,7 +151,7 @@ class SidepanelList extends Component {
 
   render() {
     const {
-      state: {pollingEnabled},
+      state: {live},
       header,
       children = () => {},
       loading = false,
@@ -165,7 +165,7 @@ class SidepanelList extends Component {
             {children(this.scrollPositionRef, this.updateScrollOffset)}
           </ScrollContainer>
         </ListRows>
-        {!pollingEnabled && (
+        {!live && (
           <LoadingContainer loading={loading}>
             <Loading />
           </LoadingContainer>

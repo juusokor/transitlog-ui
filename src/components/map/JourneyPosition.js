@@ -51,7 +51,7 @@ class JourneyPosition extends Component {
 
     this.followReaction = reaction(
       () => {
-        const {time, selectedJourney, pollingEnabled} = state;
+        const {time, selectedJourney, live} = state;
         const selectedJourneyId = getJourneyId(selectedJourney);
 
         /*
@@ -62,7 +62,7 @@ class JourneyPosition extends Component {
          */
 
         // Bail if polling is enabled as it would be hard to move the map.
-        if (pollingEnabled) {
+        if (live) {
           return false;
         }
 

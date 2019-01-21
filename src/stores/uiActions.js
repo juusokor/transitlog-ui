@@ -7,11 +7,6 @@ export default (state) => {
     state.shareModalOpen = setTo;
   });
 
-  const togglePolling = action((setTo = !state.pollingEnabled) => {
-    state.pollingEnabled = setTo;
-    setUrlValue("pollingEnabled", state.pollingEnabled);
-  });
-
   const toggleSidePanel = action((setTo = !state.sidePanelVisible) => {
     state.sidePanelVisible = !!setTo;
     setUrlValue("sidePanelVisible", state.sidePanelVisible);
@@ -89,7 +84,6 @@ export default (state) => {
     });
 
   return {
-    togglePolling,
     toggleSidePanel,
     toggleJourneyDetails,
     setLanguage,

@@ -64,7 +64,7 @@ const Calendar = styled(InputBase.withComponent(DatePicker))`
   border-color: var(--blue);
 `;
 
-@inject(app("Filters", "UI"))
+@inject(app("Filters", "Time"))
 @observer
 class DateSettings extends Component {
   onDateButtonClick = (modifier) => () => {
@@ -88,12 +88,12 @@ class DateSettings extends Component {
   setDate = (dateVal) => {
     const {
       Filters,
-      UI,
-      state: {pollingEnabled},
+      Time,
+      state: {live},
     } = this.props;
 
-    if (pollingEnabled) {
-      UI.togglePolling(false);
+    if (live) {
+      Time.toggleLive(false);
     }
 
     Filters.setDate(dateVal);

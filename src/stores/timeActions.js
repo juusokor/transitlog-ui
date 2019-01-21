@@ -25,10 +25,16 @@ const timeActions = (state) => {
     (searchValue) => (state.areaSearchRangeMinutes = searchValue)
   );
 
+  const toggleLive = action((setTo = !state.live) => {
+    state.live = setTo;
+    setUrlValue("live", state.live);
+  });
+
   return {
     setTime,
     setTimeIncrement,
     setAreaSearchMinutes,
+    toggleLive,
   };
 };
 

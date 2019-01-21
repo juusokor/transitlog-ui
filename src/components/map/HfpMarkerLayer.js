@@ -8,7 +8,7 @@ import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import {Text} from "../../helpers/text";
 import "./Map.css";
-import {observable, action, reaction} from "mobx";
+import {observable, action, reaction, computed, runInAction} from "mobx";
 import animationFrame from "../../helpers/animationFrame";
 import {getModeColor} from "../../helpers/vehicleColor";
 
@@ -26,11 +26,16 @@ class HfpMarkerLayer extends Component {
   @observable.ref
   hfpPosition = null;
 
+  @computed get isLive() {
+    // Determine if the app is live-updating or just simulating.
+    const {live, timeIsCurrent} = this.state;
+    return live && timeIsCurrent;
+  }
+
   positionReaction = () => {};
 
   // Matches the current time setting with a HFP position from this journey.
   getHfpPosition = async (time) => {
-    await animationFrame();
     // Attempt to find the correct hfp item from the indexed positions
     let nextHfpPosition = this.positions.get(time);
 
@@ -59,9 +64,10 @@ class HfpMarkerLayer extends Component {
     this.setHfpPosition(nextHfpPosition);
   };
 
-  setHfpPosition = action((nextHfpPosition) => {
-    this.hfpPosition = nextHfpPosition;
-  });
+  setHfpPosition = async (nextHfpPosition) => {
+    await animationFrame();
+    runInAction(() => (this.hfpPosition = nextHfpPosition));
+  };
 
   onMarkerClick = (positionWhenClicked) => () => {
     const {onMarkerClick} = this.props;
@@ -91,18 +97,17 @@ class HfpMarkerLayer extends Component {
 
   async componentDidMount() {
     const {state, positions} = this.props;
-    const {pollingEnabled} = state;
 
-    if (!pollingEnabled) {
+    if (!this.isLive) {
       // Index once when mounted.
       await this.indexPositions(positions);
     }
 
     // A reaction to set the hfp event that matches the currently selected time
     this.positionReaction = reaction(
-      () => [state.unixTime, this.positions.size, state.pollingEnabled],
-      ([time, positionsSize, pollingEnabled]) => {
-        if (!pollingEnabled && time && positionsSize !== 0) {
+      () => [state.unixTime, this.positions.size, this.isLive],
+      ([time, positionsSize, live]) => {
+        if (!live && time && positionsSize !== 0) {
           this.getHfpPosition(time);
         }
       },
@@ -110,16 +115,12 @@ class HfpMarkerLayer extends Component {
     );
   }
 
-  async componentDidUpdate() {
-    const {
-      journeyId,
-      positions = [],
-      state: {pollingEnabled},
-    } = this.props;
+  componentDidUpdate() {
+    const {journeyId, positions = []} = this.props;
 
     // If the positions changed we need to index again.
     if (
-      !pollingEnabled &&
+      !this.isLive &&
       positions.length !== 0 &&
       (journeyId !== this.prevJourneyId ||
         positions.length !== this.prevPositionsLength)
@@ -129,8 +130,7 @@ class HfpMarkerLayer extends Component {
       this.prevPositionsLength = positions.length;
     }
 
-    if (pollingEnabled && positions.length !== 0) {
-      await animationFrame();
+    if (this.isLive && positions.length !== 0) {
       this.setHfpPosition(positions[positions.length - 1]);
     }
   }

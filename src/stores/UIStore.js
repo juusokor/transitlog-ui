@@ -29,7 +29,6 @@ export default (state) => {
     language: languageState.language,
     errors: [],
     shareModalOpen: false,
-    pollingEnabled: getUrlValue("pollingEnabled", false),
     // This is a computed check to see if we have anything to show in the journey details sidebar.
     // When this returns false the sidebar will hide regardless of the journeyDetailsOpen setting.
     get journeyDetailsCanOpen() {
@@ -54,8 +53,6 @@ export default (state) => {
       state.language = currentLanguage;
     }
   );
-
-  setResetListener(() => actions.togglePolling(false));
 
   return actions;
 };
