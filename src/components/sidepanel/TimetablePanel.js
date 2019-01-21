@@ -55,7 +55,7 @@ const ClearButton = styled(Button).attrs({small: true, primary: true})`
 `;
 
 @inject(app("Filters", "Journey", "Time"))
-@withStop({fetchRouteSegments: false})
+@withStop
 @withAllStopDepartures
 @observer
 class TimetablePanel extends Component {
@@ -184,7 +184,7 @@ class TimetablePanel extends Component {
 
   render() {
     const {
-      state: {date, selectedJourney},
+      state: {date, selectedJourney, stop: stopId},
       stop,
       loading: timetableLoading,
       departures,
@@ -254,9 +254,9 @@ class TimetablePanel extends Component {
       : -1;
 
     return (
-      stop && (
+      stopId && (
         <VirtualizedSidepanelList
-          key={`timetable_${stop.stopId}_${date}`}
+          date={date}
           scrollToIndex={focusedIndex !== -1 ? focusedIndex : undefined}
           list={sortedDepartures}
           renderRow={rowRenderer}
