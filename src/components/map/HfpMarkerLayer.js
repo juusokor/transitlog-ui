@@ -28,7 +28,7 @@ class HfpMarkerLayer extends Component {
 
   @computed get isLive() {
     // Determine if the app is live-updating or just simulating.
-    const {live, timeIsCurrent} = this.state;
+    const {live, timeIsCurrent} = this.props.state;
     return live && timeIsCurrent;
   }
 
