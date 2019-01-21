@@ -73,8 +73,9 @@ export const fetchSingleRoute = (route, date, client) => {
     });
 };
 
-export default observer(({children, route, date}) => (
+export default observer(({children, route, date, skip}) => (
   <Query
+    skip={skip}
     query={extensiveSingleRouteQuery}
     variables={{...route, dayType: getDayTypeFromDate(date)}}>
     {({loading, error, data}) => {

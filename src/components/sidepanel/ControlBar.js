@@ -24,16 +24,16 @@ const PollToggle = styled(ToggleButton)`
   flex: 0;
 `;
 
-@inject(app("Filters", "Update", "UI"))
+@inject(app("Filters", "Update", "Time"))
 @observer
 class ControlBar extends Component {
   onClickReset = () => this.props.Filters.reset();
   onClickUpdate = () => this.props.Update.update();
-  onToggleLive = () => this.props.UI.togglePolling();
+  onToggleLive = () => this.props.Time.toggleLive();
 
   render() {
     const {
-      state: {pollingEnabled},
+      state: {live},
     } = this.props;
 
     return (
@@ -49,7 +49,7 @@ class ControlBar extends Component {
           onChange={this.onToggleLive}
           name="query_polling"
           label={text("general.live")}
-          checked={pollingEnabled}
+          checked={live}
           value="enabled"
         />
       </Bar>

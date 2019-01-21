@@ -16,6 +16,9 @@ import {
 import {getTimelinessColor} from "../../helpers/timelinessColor";
 import styled from "styled-components";
 import Loading from "../Loading";
+import DepartureHfpQuery from "../../queries/DepartureHfpQuery";
+import getJourneyId from "../../helpers/getJourneyId";
+import {createCompositeJourney} from "../../stores/journeyActions";
 
 const parseLineNumber = (lineId) =>
   // Remove 1st number, which represents the city
@@ -23,9 +26,8 @@ const parseLineNumber = (lineId) =>
   lineId.substring(1).replace(/^0+/, "");
 
 const ListRow = styled.div`
-  padding: ${({selected = false}) =>
-    selected ? "0.5rem 0.5rem 0.5rem 0.75rem" : "0 0.5rem 0 0.75rem"};
-  margin: ${({selected = false}) => (selected ? "0" : "0.5rem 0")};
+  padding: 0.25rem 0.5rem 0.25rem 0.75rem;
+  margin: 0;
   background: ${({selected = false}) => (selected ? "var(--blue)" : "transparent")};
 `;
 
@@ -54,17 +56,38 @@ const ObservedTimeDisplay = styled(PlainSlotSmall)`
 
 @observer
 class TimetableDeparture extends Component {
+  renderListRow = (journeyIsSelected, departure, color, mode, isTimingStop) => (
+    children = null,
+    onClick
+  ) => (
+    <ListRow selected={journeyIsSelected}>
+      <TimetableButton
+        hasData={!!children}
+        selected={journeyIsSelected}
+        onClick={onClick}>
+        <ColoredSlot color={color}>
+          <TransportIcon mode={mode} />
+          {parseLineNumber(departure.routeId)}
+        </ColoredSlot>
+        <PlainSlot>
+          {doubleDigit(departure.hours)}:{doubleDigit(departure.minutes)}
+          {isTimingStop && <TimingIcon src={timingStopIcon} />}
+        </PlainSlot>
+        {children}
+      </TimetableButton>
+    </ListRow>
+  );
+
   render() {
     const {
       departure,
-      journey,
-      journeyIsSelected,
       date,
       stop,
       onClick,
-      focusRef,
-      loading,
-      isTimingStop,
+      selectedJourney,
+      isVisible,
+      firstDepartures,
+      firstDeparturesLoading,
     } = this.props;
 
     const {
@@ -72,40 +95,73 @@ class TimetableDeparture extends Component {
     } = stop;
 
     const stopMode = modes[0];
+    const currentTransportColor = get(transportColor, stopMode, "var(--light-grey)");
+    const selectedJourneyId = getJourneyId(selectedJourney);
+    const isTimingStop = !!get(stop, "timingStopTypes.nodes", []).find(
+      (segment) =>
+        segment.timingStopType !== 0 &&
+        segment.routeId === departure.routeId &&
+        segment.direction === departure.direction
+    );
 
-    // Bake the hfp data into the departure object
-    // for selecting the journey when clicked.
-    const departureData = {
-      ...departure,
-      observed: journey,
-    };
+    // Find the scheduled time for the first stop in order
+    // to get the correct hfp item.
+    const firstDepartureTime = get(
+      firstDepartures,
+      `${departure.routeId}_${departure.direction}_${departure.departureId}`,
+      null
+    );
 
-    // Diff planned and observed times
-    const plannedObservedDiff = diffDepartureJourney(journey, departure, date);
-    const observedTimeString = plannedObservedDiff
-      ? plannedObservedDiff.observedMoment.format("HH:mm:ss")
-      : "";
+    const journeyIsSelected =
+      !!selectedJourneyId &&
+      selectedJourneyId ===
+        getJourneyId(createCompositeJourney(date, departure, firstDepartureTime));
 
-    const delayType = plannedObservedDiff
-      ? getDelayType(plannedObservedDiff.diff)
-      : "none";
+    const renderListRow = this.renderListRow(
+      journeyIsSelected,
+      departure,
+      currentTransportColor,
+      stopMode,
+      isTimingStop
+    );
+
+    const skipQuery = !isVisible || !firstDepartureTime;
 
     return (
-      <ListRow selected={journeyIsSelected}>
-        <TimetableButton
-          hasData={!!plannedObservedDiff}
-          ref={focusRef}
-          selected={journeyIsSelected}
-          onClick={onClick(departureData)}>
-          <ColoredSlot color={get(transportColor, stopMode, "var(--light-grey)")}>
-            <TransportIcon mode={stopMode} />
-            {parseLineNumber(departure.routeId)}
-          </ColoredSlot>
-          <PlainSlot>
-            {doubleDigit(departure.hours)}:{doubleDigit(departure.minutes)}
-            {isTimingStop && <TimingIcon src={timingStopIcon} />}
-          </PlainSlot>
-          {plannedObservedDiff ? (
+      <DepartureHfpQuery
+        skip={skipQuery}
+        date={date}
+        stopId={stop.stopId}
+        routeId={departure.routeId}
+        journeyStartTime={firstDepartureTime}
+        direction={parseInt(departure.direction, 10)}>
+        {({event, loading}) => {
+          if (!event && !loading) {
+            return renderListRow(null, onClick(departure));
+          }
+
+          if (loading || firstDeparturesLoading) {
+            return renderListRow(<InlineLoading />, onClick(departure));
+          }
+
+          // Bake the hfp data into the departure object
+          // for selecting the journey when clicked.
+          const departureData = {
+            ...departure,
+            observed: event,
+          };
+
+          // Diff planned and observed times
+          const plannedObservedDiff = diffDepartureJourney(event, departure, date);
+          const observedTimeString = plannedObservedDiff
+            ? plannedObservedDiff.observedMoment.format("HH:mm:ss")
+            : "";
+
+          const delayType = plannedObservedDiff
+            ? getDelayType(plannedObservedDiff.diff)
+            : "none";
+
+          const hfpChildren = plannedObservedDiff ? (
             <>
               <ColoredBackgroundSlot
                 color={delayType === "late" ? "var(--dark-grey)" : "white"}
@@ -119,11 +175,11 @@ class TimetableDeparture extends Component {
               </ColoredBackgroundSlot>
               <ObservedTimeDisplay>{observedTimeString}</ObservedTimeDisplay>
             </>
-          ) : loading ? (
-            <InlineLoading />
-          ) : null}
-        </TimetableButton>
-      </ListRow>
+          ) : null;
+
+          return renderListRow(hfpChildren, onClick(departureData));
+        }}
+      </DepartureHfpQuery>
     );
   }
 }

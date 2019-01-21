@@ -1,6 +1,5 @@
 import {extendObservable, action} from "mobx";
 import filterActions from "./filterActions";
-import JourneyActions from "./journeyActions";
 import {inflate} from "../helpers/inflate";
 import pick from "lodash/pick";
 import merge from "lodash/merge";
@@ -45,7 +44,6 @@ export default (state, initialState) => {
     merge({}, emptyState, pick(inflate(initialState), ...Object.keys(emptyState)))
   );
 
-  const journeyActions = JourneyActions(state);
   const actions = filterActions(state);
 
   const reset = action(() => {
@@ -57,7 +55,6 @@ export default (state, initialState) => {
     }
 
     resetStateWith(emptyState);
-    journeyActions.setSelectedJourney(null);
 
     resetListeners.forEach((cb) => {
       if (typeof cb === "function") {

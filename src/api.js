@@ -2,7 +2,7 @@ import {ApolloClient} from "apollo-client";
 import {concat, split} from "apollo-link";
 import {BatchHttpLink} from "apollo-link-batch-http";
 import {HttpLink} from "apollo-link-http";
-import {InMemoryCache} from "apollo-cache-inmemory";
+import {Hermes} from "apollo-cache-hermes";
 import {onError} from "apollo-link-error";
 import get from "lodash/get";
 
@@ -49,7 +49,9 @@ export const getClient = async (UIStore) => {
     }
   });
 
-  const cache = new InMemoryCache();
+  const cache = new Hermes({
+    addTypename: true,
+  });
 
   const joreLink = new BatchHttpLink({
     uri: joreUrl,

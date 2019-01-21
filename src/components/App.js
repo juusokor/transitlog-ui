@@ -62,18 +62,19 @@ class App extends Component {
           }) => (
             <SelectedJourneyEvents>
               {({events: selectedJourneyEvents = [], loading}) => {
+                const journeyEvents = selectedJourneyEvents || [];
                 let areaHfp = !hasRoute && areaEvents.length !== 0 ? areaEvents : [];
 
                 // The currently fetched positions, either area hfp or selected journey hfp.
                 const currentPositions =
-                  areaHfp.length !== 0 ? areaHfp : selectedJourneyEvents;
+                  areaHfp.length !== 0 ? areaHfp : journeyEvents;
 
                 return (
                   <AppGrid>
                     <FilterBar
                       timeRange={timeRange}
                       areaEvents={areaHfp}
-                      selectedJourneyEvents={selectedJourneyEvents}
+                      selectedJourneyEvents={journeyEvents}
                     />
                     <SidepanelAndMapWrapper>
                       <SidePanel
@@ -83,26 +84,29 @@ class App extends Component {
                         selectedJourneyEvents={selectedJourneyEvents}
                         route={route}
                       />
-                      <JourneyPosition positions={selectedJourneyEvents}>
-                        {(journeyPosition) => (
-                          <SingleStopQuery stop={stop} date={date}>
-                            {({stop}) => {
-                              const stopPosition = stop
-                                ? latLng(stop.lat, stop.lon)
-                                : false;
+                      <MapPanel>
+                        {({
+                          zoom,
+                          setMapBounds,
+                          setMapCenter,
+                          setViewerLocation,
+                          mapView,
+                        }) => (
+                          <JourneyPosition positions={journeyEvents}>
+                            {(journeyPosition) => (
+                              <SingleStopQuery stop={stop} date={date}>
+                                {({stop}) => {
+                                  const stopPosition = stop
+                                    ? latLng(stop.lat, stop.lon)
+                                    : false;
 
-                              const centerPosition = stopPosition
-                                ? stopPosition
-                                : journeyPosition;
+                                  const centerPosition = stopPosition
+                                    ? stopPosition
+                                    : journeyPosition;
 
-                              return (
-                                <MapPanel center={centerPosition}>
-                                  {({
-                                    zoom,
-                                    setMapBounds,
-                                    setViewerLocation,
-                                    mapView,
-                                  }) => (
+                                  setMapCenter(centerPosition);
+
+                                  return (
                                     <MapContent
                                       queryBounds={queryBounds}
                                       setMapBounds={setMapBounds}
@@ -113,13 +117,13 @@ class App extends Component {
                                       viewLocation={setViewerLocation}
                                       stopsBbox={mapView}
                                     />
-                                  )}
-                                </MapPanel>
-                              );
-                            }}
-                          </SingleStopQuery>
+                                  );
+                                }}
+                              </SingleStopQuery>
+                            )}
+                          </JourneyPosition>
                         )}
-                      </JourneyPosition>
+                      </MapPanel>
                     </SidepanelAndMapWrapper>
                   </AppGrid>
                 );

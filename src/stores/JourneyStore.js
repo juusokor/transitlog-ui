@@ -6,6 +6,7 @@ import journeyActions from "./journeyActions";
 import {pickJourneyProps} from "../helpers/pickJourneyProps";
 import {getPathName} from "./UrlManager";
 import get from "lodash/get";
+import {setResetListener} from "./FilterStore";
 
 export default (state) => {
   extendObservable(state, {
@@ -94,6 +95,8 @@ export default (state) => {
       }
     }
   );
+
+  setResetListener(() => actions.setSelectedJourney(null));
 
   return {
     ...actions,

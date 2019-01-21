@@ -118,7 +118,8 @@ class MapContent extends Component {
                 positions={[]}
               />
             )}
-            {positions.length > 0 &&
+
+            {positions.length !== 0 &&
               positions.map(({events: journeyPositions, journeyId}) => {
                 if (
                   vehicle &&

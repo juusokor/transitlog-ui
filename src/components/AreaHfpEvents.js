@@ -45,16 +45,10 @@ class AreaHfpEvents extends PureComponent {
       return {};
     }
 
-    const {
-      areaSearchRangeMinutes = 10,
-      pollingEnabled,
-      timeIsCurrent,
-      time,
-      date,
-    } = state;
+    const {areaSearchRangeMinutes = 10, live, timeIsCurrent, time, date} = state;
 
     // Constrain search time span to 5 minutes when auto-polling.
-    const timespan = pollingEnabled && timeIsCurrent ? 5 : areaSearchRangeMinutes;
+    const timespan = live && timeIsCurrent ? 5 : areaSearchRangeMinutes;
     const moment = combineDateAndTime(date, time, "Europe/Helsinki");
 
     const min = moment.clone().subtract(Math.round(timespan / 2), "minutes");

@@ -1,6 +1,6 @@
 import React from "react";
 import get from "lodash/get";
-import SuggestionInput from "./SuggestionInput";
+import SuggestionInput, {SuggestionContent, SuggestionText} from "./SuggestionInput";
 import getTransportType from "../../helpers/getTransportType";
 import {observer} from "mobx-react";
 
@@ -12,12 +12,15 @@ const parseLineNumber = (lineId) =>
 const getSuggestionValue = (suggestion) =>
   parseLineNumber(get(suggestion, "lineId", ""));
 
-const renderSuggestion = (suggestion) => (
-  <span className={`suggestion-content ${getTransportType(suggestion.lineId)}`}>
-    <div className="suggestion-text with-icon">
+const renderSuggestion = (suggestion, {query, isHighlighted}) => (
+  <SuggestionContent
+    isHighlighted={isHighlighted}
+    withIcon={true}
+    className={getTransportType(suggestion.lineId)}>
+    <SuggestionText withIcon={true}>
       {parseLineNumber(suggestion.lineId)}
-    </div>
-  </span>
+    </SuggestionText>
+  </SuggestionContent>
 );
 
 const getSuggestions = (lines) => (value = "") => {

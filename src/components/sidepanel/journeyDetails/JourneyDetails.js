@@ -1,10 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-import withSelectedJourney from "../../../hoc/withSelectedJourney";
 import JourneyDetailsHeader from "./JourneyDetailsHeader";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
-import withRoute from "../../../hoc/withRoute";
 import pick from "lodash/pick";
 import get from "lodash/get";
 import SingleRouteQuery from "../../../queries/SingleRouteQuery";
@@ -17,6 +15,7 @@ import {getDayTypeFromDate} from "../../../helpers/getDayTypeFromDate";
 import orderBy from "lodash/orderBy";
 import TerminalStop from "./TerminalStop";
 import {stopTimes} from "../../../helpers/stopTimes";
+import withRoute from "../../../hoc/withRoute";
 
 const JourneyPanelWrapper = styled.div`
   height: 100%;
@@ -51,7 +50,6 @@ const LoadingContainer = styled.div`
 `;
 
 @withRoute
-@withSelectedJourney
 @inject(app("Time"))
 @observer
 class JourneyDetails extends React.Component {
@@ -69,20 +67,13 @@ class JourneyDetails extends React.Component {
     const events = get(selectedJourneyEvents, "[0].events", []);
     const journey = events[0];
 
-    if (!journey || !stateRoute || !stateRoute.routeId) {
-      return (
-        <LoadingContainer>
-          <Loading />
-        </LoadingContainer>
-      );
-    }
-
     return (
       <SingleRouteQuery
+        skip={!journey || !stateRoute || !stateRoute.routeId}
         date={date}
         route={pick(stateRoute, "routeId", "direction", "dateBegin", "dateEnd")}>
         {({route, loading, error}) => {
-          if (loading || error) {
+          if (!route || loading || error) {
             return (
               <LoadingContainer>
                 <Loading />

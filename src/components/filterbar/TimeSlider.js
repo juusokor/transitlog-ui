@@ -51,14 +51,13 @@ class TimeSlider extends Component {
   onChange = (e) => {
     const {
       Time,
-      UI,
-      state: {date, pollingEnabled},
+      state: {date, live},
     } = this.props;
 
     const timeValue = this.getTimeValue(e.target.value, date);
 
-    if (pollingEnabled) {
-      UI.togglePolling(false);
+    if (live) {
+      Time.toggleLive(false);
     }
 
     Time.setTime(timeValue);

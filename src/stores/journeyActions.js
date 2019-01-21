@@ -7,15 +7,11 @@ import filterActions from "./filterActions";
 import {setPathName} from "./UrlManager";
 
 export function createJourneyPath(journey) {
-  let startTimestamp = journey.journey_start_timestamp;
-
-  if (!startTimestamp) {
-    startTimestamp = combineDateAndTime(
-      journey.oday,
-      journey.journey_start_time,
-      "Europe/Helsinki"
-    );
-  }
+  const startTimestamp = combineDateAndTime(
+    journey.oday,
+    journey.journey_start_time,
+    "Europe/Helsinki"
+  );
 
   const date = moment(startTimestamp).tz("Europe/Helsinki");
 
@@ -35,7 +31,6 @@ export function createCompositeJourney(date, route, time) {
   const journey = {
     oday: date,
     journey_start_time: time,
-    journey_start_timestamp: combineDateAndTime(date, time, "Europe/Helsinki"),
     route_id: route.routeId,
     direction_id: route.direction,
   };

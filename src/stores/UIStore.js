@@ -1,8 +1,9 @@
-import {extendObservable, action, observable, reaction} from "mobx";
+import {extendObservable, observable, reaction} from "mobx";
 import {getUrlValue} from "./UrlManager";
 import getJourneyId from "../helpers/getJourneyId";
 import {createRouteId} from "../helpers/keys";
 import uiActions from "./uiActions";
+import {setResetListener} from "./FilterStore";
 
 export const LANGUAGES = {
   FINNISH: "fi",
@@ -28,7 +29,6 @@ export default (state) => {
     language: languageState.language,
     errors: [],
     shareModalOpen: false,
-    pollingEnabled: getUrlValue("pollingEnabled", false),
     // This is a computed check to see if we have anything to show in the journey details sidebar.
     // When this returns false the sidebar will hide regardless of the journeyDetailsOpen setting.
     get journeyDetailsCanOpen() {
