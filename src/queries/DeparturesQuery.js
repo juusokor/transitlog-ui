@@ -50,6 +50,15 @@ const departuresQuery = gql`
         routeId
         direction
         departureId
+        originDeparture {
+          stopId
+          dayType
+          hours
+          minutes
+          routeId
+          direction
+          departureId
+        }
       }
     }
   }

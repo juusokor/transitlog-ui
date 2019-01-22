@@ -1,24 +1,31 @@
 import React from "react";
-import {observer} from "mobx-react";
+import {observer, inject} from "mobx-react";
+import flow from "lodash/flow";
 import get from "lodash/get";
 import SingleStopQuery from "../queries/SingleStopQuery";
+import {app} from "mobx-app";
 
-export default (fetchArgs = {}) => (Component) =>
-  observer((props) => {
-    const {fetchRouteSegments = false} = fetchArgs;
+const decorate = flow(
+  observer,
+  inject(app("state"))
+);
 
-    // Get the stop id from the immediate props or from state.
-    const stopId = get(props, "stop", get(props, "state.stop", ""));
-    const date = get(props, "date", get(props, "state.date"));
+export default (Component) =>
+  decorate((props) => {
+    const {stop: stopProp, date: dateProp, state} = props;
+
+    const stopFromProps = stopProp || state.stop;
+    const stopId = get(stopFromProps, "stopId", stopFromProps);
+
+    const date = dateProp || state.date;
 
     return (
-      <SingleStopQuery
-        stop={stopId}
-        date={date}
-        fetchRouteSegments={fetchRouteSegments}>
-        {({stop, loading}) => (
-          <Component {...props} stop={stop} loading={loading || props.loading} />
-        )}
+      <SingleStopQuery skip={!stopId || !date} stop={stopId} date={date}>
+        {({stop, loading}) => {
+          return (
+            <Component {...props} stop={stop} loading={loading || props.loading} />
+          );
+        }}
       </SingleStopQuery>
     );
   });
