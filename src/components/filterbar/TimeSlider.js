@@ -11,38 +11,42 @@ import getJourneyId from "../../helpers/getJourneyId";
 import get from "lodash/get";
 
 export const TIME_SLIDER_MAX = 86399;
-export const TIME_SLIDER_MIN = 15000;
+export const TIME_SLIDER_MIN = 0;
 
 @inject(app("Time", "UI"))
 @observer
 class TimeSlider extends Component {
   getNumericValue = (value = "", date) => {
-    const {timeRange} = this.props;
-    const max = get(timeRange, "maxTime", TIME_SLIDER_MAX);
+    const {max} = this.getRange();
 
-    const val = moment.tz(date, "Europe/Helsinki").startOf("day");
+    const operationDay = moment
+      .tz(date, "Europe/Helsinki")
+      .hours(4)
+      .minutes(30);
+
+    const startVal = operationDay.clone();
 
     if (value) {
-      const [hours = 23, minutes = 59, seconds = 0] = value.split(":");
-      val.hours(hours);
-      val.minutes(minutes);
-      val.seconds(seconds);
+      const [hours = 4, minutes = 30, seconds = 0] = value.split(":");
+      startVal.hours(hours);
+      startVal.minutes(minutes);
+      startVal.seconds(seconds);
+
+      if (startVal.isBefore(operationDay)) {
+        startVal.add(1, "days");
+      }
     } else {
-      val.add(max, "seconds");
+      startVal.add(max, "seconds");
     }
 
-    return Math.abs(
-      moment
-        .tz(date, "Europe/Helsinki")
-        .startOf("day")
-        .diff(val, "seconds")
-    );
+    return Math.abs(startVal.diff(operationDay, "seconds"));
   };
 
   getTimeValue = (value, date) => {
     const nextDate = moment
       .tz(date, "Europe/Helsinki")
-      .startOf("day")
+      .hours(4)
+      .minutes(30)
       .add(parseInt(value, 10), "seconds");
 
     return nextDate.format("HH:mm:ss");
@@ -70,6 +74,19 @@ class TimeSlider extends Component {
       state: {selectedJourney, route},
     } = this.props;
 
+    if ((!route || !route.routeId) && timeRange) {
+      const operationDay = timeRange.min
+        .clone()
+        .hours(4)
+        .minutes(30)
+        .seconds(0);
+
+      return {
+        min: dateToSeconds(timeRange.min, operationDay),
+        max: dateToSeconds(timeRange.max, operationDay),
+      };
+    }
+
     const selectedJourneyId = getJourneyId(selectedJourney);
     let selectedJourneyPositions = [];
 
@@ -79,20 +96,15 @@ class TimeSlider extends Component {
         "events",
         []
       );
+
+      return getTimeRangeFromPositions(
+        selectedJourneyPositions,
+        TIME_SLIDER_MIN,
+        TIME_SLIDER_MAX
+      );
     }
 
-    return (!route || !route.routeId) && timeRange
-      ? {
-          min: dateToSeconds(timeRange.min),
-          max: dateToSeconds(timeRange.max),
-        }
-      : selectedJourneyPositions.length !== 0
-      ? getTimeRangeFromPositions(
-          selectedJourneyPositions,
-          TIME_SLIDER_MIN,
-          TIME_SLIDER_MAX
-        )
-      : {};
+    return {min: TIME_SLIDER_MIN, max: TIME_SLIDER_MAX};
   };
 
   render() {
