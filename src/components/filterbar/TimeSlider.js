@@ -14,12 +14,13 @@ import get from "lodash/get";
 export const TIME_SLIDER_MAX = 86400;
 export const TIME_SLIDER_MIN = 0;
 
+const num = (val) => parseInt(val, 10);
+
 @inject(app("Time", "UI"))
 @observer
 class TimeSlider extends Component {
   getNumericValueFromTime = (time = "") => {
     const [hours = 0, minutes = 0, seconds = 0] = time.split(":");
-    const num = (val) => parseInt(val, 10);
     return num(seconds) + num(minutes) * 60 + num(hours) * 60 * 60;
   };
 

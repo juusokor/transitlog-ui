@@ -6,6 +6,8 @@ import moment from "moment-timezone";
 import {getUrlValue} from "./UrlManager";
 import {setResetListener} from "./FilterStore";
 
+const num = (val) => parseInt(val, 10);
+
 export default (state, initialState) => {
   extendObservable(state, {
     live: getUrlValue("live", false),
@@ -16,14 +18,10 @@ export default (state, initialState) => {
     ),
     get unixTime() {
       const {date, time} = state;
-      const momentDate = moment.tz(date, "Europe/Helsinki");
-      let [hours, minutes, seconds] = time.split(":");
+      const unixTime = moment.tz(date, "Europe/Helsinki").unix();
+      const [hours = 0, minutes = 0, seconds = 0] = time.split(":");
 
-      momentDate.add(hours, "hours");
-      momentDate.minutes(minutes);
-      momentDate.seconds(seconds);
-
-      return momentDate.unix();
+      return unixTime + num(seconds) + num(minutes) * 60 + num(hours) * 60 * 60;
     },
     get timeIsCurrent() {
       const {date, time} = state;

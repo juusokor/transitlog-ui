@@ -13,13 +13,13 @@ const timeActions = (state) => {
     setUrlTime(state.time);
   });
 
-  const setSeconds = action((setValue = 0) => {
+  const setSeconds = (setValue = 0) => {
     const hours = Math.floor(setValue / 3600);
     const minutes = Math.floor((setValue % 3600) / 60);
     const seconds = Math.floor((setValue % 3600) % 60);
 
     setTime(`${doubleDigit(hours)}:${doubleDigit(minutes)}:${doubleDigit(seconds)}`);
-  });
+  };
 
   const setTimeIncrement = action(
     (timeIncrementValue) => (state.timeIncrement = timeIncrementValue)
