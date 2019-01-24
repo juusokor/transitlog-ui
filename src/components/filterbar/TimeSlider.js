@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import moment from "moment-timezone";
 import {observer, inject} from "mobx-react";
+import {action, observable, reaction, computed} from "mobx";
 import {app} from "mobx-app";
 import RangeInput from "../RangeInput";
 import {
@@ -10,62 +11,73 @@ import {
 import getJourneyId from "../../helpers/getJourneyId";
 import get from "lodash/get";
 
-export const TIME_SLIDER_MAX = 86399;
+export const TIME_SLIDER_MAX = 86400;
 export const TIME_SLIDER_MIN = 0;
 
 @inject(app("Time", "UI"))
 @observer
 class TimeSlider extends Component {
-  getNumericValue = (value = "", date) => {
-    const {max} = this.getRange();
+  disposeTimeReaction = () => {};
 
-    const operationDay = moment
+  @observable
+  timeValue = TIME_SLIDER_MIN;
+
+  @computed get rangeOrigin() {
+    const {date} = this.props.state;
+    return moment
       .tz(date, "Europe/Helsinki")
       .hours(4)
       .minutes(30);
+  }
 
-    const startVal = operationDay.clone();
+  setTimeValue = action((timeValue = 0) => {
+    this.timeValue = timeValue;
+  });
 
-    if (value) {
-      const [hours = 4, minutes = 30, seconds = 0] = value.split(":");
-      startVal.hours(hours);
-      startVal.minutes(minutes);
-      startVal.seconds(seconds);
+  getNumericValueFromTime = (time = "", date) => {
+    const {max} = this.getRange();
+    const val = this.rangeOrigin;
 
-      if (startVal.isBefore(operationDay)) {
-        startVal.add(1, "days");
+    const nextVal = val.clone();
+
+    if (time) {
+      const [hours = 4, minutes = 30, seconds = 0] = time.split(":");
+      nextVal.hours(hours);
+      nextVal.minutes(minutes);
+      nextVal.seconds(seconds);
+
+      if (nextVal.isBefore(val)) {
+        nextVal.add(1, "days");
       }
     } else {
-      startVal.add(max, "seconds");
+      nextVal.add(get(max, "max", TIME_SLIDER_MAX), "seconds");
     }
 
-    return Math.abs(startVal.diff(operationDay, "seconds"));
+    return Math.abs(val.diff(nextVal, "seconds"));
   };
 
-  getTimeValue = (value, date) => {
-    const nextDate = moment
+  getRelativeValue = (unixTime, date) => {
+    const operationDay = moment
       .tz(date, "Europe/Helsinki")
       .hours(4)
       .minutes(30)
-      .add(parseInt(value, 10), "seconds");
+      .unix();
 
-    return nextDate.format("HH:mm:ss");
+    return unixTime - operationDay;
   };
 
-  onChange = (e) => {
-    const {
-      Time,
-      state: {date, live},
-    } = this.props;
+  onChange = action((e) => {
+    const {Time, state} = this.props;
+    const {live} = state;
 
-    const timeValue = this.getTimeValue(e.target.value, date);
+    const value = parseInt(get(e, "target.value", 0), 10);
 
     if (live) {
       Time.toggleLive(false);
     }
 
-    Time.setTime(timeValue);
-  };
+    this.setTimeValue(value);
+  });
 
   getRange = () => {
     const {
@@ -97,28 +109,36 @@ class TimeSlider extends Component {
         []
       );
 
-      return getTimeRangeFromPositions(
-        selectedJourneyPositions,
-        TIME_SLIDER_MIN,
-        TIME_SLIDER_MAX
-      );
+      return getTimeRangeFromPositions(selectedJourneyPositions);
     }
 
     return {min: TIME_SLIDER_MIN, max: TIME_SLIDER_MAX};
   };
 
-  render() {
-    const {
-      className,
-      state: {date, time},
-    } = this.props;
+  componentDidMount() {
+    const {state} = this.props;
 
+    this.disposeTimeReaction = reaction(
+      () => state.time,
+      (time) => {
+        const {timeRange, positions = []} = this.props;
+
+        if (!timeRange && positions.length === 0) {
+          const timeValue = this.getNumericValueFromTime(time);
+          this.setTimeValue(timeValue);
+        }
+      }
+    );
+  }
+
+  render() {
+    const {className} = this.props;
     const {min = TIME_SLIDER_MIN, max = TIME_SLIDER_MAX} = this.getRange();
 
     return (
       <div className={className}>
         <RangeInput
-          value={this.getNumericValue(time, date)}
+          value={this.timeValue}
           min={min}
           max={max}
           onChange={this.onChange}

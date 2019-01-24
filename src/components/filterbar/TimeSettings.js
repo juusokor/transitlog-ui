@@ -112,7 +112,7 @@ class TimeSettings extends Component {
     )}`;
 
     // Assign it to the state for stuff to happen
-    Time.setTime(nextTimeVal, true);
+    Time.setTime(nextTimeVal);
     // Clear the local state and set it as not dirty to show the state value in the input.
     this.setTimeValue("", false);
   };

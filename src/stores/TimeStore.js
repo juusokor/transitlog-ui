@@ -16,7 +16,14 @@ export default (state, initialState) => {
     ),
     get unixTime() {
       const {date, time} = state;
-      return combineDateAndTime(date, time, "Europe/Helsinki").unix();
+      const momentDate = moment.tz(date, "Europe/Helsinki");
+      let [hours, minutes, seconds] = time.split(":");
+
+      momentDate.add(hours, "hours");
+      momentDate.minutes(minutes);
+      momentDate.seconds(seconds);
+
+      return momentDate.unix();
     },
     get timeIsCurrent() {
       const {date, time} = state;
