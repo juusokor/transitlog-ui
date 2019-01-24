@@ -11,13 +11,10 @@ export function getTimeRangeFromPositions(positions) {
     return null;
   }
 
-  const minMoment = moment.tz(get(positions, "[0].received_at"), "Europe/Helsinki");
+  const startTime = get(positions, "[0].received_at");
+  const operationDay = moment.tz(startTime, "Europe/Helsinki").startOf("day");
 
-  const operationDay = moment
-    .tz(get(positions, "[0].oday"), "Europe/Helsinki")
-    .hours(4)
-    .minutes(30);
-
+  const minMoment = moment.tz(startTime, "Europe/Helsinki");
   const maxMoment = moment.tz(
     get(last(positions), "received_at"),
     "Europe/Helsinki"

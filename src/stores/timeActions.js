@@ -1,7 +1,7 @@
 import {action} from "mobx";
 import {setUrlValue} from "./UrlManager";
 import debounce from "lodash/debounce";
-import moment from "moment-timezone";
+import doubleDigit from "../helpers/doubleDigit";
 
 const timeActions = (state) => {
   // Time might update frequently, so make sure that setting it
@@ -13,15 +13,12 @@ const timeActions = (state) => {
     setUrlTime(state.time);
   });
 
-  const setUnixTime = action((addValue = 0) => {
-    const {unixTime} = state;
+  const setSeconds = action((setValue = 0) => {
+    const hours = Math.floor(setValue / 3600);
+    const minutes = Math.floor((setValue % 3600) / 60);
+    const seconds = Math.floor((setValue % 3600) % 60);
 
-    state.time = moment
-      .unix(unixTime + addValue)
-      .tz("Europe/Helsinki")
-      .format("HH:mm:ss");
-
-    setUrlTime(state.time);
+    setTime(`${doubleDigit(hours)}:${doubleDigit(minutes)}:${doubleDigit(seconds)}`);
   });
 
   const setTimeIncrement = action(
@@ -39,6 +36,7 @@ const timeActions = (state) => {
 
   return {
     setTime,
+    setSeconds,
     setTimeIncrement,
     setAreaSearchMinutes,
     toggleLive,
