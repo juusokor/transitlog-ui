@@ -156,7 +156,7 @@ class DeparturesQuery extends Component {
               return isWithinRange(date, departure.dateBegin, departure.dateEnd);
             });
 
-            // TODO: Figure this out
+            /*// TODO: Figure this out
             departures = departures.filter(
               (departure) =>
                 // Filter out departures that are identical except for the validity range,
@@ -177,7 +177,7 @@ class DeparturesQuery extends Component {
                     // is the older one, .some returns true and filters out the departure.
                     isBefore(departure.dateBegin, otherDep.dateBegin)
                 )
-            );
+            );*/
           }
 
           return children({departures, loading: false, error: null});

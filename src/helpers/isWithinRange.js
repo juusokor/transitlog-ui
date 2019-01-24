@@ -1,36 +1,23 @@
-export function isBefore(value, otherValue) {
-  const checkVal =
-    typeof value === "string" ? parseInt(value.replace(/\-/g, ""), 10) : value;
-  const otherVal =
-    typeof otherValue === "string"
-      ? parseInt(otherValue.replace(/\-/g, ""), 10)
-      : otherValue;
+function intval(val) {
+  return typeof val === "string" ? parseInt(val.replace(/\D/g, ""), 10) : val;
+}
 
+export function isBefore(value, otherValue) {
+  const checkVal = intval(value);
+  const otherVal = intval(otherValue);
   return checkVal <= otherVal;
 }
 
 export function isAfter(value, otherValue) {
-  const checkVal =
-    typeof value === "string" ? parseInt(value.replace(/\-/g, ""), 10) : value;
-  const otherVal =
-    typeof otherValue === "string"
-      ? parseInt(otherValue.replace(/\-/g, ""), 10)
-      : otherValue;
-
+  const checkVal = intval(value);
+  const otherVal = intval(otherValue);
   return checkVal >= otherVal;
 }
 
 export function isWithinRange(value, rangeStart, rangeEnd) {
-  const checkVal =
-    typeof value === "string" ? parseInt(value.replace(/\-/g, ""), 10) : value;
-  const startVal =
-    typeof rangeStart === "string"
-      ? parseInt(rangeStart.replace(/\-/g, ""), 10)
-      : rangeStart;
-  const endVal =
-    typeof rangeEnd === "string"
-      ? parseInt(rangeEnd.replace(/\-/g, ""), 10)
-      : rangeEnd;
+  const checkVal = intval(value);
+  const startVal = intval(rangeStart);
+  const endVal = intval(rangeEnd);
 
   return isAfter(checkVal, startVal) && isBefore(checkVal, endVal);
 }
