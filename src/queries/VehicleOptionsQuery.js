@@ -22,8 +22,8 @@ const vehiclesQuery = gql`
 
 const updateListenerName = "vehicle options query";
 
-export default ({children, date}) => (
-  <Query query={vehiclesQuery} variables={{date}}>
+export default ({children, date, skip}) => (
+  <Query query={vehiclesQuery} skip={skip} variables={{date}}>
     {({loading, error, data, refetch}) => {
       setUpdateListener(updateListenerName, refetch, false);
 

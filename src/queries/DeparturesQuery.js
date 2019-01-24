@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 import {observer} from "mobx-react";
 import {Query} from "react-apollo";
-import {isWithinRange, isBefore} from "../helpers/isWithinRange";
+import {isWithinRange} from "../helpers/isWithinRange";
 import gql from "graphql-tag";
 import get from "lodash/get";
 import reduce from "lodash/reduce";

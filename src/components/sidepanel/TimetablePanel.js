@@ -197,6 +197,7 @@ class TimetablePanel extends Component {
     const {min, max} = timeRangeFilter;
 
     const sortedDepartures = this.sortDepartures(
+      // Apply hour and route filters to the departures array
       departures.filter(({routeId, hours}) => {
         // If there is a timerange filter set, ignore routes
         // from departures that fall outside the filter.

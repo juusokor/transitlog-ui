@@ -96,10 +96,11 @@ class TimetableDeparture extends Component {
     );
 
     const originDeparture = get(departure, "originDeparture", null);
-    const originDepartureTime = `${get(originDeparture, "hours")}:${get(
-      originDeparture,
-      "minutes"
-    )}:00`;
+    const originDepartureTime = originDeparture
+      ? `${doubleDigit(get(originDeparture, "hours"))}:${doubleDigit(
+          get(originDeparture, "minutes")
+        )}:00`
+      : "";
 
     const journeyIsSelected =
       !!selectedJourneyId &&
@@ -124,8 +125,9 @@ class TimetableDeparture extends Component {
         routeId={departure.routeId}
         journeyStartTime={originDepartureTime}
         direction={parseInt(departure.direction, 10)}>
-        {({event, loading}) => {
+        {({event, loading, variables}) => {
           if (!event && !loading) {
+            console.log(variables);
             return renderListRow(null, onClick(departure));
           }
 
