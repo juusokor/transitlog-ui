@@ -125,9 +125,8 @@ class TimetableDeparture extends Component {
         routeId={departure.routeId}
         journeyStartTime={originDepartureTime}
         direction={parseInt(departure.direction, 10)}>
-        {({event, loading, variables}) => {
+        {({event, loading}) => {
           if (!event && !loading) {
-            console.log(variables);
             return renderListRow(null, onClick(departure));
           }
 

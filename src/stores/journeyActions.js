@@ -66,6 +66,8 @@ export default (state) => {
 
         if (hfpItem.unique_vehicle_id) {
           filters.setVehicle(hfpItem.unique_vehicle_id);
+        } else {
+          console.log(hfpItem);
         }
 
         setPathName(createJourneyPath(hfpItem));

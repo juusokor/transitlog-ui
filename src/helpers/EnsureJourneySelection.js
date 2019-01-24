@@ -1,20 +1,23 @@
 import {Component} from "react";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
+import get from "lodash/get";
 
 /*
   A helper component to deselect a selected journey that does not exist
   if one such journey has somehow become selected.
  */
 
-@inject(app("Journey"))
+@inject(app("Journey", "Filters"))
 @observer
 class EnsureJourneySelection extends Component {
   componentDidUpdate() {
-    const {events, eventsLoading, Journey} = this.props;
+    const {events, eventsLoading, Journey, Filters} = this.props;
 
     if (!events && !eventsLoading) {
       Journey.setSelectedJourney(null);
+    } else if (events && !eventsLoading) {
+      Filters.setVehicle(get(events, "[0].events[0].unique_vehicle_id", ""));
     }
   }
 
