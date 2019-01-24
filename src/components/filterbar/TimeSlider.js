@@ -1,7 +1,5 @@
 import React, {Component} from "react";
-import moment from "moment-timezone";
 import {observer, inject} from "mobx-react";
-import {action, observable, reaction, computed} from "mobx";
 import {app} from "mobx-app";
 import RangeInput from "../RangeInput";
 import {
@@ -10,21 +8,19 @@ import {
 } from "../../helpers/getTimeRangeFromPositions";
 import getJourneyId from "../../helpers/getJourneyId";
 import get from "lodash/get";
+import {timeToSeconds} from "../../helpers/time";
 
 export const TIME_SLIDER_MAX = 86400;
 export const TIME_SLIDER_MIN = 0;
-
-const num = (val) => parseInt(val, 10);
 
 @inject(app("Time", "UI"))
 @observer
 class TimeSlider extends Component {
   getNumericValueFromTime = (time = "") => {
-    const [hours = 0, minutes = 0, seconds = 0] = time.split(":");
-    return num(seconds) + num(minutes) * 60 + num(hours) * 60 * 60;
+    return timeToSeconds(time);
   };
 
-  onChange = action((e) => {
+  onChange = (e) => {
     const {Time, state} = this.props;
     const {live} = state;
 
@@ -35,7 +31,7 @@ class TimeSlider extends Component {
     }
 
     Time.setSeconds(value);
-  });
+  };
 
   getRange = () => {
     const {

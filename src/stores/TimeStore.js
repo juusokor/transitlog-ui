@@ -1,12 +1,10 @@
 import {extendObservable} from "mobx";
 import timeActions from "./timeActions";
-import {combineDateAndTime, timeToFormat} from "../helpers/time";
+import {combineDateAndTime, timeToFormat, timeToSeconds} from "../helpers/time";
 import get from "lodash/get";
 import moment from "moment-timezone";
 import {getUrlValue} from "./UrlManager";
 import {setResetListener} from "./FilterStore";
-
-const num = (val) => parseInt(val, 10);
 
 export default (state, initialState) => {
   extendObservable(state, {
@@ -19,9 +17,7 @@ export default (state, initialState) => {
     get unixTime() {
       const {date, time} = state;
       const unixTime = moment.tz(date, "Europe/Helsinki").unix();
-      const [hours = 0, minutes = 0, seconds = 0] = time.split(":");
-
-      return unixTime + num(seconds) + num(minutes) * 60 + num(hours) * 60 * 60;
+      return unixTime + timeToSeconds(time);
     },
     get timeIsCurrent() {
       const {date, time} = state;

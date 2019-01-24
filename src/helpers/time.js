@@ -1,5 +1,12 @@
 import moment from "moment-timezone";
 
+const num = (val) => parseInt(val, 10);
+
+export function timeToSeconds(timeStr) {
+  const [hours = 0, minutes = 0, seconds = 0] = timeStr.split(":");
+  return num(seconds) + num(minutes) * 60 + num(hours) * 60 * 60;
+}
+
 export function timeToFormat(value, toFormat, toTimezone, fromTimezone) {
   let date;
 

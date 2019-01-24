@@ -6,6 +6,7 @@ import getCoarsePositionForTime from "../../helpers/getCoarsePositionForTime";
 import {latLng} from "leaflet";
 import {app} from "mobx-app";
 import {runInAction, reaction, observable} from "mobx";
+import {timeToSeconds} from "../../helpers/time";
 
 let prevJourneyKey = "";
 let prevTime = "";
@@ -20,7 +21,7 @@ class JourneyPosition extends Component {
 
   getJourneyPosition = () => {
     const {
-      state: {selectedJourney, date, time},
+      state: {selectedJourney, time},
       positions = [],
     } = this.props;
 
@@ -28,7 +29,7 @@ class JourneyPosition extends Component {
 
     if (selectedJourney) {
       const journeyId = getJourneyId(selectedJourney);
-      const timeDate = new Date(`${date}T${time}`);
+      const currentSeconds = timeToSeconds(time);
 
       const journeyPositions = get(
         positions.find((j) => j.journeyId === journeyId),
@@ -36,7 +37,7 @@ class JourneyPosition extends Component {
         []
       );
 
-      const pos = getCoarsePositionForTime(journeyPositions, timeDate, journeyId);
+      const pos = getCoarsePositionForTime(journeyPositions, currentSeconds);
 
       if (pos) {
         journeyPosition = latLng([pos.lat, pos.long]);

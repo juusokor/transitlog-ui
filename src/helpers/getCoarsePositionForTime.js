@@ -1,47 +1,30 @@
-import diffDates from "date-fns/difference_in_seconds";
-
-// getJourneyFollowBounds caches the previously matched index so that
-// consecutive lookups will be much faster. It saves around 3 ms.
-// Since this is outside a component we also need to save a ref (key)
-// to the journey that was searched through.
-let prevPosition = {
-  key: "",
-  posIndex: 0,
-};
-
-const TOLERANCE = 15; // Tolerate 15 seconds off from time
+import startOfDay from "date-fns/start_of_day";
+import diffSeconds from "date-fns/difference_in_seconds";
+import nth from "lodash/nth";
 
 // This function is not as precise as the ones used
 // for the HFP markers. But it is a lot cheaper and more performant!
-function getCoarsePositionForTime(positions, time, cacheKey, tolerance = TOLERANCE) {
-  let followPosition = null;
+function getCoarsePositionForTime(positions = [], time) {
+  const firstPositionTime = new Date(positions[0].received_at);
+  const lastPositionTime = new Date(positions[positions.length - 1].received_at);
+  const dayStart = startOfDay(firstPositionTime);
+  const positionsTimeStart = diffSeconds(firstPositionTime, dayStart);
+  const positionsTimeEnd = diffSeconds(lastPositionTime, dayStart);
 
-  // If we have a previous position, start the loop from its index.
-  const prevPosIdx = prevPosition.key === cacheKey ? prevPosition.posIndex : 0;
-
-  for (let posIdx = prevPosIdx; posIdx < positions.length; posIdx++) {
-    const pos = positions[posIdx];
-
-    if (pos && Math.abs(diffDates(new Date(pos.received_at), time)) <= tolerance) {
-      followPosition = pos;
-      prevPosition = {
-        key: cacheKey,
-        posIndex: posIdx,
-      };
-
-      break;
-    }
+  if (time < positionsTimeStart || time > positionsTimeEnd) {
+    return null;
   }
 
-  // Reset the cache if there were no position matches.
-  if (!followPosition) {
-    prevPosition = {
-      key: "",
-      posIndex: 0,
-    };
-  }
+  const positionsRange = positionsTimeEnd - positionsTimeStart;
+  const timePosition = time - positionsTimeStart;
 
-  return followPosition;
+  const diff = positionsRange - timePosition;
+  const avg = (positionsRange + timePosition) / 2;
+
+  const currentProgress = diff / avg;
+  const positionsIndex = -1 * Math.floor(positions.length * currentProgress);
+
+  return nth(positions, positionsIndex);
 }
 
 export default getCoarsePositionForTime;

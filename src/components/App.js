@@ -92,7 +92,7 @@ class App extends Component {
                           setViewerLocation,
                           mapView,
                         }) => (
-                          <JourneyPosition positions={journeyEvents}>
+                          <JourneyPosition date={date} positions={journeyEvents}>
                             {(journeyPosition) => (
                               <SingleStopQuery stop={stop} date={date}>
                                 {({stop}) => {
