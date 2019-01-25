@@ -1,114 +1,145 @@
 import {Component} from "react";
 import {observer, inject} from "mobx-react";
-import getJourneyId from "../../helpers/getJourneyId";
-import get from "lodash/get";
-import getCoarsePositionForTime from "../../helpers/getCoarsePositionForTime";
-import {latLng} from "leaflet";
 import {app} from "mobx-app";
-import {runInAction, reaction, observable} from "mobx";
-import {timeToSeconds} from "../../helpers/time";
-
-let prevJourneyKey = "";
-let prevTime = "";
+import {reaction, observable, action, computed} from "mobx";
+import moment from "moment-timezone";
 
 @inject(app("state"))
 @observer
 class JourneyPosition extends Component {
+  positionReaction = () => {};
+  positions = new Map();
+
   @observable
-  journeyPosition = null;
+  hfpPositions = new Map();
 
-  followReaction = () => {};
+  @computed get isLive() {
+    // Determine if the app is live-updating or just simulating.
+    const {live, timeIsCurrent} = this.props.state;
+    return live && timeIsCurrent;
+  }
 
-  getJourneyPosition = () => {
-    const {
-      state: {selectedJourney, time},
-      positions = [],
-    } = this.props;
+  // Matches the current time setting with a HFP position from this journey.
+  getHfpPositions = (time) => {
+    this.positions.forEach((indexedEvents, journeyId) => {
+      // Attempt to find the correct hfp item from the indexed positions
+      let nextHfpPosition = indexedEvents.get(time);
 
-    let journeyPosition = null;
-
-    if (selectedJourney) {
-      const journeyId = getJourneyId(selectedJourney);
-      const currentSeconds = timeToSeconds(time);
-
-      const journeyPositions = get(
-        positions.find((j) => j.journeyId === journeyId),
-        "events",
-        []
-      );
-
-      const pos = getCoarsePositionForTime(journeyPositions, currentSeconds);
-
-      if (pos) {
-        journeyPosition = latLng([pos.lat, pos.long]);
+      if (!nextHfpPosition) {
+        // If no positions matched the current time exactly, look backwards and forwards
+        // 10 seconds respectively to find a matching hfp event.
+        nextHfpPosition = this.findHfpPosition(time);
       }
-    }
 
-    runInAction(() => (this.journeyPosition = journeyPosition));
+      this.setHfpPosition(journeyId, nextHfpPosition);
+    });
   };
 
-  componentDidMount() {
-    const {state} = this.props;
+  getLivePositions = (journeys) => {
+    journeys.forEach(({journeyId, events}) => {
+      this.setHfpPosition(journeyId, events[events.length - 1]);
+    });
+  };
 
-    this.followReaction = reaction(
-      () => {
-        const {time, selectedJourney, live} = state;
-        const selectedJourneyId = getJourneyId(selectedJourney);
+  findHfpPosition = (time) => {
+    let i = 0;
+    let checkSeconds = time;
+    let nextHfpPosition = null;
 
-        /*
-        The idea here is to make the map center follow the HFP marker ONLY IF
-        the current journey hasn't changed. These conditionals need to be
-        in this exact order for this to work, otherwise the map may
-        recenter when changing journeys, which we don't want.
-         */
-
-        // Bail if polling is enabled as it would be hard to move the map.
-        if (live) {
-          return false;
-        }
-
-        // 1. Change the journey key when the selected journey changes.
-        if (
-          !prevJourneyKey ||
-          (selectedJourneyId && prevJourneyKey !== selectedJourneyId)
-        ) {
-          prevJourneyKey = selectedJourneyId;
-          prevTime = time;
-        } else if (!selectedJourney) {
-          prevJourneyKey = "";
-        }
-
-        // 2. Allow following the selected journey if the journey ID is the same
-        // BUT the time has changed.
-        if (
-          !!prevJourneyKey &&
-          prevJourneyKey === selectedJourneyId &&
-          prevTime !== time
-        ) {
-          prevTime = time;
-          return time;
-        }
-
-        return false;
-      },
-      (followJourney) => {
-        if (followJourney) {
-          this.getJourneyPosition();
-        }
+    // Max iterations is 120, which means events can be at most 60 seconds before
+    // or after i to be displayed.
+    while (!nextHfpPosition && i <= 120) {
+      // Alternately check after (even i) and before (odd i) `time`
+      if (i % 2 === 0) {
+        checkSeconds = time + Math.round(i / 2);
+      } else {
+        checkSeconds = time - Math.round(i / 2);
       }
+
+      nextHfpPosition = this.positions.get(checkSeconds);
+
+      i += 1;
+    }
+
+    return nextHfpPosition;
+  };
+
+  setHfpPosition = action((journeyId, nextHfpPosition) => {
+    this.hfpPositions.set(journeyId, nextHfpPosition);
+  });
+
+  // Index the hfp events under their timestamp to make it easy to find them on the fly.
+  // This is a performance optimization.
+  indexPositions = (positions) => {
+    const indexed = positions.reduce((positionIndex, position) => {
+      const key = position.received_at_unix;
+
+      positionIndex.set(key, {
+        ...position,
+        received_at_formatted: moment(position.received_at).format("HH:mm:ss"),
+      });
+
+      return positionIndex;
+    }, new Map());
+
+    return indexed;
+  };
+
+  indexJourneys = (journeys) => {
+    const indexed = journeys.reduce(
+      (journeyIndex, {journeyId = "", events = []}) => {
+        journeyIndex.set(journeyId, this.indexPositions(events));
+        return journeyIndex;
+      },
+      new Map()
+    );
+
+    this.positions = indexed;
+  };
+
+  async componentDidMount() {
+    const {state, positions} = this.props;
+
+    if (!this.isLive) {
+      // Index once when mounted if not live-updating
+      await this.indexJourneys(positions);
+    }
+
+    // A reaction to set the hfp event that matches the currently selected time
+    this.positionReaction = reaction(
+      () => [state.unixTime, this.positions.size, this.isLive],
+      ([time, positionsSize, live]) => {
+        if (!live && time && positionsSize !== 0) {
+          this.getHfpPositions(time);
+        }
+      },
+      {fireImmediately: true}
     );
   }
 
+  componentDidUpdate() {
+    const {positions = []} = this.props;
+
+    // If the positions changed we need to index again.
+    if (!this.isLive && positions.length !== 0) {
+      this.indexJourneys(positions);
+    }
+
+    if (this.isLive && positions.length !== 0) {
+      this.getLivePositions(positions);
+    }
+  }
+
   componentWillUnmount() {
-    if (typeof this.followReaction === "function") {
+    if (typeof this.positionReaction === "function") {
       // Dispose the reaction
-      this.followReaction();
+      this.positionReaction();
     }
   }
 
   render() {
     const {children} = this.props;
-    return children(this.journeyPosition);
+    return children(this.hfpPositions);
   }
 }
 

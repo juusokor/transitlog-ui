@@ -1,6 +1,5 @@
 import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
-import withStop from "../../hoc/withStop";
 import {app} from "mobx-app";
 import withAllStopDepartures from "../../hoc/withAllStopDepartures";
 import {toJS, reaction} from "mobx";
@@ -55,7 +54,6 @@ const ClearButton = styled(Button).attrs({small: true, primary: true})`
 `;
 
 @inject(app("Filters", "Journey", "Time"))
-@withStop
 @withAllStopDepartures
 @observer
 class TimetablePanel extends Component {

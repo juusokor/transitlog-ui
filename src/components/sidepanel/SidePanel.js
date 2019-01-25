@@ -95,8 +95,8 @@ class SidePanel extends Component {
       selectedJourneyEvents = [],
       loading = false,
       areaEventsLoading = false,
+      stop,
       state: {
-        stop,
         route,
         date,
         vehicle,
@@ -139,6 +139,7 @@ class SidePanel extends Component {
             )}
             {stop && (
               <TimetablePanel
+                stop={stop}
                 loading={loading}
                 name="timetables"
                 label={text("sidepanel.tabs.timetables")}

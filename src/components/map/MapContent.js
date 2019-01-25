@@ -30,7 +30,8 @@ class MapContent extends Component {
 
   render() {
     const {
-      positions = [],
+      journeys = [],
+      timePositions = new Map(),
       route,
       zoom,
       stopsBbox,
@@ -66,13 +67,13 @@ class MapContent extends Component {
               />
             ) : null}
             <AreaSelect enabled={zoom > 14} onSelectArea={queryBounds} />
-            {positions.length !== 0 &&
-              positions.map(({journeyId, events}) =>
+            {journeys.length !== 0 &&
+              journeys.map(({journeyId, events}) =>
                 areaEventsStyle === areaEventsStyles.MARKERS ? (
                   <HfpMarkerLayer
                     key={`hfp_markers_${journeyId}`}
                     onMarkerClick={this.onClickVehicleMarker}
-                    positions={events}
+                    currentPosition={timePositions.get(journeyId)}
                     journeyId={journeyId}
                     maxTimeDiff={3}
                   />
@@ -110,7 +111,7 @@ class MapContent extends Component {
             </RouteQuery>
             {(!selectedJourney ||
               (selectedJourney.route_id !== route.routeId ||
-                positions.length === 0)) && (
+                journeys.length === 0)) && (
               <RouteStopsLayer
                 showRadius={showStopRadius}
                 onViewLocation={viewLocation}
@@ -119,8 +120,8 @@ class MapContent extends Component {
               />
             )}
 
-            {positions.length !== 0 &&
-              positions.map(({events: journeyPositions, journeyId}) => {
+            {journeys.length !== 0 &&
+              journeys.map(({events: journeyPositions, journeyId}) => {
                 if (
                   vehicle &&
                   get(journeyPositions, "[0].unique_vehicle_id", "") !== vehicle
@@ -130,6 +131,8 @@ class MapContent extends Component {
 
                 const isSelectedJourney =
                   selectedJourney && getJourneyId(selectedJourney) === journeyId;
+
+                const currentPosition = timePositions.get(journeyId);
 
                 return [
                   isSelectedJourney ? (
@@ -152,7 +155,7 @@ class MapContent extends Component {
                   <HfpMarkerLayer
                     key={`hfp_markers_${journeyId}`}
                     onMarkerClick={this.onClickVehicleMarker}
-                    positions={journeyPositions}
+                    currentPosition={currentPosition}
                     journeyId={journeyId}
                   />,
                 ];

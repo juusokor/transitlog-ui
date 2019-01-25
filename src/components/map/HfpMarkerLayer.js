@@ -2,14 +2,11 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 import {Tooltip, Marker} from "react-leaflet";
 import get from "lodash/get";
-import moment from "moment";
 import {divIcon} from "leaflet";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import {Text} from "../../helpers/text";
 import "./Map.css";
-import {observable, action, reaction, computed, runInAction} from "mobx";
-import animationFrame from "../../helpers/animationFrame";
 import {getModeColor} from "../../helpers/vehicleColor";
 
 @inject(app("state"))
@@ -17,63 +14,6 @@ import {getModeColor} from "../../helpers/vehicleColor";
 class HfpMarkerLayer extends Component {
   static propTypes = {
     onMarkerClick: PropTypes.func.isRequired,
-  };
-
-  prevJourneyId = "";
-  prevPositionsLength = 0;
-  positions = new Map();
-
-  @observable.ref
-  hfpPosition = null;
-
-  @computed get isLive() {
-    // Determine if the app is live-updating or just simulating.
-    const {live, timeIsCurrent} = this.props.state;
-    return live && timeIsCurrent;
-  }
-
-  positionReaction = () => {};
-
-  // Matches the current time setting with a HFP position from this journey.
-  getHfpPosition = (time) => {
-    // Attempt to find the correct hfp item from the indexed positions
-    let nextHfpPosition = this.positions.get(time);
-
-    if (!nextHfpPosition) {
-      // If no positions matched the current time exactly, look backwards and forwards
-      // 10 seconds respectively to find a matching hfp event.
-      nextHfpPosition = this.findHfpPosition(time);
-    }
-
-    this.setHfpPosition(nextHfpPosition);
-  };
-
-  findHfpPosition = (time) => {
-    let i = 0;
-    let checkSeconds = time;
-    let nextHfpPosition = null;
-
-    // Max iterations is 120, which means events can be at most 60 seconds before
-    // or after i to be displayed.
-    while (!nextHfpPosition && i <= 120) {
-      // Alternately check after (even i) and before (odd i) `time`
-      if (i % 2 === 0) {
-        checkSeconds = time + Math.round(i / 2);
-      } else {
-        checkSeconds = time - Math.round(i / 2);
-      }
-
-      nextHfpPosition = this.positions.get(checkSeconds);
-
-      i += 1;
-    }
-
-    return nextHfpPosition;
-  };
-
-  setHfpPosition = async (nextHfpPosition) => {
-    await animationFrame();
-    runInAction(() => (this.hfpPosition = nextHfpPosition));
   };
 
   onMarkerClick = (positionWhenClicked) => () => {
@@ -84,73 +24,8 @@ class HfpMarkerLayer extends Component {
     }
   };
 
-  // Index the hfp events under their timestamp to make it easy to find them on the fly.
-  // This is a performance optimization.
-  @action
-  indexPositions = (positions) => {
-    const indexed = positions.reduce((positionIndex, position) => {
-      const key = position.received_at_unix;
-
-      positionIndex.set(key, {
-        ...position,
-        received_at_formatted: moment(position.received_at).format("HH:mm:ss"),
-      });
-
-      return positionIndex;
-    }, new Map());
-
-    this.positions = indexed;
-  };
-
-  async componentDidMount() {
-    const {state, positions} = this.props;
-
-    if (!this.isLive) {
-      // Index once when mounted.
-      await this.indexPositions(positions);
-    }
-
-    // A reaction to set the hfp event that matches the currently selected time
-    this.positionReaction = reaction(
-      () => [state.unixTime, this.positions.size, this.isLive],
-      ([time, positionsSize, live]) => {
-        if (!live && time && positionsSize !== 0) {
-          this.getHfpPosition(time);
-        }
-      },
-      {fireImmediately: true}
-    );
-  }
-
-  componentDidUpdate() {
-    const {journeyId, positions = []} = this.props;
-
-    // If the positions changed we need to index again.
-    if (
-      !this.isLive &&
-      positions.length !== 0 &&
-      (journeyId !== this.prevJourneyId ||
-        positions.length !== this.prevPositionsLength)
-    ) {
-      this.indexPositions(positions);
-      this.prevJourneyId = journeyId;
-      this.prevPositionsLength = positions.length;
-    }
-
-    if (this.isLive && positions.length !== 0) {
-      this.setHfpPosition(positions[positions.length - 1]);
-    }
-  }
-
-  componentWillUnmount() {
-    if (typeof this.positionReaction === "function") {
-      // Dispose the reaction
-      this.positionReaction();
-    }
-  }
-
   render() {
-    const position = this.hfpPosition;
+    const {currentPosition: position} = this.props;
 
     if (!position) {
       return null;
