@@ -1,10 +1,25 @@
 import moment from "moment-timezone";
+import doubleDigit from "./doubleDigit";
 
 const num = (val) => parseInt(val, 10);
 
 export function timeToSeconds(timeStr) {
   const [hours = 0, minutes = 0, seconds = 0] = timeStr.split(":");
   return num(seconds) + num(minutes) * 60 + num(hours) * 60 * 60;
+}
+
+export function getNormalTime(time) {
+  let [hours, minutes, seconds] = time.split(":");
+
+  if (parseInt(hours, 10) > 23) {
+    hours = hours - 24;
+  }
+
+  return getTimeString(hours, minutes, seconds);
+}
+
+export function getTimeString(hours = 0, minutes = 0, seconds = 0) {
+  return `${doubleDigit(hours)}:${doubleDigit(minutes)}:${doubleDigit(seconds)}`;
 }
 
 export function timeToFormat(value, toFormat, toTimezone, fromTimezone) {

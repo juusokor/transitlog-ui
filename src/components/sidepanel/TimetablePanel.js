@@ -7,7 +7,7 @@ import styled from "styled-components";
 import Input from "../Input";
 import {text} from "../../helpers/text";
 import get from "lodash/get";
-import {sortByOperationDay} from "../../helpers/sortByOperationDay";
+import {sortByTime} from "../../helpers/sortByTime";
 import doubleDigit from "../../helpers/doubleDigit";
 import sortBy from "lodash/sortBy";
 import {createDebouncedObservable} from "../../helpers/createDebouncedObservable";
@@ -158,7 +158,7 @@ class TimetablePanel extends Component {
         time = `${doubleDigit(hours)}:30`;
       }
 
-      return sortByOperationDay(time);
+      return sortByTime(time);
     });
   }
 

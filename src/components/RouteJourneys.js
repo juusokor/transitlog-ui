@@ -10,7 +10,8 @@ import DeparturesQuery from "../queries/DeparturesQuery";
 import JourneysByDateQuery from "../queries/JourneysByDateQuery";
 import doubleDigit from "../helpers/doubleDigit";
 import {createCompositeJourney} from "../stores/journeyActions";
-import {sortByOperationDay} from "../helpers/sortByOperationDay";
+import {sortByTime} from "../helpers/sortByTime";
+import {getTimeString} from "../helpers/time";
 
 export const journeyHfpStates = {
   LOADING: "loading",
@@ -37,9 +38,10 @@ class RouteJourneys extends React.Component {
                 const sortedJourneys = sortBy(
                   uniqBy(
                     departures.map((departure) => {
-                      const timeStr = `${doubleDigit(departure.hours)}:${doubleDigit(
-                        departure.minutes
-                      )}:00`;
+                      const {isNextDay, hours} = departure;
+                      const hour = isNextDay ? hours + 24 : hours;
+
+                      const timeStr = getTimeString(hour, departure.minutes);
 
                       const departureJourney = createCompositeJourney(
                         date,
@@ -60,7 +62,7 @@ class RouteJourneys extends React.Component {
                     }),
                     "journeyId"
                   ),
-                  ({time}) => sortByOperationDay(time)
+                  ({time}) => sortByTime(time)
                 );
 
                 if (Object.keys(journeys).length === 0) {
