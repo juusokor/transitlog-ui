@@ -54,6 +54,7 @@ class App extends Component {
       route,
       shareModalOpen,
       selectedJourney,
+      live,
     } = state;
 
     const hasRoute = !!route && !!route.routeId;
@@ -112,6 +113,10 @@ class App extends Component {
                                     <>
                                       <Observer>
                                         {() => {
+                                          if (live) {
+                                            return null;
+                                          }
+
                                           const stopPosition = stop
                                             ? latLng([stop.lat, stop.lon])
                                             : false;
@@ -122,14 +127,12 @@ class App extends Component {
                                               )
                                             : false;
 
-                                          const centerPosition = stopPosition
-                                            ? stopPosition
-                                            : selectedJourneyPosition
+                                          const centerPosition = selectedJourneyPosition
                                             ? latLng([
                                                 selectedJourneyPosition.lat,
                                                 selectedJourneyPosition.long,
                                               ])
-                                            : false;
+                                            : stopPosition;
 
                                           setMapCenter(centerPosition);
                                           return null;
