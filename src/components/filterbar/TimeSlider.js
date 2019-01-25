@@ -59,7 +59,11 @@ class TimeSlider extends Component {
         []
       );
 
-      return getTimeRangeFromPositions(selectedJourneyPositions);
+      const positionsTimeRange = getTimeRangeFromPositions(selectedJourneyPositions);
+
+      if (positionsTimeRange) {
+        return positionsTimeRange;
+      }
     }
 
     return {min: TIME_SLIDER_MIN, max: TIME_SLIDER_MAX};
