@@ -37,19 +37,31 @@ class RouteJourneys extends React.Component {
 
                 const sortedJourneys = sortBy(
                   uniqBy(
+                    // Map the departures to a structure with all the info we want
+                    // to display in the journey list.
                     departures.map((departure) => {
                       const {isNextDay, hours} = departure;
-                      const hour = isNextDay ? hours + 24 : hours;
 
-                      const timeStr = getTimeString(hour, departure.minutes);
+                      // First create the journey start time without 24h+ modifications
+                      const journeyStartTime = getTimeString(
+                        hours,
+                        departure.minutes
+                      );
 
+                      // To match the departure with a set of HFP events, create a
+                      // composite journey with all the right information
                       const departureJourney = createCompositeJourney(
                         date,
                         departure,
-                        timeStr
+                        journeyStartTime
                       );
 
+                      // A theoretically-valid journey id can be derived from the departure data
                       const journeyId = getJourneyId(departureJourney);
+
+                      // Extend the hours past 24 for journeys that span many days
+                      const hour = isNextDay ? hours + 24 : hours;
+                      const timeStr = getTimeString(hour, departure.minutes);
 
                       return {
                         journeyId,
@@ -62,6 +74,7 @@ class RouteJourneys extends React.Component {
                     }),
                     "journeyId"
                   ),
+                  // Sort the list by the departure time.
                   ({time}) => sortByTime(time)
                 );
 
@@ -69,6 +82,7 @@ class RouteJourneys extends React.Component {
                   return children({journeys: sortedJourneys, loading: isLoading});
                 }
 
+                // Map HFP journeys to the departures through the journey id.
                 const departureJourneys = sortedJourneys.map((plannedJourney) => {
                   const journey = get(journeys, plannedJourney.journeyId, null);
                   return {
