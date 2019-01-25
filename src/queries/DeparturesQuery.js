@@ -13,7 +13,7 @@ const departuresQuery = gql`
     $routeId: String
     $direction: String
     $dayType: String
-    $stopId: String
+    $stopId: String!
     $dateBegin: Date
     $dateEnd: Date
     $departureId: Int
@@ -51,6 +51,7 @@ const departuresQuery = gql`
         direction
         departureId
         extraDeparture
+        isNextDay
         originDeparture {
           stopId
           dayType
@@ -59,6 +60,9 @@ const departuresQuery = gql`
           routeId
           direction
           departureId
+          arrivalHours
+          arrivalMinutes
+          isNextDay
         }
       }
     }
@@ -113,12 +117,12 @@ class DeparturesQuery extends Component {
     const queryDayType = getDayTypeFromDate(date);
 
     const {routeId = "", direction = "", originstopId = ""} = route;
-    const stopId = get(stop, "stopId", stop);
+    const stopId = originstopId ? originstopId : get(stop, "stopId", stop);
 
     let queryVars = reduce(
       {
         dayType: queryDayType,
-        stopId: originstopId ? originstopId : stopId,
+        stopId,
         routeId,
         direction: "" + direction, // make sure it is a string
         departureId,
@@ -136,7 +140,7 @@ class DeparturesQuery extends Component {
       {}
     );
 
-    if (Object.keys(queryVars).length < 2) {
+    if (!stopId || !queryDayType || Object.keys(queryVars).length < 2) {
       // If we don't have the required info, return an empty array to the render function.
       return children({departures: [], loading: false, error: null});
     }
