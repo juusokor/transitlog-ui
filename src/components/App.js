@@ -113,6 +113,9 @@ class App extends Component {
                                     <>
                                       <Observer>
                                         {() => {
+                                          // Set the map center from here. We don't want to wrap the map
+                                          // in these frequently updating components.
+
                                           if (live) {
                                             return null;
                                           }
