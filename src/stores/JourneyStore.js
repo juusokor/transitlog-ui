@@ -40,7 +40,7 @@ export default (state) => {
         filterActions.setDate(dateStr);
 
         // Split the time into hours/minutes/seconds and create a valid time string.
-        timeStr = getTimeString(journey_start_time.match(/.{1,2}/g));
+        timeStr = getTimeString(...journey_start_time.match(/.{1,2}/g));
       }
 
       if (route_id && direction_id) {
