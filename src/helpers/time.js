@@ -46,14 +46,27 @@ export function combineDateAndTime(date, time = "00:00:00", timezone, toTimezone
   }
 }
 
-export function journeyStartTime(event, useDate) {
-  const eventDate = useDate
-    ? useDate
-    : moment.tz(event.received_at, "Europe/Helsinki").format("YYYY-MM-DD");
+export function journeyStartTime(event, useMoment) {
+  const eventDate = useMoment
+    ? useMoment
+    : moment.tz(event.received_at, "Europe/Helsinki");
 
-  if (eventDate !== event.oday) {
-    let [hours, minutes, seconds] = event.journey_start_time.split(":");
-    hours = parseInt(hours, 10) + 24;
+  let [hours, minutes, seconds] = event.journey_start_time.split(":");
+  const intHours = parseInt(hours, 10);
+
+  /*
+    TODO: Check this if something seems off with midnight journeys. 12 was chosen
+      semi-randomly as a time that would only appear once in a 24h+ day.
+   */
+
+  if (
+    // If the journey start hour was before 12 (ie very early) and the received at time
+    // was after, we can assume that this journey is at the late end of a 24h+ day.
+    // Otherwise check if the oday and the received at date don't match.
+    (intHours < 12 && eventDate.hours() >= 12) ||
+    event.oday !== eventDate.format("YYYY-MM-DD")
+  ) {
+    hours = intHours + 24;
     return getTimeString(hours, minutes, seconds);
   }
 
