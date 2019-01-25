@@ -28,7 +28,7 @@ class JourneyPosition extends Component {
       if (!nextHfpPosition) {
         // If no positions matched the current time exactly, look backwards and forwards
         // 10 seconds respectively to find a matching hfp event.
-        nextHfpPosition = this.findHfpPosition(time);
+        nextHfpPosition = this.findHfpPosition(time, indexedEvents);
       }
 
       this.setHfpPosition(journeyId, nextHfpPosition);
@@ -41,7 +41,7 @@ class JourneyPosition extends Component {
     });
   };
 
-  findHfpPosition = (time) => {
+  findHfpPosition = (time, indexedEvents) => {
     let i = 0;
     let checkSeconds = time;
     let nextHfpPosition = null;
@@ -56,7 +56,7 @@ class JourneyPosition extends Component {
         checkSeconds = time - Math.round(i / 2);
       }
 
-      nextHfpPosition = this.positions.get(checkSeconds);
+      nextHfpPosition = indexedEvents.get(checkSeconds);
 
       i += 1;
     }
