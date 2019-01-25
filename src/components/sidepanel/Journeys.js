@@ -243,7 +243,7 @@ class Journeys extends Component {
                           key={`journey_row_${journeyId}`}
                           onClick={this.selectJourney(journeyEvent)}>
                           <JourneyRowLeft>
-                            {journeyEvent.journey_start_time}
+                            {getNormalTime(journeyEvent.journey_start_time)}
                           </JourneyRowLeft>
                           {observedJourney}
                         </JourneyListRow>

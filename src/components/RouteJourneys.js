@@ -11,7 +11,7 @@ import JourneysByDateQuery from "../queries/JourneysByDateQuery";
 import doubleDigit from "../helpers/doubleDigit";
 import {createCompositeJourney} from "../stores/journeyActions";
 import {sortByTime} from "../helpers/sortByTime";
-import {getTimeString} from "../helpers/time";
+import {getTimeString, departureTime} from "../helpers/time";
 
 export const journeyHfpStates = {
   LOADING: "loading",
@@ -40,28 +40,19 @@ class RouteJourneys extends React.Component {
                     // Map the departures to a structure with all the info we want
                     // to display in the journey list.
                     departures.map((departure) => {
-                      const {isNextDay, hours} = departure;
-
-                      // First create the journey start time without 24h+ modifications
-                      const journeyStartTime = getTimeString(
-                        hours,
-                        departure.minutes
-                      );
+                      // Extend the hours past 24 for journeys that span many days
+                      const timeStr = departureTime(departure);
 
                       // To match the departure with a set of HFP events, create a
                       // composite journey with all the right information
                       const departureJourney = createCompositeJourney(
                         date,
                         departure,
-                        journeyStartTime
+                        timeStr
                       );
 
                       // A theoretically-valid journey id can be derived from the departure data
                       const journeyId = getJourneyId(departureJourney);
-
-                      // Extend the hours past 24 for journeys that span many days
-                      const hour = isNextDay ? hours + 24 : hours;
-                      const timeStr = getTimeString(hour, departure.minutes);
 
                       return {
                         journeyId,

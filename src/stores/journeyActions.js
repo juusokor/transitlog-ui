@@ -1,22 +1,12 @@
 import {action} from "mobx";
 import getJourneyId from "../helpers/getJourneyId";
 import {pickJourneyProps} from "../helpers/pickJourneyProps";
-import moment from "moment-timezone";
-import {combineDateAndTime} from "../helpers/time";
 import filterActions from "./filterActions";
 import {setPathName} from "./UrlManager";
 
 export function createJourneyPath(journey) {
-  const startTimestamp = combineDateAndTime(
-    journey.oday,
-    journey.journey_start_time,
-    "Europe/Helsinki"
-  );
-
-  const date = moment(startTimestamp).tz("Europe/Helsinki");
-
-  const dateStr = date.format("YYYYMMDD");
-  const timeStr = date.format("HHmm");
+  const dateStr = journey.oday.replace(/-/g, "");
+  const timeStr = journey.journey_start_time.replace(/:/g, "");
 
   return `/journey/${dateStr}/${timeStr}/${journey.route_id}/${
     journey.direction_id

@@ -7,6 +7,7 @@ import {pickJourneyProps} from "../helpers/pickJourneyProps";
 import {getPathName} from "./UrlManager";
 import get from "lodash/get";
 import {setResetListener} from "./FilterStore";
+import {getTimeString} from "../helpers/time";
 
 export default (state) => {
   extendObservable(state, {
@@ -38,15 +39,8 @@ export default (state) => {
         dateStr = date.format("YYYY-MM-DD");
         filterActions.setDate(dateStr);
 
-        const time = moment.tz(
-          `${oday} ${journey_start_time}`,
-          "YYYYMMDD HHmmss",
-          "Europe/Helsinki"
-        );
-
-        if (time.isValid()) {
-          timeStr = time.format("HH:mm:ss");
-        }
+        // Split the time into hours/minutes/seconds and create a valid time string.
+        timeStr = getTimeString(journey_start_time.match(/.{1,2}/g));
       }
 
       if (route_id && direction_id) {
@@ -57,7 +51,7 @@ export default (state) => {
       if (dateStr && timeStr && route_id && direction_id) {
         // The pick is a bit redundant here, but I want to make sure
         // that everything assigned to selectedJourney always looks
-        // the same. What the pick returns may change in the future...
+        // the same. What the pick returns may change in the future.
         const journey = pickJourneyProps({
           oday: dateStr,
           route_id,

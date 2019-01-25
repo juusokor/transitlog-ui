@@ -73,12 +73,7 @@ class JourneyPosition extends Component {
   indexPositions = (positions) => {
     const indexed = positions.reduce((positionIndex, position) => {
       const key = position.received_at_unix;
-
-      positionIndex.set(key, {
-        ...position,
-        received_at_formatted: moment(position.received_at).format("HH:mm:ss"),
-      });
-
+      positionIndex.set(key, position);
       return positionIndex;
     }, new Map());
 

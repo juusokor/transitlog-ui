@@ -12,6 +12,12 @@ import EnsureJourneySelection from "../helpers/EnsureJourneySelection";
 @inject(app("state"))
 @observer
 class SelectedJourneyEvents extends Component {
+  renderChildren = (children, events = [], loading = false, error = null) => (
+    <EnsureJourneySelection events={events} eventsLoading={loading} error={error}>
+      {children}
+    </EnsureJourneySelection>
+  );
+
   render() {
     const {children, state} = this.props;
     const {selectedJourney, route} = state;
@@ -29,25 +35,11 @@ class SelectedJourneyEvents extends Component {
         selectedJourney={selectedJourney}>
         {({positions = [], loading, error}) => {
           if ((!positions || positions.length === 0) && !loading) {
-            return (
-              <EnsureJourneySelection
-                events={null}
-                eventsLoading={loading}
-                error={error}>
-                {children}
-              </EnsureJourneySelection>
-            );
+            return this.renderChildren(children);
           }
 
           if (!positions || positions.length === 0 || loading) {
-            return (
-              <EnsureJourneySelection
-                events={[]}
-                eventsLoading={loading}
-                error={error}>
-                {children}
-              </EnsureJourneySelection>
-            );
+            return this.renderChildren(children, [], loading, error);
           }
 
           const events = positions
@@ -57,13 +49,11 @@ class SelectedJourneyEvents extends Component {
 
           const journeyId = getJourneyId(events[0]);
 
-          return (
-            <EnsureJourneySelection
-              events={[{journeyId, events}]}
-              eventsLoading={loading}
-              error={error}>
-              {children}
-            </EnsureJourneySelection>
+          return this.renderChildren(
+            children,
+            [{journeyId, events}],
+            loading,
+            error
           );
         }}
       </SelectedJourneyQuery>

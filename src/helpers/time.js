@@ -9,7 +9,7 @@ export function timeToSeconds(timeStr) {
 }
 
 export function getNormalTime(time) {
-  let [hours, minutes, seconds] = time.split(":");
+  let [hours = 0, minutes = 0, seconds = 0] = time.split(":");
 
   if (parseInt(hours, 10) > 23) {
     hours = hours - 24;
@@ -44,6 +44,27 @@ export function combineDateAndTime(date, time = "00:00:00", timezone, toTimezone
   } else {
     return moment.tz(`${date} ${time}`, timezone);
   }
+}
+
+export function journeyStartTime(event, useDate) {
+  const eventDate = useDate
+    ? useDate
+    : moment.tz(event.received_at, "Europe/Helsinki").format("YYYY-MM-DD");
+
+  if (eventDate !== event.oday) {
+    let [hours, minutes, seconds] = event.journey_start_time.split(":");
+    hours = parseInt(hours, 10) + 24;
+    return getTimeString(hours, minutes, seconds);
+  }
+
+  return event.journey_start_time;
+}
+
+// Return the departure time as a 24h+ time string
+export function departureTime(departure) {
+  const {isNextDay, hours, minutes} = departure;
+  const hour = isNextDay ? hours + 24 : hours;
+  return getTimeString(hour, minutes);
 }
 
 export function getTimeRange(date) {

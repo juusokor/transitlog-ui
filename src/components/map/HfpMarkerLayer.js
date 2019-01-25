@@ -60,7 +60,7 @@ ${position.drst ? `<span class="hfp-marker-drst"></span>` : ""}
             {position.route_id} / {position.direction_id}
           </strong>
           <br />
-          {position.received_at_formatted}
+          {position.received_at}
           <br />
           {position.unique_vehicle_id}
           <br />

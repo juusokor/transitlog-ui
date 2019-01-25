@@ -16,6 +16,7 @@ import orderBy from "lodash/orderBy";
 import TerminalStop from "./TerminalStop";
 import {stopTimes} from "../../../helpers/stopTimes";
 import withRoute from "../../../hoc/withRoute";
+import {departureTime} from "../../../helpers/time";
 
 const JourneyPanelWrapper = styled.div`
   height: 100%;
@@ -90,8 +91,17 @@ class JourneyDetails extends React.Component {
           // Get the first departure of the journey from the origin stop departures
           const originDeparture =
             get(route, "originStop.departures.nodes", []).find(
-              ({hours, minutes, dayType, routeId, direction, dateBegin, dateEnd}) =>
-                `${doubleDigit(hours)}:${doubleDigit(minutes)}:00` ===
+              ({
+                hours,
+                minutes,
+                dayType,
+                routeId,
+                direction,
+                dateBegin,
+                dateEnd,
+                isNextDay,
+              }) =>
+                departureTime({hours, minutes, isNextDay}) ===
                   get(journey, "journey_start_time", "") &&
                 isWithinRange(date, dateBegin, dateEnd) &&
                 dayType === currentDayType &&
