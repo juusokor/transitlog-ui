@@ -15,11 +15,12 @@ class RouteStopsLayer extends Component {
     }
   };
 
-  getStopMarker = (stop, isFirst, isLast, positions = []) => {
+  getStopMarker = (stop, isFirst, isLast) => {
     const {
       state: {date, stop: selectedStop, selectedJourney},
       onViewLocation,
       showRadius,
+      positions = [],
     } = this.props;
 
     const isSelected = stop.stopId === selectedStop;
@@ -42,15 +43,13 @@ class RouteStopsLayer extends Component {
   };
 
   renderStops = (stops) => {
-    const {positions = []} = this.props;
-
     return stops.map((stop, index) => {
       // Funnily enough, the first stop is last in the array.
       const isFirst = index === stops.length - 1;
       // ...and the last stop is first.
       const isLast = index === 0;
 
-      return this.getStopMarker(stop, isFirst, isLast, positions);
+      return this.getStopMarker(stop, isFirst, isLast);
     });
   };
 

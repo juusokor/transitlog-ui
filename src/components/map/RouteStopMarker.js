@@ -5,7 +5,6 @@ import TimingStopIcon from "../../icon-time1.svg";
 import {observer} from "mobx-react";
 import {diffDepartureJourney} from "../../helpers/diffDepartureJourney";
 import getDelayType from "../../helpers/getDelayType";
-import doubleDigit from "../../helpers/doubleDigit";
 import orderBy from "lodash/orderBy";
 import groupBy from "lodash/groupBy";
 import {Heading, P} from "../Typography";
@@ -17,6 +16,7 @@ import {getPriorityMode, getModeColor} from "../../helpers/vehicleColor";
 import get from "lodash/get";
 import {StopRadius} from "./StopRadius";
 import DeparturesQuery from "../../queries/DeparturesQuery";
+import {departureTime} from "../../helpers/time";
 
 const PopupParagraph = styled(P)`
   font-size: 1rem;
@@ -150,10 +150,8 @@ class RouteStopMarker extends React.Component {
             );
           }
 
-          const groupedDepartures = groupBy(
-            departures,
-            ({originDeparture: {hours, minutes}}) =>
-              `${doubleDigit(hours)}:${doubleDigit(minutes)}:00`
+          const groupedDepartures = groupBy(departures, ({originDeparture}) =>
+            departureTime(originDeparture)
           );
 
           let departure = get(groupedDepartures, `${journey_start_time}[0]`, null);

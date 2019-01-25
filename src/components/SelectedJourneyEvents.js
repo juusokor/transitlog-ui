@@ -7,6 +7,7 @@ import getJourneyId from "../helpers/getJourneyId";
 import get from "lodash/get";
 import withRoute from "../hoc/withRoute";
 import EnsureJourneySelection from "../helpers/EnsureJourneySelection";
+import moment from "moment-timezone";
 
 @withRoute
 @inject(app("state"))
@@ -42,10 +43,19 @@ class SelectedJourneyEvents extends Component {
             return this.renderChildren(children, [], loading, error);
           }
 
-          const events = positions
+          const filteredEvents = positions
             // TODO: Fix when we have to deal with null coordinates
-            .filter((pos) => !!pos.lat && !!pos.long)
-            .map(createHfpItem);
+            .filter((pos) => !!pos.lat && !!pos.long);
+
+          // Get the real date when this journey started. This will let us determine
+          // on which side of the 24h+ day the journey happened.
+          const realStartDate = moment
+            .tz(positions[0].received_at, "Europe/Helsinki")
+            .format("YYYY-MM-DD");
+
+          const events = filteredEvents.map((item) =>
+            createHfpItem(item, realStartDate)
+          );
 
           const journeyId = getJourneyId(events[0]);
 
