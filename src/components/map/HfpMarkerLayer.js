@@ -42,26 +42,33 @@ class HfpMarkerLayer extends Component {
     if (!nextHfpPosition) {
       // If no positions matched the current time exactly, look backwards and forwards
       // 10 seconds respectively to find a matching hfp event.
-      let i = 0;
-      let checkSeconds = time;
-
-      // Max iterations is 10, which means events can be at most 60 seconds before
-      // or after i to be displayed.
-      while (!nextHfpPosition && i <= 120) {
-        nextHfpPosition = this.positions.get(checkSeconds);
-
-        // Alternately check after (even i) and before (odd i) `time`
-        if (i % 2 === 0) {
-          checkSeconds = time + Math.round(i / 2);
-        } else {
-          checkSeconds = time - Math.round(i / 2);
-        }
-
-        i += 1;
-      }
+      nextHfpPosition = this.findHfpPosition(time);
     }
 
     this.setHfpPosition(nextHfpPosition);
+  };
+
+  findHfpPosition = (time) => {
+    let i = 0;
+    let checkSeconds = time;
+    let nextHfpPosition = null;
+
+    // Max iterations is 120, which means events can be at most 60 seconds before
+    // or after i to be displayed.
+    while (!nextHfpPosition && i <= 120) {
+      // Alternately check after (even i) and before (odd i) `time`
+      if (i % 2 === 0) {
+        checkSeconds = time + Math.round(i / 2);
+      } else {
+        checkSeconds = time - Math.round(i / 2);
+      }
+
+      nextHfpPosition = this.positions.get(checkSeconds);
+
+      i += 1;
+    }
+
+    return nextHfpPosition;
   };
 
   setHfpPosition = async (nextHfpPosition) => {

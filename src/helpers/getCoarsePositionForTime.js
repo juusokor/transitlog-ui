@@ -1,6 +1,5 @@
 import startOfDay from "date-fns/start_of_day";
 import diffSeconds from "date-fns/difference_in_seconds";
-import nth from "lodash/nth";
 
 // This function is not as precise as the ones used
 // for the HFP markers. But it is a lot cheaper and more performant!
@@ -11,20 +10,23 @@ function getCoarsePositionForTime(positions = [], time) {
   const positionsTimeStart = diffSeconds(firstPositionTime, dayStart);
   const positionsTimeEnd = diffSeconds(lastPositionTime, dayStart);
 
-  if (time < positionsTimeStart || time > positionsTimeEnd) {
+  if (time <= positionsTimeStart || time >= positionsTimeEnd) {
     return null;
   }
 
-  const positionsRange = positionsTimeEnd - positionsTimeStart;
-  const timePosition = time - positionsTimeStart;
+  let nextPosition = null;
 
-  const diff = positionsRange - timePosition;
-  const avg = (positionsRange + timePosition) / 2;
+  for (const position of positions) {
+    const positionTime = new Date(position.received_at);
+    const diffFromStart = diffSeconds(positionTime, dayStart);
 
-  const currentProgress = diff / avg;
-  const positionsIndex = -1 * Math.floor(positions.length * currentProgress);
+    if (diffFromStart === time) {
+      nextPosition = position;
+      break;
+    }
+  }
 
-  return nth(positions, positionsIndex);
+  return nextPosition;
 }
 
 export default getCoarsePositionForTime;
