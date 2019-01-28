@@ -7,7 +7,7 @@ import {groupHfpPositions} from "../helpers/groupHfpPositions";
 import getJourneyId from "../helpers/getJourneyId";
 import {createHfpItem} from "../helpers/createHfpItem";
 import {setUpdateListener, removeUpdateListener} from "../stores/UpdateManager";
-import {sortByTime} from "../helpers/sortByTime";
+import {timeToSeconds} from "../helpers/time";
 
 const areaHfpQuery = gql`
   query areaHfpQuery(
@@ -105,7 +105,7 @@ class AreaHfpQuery extends Component {
               getJourneyId,
               "journeyId"
             ),
-            ({journey_start_time = ""}) => sortByTime(journey_start_time)
+            ({journey_start_time = ""}) => timeToSeconds(journey_start_time)
           );
 
           this.prevResults = groupedEvents;
