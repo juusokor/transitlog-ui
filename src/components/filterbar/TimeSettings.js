@@ -72,6 +72,7 @@ class TimeSettings extends Component {
   });
 
   onKeyDown = (e) => {
+    // Blur the input if enter (13) or esc (27) is pressed.
     if (e.keyCode === 27 || e.keyCode === 13) {
       e.target.blur();
     }
