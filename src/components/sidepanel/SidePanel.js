@@ -114,7 +114,7 @@ class SidePanel extends Component {
         <MainSidePanel>
           <ControlBar />
           <Tabs>
-            {!hasRoute && (
+            {!hasRoute && (areaEvents.length !== 0 || areaEventsLoading) && (
               <AreaJourneyList
                 loading={areaEventsLoading}
                 journeys={areaEvents}
