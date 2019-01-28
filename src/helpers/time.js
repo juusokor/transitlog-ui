@@ -22,28 +22,11 @@ export function getTimeString(hours = 0, minutes = 0, seconds = 0) {
   return `${doubleDigit(hours)}:${doubleDigit(minutes)}:${doubleDigit(seconds)}`;
 }
 
-export function timeToFormat(value, toFormat, toTimezone, fromTimezone) {
-  let date;
-
-  if (fromTimezone) {
-    date = moment.tz(value, fromTimezone);
-  } else {
-    date = moment(value);
-  }
-
-  if (toTimezone) {
-    date = date.tz(toTimezone);
-  }
-
-  return date.format(toFormat);
-}
-
-export function combineDateAndTime(date, time = "00:00:00", timezone, toTimezone) {
-  if (toTimezone && typeof toTimezone === "string") {
-    return moment.tz(`${date} ${time}`, timezone).tz(toTimezone);
-  } else {
-    return moment.tz(`${date} ${time}`, timezone);
-  }
+export function getMomentFromDateTime(date, time = "00:00:00", timezone) {
+  // Get the seconds elapsed during the date. The time can be a 24h+ time.
+  const seconds = timeToSeconds(time);
+  // Create a moment from the date and add the seconds.
+  return moment.tz(date, timezone).add(seconds, "seconds");
 }
 
 export function journeyStartTime(event, useMoment) {

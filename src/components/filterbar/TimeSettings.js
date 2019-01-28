@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import {app} from "mobx-app";
 import {inject, observer} from "mobx-react";
-import {combineDateAndTime} from "../../helpers/time";
+import {getMomentFromDateTime} from "../../helpers/time";
 import {InputBase, ControlGroup} from "../Forms";
 import PlusMinusInput from "../PlusMinusInput";
 import styled from "styled-components";
@@ -59,7 +59,7 @@ class TimeSettings extends Component {
       Time,
     } = this.props;
 
-    const currentTime = combineDateAndTime(date, time, "Europe/Helsinki");
+    const currentTime = getMomentFromDateTime(date, time, "Europe/Helsinki");
     const nextTime = currentTime.add(modifier, "seconds").format("HH:mm:ss");
 
     Time.toggleLive(false);

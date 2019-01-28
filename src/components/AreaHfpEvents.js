@@ -4,7 +4,7 @@ import {app} from "mobx-app";
 import AreaHfpQuery from "../queries/AreaHfpQuery";
 import invoke from "lodash/invoke";
 import moment from "moment-timezone";
-import {combineDateAndTime} from "../helpers/time";
+import {getMomentFromDateTime, timeToSeconds} from "../helpers/time";
 import {setResetListener} from "../stores/FilterStore";
 
 @inject(app("state"))
@@ -49,7 +49,8 @@ class AreaHfpEvents extends PureComponent {
 
     // Constrain search time span to 5 minutes when auto-polling.
     const timespan = live && timeIsCurrent ? 5 : areaSearchRangeMinutes;
-    const moment = combineDateAndTime(date, time, "Europe/Helsinki");
+
+    const moment = getMomentFromDateTime(date, time, "Europe/Helsinki");
 
     const min = moment.clone().subtract(Math.round(timespan / 2), "minutes");
     const max = moment.clone().add(Math.round(timespan / 2), "minutes");
