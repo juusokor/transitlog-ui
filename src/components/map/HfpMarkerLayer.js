@@ -8,6 +8,7 @@ import {app} from "mobx-app";
 import {Text} from "../../helpers/text";
 import "./Map.css";
 import {getModeColor} from "../../helpers/vehicleColor";
+import VehicleMarker from "./VehicleMarker";
 
 @inject(app("state"))
 @observer
@@ -15,6 +16,17 @@ class HfpMarkerLayer extends Component {
   static propTypes = {
     onMarkerClick: PropTypes.func.isRequired,
   };
+
+  markerRef = React.createRef();
+
+  // The markerIcon needs to be created here so that
+  // the instance does not change between rerenders
+  icon = divIcon({
+    className: `hfp-icon`,
+    iconSize: 36,
+  });
+
+  componentDidMount() {}
 
   onMarkerClick = (positionWhenClicked) => () => {
     const {onMarkerClick} = this.props;
@@ -33,28 +45,20 @@ class HfpMarkerLayer extends Component {
 
     const modeColor = getModeColor(get(position, "mode", "").toUpperCase());
 
-    const markerIcon = divIcon({
-      className: `hfp-icon`,
-      iconSize: 36,
-      html: `<span class="hfp-marker-wrapper" style="background-color: ${modeColor}">
-<div class="hfp-marker-icon ${get(
-        position,
-        "mode",
-        ""
-      ).toUpperCase()}" style="transform: rotate(${position.hdg - 180}deg)"></div>
-${position.drst ? `<span class="hfp-marker-drst"></span>` : ""}
-<span class="hfp-marker-heading" style="transform: rotate(${
-        position.hdg
-      }deg) translate(0, -82%); border-bottom-color: ${modeColor}"></span>
-</span>`,
-    });
-
     return (
       <Marker
+        ref={this.markerRef}
         onClick={this.onMarkerClick(position)}
         position={[position.lat, position.long]}
-        icon={markerIcon}
+        icon={this.icon}
         pane="hfp-markers">
+        {this.markerRef.current && (
+          <VehicleMarker
+            parent={this.markerRef.current.leafletElement._icon}
+            position={position}
+            color={modeColor}
+          />
+        )}
         <Tooltip>
           <strong>
             {position.route_id} / {position.direction_id}
