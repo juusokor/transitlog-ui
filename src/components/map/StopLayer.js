@@ -37,7 +37,7 @@ class StopLayer extends Component {
             }
 
             if (!bounds) {
-              bounds = pos.toBounds(40);
+              bounds = pos.toBounds(3);
             }
 
             const stopGroup = groups.get(bounds) || [];
