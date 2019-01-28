@@ -14,7 +14,7 @@ class EnsureJourneySelection extends Component {
   componentDidUpdate() {
     const {events, eventsLoading, Journey, Filters} = this.props;
 
-    if (!events && !eventsLoading) {
+    if ((!events || events.length === 0) && !eventsLoading) {
       Journey.setSelectedJourney(null);
     } else if (events && !eventsLoading) {
       Filters.setVehicle(get(events, "[0].events[0].unique_vehicle_id", ""));
