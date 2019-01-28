@@ -47,18 +47,6 @@ class MapContent extends Component {
 
     return (
       <>
-        <HfpMarkerLayer
-          key={`hfp_marker_test`}
-          onMarkerClick={this.onClickVehicleMarker}
-          currentPosition={{
-            lat: 60.170988,
-            long: 24.940842,
-            mode: "BUS",
-            hdg: 30,
-            drst: true,
-          }}
-          journeyId="test"
-        />
         {/* When a route is NOT selected... */}
         {!hasRoute && (
           <>
