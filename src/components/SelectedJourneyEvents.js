@@ -35,12 +35,12 @@ class SelectedJourneyEvents extends Component {
         skip={!selectedJourneyValid}
         selectedJourney={selectedJourney}>
         {({positions = [], loading, error}) => {
-          if ((!positions || positions.length === 0) && !loading) {
-            return this.renderChildren(children);
+          if ((positions.length === 0 && !loading) || error) {
+            return this.renderChildren(children, [], false, error);
           }
 
-          if (!positions || positions.length === 0 || loading) {
-            return this.renderChildren(children, [], loading, error);
+          if (positions.length === 0 || loading) {
+            return this.renderChildren(children, positions, loading, error);
           }
 
           const filteredEvents = positions

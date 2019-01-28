@@ -12,6 +12,10 @@ import get from "lodash/get";
 @observer
 class EnsureJourneySelection extends Component {
   componentDidUpdate() {
+    this.checkStatus();
+  }
+
+  checkStatus() {
     const {events, eventsLoading, Journey, Filters} = this.props;
 
     if ((!events || events.length === 0) && !eventsLoading) {

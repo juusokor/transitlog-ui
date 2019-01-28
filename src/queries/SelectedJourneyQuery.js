@@ -73,11 +73,7 @@ class SelectedJourneyQuery extends React.Component {
     };
 
     return (
-      <Query
-        partialRefetch={true}
-        skip={skip || !selectedJourney}
-        query={hfpQuery}
-        variables={queryVars}>
+      <Query skip={skip || !selectedJourney} query={hfpQuery} variables={queryVars}>
         {({data, loading, error, refetch}) => {
           if (!loading) {
             setUpdateListener(updateListenerName, this.onUpdate(refetch));
