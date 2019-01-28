@@ -2,7 +2,6 @@ import {Component} from "react";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import {reaction, observable, action, computed} from "mobx";
-import moment from "moment-timezone";
 
 @inject(app("state"))
 @observer

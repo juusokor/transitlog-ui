@@ -4,7 +4,7 @@ import {app} from "mobx-app";
 import AreaHfpQuery from "../queries/AreaHfpQuery";
 import invoke from "lodash/invoke";
 import moment from "moment-timezone";
-import {getMomentFromDateTime, timeToSeconds} from "../helpers/time";
+import {getMomentFromDateTime} from "../helpers/time";
 import {setResetListener} from "../stores/FilterStore";
 
 @inject(app("state"))

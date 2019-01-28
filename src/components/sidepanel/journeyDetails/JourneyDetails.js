@@ -9,7 +9,6 @@ import SingleRouteQuery from "../../../queries/SingleRouteQuery";
 import JourneyStops from "./JourneyStops";
 import Loading from "../../Loading";
 import JourneyInfo from "./JourneyInfo";
-import doubleDigit from "../../../helpers/doubleDigit";
 import isWithinRange from "date-fns/is_within_range";
 import {getDayTypeFromDate} from "../../../helpers/getDayTypeFromDate";
 import orderBy from "lodash/orderBy";
