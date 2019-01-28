@@ -61,6 +61,7 @@ export const getClient = async (UIStore) => {
     uri: hfpUrl,
   });
 
+  // Split the operation between the JORE api and the HFP api depending on the query.
   const splitLink = split(
     (operation) => {
       const queryName = get(
