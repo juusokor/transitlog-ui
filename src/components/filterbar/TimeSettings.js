@@ -71,6 +71,20 @@ class TimeSettings extends Component {
     this.isDirty = dirtyVal;
   });
 
+  onKeyDown = (e) => {
+    if (e.keyCode === 27 || e.keyCode === 13) {
+      e.target.blur();
+    }
+  };
+
+  onFocus = () => {
+    const {Time, state} = this.props;
+
+    if (state.live) {
+      Time.toggleLive(false);
+    }
+  };
+
   onBlur = () => {
     const {Time} = this.props;
     // Get the current input value and remove non-number characters.
@@ -129,6 +143,8 @@ class TimeSettings extends Component {
           <TimeInput
             value={this.displayTime}
             onBlur={this.onBlur}
+            onFocus={this.onFocus}
+            onKeyDown={this.onKeyDown}
             onChange={(e) => this.setTimeValue(e.target.value, true)}
           />
         </PlusMinusInput>
