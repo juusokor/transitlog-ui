@@ -92,7 +92,7 @@ class Tabs extends Component {
       const newChildren = difference(childrenArray, prevChildrenArray);
       const nextTab = newChildren[0] || selectedTab;
 
-      if (nextTab === selectedTab) return null;
+      if (!nextTab || nextTab === selectedTab) return null;
 
       return {
         selectedTab: nextTab,
