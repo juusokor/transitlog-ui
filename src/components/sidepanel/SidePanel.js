@@ -93,7 +93,7 @@ class SidePanel extends Component {
       UI: {toggleSidePanel, toggleJourneyDetails},
       areaEvents = [],
       selectedJourneyEvents = [],
-      loading = false,
+      journeyEventsLoading = false,
       areaEventsLoading = false,
       stop,
       state: {
@@ -107,6 +107,7 @@ class SidePanel extends Component {
     } = this.props;
 
     const hasRoute = !!route && !!route.routeId;
+    const hasEvents = !journeyEventsLoading && selectedJourneyEvents.length !== 0;
 
     return (
       <SidePanelContainer visible={sidePanelVisible}>
@@ -125,14 +126,14 @@ class SidePanel extends Component {
               <Journeys
                 key={`route_journeys_${createRouteKey(route, true)}_${date}`}
                 route={route}
-                loading={loading}
+                loading={journeyEventsLoading}
                 name="journeys"
                 label={text("sidepanel.tabs.journeys")}
               />
             )}
             {vehicle && (
               <VehicleJourneys
-                loading={loading}
+                loading={journeyEventsLoading}
                 name="vehicle-journeys"
                 label={text("sidepanel.tabs.vehicle_journeys")}
               />
@@ -140,19 +141,19 @@ class SidePanel extends Component {
             {stop && (
               <TimetablePanel
                 stop={stop}
-                loading={loading}
+                loading={journeyEventsLoading}
                 name="timetables"
                 label={text("sidepanel.tabs.timetables")}
               />
             )}
           </Tabs>
         </MainSidePanel>
-        <JourneyPanel visible={journeyDetailsAreOpen}>
+        <JourneyPanel visible={hasEvents && journeyDetailsAreOpen}>
           {/* The content of the sidebar is independent from the sidebar wrapper so that we can animate it. */}
           {journeyDetailsAreOpen && (
             <JourneyDetails selectedJourneyEvents={selectedJourneyEvents} />
           )}
-          {journeyDetailsCanOpen && (
+          {hasEvents && journeyDetailsCanOpen && (
             <ToggleJourneyDetailsButton
               isVisible={journeyDetailsAreOpen}
               onClick={() => toggleJourneyDetails()}>

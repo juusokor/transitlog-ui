@@ -71,7 +71,10 @@ class App extends Component {
             timeRange,
           }) => (
             <SelectedJourneyEvents>
-              {({events: selectedJourneyEvents = [], loading}) => {
+              {({
+                events: selectedJourneyEvents = [],
+                loading: journeyEventsLoading,
+              }) => {
                 const journeyEvents = selectedJourneyEvents || [];
                 let areaHfp = !hasRoute && areaEvents.length !== 0 ? areaEvents : [];
 
@@ -92,7 +95,7 @@ class App extends Component {
                           <>
                             <SidePanel
                               areaEventsLoading={areaEventsLoading}
-                              loading={loading}
+                              journeyEventsLoading={journeyEventsLoading}
                               areaEvents={areaHfp}
                               selectedJourneyEvents={selectedJourneyEvents}
                               route={route}
