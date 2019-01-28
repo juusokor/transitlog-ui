@@ -168,9 +168,7 @@ class Journeys extends Component {
                             ref={journeyIsFocused ? scrollRef : null}
                             key={`planned_journey_row_${journeyId}`}
                             selected={journeyIsSelected}
-                            onClick={this.selectJourney(
-                              getNormalTime(journey.time)
-                            )}>
+                            onClick={this.selectJourney(journey.time)}>
                             <JourneyRowLeft>
                               {getNormalTime(journey.time)}
                             </JourneyRowLeft>
