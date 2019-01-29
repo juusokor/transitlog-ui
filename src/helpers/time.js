@@ -8,6 +8,14 @@ export function timeToSeconds(timeStr) {
   return num(seconds) + num(minutes) * 60 + num(hours) * 60 * 60;
 }
 
+export function secondsToTime(seconds) {
+  const totalHours = Math.floor(seconds / 3600);
+  const totalMinutes = (seconds % 3600) / 60;
+  const totalSeconds = seconds % 60;
+
+  return getTimeString(totalHours, totalMinutes, totalSeconds);
+}
+
 export function getNormalTime(time) {
   let [hours = 0, minutes = 0, seconds = 0] = time.split(":");
 
