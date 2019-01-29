@@ -3,7 +3,6 @@ import {observer, inject} from "mobx-react";
 import StopLayer from "./StopLayer";
 import StopMarker from "./StopMarker";
 import RouteQuery from "../../queries/RouteQuery";
-import createRouteIdentifier from "../../helpers/createRouteIdentifier";
 import RouteLayer from "./RouteLayer";
 import get from "lodash/get";
 import getJourneyId from "../../helpers/getJourneyId";
@@ -15,6 +14,7 @@ import AreaSelect from "./AreaSelect";
 import {expr} from "mobx-utils";
 import {areaEventsStyles} from "../../stores/UIStore";
 import SimpleHfpLayer from "./SimpleHfpLayer";
+import {createRouteKey} from "../../helpers/keys";
 
 @inject(app("Journey", "Filters"))
 @observer
@@ -91,19 +91,17 @@ class MapContent extends Component {
         {hasRoute && (
           <>
             <RouteQuery
-              key={`route_query_${createRouteIdentifier(route)}`}
+              key={`route_query_${createRouteKey(route, true)}`}
               route={route}>
               {({routeGeometry}) =>
                 routeGeometry.length !== 0 ? (
                   <RouteLayer
                     routeId={
-                      routeGeometry.length !== 0
-                        ? createRouteIdentifier(route)
-                        : null
+                      routeGeometry.length !== 0 ? createRouteKey(route) : null
                     }
                     routeGeometry={routeGeometry}
                     setMapBounds={setMapBounds}
-                    key={`route_line_${createRouteIdentifier(route)}`}
+                    key={`route_line_${createRouteKey(route, true)}`}
                   />
                 ) : null
               }
