@@ -3,6 +3,7 @@ import {
   getNormalTime,
   getTimeString,
   getMomentFromDateTime,
+  secondsToTime,
 } from "./time";
 
 describe("Time helpers", () => {
@@ -22,6 +23,29 @@ describe("Time helpers", () => {
     const expectSeconds = 95420;
 
     expect(seconds).toBe(expectSeconds);
+  });
+
+  test("secondsToTime returns a time string for a duration in seconds", () => {
+    const seconds = 5430;
+
+    const timeStr = secondsToTime(seconds);
+    const expected = "01:30:30";
+
+    expect(timeStr).toBe(expected);
+  });
+
+  test("timeToSeconds and secondsToTime work well together", () => {
+    const test1Time = secondsToTime(109210);
+    const test1Secs = timeToSeconds("30:20:10");
+
+    const test2Secs = timeToSeconds("13:59:48");
+    const test2Time = secondsToTime(50388);
+
+    expect(timeToSeconds(test1Time)).toBe(test1Secs);
+    expect(secondsToTime(test1Secs)).toBe(test1Time);
+
+    expect(secondsToTime(test2Secs)).toBe(test2Time);
+    expect(timeToSeconds(test2Time)).toBe(test2Secs);
   });
 
   test("getNormalTime converts a 24h+ time to a 24h time.", () => {

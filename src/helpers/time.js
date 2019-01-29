@@ -10,7 +10,7 @@ export function timeToSeconds(timeStr) {
 
 export function secondsToTime(seconds) {
   const totalHours = Math.floor(seconds / 3600);
-  const totalMinutes = (seconds % 3600) / 60;
+  const totalMinutes = Math.floor((seconds % 3600) / 60);
   const totalSeconds = seconds % 60;
 
   return getTimeString(totalHours, totalMinutes, totalSeconds);
