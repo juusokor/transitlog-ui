@@ -12,10 +12,11 @@ import JourneyInfo from "./JourneyInfo";
 import {getDayTypeFromDate} from "../../../helpers/getDayTypeFromDate";
 import orderBy from "lodash/orderBy";
 import TerminalStop from "./TerminalStop";
-import {stopTimes} from "../../../helpers/stopTimes";
+import {stopDepartureTimes} from "../../../helpers/stopDepartureTimes";
 import withRoute from "../../../hoc/withRoute";
 import {departureTime} from "../../../helpers/time";
 import {isWithinRange} from "../../../helpers/isWithinRange";
+import {stopArrivalTimes} from "../../../helpers/stopArrivalTimes";
 
 const JourneyPanelWrapper = styled.div`
   height: 100%;
@@ -116,8 +117,12 @@ class JourneyDetails extends React.Component {
             "desc"
           );
 
-          const originStopTimes = originDeparture
-            ? stopTimes(originDeparture, originStopHfp, originDeparture, date)
+          const originDepartureTimes = originDeparture
+            ? stopDepartureTimes(originStopHfp, originDeparture, date)
+            : null;
+
+          const originArrivalTimes = originDeparture
+            ? stopArrivalTimes(originStopHfp, originDeparture, date)
             : null;
 
           /*
@@ -146,13 +151,12 @@ class JourneyDetails extends React.Component {
             "desc"
           );
 
-          const destinationStopTimes = destinationDeparture
-            ? stopTimes(
-                destinationDeparture,
-                destinationStopHfp,
-                destinationDeparture,
-                date
-              )
+          const destinationDepartureTimes = destinationDeparture
+            ? stopDepartureTimes(destinationStopHfp, destinationDeparture, date)
+            : null;
+
+          const destinationArrivalTimes = destinationDeparture
+            ? stopArrivalTimes(destinationStopHfp, destinationDeparture, date)
             : null;
 
           return (
@@ -173,15 +177,23 @@ class JourneyDetails extends React.Component {
                     departure={originDeparture}
                     journey={journey}
                     journeyHfp={events}
-                    originStopTimes={originStopTimes}
-                    destinationStopTimes={destinationStopTimes}
+                    originStopTimes={
+                      originDepartureTimes && originArrivalTimes
+                        ? {...originArrivalTimes, ...originDepartureTimes}
+                        : null
+                    }
+                    destinationStopTimes={
+                      destinationDepartureTimes && destinationArrivalTimes
+                        ? {...destinationArrivalTimes, ...destinationDepartureTimes}
+                        : null
+                    }
                   />
                   <StopsListWrapper>
                     <TerminalStop
                       isFirstTerminal={true}
-                      stopTimes={originStopTimes} // TerminalStop can receive precalculated stop times.
+                      departureTimes={originDepartureTimes} // TerminalStop can receive precalculated stop times.
+                      arrivalTimes={originArrivalTimes}
                       stop={get(route, "originStop", {})}
-                      journeyPositions={events}
                       date={date}
                       onClickTime={this.onClickTime}
                     />
@@ -194,9 +206,9 @@ class JourneyDetails extends React.Component {
                     />
                     <TerminalStop
                       isLastTerminal={true}
-                      originDeparture={originDeparture}
+                      departureTimes={destinationDepartureTimes}
+                      arrivalTimes={destinationArrivalTimes}
                       stop={get(route, "destinationStop", {})}
-                      journeyPositions={events}
                       date={date}
                       onClickTime={this.onClickTime}
                     />

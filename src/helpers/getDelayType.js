@@ -4,7 +4,7 @@ function getDelayType(delay) {
     return "";
   }
 
-  return delay >= 10 ? "early" : delay <= -60 * 3 ? "late" : "on-time";
+  return delay <= -10 ? "early" : delay >= 60 * 3 ? "late" : "on-time";
 }
 
 export default getDelayType;

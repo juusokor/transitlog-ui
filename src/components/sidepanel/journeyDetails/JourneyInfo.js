@@ -6,6 +6,7 @@ import CalculateTerminalTime from "./CalculateTerminalTime";
 import doubleDigit from "../../../helpers/doubleDigit";
 import {getEquipmentType} from "./equipmentType";
 import {Text, text} from "../../../helpers/text";
+import {getTimeString} from "../../../helpers/time";
 
 const JourneyInfo = styled.div`
   flex: none;
