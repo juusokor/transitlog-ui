@@ -1,5 +1,4 @@
 import {diffDepartureJourney} from "./diffDepartureJourney";
-import moment from "moment-timezone";
 import {getMomentFromDateTime} from "./time";
 
 describe("diffDepartureJourney", () => {
@@ -15,21 +14,13 @@ describe("diffDepartureJourney", () => {
     const event = {
       journey_start_time: "16:04:00",
       oday: date,
-      received_at: "2019-01-27T14:05:30.000Z", // UTC timestamp 1:30 minutes after scheduled start
+      received_at: "2019-01-27T16:05:30.000Z", // UTC timestamp 1:30 minutes after scheduled start
     };
 
     const diff = diffDepartureJourney(event, departure, "2019-01-27");
 
-    const expectPlannedMoment = getMomentFromDateTime(
-      "2019-01-27",
-      "16:04:00",
-      "Europe/Helsinki"
-    );
-    const expectObservedMoment = getMomentFromDateTime(
-      "2019-01-27",
-      "16:05:30",
-      "Europe/Helsinki"
-    );
+    const expectPlannedMoment = getMomentFromDateTime("2019-01-27", "16:04:00");
+    const expectObservedMoment = getMomentFromDateTime("2019-01-27", "16:05:30");
 
     expect(diff.diff).toBe(90);
     expect(diff.minutes).toBe(1);

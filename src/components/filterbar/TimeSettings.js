@@ -8,6 +8,7 @@ import styled from "styled-components";
 import doubleDigit from "../../helpers/doubleDigit";
 import {observable, action, computed} from "mobx";
 import {setResetListener} from "../../stores/FilterStore";
+import {TIMEZONE} from "../../constants";
 
 const TimeControlGroup = styled(ControlGroup)`
   margin-bottom: 1.25rem;
@@ -59,7 +60,7 @@ class TimeSettings extends Component {
       Time,
     } = this.props;
 
-    const currentTime = getMomentFromDateTime(date, time, "Europe/Helsinki");
+    const currentTime = getMomentFromDateTime(date, time, TIMEZONE);
     const nextTime = currentTime.add(modifier, "seconds").format("HH:mm:ss");
 
     Time.toggleLive(false);

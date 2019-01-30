@@ -2,6 +2,7 @@ import get from "lodash/get";
 import moment from "moment-timezone";
 import {getAdjustedDepartureDate} from "./getAdjustedDepartureDate";
 import {secondsToTimeObject} from "./time";
+import {TIMEZONE} from "../constants";
 
 export function diffDepartureJourney(journey, departure, date, useArrival = false) {
   const receivedAt = get(journey, "received_at", null);
@@ -10,7 +11,7 @@ export function diffDepartureJourney(journey, departure, date, useArrival = fals
     return null;
   }
 
-  const observedDepartureTime = moment.tz(receivedAt, "Europe/Helsinki");
+  const observedDepartureTime = moment.tz(receivedAt, TIMEZONE);
   const plannedDepartureTime = getAdjustedDepartureDate(departure, date, useArrival);
 
   const diff = observedDepartureTime.diff(plannedDepartureTime, "seconds");

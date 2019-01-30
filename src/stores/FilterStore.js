@@ -5,6 +5,7 @@ import pick from "lodash/pick";
 import merge from "lodash/merge";
 import {resetUrlState} from "./UrlManager";
 import moment from "moment-timezone";
+import {TIMEZONE} from "../constants";
 
 const resetListeners = [];
 
@@ -22,7 +23,7 @@ export function setResetListener(cb) {
 
 export default (state, initialState) => {
   const emptyState = {
-    date: moment.tz(new Date(), "Europe/Helsinki").format("YYYY-MM-DD"),
+    date: moment.tz(new Date(), TIMEZONE).format("YYYY-MM-DD"),
     stop: "",
     vehicle: "",
     line: {

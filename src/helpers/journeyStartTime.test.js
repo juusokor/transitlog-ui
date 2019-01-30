@@ -1,12 +1,13 @@
 import moment from "moment-timezone";
 import {journeyStartTime, departureTime} from "./time";
+import {TIMEZONE} from "../constants";
 
 describe("journeyStartTime", () => {
   test("journeyStartTime returns a valid time string for when the journey started", () => {
     const journey = {
       journey_start_time: "16:04:00",
       oday: "2019-01-27",
-      received_at: "2019-01-27T14:30:00.000Z", // UTC timestamp 26 minutes after start
+      received_at: "2019-01-27T16:30:00.000Z", // UTC timestamp 26 minutes after start
     };
 
     const startTime = journeyStartTime(journey);
@@ -21,7 +22,7 @@ describe("journeyStartTime", () => {
     const journey1 = {
       journey_start_time: "00:05:00",
       oday: "2019-01-27",
-      received_at: "2019-01-27T21:59:00.000Z", // UTC timestamp 6 minutes before official start
+      received_at: "2019-01-27T23:59:00.000Z", // UTC timestamp 6 minutes before official start
     };
 
     const startTime1 = journeyStartTime(journey1);
@@ -29,12 +30,11 @@ describe("journeyStartTime", () => {
 
     expect(startTime1).toBe(expectedStartTime);
 
-    // When dates are different (UTC timestamp will fall on the 28th when converted to Finnish time)
-    // it can determine that it should be a 24h+ time based on that.
+    // When dates are different it can determine that it should be a 24h+ time based on that.
     const journey2 = {
       journey_start_time: "00:05:00",
       oday: "2019-01-27",
-      received_at: "2019-01-27T22:10:00.000Z", // UTC timestamp 5 minutes after start
+      received_at: "2019-01-28T00:10:00.000Z", // UTC timestamp 5 minutes after start
     };
 
     const startTime2 = journeyStartTime(journey2);
@@ -45,11 +45,11 @@ describe("journeyStartTime", () => {
     const journey = {
       journey_start_time: "03:30:00",
       oday: "2019-01-27",
-      received_at: "2019-01-28T01:40:00.000Z", // this should be ignored. 10 minutes after start.
+      received_at: "2019-01-28T03:40:00.000Z", // this should be ignored. 10 minutes after start.
     };
 
     // 10 minutes after start BUT it's the same date as the oday so it should not be a 24h+ time.
-    const compareMoment = moment.tz("2019-01-27T01:40:00.000Z", "Europe/Helsinki");
+    const compareMoment = moment.tz("2019-01-27T03:40:00.000Z", TIMEZONE);
 
     const startTime1 = journeyStartTime(journey, compareMoment);
     const expectedStartTime = "03:30:00";

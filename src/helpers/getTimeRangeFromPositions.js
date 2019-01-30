@@ -1,6 +1,7 @@
 import moment from "moment-timezone";
 import get from "lodash/get";
 import last from "lodash/last";
+import {TIMEZONE} from "../constants";
 
 export const dateToSeconds = (date, operationDay) => {
   return date.diff(operationDay, "seconds");
@@ -18,15 +19,12 @@ export function getTimeRangeFromPositions(positions) {
 
   // The day when the journey is scheduled. This is the base that the seconds are relative to.
   const operationDay = moment
-    .tz(get(positions, "[0].oday"), "Europe/Helsinki")
+    .tz(get(positions, "[0].oday"), TIMEZONE)
     .startOf("day");
 
   // Min and max moments for the position range
-  const minMoment = moment.tz(get(positions, "[0].received_at"), "Europe/Helsinki");
-  const maxMoment = moment.tz(
-    get(last(positions), "received_at"),
-    "Europe/Helsinki"
-  );
+  const minMoment = moment.tz(get(positions, "[0].received_at"), TIMEZONE);
+  const maxMoment = moment.tz(get(last(positions), "received_at"), TIMEZONE);
 
   return {
     min: dateToSeconds(minMoment, operationDay),

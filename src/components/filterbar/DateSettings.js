@@ -10,6 +10,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import PlusMinusInput from "../PlusMinusInput";
 import Input from "../Input";
 import styled from "styled-components";
+import {TIMEZONE} from "../../constants";
 
 const DateControlGroup = styled(ControlGroup)`
   margin-bottom: 1.25rem;
@@ -73,7 +74,7 @@ class DateSettings extends Component {
     if (!state.date) {
       Filters.setDate("");
     } else {
-      const nextDate = moment.tz(state.date, "YYYY-MM-DD", "Europe/Helsinki");
+      const nextDate = moment.tz(state.date, "YYYY-MM-DD", TIMEZONE);
 
       if (modifier < 0) {
         nextDate.subtract(Math.abs(modifier), "days");
@@ -119,7 +120,7 @@ class DateSettings extends Component {
               onIncrease={this.onDateButtonClick(1)}>
               <Calendar
                 dateFormat="yyyy-MM-dd"
-                selected={moment.tz(date, "Europe/Helsinki").toDate()}
+                selected={moment.tz(date, TIMEZONE).toDate()}
                 onChange={this.setDate}
                 className="calendar"
               />

@@ -6,11 +6,11 @@ describe("getTimeRangeFromPositions", () => {
     const events = [
       {
         oday: "2019-01-28",
-        received_at: "2019-01-27T22:00:00.000Z", // UTC time
+        received_at: "2019-01-28T00:00:00.000Z", // UTC time
       },
       {
         oday: "2019-01-28",
-        received_at: "2019-01-27T22:01:00.000Z", // UTC time, one minute later
+        received_at: "2019-01-28T00:01:00.000Z", // UTC time, one minute later
       },
     ];
 
@@ -27,11 +27,11 @@ describe("getTimeRangeFromPositions", () => {
     const events = [
       {
         oday: "2019-01-28",
-        received_at: "2019-01-27T22:00:00.000Z", // UTC time
+        received_at: "2019-01-28T00:00:00.000Z", // UTC time
       },
       {
         oday: "2019-01-28", // Same oday
-        received_at: "2019-01-29T22:00:00.000Z", // UTC time, 2 days later
+        received_at: "2019-01-30T00:00:00.000Z", // UTC time, 2 days later
       },
     ];
 

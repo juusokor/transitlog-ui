@@ -1,5 +1,6 @@
 import moment from "moment-timezone";
 import doubleDigit from "./doubleDigit";
+import {TIMEZONE} from "../constants";
 
 const num = (val) => parseInt(val, 10);
 
@@ -39,7 +40,7 @@ export function getTimeString(hours = 0, minutes = 0, seconds = 0) {
   return `${doubleDigit(hours)}:${doubleDigit(minutes)}:${doubleDigit(seconds)}`;
 }
 
-export function getMomentFromDateTime(date, time = "00:00:00", timezone) {
+export function getMomentFromDateTime(date, time = "00:00:00", timezone = TIMEZONE) {
   // Get the seconds elapsed during the date. The time can be a 24h+ time.
   const seconds = timeToSeconds(time);
   // Create a moment from the date and add the seconds.
@@ -47,9 +48,7 @@ export function getMomentFromDateTime(date, time = "00:00:00", timezone) {
 }
 
 export function journeyStartTime(event, useMoment) {
-  const eventDate = useMoment
-    ? useMoment
-    : moment.tz(event.received_at, "Europe/Helsinki");
+  const eventDate = useMoment ? useMoment : moment.tz(event.received_at, TIMEZONE);
 
   let [hours, minutes, seconds] = event.journey_start_time.split(":");
   const intHours = parseInt(hours, 10);

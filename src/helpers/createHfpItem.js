@@ -1,9 +1,10 @@
 import moment from "moment-timezone";
 import {journeyStartTime} from "./time";
+import {TIMEZONE} from "../constants";
 
 // Add props to or modify the HFP item.
 export function createHfpItem(rawHfp, startMoment) {
-  const received_at_moment = moment.tz(rawHfp.received_at, "Europe/Helsinki");
+  const received_at_moment = moment.tz(rawHfp.received_at, TIMEZONE);
   const journey_start_time = journeyStartTime(rawHfp, startMoment);
 
   return {

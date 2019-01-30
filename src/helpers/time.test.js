@@ -5,6 +5,7 @@ import {
   getMomentFromDateTime,
   secondsToTime,
 } from "./time";
+import {TIMEZONE} from "../constants";
 
 describe("Time helpers", () => {
   test("timeToSeconds converts a time string to number of seconds", () => {
@@ -77,7 +78,7 @@ describe("Time helpers", () => {
     const time = "15:30:44";
     const date = "2019-01-28";
 
-    const dateTime = getMomentFromDateTime(date, time, "Europe/Helsinki");
+    const dateTime = getMomentFromDateTime(date, time, TIMEZONE);
     const expectTime = date + " " + time;
 
     expect(dateTime.format("YYYY-MM-DD HH:mm:ss")).toBe(expectTime);
@@ -87,7 +88,7 @@ describe("Time helpers", () => {
     const time = "25:30:44";
     const date = "2019-01-28";
 
-    const dateTime = getMomentFromDateTime(date, time, "Europe/Helsinki");
+    const dateTime = getMomentFromDateTime(date, time, TIMEZONE);
     const expectTime = "2019-01-29 01:30:44";
 
     expect(dateTime.format("YYYY-MM-DD HH:mm:ss")).toBe(expectTime);

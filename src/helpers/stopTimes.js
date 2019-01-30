@@ -5,6 +5,7 @@ import {getTimelinessColor} from "./timelinessColor";
 import moment from "moment-timezone";
 import {getAdjustedDepartureDate} from "./getAdjustedDepartureDate";
 import get from "lodash/get";
+import {TIMEZONE} from "../constants";
 
 /*
   TODO: Use this in all places where calculations like this need to be made.
@@ -66,7 +67,7 @@ export const stopTimes = (
   let arrivalMoment = null;
 
   if (arrivalTime) {
-    arrivalMoment = moment.tz(arrivalTime, "Europe/Helsinki");
+    arrivalMoment = moment.tz(arrivalTime, TIMEZONE);
   }
 
   let plannedDepartureMoment = get(departureDiff, "plannedMoment", null);
