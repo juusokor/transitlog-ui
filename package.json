@@ -7,6 +7,8 @@
     "@babel/plugin-transform-runtime": "^7.2.0",
     "@babel/runtime": "^7.2.0",
     "@svgr/webpack": "2.4.1",
+    "@types/jest": "^23.3.13",
+    "@types/moment-timezone": "^0.5.10",
     "@types/react": "^16.7.18",
     "apollo-cache-inmemory": "^1.4.2",
     "apollo-client": "^2.4.8",
