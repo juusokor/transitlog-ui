@@ -2,8 +2,9 @@ import React, {Component} from "react";
 import {Query} from "react-apollo";
 import get from "lodash/get";
 import sortBy from "lodash/sortBy";
+import map from "lodash/map";
+import groupBy from "lodash/groupBy";
 import gql from "graphql-tag";
-import {groupHfpPositions} from "../helpers/groupHfpPositions";
 import getJourneyId from "../helpers/getJourneyId";
 import {createHfpItem} from "../helpers/createHfpItem";
 import {setUpdateListener, removeUpdateListener} from "../stores/UpdateManager";
@@ -95,15 +96,21 @@ class AreaHfpQuery extends Component {
 
           // Make sure the data is in the same format as the normal hfp events are.
           const groupedEvents = sortBy(
-            groupHfpPositions(
-              get(data, "vehicles", [])
-                .filter(
-                  // Filter out null positions. Can't draw them on the map.
-                  (evt) => !!evt && !!evt.lat && !!evt.long
-                )
-                .map(createHfpItem),
-              getJourneyId,
-              "journeyId"
+            map(
+              groupBy(
+                get(data, "vehicles", [])
+                  .filter(
+                    // Filter out null positions. Can't draw them on the map.
+                    (evt) => !!evt && !!evt.lat && !!evt.long
+                  )
+                  .map(createHfpItem),
+                getJourneyId
+              ),
+              (events, groupName) => ({
+                journeyId: groupName,
+                journey_start_time: get(events, "[0].journey_start_time", ""),
+                events,
+              })
             ),
             ({journey_start_time = ""}) => timeToSeconds(journey_start_time)
           );
