@@ -1,7 +1,6 @@
 import React from "react";
 import {Heading} from "../../Typography";
 import get from "lodash/get";
-import isWithinRange from "date-fns/is_within_range";
 import orderBy from "lodash/orderBy";
 import {getDayTypeFromDate} from "../../../helpers/getDayTypeFromDate";
 import {stopTimes as getStopTimes} from "../../../helpers/stopTimes";
@@ -18,6 +17,7 @@ import {getTimelinessColor} from "../../../helpers/timelinessColor";
 import doubleDigit from "../../../helpers/doubleDigit";
 import CalculateTerminalTime from "./CalculateTerminalTime";
 import {Text} from "../../../helpers/text";
+import {isWithinRange} from "../../../helpers/isWithinRange";
 
 const StopWrapper = styled.div`
   padding: 0 1rem 0 0;

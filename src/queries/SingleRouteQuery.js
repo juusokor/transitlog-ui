@@ -7,11 +7,10 @@ import {
   ExtensiveRouteFieldsFragment,
 } from "./RouteFieldsFragment";
 import {observer} from "mobx-react";
-import parse from "date-fns/parse";
 import orderBy from "lodash/orderBy";
 import first from "lodash/first";
-import isWithinRange from "date-fns/is_within_range";
 import {getDayTypeFromDate} from "../helpers/getDayTypeFromDate";
+import {isWithinRange} from "../helpers/isWithinRange";
 
 export const singleRouteQuery = gql`
   query singleRouteQuery($routeId: String!, $direction: String!) {
@@ -55,22 +54,17 @@ export const fetchSingleRoute = (route, date, client) => {
       variables: {...route, direction: direction + ""},
     })
     .then(({data}) => get(data, "allRoutes.nodes", []))
-    .then((routes) => {
-      const queryDate = parse(`${date}T00:00:00`);
-
-      return first(
+    .then((routes) =>
+      first(
         orderBy(
-          routes.filter(({dateBegin, dateEnd}) => {
-            const begin = parse(`${dateBegin}T00:00:00`);
-            const end = parse(`${dateEnd}T23:59:00`);
-
-            return isWithinRange(queryDate, begin, end);
-          }),
+          routes.filter(({dateBegin, dateEnd}) =>
+            isWithinRange(date, dateBegin, dateEnd)
+          ),
           "dateBegin",
           "desc"
         )
-      );
-    });
+      )
+    );
 };
 
 export default observer(({children, route, date, skip}) => (

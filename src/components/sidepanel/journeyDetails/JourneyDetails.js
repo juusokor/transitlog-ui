@@ -9,13 +9,13 @@ import SingleRouteQuery from "../../../queries/SingleRouteQuery";
 import JourneyStops from "./JourneyStops";
 import Loading from "../../Loading";
 import JourneyInfo from "./JourneyInfo";
-import isWithinRange from "date-fns/is_within_range";
 import {getDayTypeFromDate} from "../../../helpers/getDayTypeFromDate";
 import orderBy from "lodash/orderBy";
 import TerminalStop from "./TerminalStop";
 import {stopTimes} from "../../../helpers/stopTimes";
 import withRoute from "../../../hoc/withRoute";
 import {departureTime} from "../../../helpers/time";
+import {isWithinRange} from "../../../helpers/isWithinRange";
 
 const JourneyPanelWrapper = styled.div`
   height: 100%;
