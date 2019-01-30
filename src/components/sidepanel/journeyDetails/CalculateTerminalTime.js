@@ -22,7 +22,9 @@ export default function CalculateTerminalTime({
   const diff = observedTime.diff(plannedTime, "seconds");
   const sign = diff < 0 ? "-" : diff > 0 ? "+" : "";
 
-  const {seconds: diffSeconds, minutes: diffMinutes} = secondsToTimeObject(diff);
+  const {seconds: diffSeconds, minutes: diffMinutes} = secondsToTimeObject(
+    Math.abs(diff)
+  );
 
   let wasLate;
   let offsetTime;
@@ -31,7 +33,7 @@ export default function CalculateTerminalTime({
     wasLate = diff < 0 ? false : diff > bufferTime * 60;
     offsetTime = plannedTime;
   } else {
-    wasLate = diff < bufferTime * 60;
+    wasLate = diff > -(bufferTime * 60);
     offsetTime = plannedTime.clone().subtract(bufferTime, "minutes");
   }
 
@@ -41,5 +43,6 @@ export default function CalculateTerminalTime({
     diffMinutes,
     diffSeconds,
     sign,
+    diff,
   });
 }
