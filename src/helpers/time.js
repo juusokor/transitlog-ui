@@ -8,12 +8,21 @@ export function timeToSeconds(timeStr) {
   return num(seconds) + num(minutes) * 60 + num(hours) * 60 * 60;
 }
 
-export function secondsToTime(seconds) {
+export function secondsToTimeObject(seconds) {
   const totalHours = Math.floor(seconds / 3600);
   const totalMinutes = Math.floor((seconds % 3600) / 60);
   const totalSeconds = seconds % 60;
 
-  return getTimeString(totalHours, totalMinutes, totalSeconds);
+  return {
+    hours: totalHours,
+    minutes: totalMinutes,
+    seconds: totalSeconds,
+  };
+}
+
+export function secondsToTime(secondsDuration) {
+  const {hours = 0, minutes = 0, seconds = 0} = secondsToTimeObject(secondsDuration);
+  return getTimeString(hours, minutes, seconds);
 }
 
 export function getNormalTime(time) {
@@ -47,7 +56,7 @@ export function journeyStartTime(event, useMoment) {
 
   /*
     TODO: Check this if something seems off with midnight journeys. 12 was chosen
-      semi-randomly as a time that would only appear once in a 24h+ day.
+      as a convenient mid-point time that would only appear once in a 24h+ day.
    */
 
   if (

@@ -1,6 +1,7 @@
 import get from "lodash/get";
 import moment from "moment-timezone";
 import {getAdjustedDepartureDate} from "../../../helpers/getAdjustedDepartureDate";
+import {secondsToTimeObject} from "../../../helpers/time";
 
 // Reusable higher-order function for calculating the planned arrival time from
 // the departure time and the terminal time for the first stop of a route.
@@ -20,8 +21,7 @@ export default function CalculateTerminalTime({
   const diff = observedTime.diff(plannedTime, "seconds");
   const sign = diff < 0 ? "-" : diff > 0 ? "+" : "";
 
-  const diffSeconds = Math.abs(diff) % 60;
-  const diffMinutes = Math.floor(Math.abs(diff) / 60);
+  const {seconds: diffSeconds, minutes: diffMinutes} = secondsToTimeObject(diff);
 
   let wasLate;
   let offsetTime;
