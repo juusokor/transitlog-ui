@@ -13,9 +13,11 @@ export function diffDepartureJourney(journey, departure, date, useArrival = fals
   const observedDepartureTime = moment.tz(receivedAt, "Europe/Helsinki");
   const plannedDepartureTime = getAdjustedDepartureDate(departure, date, useArrival);
 
-  const diff = plannedDepartureTime.diff(observedDepartureTime, "seconds");
+  const diff = observedDepartureTime.diff(plannedDepartureTime, "seconds");
 
-  const sign = diff < 0 ? "+" : diff > 0 ? "-" : "";
+  // TODO: verify that the change in diff direction works
+
+  const sign = diff > 0 ? "+" : diff < 0 ? "-" : "";
   const {seconds, minutes} = secondsToTimeObject(diff);
 
   return {
