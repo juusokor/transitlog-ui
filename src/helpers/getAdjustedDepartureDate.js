@@ -1,6 +1,4 @@
 import moment from "moment-timezone";
-import {getMomentFromDateTime} from "./time";
-import doubleDigit from "./doubleDigit";
 import {TIMEZONE} from "../constants";
 
 /**
@@ -24,11 +22,5 @@ export const getAdjustedDepartureDate = (departure, date, useArrival = false) =>
     dateMoment.add(1, "day");
   }
 
-  const adjustedDate = dateMoment.format("YYYY-MM-DD");
-
-  return getMomentFromDateTime(
-    adjustedDate,
-    `${doubleDigit(hours)}:${doubleDigit(minutes)}`,
-    TIMEZONE
-  );
+  return dateMoment.hours(hours).minutes(minutes);
 };
