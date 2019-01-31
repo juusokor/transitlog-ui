@@ -3,14 +3,12 @@ import PropTypes from "prop-types";
 import {Tooltip, Marker} from "react-leaflet";
 import get from "lodash/get";
 import {divIcon} from "leaflet";
-import {observer, inject} from "mobx-react";
-import {app} from "mobx-app";
+import {observer} from "mobx-react";
 import {Text} from "../../helpers/text";
 import "./Map.css";
 import {getModeColor} from "../../helpers/vehicleColor";
 import VehicleMarker from "./VehicleMarker";
 
-@inject(app("state"))
 @observer
 class HfpMarkerLayer extends Component {
   static propTypes = {
@@ -22,8 +20,9 @@ class HfpMarkerLayer extends Component {
   // The markerIcon needs to be created here so that
   // the instance does not change between rerenders
   icon = divIcon({
-    className: `hfp-icon`,
+    className: "hfp-icon",
     iconSize: 36,
+    html: "hfp-icon",
   });
 
   componentDidMount() {}
@@ -43,8 +42,6 @@ class HfpMarkerLayer extends Component {
       return null;
     }
 
-    const modeColor = getModeColor(get(position, "mode", "").toUpperCase());
-
     return (
       <Marker
         ref={this.markerRef}
@@ -56,7 +53,6 @@ class HfpMarkerLayer extends Component {
           <VehicleMarker
             parent={this.markerRef.current.leafletElement._icon}
             position={position}
-            color={modeColor}
           />
         )}
         <Tooltip>

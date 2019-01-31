@@ -2,6 +2,7 @@ import React from "react";
 import {createPortal} from "react-dom";
 import get from "lodash/get";
 import styled from "styled-components";
+import {getModeColor} from "../../helpers/vehicleColor";
 
 const IconWrapper = styled.span`
   width: 100%;
@@ -77,15 +78,20 @@ const HeadingArrow = styled.span`
 
 class VehicleMarker extends React.Component {
   render() {
-    const {parent, position, color} = this.props;
+    const {parent, position} = this.props;
+
+    const color = getModeColor(get(position, "mode", "").toUpperCase());
 
     return createPortal(
-      <IconWrapper color={color}>
+      <IconWrapper color={color} data-testid="hfp-marker-icon">
         <Icon
+          data-testid="icon-icon"
           // The mode className applies the vehicle icon
           className={get(position, "mode", "BUS").toUpperCase()}
         />
-        <RotationWrapper rotation={position.hdg}>
+        <RotationWrapper
+          rotation={get(position, "hdg", 0)}
+          data-testid="icon-rotation">
           {position.drst && <Indicator position="right" color="var(--dark-blue)" />}
           {position.full && <Indicator position="left" color="var(--red)" />}
           <HeadingArrow className="hfp-marker-heading" color={color} />
