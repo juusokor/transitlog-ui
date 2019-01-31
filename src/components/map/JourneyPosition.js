@@ -1,9 +1,8 @@
 import {Component} from "react";
 import {observer, inject} from "mobx-react";
-import {app} from "mobx-app";
 import {reaction, observable, action, computed} from "mobx";
 
-@inject(app("state"))
+@inject("state")
 @observer
 class JourneyPosition extends Component {
   positionReaction = () => {};
@@ -91,12 +90,14 @@ class JourneyPosition extends Component {
     this.positions = indexed;
   };
 
-  async componentDidMount() {
+  componentDidMount() {
     const {state, positions} = this.props;
 
-    if (!this.isLive) {
+    if (!this.isLive && positions.length !== 0) {
       // Index once when mounted if not live-updating
-      await this.indexJourneys(positions);
+      this.indexJourneys(positions);
+    } else if (this.isLive && positions.length !== 0) {
+      this.getLivePositions(positions);
     }
 
     // A reaction to set the hfp event that matches the currently selected time

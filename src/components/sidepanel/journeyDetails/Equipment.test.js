@@ -1,8 +1,7 @@
 import React from "react";
 import "jest-dom/extend-expect";
 import "jest-styled-components";
-import {cleanup, render, waitForElement} from "react-testing-library";
-import isEqual from "lodash";
+import {cleanup, waitForElement} from "react-testing-library";
 
 import Equipment from "./Equipment";
 import {MockedProvider} from "react-apollo/test-utils";

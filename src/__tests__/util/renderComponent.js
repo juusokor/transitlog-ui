@@ -1,4 +1,4 @@
-import isEqual from "lodash";
+import isEqual from "lodash/isEqual";
 import {render} from "react-testing-library";
 import React from "react";
 
@@ -8,13 +8,11 @@ export const renderComponent = (getComponent = () => {}) => {
 
   return {
     component: (props) => {
-      const content = getComponent(props);
-
-      if (!mounted || !isEqual(renderedProps, props)) {
-        mounted = render(content);
+      if (!mounted) {
+        mounted = render(getComponent(props));
         renderedProps = props;
       } else if (mounted && !isEqual(renderedProps, props)) {
-        mounted = mounted.rerender(content);
+        mounted.rerender(getComponent(props));
         renderedProps = props;
       }
 
