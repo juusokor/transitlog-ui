@@ -3,7 +3,7 @@ import gql from "graphql-tag";
 import get from "lodash/get";
 import React from "react";
 
-const vehicleTypeQuery = gql`
+export const vehicleTypeQuery = gql`
   query vehicleInfo($vehicleId: String, $operatorId: String) {
     allEquipment(condition: {vehicleId: $vehicleId, operatorId: $operatorId}) {
       nodes {
