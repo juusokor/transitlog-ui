@@ -5,6 +5,7 @@ import styled from "styled-components";
 import Calendar from "../../../icons/Calendar";
 import JourneyPlanner from "../../../icons/JourneyPlanner";
 import Time2 from "../../../icons/Time2";
+import {getOperatorName} from "../../../helpers/getOperatorNameById";
 
 const JourneyPanelHeader = styled.div`
   flex: none;
@@ -34,6 +35,12 @@ const LineNameHeading = styled(Heading).attrs({level: 4})`
   font-weight: normal;
 `;
 
+const MainHeaderRow = styled(Heading).attrs({level: 3})`
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+`;
+
 const HeaderText = styled.span`
   font-weight: normal;
   margin-left: 1.25rem;
@@ -53,21 +60,22 @@ const HeaderText = styled.span`
 
 const DateTimeHeading = styled.div``;
 
-export default ({mode, desi, routeId, date, time, name, vehicleId}) => {
+export default ({mode, routeId, date, name, journey}) => {
   return (
     <JourneyPanelHeader>
-      <Heading level={3}>
+      <MainHeaderRow>
         <TransportIcon width={23} height={23} mode={mode} />
-        {desi}
+        {journey.desi}
         <HeaderText>
           <JourneyPlanner fill="var(--blue)" width="1rem" height="1rem" />
           {routeId}
         </HeaderText>
         <HeaderText>
           <TransportIcon mode={mode} width={17} height={17} />
-          {vehicleId}
+          {journey.unique_vehicle_id}
         </HeaderText>
-      </Heading>
+        <HeaderText>{getOperatorName(journey.owner_operator_id)}</HeaderText>
+      </MainHeaderRow>
       <DateTimeHeading>
         <HeaderText>
           <Calendar fill="var(--blue)" width="1rem" height="1rem" />
@@ -75,7 +83,7 @@ export default ({mode, desi, routeId, date, time, name, vehicleId}) => {
         </HeaderText>
         <HeaderText>
           <Time2 fill="var(--blue)" width="1rem" height="1rem" />
-          {time}
+          {journey.journey_start_time}
         </HeaderText>
       </DateTimeHeading>
       <LineNameHeading>{name}</LineNameHeading>

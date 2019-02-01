@@ -9,11 +9,7 @@ import get from "lodash/get";
 import groupBy from "lodash/groupBy";
 import map from "lodash/map";
 import VehicleOptionsQuery from "../../queries/VehicleOptionsQuery";
-import operators from "../../operators.json";
-
-function getOperatorName(operatorId) {
-  return get(operators, operatorId, operatorId);
-}
+import {getOperatorName} from "../../helpers/getOperatorNameById";
 
 @inject(app("Filters"))
 @observer
