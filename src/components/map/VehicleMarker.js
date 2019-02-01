@@ -10,7 +10,7 @@ const IconWrapper = styled.span`
   display: block;
   padding: 3px;
   border-radius: 50%;
-  position: relative;
+  position: absolute;
   background-color: ${({color}) => color};
 `;
 

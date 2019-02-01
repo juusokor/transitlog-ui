@@ -1,12 +1,10 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
 import {Tooltip, Marker} from "react-leaflet";
-import get from "lodash/get";
 import {divIcon} from "leaflet";
 import {observer} from "mobx-react";
 import {Text} from "../../helpers/text";
 import "./Map.css";
-import {getModeColor} from "../../helpers/vehicleColor";
 import VehicleMarker from "./VehicleMarker";
 
 @observer
@@ -22,7 +20,7 @@ class HfpMarkerLayer extends Component {
   icon = divIcon({
     className: "hfp-icon",
     iconSize: 36,
-    html: "hfp-icon",
+    html: "hfp-icon", // Needed for test
   });
 
   componentDidMount() {}
