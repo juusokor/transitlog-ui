@@ -79,7 +79,7 @@ class Tabs extends Component {
   }
 
   selectAddedTab = (prevChildren) => {
-    this.setState(({selectedTab}) => {
+    this.setState(({selectedTab: stateSelectedTab}) => {
       const {children} = this.props;
 
       const prevChildrenArray = compact(Children.toArray(prevChildren)).map(
@@ -90,9 +90,9 @@ class Tabs extends Component {
       );
 
       const newChildren = difference(childrenArray, prevChildrenArray);
-      const nextTab = newChildren.length === 1 ? newChildren[0] : selectedTab;
+      const nextTab = newChildren.length === 1 ? newChildren[0] : stateSelectedTab;
 
-      if (!nextTab || nextTab === selectedTab) return null;
+      if (selectedTab || !nextTab || nextTab === stateSelectedTab) return null;
 
       return {
         selectedTab: nextTab,
@@ -134,6 +134,10 @@ class Tabs extends Component {
 
       return {name, label, content: tabContent};
     });
+
+    if (tabs.length === 0) {
+      selectedTab = "";
+    }
 
     // The selected tab might not be available, so pick the first tab in that case.
     if (
