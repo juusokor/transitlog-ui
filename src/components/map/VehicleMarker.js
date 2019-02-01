@@ -1,5 +1,4 @@
 import React from "react";
-import {createPortal} from "react-dom";
 import get from "lodash/get";
 import styled from "styled-components";
 
@@ -11,6 +10,7 @@ const IconWrapper = styled.span`
   border-radius: 50%;
   position: relative;
   background-color: ${({color}) => color};
+  ${({isStopped = false}) => (isStopped ? "box-shadow: 0 0 1px 1px black;" : "")}
 `;
 
 const Icon = styled.div`
@@ -79,8 +79,10 @@ class VehicleMarker extends React.Component {
   render() {
     const {position, color} = this.props;
 
+    const isStopped = position.spd < 2;
+
     return (
-      <IconWrapper color={color}>
+      <IconWrapper color={color} isStopped={isStopped}>
         <Icon
           // The mode className applies the vehicle icon
           className={get(position, "mode", "BUS").toUpperCase()}
@@ -88,7 +90,9 @@ class VehicleMarker extends React.Component {
         <RotationWrapper rotation={position.hdg}>
           {position.drst && <Indicator position="right" color="var(--dark-blue)" />}
           {position.full && <Indicator position="left" color="var(--red)" />}
-          <HeadingArrow className="hfp-marker-heading" color={color} />
+          {!isStopped && (
+            <HeadingArrow className="hfp-marker-heading" color={color} />
+          )}
         </RotationWrapper>
       </IconWrapper>
     );
