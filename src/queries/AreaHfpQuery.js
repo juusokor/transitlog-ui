@@ -2,12 +2,14 @@ import React, {Component} from "react";
 import {Query} from "react-apollo";
 import get from "lodash/get";
 import sortBy from "lodash/sortBy";
+import map from "lodash/map";
+import groupBy from "lodash/groupBy";
 import gql from "graphql-tag";
-import {groupHfpPositions} from "../helpers/groupHfpPositions";
 import getJourneyId from "../helpers/getJourneyId";
 import {createHfpItem} from "../helpers/createHfpItem";
 import {setUpdateListener, removeUpdateListener} from "../stores/UpdateManager";
 import {sortByTime} from "../helpers/sortByTime";
+import moment from "moment-timezone";
 
 const areaHfpQuery = gql`
   query areaHfpQuery(
@@ -94,16 +96,37 @@ class AreaHfpQuery extends Component {
 
           // Make sure the data is in the same format as the normal hfp events are.
           const groupedEvents = sortBy(
-            groupHfpPositions(
-              get(data, "vehicles", [])
-                .filter(
+            map(
+              // Second, group the events by the journey
+              groupBy(
+                // First, filter out the null events
+                get(data, "vehicles", []).filter(
                   // Filter out null positions. Can't draw them on the map.
                   (evt) => !!evt && !!evt.lat && !!evt.long
-                )
-                .map(createHfpItem),
-              getJourneyId,
-              "journeyId"
+                ),
+                getJourneyId
+              ),
+              // Third, create journey items from the journey groups
+              (events, groupName) => {
+                // Create a moment for the start of the journey
+                const journeyStartMoment = moment.tz(
+                  events[0].received_at,
+                  "Europe/Helsinki"
+                );
+
+                // The start moment is used in createHfpItem to figure out the 24h+ time for the journey
+                const hfpEvents = events.map((evt) =>
+                  createHfpItem(evt, journeyStartMoment)
+                );
+
+                return {
+                  journeyId: groupName,
+                  journey_start_time: get(hfpEvents, "[0].journey_start_time", ""),
+                  events: hfpEvents,
+                };
+              }
             ),
+            // Finally, sort the list by the new 24h+ journey time strings.
             ({journey_start_time = ""}) => sortByTime(journey_start_time)
           );
 
