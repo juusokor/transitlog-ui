@@ -53,7 +53,7 @@ class HfpVehicleQuery extends React.Component {
           }
 
           const vehicles = get(data, "vehicles", []).filter(
-            (event) => !!event.lat && !!event.long
+            (event) => !!event.lat && !!event.long && event.journey_start_time
           );
           return children({positions: vehicles, loading});
         }}
