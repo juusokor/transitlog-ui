@@ -47,9 +47,18 @@ const BottomSlider = styled(TimeSlider)`
   z-index: 10;
 `;
 
+const CalendarRoot = styled.div`
+  position: absolute;
+  z-index: 100;
+  top: 4.25rem;
+  margin-left: 2.5rem;
+`;
+
 @inject(app("state"))
 @observer
 class FilterBar extends Component {
+  calendarRootRef = React.createRef();
+
   render() {
     const {
       state,
@@ -67,10 +76,15 @@ class FilterBar extends Component {
         <SiteHeader />
         <FilterBarGrid>
           <FilterSection scrollable={true}>
-            <DateSettings />
+            <DateSettings calendarRoot={this.calendarRootRef.current} />
             <TimeSettings />
             <AdditionalTimeSettings />
           </FilterSection>
+          {/*
+            The datepicker calendar needs to be outside the scrollable filtersection.
+            The CalendarRoot is the mount point for the calendar portal.
+           */}
+          <CalendarRoot ref={this.calendarRootRef} />
           <FilterSection>
             <LineSettings />
           </FilterSection>

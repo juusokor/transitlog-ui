@@ -1,4 +1,5 @@
 import React, {Component} from "react";
+import {createPortal} from "react-dom";
 import moment from "moment-timezone";
 import {inject, observer} from "mobx-react";
 import {app} from "mobx-app";
@@ -14,7 +15,7 @@ import styled from "styled-components";
 const DateControlGroup = styled(ControlGroup)`
   margin-bottom: 1.25rem;
   position: relative;
-  z-index: 100;
+  // z-index: 100;
 `;
 
 const DateInput = styled(PlusMinusInput)`
@@ -64,6 +65,10 @@ const Calendar = styled(InputBase.withComponent(DatePicker))`
   border-color: var(--blue);
 `;
 
+// A simple portal to render the calendar outside the FilterSection.
+const CalendarContainer = (root) => ({className, children}) =>
+  createPortal(<div className={className}>{children}</div>, root);
+
 @inject(app("Filters", "Time"))
 @observer
 class DateSettings extends Component {
@@ -101,6 +106,7 @@ class DateSettings extends Component {
 
   render() {
     const {
+      calendarRoot,
       state: {date},
     } = this.props;
 
@@ -122,6 +128,7 @@ class DateSettings extends Component {
                 selected={moment.tz(date, "Europe/Helsinki").toDate()}
                 onChange={this.setDate}
                 className="calendar"
+                calendarContainer={CalendarContainer(calendarRoot)}
               />
             </DateInput>
           </WeekInput>
