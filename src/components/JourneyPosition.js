@@ -39,8 +39,10 @@ class JourneyPosition extends Component {
   };
 
   getLivePositions = (journeys) => {
-    journeys.forEach(({journeyId, events}) => {
-      this.setHfpPosition(journeyId, events[events.length - 1]);
+    journeys.forEach(({journeyId, events = []}) => {
+      if (events.length !== 0) {
+        this.setHfpPosition(journeyId, events[events.length - 1]);
+      }
     });
   };
 
