@@ -30,6 +30,10 @@ export function getMomentFromDateTime(date, time = "00:00:00", timezone) {
 }
 
 export function journeyStartTime(event, useMoment) {
+  if (!event || !event.journey_start_time) {
+    return "";
+  }
+
   const eventDate = useMoment
     ? useMoment
     : moment.tz(event.received_at, "Europe/Helsinki");
