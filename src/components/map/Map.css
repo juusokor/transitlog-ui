@@ -12,3 +12,10 @@
   background: var(--lighter-green);
   border-radius: 50%;
 }
+
+.leaflet-div-icon {
+  border: 0;
+  background: transparent;
+  width: 25px;
+  height: 25px;
+}

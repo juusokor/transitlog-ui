@@ -22,7 +22,7 @@ const Icon = styled.div`
   border-radius: 50%;
   position: relative;
   transform: none;
-  z-index: 1;
+  z-index: 10;
   overflow: hidden;
   transform: ${({rotation}) => `rotate(${rotation}deg)`};
 
@@ -56,7 +56,7 @@ const RotationWrapper = styled.span`
   bottom: 0;
   transform-origin: center;
   transform: ${({rotation}) => `rotate(${rotation}deg)`};
-  z-index: 10;
+  z-index: 1;
 `;
 
 const HeadingArrow = styled.span`
@@ -77,9 +77,9 @@ const HeadingArrow = styled.span`
 
 class VehicleMarker extends React.Component {
   render() {
-    const {parent, position, color} = this.props;
+    const {position, color} = this.props;
 
-    return createPortal(
+    return (
       <IconWrapper color={color}>
         <Icon
           // The mode className applies the vehicle icon
@@ -90,8 +90,7 @@ class VehicleMarker extends React.Component {
           {position.full && <Indicator position="left" color="var(--red)" />}
           <HeadingArrow className="hfp-marker-heading" color={color} />
         </RotationWrapper>
-      </IconWrapper>,
-      parent
+      </IconWrapper>
     );
   }
 }
