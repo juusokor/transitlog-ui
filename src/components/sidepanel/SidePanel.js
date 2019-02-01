@@ -100,6 +100,7 @@ class SidePanel extends Component {
         route,
         date,
         vehicle,
+        stop: stateStop,
         sidePanelVisible,
         journeyDetailsAreOpen,
         journeyDetailsCanOpen,
@@ -109,11 +110,18 @@ class SidePanel extends Component {
     const hasRoute = !!route && !!route.routeId;
     const hasEvents = !journeyEventsLoading && selectedJourneyEvents.length !== 0;
 
+    let suggestedTab = "";
+
+    if (!hasRoute && !vehicle) suggestedTab = "area-journeys";
+    if (!hasRoute && vehicle) suggestedTab = "vehicle-journeys";
+    if (hasRoute) suggestedTab = "journeys";
+    if (stateStop) suggestedTab = "timetables";
+
     return (
       <SidePanelContainer visible={sidePanelVisible}>
         <MainSidePanel>
           <ControlBar />
-          <Tabs>
+          <Tabs suggestedTab={suggestedTab}>
             {!hasRoute && (areaEvents.length !== 0 || areaEventsLoading) && (
               <AreaJourneyList
                 loading={areaEventsLoading}
@@ -138,7 +146,7 @@ class SidePanel extends Component {
                 label={text("sidepanel.tabs.vehicle_journeys")}
               />
             )}
-            {stop && (
+            {stateStop && (
               <TimetablePanel
                 stop={stop}
                 loading={journeyEventsLoading}

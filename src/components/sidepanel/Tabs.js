@@ -80,19 +80,23 @@ class Tabs extends Component {
 
   selectAddedTab = (prevChildren) => {
     this.setState(({selectedTab: stateSelectedTab}) => {
-      const {children} = this.props;
+      const {children, suggestedTab} = this.props;
 
       const prevChildrenArray = compact(Children.toArray(prevChildren)).map(
         ({props: {name}}) => name
       );
+
       const childrenArray = compact(Children.toArray(children)).map(
         ({props: {name}}) => name
       );
 
       const newChildren = difference(childrenArray, prevChildrenArray);
-      const nextTab = newChildren.length === 1 ? newChildren[0] : stateSelectedTab;
+      const nextTab =
+        newChildren.length === 1 && newChildren.includes(suggestedTab)
+          ? suggestedTab
+          : stateSelectedTab;
 
-      if (selectedTab || !nextTab || nextTab === stateSelectedTab) return null;
+      if (!nextTab || nextTab === stateSelectedTab) return null;
 
       return {
         selectedTab: nextTab,
