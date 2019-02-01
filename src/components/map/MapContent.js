@@ -31,7 +31,7 @@ class MapContent extends Component {
   render() {
     const {
       journeys = [],
-      timePositions = new Map(),
+      timePositions,
       route,
       zoom,
       stopsBbox,

@@ -46,7 +46,7 @@ class SelectedJourneyEvents extends Component {
 
           const filteredEvents = positions
             // TODO: Fix when we have to deal with null coordinates
-            .filter((pos) => !!pos.lat && !!pos.long);
+            .filter((pos) => !!pos.lat && !!pos.long && !!pos.journey_start_time);
 
           // Get the real date when this journey started. This will let us determine
           // on which side of the 24h+ day the journey happened.

@@ -27,7 +27,7 @@ describe("HfpMarkerLayer", () => {
     const {lat, long} = position;
     const markerRef = React.createRef();
 
-    const {getByText} = render(
+    render(
       <Map center={[lat, long]} zoom={13}>
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <Pane name="hfp-markers" style={{zIndex: 430}} />
@@ -45,7 +45,7 @@ describe("HfpMarkerLayer", () => {
       lng: long,
     });
 
-    fireEvent.click(getByText("hfp-icon"));
+    fireEvent.click(markerRef.current.markerRef.current.leafletElement._icon);
     expect(onClick).toHaveBeenCalledWith(position);
   });
 
@@ -60,12 +60,10 @@ describe("HfpMarkerLayer", () => {
       next_stop_id: "1234567",
       route_id: "1001",
       direction_id: 1,
-      mode: "BUS",
+      mode: "bus",
     };
 
-    const {getByTestId} = render(
-      <VehicleMarker position={position} parent={document.body} />
-    );
+    const {getByTestId} = render(<VehicleMarker position={position} />);
 
     expect(getByTestId("hfp-marker-icon")).toHaveStyleRule(
       "background-color",

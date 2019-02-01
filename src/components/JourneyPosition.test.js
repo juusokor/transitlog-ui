@@ -3,7 +3,7 @@ import "jest-dom/extend-expect";
 import "jest-styled-components";
 import {cleanup} from "react-testing-library";
 import JourneyPosition from "./JourneyPosition";
-import {renderComponent} from "../../__tests__/util/renderComponent";
+import {renderComponent} from "../__tests__/util/renderComponent";
 import {ObservableMap, observable} from "mobx";
 
 describe("JourneyPosition", () => {

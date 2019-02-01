@@ -1,5 +1,4 @@
 import React from "react";
-import {createPortal} from "react-dom";
 import get from "lodash/get";
 import styled from "styled-components";
 import {getModeColor} from "../../helpers/vehicleColor";
@@ -10,8 +9,9 @@ const IconWrapper = styled.span`
   display: block;
   padding: 3px;
   border-radius: 50%;
-  position: absolute;
+  position: relative;
   background-color: ${({color}) => color};
+  ${({isStopped = false}) => (isStopped ? "box-shadow: 0 0 1px 1px black;" : "")}
 `;
 
 const Icon = styled.div`
@@ -23,7 +23,7 @@ const Icon = styled.div`
   border-radius: 50%;
   position: relative;
   transform: none;
-  z-index: 1;
+  z-index: 10;
   overflow: hidden;
   transform: ${({rotation}) => `rotate(${rotation}deg)`};
 
@@ -57,7 +57,7 @@ const RotationWrapper = styled.span`
   bottom: 0;
   transform-origin: center;
   transform: ${({rotation}) => `rotate(${rotation}deg)`};
-  z-index: 10;
+  z-index: 1;
 `;
 
 const HeadingArrow = styled.span`
@@ -78,12 +78,14 @@ const HeadingArrow = styled.span`
 
 class VehicleMarker extends React.Component {
   render() {
-    const {parent, position} = this.props;
+    const {position} = this.props;
 
     const color = getModeColor(get(position, "mode", "").toUpperCase());
 
-    return createPortal(
-      <IconWrapper color={color} data-testid="hfp-marker-icon">
+    const isStopped = position.spd < 2;
+
+    return (
+      <IconWrapper color={color} isStopped={isStopped} data-testid="hfp-marker-icon">
         <Icon
           data-testid="icon-icon"
           // The mode className applies the vehicle icon
@@ -94,10 +96,11 @@ class VehicleMarker extends React.Component {
           data-testid="icon-rotation">
           {position.drst && <Indicator position="right" color="var(--dark-blue)" />}
           {position.full && <Indicator position="left" color="var(--red)" />}
-          <HeadingArrow className="hfp-marker-heading" color={color} />
+          {!isStopped && (
+            <HeadingArrow className="hfp-marker-heading" color={color} />
+          )}
         </RotationWrapper>
-      </IconWrapper>,
-      parent
+      </IconWrapper>
     );
   }
 }

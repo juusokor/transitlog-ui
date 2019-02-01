@@ -3,6 +3,7 @@ import filterActions from "./filterActions";
 import {inflate} from "../helpers/inflate";
 import pick from "lodash/pick";
 import merge from "lodash/merge";
+import omit from "lodash/omit";
 import {resetUrlState} from "./UrlManager";
 import moment from "moment-timezone";
 import {TIMEZONE} from "../constants";
@@ -55,7 +56,7 @@ export default (state, initialState) => {
       });
     }
 
-    resetStateWith(emptyState);
+    resetStateWith(omit(emptyState, "date"));
 
     resetListeners.forEach((cb) => {
       if (typeof cb === "function") {

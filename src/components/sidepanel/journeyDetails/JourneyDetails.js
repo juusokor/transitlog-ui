@@ -162,12 +162,10 @@ class JourneyDetails extends React.Component {
           return (
             <JourneyPanelWrapper>
               <JourneyDetailsHeader
-                vehicleId={journey.unique_vehicle_id}
+                journey={journey}
                 date={date}
-                time={journey.journey_start_time}
                 mode={get(route, "mode", "BUS")}
                 routeId={get(route, "routeId", "")}
-                desi={get(journey, "desi")}
                 name={get(route, "nameFi")}
               />
               <ScrollContainer>

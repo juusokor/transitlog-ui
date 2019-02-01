@@ -3,7 +3,7 @@ import StyledModal from "styled-react-modal";
 import styled from "styled-components";
 import {Button} from "./Forms";
 import copy from "copy-text-to-clipboard";
-import {observable, action} from "mobx";
+import {observable, action, runInAction} from "mobx";
 import {observer} from "mobx-react";
 import Checkmark from "../icons/Checkmark";
 
@@ -54,14 +54,23 @@ class SharingModal extends React.Component {
   @observable
   copied = "";
 
+  @observable
+  shareUrl = "";
+
   onCopy = action((shareUrl) => {
     copy(shareUrl);
     this.copied = shareUrl;
   });
 
-  render() {
-    const {isOpen, onClose} = this.props;
+  componentDidUpdate({isOpen: prevOpen}) {
+    const {isOpen} = this.props;
 
+    if (isOpen && !prevOpen) {
+      this.createShareUrl();
+    }
+  }
+
+  createShareUrl() {
     const prodOrigin = process.env.REACT_APP_PRODUCTION_URL;
     const currentOrigin = window.location.origin;
 
@@ -70,6 +79,15 @@ class SharingModal extends React.Component {
     if (prodOrigin !== currentOrigin) {
       shareUrl = shareUrl.replace(currentOrigin, prodOrigin);
     }
+
+    runInAction(() => {
+      this.shareUrl = shareUrl;
+    });
+  }
+
+  render() {
+    const {isOpen, onClose} = this.props;
+    const {shareUrl} = this;
 
     return (
       <ShareModal

@@ -52,7 +52,9 @@ class HfpVehicleQuery extends React.Component {
             setUpdateListener(updateListenerName, this.onUpdate(refetch));
           }
 
-          const vehicles = get(data, "vehicles", []);
+          const vehicles = get(data, "vehicles", []).filter(
+            (event) => !!event.lat && !!event.long && event.journey_start_time
+          );
           return children({positions: vehicles, loading});
         }}
       </Query>

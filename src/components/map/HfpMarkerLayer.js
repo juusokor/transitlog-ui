@@ -1,11 +1,11 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
-import {Tooltip, Marker} from "react-leaflet";
-import {divIcon} from "leaflet";
+import {Tooltip} from "react-leaflet";
 import {observer} from "mobx-react";
 import {Text} from "../../helpers/text";
 import "./Map.css";
 import VehicleMarker from "./VehicleMarker";
+import DivIcon from "../../helpers/DivIcon";
 
 @observer
 class HfpMarkerLayer extends Component {
@@ -15,22 +15,9 @@ class HfpMarkerLayer extends Component {
 
   markerRef = React.createRef();
 
-  // The markerIcon needs to be created here so that
-  // the instance does not change between rerenders
-  icon = divIcon({
-    className: "hfp-icon",
-    iconSize: 36,
-    html: "hfp-icon", // Needed for test
-  });
-
-  componentDidMount() {}
-
   onMarkerClick = (positionWhenClicked) => () => {
     const {onMarkerClick} = this.props;
-
-    if (typeof onMarkerClick === "function") {
-      onMarkerClick(positionWhenClicked);
-    }
+    onMarkerClick(positionWhenClicked);
   };
 
   render() {
@@ -41,18 +28,13 @@ class HfpMarkerLayer extends Component {
     }
 
     return (
-      <Marker
+      <DivIcon
         ref={this.markerRef}
         onClick={this.onMarkerClick(position)}
         position={[position.lat, position.long]}
-        icon={this.icon}
+        iconSize={[35, 35]}
+        icon={<VehicleMarker position={position} />}
         pane="hfp-markers">
-        {this.markerRef.current && (
-          <VehicleMarker
-            parent={this.markerRef.current.leafletElement._icon}
-            position={position}
-          />
-        )}
         <Tooltip>
           <strong>
             {position.route_id} / {position.direction_id}
@@ -66,7 +48,7 @@ class HfpMarkerLayer extends Component {
           <br />
           <Text>vehicle.speed</Text>: {Math.round((position.spd * 18) / 5)} km/h
         </Tooltip>
-      </Marker>
+      </DivIcon>
     );
   }
 }

@@ -48,6 +48,10 @@ export function getMomentFromDateTime(date, time = "00:00:00", timezone = TIMEZO
 }
 
 export function journeyStartTime(event, useMoment) {
+  if (!event || !event.journey_start_time) {
+    return "";
+  }
+
   const eventDate = useMoment ? useMoment : moment.tz(event.received_at, TIMEZONE);
 
   let [hours, minutes, seconds] = event.journey_start_time.split(":");
