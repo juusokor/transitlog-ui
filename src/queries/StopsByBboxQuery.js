@@ -6,7 +6,7 @@ import gql from "graphql-tag";
 import RouteFieldsFragment from "./RouteFieldsFragment";
 import {StopFieldsFragment} from "./StopFieldsFragment";
 
-const stopsByBboxQuery = gql`
+export const stopsByBboxQuery = gql`
   query stopsByBboxQuery(
     $minLat: Float!
     $minLon: Float!
