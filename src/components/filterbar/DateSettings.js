@@ -67,7 +67,7 @@ const Calendar = styled(InputBase.withComponent(DatePicker))`
 
 // A simple portal to render the calendar outside the FilterSection.
 const CalendarContainer = (root) => ({className, children}) =>
-  createPortal(<div className={className}>{children}</div>, root);
+  root ? createPortal(<div className={className}>{children}</div>, root) : null;
 
 @inject(app("Filters", "Time"))
 @observer
