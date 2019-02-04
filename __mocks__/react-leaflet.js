@@ -1,5 +1,13 @@
-import React from "react";
+const React = require("react");
+const ReactLeaflet = jest.requireActual("react-leaflet");
 
-export const Polyline = ({positions}) => (
+// Mock React-Leaflet's SVG components here because JSDom does not support them.
+
+const Polyline = ({positions}) => (
   <div>{positions.map((p) => p.join(",")).join(",")}</div>
 );
+
+module.exports = {
+  ...ReactLeaflet,
+  Polyline,
+};

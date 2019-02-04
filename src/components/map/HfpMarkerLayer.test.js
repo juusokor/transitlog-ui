@@ -1,12 +1,9 @@
-jest.unmock("react-leaflet");
-
 import React from "react";
 import "jest-dom/extend-expect";
 import "jest-styled-components";
 import HfpMarkerLayer from "./HfpMarkerLayer";
 import {Map, TileLayer, Pane} from "react-leaflet";
 import {render, fireEvent, cleanup} from "react-testing-library";
-import {renderIntoDocument} from "react-dom/test-utils";
 import VehicleMarker from "./VehicleMarker";
 
 describe("HfpMarkerLayer", () => {
