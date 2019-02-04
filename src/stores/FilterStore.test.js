@@ -1,5 +1,9 @@
 import {observable} from "mobx";
 import FilterStore, {setResetListener} from "./FilterStore";
+import moment from "moment-timezone";
+import {TIMEZONE} from "../constants";
+
+const currentDate = moment.tz(new Date(), TIMEZONE).format("YYYY-MM-DD");
 
 describe("FilterStore", () => {
   test("It extends the provided state object with the filter state", () => {
@@ -10,6 +14,9 @@ describe("FilterStore", () => {
     // Just check that it adds some keys. We don't want to assert the presence of
     // the exact state props here as that would make the test fragile.
     expect(Object.keys(state).length).toBeGreaterThan(0);
+
+    // The state is initialized with the current date
+    expect(state.date).toBe(currentDate);
   });
 
   test("It adds the provided initialState to the state.", () => {
@@ -87,14 +94,37 @@ describe("FilterStore", () => {
     expect(state.route).toMatchObject(route);
     expect(state.line.lineId).toBe("");
 
-    // If the route object includes the line, like it would when coming from the JORE API,
-    // setRoute can also add the line data to the state.
-
+    // If the route object includes the line, like it would when coming from
+    // the JORE API, setRoute can also add the line data to the state.
     const routeWithLine = {...route, line: {nodes: [line]}};
 
     setRoute(routeWithLine);
 
     expect(state.route).toMatchObject(route);
     expect(state.line).toMatchObject(line);
+  });
+
+  test("setDate sets the passed date in the store in the correct format", () => {
+    const state = observable({});
+    const {setDate} = FilterStore(state);
+
+    // The date should always be in the YYYY-MM-DD format
+    const date = "2018-04-13";
+    setDate(date);
+    expect(state.date).toBe(date);
+
+    // But in case it is not, moment will format it into the correct format.
+    // Here we are setting the current date by passing an undefined or falsy value.
+    const date2 = undefined;
+    setDate(date2);
+    expect(state.date).toBe(currentDate);
+
+    // All formats that moment supports can be passed, including RFC 2822. The time
+    // part is not important but may affect the resulting date after timezone conversion.
+    // The timezone is always UTC when testing, in production it is UTC+2 for HSL so
+    // this time would result in the date being 2018-04-14.
+    const date3 = "13 Apr 2018 23:22:23 z";
+    setDate(date3);
+    expect(state.date).toBe(date);
   });
 });
