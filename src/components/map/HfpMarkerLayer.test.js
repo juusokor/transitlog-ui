@@ -1,3 +1,5 @@
+jest.unmock("react-leaflet");
+
 import React from "react";
 import "jest-dom/extend-expect";
 import "jest-styled-components";

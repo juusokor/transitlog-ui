@@ -1,4 +1,3 @@
-/* eslint-disable import/first */
 jest.unmock("react-leaflet");
 
 import React from "react";

@@ -18,7 +18,7 @@
     "apollo-link-http": "^1.5.9",
     "babel-core": "7.0.0-bridge.0",
     "babel-eslint": "^9.0.0",
-    "babel-jest": "^23.6.0",
+    "babel-jest": "^24.0.0",
     "babel-loader": "^8.0.4",
     "babel-plugin-named-asset-import": "^0.3.0",
     "babel-preset-react-app": "^7.0.0",
@@ -46,9 +46,8 @@
     "history": "^4.7.2",
     "html-webpack-plugin": "4.0.0-alpha.2",
     "identity-obj-proxy": "^3.0.0",
-    "jest": "^23.6.0",
-    "jest-pnp-resolver": "^1.0.2",
-    "jest-resolve": "^23.6.0",
+    "jest": "^24.0.0",
+    "jest-resolve": "^24.0.0",
     "leaflet": "^1.4.0",
     "leaflet-draw": "^1.0.4",
     "lodash": "^4.17.11",
@@ -159,7 +158,6 @@
       "src/**/*.{js,jsx,ts,tsx}",
       "!src/**/*.d.ts"
     ],
-    "resolver": "jest-pnp-resolver",
     "setupFiles": [
       "react-app-polyfill/jsdom",
       "<rootDir>/src/setupTests"
