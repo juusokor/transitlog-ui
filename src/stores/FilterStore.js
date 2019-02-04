@@ -28,7 +28,7 @@ export default (state, initialState = {}) => {
     stop: "",
     vehicle: "",
     line: {
-      lineId: "1006T",
+      lineId: "",
       dateBegin: "",
       dateEnd: "",
     },
@@ -41,10 +41,14 @@ export default (state, initialState = {}) => {
     },
   };
 
-  extendObservable(
-    state,
-    merge({}, emptyState, pick(inflate(initialState), ...Object.keys(emptyState)))
-  );
+  // Allow any keys to be added to the state when testing. In all other cases
+  // only pick props that are defined in the emptyState.
+  const initialStateProps =
+    process.env.NODE_ENV !== "test"
+      ? pick(inflate(initialState), ...Object.keys(emptyState))
+      : inflate(initialState);
+
+  extendObservable(state, merge({}, emptyState, initialStateProps));
 
   const actions = filterActions(state);
 
