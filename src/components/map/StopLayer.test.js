@@ -75,12 +75,10 @@ describe("StopLayer", () => {
 
     const {getByTestId} = render({bounds, date});
 
-    const compoundMarkerIcon = await waitForElement(
+    await waitForElement(
       () => getByTestId("compound-stop-marker-mock") // Added to the DOM by the stop marker mock
     );
 
-    // Expect to find the compound marker icon (the element with the number of contained stops)
-    expect(compoundMarkerIcon).toBeInTheDocument();
     expect(compoundStopMarkerMock).toHaveBeenCalled();
   });
 
@@ -90,12 +88,10 @@ describe("StopLayer", () => {
 
     const {getByTestId} = render({bounds, date});
 
-    const stopMarkerIcon = await waitForElement(
+    await waitForElement(
       () => getByTestId("stop-marker-mock") // Added to the DOM by the stop marker mock
     );
 
-    // Expect to find the compound marker icon (the element with the number of contained stops)
-    expect(stopMarkerIcon).toBeInTheDocument();
     expect(stopMarkerMock).toHaveBeenCalled();
   });
 });
