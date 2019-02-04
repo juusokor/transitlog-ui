@@ -15,6 +15,9 @@ import {Map, TileLayer, Pane} from "react-leaflet";
 jest.mock("./StopMarker");
 jest.mock("./CompoundStopMarker");
 
+const compoundStopMarkerMock = jest.requireMock("./CompoundStopMarker");
+const stopMarkerMock = jest.requireMock("./StopMarker");
+
 describe("StopLayer", () => {
   const mocks = [
     {
@@ -78,6 +81,7 @@ describe("StopLayer", () => {
 
     // Expect to find the compound marker icon (the element with the number of contained stops)
     expect(compoundMarkerIcon).toBeInTheDocument();
+    expect(compoundStopMarkerMock).toHaveBeenCalled();
   });
 
   test("Renders separate stop markers for stops that are not in the same place", async () => {
@@ -92,5 +96,6 @@ describe("StopLayer", () => {
 
     // Expect to find the compound marker icon (the element with the number of contained stops)
     expect(stopMarkerIcon).toBeInTheDocument();
+    expect(stopMarkerMock).toHaveBeenCalled();
   });
 });

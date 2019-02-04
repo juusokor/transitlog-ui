@@ -2,4 +2,7 @@ import React from "react";
 
 const testElement = <div data-testid="stop-marker-mock" />;
 
-export default jest.fn().mockReturnValue(testElement);
+const stopMarkerMock = jest.fn();
+stopMarkerMock.mockReturnValue(testElement);
+
+module.exports = stopMarkerMock;
