@@ -154,6 +154,7 @@
     "not op_mini all"
   ],
   "jest": {
+    "automock": false,
     "collectCoverageFrom": [
       "src/**/*.{js,jsx,ts,tsx}",
       "!src/**/*.d.ts"

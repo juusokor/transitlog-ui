@@ -1,3 +1,6 @@
+/* eslint-disable import/first */
+jest.unmock("react-leaflet");
+
 import React from "react";
 import "jest-dom/extend-expect";
 import "jest-styled-components";
@@ -49,10 +52,10 @@ describe("StopLayer", () => {
     },
   ];
 
-  const {component, onBeforeEach} = renderComponent((props) => (
+  const {render, onBeforeEach} = renderComponent((props) => (
     <Provider state={{stop: "123"}}>
       <MockedProvider mocks={mocks} addTypename={true}>
-        <Map preferCanvas={true} center={[60.170988, 24.940842]} zoom={13}>
+        <Map center={[60.170988, 24.940842]} zoom={13}>
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
           <Pane name="stops" style={{zIndex: 430}} />
           <StopLayer {...props} />
@@ -70,10 +73,10 @@ describe("StopLayer", () => {
     // This date will trigger the mock data that contains two stops with identical coordinates
     const date = "2019-01-01";
 
-    const {getByTestId} = component({bounds, date});
+    const {getByTestId} = render({bounds, date});
 
-    const compoundMarkerIcon = await waitForElement(() =>
-      getByTestId("compound-stop-marker-mock")
+    const compoundMarkerIcon = await waitForElement(
+      () => getByTestId("compound-stop-marker-mock") // Added to the DOM by the stop marker mock
     );
 
     // Expect to find the compound marker icon (the element with the number of contained stops)
@@ -84,10 +87,10 @@ describe("StopLayer", () => {
     // This date will trigger the mock data that contains two stops with different coordinates
     const date = "2019-01-02";
 
-    const {getByTestId} = component({bounds, date});
+    const {getByTestId} = render({bounds, date});
 
-    const stopMarkerIcon = await waitForElement(() =>
-      getByTestId("stop-marker-mock")
+    const stopMarkerIcon = await waitForElement(
+      () => getByTestId("stop-marker-mock") // Added to the DOM by the stop marker mock
     );
 
     // Expect to find the compound marker icon (the element with the number of contained stops)

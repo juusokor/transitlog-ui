@@ -1,50 +1,37 @@
 import React, {Component} from "react";
 import {Polyline} from "react-leaflet";
 import calculateBoundsFromPositions from "../../helpers/calculateBoundsFromPositions";
-import {Observer} from "mobx-react";
-import {observable, action} from "mobx";
+
+console.log(Polyline);
 
 class RouteLayer extends Component {
-  @observable.ref
-  geometry = [];
   currentRouteId = "";
 
   componentDidMount() {
-    this.updateGeometry();
+    this.updateBounds();
   }
 
   componentDidUpdate() {
-    this.updateGeometry();
+    this.updateBounds();
   }
 
-  shouldComponentUpdate({routeId}) {
+  updateBounds = () => {
+    const {routeId} = this.props;
+
     if (routeId !== this.currentRouteId) {
-      return true;
-    }
-
-    return false;
-  }
-
-  @action
-  updateGeometry = () => {
-    const {routeGeometry, routeId} = this.props;
-
-    if (routeGeometry.length !== 0 && routeId !== this.currentRouteId) {
-      this.geometry = routeGeometry.map(([lon, lat]) => [lat, lon]);
       this.currentRouteId = routeId;
-
       this.setBounds();
     }
   };
 
   setBounds() {
-    const {setMapBounds = () => {}} = this.props;
+    const {routeGeometry, setMapBounds = () => {}} = this.props;
 
-    if (this.geometry.length === 0) {
+    if (routeGeometry.length === 0) {
       return;
     }
 
-    const bounds = calculateBoundsFromPositions(this.geometry, [
+    const bounds = calculateBoundsFromPositions(routeGeometry, [
       60.170988,
       24.940842,
     ]);
@@ -53,17 +40,15 @@ class RouteLayer extends Component {
   }
 
   render() {
+    const {routeGeometry} = this.props;
+
     return (
-      <Observer>
-        {() => (
-          <Polyline
-            pane="route-lines"
-            weight={3}
-            positions={this.geometry}
-            color="var(--blue)"
-          />
-        )}
-      </Observer>
+      <Polyline
+        pane="route-lines"
+        weight={3}
+        positions={routeGeometry}
+        color="var(--blue)"
+      />
     );
   }
 }

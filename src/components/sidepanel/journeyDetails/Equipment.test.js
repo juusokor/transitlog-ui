@@ -66,7 +66,7 @@ describe("Equipment", () => {
     },
   ];
 
-  const {component, onBeforeEach} = renderComponent((props) => (
+  const {render, onBeforeEach} = renderComponent((props) => (
     <MockedProvider mocks={mocks} addTypename={false}>
       <Equipment {...props} />
     </MockedProvider>
@@ -86,7 +86,7 @@ describe("Equipment", () => {
       equipmentType: "0", // 0 corresponds to type C.
     };
 
-    const {getByTestId, queryByText, baseElement} = component({
+    const {getByTestId, queryByText, baseElement} = render({
       journey: event,
       departure,
     });
@@ -114,7 +114,7 @@ describe("Equipment", () => {
       equipmentType: "0", // 0 corresponds to type C. The equipment will have type A1 so it's an error.
     };
 
-    const {getByTestId, queryByText} = component({
+    const {getByTestId, queryByText} = render({
       journey: event,
       departure,
     });
@@ -140,7 +140,7 @@ describe("Equipment", () => {
       equipmentType: "0", // 0 corresponds to type C, but it's not a hard requirement in this case.
     };
 
-    const {getByTestId, queryByText} = component({
+    const {getByTestId, queryByText} = render({
       journey: event,
       departure,
     });

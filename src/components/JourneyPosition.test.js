@@ -7,7 +7,7 @@ import {renderComponent} from "../__tests__/util/renderComponent";
 import {ObservableMap, observable} from "mobx";
 
 describe("JourneyPosition", () => {
-  const {component, onBeforeEach} = renderComponent((props) => (
+  const {render, onBeforeEach} = renderComponent((props) => (
     <JourneyPosition {...props} />
   ));
 
@@ -29,7 +29,7 @@ describe("JourneyPosition", () => {
     // Return null from the mock to appease React.
     const childrenMock = jest.fn().mockReturnValue(null);
 
-    component({
+    render({
       positions,
       // This component is a HoC that calls children as a function with the result
       children: childrenMock,
@@ -61,7 +61,7 @@ describe("JourneyPosition", () => {
 
     const childrenMock = jest.fn().mockReturnValue(null);
 
-    component({
+    render({
       positions,
       children: childrenMock,
       state: {
@@ -92,7 +92,7 @@ describe("JourneyPosition", () => {
 
     const childrenMock = jest.fn().mockReturnValue(null);
 
-    component({
+    render({
       positions,
       children: childrenMock,
       state: {
@@ -133,7 +133,7 @@ describe("JourneyPosition", () => {
 
     const childrenMock = jest.fn().mockReturnValue(null);
 
-    component({
+    render({
       positions: initialPositions,
       children: childrenMock,
       state,
@@ -158,7 +158,7 @@ describe("JourneyPosition", () => {
     ];
 
     // Rerender the component
-    component({
+    render({
       positions: updatedPositions,
       children: childrenMock,
       state,
