@@ -13,7 +13,7 @@ process.on("unhandledRejection", (err) => {
 // Ensure environment variables are read.
 require("../config/env");
 
-require("jest/bin/jest");
+require("jest/bin/jest"); // Fix for Jest v24 and CRA scripts
 const jest = require("jest");
 const execSync = require("child_process").execSync;
 let argv = process.argv.slice(2);
