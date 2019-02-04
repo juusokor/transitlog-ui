@@ -3,6 +3,8 @@ import {observer, inject} from "mobx-react";
 import {Popup, Marker} from "react-leaflet";
 import {Heading} from "../Typography";
 import get from "lodash/get";
+import compact from "lodash/compact";
+import uniq from "lodash/uniq";
 import styled, {createGlobalStyle} from "styled-components";
 import {app} from "mobx-app";
 import {StopRadius} from "./StopRadius";
@@ -32,16 +34,28 @@ const ChooseStopHeading = styled(Heading).attrs({level: 4})`
 `;
 
 const MarkerIconStyle = createGlobalStyle`
+  .compoundIconWrapper {
+    border-radius: 50%;
+    background: transparent;
+    border: 0;
+  }
+
   .compoundMarkerIcon {
     border-radius: 50%;
     background: white;
-    border: 3px solid ${({color = "var(--blue)"}) => color};
+    border: 3px solid transparent;
     display: flex !important;
     align-items: center;
     justify-content: center;
-    font-size: 1rem;
+    font-size: 0.95rem;
+    line-height: 1.1;
     color: var(--grey);
     font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
   }
 `;
 
@@ -78,11 +92,25 @@ class CompoundStopMarker extends Component {
         ? stops.find((stop) => stop.stopId === selectedStop)
         : null;
 
-    let mode = "BUS",
-      stopColor = "var(--blue)";
+    const modesInCluster = uniq(
+      compact(
+        stops.map((stop) => getPriorityMode(get(stop, "modes.nodes", ["BUS"])))
+      )
+    );
+
+    // TODO: Why does it get a color from a mode that's not here
+
+    let mode =
+      modesInCluster.length === 0
+        ? "BUS"
+        : modesInCluster.length === 1
+        ? modesInCluster[0]
+        : getPriorityMode(modesInCluster);
+
+    let stopColor = getModeColor(mode);
 
     if (selectedStopObj) {
-      mode = getPriorityMode(get(selectedStopObj, "modes.nodes", []));
+      mode = getPriorityMode(get(selectedStopObj, "modes.nodes", ["BUS"]));
       stopColor = getModeColor(mode);
     }
 
@@ -91,9 +119,11 @@ class CompoundStopMarker extends Component {
       : bounds.getCenter();
 
     const markerIcon = divIcon({
-      className: "compoundMarkerIcon",
-      html: stops.length,
-      iconSize: 30,
+      className: "compoundIconWrapper",
+      html: `<span class="compoundMarkerIcon" style="border-color: ${stopColor}">${
+        stops.length
+      }</span>`,
+      iconSize: 27.5,
     });
 
     const markerElement = (
@@ -170,6 +200,10 @@ class CompoundStopMarker extends Component {
         </button>
       </Popup>
     );
+
+    if (stops.findIndex((stop) => stop.stopId === "1020601") !== -1) {
+      console.log(stopColor);
+    }
 
     return (
       <>
