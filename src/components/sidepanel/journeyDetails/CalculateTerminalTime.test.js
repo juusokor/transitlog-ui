@@ -56,8 +56,6 @@ describe("CalculateTerminalTime", () => {
     };
 
     function assert({offsetTime, wasLate, diffMinutes, diffSeconds, sign}) {
-      console.log(sign);
-
       expect(wasLate).toBe(true);
       expect(sign).toBe("");
       expect(diffMinutes).toBe(0);

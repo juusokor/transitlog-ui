@@ -2,8 +2,6 @@ import React, {Component} from "react";
 import {Polyline} from "react-leaflet";
 import calculateBoundsFromPositions from "../../helpers/calculateBoundsFromPositions";
 
-console.log(Polyline);
-
 class RouteLayer extends Component {
   currentRouteId = "";
 
@@ -31,10 +29,7 @@ class RouteLayer extends Component {
       return;
     }
 
-    const bounds = calculateBoundsFromPositions(routeGeometry, [
-      60.170988,
-      24.940842,
-    ]);
+    const bounds = calculateBoundsFromPositions(routeGeometry);
 
     setMapBounds(bounds);
   }

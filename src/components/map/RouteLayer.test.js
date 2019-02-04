@@ -10,7 +10,7 @@ import {renderComponent} from "../../__tests__/util/renderComponent";
 
 describe("RouteLayer", () => {
   const {render, onBeforeEach} = renderComponent((props) => (
-    <Map center={[60.170988, 24.940842]} zoom={13}>
+    <Map center={[60.0, 24.0]} zoom={13}>
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
       <Pane name="route-lines" style={{zIndex: 430}} />
       <RouteLayer {...props} />
@@ -22,14 +22,25 @@ describe("RouteLayer", () => {
 
   test("Renders RouteLayer with coordinates", () => {
     const coordinates = [[0, 0], [4, 0], [4, 4], [0, 4]];
-    const setBounds = jest.fn();
 
     const {getByText} = render({
       routeGeometry: coordinates,
-      setMapBounds: setBounds,
     });
 
     expect(getByText("0,0,4,0,4,4,0,4")).toBeInTheDocument();
-    expect(setBounds).toHaveBeenCalled();
+  });
+
+  test("Calls setMapBounds with the bounds containing the route polyline.", () => {
+    const coordinates = [[60.0, 24.0], [60.1, 24.0], [60.1, 24.1], [60.0, 24.1]];
+    const expectBboxString = "24,60,24.1,60.1";
+    const setMapBounds = jest.fn();
+
+    render({
+      routeGeometry: coordinates,
+      setMapBounds,
+    });
+
+    expect(setMapBounds).toHaveBeenCalled();
+    expect(setMapBounds.mock.calls[0][0].toBBoxString()).toBe(expectBboxString);
   });
 });

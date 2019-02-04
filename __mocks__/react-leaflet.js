@@ -7,7 +7,14 @@ const Polyline = ({positions}) => (
   <div>{positions.map((p) => p.join(",")).join(",")}</div>
 );
 
+const Circle = ({center}) => (
+  <div>
+    {center.lat},{center.lng}
+  </div>
+);
+
 module.exports = {
   ...ReactLeaflet,
   Polyline,
+  Circle,
 };
