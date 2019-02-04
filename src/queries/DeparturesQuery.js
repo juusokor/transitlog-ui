@@ -6,6 +6,8 @@ import {isWithinRange} from "../helpers/isWithinRange";
 import gql from "graphql-tag";
 import get from "lodash/get";
 import reduce from "lodash/reduce";
+import groupBy from "lodash/groupBy";
+import orderBy from "lodash/orderBy";
 import {getDayTypeFromDate} from "../helpers/getDayTypeFromDate";
 
 const departuresQuery = gql`
@@ -159,30 +161,27 @@ class DeparturesQuery extends Component {
             departures = departures.filter((departure) => {
               return isWithinRange(date, departure.dateBegin, departure.dateEnd);
             });
-
-            /*// TODO: Figure this out
-            departures = departures.filter(
-              (departure) =>
-                // Filter out departures that are identical except for the validity range,
-                // but still valid during the same date.
-                !departures.some(
-                  (otherDep) =>
-                    // Match the common stuff
-                    otherDep.routeId === departure.routeId &&
-                    otherDep.direction === departure.direction &&
-                    otherDep.hours === departure.hours &&
-                    otherDep.minutes === departure.minutes &&
-                    otherDep.stopId === departure.stopId &&
-                    otherDep.dayType === departure.dayType &&
-                    otherDep.extraDeparture === departure.extraDeparture &&
-                    (otherDep.dateBegin !== departure.dateBegin ||
-                      otherDep.dateEnd !== departure.dateEnd) &&
-                    // If the departure we are currently evaluating in the .filter
-                    // is the older one, .some returns true and filters out the departure.
-                    isBefore(departure.dateBegin, otherDep.dateBegin)
-                )
-            );*/
           }
+
+          // TODO: optimize if needed
+          departures = reduce(
+            groupBy(
+              departures,
+              (departure) =>
+                departure.routeId +
+                departure.direction +
+                departure.hours +
+                departure.minutes +
+                departure.stopId +
+                departure.dayType +
+                departure.extraDeparture
+            ),
+            (filteredDepartures, departures) => {
+              filteredDepartures.push(orderBy(departures, "dateBegin", "desc")[0]);
+              return filteredDepartures;
+            },
+            []
+          );
 
           return children({departures, loading: false, error: null});
         }}
