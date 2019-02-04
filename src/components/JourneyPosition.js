@@ -2,7 +2,6 @@ import {Component} from "react";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import {reaction, observable, action, computed} from "mobx";
-import moment from "moment-timezone";
 
 @inject(app("state"))
 @observer
@@ -21,6 +20,10 @@ class JourneyPosition extends Component {
 
   // Matches the current time setting with a HFP position from this journey.
   getHfpPositions = (time) => {
+    if (this.positions.size === 0) {
+      return;
+    }
+
     this.positions.forEach((indexedEvents, journeyId) => {
       // Attempt to find the correct hfp item from the indexed positions
       let nextHfpPosition = indexedEvents.get(time);
@@ -36,8 +39,10 @@ class JourneyPosition extends Component {
   };
 
   getLivePositions = (journeys) => {
-    journeys.forEach(({journeyId, events}) => {
-      this.setHfpPosition(journeyId, events[events.length - 1]);
+    journeys.forEach(({journeyId, events = []}) => {
+      if (events.length !== 0) {
+        this.setHfpPosition(journeyId, events[events.length - 1]);
+      }
     });
   };
 
@@ -92,19 +97,19 @@ class JourneyPosition extends Component {
     this.positions = indexed;
   };
 
-  async componentDidMount() {
+  componentDidMount() {
     const {state, positions} = this.props;
 
     if (!this.isLive) {
       // Index once when mounted if not live-updating
-      await this.indexJourneys(positions);
+      this.indexJourneys(positions);
     }
 
     // A reaction to set the hfp event that matches the currently selected time
     this.positionReaction = reaction(
-      () => [state.unixTime, this.positions.size, this.isLive],
-      ([time, positionsSize, live]) => {
-        if (!live && time && positionsSize !== 0) {
+      () => [state.unixTime, this.isLive],
+      ([time, live]) => {
+        if (!live && time) {
           this.getHfpPositions(time);
         }
       },
@@ -113,11 +118,15 @@ class JourneyPosition extends Component {
   }
 
   componentDidUpdate() {
-    const {positions = []} = this.props;
+    const {
+      positions = [],
+      state: {unixTime},
+    } = this.props;
 
     // If the positions changed we need to index again.
     if (!this.isLive && positions.length !== 0) {
       this.indexJourneys(positions);
+      this.getHfpPositions(unixTime);
     }
 
     if (this.isLive && positions.length !== 0) {

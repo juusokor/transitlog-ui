@@ -2,6 +2,7 @@ import React from "react";
 import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import get from "lodash/get";
+import uniqBy from "lodash/uniqBy";
 import {observer} from "mobx-react";
 import {StopFieldsFragment} from "./StopFieldsFragment";
 
@@ -51,7 +52,10 @@ export default observer(({children, route}) => (
       dateEnd: get(route, "dateEnd", ""),
     }}>
     {({loading, error, data}) => {
-      const stops = get(data, "route.routeSegments.nodes", []).map((segment) => ({
+      const stops = uniqBy(
+        get(data, "route.routeSegments.nodes", []),
+        "stop.stopId"
+      ).map((segment) => ({
         ...segment.stop,
         timingStopType: segment.timingStopType,
         dateBegin: segment.dateBegin,

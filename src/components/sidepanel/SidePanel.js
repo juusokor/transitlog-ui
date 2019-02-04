@@ -93,13 +93,14 @@ class SidePanel extends Component {
       UI: {toggleSidePanel, toggleJourneyDetails},
       areaEvents = [],
       selectedJourneyEvents = [],
-      loading = false,
+      journeyEventsLoading = false,
       areaEventsLoading = false,
       stop,
       state: {
         route,
         date,
         vehicle,
+        stop: stateStop,
         sidePanelVisible,
         journeyDetailsAreOpen,
         journeyDetailsCanOpen,
@@ -107,13 +108,21 @@ class SidePanel extends Component {
     } = this.props;
 
     const hasRoute = !!route && !!route.routeId;
+    const hasEvents = !journeyEventsLoading && selectedJourneyEvents.length !== 0;
+
+    let suggestedTab = "";
+
+    if (!hasRoute && !vehicle) suggestedTab = "area-journeys";
+    if (!hasRoute && vehicle) suggestedTab = "vehicle-journeys";
+    if (hasRoute) suggestedTab = "journeys";
+    if (stateStop) suggestedTab = "timetables";
 
     return (
       <SidePanelContainer visible={sidePanelVisible}>
         <MainSidePanel>
           <ControlBar />
-          <Tabs>
-            {!hasRoute && (
+          <Tabs suggestedTab={suggestedTab}>
+            {!hasRoute && (areaEvents.length !== 0 || areaEventsLoading) && (
               <AreaJourneyList
                 loading={areaEventsLoading}
                 journeys={areaEvents}
@@ -125,34 +134,34 @@ class SidePanel extends Component {
               <Journeys
                 key={`route_journeys_${createRouteKey(route, true)}_${date}`}
                 route={route}
-                loading={loading}
+                loading={journeyEventsLoading}
                 name="journeys"
                 label={text("sidepanel.tabs.journeys")}
               />
             )}
             {vehicle && (
               <VehicleJourneys
-                loading={loading}
+                loading={journeyEventsLoading}
                 name="vehicle-journeys"
                 label={text("sidepanel.tabs.vehicle_journeys")}
               />
             )}
-            {stop && (
+            {stateStop && (
               <TimetablePanel
                 stop={stop}
-                loading={loading}
+                loading={journeyEventsLoading}
                 name="timetables"
                 label={text("sidepanel.tabs.timetables")}
               />
             )}
           </Tabs>
         </MainSidePanel>
-        <JourneyPanel visible={journeyDetailsAreOpen}>
+        <JourneyPanel visible={hasEvents && journeyDetailsAreOpen}>
           {/* The content of the sidebar is independent from the sidebar wrapper so that we can animate it. */}
           {journeyDetailsAreOpen && (
             <JourneyDetails selectedJourneyEvents={selectedJourneyEvents} />
           )}
-          {journeyDetailsCanOpen && (
+          {hasEvents && journeyDetailsCanOpen && (
             <ToggleJourneyDetailsButton
               isVisible={journeyDetailsAreOpen}
               onClick={() => toggleJourneyDetails()}>

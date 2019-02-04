@@ -5,7 +5,7 @@ import {inject, observer, Observer} from "mobx-react";
 import Map from "./map/Map";
 import styled from "styled-components";
 import SidePanel from "./sidepanel/SidePanel";
-import JourneyPosition from "./map/JourneyPosition";
+import JourneyPosition from "./JourneyPosition";
 import MapContent from "./map/MapContent";
 import {latLng} from "leaflet";
 import SingleStopQuery from "../queries/SingleStopQuery";
@@ -71,7 +71,10 @@ class App extends Component {
             timeRange,
           }) => (
             <SelectedJourneyEvents>
-              {({events: selectedJourneyEvents = [], loading}) => {
+              {({
+                events: selectedJourneyEvents = [],
+                loading: journeyEventsLoading,
+              }) => {
                 const journeyEvents = selectedJourneyEvents || [];
                 let areaHfp = !hasRoute && areaEvents.length !== 0 ? areaEvents : [];
 
@@ -92,7 +95,7 @@ class App extends Component {
                           <>
                             <SidePanel
                               areaEventsLoading={areaEventsLoading}
-                              loading={loading}
+                              journeyEventsLoading={journeyEventsLoading}
                               areaEvents={areaHfp}
                               selectedJourneyEvents={selectedJourneyEvents}
                               route={route}
@@ -116,7 +119,7 @@ class App extends Component {
                                           // Set the map center from here. We don't want to wrap the map
                                           // in these frequently updating components.
 
-                                          if (live) {
+                                          if (!live) {
                                             return null;
                                           }
 

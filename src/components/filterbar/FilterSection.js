@@ -12,6 +12,7 @@ const FilterSectionWrapper = styled.div`
   height: 9rem;
   border-right: 1px solid var(--lighter-grey);
   background: var(--lightest-grey);
+  position: relative;
   ${({scrollable = false}) =>
     scrollable ? `overflow-y: auto; overflow-x: hidden;` : "overflow: visible;"};
 `;

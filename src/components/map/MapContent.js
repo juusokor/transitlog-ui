@@ -31,7 +31,7 @@ class MapContent extends Component {
   render() {
     const {
       journeys = [],
-      timePositions = new Map(),
+      timePositions,
       route,
       zoom,
       stopsBbox,
@@ -75,7 +75,6 @@ class MapContent extends Component {
                     onMarkerClick={this.onClickVehicleMarker}
                     currentPosition={timePositions.get(journeyId)}
                     journeyId={journeyId}
-                    maxTimeDiff={3}
                   />
                 ) : (
                   <SimpleHfpLayer

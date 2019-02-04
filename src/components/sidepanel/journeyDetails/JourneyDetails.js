@@ -9,7 +9,6 @@ import SingleRouteQuery from "../../../queries/SingleRouteQuery";
 import JourneyStops from "./JourneyStops";
 import Loading from "../../Loading";
 import JourneyInfo from "./JourneyInfo";
-import doubleDigit from "../../../helpers/doubleDigit";
 import isWithinRange from "date-fns/is_within_range";
 import {getDayTypeFromDate} from "../../../helpers/getDayTypeFromDate";
 import orderBy from "lodash/orderBy";
@@ -159,12 +158,10 @@ class JourneyDetails extends React.Component {
           return (
             <JourneyPanelWrapper>
               <JourneyDetailsHeader
-                vehicleId={journey.unique_vehicle_id}
+                journey={journey}
                 date={date}
-                time={journey.journey_start_time}
                 mode={get(route, "mode", "BUS")}
                 routeId={get(route, "routeId", "")}
-                desi={get(journey, "desi")}
                 name={get(route, "nameFi")}
               />
               <ScrollContainer>

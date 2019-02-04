@@ -26,6 +26,10 @@ const StopOptionButton = styled.button`
   }
 `;
 
+function cleanRouteId(routeId) {
+  return routeId.substring(1).replace(/^0+/, "");
+}
+
 @inject(app("Filters"))
 @observer
 class StopMarker extends Component {
@@ -111,9 +115,11 @@ class StopMarker extends Component {
         {get(stop, "routeSegmentsForDate.nodes", []).map((routeSegment) => (
           <StopOptionButton
             color={stopColor}
-            key={`route_${routeSegment.routeId}_${routeSegment.direction}`}
+            key={`route_${cleanRouteId(routeSegment.routeId)}_${
+              routeSegment.direction
+            }_${routeSegment.dateBegin}_${routeSegment.dateEnd}`}
             onClick={this.selectRoute(get(routeSegment, "route.nodes[0]", null))}>
-            {routeSegment.routeId.substring(1).replace(/^0+/, "")}
+            {cleanRouteId(routeSegment.routeId)}
           </StopOptionButton>
         ))}
         <button onClick={this.onShowStreetView}>Show in street view</button>

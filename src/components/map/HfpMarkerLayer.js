@@ -1,13 +1,14 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
-import {Tooltip, Marker} from "react-leaflet";
+import {Tooltip} from "react-leaflet";
 import get from "lodash/get";
-import {divIcon} from "leaflet";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import {Text} from "../../helpers/text";
 import "./Map.css";
 import {getModeColor} from "../../helpers/vehicleColor";
+import VehicleMarker from "./VehicleMarker";
+import DivIcon from "../../helpers/DivIcon";
 
 @inject(app("state"))
 @observer
@@ -15,6 +16,8 @@ class HfpMarkerLayer extends Component {
   static propTypes = {
     onMarkerClick: PropTypes.func.isRequired,
   };
+
+  componentDidMount() {}
 
   onMarkerClick = (positionWhenClicked) => () => {
     const {onMarkerClick} = this.props;
@@ -33,27 +36,12 @@ class HfpMarkerLayer extends Component {
 
     const modeColor = getModeColor(get(position, "mode", "").toUpperCase());
 
-    const markerIcon = divIcon({
-      className: `hfp-icon`,
-      iconSize: 36,
-      html: `<span class="hfp-marker-wrapper" style="background-color: ${modeColor}">
-<div class="hfp-marker-icon ${get(
-        position,
-        "mode",
-        ""
-      ).toUpperCase()}" style="transform: rotate(${position.hdg - 180}deg)"></div>
-${position.drst ? `<span class="hfp-marker-drst"></span>` : ""}
-<span class="hfp-marker-heading" style="transform: rotate(${
-        position.hdg
-      }deg) translate(0, -82%); border-bottom-color: ${modeColor}"></span>
-</span>`,
-    });
-
     return (
-      <Marker
+      <DivIcon
         onClick={this.onMarkerClick(position)}
         position={[position.lat, position.long]}
-        icon={markerIcon}
+        iconSize={[35, 35]}
+        icon={<VehicleMarker position={position} color={modeColor} />}
         pane="hfp-markers">
         <Tooltip>
           <strong>
@@ -68,7 +56,7 @@ ${position.drst ? `<span class="hfp-marker-drst"></span>` : ""}
           <br />
           <Text>vehicle.speed</Text>: {Math.round((position.spd * 18) / 5)} km/h
         </Tooltip>
-      </Marker>
+      </DivIcon>
     );
   }
 }

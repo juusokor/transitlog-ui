@@ -8,10 +8,9 @@ import uniqBy from "lodash/uniqBy";
 import get from "lodash/get";
 import DeparturesQuery from "../queries/DeparturesQuery";
 import JourneysByDateQuery from "../queries/JourneysByDateQuery";
-import doubleDigit from "../helpers/doubleDigit";
 import {createCompositeJourney} from "../stores/journeyActions";
 import {sortByTime} from "../helpers/sortByTime";
-import {getTimeString, departureTime} from "../helpers/time";
+import {departureTime} from "../helpers/time";
 
 export const journeyHfpStates = {
   LOADING: "loading",

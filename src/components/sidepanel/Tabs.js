@@ -2,6 +2,7 @@ import React, {Component, Children} from "react";
 import {observer} from "mobx-react";
 import styled from "styled-components";
 import compact from "lodash/compact";
+import difference from "lodash/difference";
 import {setUrlValue, getUrlValue} from "../../stores/UrlManager";
 
 const TabsWrapper = styled.div`
@@ -73,6 +74,36 @@ class Tabs extends Component {
     );
   };
 
+  componentDidUpdate({children: prevChildren}) {
+    this.selectAddedTab(prevChildren);
+  }
+
+  selectAddedTab = (prevChildren) => {
+    this.setState(({selectedTab: stateSelectedTab}) => {
+      const {children, suggestedTab} = this.props;
+
+      const prevChildrenArray = compact(Children.toArray(prevChildren)).map(
+        ({props: {name}}) => name
+      );
+
+      const childrenArray = compact(Children.toArray(children)).map(
+        ({props: {name}}) => name
+      );
+
+      const newChildren = difference(childrenArray, prevChildrenArray);
+      const nextTab =
+        newChildren.length === 1 && newChildren.includes(suggestedTab)
+          ? suggestedTab
+          : stateSelectedTab;
+
+      if (!nextTab || nextTab === stateSelectedTab) return null;
+
+      return {
+        selectedTab: nextTab,
+      };
+    });
+  };
+
   render() {
     const {children, className} = this.props;
     selectedTab = this.state.selectedTab || selectedTab; // Ensure that "transient" values stay between renders
@@ -81,7 +112,7 @@ class Tabs extends Component {
     let selectedTabContent = null;
 
     // The children usually contain an empty string as the first element.
-    // Compact() removes all falsy values from the array.
+    // Compact() removes all such falsy values from the array.
     const validChildren = compact(Children.toArray(children));
 
     const tabs = validChildren.map((tabContent, idx, allChildren) => {
@@ -107,6 +138,10 @@ class Tabs extends Component {
 
       return {name, label, content: tabContent};
     });
+
+    if (tabs.length === 0) {
+      selectedTab = "";
+    }
 
     // The selected tab might not be available, so pick the first tab in that case.
     if (
