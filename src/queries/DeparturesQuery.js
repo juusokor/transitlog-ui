@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 import {observer} from "mobx-react";
 import {Query} from "react-apollo";
-import isWithinRange from "date-fns/is_within_range";
+import {isWithinRange} from "../helpers/isWithinRange";
 import gql from "graphql-tag";
 import get from "lodash/get";
 import reduce from "lodash/reduce";
@@ -13,7 +13,7 @@ const departuresQuery = gql`
     $routeId: String
     $direction: String
     $dayType: String
-    $stopId: String
+    $stopId: String!
     $dateBegin: Date
     $dateEnd: Date
     $departureId: Int
@@ -50,6 +50,8 @@ const departuresQuery = gql`
         routeId
         direction
         departureId
+        extraDeparture
+        isNextDay
         originDeparture {
           stopId
           dayType
@@ -58,6 +60,9 @@ const departuresQuery = gql`
           routeId
           direction
           departureId
+          arrivalHours
+          arrivalMinutes
+          isNextDay
         }
       }
     }
@@ -112,12 +117,12 @@ class DeparturesQuery extends Component {
     const queryDayType = getDayTypeFromDate(date);
 
     const {routeId = "", direction = "", originstopId = ""} = route;
-    const stopId = get(stop, "stopId", stop);
+    const stopId = originstopId ? originstopId : get(stop, "stopId", stop);
 
     let queryVars = reduce(
       {
         dayType: queryDayType,
-        stopId: originstopId ? originstopId : stopId,
+        stopId,
         routeId,
         direction: "" + direction, // make sure it is a string
         departureId,
@@ -135,7 +140,7 @@ class DeparturesQuery extends Component {
       {}
     );
 
-    if (Object.keys(queryVars).length < 2) {
+    if (!stopId || !queryDayType || Object.keys(queryVars).length < 2) {
       // If we don't have the required info, return an empty array to the render function.
       return children({departures: [], loading: false, error: null});
     }
@@ -151,9 +156,32 @@ class DeparturesQuery extends Component {
 
           // If the query was not constrained by dateBegin or dateEnd, do that here.
           if (!dateBegin || !dateEnd) {
-            departures = departures.filter(({dateBegin, dateEnd}) => {
-              return isWithinRange(date, dateBegin, dateEnd);
+            departures = departures.filter((departure) => {
+              return isWithinRange(date, departure.dateBegin, departure.dateEnd);
             });
+
+            /*// TODO: Figure this out
+            departures = departures.filter(
+              (departure) =>
+                // Filter out departures that are identical except for the validity range,
+                // but still valid during the same date.
+                !departures.some(
+                  (otherDep) =>
+                    // Match the common stuff
+                    otherDep.routeId === departure.routeId &&
+                    otherDep.direction === departure.direction &&
+                    otherDep.hours === departure.hours &&
+                    otherDep.minutes === departure.minutes &&
+                    otherDep.stopId === departure.stopId &&
+                    otherDep.dayType === departure.dayType &&
+                    otherDep.extraDeparture === departure.extraDeparture &&
+                    (otherDep.dateBegin !== departure.dateBegin ||
+                      otherDep.dateEnd !== departure.dateEnd) &&
+                    // If the departure we are currently evaluating in the .filter
+                    // is the older one, .some returns true and filters out the departure.
+                    isBefore(departure.dateBegin, otherDep.dateBegin)
+                )
+            );*/
           }
 
           return children({departures, loading: false, error: null});

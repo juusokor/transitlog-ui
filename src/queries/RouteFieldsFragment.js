@@ -46,6 +46,7 @@ export const ExtensiveRouteFieldsFragment = gql`
           direction
           hours
           minutes
+          isNextDay
           arrivalHours
           arrivalMinutes
           departureId
@@ -80,6 +81,7 @@ export const ExtensiveRouteFieldsFragment = gql`
           direction
           hours
           minutes
+          isNextDay
           arrivalHours
           arrivalMinutes
           departureId
@@ -123,6 +125,7 @@ export const ExtensiveRouteFieldsFragment = gql`
               direction
               hours
               minutes
+              isNextDay
               arrivalHours
               arrivalMinutes
               departureId

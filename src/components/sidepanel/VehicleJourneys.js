@@ -20,7 +20,7 @@ import doubleDigit from "../../helpers/doubleDigit";
 import PlusMinusInput from "../PlusMinusInput";
 import {observable, action, reaction} from "mobx";
 import withVehicleJourneys from "../../hoc/withVehicleJourneys";
-import {sortByOperationDay} from "../../helpers/sortByOperationDay";
+import {sortByTime} from "../../helpers/sortByTime";
 import {getTimelinessColor} from "../../helpers/timelinessColor";
 
 const JourneyListRow = styled.div`
@@ -167,7 +167,7 @@ class VehicleJourneys extends Component {
     let journeyIndex = -1;
 
     const sortedPositions = sortBy(positions, (pos) =>
-      sortByOperationDay(pos.journey_start_time)
+      sortByTime(pos.journey_start_time)
     );
 
     return (

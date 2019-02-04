@@ -55,7 +55,7 @@ export const getClient = async (UIStore) => {
 
   const joreLink = new BatchHttpLink({
     uri: joreUrl,
-    batchMax: 100,
+    batchMax: 10,
     batchInterval: 10,
   });
 

@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import FilterBar from "./filterbar/FilterBar";
 import {app} from "mobx-app";
-import {inject, observer} from "mobx-react";
+import {inject, observer, Observer} from "mobx-react";
 import Map from "./map/Map";
 import styled from "styled-components";
 import SidePanel from "./sidepanel/SidePanel";
@@ -13,6 +13,7 @@ import AreaHfpEvents from "./AreaHfpEvents";
 import ErrorMessages from "./ErrorMessages";
 import SharingModal from "./SharingModal";
 import SelectedJourneyEvents from "./SelectedJourneyEvents";
+import getJourneyId from "../helpers/getJourneyId";
 
 const AppFrame = styled.main`
   width: 100%;
@@ -47,9 +48,18 @@ const MapPanel = styled(Map)`
 class App extends Component {
   render() {
     const {state, UI} = this.props;
-    const {date, stop, route, shareModalOpen} = state;
+    const {
+      date,
+      stop: selectedStopId,
+      route,
+      shareModalOpen,
+      selectedJourney,
+      live,
+    } = state;
 
     const hasRoute = !!route && !!route.routeId;
+
+    const selectedJourneyId = getJourneyId(selectedJourney);
 
     return (
       <AppFrame>
@@ -77,53 +87,79 @@ class App extends Component {
                       selectedJourneyEvents={journeyEvents}
                     />
                     <SidepanelAndMapWrapper>
-                      <SidePanel
-                        areaEventsLoading={areaEventsLoading}
-                        loading={loading}
-                        areaEvents={areaHfp}
-                        selectedJourneyEvents={selectedJourneyEvents}
-                        route={route}
-                      />
-                      <MapPanel>
-                        {({
-                          zoom,
-                          setMapBounds,
-                          setMapCenter,
-                          setViewerLocation,
-                          mapView,
-                        }) => (
-                          <JourneyPosition positions={journeyEvents}>
-                            {(journeyPosition) => (
-                              <SingleStopQuery stop={stop} date={date}>
-                                {({stop}) => {
-                                  const stopPosition = stop
-                                    ? latLng(stop.lat, stop.lon)
-                                    : false;
+                      <SingleStopQuery date={date} stop={selectedStopId}>
+                        {({stop}) => (
+                          <>
+                            <SidePanel
+                              areaEventsLoading={areaEventsLoading}
+                              loading={loading}
+                              areaEvents={areaHfp}
+                              selectedJourneyEvents={selectedJourneyEvents}
+                              route={route}
+                              stop={stop}
+                            />
+                            <MapPanel>
+                              {({
+                                zoom,
+                                setMapBounds,
+                                setMapCenter,
+                                setViewerLocation,
+                                mapView,
+                              }) => (
+                                <JourneyPosition
+                                  date={date}
+                                  positions={currentPositions}>
+                                  {(currentTimePositions) => (
+                                    <>
+                                      <Observer>
+                                        {() => {
+                                          // Set the map center from here. We don't want to wrap the map
+                                          // in these frequently updating components.
 
-                                  const centerPosition = stopPosition
-                                    ? stopPosition
-                                    : journeyPosition;
+                                          if (live) {
+                                            return null;
+                                          }
 
-                                  setMapCenter(centerPosition);
+                                          const stopPosition = stop
+                                            ? latLng([stop.lat, stop.lon])
+                                            : false;
 
-                                  return (
-                                    <MapContent
-                                      queryBounds={queryBounds}
-                                      setMapBounds={setMapBounds}
-                                      positions={currentPositions}
-                                      route={route}
-                                      stop={stop}
-                                      zoom={zoom}
-                                      viewLocation={setViewerLocation}
-                                      stopsBbox={mapView}
-                                    />
-                                  );
-                                }}
-                              </SingleStopQuery>
-                            )}
-                          </JourneyPosition>
+                                          const selectedJourneyPosition = selectedJourney
+                                            ? currentTimePositions.get(
+                                                selectedJourneyId
+                                              )
+                                            : false;
+
+                                          const centerPosition = selectedJourneyPosition
+                                            ? latLng([
+                                                selectedJourneyPosition.lat,
+                                                selectedJourneyPosition.long,
+                                              ])
+                                            : stopPosition;
+
+                                          setMapCenter(centerPosition);
+                                          return null;
+                                        }}
+                                      </Observer>
+                                      <MapContent
+                                        queryBounds={queryBounds}
+                                        setMapBounds={setMapBounds}
+                                        journeys={currentPositions}
+                                        timePositions={currentTimePositions}
+                                        route={route}
+                                        stop={stop}
+                                        zoom={zoom}
+                                        viewLocation={setViewerLocation}
+                                        stopsBbox={mapView}
+                                      />
+                                    </>
+                                  )}
+                                </JourneyPosition>
+                              )}
+                            </MapPanel>
+                          </>
                         )}
-                      </MapPanel>
+                      </SingleStopQuery>
                     </SidepanelAndMapWrapper>
                   </AppGrid>
                 );

@@ -5,7 +5,7 @@ import unset from "lodash/unset";
 import timer from "../helpers/timer";
 import TimeActions from "./timeActions";
 import FilterActions from "./filterActions";
-import {combineDateAndTime} from "../helpers/time";
+import {getMomentFromDateTime} from "../helpers/time";
 
 const updateListeners = {};
 let pollingStart = 0;
@@ -30,7 +30,7 @@ export default (state) => {
 
   const updateTime = (forceCurrent = false) => {
     const {time, timeIncrement, date, timeIsCurrent} = state;
-    const selectedMoment = combineDateAndTime(date, time, "Europe/Helsinki");
+    const selectedMoment = getMomentFromDateTime(date, time, "Europe/Helsinki");
     const nowMoment = moment.tz(new Date(), "Europe/Helsinki");
 
     if (!timeIsCurrent && !forceCurrent) {

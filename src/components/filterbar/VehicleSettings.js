@@ -38,7 +38,7 @@ class VehicleSettings extends React.Component {
 
   render() {
     const {state} = this.props;
-    const {vehicle = "", date, route, selectedJourney} = state;
+    const {vehicle = "", date, selectedJourney} = state;
 
     const isDisabled = !!selectedJourney;
 
@@ -48,7 +48,7 @@ class VehicleSettings extends React.Component {
 
     return (
       <>
-        <VehicleOptionsQuery date={date} route={route}>
+        <VehicleOptionsQuery date={date} skip={true}>
           {({vehicles}) => {
             const groupedVehicles = map(
               groupBy(vehicles, ({owner_operator_id}) => owner_operator_id),

@@ -4,10 +4,8 @@ import {Query} from "react-apollo";
 import get from "lodash/get";
 import {setUpdateListener} from "../stores/UpdateManager";
 
-// TODO: Remove other where clauses than oday.
-
 const vehiclesQuery = gql`
-  query vehiclesQuery($date: date) {
+  query vehicleOptionsQuery($date: date) {
     vehicles(
       distinct_on: [unique_vehicle_id]
       order_by: [{unique_vehicle_id: asc}]
@@ -22,8 +20,8 @@ const vehiclesQuery = gql`
 
 const updateListenerName = "vehicle options query";
 
-export default ({children, date}) => (
-  <Query query={vehiclesQuery} variables={{date}}>
+export default ({children, date, skip}) => (
+  <Query query={vehiclesQuery} skip={skip} variables={{date}}>
     {({loading, error, data, refetch}) => {
       setUpdateListener(updateListenerName, refetch, false);
 

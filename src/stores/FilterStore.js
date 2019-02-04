@@ -4,7 +4,7 @@ import {inflate} from "../helpers/inflate";
 import pick from "lodash/pick";
 import merge from "lodash/merge";
 import {resetUrlState} from "./UrlManager";
-import {timeToFormat} from "../helpers/time";
+import moment from "moment-timezone";
 
 const resetListeners = [];
 
@@ -22,7 +22,7 @@ export function setResetListener(cb) {
 
 export default (state, initialState) => {
   const emptyState = {
-    date: timeToFormat(new Date(), "YYYY-MM-DD", "Europe/Helsinki"),
+    date: moment.tz(new Date(), "Europe/Helsinki").format("YYYY-MM-DD"),
     stop: "",
     vehicle: "",
     line: {

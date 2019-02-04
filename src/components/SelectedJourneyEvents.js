@@ -7,11 +7,18 @@ import getJourneyId from "../helpers/getJourneyId";
 import get from "lodash/get";
 import withRoute from "../hoc/withRoute";
 import EnsureJourneySelection from "../helpers/EnsureJourneySelection";
+import moment from "moment-timezone";
 
 @withRoute
 @inject(app("state"))
 @observer
 class SelectedJourneyEvents extends Component {
+  renderChildren = (children, events = [], loading = false, error = null) => (
+    <EnsureJourneySelection events={events} eventsLoading={loading} error={error}>
+      {children}
+    </EnsureJourneySelection>
+  );
+
   render() {
     const {children, state} = this.props;
     const {selectedJourney, route} = state;
@@ -28,42 +35,36 @@ class SelectedJourneyEvents extends Component {
         skip={!selectedJourneyValid}
         selectedJourney={selectedJourney}>
         {({positions = [], loading, error}) => {
-          if ((!positions || positions.length === 0) && !loading) {
-            return (
-              <EnsureJourneySelection
-                events={null}
-                eventsLoading={loading}
-                error={error}>
-                {children}
-              </EnsureJourneySelection>
-            );
+          if ((positions.length === 0 && !loading) || error) {
+            return this.renderChildren(children, [], false, error);
           }
 
-          if (!positions || positions.length === 0 || loading) {
-            return (
-              <EnsureJourneySelection
-                events={[]}
-                eventsLoading={loading}
-                error={error}>
-                {children}
-              </EnsureJourneySelection>
-            );
+          if (positions.length === 0 || loading) {
+            return this.renderChildren(children, positions, loading, error);
           }
 
-          const events = positions
+          const filteredEvents = positions
             // TODO: Fix when we have to deal with null coordinates
-            .filter((pos) => !!pos.lat && !!pos.long)
-            .map(createHfpItem);
+            .filter((pos) => !!pos.lat && !!pos.long);
+
+          // Get the real date when this journey started. This will let us determine
+          // on which side of the 24h+ day the journey happened.
+          const realStartMoment = moment.tz(
+            positions[0].received_at,
+            "Europe/Helsinki"
+          );
+
+          const events = filteredEvents.map((item) =>
+            createHfpItem(item, realStartMoment)
+          );
 
           const journeyId = getJourneyId(events[0]);
 
-          return (
-            <EnsureJourneySelection
-              events={[{journeyId, events}]}
-              eventsLoading={loading}
-              error={error}>
-              {children}
-            </EnsureJourneySelection>
+          return this.renderChildren(
+            children,
+            [{journeyId, events}],
+            loading,
+            error
           );
         }}
       </SelectedJourneyQuery>

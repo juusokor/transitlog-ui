@@ -15,6 +15,7 @@ import getDelayType from "../../helpers/getDelayType";
 import {getTimelinessColor} from "../../helpers/timelinessColor";
 import {expr} from "mobx-utils";
 import RouteJourneys, {journeyHfpStates} from "../RouteJourneys";
+import {getNormalTime} from "../../helpers/time";
 
 const JourneyListRow = styled.button`
   display: flex;
@@ -168,7 +169,9 @@ class Journeys extends Component {
                             key={`planned_journey_row_${journeyId}`}
                             selected={journeyIsSelected}
                             onClick={this.selectJourney(journey.time)}>
-                            <JourneyRowLeft>{journey.time}</JourneyRowLeft>
+                            <JourneyRowLeft>
+                              {getNormalTime(journey.time)}
+                            </JourneyRowLeft>
                             {fetchStatus === journeyHfpStates.NOT_FOUND ? (
                               <span>{text("filterpanel.journey.no_data")}</span>
                             ) : fetchStatus === journeyHfpStates.LOADING ? (
@@ -238,7 +241,7 @@ class Journeys extends Component {
                           key={`journey_row_${journeyId}`}
                           onClick={this.selectJourney(journeyEvent)}>
                           <JourneyRowLeft>
-                            {journeyEvent.journey_start_time}
+                            {getNormalTime(journeyEvent.journey_start_time)}
                           </JourneyRowLeft>
                           {observedJourney}
                         </JourneyListRow>

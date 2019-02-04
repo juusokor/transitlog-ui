@@ -1,6 +1,6 @@
 import {extendObservable} from "mobx";
 import timeActions from "./timeActions";
-import {combineDateAndTime, timeToFormat} from "../helpers/time";
+import {getMomentFromDateTime, timeToSeconds} from "../helpers/time";
 import get from "lodash/get";
 import moment from "moment-timezone";
 import {getUrlValue} from "./UrlManager";
@@ -12,15 +12,16 @@ export default (state, initialState) => {
     time: get(
       initialState,
       "time",
-      timeToFormat(new Date(), "HH:mm:ss", "Europe/Helsinki")
+      moment.tz(new Date(), "Europe/Helsinki").format("HH:mm:ss")
     ),
     get unixTime() {
       const {date, time} = state;
-      return combineDateAndTime(date, time, "Europe/Helsinki").unix();
+      const unixTime = moment.tz(date, "Europe/Helsinki").unix();
+      return unixTime + timeToSeconds(time);
     },
     get timeIsCurrent() {
       const {date, time} = state;
-      const selectedMoment = combineDateAndTime(date, time, "Europe/Helsinki");
+      const selectedMoment = getMomentFromDateTime(date, time, "Europe/Helsinki");
 
       // If the selected time is within 10 minutes of the current time, it is considered current.
       const minTime = selectedMoment.clone().subtract(5, "minutes");

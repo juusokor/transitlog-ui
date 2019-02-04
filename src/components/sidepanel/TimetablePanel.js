@@ -1,6 +1,5 @@
 import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
-import withStop from "../../hoc/withStop";
 import {app} from "mobx-app";
 import withAllStopDepartures from "../../hoc/withAllStopDepartures";
 import {toJS, reaction} from "mobx";
@@ -8,7 +7,7 @@ import styled from "styled-components";
 import Input from "../Input";
 import {text} from "../../helpers/text";
 import get from "lodash/get";
-import {sortByOperationDay} from "../../helpers/sortByOperationDay";
+import {sortByTime} from "../../helpers/sortByTime";
 import doubleDigit from "../../helpers/doubleDigit";
 import sortBy from "lodash/sortBy";
 import {createDebouncedObservable} from "../../helpers/createDebouncedObservable";
@@ -55,7 +54,6 @@ const ClearButton = styled(Button).attrs({small: true, primary: true})`
 `;
 
 @inject(app("Filters", "Journey", "Time"))
-@withStop
 @withAllStopDepartures
 @observer
 class TimetablePanel extends Component {
@@ -160,7 +158,7 @@ class TimetablePanel extends Component {
         time = `${doubleDigit(hours)}:30`;
       }
 
-      return sortByOperationDay(time);
+      return sortByTime(time);
     });
   }
 
@@ -197,6 +195,7 @@ class TimetablePanel extends Component {
     const {min, max} = timeRangeFilter;
 
     const sortedDepartures = this.sortDepartures(
+      // Apply hour and route filters to the departures array
       departures.filter(({routeId, hours}) => {
         // If there is a timerange filter set, ignore routes
         // from departures that fall outside the filter.

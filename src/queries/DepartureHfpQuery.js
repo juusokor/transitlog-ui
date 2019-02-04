@@ -82,15 +82,15 @@ class DepartureHfpQuery extends Component {
           directionId: direction,
         }}
         query={stopDelayQuery}>
-        {({loading, data, error, refetch}) => {
+        {({loading, data, error, refetch, variables}) => {
           setUpdateListener(updateListenerName, this.onUpdate(refetch), false);
           const vehicles = get(data, "vehicles", []);
 
           if (vehicles.length === 0 || loading || error) {
-            return children({event: null, loading, error});
+            return children({event: null, loading, error, variables});
           }
 
-          return children({event: vehicles[0], loading, error});
+          return children({event: vehicles[0], loading, error, variables});
         }}
       </Query>
     );

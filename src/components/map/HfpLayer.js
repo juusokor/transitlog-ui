@@ -81,19 +81,20 @@ class HfpLayer extends Component {
     const hfpItem = this.findHfpItem(positions, event.latlng);
 
     if (hfpItem) {
-      const line = event.target;
-      const tooltipContent = `${moment(hfpItem.received_at).format("HH:mm:ss")}<br />
-${hfpItem.unique_vehicle_id}<br />
-${text("vehicle.speed")}: ${Math.round((hfpItem.spd * 18) / 5)} km/h<br />
-${
+      const dlText =
         hfpItem.dl !== 0
           ? `${
               hfpItem.dl < 0
                 ? text("vehicle.delay.late")
                 : text("vehicle.delay.early")
             }: ${Math.abs(hfpItem.dl)} ${text("general.seconds.short")}`
-          : ""
-      }`;
+          : "";
+
+      const line = event.target;
+      const tooltipContent = `${moment(hfpItem.received_at).format("HH:mm:ss")}<br />
+${hfpItem.unique_vehicle_id}<br />
+${text("vehicle.speed")}: ${Math.round((hfpItem.spd * 18) / 5)} km/h<br />
+${dlText}`;
 
       const lineTooltip = line.getTooltip();
 

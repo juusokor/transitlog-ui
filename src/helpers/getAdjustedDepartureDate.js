@@ -1,5 +1,5 @@
 import moment from "moment-timezone";
-import {combineDateAndTime} from "./time";
+import {getMomentFromDateTime} from "./time";
 import doubleDigit from "./doubleDigit";
 
 // Adjusts a 30-hour day time to it's equivalent 24-hour day time.
@@ -30,7 +30,7 @@ export const getAdjustedDepartureDate = (departure, date, useArrival = false) =>
 
   const adjustedDate = getAdjustedDate(hours, minutes, date);
 
-  return combineDateAndTime(
+  return getMomentFromDateTime(
     adjustedDate,
     `${doubleDigit(hours)}:${doubleDigit(minutes)}`,
     "Europe/Helsinki"
