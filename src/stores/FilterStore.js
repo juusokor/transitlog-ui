@@ -22,7 +22,7 @@ export function setResetListener(cb) {
   };
 }
 
-export default (state, initialState) => {
+export default (state, initialState = {}) => {
   const emptyState = {
     date: moment.tz(new Date(), TIMEZONE).format("YYYY-MM-DD"),
     stop: "",
