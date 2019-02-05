@@ -37,7 +37,7 @@
 
   "journey.terminal_time": "Terminaltid",
   "journey.recovery_time": "Återhämtningstid",
-  "journey.requested_equipment": "Begärd utrustning",
+  "journey.requested_equipment": "Utrustning",
   "journey.departure_minus_terminal": "avgångstid - terminaltid",
   "journey.stops_hidden": "hållplatser gömda",
   "journey.arrival": "Ankomst",

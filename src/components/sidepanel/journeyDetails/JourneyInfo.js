@@ -18,7 +18,7 @@ const JourneyInfoRow = styled.div`
   flex-direction: column;
   justify-content: flex-start;
   width: 100%;
-  padding: 0.75rem 1rem 0.75rem 1rem;
+  padding: 0.75rem 1rem;
   background: var(--lightest-grey);
   font-size: 1rem;
   font-family: inherit;
@@ -34,35 +34,46 @@ const Line = styled.div`
   align-items: center;
   line-height: 1.5;
   justify-content: ${({right = false}) => (right ? "flex-end" : "space-between")};
-  font-size: ${({small = false}) => (small ? "0.75rem" : "0.925rem")};
+  font-size: ${({small = false}) => (small ? "0.75rem" : "0.9rem")};
   color: var(--dark-grey);
+
+  + * {
+    margin-top: 0.35rem;
+  }
 `;
 
 const LineHeading = styled.span`
   color: var(--light-grey);
   font-size: 1rem;
+  flex-wrap: nowrap;
+  white-space: nowrap;
 `;
 
 const Values = styled.div`
-  font-size: ${({small = false}) => (small ? "0.75rem" : "0.925rem")};
+  font-size: ${({small = false}) => (small ? "0.75rem" : "0.9rem")};
   color: var(--dark-grey);
   margin-left: auto;
   display: flex;
   justify-content: flex-start;
   align-items: center;
 
-  > *:last-child:not(:first-child) {
-    &:before {
-      content: "";
-      display: inline-block;
-      height: 2rem;
-      width: 1px;
-      margin: -0.5rem 0.75rem -0.4rem 0.75rem;
-      background-color: #cccccc;
-      transform: rotate(20deg);
-      vertical-align: middle;
-    }
+  > * {
+    white-space: nowrap;
+    flex-wrap: nowrap;
   }
+`;
+
+const ObservedValue = styled.span`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  line-height: 1;
+  padding: 4px 0.5rem;
+  background: ${({backgroundColor = "var(--lighter-grey)"}) => backgroundColor};
+  color: ${({color = "var(--dark-grey)"}) => color};
+  margin-left: 0.5rem;
+  font-family: "Courier New", Courier, monospace;
 `;
 
 export default ({
@@ -94,7 +105,9 @@ export default ({
         {observedOperatorName !== operatorName && (
           <Line>
             <LineHeading>Subcontractor</LineHeading>
-            <Values small>{observedOperatorName}</Values>
+            <Values small>
+              <ObservedValue>{observedOperatorName}</ObservedValue>
+            </Values>
           </Line>
         )}
       </JourneyInfoRow>
@@ -111,10 +124,12 @@ export default ({
                 departure={originStopTimes.departure}
                 event={originStopTimes.arrivalEvent}>
                 {({diffMinutes, diffSeconds, sign, wasLate}) => (
-                  <strong style={{color: wasLate ? "var(--red)" : "inherit"}}>
-                    {sign === "-" ? "-" : ""}
+                  <ObservedValue
+                    color={wasLate ? "white" : "var(--dark-grey)"}
+                    backgroundColor={wasLate ? "var(--red)" : "var(--lighter-grey)"}>
+                    {sign === "+" ? "-" : ""}
                     {doubleDigit(diffMinutes)}:{doubleDigit(diffSeconds)}
-                  </strong>
+                  </ObservedValue>
                 )}
               </CalculateTerminalTime>
             )}
@@ -135,10 +150,12 @@ export default ({
                 departure={destinationStopTimes.departure}
                 event={destinationStopTimes.arrivalEvent}>
                 {({diffMinutes, diffSeconds, wasLate, sign}) => (
-                  <strong style={{color: wasLate ? "var(--red)" : "inherit"}}>
+                  <ObservedValue
+                    color={wasLate ? "white" : "var(--dark-grey)"}
+                    backgroundColor={wasLate ? "var(--red)" : "var(--lighter-grey)"}>
                     {sign === "-" ? "-" : ""}
                     {doubleDigit(diffMinutes)}:{doubleDigit(diffSeconds)}
-                  </strong>
+                  </ObservedValue>
                 )}
               </CalculateTerminalTime>
             )}
@@ -159,7 +176,9 @@ export default ({
                 : text("general.no_type")}
               {get(departure, "trunkColorRequired", 0) === 1 && ", HSL-orans"}
             </span>
-            {equipment && <span>{equipment}</span>}
+            {equipment && (
+              <ObservedValue backgroundColor="#eaeaea">{equipment}</ObservedValue>
+            )}
           </Values>
         </Line>
       </JourneyInfoRow>

@@ -37,7 +37,7 @@
 
   "journey.terminal_time": "Terminal time",
   "journey.recovery_time": "Recovery time",
-  "journey.requested_equipment": "Requested equipment",
+  "journey.requested_equipment": "Equipment",
   "journey.departure_minus_terminal": "departure time - terminal time",
   "journey.stops_hidden": "stops hidden",
   "journey.arrival": "Arrival",

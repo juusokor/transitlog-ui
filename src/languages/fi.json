@@ -37,7 +37,7 @@
 
   "journey.terminal_time": "Terminaaliaika",
   "journey.recovery_time": "Elpymisaika",
-  "journey.requested_equipment": "Vaadittu kalusto",
+  "journey.requested_equipment": "Kalusto",
   "journey.departure_minus_terminal": "Lähtöaika - terminaaliaika",
   "journey.stops_hidden": "pysäkkiä piilossa",
   "journey.arrival": "Saapuminen",
