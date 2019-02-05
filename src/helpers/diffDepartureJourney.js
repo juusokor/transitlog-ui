@@ -17,9 +17,11 @@ export function diffDepartureJourney(journey, departure, date, useArrival = fals
   const sign = diff < 0 ? "+" : diff > 0 ? "-" : "";
   const seconds = Math.abs(diff) % 60;
   const minutes = Math.floor(Math.abs(diff) / 60);
+  const hours = Math.floor(Math.abs(diff) / 60 / 60);
 
   return {
     diff,
+    hours,
     minutes,
     seconds,
     sign,
