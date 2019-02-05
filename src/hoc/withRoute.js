@@ -13,11 +13,11 @@ function shouldFetch(route) {
   }
 
   const requiredParts = [
-    get(route, "routeId", null),
-    get(route, "direction", null),
-    get(route, "dateBegin", null),
-    get(route, "dateEnd", null),
-    get(route, "originstopId", null),
+    get(route, "routeId", ""),
+    get(route, "direction", ""),
+    get(route, "dateBegin", ""),
+    get(route, "dateEnd", ""),
+    get(route, "originstopId", ""),
   ];
 
   const presentParts = compact(requiredParts).length;
@@ -26,6 +26,10 @@ function shouldFetch(route) {
   // if we have at least two parts but less than all parts present.
   return presentParts >= 2 && presentParts !== 5;
 }
+
+/*
+  The component fetches the route and puts it into
+ */
 
 export default (Component) => {
   @inject(app("Filters"))
@@ -44,9 +48,7 @@ export default (Component) => {
     }
 
     componentWillUnmount() {
-      if (typeof this.disposeReaction === "function") {
-        this.disposeReaction();
-      }
+      this.disposeReaction();
     }
 
     updateRoute = async (route) => {
