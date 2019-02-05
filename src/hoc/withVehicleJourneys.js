@@ -14,7 +14,7 @@ export default (Component) => {
     render() {
       const {
         loading: propsLoading,
-        state: {date, vehicle, route},
+        state: {date, vehicle},
       } = this.props;
 
       return (

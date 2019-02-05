@@ -47,61 +47,74 @@ const extensiveSingleRouteQuery = gql`
   ${ExtensiveRouteFieldsFragment}
 `;
 
-export const fetchSingleRoute = (route, date, client) => {
+function getRoute(data = {}, date) {
+  let routes = get(data, "allRoutes.nodes", []);
+
+  return orderBy(
+    routes.filter(({dateBegin, dateEnd}) => isWithinRange(date, dateBegin, dateEnd)),
+    "dateBegin",
+    "desc"
+  )[0];
+}
+
+export const SimpleRouteQuery = ({route, date, onCompleted, skip, children}) => {
   const {direction} = route;
-
-  return client
-    .query({
-      query: singleRouteQuery,
-      // Force direction into a string in case it isn't
-      variables: {...route, direction: direction + ""},
-    })
-    .then(({data}) => get(data, "allRoutes.nodes", []))
-    .then((routes) => {
-      return first(
-        orderBy(
-          routes.filter(({dateBegin, dateEnd}) =>
-            isWithinRange(date, dateBegin, dateEnd)
-          ),
-          "dateBegin",
-          "desc"
-        )
-      );
-    });
-};
-
-export default observer(({children, route, date, skip}) => {
-  const variables = {
-    ...pick(route, "routeId", "dateBegin", "dateEnd"),
-    dayType: getDayTypeFromDate(date),
-    direction: route.direction + "",
-  };
-
-  // If some variable are missing the query may block the UI, so make sure everything's here.
-  const hasAllVariables = compact(Object.values(variables)).length === 5;
 
   return (
     <Query
-      skip={skip || !hasAllVariables}
-      query={extensiveSingleRouteQuery}
-      variables={variables}>
-      {({loading, error, data}) => {
-        if (loading || error || !data) {
-          return children({
-            loading,
-            error,
-            route: null,
-          });
+      skip={skip}
+      query={singleRouteQuery}
+      variables={{...route, direction: direction + ""}}
+      onCompleted={(data) => onCompleted(getRoute(data, date))}>
+      {({data, loading}) => {
+        if (!data || loading) {
+          return children({route: null, loading: loading});
         }
 
-        const fetchedRoute = get(data, "route", null);
-
-        return children({
-          loading,
-          error,
-          route: fetchedRoute,
-        });
+        const route = getRoute(data, date);
+        return children({route, loading});
       }}
     </Query>
   );
-});
+};
+
+const ExtensiveRouteQuery = observer(
+  ({children, route, date, skip, onCompleted = () => {}}) => {
+    const variables = {
+      ...pick(route, "routeId", "dateBegin", "dateEnd"),
+      dayType: getDayTypeFromDate(date),
+      direction: route.direction + "",
+    };
+
+    // If some variable are missing the query may block the UI, so make sure everything's here.
+    const hasAllVariables = compact(Object.values(variables)).length === 5;
+
+    return (
+      <Query
+        onCompleted={onCompleted}
+        skip={skip || !hasAllVariables}
+        query={extensiveSingleRouteQuery}
+        variables={variables}>
+        {({loading, error, data}) => {
+          if (loading || error || !data) {
+            return children({
+              loading,
+              error,
+              route: null,
+            });
+          }
+
+          const fetchedRoute = get(data, "route", null);
+
+          return children({
+            loading,
+            error,
+            route: fetchedRoute,
+          });
+        }}
+      </Query>
+    );
+  }
+);
+
+export default ExtensiveRouteQuery;

@@ -1,6 +1,6 @@
 import React from "react";
 import {withApollo} from "react-apollo";
-import {fetchSingleRoute} from "../queries/SingleRouteQuery";
+import {fetchSingleRoute, SimpleRouteQuery} from "../queries/SingleRouteQuery";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import get from "lodash/get";
@@ -28,7 +28,10 @@ function shouldFetch(route) {
 }
 
 /*
-  The component fetches the route and puts it into
+  The component fetches the route and puts it into the state. The idea is to
+  flesh out the state data with the route's dateBegin, dateEnd and originstopId
+  data that is required for some queries, since the state might otherwise
+  only contain routeId and direction.
  */
 
 export default (Component) => {
@@ -36,30 +39,11 @@ export default (Component) => {
   @withApollo
   @observer
   class WithRouteComponent extends React.Component {
-    disposeReaction = () => {};
-
-    componentDidMount() {
-      this.disposeReaction = autorun(() => {
-        const {route} = this.props.state;
-        if (shouldFetch(route)) {
-          this.updateRoute(route);
-        }
-      });
-    }
-
-    componentWillUnmount() {
-      this.disposeReaction();
-    }
-
-    updateRoute = async (route) => {
+    updateRoute = (fetchedRoute) => {
       const {
-        client,
         Filters,
-        state: {date},
+        state: {route: stateRoute},
       } = this.props;
-
-      const fetchedRoute = await fetchSingleRoute(route, date, client);
-      const stateRoute = this.props.state.route;
 
       if (
         shouldFetch(stateRoute) &&
@@ -72,10 +56,18 @@ export default (Component) => {
 
     render() {
       const {
-        state: {route},
+        state: {date, route: stateRoute},
       } = this.props;
 
-      return <Component {...this.props} route={route} />;
+      return (
+        <SimpleRouteQuery
+          route={stateRoute}
+          date={date}
+          skip={!shouldFetch(stateRoute)}
+          onCompleted={this.updateRoute}>
+          {({route}) => <Component {...this.props} route={route || stateRoute} />}
+        </SimpleRouteQuery>
+      );
     }
   }
 
