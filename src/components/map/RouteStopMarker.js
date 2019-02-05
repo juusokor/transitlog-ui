@@ -34,7 +34,7 @@ const ObservedTime = styled(ColoredBackgroundSlot)`
 @observer
 class RouteStopMarker extends React.Component {
   createStopMarker = (delayType, color, isTerminal, children) => {
-    const {stop, showRadius, isSelected, onSelect} = this.props;
+    const {stop, showRadius, selected, onSelect} = this.props;
 
     const timingStopIcon = icon({
       iconUrl: TimingStopIcon,
@@ -57,10 +57,10 @@ class RouteStopMarker extends React.Component {
         center: markerPosition, // One marker type uses center...
         position: markerPosition, // ...the other uses position.
         color: color,
-        fillColor: isSelected ? stopColor : "white",
+        fillColor: selected ? stopColor : "white",
         fillOpacity: 1,
         strokeWeight: isTerminal ? 5 : 3,
-        radius: isTerminal ? 12 : isSelected ? 10 : 8,
+        radius: isTerminal || selected ? 12 : 8,
         onClick: onSelect,
       },
       children
@@ -68,8 +68,8 @@ class RouteStopMarker extends React.Component {
 
     return showRadius ? (
       <StopRadius
-        key={`stop_radius_${stop.stopId}${isSelected ? "_selected" : ""}`}
-        isHighlighted={isSelected}
+        key={`stop_radius_${stop.stopId}${selected ? "_selected" : ""}`}
+        isHighlighted={selected}
         center={markerPosition}
         radius={stop.stopRadius}
         color={stopColor}>
