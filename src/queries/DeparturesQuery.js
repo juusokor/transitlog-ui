@@ -9,6 +9,7 @@ import reduce from "lodash/reduce";
 import groupBy from "lodash/groupBy";
 import orderBy from "lodash/orderBy";
 import {getDayTypeFromDate} from "../helpers/getDayTypeFromDate";
+import {filterDepartures} from "../helpers/filterDepartures";
 
 const departuresQuery = gql`
   query allDepartures(
@@ -154,41 +155,9 @@ class DeparturesQuery extends Component {
             return children({departures: [], loading, error});
           }
 
-          let departures = get(data, "allDepartures.nodes", []);
-
-          // If the query was not constrained by dateBegin or dateEnd, do that here.
-          if (!dateBegin || !dateEnd) {
-            departures = departures.filter((departure) => {
-              return isWithinRange(date, departure.dateBegin, departure.dateEnd);
-            });
-          }
-
-          // The departures may contain items that are identical and have overlapping
-          // in-effect ranges resulting in doubles showing up in the UI lists.
-          // They are filtered out here.
-          const groupedDepartures = groupBy(
-            departures,
-            (departure) =>
-              departure.routeId +
-              departure.direction +
-              departure.hours +
-              departure.minutes +
-              departure.stopId +
-              departure.dayType +
-              departure.extraDeparture
-          );
-
-          // Pick the most recent departure item from each group.
-          departures = reduce(
-            groupedDepartures,
-            (filteredDepartures, departures) => {
-              filteredDepartures.push(
-                // Pick the most recent departure item by sorting it first in the list.
-                orderBy(departures, ({dateBegin}) => intval(dateBegin), "desc")[0]
-              );
-              return filteredDepartures;
-            },
-            []
+          const departures = filterDepartures(
+            get(data, "allDepartures.nodes", []),
+            !dateBegin || !dateEnd ? date : false
           );
 
           return children({departures, loading: false, error: null});
