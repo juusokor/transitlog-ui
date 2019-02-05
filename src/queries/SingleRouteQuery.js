@@ -10,7 +10,6 @@ import {
 } from "./RouteFieldsFragment";
 import {observer} from "mobx-react";
 import orderBy from "lodash/orderBy";
-import first from "lodash/first";
 import {getDayTypeFromDate} from "../helpers/getDayTypeFromDate";
 import {isWithinRange} from "../helpers/isWithinRange";
 

@@ -1,11 +1,10 @@
 import React from "react";
 import {withApollo} from "react-apollo";
-import {fetchSingleRoute, SimpleRouteQuery} from "../queries/SingleRouteQuery";
+import {SimpleRouteQuery} from "../queries/SingleRouteQuery";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import get from "lodash/get";
 import compact from "lodash/compact";
-import {autorun} from "mobx";
 
 function shouldFetch(route) {
   if (!get(route, "routeId", null)) {
