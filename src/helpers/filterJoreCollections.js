@@ -69,3 +69,14 @@ export function filterRouteSegments(routeSegments, date = false) {
   // Pick the most recent departure item from each group.
   return reduceGroupsToNewestItem(groupedSegments);
 }
+
+export function filterLines(lines, date) {
+  let validLines = lines;
+
+  if (date) {
+    validLines = ensureActive(validLines, date);
+  }
+
+  const groupedLines = groupBy(validLines, "lineId");
+  return reduceGroupsToNewestItem(groupedLines);
+}
