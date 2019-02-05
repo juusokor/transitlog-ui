@@ -17,6 +17,7 @@ import get from "lodash/get";
 import {StopRadius} from "./StopRadius";
 import DeparturesQuery from "../../queries/DeparturesQuery";
 import {departureTime} from "../../helpers/time";
+import {Text} from "../../helpers/text";
 
 const PopupParagraph = styled(P)`
   font-size: 1rem;
@@ -250,22 +251,24 @@ class RouteStopMarker extends React.Component {
                 </Heading>
                 {doorDidOpen ? (
                   <PopupParagraph>
-                    Arrival time:{" "}
+                    <Text>map.stops.arrive</Text>:{" "}
                     <PlannedTime>{arrivalMoment.format("HH:mm:ss")}</PlannedTime>
                   </PopupParagraph>
                 ) : (
                   <PopupParagraph>
-                    The doors did not open at this stop.
+                    <Text>map.stops.doors_not_open</Text>
                   </PopupParagraph>
                 )}
                 <PopupParagraph>
-                  Planned drive by time:{" "}
+                  <Text>map.stops.planned_driveby</Text>:{" "}
                   <PlannedTime>{plannedMoment.format("HH:mm:ss")}</PlannedTime>
                 </PopupParagraph>
                 <PopupParagraph>
-                  Observed drive by time: {observedTime}
+                  <Text>map.stops.observed_driveby</Text>: {observedTime}
                 </PopupParagraph>
-                <button onClick={this.onShowStreetView}>Show in street view</button>
+                <button onClick={this.onShowStreetView}>
+                  <Text>map.stops.show_in_streetview</Text>
+                </button>
               </Popup>
             );
 

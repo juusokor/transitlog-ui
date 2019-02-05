@@ -1,5 +1,5 @@
 import React from "react";
-import {text} from "../../helpers/text";
+import {text, Text} from "../../helpers/text";
 import {ControlGroup, Button} from "../Forms";
 import {inject, observer} from "mobx-react";
 import {app} from "mobx-app";
@@ -72,7 +72,7 @@ class VehicleSettings extends React.Component {
             primary={false}
             small={true}
             onClick={() => this.onChangeQueryVehicle("")}>
-            Clear vehicle
+            <Text>filterpanel.clear.vehicle</Text>
           </Button>
         )}
       </>
