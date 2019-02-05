@@ -2,14 +2,11 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 import {observer} from "mobx-react";
 import {Query} from "react-apollo";
-import {isWithinRange, intval} from "../helpers/isWithinRange";
 import gql from "graphql-tag";
 import get from "lodash/get";
 import reduce from "lodash/reduce";
-import groupBy from "lodash/groupBy";
-import orderBy from "lodash/orderBy";
 import {getDayTypeFromDate} from "../helpers/getDayTypeFromDate";
-import {filterDepartures} from "../helpers/filterDepartures";
+import {filterDepartures} from "../helpers/filterJoreCollections";
 
 const departuresQuery = gql`
   query allDepartures(

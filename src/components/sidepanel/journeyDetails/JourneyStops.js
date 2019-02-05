@@ -10,8 +10,7 @@ import Minus from "../../../icons/Minus";
 import Plus from "../../../icons/Plus";
 import JourneyStop from "./JourneyStop";
 import {Text} from "../../../helpers/text";
-import {filterDepartures} from "../../../helpers/filterDepartures";
-import {filterRouteSegments} from "../../../helpers/filterRouteSegments";
+import {filterRouteSegments} from "../../../helpers/filterJoreCollections";
 
 const JourneyStopsWrapper = styled.div`
   margin-left: ${({expanded}) => (expanded ? "0" : "calc(1.5rem - 1px)")};
