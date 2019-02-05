@@ -37,7 +37,7 @@ export const InputLabel = styled.label`
 
 export const InputStyles = css`
   font-family: var(--font-family);
-  padding: 0.7rem;
+  padding: 0.25rem 0.7rem;
   border-radius: 0.25rem;
   border: 1px solid var(--alt-grey);
   outline: none;
