@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 import {observer} from "mobx-react";
 import {Query} from "react-apollo";
-import {isWithinRange} from "../helpers/isWithinRange";
+import {isWithinRange, intval} from "../helpers/isWithinRange";
 import gql from "graphql-tag";
 import get from "lodash/get";
 import reduce from "lodash/reduce";
@@ -163,21 +163,29 @@ class DeparturesQuery extends Component {
             });
           }
 
-          // TODO: optimize if needed
+          // The departures may contain items that are identical and have overlapping
+          // in-effect ranges resulting in doubles showing up in the UI lists.
+          // They are filtered out here.
+          const groupedDepartures = groupBy(
+            departures,
+            (departure) =>
+              departure.routeId +
+              departure.direction +
+              departure.hours +
+              departure.minutes +
+              departure.stopId +
+              departure.dayType +
+              departure.extraDeparture
+          );
+
+          // Pick the most recent departure item from each group.
           departures = reduce(
-            groupBy(
-              departures,
-              (departure) =>
-                departure.routeId +
-                departure.direction +
-                departure.hours +
-                departure.minutes +
-                departure.stopId +
-                departure.dayType +
-                departure.extraDeparture
-            ),
+            groupedDepartures,
             (filteredDepartures, departures) => {
-              filteredDepartures.push(orderBy(departures, "dateBegin", "desc")[0]);
+              filteredDepartures.push(
+                // Pick the most recent departure item by sorting it first in the list.
+                orderBy(departures, ({dateBegin}) => intval(dateBegin), "desc")[0]
+              );
               return filteredDepartures;
             },
             []
