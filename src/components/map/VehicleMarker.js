@@ -78,6 +78,7 @@ class VehicleMarker extends React.Component {
   render() {
     const {position, color} = this.props;
 
+    // The spd value can be a bit flaky, so I decided that under 2 m/s is stopped enough.
     const isStopped = position.spd < 2;
 
     return (
