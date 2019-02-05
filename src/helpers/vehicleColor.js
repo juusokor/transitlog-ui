@@ -1,5 +1,4 @@
 import get from "lodash/get";
-import random from "lodash/random";
 
 const vehicleColors = {
   BUS: "var(--bus-blue)",

@@ -1,6 +1,5 @@
 // Stolen from https://github.com/jgimbel/react-leaflet-div-icon/blob/master/div-icon.js
 
-import React from "react";
 import {render} from "react-dom";
 import {DivIcon as LeafletDivIcon, marker} from "leaflet";
 import PropTypes from "prop-types";
