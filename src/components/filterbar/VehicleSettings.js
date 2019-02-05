@@ -44,7 +44,7 @@ class VehicleSettings extends React.Component {
 
     return (
       <>
-        <VehicleOptionsQuery date={date} skip={true}>
+        <VehicleOptionsQuery date={date}>
           {({vehicles}) => {
             const groupedVehicles = map(
               groupBy(vehicles, ({owner_operator_id}) => owner_operator_id),
