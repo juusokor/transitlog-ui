@@ -20,7 +20,6 @@ const Icon = styled.div`
   justify-content: center;
   border-radius: 50%;
   position: relative;
-  transform: none;
   z-index: 10;
   overflow: hidden;
   transform: ${({rotation}) => `rotate(${rotation}deg)`};
