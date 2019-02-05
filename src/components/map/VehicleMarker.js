@@ -10,7 +10,6 @@ const IconWrapper = styled.span`
   border-radius: 50%;
   position: relative;
   background-color: ${({color}) => color};
-  ${({isStopped = false}) => (isStopped ? "box-shadow: 0 0 1px 1px black;" : "")}
 `;
 
 const Icon = styled.div`
@@ -82,7 +81,7 @@ class VehicleMarker extends React.Component {
     const isStopped = position.spd < 2;
 
     return (
-      <IconWrapper color={color} isStopped={isStopped}>
+      <IconWrapper color={color}>
         <Icon
           // The mode className applies the vehicle icon
           className={get(position, "mode", "BUS").toUpperCase()}
