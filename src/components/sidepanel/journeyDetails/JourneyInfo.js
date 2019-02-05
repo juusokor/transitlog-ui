@@ -6,6 +6,7 @@ import CalculateTerminalTime from "./CalculateTerminalTime";
 import doubleDigit from "../../../helpers/doubleDigit";
 import {getEquipmentType} from "./equipmentType";
 import {Text, text} from "../../../helpers/text";
+import {getOperatorName} from "../../../helpers/getOperatorNameById";
 
 const JourneyInfo = styled.div`
   flex: none;
@@ -33,10 +34,34 @@ const Line = styled.div`
   align-items: center;
   line-height: 1.5;
   justify-content: ${({right = false}) => (right ? "flex-end" : "space-between")};
+  font-size: ${({small = false}) => (small ? "0.75rem" : "0.95rem")};
   color: var(--dark-grey);
+`;
 
-  > span:first-child {
-    color: var(--grey);
+const LineHeading = styled.span`
+  color: var(--light-grey);
+  font-size: 1rem;
+`;
+
+const Values = styled.div`
+  font-size: ${({small = false}) => (small ? "0.75rem" : "0.95rem")};
+  color: var(--dark-grey);
+  margin-left: auto;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+
+  > *:last-child:not(:first-child) {
+    &:before {
+      content: "";
+      display: inline-block;
+      height: 2rem;
+      width: 1px;
+      margin: -0.5rem 0.75rem -0.4rem 0.75rem;
+      background-color: #cccccc;
+      transform: rotate(20deg);
+      vertical-align: middle;
+    }
   }
 `;
 
@@ -54,71 +79,90 @@ export default ({
   const equipment = <Equipment journey={journey} departure={departure} />;
   const equipmentCode = get(departure, "equipmentType", "");
   const equipmentType = getEquipmentType(equipmentCode);
+  const operatorName = getOperatorName(departure.operatorId);
+  const observedOperatorName = getOperatorName(journey.owner_operator_id);
+
+  console.log(operatorName, observedOperatorName);
 
   return (
     <JourneyInfo>
       <JourneyInfoRow>
         <Line>
-          <span>
+          <LineHeading>Operator</LineHeading>
+          <Values small>
+            <span>{operatorName}</span>
+          </Values>
+        </Line>
+        {observedOperatorName !== operatorName && (
+          <Line small right>
+            {observedOperatorName}
+          </Line>
+        )}
+      </JourneyInfoRow>
+      <JourneyInfoRow>
+        <Line>
+          <LineHeading>
             <Text>journey.terminal_time</Text>
-          </span>
-          <span>{get(departure, "terminalTime", 0)} min</span>
+          </LineHeading>
+          <Values>
+            <span>{get(departure, "terminalTime", 0)} min</span>
+            {originStopTimes && (
+              <CalculateTerminalTime
+                date={date}
+                departure={originStopTimes.departure}
+                event={originStopTimes.arrivalEvent}>
+                {({diffMinutes, diffSeconds, sign, wasLate}) => (
+                  <strong style={{color: wasLate ? "var(--red)" : "inherit"}}>
+                    {sign === "-" ? "-" : ""}
+                    {doubleDigit(diffMinutes)}:{doubleDigit(diffSeconds)}
+                  </strong>
+                )}
+              </CalculateTerminalTime>
+            )}
+          </Values>
         </Line>
-        {originStopTimes && (
-          <Line right>
-            <CalculateTerminalTime
-              date={date}
-              departure={originStopTimes.departure}
-              event={originStopTimes.arrivalEvent}>
-              {({diffMinutes, diffSeconds, sign, wasLate}) => (
-                <strong style={{color: wasLate ? "var(--red)" : "inherit"}}>
-                  {sign === "-" ? "-" : ""}
-                  {doubleDigit(diffMinutes)}:{doubleDigit(diffSeconds)}
-                </strong>
-              )}
-            </CalculateTerminalTime>
-          </Line>
-        )}
       </JourneyInfoRow>
       <JourneyInfoRow>
         <Line>
-          <span>
+          <LineHeading>
             <Text>journey.recovery_time</Text>
-          </span>
-          <span>{get(departure, "recoveryTime", 0)} min</span>
+          </LineHeading>
+          <Values>
+            <span>{get(departure, "recoveryTime", 0)} min</span>
+            {destinationStopTimes && (
+              <CalculateTerminalTime
+                recovery={true}
+                date={date}
+                departure={destinationStopTimes.departure}
+                event={destinationStopTimes.arrivalEvent}>
+                {({diffMinutes, diffSeconds, wasLate, sign}) => (
+                  <strong style={{color: wasLate ? "var(--red)" : "inherit"}}>
+                    {sign === "-" ? "-" : ""}
+                    {doubleDigit(diffMinutes)}:{doubleDigit(diffSeconds)}
+                  </strong>
+                )}
+              </CalculateTerminalTime>
+            )}
+          </Values>
         </Line>
-        {destinationStopTimes && (
-          <Line right>
-            <CalculateTerminalTime
-              recovery={true}
-              date={date}
-              departure={destinationStopTimes.departure}
-              event={destinationStopTimes.arrivalEvent}>
-              {({diffMinutes, diffSeconds, wasLate, sign}) => (
-                <strong style={{color: wasLate ? "var(--red)" : "inherit"}}>
-                  {sign === "-" ? "-" : ""}
-                  {doubleDigit(diffMinutes)}:{doubleDigit(diffSeconds)}
-                </strong>
-              )}
-            </CalculateTerminalTime>
-          </Line>
-        )}
       </JourneyInfoRow>
       <JourneyInfoRow>
         <Line>
-          <span>
+          <LineHeading>
             <Text>journey.requested_equipment</Text>
-          </span>
-          <span>
-            {equipmentType
-              ? equipmentType
-              : equipmentCode
-              ? equipmentCode
-              : text("general.no_type")}
-            {get(departure, "trunkColorRequired", 0) === 1 && <>, HSL-orans</>}
-          </span>
+          </LineHeading>
+          <Values>
+            <span>
+              {equipmentType
+                ? equipmentType
+                : equipmentCode
+                ? equipmentCode
+                : text("general.no_type")}
+              {get(departure, "trunkColorRequired", 0) === 1 && <>, HSL-orans</>}
+            </span>
+            {equipment && <span>{equipment}</span>}
+          </Values>
         </Line>
-        {equipment && <Line right>{equipment}</Line>}
       </JourneyInfoRow>
     </JourneyInfo>
   );
