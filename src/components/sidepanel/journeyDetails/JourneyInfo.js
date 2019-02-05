@@ -34,7 +34,7 @@ const Line = styled.div`
   align-items: center;
   line-height: 1.5;
   justify-content: ${({right = false}) => (right ? "flex-end" : "space-between")};
-  font-size: ${({small = false}) => (small ? "0.75rem" : "0.95rem")};
+  font-size: ${({small = false}) => (small ? "0.75rem" : "0.925rem")};
   color: var(--dark-grey);
 `;
 
@@ -44,7 +44,7 @@ const LineHeading = styled.span`
 `;
 
 const Values = styled.div`
-  font-size: ${({small = false}) => (small ? "0.75rem" : "0.95rem")};
+  font-size: ${({small = false}) => (small ? "0.75rem" : "0.925rem")};
   color: var(--dark-grey);
   margin-left: auto;
   display: flex;
@@ -82,8 +82,6 @@ export default ({
   const operatorName = getOperatorName(departure.operatorId);
   const observedOperatorName = getOperatorName(journey.owner_operator_id);
 
-  console.log(operatorName, observedOperatorName);
-
   return (
     <JourneyInfo>
       <JourneyInfoRow>
@@ -94,8 +92,9 @@ export default ({
           </Values>
         </Line>
         {observedOperatorName !== operatorName && (
-          <Line small right>
-            {observedOperatorName}
+          <Line>
+            <LineHeading>Subcontractor</LineHeading>
+            <Values small>{observedOperatorName}</Values>
           </Line>
         )}
       </JourneyInfoRow>
@@ -158,7 +157,7 @@ export default ({
                 : equipmentCode
                 ? equipmentCode
                 : text("general.no_type")}
-              {get(departure, "trunkColorRequired", 0) === 1 && <>, HSL-orans</>}
+              {get(departure, "trunkColorRequired", 0) === 1 && ", HSL-orans"}
             </span>
             {equipment && <span>{equipment}</span>}
           </Values>
