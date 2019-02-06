@@ -40,7 +40,9 @@ export default (state) => {
       if (date.isValid()) {
         dateStr = date.format("YYYY-MM-DD");
         filterActions.setDate(dateStr);
+      }
 
+      if (journey_start_time) {
         // Split the time into hours/minutes/seconds and create a valid time string.
         timeStr = getTimeString(...journey_start_time.match(/.{1,2}/g));
 
