@@ -63,10 +63,9 @@ const HeadingArrow = styled.span`
   width: 0;
   height: 0;
   position: absolute;
-  top: -82%;
-  left: 50%;
-  margin-left: -14px;
-  border-width: 18px 14px;
+  top: -29px;
+  left: 5px;
+  border-width: 17px 13px;
   border-color: transparent transparent ${({color = "var(--blue)"}) => color}
     transparent;
   border-style: solid;

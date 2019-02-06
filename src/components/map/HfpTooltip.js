@@ -9,7 +9,13 @@ class HfpTooltip extends Component {
   prevPosition = null;
 
   render() {
-    const {position, permanent = false} = this.props;
+    const {
+      position,
+      permanent = false,
+      sticky = true,
+      direction = "left",
+      offset = [-25, 0],
+    } = this.props;
     let usePosition = position || this.prevPosition;
 
     if (!usePosition) {
@@ -21,7 +27,11 @@ class HfpTooltip extends Component {
     }
 
     return (
-      <Tooltip sticky={true} permanent={permanent}>
+      <Tooltip
+        sticky={sticky}
+        permanent={permanent}
+        offset={offset}
+        direction={direction}>
         <strong>
           {usePosition.route_id} / {usePosition.direction_id}
         </strong>
