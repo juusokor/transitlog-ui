@@ -3,6 +3,7 @@ import {Polyline} from "react-leaflet";
 import {latLng} from "leaflet";
 import get from "lodash/get";
 import last from "lodash/last";
+import orderBy from "lodash/orderBy";
 import getDelayType from "../../helpers/getDelayType";
 import {observer, inject, Observer} from "mobx-react";
 import {app} from "mobx-app";
@@ -61,9 +62,11 @@ class HfpLayer extends Component {
   });
 
   findHfpItem = (positions = [], latlng) => {
-    const hfpItem = positions.find((hfp) =>
-      latlng.equals(latLng(hfp.lat, hfp.long), 0.0001)
-    );
+    const hfpItem = orderBy(
+      positions,
+      (hfp) => latlng.distanceTo(latLng(hfp.lat, hfp.long)),
+      "ASC"
+    )[0];
 
     return hfpItem || null;
   };
