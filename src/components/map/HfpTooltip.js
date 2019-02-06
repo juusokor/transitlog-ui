@@ -2,13 +2,14 @@ import React, {Component} from "react";
 import {Tooltip} from "react-leaflet";
 import moment from "moment-timezone";
 import {observer} from "mobx-react";
+import {Text} from "../../helpers/text";
 
 @observer
 class HfpTooltip extends Component {
   prevPosition = null;
 
   render() {
-    const {position} = this.props;
+    const {position, permanent = false} = this.props;
     let usePosition = position || this.prevPosition;
 
     if (!usePosition) {
@@ -20,7 +21,7 @@ class HfpTooltip extends Component {
     }
 
     return (
-      <Tooltip sticky={true}>
+      <Tooltip sticky={true} permanent={permanent}>
         <strong>
           {usePosition.route_id} / {usePosition.direction_id}
         </strong>
@@ -31,7 +32,9 @@ class HfpTooltip extends Component {
         <br />
         {usePosition.unique_vehicle_id}
         <br />
-        {Math.round((usePosition.spd * 18) / 5)} km/h
+        <Text>vehicle.next_stop</Text>: {position.next_stop_id}
+        <br />
+        <Text>vehicle.speed</Text>: {Math.round((usePosition.spd * 18) / 5)} km/h
       </Tooltip>
     );
   }

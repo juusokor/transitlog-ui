@@ -9,6 +9,7 @@ import "./Map.css";
 import {getModeColor} from "../../helpers/vehicleColor";
 import VehicleMarker from "./VehicleMarker";
 import DivIcon from "../../helpers/DivIcon";
+import HfpTooltip from "./HfpTooltip";
 
 @inject(app("state"))
 @observer
@@ -43,19 +44,7 @@ class HfpMarkerLayer extends Component {
         iconSize={[35, 35]}
         icon={<VehicleMarker position={position} color={modeColor} />}
         pane="hfp-markers">
-        <Tooltip>
-          <strong>
-            {position.route_id} / {position.direction_id}
-          </strong>
-          <br />
-          {position.received_at}
-          <br />
-          {position.unique_vehicle_id}
-          <br />
-          <Text>vehicle.next_stop</Text>: {position.next_stop_id}
-          <br />
-          <Text>vehicle.speed</Text>: {Math.round((position.spd * 18) / 5)} km/h
-        </Tooltip>
+        <HfpTooltip position={position} permanent={true} />
       </DivIcon>
     );
   }
