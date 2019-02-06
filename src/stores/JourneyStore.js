@@ -8,6 +8,7 @@ import {getPathName} from "./UrlManager";
 import get from "lodash/get";
 import {setResetListener} from "./FilterStore";
 import {getTimeString} from "../helpers/time";
+import {TIMEZONE} from "../constants";
 
 export default (state) => {
   extendObservable(state, {
@@ -30,7 +31,7 @@ export default (state) => {
     ] = pathname.split("/");
 
     if (basePath === "journey") {
-      const date = moment.tz(oday, "YYYYMMDD", "Europe/Helsinki");
+      const date = moment.tz(oday, "YYYYMMDD", TIMEZONE);
 
       let dateStr = "";
       let timeStr = "";

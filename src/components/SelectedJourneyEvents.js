@@ -8,6 +8,7 @@ import get from "lodash/get";
 import withRoute from "../hoc/withRoute";
 import EnsureJourneySelection from "../helpers/EnsureJourneySelection";
 import moment from "moment-timezone";
+import {TIMEZONE} from "../constants";
 
 @withRoute
 @inject(app("state"))
@@ -49,10 +50,7 @@ class SelectedJourneyEvents extends Component {
 
           // Get the real date when this journey started. This will let us determine
           // on which side of the 24h+ day the journey happened.
-          const realStartMoment = moment.tz(
-            positions[0].received_at,
-            "Europe/Helsinki"
-          );
+          const realStartMoment = moment.tz(positions[0].received_at, TIMEZONE);
 
           const events = filteredEvents.map((item) =>
             createHfpItem(item, realStartMoment)

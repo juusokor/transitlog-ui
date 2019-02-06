@@ -7,7 +7,6 @@ import styled from "styled-components";
 import Input from "../Input";
 import {text} from "../../helpers/text";
 import get from "lodash/get";
-import {sortByTime} from "../../helpers/sortByTime";
 import doubleDigit from "../../helpers/doubleDigit";
 import sortBy from "lodash/sortBy";
 import {createDebouncedObservable} from "../../helpers/createDebouncedObservable";
@@ -19,6 +18,7 @@ import TimetableDeparture from "./TimetableDeparture";
 import {getDepartureByTime} from "../../helpers/getDepartureByTime";
 import getJourneyId from "../../helpers/getJourneyId";
 import {createCompositeJourney} from "../../stores/journeyActions";
+import {timeToSeconds, departureTime} from "../../helpers/time";
 
 const TimetableFilters = styled.div`
   display: flex;
@@ -151,15 +151,9 @@ class TimetablePanel extends Component {
   };
 
   sortDepartures(departures) {
-    return sortBy(departures, ({hours, minutes}) => {
-      let time = `${doubleDigit(hours)}:00`;
-
-      if (hours === 4 && minutes >= 30) {
-        time = `${doubleDigit(hours)}:30`;
-      }
-
-      return sortByTime(time);
-    });
+    return sortBy(departures, (departure) =>
+      timeToSeconds(departureTime(departure))
+    );
   }
 
   renderRow = (list, props) => ({key, index, style, isScrolling, isVisible}) => {

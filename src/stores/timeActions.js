@@ -2,6 +2,7 @@ import {action} from "mobx";
 import {setUrlValue} from "./UrlManager";
 import debounce from "lodash/debounce";
 import doubleDigit from "../helpers/doubleDigit";
+import {secondsToTimeObject} from "../helpers/time";
 
 const timeActions = (state) => {
   // Time might update frequently, so make sure that setting it
@@ -14,10 +15,7 @@ const timeActions = (state) => {
   });
 
   const setSeconds = (setValue = 0) => {
-    const hours = Math.floor(setValue / 3600);
-    const minutes = Math.floor((setValue % 3600) / 60);
-    const seconds = Math.floor((setValue % 3600) % 60);
-
+    const {hours, minutes, seconds} = secondsToTimeObject(setValue);
     setTime(`${doubleDigit(hours)}:${doubleDigit(minutes)}:${doubleDigit(seconds)}`);
   };
 

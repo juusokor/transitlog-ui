@@ -2,7 +2,7 @@ import React from "react";
 import {Heading} from "../../Typography";
 import get from "lodash/get";
 import orderBy from "lodash/orderBy";
-import {stopTimes} from "../../../helpers/stopTimes";
+import {stopDepartureTimes} from "../../../helpers/stopDepartureTimes";
 import styled from "styled-components";
 import {
   SmallText,
@@ -21,6 +21,7 @@ import {getTimelinessColor} from "../../../helpers/timelinessColor";
 import doubleDigit from "../../../helpers/doubleDigit";
 import ArrowRightLong from "../../../icons/ArrowRightLong";
 import {Text} from "../../../helpers/text";
+import {stopArrivalTimes} from "../../../helpers/stopArrivalTimes";
 
 const StopWrapper = styled.div`
   padding: 0;
@@ -66,13 +67,7 @@ const SimpleStopArrivalTime = styled.div`
 
 const StopDepartureTime = styled(TagButton)``;
 
-export default ({
-  stop,
-  originDeparture,
-  journeyPositions = [],
-  date,
-  onClickTime,
-}) => {
+export default ({stop, journeyPositions = [], date, onClickTime}) => {
   const stopPositions = orderBy(
     journeyPositions.filter((pos) => pos.next_stop_id === stop.stopId),
     "received_at_unix",
@@ -104,11 +99,15 @@ export default ({
     departureEvent,
     plannedDepartureMoment,
     departureMoment,
-    arrivalMoment,
-    plannedArrivalMoment,
     delayType,
     departureDiff,
-  } = stopTimes(originDeparture, stopPositions, departure, date);
+  } = stopDepartureTimes(stopPositions, departure, date);
+
+  const {arrivalMoment, plannedArrivalMoment} = stopArrivalTimes(
+    stopPositions,
+    departure,
+    date
+  );
 
   const endOfStream =
     get(departureEvent, "received_at_unix", 0) ===

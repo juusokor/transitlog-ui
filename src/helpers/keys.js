@@ -1,25 +1,15 @@
 import get from "lodash/get";
 import compact from "lodash/compact";
 
-export function createFetchKey(route, date, time, allowPartial = false) {
-  const keyParts = [date, createRouteKey(route), time];
-
-  if (!allowPartial && keyParts.some((p) => !p)) {
-    return "";
-  }
-
-  return compact(keyParts).join(".");
-}
-
 export function createRouteKey(route, allowPartial = false) {
-  const keyParts = [
+  const keyParts = compact([
     get(route, "routeId", ""),
     get(route, "direction", ""),
     get(route, "dateBegin", ""),
     get(route, "dateEnd", ""),
-  ];
+  ]);
 
-  if (!allowPartial && keyParts.some((part) => !part)) {
+  if (!allowPartial && keyParts.length !== 4) {
     return "";
   }
 
