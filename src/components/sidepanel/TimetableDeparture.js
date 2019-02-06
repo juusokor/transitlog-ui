@@ -5,7 +5,7 @@ import doubleDigit from "../../helpers/doubleDigit";
 import getDelayType from "../../helpers/getDelayType";
 import timingStopIcon from "../../icon-time1.svg";
 import {diffDepartureJourney} from "../../helpers/diffDepartureJourney";
-import {TransportIcon, transportColor} from "../transportModes";
+import {transportColor} from "../transportModes";
 import {
   ColoredBackgroundSlot,
   PlainSlot,

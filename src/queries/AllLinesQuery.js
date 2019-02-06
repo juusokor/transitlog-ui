@@ -3,8 +3,6 @@ import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import get from "lodash/get";
 import orderBy from "lodash/orderBy";
-import parse from "date-fns/parse";
-import isWithinRange from "date-fns/is_within_range";
 import {observer} from "mobx-react";
 import {filterLines} from "../helpers/filterJoreCollections";
 
