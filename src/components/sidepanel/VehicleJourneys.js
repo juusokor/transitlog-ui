@@ -251,7 +251,7 @@ class VehicleJourneys extends Component {
                       delayType,
                       "var(--light-green)"
                     )}>
-                    {plannedObservedDiff.sign}
+                    {plannedObservedDiff.sign === "-" ? "-" : ""}
                     {doubleDigit(plannedObservedDiff.minutes)}:
                     {doubleDigit(plannedObservedDiff.seconds)}
                   </ColoredBackgroundSlot>
