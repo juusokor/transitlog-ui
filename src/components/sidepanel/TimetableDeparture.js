@@ -66,8 +66,7 @@ class TimetableDeparture extends Component {
         selected={journeyIsSelected}
         onClick={onClick}>
         <ColoredSlot color={color}>
-          <TransportIcon mode={mode} />
-          {parseLineNumber(departure.routeId)}
+          {parseLineNumber(departure.routeId)} / {departure.direction}
         </ColoredSlot>
         <PlainSlot>
           {doubleDigit(departure.hours)}:{doubleDigit(departure.minutes)}

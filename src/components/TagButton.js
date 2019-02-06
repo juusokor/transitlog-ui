@@ -30,7 +30,7 @@ export const ColoredSlot = styled.span`
   font-weight: bold;
   justify-content: flex-start;
   margin-right: 0.25rem;
-  min-width: 4.5rem;
+  min-width: 5.5rem;
 
   svg {
     width: 1rem;
@@ -53,7 +53,7 @@ export const ColoredBackgroundSlot = styled.span`
   color: ${({color}) => color};
   transform: translate(1px, -2px);
   margin-bottom: -4px;
-  min-width: 5rem;
+  min-width: 4.5rem;
 
   &:empty {
     display: none;
