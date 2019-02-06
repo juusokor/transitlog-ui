@@ -174,7 +174,7 @@ export default ({
                   <ColoredBackgroundSlot
                     color="white"
                     backgroundColor={wasLate ? "var(--red)" : "var(--light-green)"}>
-                    {sign}
+                    {sign === "-" ? "-" : ""}
                     {doubleDigit(diffMinutes)}:{doubleDigit(diffSeconds)}
                   </ColoredBackgroundSlot>
                   <PlainSlotSmall>{stopArrivalTime}</PlainSlotSmall>
@@ -199,7 +199,7 @@ export default ({
                   delayType,
                   "var(--light-green)"
                 )}>
-                {departureDiff.sign}
+                {departureDiff.sign === "-" ? "-" : ""}
                 {doubleDigit(get(departureDiff, "minutes", 0))}:
                 {doubleDigit(get(departureDiff, "seconds", 0))}
               </ColoredBackgroundSlot>
@@ -222,7 +222,7 @@ export default ({
                   <ColoredBackgroundSlot
                     color="white"
                     backgroundColor={wasLate ? "var(--red)" : "var(--light-green)"}>
-                    {sign}
+                    {sign === "-" ? "-" : ""}
                     {doubleDigit(diffMinutes)}:{doubleDigit(diffSeconds)}
                   </ColoredBackgroundSlot>
                   <PlainSlotSmall>{stopArrivalTime}</PlainSlotSmall>
