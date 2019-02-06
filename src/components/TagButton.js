@@ -30,7 +30,7 @@ export const ColoredSlot = styled.span`
   font-weight: bold;
   justify-content: flex-start;
   margin-right: 0.25rem;
-  min-width: 5.5rem;
+  min-width: 5.25rem;
 
   svg {
     width: 1rem;
