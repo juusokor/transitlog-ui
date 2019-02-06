@@ -5,7 +5,7 @@ import TimeActions from "./timeActions";
 import moment from "moment-timezone";
 import journeyActions from "./journeyActions";
 import {pickJourneyProps} from "../helpers/pickJourneyProps";
-import {getPathName} from "./UrlManager";
+import {getPathName, getUrlValue} from "./UrlManager";
 import get from "lodash/get";
 import {setResetListener} from "./FilterStore";
 import {getTimeString} from "../helpers/time";
@@ -44,7 +44,7 @@ export default (state) => {
         // Split the time into hours/minutes/seconds and create a valid time string.
         timeStr = getTimeString(...journey_start_time.match(/.{1,2}/g));
 
-        if (timeStr) {
+        if (timeStr && !getUrlValue("time", null)) {
           timeActions.setTime(timeStr);
         }
       }
