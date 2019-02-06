@@ -1,5 +1,12 @@
 import React from "react";
 import styled from "styled-components";
+import {
+  TagButton,
+  ColoredSlot,
+  ColoredBackgroundSlot,
+  PlainSlot,
+  PlainSlotSmall,
+} from "../TagButton";
 
 const InstructionsWrapper = styled.div`
   color: var(--grey);
@@ -74,7 +81,20 @@ export function UsageInstructions() {
             appeared in the Journey list tells us how late (yellow) or early (red) or
             on-time (green) the vehicle began its journey. Usually the data contained
             in the colored box is the difference between the planned and the observed
-            times.
+            times. Example:
+            <br />
+            <TagButton style={{marginTop: "0.5rem", marginBottom: "1rem"}}>
+              <ColoredSlot style={{minWidth: "3rem"}} color="var(--green)">
+                10
+              </ColoredSlot>
+              <PlainSlot style={{minWidth: "4rem"}}>15:00</PlainSlot>
+              <ColoredBackgroundSlot
+                color="white"
+                backgroundColor="var(--light-green)">
+                03:10
+              </ColoredBackgroundSlot>
+              <PlainSlotSmall>18:00:10</PlainSlotSmall>
+            </TagButton>
           </li>
           <li>
             To view the timetables for a stop, either select a stop from the map (you
