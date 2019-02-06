@@ -37,7 +37,7 @@ const LineNameHeading = styled(Heading).attrs({level: 4})`
 
 const MainHeaderRow = styled(Heading).attrs({level: 3})`
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: flex-start;
   width: 100%;
 `;

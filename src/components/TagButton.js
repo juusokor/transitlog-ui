@@ -53,7 +53,7 @@ export const ColoredBackgroundSlot = styled.span`
   color: ${({color}) => color};
   transform: translate(1px, -2px);
   margin-bottom: -4px;
-  min-width: 4.5rem;
+  min-width: 5rem;
 
   &:empty {
     display: none;
