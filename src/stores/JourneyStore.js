@@ -1,6 +1,7 @@
 import {extendObservable, action, reaction, runInAction} from "mobx";
 import getJourneyId from "../helpers/getJourneyId";
 import FilterActions from "./filterActions";
+import TimeActions from "./timeActions";
 import moment from "moment-timezone";
 import journeyActions from "./journeyActions";
 import {pickJourneyProps} from "../helpers/pickJourneyProps";
@@ -15,6 +16,7 @@ export default (state) => {
   });
 
   const filterActions = FilterActions(state);
+  const timeActions = TimeActions(state);
   const actions = journeyActions(state);
 
   const selectJourneyFromUrl = action((pathname) => {
@@ -41,6 +43,10 @@ export default (state) => {
 
         // Split the time into hours/minutes/seconds and create a valid time string.
         timeStr = getTimeString(...journey_start_time.match(/.{1,2}/g));
+
+        if (timeStr) {
+          timeActions.setTime(timeStr);
+        }
       }
 
       if (route_id && direction_id) {
