@@ -87,7 +87,6 @@ export default ({
     return null;
   }
 
-  const equipment = <Equipment journey={journey} departure={departure} />;
   const equipmentCode = get(departure, "equipmentType", "");
   const equipmentType = getEquipmentType(equipmentCode);
   const operatorName = getOperatorName(departure.operatorId);
@@ -176,11 +175,26 @@ export default ({
                 : text("general.no_type")}
               {get(departure, "trunkColorRequired", 0) === 1 && ", HSL-orans"}
             </span>
-            {equipment && (
-              <ObservedValue backgroundColor="#eaeaea">{equipment}</ObservedValue>
-            )}
           </Values>
         </Line>
+        <Equipment journey={journey} departure={departure}>
+          {({equipment = []}) =>
+            equipment.length && (
+              <Line right>
+                <Values>
+                  {equipment.map((prop) => (
+                    <ObservedValue
+                      key={`equipment_prop_${prop.name}`}
+                      backgroundColor={prop.color}
+                      color={prop.required !== false ? "white" : "var(--dark-grey)"}>
+                      {prop.observed}
+                    </ObservedValue>
+                  ))}
+                </Values>
+              </Line>
+            )
+          }
+        </Equipment>
       </JourneyInfoRow>
     </JourneyInfo>
   );
