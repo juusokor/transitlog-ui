@@ -4,7 +4,7 @@ import {Query} from "react-apollo";
 import get from "lodash/get";
 import orderBy from "lodash/orderBy";
 import {observer} from "mobx-react";
-import {isWithinRange} from "../helpers/isWithinRange";
+import {filterLines} from "../helpers/filterJoreCollections";
 
 const allLinesQuery = gql`
   query AllLinesQuery {
@@ -28,13 +28,14 @@ const removeFerryFilter = (line) => line.lineId.substring(0, 4) !== "1019";
 export default observer(({children, date}) => (
   <Query query={allLinesQuery}>
     {({loading, error, data}) => {
-      const lines = orderBy(
+      let lines = orderBy(
         get(data, "allLines.nodes", [])
           .filter((node) => node.routes.totalCount !== 0)
-          .filter(removeFerryFilter)
-          .filter(({dateBegin, dateEnd}) => isWithinRange(date, dateBegin, dateEnd)),
+          .filter(removeFerryFilter),
         "lineId"
       );
+
+      lines = filterLines(lines, date);
 
       return children({
         loading,

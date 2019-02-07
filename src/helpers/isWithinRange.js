@@ -1,4 +1,4 @@
-function intval(val = 0) {
+export function intval(val = 0) {
   return typeof val === "string" ? parseInt(val.replace(/\D/g, ""), 10) : val;
 }
 

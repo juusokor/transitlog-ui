@@ -50,8 +50,8 @@ const LoadingContainer = styled.div`
   margin: 1rem auto 0;
 `;
 
-@withRoute
 @inject(app("Time"))
+@withRoute
 @observer
 class JourneyDetails extends React.Component {
   onClickTime = (time) => (e) => {

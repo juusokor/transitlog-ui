@@ -10,9 +10,11 @@ export function timeToSeconds(timeStr = "") {
 }
 
 export function secondsToTimeObject(seconds) {
-  const totalSeconds = Math.floor(Math.abs(seconds) % 60);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  const hours = Math.floor(Math.abs(seconds) / 60 / 60);
+  const absSeconds = Math.abs(seconds);
+
+  const totalSeconds = Math.floor(absSeconds % 60);
+  const minutes = Math.floor((absSeconds % 3600) / 60);
+  const hours = Math.floor(absSeconds / 60 / 60);
 
   return {
     hours,

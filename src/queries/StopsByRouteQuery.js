@@ -2,9 +2,9 @@ import React from "react";
 import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import get from "lodash/get";
-import uniqBy from "lodash/uniqBy";
 import {observer} from "mobx-react";
 import {StopFieldsFragment} from "./StopFieldsFragment";
+import {filterRouteSegments} from "../helpers/filterJoreCollections";
 
 const stopsByRouteQuery = gql`
   query stopsByRoute(
@@ -32,6 +32,11 @@ const stopsByRouteQuery = gql`
           stopIndex
           distanceFromPrevious
           distanceFromStart
+          routeId
+          direction
+          stopId
+          nextStopId
+          stopIndex
           stop: stopByStopId {
             ...StopFieldsFragment
           }
@@ -52,9 +57,8 @@ export default observer(({children, route}) => (
       dateEnd: get(route, "dateEnd", ""),
     }}>
     {({loading, error, data}) => {
-      const stops = uniqBy(
-        get(data, "route.routeSegments.nodes", []),
-        "stop.stopId"
+      const stops = filterRouteSegments(
+        get(data, "route.routeSegments.nodes", [])
       ).map((segment) => ({
         ...segment.stop,
         timingStopType: segment.timingStopType,

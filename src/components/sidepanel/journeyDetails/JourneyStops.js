@@ -10,6 +10,7 @@ import Minus from "../../../icons/Minus";
 import Plus from "../../../icons/Plus";
 import JourneyStop from "./JourneyStop";
 import {Text} from "../../../helpers/text";
+import {filterRouteSegments} from "../../../helpers/filterJoreCollections";
 
 const JourneyStopsWrapper = styled.div`
   margin-left: ${({expanded}) => (expanded ? "0" : "calc(1.5rem - 1px)")};
@@ -70,7 +71,7 @@ class JourneyStops extends React.Component {
     const {dateBegin = "", dateEnd = "", departureId = 0} = originDeparture || {};
 
     const journeyStops = sortBy(
-      get(route, "routeSegments.nodes", []),
+      filterRouteSegments(get(route, "routeSegments.nodes", []), date),
       "stopIndex"
     ).map((routeSegment) => {
       const stopDepartures = get(routeSegment, "stop.departures.nodes", []).filter(

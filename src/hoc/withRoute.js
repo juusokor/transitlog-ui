@@ -1,11 +1,10 @@
 import React from "react";
 import {withApollo} from "react-apollo";
-import {fetchSingleRoute} from "../queries/SingleRouteQuery";
+import {SimpleRouteQuery} from "../queries/SingleRouteQuery";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import get from "lodash/get";
 import compact from "lodash/compact";
-import {autorun} from "mobx";
 
 function shouldFetch(route) {
   if (!get(route, "routeId", null)) {
@@ -13,11 +12,11 @@ function shouldFetch(route) {
   }
 
   const requiredParts = [
-    get(route, "routeId", null),
-    get(route, "direction", null),
-    get(route, "dateBegin", null),
-    get(route, "dateEnd", null),
-    get(route, "originstopId", null),
+    get(route, "routeId", ""),
+    get(route, "direction", ""),
+    get(route, "dateBegin", ""),
+    get(route, "dateEnd", ""),
+    get(route, "originstopId", ""),
   ];
 
   const presentParts = compact(requiredParts).length;
@@ -27,37 +26,23 @@ function shouldFetch(route) {
   return presentParts >= 2 && presentParts !== 5;
 }
 
+/*
+  The component fetches the route and puts it into the state. The idea is to
+  flesh out the state data with the route's dateBegin, dateEnd and originstopId
+  data that is required for some queries, since the state might otherwise
+  only contain routeId and direction.
+ */
+
 export default (Component) => {
   @inject(app("Filters"))
   @withApollo
   @observer
   class WithRouteComponent extends React.Component {
-    disposeReaction = () => {};
-
-    componentDidMount() {
-      this.disposeReaction = autorun(() => {
-        const {route} = this.props.state;
-        if (shouldFetch(route)) {
-          this.updateRoute(route);
-        }
-      });
-    }
-
-    componentWillUnmount() {
-      if (typeof this.disposeReaction === "function") {
-        this.disposeReaction();
-      }
-    }
-
-    updateRoute = async (route) => {
+    updateRoute = (fetchedRoute) => {
       const {
-        client,
         Filters,
-        state: {date},
+        state: {route: stateRoute},
       } = this.props;
-
-      const fetchedRoute = await fetchSingleRoute(route, date, client);
-      const stateRoute = this.props.state.route;
 
       if (
         shouldFetch(stateRoute) &&
@@ -70,10 +55,18 @@ export default (Component) => {
 
     render() {
       const {
-        state: {route},
+        state: {date, route: stateRoute},
       } = this.props;
 
-      return <Component {...this.props} route={route} />;
+      return (
+        <SimpleRouteQuery
+          route={stateRoute}
+          date={date}
+          skip={!shouldFetch(stateRoute)}
+          onCompleted={this.updateRoute}>
+          {({route}) => <Component {...this.props} route={route || stateRoute} />}
+        </SimpleRouteQuery>
+      );
     }
   }
 
