@@ -1,13 +1,15 @@
 import {extendObservable, action, reaction, runInAction} from "mobx";
 import getJourneyId from "../helpers/getJourneyId";
 import FilterActions from "./filterActions";
+import TimeActions from "./timeActions";
 import moment from "moment-timezone";
 import journeyActions from "./journeyActions";
 import {pickJourneyProps} from "../helpers/pickJourneyProps";
-import {getPathName} from "./UrlManager";
+import {getPathName, getUrlValue} from "./UrlManager";
 import get from "lodash/get";
 import {setResetListener} from "./FilterStore";
 import {getTimeString} from "../helpers/time";
+import {TIMEZONE} from "../constants";
 
 export default (state) => {
   extendObservable(state, {
@@ -15,6 +17,7 @@ export default (state) => {
   });
 
   const filterActions = FilterActions(state);
+  const timeActions = TimeActions(state);
   const actions = journeyActions(state);
 
   const selectJourneyFromUrl = action((pathname) => {
@@ -30,7 +33,7 @@ export default (state) => {
     ] = pathname.split("/");
 
     if (basePath === "journey") {
-      const date = moment.tz(oday, "YYYYMMDD", "Europe/Helsinki");
+      const date = moment.tz(oday, "YYYYMMDD", TIMEZONE);
 
       let dateStr = "";
       let timeStr = "";
@@ -38,9 +41,15 @@ export default (state) => {
       if (date.isValid()) {
         dateStr = date.format("YYYY-MM-DD");
         filterActions.setDate(dateStr);
+      }
 
+      if (journey_start_time) {
         // Split the time into hours/minutes/seconds and create a valid time string.
         timeStr = getTimeString(...journey_start_time.match(/.{1,2}/g));
+
+        if (timeStr && !getUrlValue("time", null)) {
+          timeActions.setTime(timeStr);
+        }
       }
 
       if (route_id && direction_id) {

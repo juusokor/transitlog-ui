@@ -8,6 +8,7 @@ import {app} from "mobx-app";
 import {setUpdateListener, removeUpdateListener} from "../stores/UpdateManager";
 import {getNormalTime} from "../helpers/time";
 import moment from "moment-timezone";
+import {TIMEZONE} from "../constants";
 
 export const hfpQuery = gql`
   query selectedJourneyQuery(
@@ -65,9 +66,7 @@ class SelectedJourneyQuery extends React.Component {
       journey_start_time: normalStartTime,
       compareReceivedAt: isNextDay
         ? {
-            _gt: moment
-              .tz(get(selectedJourney, "oday", 0), "Europe/Helsinki")
-              .toISOString(),
+            _gt: moment.tz(get(selectedJourney, "oday", 0), TIMEZONE).toISOString(),
           }
         : undefined,
     };

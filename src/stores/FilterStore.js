@@ -6,6 +6,7 @@ import merge from "lodash/merge";
 import omit from "lodash/omit";
 import {resetUrlState} from "./UrlManager";
 import moment from "moment-timezone";
+import {TIMEZONE} from "../constants";
 
 const resetListeners = [];
 
@@ -21,13 +22,13 @@ export function setResetListener(cb) {
   };
 }
 
-export default (state, initialState) => {
+export default (state, initialState = {}) => {
   const emptyState = {
-    date: moment.tz(new Date(), "Europe/Helsinki").format("YYYY-MM-DD"),
+    date: moment.tz(new Date(), TIMEZONE).format("YYYY-MM-DD"),
     stop: "",
     vehicle: "",
     line: {
-      lineId: "1006T",
+      lineId: "",
       dateBegin: "",
       dateEnd: "",
     },
@@ -40,10 +41,14 @@ export default (state, initialState) => {
     },
   };
 
-  extendObservable(
-    state,
-    merge({}, emptyState, pick(inflate(initialState), ...Object.keys(emptyState)))
-  );
+  // Allow any keys to be added to the state when testing. In all other cases
+  // only pick props that are defined in the emptyState.
+  const initialStateProps =
+    process.env.NODE_ENV !== "test"
+      ? pick(inflate(initialState), ...Object.keys(emptyState))
+      : inflate(initialState);
+
+  extendObservable(state, merge({}, emptyState, initialStateProps));
 
   const actions = filterActions(state);
 

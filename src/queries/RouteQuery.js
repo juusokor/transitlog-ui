@@ -76,7 +76,7 @@ class RouteQuery extends Component {
             data,
             "route.geometries.nodes[0].geometry.coordinates",
             []
-          );
+          ).map(([lon, lat]) => [lat, lon]);
 
           return children({routeGeometry: positions});
         }}

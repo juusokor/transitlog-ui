@@ -6,6 +6,7 @@ import invoke from "lodash/invoke";
 import moment from "moment-timezone";
 import {getMomentFromDateTime} from "../helpers/time";
 import {setResetListener} from "../stores/FilterStore";
+import {TIMEZONE} from "../constants";
 
 @inject(app("state"))
 class AreaHfpEvents extends PureComponent {
@@ -50,7 +51,7 @@ class AreaHfpEvents extends PureComponent {
     // Constrain search time span to 5 minutes when auto-polling.
     const timespan = live && timeIsCurrent ? 5 : areaSearchRangeMinutes;
 
-    const moment = getMomentFromDateTime(date, time, "Europe/Helsinki");
+    const moment = getMomentFromDateTime(date, time, TIMEZONE);
 
     const min = moment.clone().subtract(Math.round(timespan / 2), "minutes");
     const max = moment.clone().add(Math.round(timespan / 2), "minutes");
@@ -106,8 +107,8 @@ class AreaHfpEvents extends PureComponent {
             error,
             timeRange: minTime
               ? {
-                  min: moment.tz(minTime, "Europe/Helsinki"),
-                  max: moment.tz(maxTime, "Europe/Helsinki"),
+                  min: moment.tz(minTime, TIMEZONE),
+                  max: moment.tz(maxTime, TIMEZONE),
                 }
               : null,
           })

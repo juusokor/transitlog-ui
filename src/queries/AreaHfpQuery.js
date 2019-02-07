@@ -8,7 +8,7 @@ import gql from "graphql-tag";
 import getJourneyId from "../helpers/getJourneyId";
 import {createHfpItem} from "../helpers/createHfpItem";
 import {setUpdateListener, removeUpdateListener} from "../stores/UpdateManager";
-import {sortByTime} from "../helpers/sortByTime";
+import {timeToSeconds} from "../helpers/time";
 import moment from "moment-timezone";
 
 const areaHfpQuery = gql`
@@ -128,7 +128,7 @@ class AreaHfpQuery extends Component {
               }
             ),
             // Finally, sort the list by the new 24h+ journey time strings.
-            ({journey_start_time = ""}) => sortByTime(journey_start_time)
+            ({journey_start_time = ""}) => timeToSeconds(journey_start_time)
           );
 
           this.prevResults = groupedEvents;

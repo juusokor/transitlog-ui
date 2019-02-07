@@ -1,10 +1,6 @@
 import React from "react";
 import {Heading} from "../../Typography";
 import get from "lodash/get";
-import isWithinRange from "date-fns/is_within_range";
-import orderBy from "lodash/orderBy";
-import {getDayTypeFromDate} from "../../../helpers/getDayTypeFromDate";
-import {stopTimes as getStopTimes} from "../../../helpers/stopTimes";
 import styled from "styled-components";
 import {StopElementsWrapper, StopMarker, SmallText} from "./elements";
 import {
@@ -54,57 +50,20 @@ const StopDepartureTime = styled(TagButton)``;
 
 export default ({
   stop,
-  originDeparture,
   isFirstTerminal = false,
   isLastTerminal = false,
-  journeyPositions = [],
   date,
   onClickTime,
   // The origin stop times are needed in other places too,
   // so we can get it here if it has already been calculated.
-  stopTimes: precalculatedStopTimes,
+  departureTimes,
+  arrivalTimes,
 }) => {
-  let stopTimes = false;
-
-  if (precalculatedStopTimes) {
-    stopTimes = precalculatedStopTimes;
-  } else if (
-    stop.departures &&
-    stop.departures.nodes.length !== 0 &&
-    journeyPositions.length !== 0
-  ) {
-    const firstPosition = journeyPositions[0];
-    const dayType = getDayTypeFromDate(date);
-
-    const stopPositions = orderBy(
-      journeyPositions.filter((pos) => pos.next_stop_id === stop.stopId),
-      "received_at_unix",
-      "desc"
-    );
-
-    const stopDepartures = get(stop, "departures.nodes", []).filter(
-      (departure) =>
-        isWithinRange(
-          date,
-          get(departure, "dateBegin"),
-          get(departure, "dateEnd")
-        ) &&
-        get(departure, "dayType") === dayType &&
-        get(departure, "routeId") === get(firstPosition, "route_id") &&
-        get(departure, "departureId", -1) ===
-          get(originDeparture, "departureId", 0) &&
-        parseInt(departure.direction) ===
-          parseInt(get(firstPosition, "direction_id", 0))
-    );
-
-    stopTimes = getStopTimes(originDeparture, stopPositions, stopDepartures, date);
-  }
-
   const stopMode = get(stop, "modes.nodes[0]", "BUS");
   const stopColor = get(transportColor, stopMode, "var(--light-grey)");
 
   // Bail here if we don't have data about stop arrival and departure times.
-  if (!stopTimes) {
+  if (!departureTimes) {
     return (
       <StopWrapper>
         <StopElementsWrapper
@@ -127,11 +86,11 @@ export default ({
     departure,
     plannedDepartureMoment,
     departureMoment,
-    arrivalEvent,
-    arrivalMoment,
     delayType,
     departureDiff,
-  } = stopTimes;
+  } = departureTimes;
+
+  const {arrivalEvent, arrivalMoment} = arrivalTimes;
 
   const stopArrivalTime = arrivalMoment.format("HH:mm:ss");
   const stopDepartureTime = departureMoment.format("HH:mm:ss");
