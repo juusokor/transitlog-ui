@@ -39,6 +39,8 @@ const updateListenerName = "selected journey";
 @inject(app("state"))
 @observer
 class SelectedJourneyQuery extends React.Component {
+  prevData = [];
+
   componentWillUnmount() {
     removeUpdateListener(updateListenerName);
   }
@@ -79,11 +81,14 @@ class SelectedJourneyQuery extends React.Component {
         variables={queryVars}
         fetchPolicy="cache-and-network">
         {({data, loading, error, refetch}) => {
-          if (!loading) {
-            setUpdateListener(updateListenerName, this.onUpdate(refetch));
+          if (!data || loading) {
+            return children({positions: this.prevData, loading, error});
           }
 
+          setUpdateListener(updateListenerName, this.onUpdate(refetch));
+
           const vehicles = get(data, "vehicles", []);
+          this.prevData = vehicles;
           return children({positions: vehicles, loading, error});
         }}
       </Query>
