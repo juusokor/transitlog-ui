@@ -45,8 +45,12 @@ export const getUrlState = () => {
         nextVal = true;
       }
 
-      if (value === "false" || value === "" || typeof value === "undefined") {
+      if (value === "false") {
         nextVal = false;
+      }
+
+      if (value === "" || typeof value === "undefined") {
+        nextVal = "";
       }
 
       return [key, nextVal];

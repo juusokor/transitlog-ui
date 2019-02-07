@@ -76,12 +76,14 @@ describe("UrlManager", () => {
 
   test("getUrlValue returns true boolean values", () => {
     setUrlValue("isfalse", "false");
-    setUrlValue("isalsofalse", "");
+    setUrlValue("isemptystring", undefined);
+    setUrlValue("isalsoemptystring", "");
     setUrlValue("istrue", "true");
 
     expect(getUrlValue("isfalse")).toBe(false);
     expect(getUrlValue("isfalse")).not.toBe("false");
-    expect(getUrlValue("isalsofalse")).toBe(false);
+    expect(getUrlValue("isemptystring")).toBe("");
+    expect(getUrlValue("isalsoemptystring")).toBe("");
     expect(getUrlValue("istrue")).toBe(true);
     expect(getUrlValue("istrue")).not.toBe("true");
   });
