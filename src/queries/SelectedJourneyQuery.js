@@ -78,8 +78,7 @@ class SelectedJourneyQuery extends React.Component {
         partialRefetch={true}
         skip={skip || !selectedJourney}
         query={hfpQuery}
-        variables={queryVars}
-        fetchPolicy="cache-and-network">
+        variables={queryVars}>
         {({data, loading, error, refetch}) => {
           if (!data || loading) {
             return children({positions: this.prevData, loading, error});
