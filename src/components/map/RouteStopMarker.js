@@ -18,6 +18,7 @@ import {StopRadius} from "./StopRadius";
 import DeparturesQuery from "../../queries/DeparturesQuery";
 import {departureTime} from "../../helpers/time";
 import {Text} from "../../helpers/text";
+import {TIMEZONE} from "../../constants";
 
 const PopupParagraph = styled(P)`
   font-size: 1rem;
@@ -234,10 +235,7 @@ class RouteStopMarker extends React.Component {
             let arrivalMoment;
 
             if (doorDidOpen) {
-              arrivalMoment = moment.tz(
-                arrivalHfpItem.received_at,
-                "Europe/Helsinki"
-              );
+              arrivalMoment = moment.tz(arrivalHfpItem.received_at, TIMEZONE);
             }
 
             const stopPopup = (

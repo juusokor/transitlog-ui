@@ -33,7 +33,7 @@ export default ({journey, departure}) => {
         const equipmentRequirements = checkRequirements(departure, vehicle);
 
         return (
-          <EquipmentWrapper>
+          <EquipmentWrapper data-testid="equipment-wrapper">
             {map(equipmentRequirements, ({observed, required}, prop) => {
               if (!observed) {
                 return null;

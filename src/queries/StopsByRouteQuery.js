@@ -2,7 +2,6 @@ import React from "react";
 import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import get from "lodash/get";
-import uniqBy from "lodash/uniqBy";
 import {observer} from "mobx-react";
 import {StopFieldsFragment} from "./StopFieldsFragment";
 import {filterRouteSegments} from "../helpers/filterJoreCollections";

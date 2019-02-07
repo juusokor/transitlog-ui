@@ -1,11 +1,31 @@
 import moment from "moment-timezone";
 import doubleDigit from "./doubleDigit";
+import {TIMEZONE} from "../constants";
 
 const num = (val) => parseInt(val, 10);
 
-export function timeToSeconds(timeStr) {
-  const [hours = 0, minutes = 0, seconds = 0] = timeStr.split(":");
+export function timeToSeconds(timeStr = "") {
+  const [hours = 0, minutes = 0, seconds = 0] = (timeStr || "").split(":");
   return num(seconds) + num(minutes) * 60 + num(hours) * 60 * 60;
+}
+
+export function secondsToTimeObject(seconds) {
+  const absSeconds = Math.abs(seconds);
+
+  const totalSeconds = Math.floor(absSeconds % 60);
+  const minutes = Math.floor((absSeconds % 3600) / 60);
+  const hours = Math.floor(absSeconds / 60 / 60);
+
+  return {
+    hours,
+    minutes,
+    seconds: totalSeconds,
+  };
+}
+
+export function secondsToTime(secondsDuration) {
+  const {hours = 0, minutes = 0, seconds = 0} = secondsToTimeObject(secondsDuration);
+  return getTimeString(hours, minutes, seconds);
 }
 
 export function getNormalTime(time) {
@@ -22,7 +42,7 @@ export function getTimeString(hours = 0, minutes = 0, seconds = 0) {
   return `${doubleDigit(hours)}:${doubleDigit(minutes)}:${doubleDigit(seconds)}`;
 }
 
-export function getMomentFromDateTime(date, time = "00:00:00", timezone) {
+export function getMomentFromDateTime(date, time = "00:00:00", timezone = TIMEZONE) {
   // Get the seconds elapsed during the date. The time can be a 24h+ time.
   const seconds = timeToSeconds(time);
   // Create a moment from the date and add the seconds.
@@ -34,16 +54,14 @@ export function journeyStartTime(event, useMoment) {
     return "";
   }
 
-  const eventDate = useMoment
-    ? useMoment
-    : moment.tz(event.received_at, "Europe/Helsinki");
+  const eventDate = useMoment ? useMoment : moment.tz(event.received_at, TIMEZONE);
 
   let [hours, minutes, seconds] = event.journey_start_time.split(":");
   const intHours = parseInt(hours, 10);
 
   /*
     TODO: Check this if something seems off with midnight journeys. 12 was chosen
-      semi-randomly as a time that would only appear once in a 24h+ day.
+      as a convenient mid-point time that would only appear once in a 24h+ day.
    */
 
   if (
