@@ -1,67 +1,51 @@
-import React, {Component} from "react";
+import React from "react";
+import flow from "lodash/flow";
 import RouteStopMarker from "./RouteStopMarker";
 import {inject, observer} from "mobx-react";
-import {app} from "mobx-app";
 import StopsByRouteQuery from "../../queries/StopsByRouteQuery";
+import {app} from "mobx-app";
 
-@inject(app("Filters"))
-@observer
-class RouteStopsLayer extends Component {
-  onSelectStop = (stopId = null) => () => {
-    const {stop} = this.props.state;
+const decorate = flow(
+  observer,
+  inject(app("state"))
+);
 
-    if (stopId !== null && stop !== stopId) {
-      this.props.Filters.setStop(stopId);
-    }
-  };
+function RouteStopsLayer({
+  state: {date, stop: selectedStop, selectedJourney},
+  route,
+  onViewLocation,
+  showRadius,
+  positions = [],
+}) {
+  return (
+    <StopsByRouteQuery route={route}>
+      {({stops}) =>
+        stops.map((stop, index) => {
+          // Funnily enough, the first stop is last in the array.
+          const isFirst = index === stops.length - 1;
+          // ...and the last stop is first.
+          const isLast = index === 0;
 
-  getStopMarker = (stop, isFirst, isLast) => {
-    const {
-      state: {date, stop: selectedStop, selectedJourney},
-      onViewLocation,
-      showRadius,
-      positions = [],
-    } = this.props;
+          const isSelected = stop.stopId === selectedStop;
 
-    const isSelected = stop.stopId === selectedStop;
-
-    return (
-      <RouteStopMarker
-        key={`stop_marker_${stop.stopId}`}
-        selected={isSelected}
-        firstTerminal={isFirst}
-        lastTerminal={isLast}
-        positions={positions}
-        selectedJourney={selectedJourney}
-        stop={stop}
-        date={date}
-        onViewLocation={onViewLocation}
-        onSelect={this.onSelectStop(stop.stopId)}
-        showRadius={showRadius}
-      />
-    );
-  };
-
-  renderStops = (stops) => {
-    return stops.map((stop, index) => {
-      // Funnily enough, the first stop is last in the array.
-      const isFirst = index === stops.length - 1;
-      // ...and the last stop is first.
-      const isLast = index === 0;
-
-      return this.getStopMarker(stop, isFirst, isLast);
-    });
-  };
-
-  render() {
-    const {route} = this.props;
-
-    return (
-      <StopsByRouteQuery route={route}>
-        {({stops}) => this.renderStops(stops)}
-      </StopsByRouteQuery>
-    );
-  }
+          return (
+            <RouteStopMarker
+              key={`stop_marker_${stop.stopId}`}
+              selected={isSelected}
+              firstTerminal={isFirst}
+              lastTerminal={isLast}
+              positions={positions}
+              selectedJourney={selectedJourney}
+              stop={stop}
+              date={date}
+              onViewLocation={onViewLocation}
+              showRadius={showRadius}
+            />
+          );
+        })
+      }
+    </StopsByRouteQuery>
+  );
 }
 
-export default RouteStopsLayer;
+export default decorate(RouteStopsLayer);

@@ -30,6 +30,9 @@ const extensiveSingleRouteQuery = gql`
     $direction: String!
     $dateBegin: Date!
     $dateEnd: Date!
+    $departureHours: Int
+    $departureMinutes: Int
+    $isNextDay: Boolean
     $dayType: String
   ) {
     route: routeByRouteIdAndDirectionAndDateBeginAndDateEnd(
@@ -78,15 +81,25 @@ export const SimpleRouteQuery = ({route, date, onCompleted, skip, children}) => 
 };
 
 const ExtensiveRouteQuery = observer(
-  ({children, route, date, skip, onCompleted = () => {}}) => {
+  ({
+    children,
+    route,
+    date,
+    departureHours,
+    departureMinutes,
+    skip,
+    onCompleted = () => {},
+  }) => {
     const variables = {
       ...pick(route, "routeId", "dateBegin", "dateEnd"),
       dayType: getDayTypeFromDate(date),
       direction: route.direction + "",
+      departureHours,
+      departureMinutes,
     };
 
     // If some variable are missing the query may block the UI, so make sure everything's here.
-    const hasAllVariables = compact(Object.values(variables)).length === 5;
+    const hasAllVariables = compact(Object.values(variables)).length >= 5;
 
     return (
       <Query

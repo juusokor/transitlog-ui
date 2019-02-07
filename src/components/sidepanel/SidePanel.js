@@ -110,6 +110,8 @@ class SidePanel extends Component {
     const hasRoute = !!route && !!route.routeId;
     const hasEvents = !journeyEventsLoading && selectedJourneyEvents.length !== 0;
 
+    // Figure out which tab is suggested. It will not be outright selected, but
+    // if it appears and nothing else is selected then it will be.
     let suggestedTab = "";
 
     if (!hasRoute && !vehicle) suggestedTab = "area-journeys";

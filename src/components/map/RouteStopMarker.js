@@ -2,7 +2,7 @@ import React from "react";
 import {Marker, CircleMarker, Tooltip, Popup} from "react-leaflet";
 import {icon, latLng} from "leaflet";
 import TimingStopIcon from "../../icon-time1.svg";
-import {observer} from "mobx-react";
+import {observer, inject} from "mobx-react";
 import {diffDepartureJourney} from "../../helpers/diffDepartureJourney";
 import getDelayType from "../../helpers/getDelayType";
 import orderBy from "lodash/orderBy";
@@ -18,6 +18,7 @@ import {StopRadius} from "./StopRadius";
 import DeparturesQuery from "../../queries/DeparturesQuery";
 import {departureTime} from "../../helpers/time";
 import {TIMEZONE} from "../../constants";
+import {app} from "mobx-app";
 
 const PopupParagraph = styled(P)`
   font-size: 1rem;
@@ -32,10 +33,16 @@ const ObservedTime = styled(ColoredBackgroundSlot)`
   font-size: 0.875rem;
 `;
 
+@inject(app("Filters"))
 @observer
 class RouteStopMarker extends React.Component {
+  onClickMarker = () => {
+    const {stop, Filters} = this.props;
+    Filters.setStop(stop.stopId);
+  };
+
   createStopMarker = (delayType, color, isTerminal, children) => {
-    const {stop, showRadius, isSelected, onSelect} = this.props;
+    const {stop, showRadius, isSelected} = this.props;
 
     const timingStopIcon = icon({
       iconUrl: TimingStopIcon,
@@ -62,7 +69,7 @@ class RouteStopMarker extends React.Component {
         fillOpacity: 1,
         strokeWeight: isTerminal ? 5 : 3,
         radius: isTerminal ? 12 : isSelected ? 10 : 8,
-        onClick: onSelect,
+        onClick: this.onClickMarker,
       },
       children
     );
