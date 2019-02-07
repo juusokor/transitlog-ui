@@ -7,7 +7,12 @@ import createHistory from "history/createBrowserHistory";
  * Make sure that all history operations happen through the specific history object created here:
  */
 
-const history = createHistory();
+let history = createHistory();
+
+// Only for testing
+export const __setHistoryForTesting = (historyObj) => {
+  history = historyObj;
+};
 
 // Sets or changes an URL value. Use replace by default,
 // as we don't need to grow the history stack. We're not
@@ -33,18 +38,30 @@ export const setUrlValue = (key, val, historyAction = "replace") => {
 
 export const getUrlState = () => {
   const query = new URLSearchParams(history.location.search);
-  const urlState = fromPairs(Array.from(query.entries()));
+  const urlState = fromPairs(
+    Array.from(query.entries()).map(([key, value]) => {
+      let nextVal = value;
+      if (value === "true") {
+        nextVal = true;
+      }
+
+      if (value === "false") {
+        nextVal = false;
+      }
+
+      if (value === "" || typeof value === "undefined") {
+        nextVal = "";
+      }
+
+      return [key, nextVal];
+    })
+  );
   return urlState;
 };
 
 export const getUrlValue = (key, defaultValue = "") => {
   const values = getUrlState();
-  const value = get(values, key, defaultValue);
-
-  if (value === "true") return true;
-  if (value === "false") return false;
-
-  return value;
+  return get(values, key, defaultValue);
 };
 
 export const setPathName = (pathName, historyAction = "replace") => {
@@ -60,8 +77,8 @@ export const getPathName = () => {
 
 export const resetUrlState = (replace = false) => {
   if (replace) {
-    history.replace({pathname: "", search: ""});
+    history.replace({pathname: "/", search: ""});
   } else {
-    history.push({pathname: "", search: ""});
+    history.push({pathname: "/", search: ""});
   }
 };

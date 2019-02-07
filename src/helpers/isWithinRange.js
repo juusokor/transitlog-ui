@@ -1,4 +1,4 @@
-export function intval(val) {
+export function intval(val = 0) {
   return typeof val === "string" ? parseInt(val.replace(/\D/g, ""), 10) : val;
 }
 
@@ -15,9 +15,5 @@ export function isAfter(value, otherValue) {
 }
 
 export function isWithinRange(value, rangeStart, rangeEnd) {
-  const checkVal = intval(value);
-  const startVal = intval(rangeStart);
-  const endVal = intval(rangeEnd);
-
-  return isAfter(checkVal, startVal) && isBefore(checkVal, endVal);
+  return isAfter(value, rangeStart) && isBefore(value, rangeEnd);
 }

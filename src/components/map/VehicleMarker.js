@@ -1,6 +1,7 @@
 import React from "react";
 import get from "lodash/get";
 import styled from "styled-components";
+import {getModeColor} from "../../helpers/vehicleColor";
 
 const IconWrapper = styled.span`
   width: 100%;
@@ -75,18 +76,23 @@ const HeadingArrow = styled.span`
 
 class VehicleMarker extends React.Component {
   render() {
-    const {position, color} = this.props;
+    const {position} = this.props;
+
+    const color = getModeColor(get(position, "mode", "").toUpperCase());
 
     // The spd value can be a bit flaky, so I decided that under 2 m/s is stopped enough.
     const isStopped = position.spd < 2;
 
     return (
-      <IconWrapper color={color}>
+      <IconWrapper color={color} isStopped={isStopped} data-testid="hfp-marker-icon">
         <Icon
+          data-testid="icon-icon"
           // The mode className applies the vehicle icon
           className={get(position, "mode", "BUS").toUpperCase()}
         />
-        <RotationWrapper rotation={position.hdg}>
+        <RotationWrapper
+          rotation={get(position, "hdg", 0)}
+          data-testid="icon-rotation">
           {position.drst && <Indicator position="right" color="var(--dark-blue)" />}
           {position.full && <Indicator position="left" color="var(--red)" />}
           {!isStopped && (
