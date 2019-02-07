@@ -98,7 +98,7 @@ describe("Equipment", () => {
     expect(queryByText("C")).toHaveStyle(
       "color: var(--light-green); font-weight: bold;"
     );
-    expect(queryByText("HSL-orans")).toHaveStyle(
+    return expect(queryByText("HSL-orans")).toHaveStyle(
       "color: var(--light-green); font-weight: bold;"
     );
   });
@@ -124,7 +124,7 @@ describe("Equipment", () => {
     expect(equipment).toHaveTextContent("A1HSL-sin");
     // Red means it's WRONG, bold means it's a hard requirement
     expect(queryByText("A1")).toHaveStyle("color: var(--red); font-weight: bold;");
-    expect(queryByText("HSL-sin")).toHaveStyle(
+    return expect(queryByText("HSL-sin")).toHaveStyle(
       "color: var(--red); font-weight: bold;"
     );
   });
@@ -152,7 +152,7 @@ describe("Equipment", () => {
     expect(queryByText("A1")).toHaveStyle(
       "color: var(--dark-grey); font-weight: normal;"
     );
-    expect(queryByText("HSL-sin")).toHaveStyle(
+    return expect(queryByText("HSL-sin")).toHaveStyle(
       "color: var(--dark-grey); font-weight: normal;"
     );
   });

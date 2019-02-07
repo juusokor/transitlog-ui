@@ -45,7 +45,8 @@ describe("HfpMarkerLayer", () => {
     });
 
     fireEvent.click(markerRef.current.markerRef.current.leafletElement._icon);
-    expect(onClick).toHaveBeenCalledWith(position);
+
+    return expect(onClick).toHaveBeenCalledWith(position);
   });
 
   test("The icon gets the correct color and vehicle icon", () => {

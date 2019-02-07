@@ -79,7 +79,7 @@ describe("StopLayer", () => {
       () => getByTestId("compound-stop-marker-mock") // Added to the DOM by the stop marker mock
     );
 
-    expect(compoundStopMarkerMock).toHaveBeenCalled();
+    return expect(compoundStopMarkerMock).toHaveBeenCalled();
   });
 
   test("Renders separate stop markers for stops that are not in the same place", async () => {
@@ -92,6 +92,6 @@ describe("StopLayer", () => {
       () => getByTestId("stop-marker-mock") // Added to the DOM by the stop marker mock
     );
 
-    expect(stopMarkerMock).toHaveBeenCalled();
+    return expect(stopMarkerMock).toHaveBeenCalled();
   });
 });

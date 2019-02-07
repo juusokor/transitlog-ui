@@ -11,7 +11,7 @@ COPY package.json ${WORK}
 RUN yarn
 
 COPY . ${WORK}
-RUN yarn run test
+RUN yarn run test:ci
 RUN yarn run build
 
 EXPOSE 3000
