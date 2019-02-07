@@ -1,11 +1,12 @@
 import React from "react";
-import {text} from "../../helpers/text";
+import {text, Text} from "../../helpers/text";
 import {ControlGroup, Button} from "../Forms";
 import {inject, observer} from "mobx-react";
 import {app} from "mobx-app";
 import VehicleInput from "./VehicleInput";
 import Input from "../Input";
 import get from "lodash/get";
+import sortBy from "lodash/sortBy";
 import groupBy from "lodash/groupBy";
 import map from "lodash/map";
 import VehicleOptionsQuery from "../../queries/VehicleOptionsQuery";
@@ -44,15 +45,18 @@ class VehicleSettings extends React.Component {
 
     return (
       <>
-        <VehicleOptionsQuery date={date} skip={true}>
+        <VehicleOptionsQuery date={date}>
           {({vehicles}) => {
             const groupedVehicles = map(
-              groupBy(vehicles, ({owner_operator_id}) => owner_operator_id),
+              groupBy(
+                sortBy(vehicles, "owner_operator_id"),
+                ({owner_operator_id}) => owner_operator_id
+              ),
               (vehicles, operatorId) => {
                 return {
                   operatorName: getOperatorName(operatorId),
                   operatorId: operatorId,
-                  vehicles,
+                  vehicles: sortBy(vehicles, "vehicle_number"),
                 };
               }
             );
@@ -72,7 +76,7 @@ class VehicleSettings extends React.Component {
             primary={false}
             small={true}
             onClick={() => this.onChangeQueryVehicle("")}>
-            Clear vehicle
+            <Text>filterpanel.clear.vehicle</Text>
           </Button>
         )}
       </>

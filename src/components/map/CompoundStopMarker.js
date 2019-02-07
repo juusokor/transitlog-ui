@@ -98,8 +98,6 @@ class CompoundStopMarker extends Component {
       )
     );
 
-    // TODO: Why does it get a color from a mode that's not here
-
     let mode =
       modesInCluster.length === 0
         ? "BUS"
@@ -120,7 +118,7 @@ class CompoundStopMarker extends Component {
 
     const markerIcon = divIcon({
       className: "compoundIconWrapper",
-      html: `<span class="compoundMarkerIcon" style="border-color: ${stopColor}">${
+      html: `<span data-testid="compound-marker-icon" class="compoundMarkerIcon" style="border-color: ${stopColor}">${
         stops.length
       }</span>`,
       iconSize: 27.5,
@@ -200,10 +198,6 @@ class CompoundStopMarker extends Component {
         </button>
       </Popup>
     );
-
-    if (stops.findIndex((stop) => stop.stopId === "1020601") !== -1) {
-      console.log(stopColor);
-    }
 
     return (
       <>

@@ -69,7 +69,7 @@ class MapillaryViewer extends React.Component {
       "V2RqRUsxM2dPVFBMdnlhVUliTkM0ZzoxNmI5ZDZhOTc5YzQ2MzEw",
       null,
       {
-        component: {
+        render: {
           cover: false,
         },
       }

@@ -1,9 +1,7 @@
 import React, {Component} from "react";
 import PropTypes from "prop-types";
-import get from "lodash/get";
 import {observer} from "mobx-react";
 import "./Map.css";
-import {getModeColor} from "../../helpers/vehicleColor";
 import VehicleMarker from "./VehicleMarker";
 import DivIcon from "../../helpers/DivIcon";
 import HfpTooltip from "./HfpTooltip";
@@ -15,6 +13,8 @@ class HfpMarkerLayer extends Component {
     onMarkerClick: PropTypes.func.isRequired,
   };
 
+  markerRef = React.createRef();
+
   @observable
   tooltipOpen = false;
 
@@ -24,12 +24,8 @@ class HfpMarkerLayer extends Component {
 
   onMarkerClick = (positionWhenClicked) => () => {
     const {onMarkerClick} = this.props;
-
     this.toggleTooltip();
-
-    if (typeof onMarkerClick === "function") {
-      onMarkerClick(positionWhenClicked);
-    }
+    onMarkerClick(positionWhenClicked);
   };
 
   render() {
@@ -39,14 +35,13 @@ class HfpMarkerLayer extends Component {
       return null;
     }
 
-    const modeColor = getModeColor(get(position, "mode", "").toUpperCase());
-
     return (
       <DivIcon
+        ref={this.markerRef} // Needs ref for testing
         onClick={this.onMarkerClick(position)}
         position={[position.lat, position.long]}
         iconSize={[36, 36]}
-        icon={<VehicleMarker position={position} color={modeColor} />}
+        icon={<VehicleMarker position={position} />}
         pane="hfp-markers">
         <HfpTooltip
           key={`permanent=${this.tooltipOpen}`}

@@ -109,6 +109,8 @@ export const ExtensiveRouteFieldsFragment = gql`
         distanceFromStart
         destinationFi
         timingStopType
+        direction
+        routeId
         stop: stopByStopId {
           nameFi
           stopId

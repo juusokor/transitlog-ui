@@ -1,9 +1,8 @@
 import {Component} from "react";
 import {observer, inject} from "mobx-react";
-import {app} from "mobx-app";
 import {reaction, observable, action, computed} from "mobx";
 
-@inject(app("state"))
+@inject("state")
 @observer
 class JourneyPosition extends Component {
   positionReaction = () => {};
@@ -76,33 +75,31 @@ class JourneyPosition extends Component {
   // Index the hfp events under their timestamp to make it easy to find them on the fly.
   // This is a performance optimization.
   indexPositions = (positions) => {
-    const indexed = positions.reduce((positionIndex, position) => {
+    return positions.reduce((positionIndex, position) => {
       const key = position.received_at_unix;
       positionIndex.set(key, position);
       return positionIndex;
     }, new Map());
-
-    return indexed;
   };
 
   indexJourneys = (journeys) => {
-    const indexed = journeys.reduce(
+    this.positions = journeys.reduce(
       (journeyIndex, {journeyId = "", events = []}) => {
         journeyIndex.set(journeyId, this.indexPositions(events));
         return journeyIndex;
       },
       new Map()
     );
-
-    this.positions = indexed;
   };
 
   componentDidMount() {
     const {state, positions} = this.props;
 
-    if (!this.isLive) {
+    if (!this.isLive && positions.length !== 0) {
       // Index once when mounted if not live-updating
       this.indexJourneys(positions);
+    } else if (this.isLive && positions.length !== 0) {
+      this.getLivePositions(positions);
     }
 
     // A reaction to set the hfp event that matches the currently selected time

@@ -6,6 +6,7 @@ import timer from "../helpers/timer";
 import TimeActions from "./timeActions";
 import FilterActions from "./filterActions";
 import {getMomentFromDateTime} from "../helpers/time";
+import {TIMEZONE} from "../constants";
 
 const updateListeners = {};
 let pollingStart = 0;
@@ -30,8 +31,8 @@ export default (state) => {
 
   const updateTime = (forceCurrent = false) => {
     const {time, timeIncrement, date, timeIsCurrent} = state;
-    const selectedMoment = getMomentFromDateTime(date, time, "Europe/Helsinki");
-    const nowMoment = moment.tz(new Date(), "Europe/Helsinki");
+    const selectedMoment = getMomentFromDateTime(date, time, TIMEZONE);
+    const nowMoment = moment.tz(new Date(), TIMEZONE);
 
     if (!timeIsCurrent && !forceCurrent) {
       const nextTimeValue = selectedMoment
