@@ -22,6 +22,7 @@ import doubleDigit from "../../../helpers/doubleDigit";
 import ArrowRightLong from "../../../icons/ArrowRightLong";
 import {Text} from "../../../helpers/text";
 import {stopArrivalTimes} from "../../../helpers/stopArrivalTimes";
+import {departureTime, getNormalTime, journeyEventTime} from "../../../helpers/time";
 
 const StopWrapper = styled.div`
   padding: 0;
@@ -103,7 +104,7 @@ export default ({stop, journeyPositions = [], date, onClickTime}) => {
     departureDiff,
   } = stopDepartureTimes(stopPositions, departure, date);
 
-  const {arrivalMoment, plannedArrivalMoment} = stopArrivalTimes(
+  const {plannedArrivalMoment, arrivalMoment, arrivalEvent} = stopArrivalTimes(
     stopPositions,
     departure,
     date
@@ -113,11 +114,8 @@ export default ({stop, journeyPositions = [], date, onClickTime}) => {
     get(departureEvent, "received_at_unix", 0) ===
     get(journeyPositions, `[${journeyPositions.length - 1}].received_at_unix`, 0);
 
-  const stopDepartureTime = departureMoment
-    ? departureMoment.format("HH:mm:ss")
-    : "";
-
-  const stopArrivalTime = arrivalMoment ? arrivalMoment.format("HH:mm:ss") : "";
+  const stopDepartureTime = journeyEventTime(departureEvent);
+  const stopArrivalTime = journeyEventTime(arrivalEvent);
 
   const isTimingStop = stop.timingStopType > 0;
 
@@ -145,20 +143,20 @@ export default ({stop, journeyPositions = [], date, onClickTime}) => {
             </TimeHeading>
             <StopArrivalTime onClick={onClickTime(stopArrivalTime)}>
               <PlainSlot>{plannedArrivalMoment.format("HH:mm:ss")}</PlainSlot>
-              <PlainSlotSmall>{stopArrivalTime}</PlainSlotSmall>
+              <PlainSlotSmall>{getNormalTime(stopArrivalTime)}</PlainSlotSmall>
             </StopArrivalTime>
           </>
-        ) : stopArrivalTime ? (
+        ) : arrivalMoment ? (
           <SimpleStopArrivalTime>
             <ArrowRightLong fill="var(--blue)" width="0.75rem" height="0.75rem" />
-            {stopArrivalTime}
+            {getNormalTime(stopArrivalTime)}
           </SimpleStopArrivalTime>
         ) : (
           <SmallText>
             <Text>filterpanel.journey.no_data</Text>
           </SmallText>
         )}
-        {stopDepartureTime ? (
+        {departureMoment ? (
           <>
             {showPlannedArrivalTime && (
               <TimeHeading>

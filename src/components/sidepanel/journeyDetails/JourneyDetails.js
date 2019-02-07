@@ -11,12 +11,13 @@ import Loading from "../../Loading";
 import JourneyInfo from "./JourneyInfo";
 import {getDayTypeFromDate} from "../../../helpers/getDayTypeFromDate";
 import orderBy from "lodash/orderBy";
-import TerminalStop from "./TerminalStop";
+import DestinationStop from "./DestinationStop";
 import {stopDepartureTimes} from "../../../helpers/stopDepartureTimes";
 import withRoute from "../../../hoc/withRoute";
 import {departureTime} from "../../../helpers/time";
 import {isWithinRange} from "../../../helpers/isWithinRange";
 import {stopArrivalTimes} from "../../../helpers/stopArrivalTimes";
+import OriginStop from "./OriginStop";
 
 const JourneyPanelWrapper = styled.div`
   height: 100%;
@@ -187,9 +188,8 @@ class JourneyDetails extends React.Component {
                     }
                   />
                   <StopsListWrapper>
-                    <TerminalStop
-                      isFirstTerminal={true}
-                      departureTimes={originDepartureTimes} // TerminalStop can receive precalculated stop times.
+                    <OriginStop
+                      departureTimes={originDepartureTimes}
                       arrivalTimes={originArrivalTimes}
                       stop={get(route, "originStop", {})}
                       date={date}
@@ -202,9 +202,7 @@ class JourneyDetails extends React.Component {
                       route={route}
                       onClickTime={this.onClickTime}
                     />
-                    <TerminalStop
-                      isLastTerminal={true}
-                      departureTimes={destinationDepartureTimes}
+                    <DestinationStop
                       arrivalTimes={destinationArrivalTimes}
                       stop={get(route, "destinationStop", {})}
                       date={date}

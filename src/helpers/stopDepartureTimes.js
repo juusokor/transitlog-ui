@@ -4,29 +4,32 @@ import {getTimelinessColor} from "./timelinessColor";
 import {getAdjustedDepartureDate} from "./getAdjustedDepartureDate";
 import get from "lodash/get";
 
-/*
-  TODO: Use this in all places where calculations like this need to be made.
+/**
+ *
+ * @param stopPositions positions with next_stop_id = [current stop]
+ * @param stopDeparture the planned departure from [current stop]
+ * @param date selected date in YYYY-MM-DD format
+ * @returns {*}
  */
+export const stopDepartureTimes = (stopPositions = [], stopDeparture, date) => {
+  const departureEvent = stopPositions[0];
 
-export const stopDepartureTimes = (positions = [], journeyDeparture, date) => {
-  const departureEvent = positions[0];
-
-  if (!journeyDeparture || !departureEvent || !date) {
+  if (!stopDeparture || !departureEvent || !date) {
     return false;
   }
 
-  const departureDiff = diffDepartureJourney(departureEvent, journeyDeparture, date);
+  const departureDiff = diffDepartureJourney(departureEvent, stopDeparture, date);
   const departureDelayType = getDelayType(get(departureDiff, "diff", false));
   const departureColor = getTimelinessColor(departureDelayType, "#000");
 
   let plannedDepartureMoment = get(departureDiff, "plannedMoment", null);
 
   if (!plannedDepartureMoment) {
-    plannedDepartureMoment = getAdjustedDepartureDate(journeyDeparture, date);
+    plannedDepartureMoment = getAdjustedDepartureDate(stopDeparture, date);
   }
 
   return {
-    departure: journeyDeparture,
+    departure: stopDeparture,
     departureEvent,
     delayType: departureDelayType,
     color: departureColor,
