@@ -24,26 +24,26 @@ class StopLayer extends Component {
         {({stops}) => {
           const stopAreas = stops.reduce((groups, stop) => {
             const pos = latLng(stop.lat, stop.lon);
-            let bounds;
+            let groupBounds;
 
             if (groups.size !== 0) {
               const groupEntries = groups.entries();
               for (const [area] of groupEntries) {
                 if (area.contains(pos)) {
-                  bounds = area;
+                  groupBounds = area;
                   break;
                 }
               }
             }
 
-            if (!bounds) {
-              bounds = pos.toBounds(3);
+            if (!groupBounds) {
+              groupBounds = pos.toBounds(3);
             }
 
-            const stopGroup = groups.get(bounds) || [];
+            const stopGroup = groups.get(groupBounds) || [];
             stopGroup.push(stop);
 
-            return groups.set(bounds, stopGroup);
+            return groups.set(groupBounds, stopGroup);
           }, new Map());
 
           return Array.from(stopAreas.entries()).map(([bounds, stopCluster]) =>

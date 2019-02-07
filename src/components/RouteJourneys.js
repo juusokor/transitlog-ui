@@ -9,8 +9,7 @@ import get from "lodash/get";
 import DeparturesQuery from "../queries/DeparturesQuery";
 import JourneysByDateQuery from "../queries/JourneysByDateQuery";
 import {createCompositeJourney} from "../stores/journeyActions";
-import {sortByTime} from "../helpers/sortByTime";
-import {departureTime} from "../helpers/time";
+import {departureTime, timeToSeconds} from "../helpers/time";
 
 export const journeyHfpStates = {
   LOADING: "loading",
@@ -65,7 +64,7 @@ class RouteJourneys extends React.Component {
                     "journeyId"
                   ),
                   // Sort the list by the departure time.
-                  ({time}) => sortByTime(time)
+                  ({time}) => timeToSeconds(time)
                 );
 
                 if (Object.keys(journeys).length === 0) {

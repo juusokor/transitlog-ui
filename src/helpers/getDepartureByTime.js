@@ -10,9 +10,12 @@ export function getDepartureByTime(departures = [], time = "") {
   const timeMinute = parseInt(time.split(":")[1], 10);
 
   // Get all departures that match by the hour
-  const selectedHourDepartures = departures.filter(({hours}) => timeHour === hours);
+  const selectedHourDepartures = departures.filter(({hours, isNextDay = false}) => {
+    const hourVal = isNextDay ? hours + 24 : hours;
+    return timeHour === hourVal;
+  });
 
-  if (selectedHourDepartures) {
+  if (selectedHourDepartures && selectedHourDepartures.length !== 0) {
     /*
      Sort the departures by how closely the minutes match the provided time.
      To get a sort value, the provided minute value is subtracted from the departure

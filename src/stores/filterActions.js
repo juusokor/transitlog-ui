@@ -2,13 +2,12 @@ import {action} from "mobx";
 import moment from "moment-timezone";
 import get from "lodash/get";
 import {setUrlValue} from "./UrlManager";
+import {TIMEZONE} from "../constants";
 
 const filterActions = (state) => {
   // Make sure all dates are correctly formed.
   const setDate = action("Set date", (dateValue) => {
-    let momentValue = !dateValue
-      ? moment()
-      : moment.tz(dateValue, "Europe/Helsinki");
+    let momentValue = !dateValue ? moment() : moment.tz(dateValue, TIMEZONE);
 
     if (!momentValue.isValid()) {
       momentValue = moment();

@@ -73,7 +73,7 @@ class AreaSelect extends Component {
     const urlBounds = getUrlValue(AREA_BOUNDS_URL_KEY);
 
     if (urlBounds) {
-      // Make sure the parts go into the correct places. Check leaflet docs if unsure.
+      // Create a bounds object from the bbox string
       const bounds = boundsFromBBoxString(urlBounds);
 
       if (bounds) {

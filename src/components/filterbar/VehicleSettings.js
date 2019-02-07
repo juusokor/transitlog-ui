@@ -6,6 +6,7 @@ import {app} from "mobx-app";
 import VehicleInput from "./VehicleInput";
 import Input from "../Input";
 import get from "lodash/get";
+import sortBy from "lodash/sortBy";
 import groupBy from "lodash/groupBy";
 import map from "lodash/map";
 import VehicleOptionsQuery from "../../queries/VehicleOptionsQuery";
@@ -47,12 +48,15 @@ class VehicleSettings extends React.Component {
         <VehicleOptionsQuery date={date} skip={true}>
           {({vehicles}) => {
             const groupedVehicles = map(
-              groupBy(vehicles, ({owner_operator_id}) => owner_operator_id),
+              groupBy(
+                sortBy(vehicles, "owner_operator_id"),
+                ({owner_operator_id}) => owner_operator_id
+              ),
               (vehicles, operatorId) => {
                 return {
                   operatorName: getOperatorName(operatorId),
                   operatorId: operatorId,
-                  vehicles,
+                  vehicles: sortBy(vehicles, "vehicle_number"),
                 };
               }
             );
