@@ -1,5 +1,4 @@
 import React from "react";
-import {Heading} from "../../Typography";
 import get from "lodash/get";
 import styled from "styled-components";
 import {
@@ -7,6 +6,11 @@ import {
   StopElementsWrapper,
   StopMarker,
   TimingStopMarker,
+  StopWrapper as DefaultStopWrapper,
+  StopContent,
+  StopHeading,
+  TimeHeading,
+  StopArrivalTime,
 } from "./elements";
 import {
   TagButton,
@@ -21,34 +25,9 @@ import ArrowRightLong from "../../../icons/ArrowRightLong";
 import {Text} from "../../../helpers/text";
 import {getNormalTime, journeyEventTime} from "../../../helpers/time";
 
-const StopWrapper = styled.div`
+const StopWrapper = styled(DefaultStopWrapper)`
   padding: 0;
   margin-left: 0.25rem;
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-`;
-
-const StopContent = styled.div`
-  padding: 0 1.75rem 2rem 0.75rem;
-  width: 100%;
-`;
-
-const TimeHeading = styled.div`
-  font-size: 0.75rem;
-  color: var(--light-grey);
-  margin-bottom: 0.2rem;
-`;
-
-const StopHeading = styled(Heading).attrs({level: 5})`
-  margin-top: 0.2rem;
-  color: var(--dark-grey);
-  font-size: 0.875rem;
-  font-weight: normal;
-`;
-
-const StopArrivalTime = styled(TagButton)`
-  margin: 0 0 0.5rem;
 `;
 
 const SimpleStopArrivalTime = styled.div`
