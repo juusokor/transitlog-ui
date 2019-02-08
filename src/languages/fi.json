@@ -33,7 +33,7 @@
   "map.stops.planned_driveby": "Suunniteltu ohitusaika",
   "map.stops.observed_driveby": "Toteutunut ohitusaika",
   "map.stops.show_in_streetview": "Näytä katunäkymässä",
-  "map.stops.doors_not_open": "Ovet eivät avautuneet tällä pysäkillä. The doors did not open at this stop.",
+  "map.stops.doors_not_open": "Ovet eivät avautuneet tällä pysäkillä.",
 
   "vehicle.next_stop": "Seuraava pysäkki",
   "vehicle.speed": "Nopeus",

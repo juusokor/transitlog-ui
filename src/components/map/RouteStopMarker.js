@@ -19,7 +19,12 @@ import {Text} from "../../helpers/text";
 import {app} from "mobx-app";
 import {getTimelinessColor} from "../../helpers/timelinessColor";
 import doubleDigit from "../../helpers/doubleDigit";
-import {TimeHeading, StopHeading, StopContent} from "../StopElements";
+import {
+  TimeHeading,
+  StopHeading,
+  StopContent,
+  StopArrivalTime,
+} from "../StopElements";
 
 const PopupParagraph = styled(P)`
   font-size: 1rem;
@@ -148,9 +153,10 @@ class RouteStopMarker extends React.Component {
       departureDelayType,
       departureDiff,
       plannedArrivalMoment,
-      arrivalMoment,
       departureColor,
       arrivalEvent,
+      arrivalDiff,
+      arrivalDelayType,
       doorDidOpen,
     } = stop;
 
@@ -193,16 +199,31 @@ class RouteStopMarker extends React.Component {
             <strong>{stop.nameFi}</strong> {stop.stopId} (
             {stop.shortId.replace(/ /g, "")})
           </StopHeading>
-          {doorDidOpen ? (
-            <PopupParagraph>
-              <Text>map.stops.arrive</Text>:{" "}
-              <PlannedTime>{getNormalTime(stopArrivalTime)}</PlannedTime>
-            </PopupParagraph>
-          ) : (
+          {doorDidOpen && arrivalEvent ? (
+            <>
+              <TimeHeading>
+                <Text>journey.arrival</Text>
+              </TimeHeading>
+              <StopArrivalTime>
+                <PlainSlot>{plannedArrivalMoment.format("HH:mm:ss")}</PlainSlot>
+                <ColoredBackgroundSlot
+                  color={arrivalDelayType === "late" ? "var(--dark-grey)" : "white"}
+                  backgroundColor={getTimelinessColor(
+                    arrivalDelayType,
+                    "var(--light-green)"
+                  )}>
+                  {arrivalDiff.sign}
+                  {doubleDigit(get(arrivalDiff, "minutes", 0))}:
+                  {doubleDigit(get(arrivalDiff, "seconds", 0))}
+                </ColoredBackgroundSlot>
+                <PlainSlotSmall>{getNormalTime(stopArrivalTime)}</PlainSlotSmall>
+              </StopArrivalTime>
+            </>
+          ) : !doorDidOpen ? (
             <PopupParagraph>
               <Text>map.stops.doors_not_open</Text>
             </PopupParagraph>
-          )}
+          ) : null}
           {observedTime}
         </PopupStopContent>
         <button onClick={this.onShowStreetView}>

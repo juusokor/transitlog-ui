@@ -75,12 +75,14 @@ export const StopHeading = styled(Heading).attrs({level: 5})`
   color: var(--dark-grey);
   font-size: 0.875rem;
   font-weight: normal;
+  font-family: var(--font-family);
 `;
 export const TimeHeading = styled.div`
   font-size: 0.75rem;
   color: var(--light-grey);
   margin-bottom: 0.2rem;
   margin-top: 0.5rem;
+  font-family: var(--font-family);
 `;
 export const StopArrivalTime = styled(TagButton)`
   margin: 0 0 0.5rem;
