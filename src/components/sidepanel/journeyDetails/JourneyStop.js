@@ -72,7 +72,7 @@ export default ({stop, date, onClickTime}) => {
   const stopColor = get(transportColor, stopMode, "var(--light-grey)");
 
   // Bail early if we don't have all the data yet.
-  if (!departure) {
+  if (!departure || !stop.departureEvent) {
     return (
       <StopWrapper>
         <StopElementsWrapper color={stopColor}>
