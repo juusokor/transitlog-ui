@@ -7,6 +7,15 @@ import withRoute from "../hoc/withRoute";
 import get from "lodash/get";
 import {departureTime, getNormalTime} from "../helpers/time";
 import {isWithinRange} from "../helpers/isWithinRange";
+import sortBy from "lodash/sortBy";
+import {
+  filterRouteSegments,
+  filterDepartures,
+} from "../helpers/filterJoreCollections";
+import omit from "lodash/omit";
+import orderBy from "lodash/orderBy";
+import {stopDepartureTimes} from "../helpers/stopDepartureTimes";
+import {stopArrivalTimes} from "../helpers/stopArrivalTimes";
 
 @inject(app("state"))
 @withRoute
@@ -17,11 +26,12 @@ class JourneyStopTimes extends Component {
   render() {
     const {
       children,
-      selectedJourneyEvents = {},
+      selectedJourneyEvents,
       state: {route: stateRoute, date},
     } = this.props;
 
-    const {events = []} = selectedJourneyEvents;
+    // selectedJourneyEvents is an array of objects like {journeyId: "", events: []}
+    const events = get(selectedJourneyEvents, "[0].events", []);
 
     // Pick the first event to represent the journey. Only general journey info,
     // like journey_start_time, should be read from this object.
@@ -33,7 +43,9 @@ class JourneyStopTimes extends Component {
 
     const journeyStartTime = get(journey, "journey_start_time", "");
     const [journeyStartHour] = journeyStartTime.split(":");
-    const [departureHour, departureMinute] = getNormalTime(journeyStartTime);
+    const [departureHour, departureMinute] = getNormalTime(journeyStartTime).split(
+      ":"
+    );
 
     return (
       <SingleRouteQuery
@@ -47,6 +59,8 @@ class JourneyStopTimes extends Component {
             return children({journeyStops: this.prevStops, loading});
           }
 
+          // We need a departureId for getting the correct departure for each stop.
+          // To get the departureId for this journey, get the origin stop departure.
           const originDeparture =
             get(route, "originStop.departures.nodes", []).find(
               ({hours, minutes, dayType, dateBegin, dateEnd, isNextDay}) =>
@@ -54,7 +68,48 @@ class JourneyStopTimes extends Component {
                 isWithinRange(date, dateBegin, dateEnd)
             ) || null;
 
-          return children({journeyStops: this.prevStops, loading});
+          const stops = sortBy(
+            filterRouteSegments(get(route, "routeSegments.nodes", []), date),
+            "stopIndex"
+          ).map((routeSegment) => {
+            const departure = filterDepartures(
+              get(routeSegment, "stop.departures.nodes", []),
+              date
+            ).filter(
+              (departure) => departure.departureId === originDeparture.departureId
+            )[0];
+
+            const stopEvents = orderBy(
+              events.filter((pos) => pos.next_stop_id === routeSegment.stopId),
+              "received_at_unix",
+              "desc"
+            );
+
+            const stopArrival = departure
+              ? stopArrivalTimes(stopEvents, departure, date)
+              : null;
+
+            const stopDeparture = departure
+              ? stopDepartureTimes(stopEvents, departure, date)
+              : null;
+
+            return {
+              destination: routeSegment.destinationFi,
+              distanceFromPrevious: routeSegment.distanceFromPrevious,
+              distanceFromStart: routeSegment.distanceFromStart,
+              duration: routeSegment.duration,
+              stopIndex: routeSegment.stopIndex,
+              timingStopType: routeSegment.timingStopType,
+              ...omit(get(routeSegment, "stop", {}), "departures", "__typename"),
+              departure,
+              ...stopDeparture,
+              ...stopArrival,
+            };
+          });
+
+          this.prevStops = stops;
+
+          return children({journeyStops: stops, loading: false});
         }}
       </SingleRouteQuery>
     );
