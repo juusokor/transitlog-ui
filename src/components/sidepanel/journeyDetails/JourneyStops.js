@@ -1,13 +1,9 @@
 import React from "react";
 import {observable, action} from "mobx";
 import {observer} from "mobx-react";
-import get from "lodash/get";
-import sortBy from "lodash/sortBy";
-import omit from "lodash/omit";
 import styled from "styled-components";
 import JourneyStop from "./JourneyStop";
 import {Text} from "../../../helpers/text";
-import {filterRouteSegments} from "../../../helpers/filterJoreCollections";
 
 const JourneyStopsWrapper = styled.div`
   margin-left: ${({expanded}) => (expanded ? "0" : "calc(1.5rem - 1px)")};
@@ -58,31 +54,7 @@ class JourneyStops extends React.Component {
   });
 
   render() {
-    const {journeyHfp, route, date, originDeparture, onClickTime} = this.props;
-    const {dateBegin = "", dateEnd = "", departureId = 0} = originDeparture || {};
-
-    const journeyStops = sortBy(
-      filterRouteSegments(get(route, "routeSegments.nodes", []), date),
-      "stopIndex"
-    ).map((routeSegment) => {
-      const stopDepartures = get(routeSegment, "stop.departures.nodes", []).filter(
-        (departure) =>
-          departure.dateBegin === dateBegin &&
-          departure.dateEnd === dateEnd &&
-          departure.departureId === departureId
-      );
-
-      return {
-        destination: routeSegment.destinationFi,
-        distanceFromPrevious: routeSegment.distanceFromPrevious,
-        distanceFromStart: routeSegment.distanceFromStart,
-        duration: routeSegment.duration,
-        stopIndex: routeSegment.stopIndex,
-        timingStopType: routeSegment.timingStopType,
-        ...omit(get(routeSegment, "stop", {}), "departures", "__typename"),
-        stopDeparture: stopDepartures[0],
-      };
-    });
+    const {journeyStops, date, onClickTime} = this.props;
 
     return (
       <JourneyStopsWrapper expanded={this.journeyIsExpanded}>
@@ -99,18 +71,14 @@ class JourneyStops extends React.Component {
         </JourneyExpandToggle>
         <StopsList>
           {this.journeyIsExpanded &&
-            journeyStops
-              .slice(1, journeyStops.length - 1)
-              .map((journeyStop) => (
-                <JourneyStop
-                  key={`journey_stop_${journeyStop.stopId}_${journeyStop.stopIndex}`}
-                  stop={journeyStop}
-                  originDeparture={originDeparture}
-                  date={date}
-                  journeyPositions={journeyHfp}
-                  onClickTime={onClickTime}
-                />
-              ))}
+            journeyStops.map((journeyStop) => (
+              <JourneyStop
+                key={`journey_stop_${journeyStop.stopId}_${journeyStop.stopIndex}`}
+                stop={journeyStop}
+                date={date}
+                onClickTime={onClickTime}
+              />
+            ))}
         </StopsList>
       </JourneyStopsWrapper>
     );

@@ -1,4 +1,4 @@
-import React, {Component} from "react";
+import React from "react";
 import FilterBar from "./filterbar/FilterBar";
 import {Observer, observer} from "mobx-react-lite";
 import Map from "./map/Map";
@@ -97,6 +97,7 @@ function App({state, UI}) {
                                 journeyEventsLoading={journeyEventsLoading}
                                 areaEvents={areaHfp}
                                 selectedJourneyEvents={selectedJourneyEvents}
+                                journeyStops={journeyStops}
                                 route={route}
                                 stop={stop}
                               />
@@ -147,6 +148,7 @@ function App({state, UI}) {
                                           queryBounds={queryBounds}
                                           setMapBounds={setMapBounds}
                                           journeys={currentPositions}
+                                          journeyStops={journeyStops}
                                           timePositions={currentTimePositions}
                                           route={route}
                                           stop={stop}

@@ -16,23 +16,15 @@ import {getTimelinessColor} from "../../../helpers/timelinessColor";
 import doubleDigit from "../../../helpers/doubleDigit";
 import CalculateTerminalTime from "./CalculateTerminalTime";
 import {Text} from "../../../helpers/text";
-import {departureTime, getNormalTime, journeyEventTime} from "../../../helpers/time";
+import {getNormalTime, journeyEventTime} from "../../../helpers/time";
 import {StopWrapper} from "./elements";
 
-export default ({
-  stop,
-  date,
-  onClickTime,
-  // The origin stop times are needed in other places too,
-  // so we can get it here if it has already been calculated.
-  departureTimes,
-  arrivalTimes,
-}) => {
+export default ({stop = {}, date, onClickTime}) => {
   const stopMode = get(stop, "modes.nodes[0]", "BUS");
   const stopColor = get(transportColor, stopMode, "var(--light-grey)");
 
   // Bail here if we don't have data about stop arrival and departure times.
-  if (!departureTimes) {
+  if (!stop.departureEvent) {
     return (
       <StopWrapper>
         <StopElementsWrapper color={stopColor} terminus={"origin"}>
@@ -54,9 +46,8 @@ export default ({
     delayType,
     departureDiff,
     departureEvent,
-  } = departureTimes;
-
-  const {arrivalEvent} = arrivalTimes;
+    arrivalEvent,
+  } = stop;
 
   const stopArrivalTime = journeyEventTime(arrivalEvent);
   const stopDepartureTime = journeyEventTime(departureEvent);

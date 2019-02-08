@@ -20,7 +20,7 @@ export const stopDepartureTimes = (stopPositions = [], stopDeparture, date) => {
 
   const departureDiff = diffDepartureJourney(departureEvent, stopDeparture, date);
   const departureDelayType = getDelayType(get(departureDiff, "diff", false));
-  const departureColor = getTimelinessColor(departureDelayType, "#000");
+  const departureColor = getTimelinessColor(departureDelayType, "var(--dark-grey)");
 
   let plannedDepartureMoment = get(departureDiff, "plannedMoment", null);
 
@@ -29,10 +29,9 @@ export const stopDepartureTimes = (stopPositions = [], stopDeparture, date) => {
   }
 
   return {
-    departure: stopDeparture,
     departureEvent,
-    delayType: departureDelayType,
-    color: departureColor,
+    departureDelayType,
+    departureColor,
     departureDiff,
     departureMoment: get(departureDiff, "observedMoment", null),
     plannedDepartureMoment,

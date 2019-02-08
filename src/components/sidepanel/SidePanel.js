@@ -93,6 +93,7 @@ class SidePanel extends Component {
       UI: {toggleSidePanel, toggleJourneyDetails},
       areaEvents = [],
       selectedJourneyEvents = [],
+      journeyStops,
       journeyEventsLoading = false,
       areaEventsLoading = false,
       stop,
@@ -161,7 +162,10 @@ class SidePanel extends Component {
         <JourneyPanel visible={journeyDetailsAreOpen}>
           {/* The content of the sidebar is independent from the sidebar wrapper so that we can animate it. */}
           {journeyDetailsAreOpen && (
-            <JourneyDetails selectedJourneyEvents={selectedJourneyEvents} />
+            <JourneyDetails
+              journeyStops={journeyStops}
+              selectedJourneyEvents={selectedJourneyEvents}
+            />
           )}
           {hasEvents && journeyDetailsCanOpen && (
             <ToggleJourneyDetailsButton

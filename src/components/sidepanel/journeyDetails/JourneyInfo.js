@@ -76,14 +76,10 @@ const ObservedValue = styled.span`
   font-family: "Courier New", Courier, monospace;
 `;
 
-export default ({
-  journey,
-  departure,
-  date,
-  originStopTimes,
-  destinationStopTimes,
-}) => {
-  if (!departure) {
+export default ({journey, date, originStop = {}, destinationStop = {}}) => {
+  const {departure} = originStop;
+
+  if (!departure || !journey) {
     return null;
   }
 
@@ -117,11 +113,11 @@ export default ({
           </LineHeading>
           <Values>
             <span>{get(departure, "terminalTime", 0)} min</span>
-            {originStopTimes && (
+            {originStop && (
               <CalculateTerminalTime
                 date={date}
-                departure={originStopTimes.departure}
-                event={originStopTimes.arrivalEvent}>
+                departure={departure}
+                event={originStop.arrivalEvent}>
                 {({diffMinutes, diffSeconds, sign, wasLate}) => (
                   <ObservedValue
                     color={wasLate ? "white" : "var(--dark-grey)"}
@@ -142,12 +138,12 @@ export default ({
           </LineHeading>
           <Values>
             <span>{get(departure, "recoveryTime", 0)} min</span>
-            {destinationStopTimes && (
+            {destinationStop && (
               <CalculateTerminalTime
                 recovery={true}
                 date={date}
-                departure={destinationStopTimes.departure}
-                event={destinationStopTimes.arrivalEvent}>
+                departure={destinationStop.departure}
+                event={destinationStop.arrivalEvent}>
                 {({diffMinutes, diffSeconds, wasLate, sign}) => (
                   <ObservedValue
                     color={wasLate ? "white" : "var(--dark-grey)"}
@@ -179,7 +175,7 @@ export default ({
         </Line>
         <Equipment journey={journey} departure={departure}>
           {({equipment = []}) =>
-            equipment.length && (
+            equipment.length !== 0 && (
               <Line right>
                 <Values>
                   {equipment.map((prop) => (

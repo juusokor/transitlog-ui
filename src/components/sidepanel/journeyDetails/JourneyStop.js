@@ -1,8 +1,6 @@
 import React from "react";
 import {Heading} from "../../Typography";
 import get from "lodash/get";
-import orderBy from "lodash/orderBy";
-import {stopDepartureTimes} from "../../../helpers/stopDepartureTimes";
 import styled from "styled-components";
 import {
   SmallText,
@@ -21,8 +19,7 @@ import {getTimelinessColor} from "../../../helpers/timelinessColor";
 import doubleDigit from "../../../helpers/doubleDigit";
 import ArrowRightLong from "../../../icons/ArrowRightLong";
 import {Text} from "../../../helpers/text";
-import {stopArrivalTimes} from "../../../helpers/stopArrivalTimes";
-import {departureTime, getNormalTime, journeyEventTime} from "../../../helpers/time";
+import {getNormalTime, journeyEventTime} from "../../../helpers/time";
 
 const StopWrapper = styled.div`
   padding: 0;
@@ -68,20 +65,14 @@ const SimpleStopArrivalTime = styled.div`
 
 const StopDepartureTime = styled(TagButton)``;
 
-export default ({stop, journeyPositions = [], date, onClickTime}) => {
-  const stopPositions = orderBy(
-    journeyPositions.filter((pos) => pos.next_stop_id === stop.stopId),
-    "received_at_unix",
-    "desc"
-  );
-
+export default ({stop, date, onClickTime}) => {
   const departure = stop.stopDeparture;
 
   const stopMode = get(stop, "modes.nodes[0]", "BUS");
   const stopColor = get(transportColor, stopMode, "var(--light-grey)");
 
   // Bail early if we don't have all the data yet.
-  if (!departure || stopPositions.length === 0) {
+  if (!departure) {
     return (
       <StopWrapper>
         <StopElementsWrapper color={stopColor}>
@@ -100,19 +91,12 @@ export default ({stop, journeyPositions = [], date, onClickTime}) => {
     departureEvent,
     plannedDepartureMoment,
     departureMoment,
-    delayType,
+    departureDelayType,
     departureDiff,
-  } = stopDepartureTimes(stopPositions, departure, date);
-
-  const {plannedArrivalMoment, arrivalMoment, arrivalEvent} = stopArrivalTimes(
-    stopPositions,
-    departure,
-    date
-  );
-
-  const endOfStream =
-    get(departureEvent, "received_at_unix", 0) ===
-    get(journeyPositions, `[${journeyPositions.length - 1}].received_at_unix`, 0);
+    plannedArrivalMoment,
+    arrivalMoment,
+    arrivalEvent,
+  } = stop;
 
   const stopDepartureTime = journeyEventTime(departureEvent);
   const stopArrivalTime = journeyEventTime(arrivalEvent);
@@ -166,9 +150,9 @@ export default ({stop, journeyPositions = [], date, onClickTime}) => {
             <StopDepartureTime onClick={onClickTime(stopDepartureTime)}>
               <PlainSlot>{plannedDepartureMoment.format("HH:mm:ss")}</PlainSlot>
               <ColoredBackgroundSlot
-                color={delayType === "late" ? "var(--dark-grey)" : "white"}
+                color={departureDelayType === "late" ? "var(--dark-grey)" : "white"}
                 backgroundColor={getTimelinessColor(
-                  delayType,
+                  departureDelayType,
                   "var(--light-green)"
                 )}>
                 {departureDiff.sign}
@@ -177,9 +161,6 @@ export default ({stop, journeyPositions = [], date, onClickTime}) => {
               </ColoredBackgroundSlot>
               <PlainSlotSmall>{departureMoment.format("HH:mm:ss")}</PlainSlotSmall>
             </StopDepartureTime>
-            {endOfStream && (
-              <SmallText>End of HFP stream used as stop departure.</SmallText>
-            )}
           </>
         ) : (
           <SmallText>

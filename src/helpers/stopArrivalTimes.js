@@ -2,6 +2,9 @@ import get from "lodash/get";
 import moment from "moment-timezone";
 import {TIMEZONE} from "../constants";
 import {getAdjustedDepartureDate} from "./getAdjustedDepartureDate";
+import {diffDepartureJourney} from "./diffDepartureJourney";
+import getDelayType from "./getDelayType";
+import {getTimelinessColor} from "./timelinessColor";
 
 /**
  *
@@ -43,15 +46,23 @@ export const stopArrivalTimes = (stopPositions = [], stopDeparture, date) => {
 
   const arrivalTime = get(arrivalEvent, "received_at", null);
   let arrivalMoment = null;
+  let arrivalDelayType = null;
+  let arrivalColor = null;
+  let arrivalDiff = null;
 
   if (arrivalTime) {
     arrivalMoment = moment.tz(arrivalTime, TIMEZONE);
+    arrivalDiff = diffDepartureJourney(arrivalEvent, stopDeparture, date);
+    arrivalDelayType = getDelayType(get(arrivalDiff, "diff", false));
+    arrivalColor = getTimelinessColor(arrivalDelayType, "var(--dark-grey)");
   }
 
   return {
     arrivalEvent,
+    arrivalDelayType,
+    arrivalColor,
+    arrivalDiff,
     arrivalMoment,
-    departure: stopDeparture,
     plannedArrivalMoment: getAdjustedDepartureDate(stopDeparture, date, true),
   };
 };

@@ -22,7 +22,7 @@ export default function CalculateTerminalTime({
   const diff = observedTime.diff(plannedTime, "seconds");
   const sign = diff < 0 ? "-" : diff > 0 ? "+" : "";
 
-  const {seconds: diffSeconds, minutes: diffMinutes} = secondsToTimeObject(
+  const {seconds: diffSeconds = 0, minutes: diffMinutes = 0} = secondsToTimeObject(
     Math.abs(diff)
   );
 
