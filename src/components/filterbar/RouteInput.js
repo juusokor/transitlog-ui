@@ -8,7 +8,7 @@ import {createRouteKey} from "../../helpers/keys";
 import withRoute from "../../hoc/withRoute";
 
 @inject(app("Filters"))
-@withRoute
+@withRoute()
 @observer
 class RouteInput extends Component {
   onChange = (e) => {

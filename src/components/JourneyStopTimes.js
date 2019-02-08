@@ -18,7 +18,7 @@ import {stopDepartureTimes} from "../helpers/stopDepartureTimes";
 import {stopArrivalTimes} from "../helpers/stopArrivalTimes";
 
 @inject(app("state"))
-@withRoute
+@withRoute()
 @observer
 class JourneyStopTimes extends Component {
   render() {

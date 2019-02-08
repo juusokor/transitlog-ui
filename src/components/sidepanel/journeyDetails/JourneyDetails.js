@@ -36,7 +36,7 @@ const StopsListWrapper = styled.div`
 `;
 
 @inject(app("Time"))
-@withRoute
+@withRoute()
 @observer
 class JourneyDetails extends React.Component {
   onClickTime = (time) => (e) => {
@@ -51,7 +51,6 @@ class JourneyDetails extends React.Component {
       selectedJourneyEvents,
       journeyStops,
     } = this.props;
-
     // Select the first event to define the journey
     const events = get(selectedJourneyEvents, "[0].events", []);
     const journey = get(events, "[0]", {});

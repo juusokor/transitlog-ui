@@ -18,7 +18,7 @@ export const journeyHfpStates = {
 };
 
 @inject(app("Journey", "Filters"))
-@withRoute
+@withRoute({alwaysFetch: true})
 @observer
 class RouteJourneys extends React.Component {
   render() {
