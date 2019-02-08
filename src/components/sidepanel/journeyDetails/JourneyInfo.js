@@ -113,7 +113,7 @@ export default ({journey, date, originStop = {}, destinationStop = {}}) => {
           </LineHeading>
           <Values>
             <span>{get(departure, "terminalTime", 0)} min</span>
-            {originStop && (
+            {originStop.arrivalEvent && (
               <CalculateTerminalTime
                 date={date}
                 departure={departure}
@@ -138,7 +138,7 @@ export default ({journey, date, originStop = {}, destinationStop = {}}) => {
           </LineHeading>
           <Values>
             <span>{get(departure, "recoveryTime", 0)} min</span>
-            {destinationStop && (
+            {destinationStop.arrivalEvent && (
               <CalculateTerminalTime
                 recovery={true}
                 date={date}

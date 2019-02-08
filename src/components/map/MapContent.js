@@ -114,7 +114,6 @@ class MapContent extends Component {
                 showRadius={showStopRadius}
                 onViewLocation={viewLocation}
                 route={route}
-                positions={[]}
               />
             )}
 
@@ -148,7 +147,6 @@ class MapContent extends Component {
                       key={`journey_stops_${journeyId}`}
                       route={route}
                       journeyStops={journeyStops}
-                      positions={journeyPositions}
                     />
                   ) : null,
                   <HfpMarkerLayer

@@ -15,7 +15,6 @@ function RouteStopsLayer({
   route,
   onViewLocation,
   showRadius,
-  positions = [],
   journeyStops = [],
 }) {
   return (
