@@ -35,8 +35,6 @@ class JourneyStopTimes extends Component {
     const [journeyStartHour] = journeyStartTime.split(":");
     const [departureHour, departureMinute] = getNormalTime(journeyStartTime);
 
-    console.log(journey);
-
     return (
       <SingleRouteQuery
         date={date}
@@ -45,8 +43,6 @@ class JourneyStopTimes extends Component {
         departureMinutes={parseInt(departureMinute, 10)}
         route={pick(stateRoute, "routeId", "direction", "dateBegin", "dateEnd")}>
         {({route, loading, error}) => {
-          console.log(route);
-
           if (!route || loading || error) {
             return children({journeyStops: this.prevStops, loading});
           }
