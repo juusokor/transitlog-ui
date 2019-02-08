@@ -48,6 +48,7 @@
   "journey.stops_hidden": "stops hidden",
   "journey.arrival": "Arrival",
   "journey.departure": "Departure",
+  "journey.duration": "Journey duration",
 
   "domain.line": "Line",
   "domain.route": "Route",

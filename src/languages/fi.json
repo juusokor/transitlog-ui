@@ -48,6 +48,7 @@
   "journey.stops_hidden": "pysäkkiä piilossa",
   "journey.arrival": "Saapuminen",
   "journey.departure": "Lähtö",
+  "journey.duration": "Matkan kesto",
 
   "domain.line": "Linja",
   "domain.route": "Reitti",

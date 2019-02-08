@@ -37,6 +37,7 @@ function RouteStopsLayer({
               firstTerminal={isFirst}
               lastTerminal={isLast}
               selectedJourney={selectedJourney}
+              firstStop={arr[0]}
               stop={stop}
               date={date}
               onViewLocation={onViewLocation}

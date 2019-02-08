@@ -3,7 +3,7 @@ import {Marker, CircleMarker, Tooltip, Popup} from "react-leaflet";
 import {icon, latLng} from "leaflet";
 import TimingStopIcon from "../../icon-time1.svg";
 import {observer, inject} from "mobx-react";
-import {Heading, P} from "../Typography";
+import {P} from "../Typography";
 import {
   ColoredBackgroundSlot,
   PlainSlot,
@@ -14,7 +14,13 @@ import styled from "styled-components";
 import {getPriorityMode, getModeColor} from "../../helpers/vehicleColor";
 import get from "lodash/get";
 import {StopRadius} from "./StopRadius";
-import {journeyEventTime, getNormalTime} from "../../helpers/time";
+import {
+  journeyEventTime,
+  getNormalTime,
+  timeToSeconds,
+  secondsToTime,
+  secondsToTimeObject,
+} from "../../helpers/time";
 import {Text} from "../../helpers/text";
 import {app} from "mobx-app";
 import {getTimelinessColor} from "../../helpers/timelinessColor";
@@ -105,7 +111,13 @@ class RouteStopMarker extends React.Component {
   };
 
   render() {
-    const {stop, firstTerminal, lastTerminal, selectedJourney} = this.props;
+    const {
+      stop,
+      firstStop,
+      firstTerminal,
+      lastTerminal,
+      selectedJourney,
+    } = this.props;
 
     const isTerminal = firstTerminal || lastTerminal;
 
@@ -149,14 +161,12 @@ class RouteStopMarker extends React.Component {
     const {
       departureEvent,
       plannedDepartureMoment,
-      departureMoment,
       departureDelayType,
       departureDiff,
       plannedArrivalMoment,
       departureColor,
       arrivalEvent,
       arrivalDiff,
-      arrivalDelayType,
       doorDidOpen,
     } = stop;
 
@@ -165,6 +175,40 @@ class RouteStopMarker extends React.Component {
 
     const stopDepartureTime = journeyEventTime(departureEvent);
     const stopArrivalTime = journeyEventTime(arrivalEvent);
+
+    let plannedDuration = 0;
+    let observedDuration = 0;
+    let durationDiff = 0;
+    let durationDiffSign = "";
+
+    const firstStopPlannedDepartureTime = get(
+      firstStop,
+      "plannedDepartureMoment",
+      null
+    );
+
+    if (firstStopPlannedDepartureTime && plannedDepartureMoment) {
+      plannedDuration = plannedDepartureMoment.diff(
+        firstStopPlannedDepartureTime,
+        "seconds"
+      );
+    }
+    const firstStopDepartureTime = journeyEventTime(
+      get(firstStop, "departureEvent", null)
+    );
+
+    const firstStopDepartureSeconds = timeToSeconds(firstStopDepartureTime);
+    const stopDepartureSeconds = timeToSeconds(stopDepartureTime);
+
+    if (firstStopDepartureSeconds && stopDepartureSeconds) {
+      observedDuration = stopDepartureSeconds - firstStopDepartureSeconds;
+    }
+
+    if (plannedDuration > 0 && observedDuration > 0) {
+      const durationDiffSeconds = observedDuration - plannedDuration;
+      const durationDiffSign = durationDiffSeconds < 0 ? "-" : "";
+      durationDiff = secondsToTimeObject(durationDiffSeconds);
+    }
 
     const observedTime = (
       <DepartureTimeGroup>
@@ -207,11 +251,8 @@ class RouteStopMarker extends React.Component {
               <StopArrivalTime>
                 <PlainSlot>{plannedArrivalMoment.format("HH:mm:ss")}</PlainSlot>
                 <ColoredBackgroundSlot
-                  color={arrivalDelayType === "late" ? "var(--dark-grey)" : "white"}
-                  backgroundColor={getTimelinessColor(
-                    arrivalDelayType,
-                    "var(--light-green)"
-                  )}>
+                  color="var(--dark-grey)"
+                  backgroundColor="var(--lighter-grey)">
                   {arrivalDiff.sign}
                   {doubleDigit(get(arrivalDiff, "minutes", 0))}:
                   {doubleDigit(get(arrivalDiff, "seconds", 0))}
@@ -225,6 +266,25 @@ class RouteStopMarker extends React.Component {
             </PopupParagraph>
           ) : null}
           {observedTime}
+          {plannedDuration > 0 && observedDuration > 0 && (
+            <>
+              <TimeHeading>
+                <Text>journey.duration</Text>
+              </TimeHeading>
+              <TagButton>
+                <PlainSlot>{secondsToTime(plannedDuration)}</PlainSlot>
+                <ColoredBackgroundSlot
+                  color="var(--dark-grey)"
+                  backgroundColor="var(--lighter-grey)">
+                  {durationDiffSign}
+                  {durationDiff.hours ? doubleDigit(durationDiff.hours) + ":" : ""}
+                  {doubleDigit(get(durationDiff, "minutes", 0))}:
+                  {doubleDigit(get(durationDiff, "seconds", 0))}
+                </ColoredBackgroundSlot>
+                <PlainSlotSmall>{secondsToTime(observedDuration)}</PlainSlotSmall>
+              </TagButton>
+            </>
+          )}
         </PopupStopContent>
         <button onClick={this.onShowStreetView}>
           <Text>map.stops.show_in_streetview</Text>

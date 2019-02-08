@@ -48,6 +48,7 @@
   "journey.stops_hidden": "hållplatser gömda",
   "journey.arrival": "Ankomst",
   "journey.departure": "Avfärd",
+  "journey.duration": "Resans tidslängd",
 
   "domain.line": "Linje",
   "domain.route": "Rutt",
