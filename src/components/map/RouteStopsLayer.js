@@ -24,7 +24,7 @@ function RouteStopsLayer({
 
         return stopsList.map((stop, index, arr) => {
           // Funnily enough, the first stop is last in the array.
-          const isFirst = index === arr.length - 1;
+          const isFirst = index === 0;
           // ...and the last stop is first.
           const isLast = index === arr.length - 1;
 

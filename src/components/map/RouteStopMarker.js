@@ -33,6 +33,7 @@ import {
 } from "../StopElements";
 
 const PopupParagraph = styled(P)`
+  font-family: var(--font-family);
   font-size: 1rem;
 `;
 
@@ -149,9 +150,7 @@ class RouteStopMarker extends React.Component {
     let markerChildren = [stopTooltip, stopStreetViewPopup];
 
     const mode = getPriorityMode(get(stop, "modes.nodes", []));
-    const stopColor = getModeColor(mode);
-
-    let color = stopColor;
+    let color = getModeColor(mode);
     let delayType = "none";
 
     if (!selectedJourney || !stop.departure || !stop.departureEvent) {
@@ -206,7 +205,7 @@ class RouteStopMarker extends React.Component {
 
     if (plannedDuration > 0 && observedDuration > 0) {
       const durationDiffSeconds = observedDuration - plannedDuration;
-      const durationDiffSign = durationDiffSeconds < 0 ? "-" : "";
+      durationDiffSign = durationDiffSeconds < 0 ? "-" : "";
       durationDiff = secondsToTimeObject(durationDiffSeconds);
     }
 
@@ -223,7 +222,7 @@ class RouteStopMarker extends React.Component {
               departureDelayType,
               "var(--light-green)"
             )}>
-            {departureDiff.sign}
+            {departureDiff.sign === "-" ? "-" : ""}
             {doubleDigit(get(departureDiff, "minutes", 0))}:
             {doubleDigit(get(departureDiff, "seconds", 0))}
           </ColoredBackgroundSlot>
@@ -235,7 +234,7 @@ class RouteStopMarker extends React.Component {
     const stopPopup = (
       <Popup
         maxHeight={750}
-        maxWidth={550}
+        maxWidth={500}
         autoPan={true}
         key={`stop${stop.stopId}_popup`}>
         <PopupStopContent>
@@ -253,7 +252,7 @@ class RouteStopMarker extends React.Component {
                 <ColoredBackgroundSlot
                   color="var(--dark-grey)"
                   backgroundColor="var(--lighter-grey)">
-                  {arrivalDiff.sign}
+                  {arrivalDiff.sign === "-" ? "-" : ""}
                   {doubleDigit(get(arrivalDiff, "minutes", 0))}:
                   {doubleDigit(get(arrivalDiff, "seconds", 0))}
                 </ColoredBackgroundSlot>

@@ -81,7 +81,7 @@ export const TimeHeading = styled.div`
   font-size: 0.75rem;
   color: var(--light-grey);
   margin-bottom: 0.2rem;
-  margin-top: 0.5rem;
+  margin-top: 1rem;
   font-family: var(--font-family);
 `;
 export const StopArrivalTime = styled(TagButton)`

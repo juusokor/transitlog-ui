@@ -64,7 +64,7 @@ export default ({stop = {}, date, onClickTime}) => {
                 <ColoredBackgroundSlot
                   color="white"
                   backgroundColor={wasLate ? "var(--red)" : "var(--light-green)"}>
-                  {sign}
+                  {sign === "-" ? "-" : ""}
                   {doubleDigit(diffMinutes)}:{doubleDigit(diffSeconds)}
                 </ColoredBackgroundSlot>
                 <PlainSlotSmall>{getNormalTime(stopArrivalTime)}</PlainSlotSmall>

@@ -134,7 +134,7 @@ export default ({stop, date, onClickTime}) => {
                   departureDelayType,
                   "var(--light-green)"
                 )}>
-                {departureDiff.sign}
+                {departureDiff.sign === "-" ? "-" : ""}
                 {doubleDigit(get(departureDiff, "minutes", 0))}:
                 {doubleDigit(get(departureDiff, "seconds", 0))}
               </ColoredBackgroundSlot>

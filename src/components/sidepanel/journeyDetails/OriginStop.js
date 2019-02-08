@@ -89,7 +89,7 @@ export default ({stop = {}, date, onClickTime}) => {
                 <ColoredBackgroundSlot
                   color="white"
                   backgroundColor={wasLate ? "var(--red)" : "var(--light-green)"}>
-                  {sign}
+                  {sign === "-" ? "-" : ""}
                   {doubleDigit(diffMinutes)}:{doubleDigit(diffSeconds)}
                 </ColoredBackgroundSlot>
                 <PlainSlotSmall>{getNormalTime(stopArrivalTime)}</PlainSlotSmall>
@@ -108,7 +108,7 @@ export default ({stop = {}, date, onClickTime}) => {
           <ColoredBackgroundSlot
             color={delayType === "late" ? "var(--dark-grey)" : "white"}
             backgroundColor={getTimelinessColor(delayType, "var(--light-green)")}>
-            {departureDiff.sign}
+            {departureDiff.sign === "-" ? "-" : ""}
             {doubleDigit(get(departureDiff, "minutes", 0))}:
             {doubleDigit(get(departureDiff, "seconds", 0))}
           </ColoredBackgroundSlot>
