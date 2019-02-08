@@ -57,7 +57,9 @@ class RouteStopsLayer extends Component {
     const {route} = this.props;
 
     return (
-      <StopsByRouteQuery route={route}>
+      <StopsByRouteQuery
+        route={route}
+        skip={!route || !route.routeId || !route.dateBegin}>
         {({stops}) => this.renderStops(stops)}
       </StopsByRouteQuery>
     );

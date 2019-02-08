@@ -19,7 +19,7 @@ class StopSettings extends React.Component {
       <>
         <ControlGroup>
           <Input label={text("filterpanel.filter_by_stop")} animatedLabel={false}>
-            {!route.routeId ? (
+            {!route.routeId || !route.dateBegin ? (
               <AllStopsQuery key="all_stops">
                 {({stops}) => (
                   <StopInput onSelect={Filters.setStop} stop={stop} stops={stops} />

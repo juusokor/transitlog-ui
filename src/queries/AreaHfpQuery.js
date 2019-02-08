@@ -85,7 +85,6 @@ class AreaHfpQuery extends Component {
 
     return (
       <Query
-        fetchPolicy="cache-and-network"
         partialRefetch={true}
         skip={skip}
         variables={{date, minTime, maxTime, minLat, maxLat, minLong, maxLong}}
