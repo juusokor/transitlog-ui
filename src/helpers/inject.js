@@ -7,8 +7,11 @@ export const inject = (...values) => (Component) =>
   observer((props) => {
     const {actions, state} = useContext(StoreContext);
 
-    let pickProps = [];
-    if (values.length === 0) pickProps = Object.keys(actions);
+    let pickProps = values;
+
+    if (values.length === 0) {
+      pickProps = Object.keys(actions);
+    }
 
     const nextProps = {
       ...pick(actions, pickProps),

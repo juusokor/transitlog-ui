@@ -66,7 +66,7 @@ const SimpleStopArrivalTime = styled.div`
 const StopDepartureTime = styled(TagButton)``;
 
 export default ({stop, date, onClickTime}) => {
-  const departure = stop.stopDeparture;
+  const departure = stop.departure;
 
   const stopMode = get(stop, "modes.nodes[0]", "BUS");
   const stopColor = get(transportColor, stopMode, "var(--light-grey)");
@@ -94,7 +94,6 @@ export default ({stop, date, onClickTime}) => {
     departureDelayType,
     departureDiff,
     plannedArrivalMoment,
-    arrivalMoment,
     arrivalEvent,
   } = stop;
 
@@ -130,7 +129,7 @@ export default ({stop, date, onClickTime}) => {
               <PlainSlotSmall>{getNormalTime(stopArrivalTime)}</PlainSlotSmall>
             </StopArrivalTime>
           </>
-        ) : arrivalMoment ? (
+        ) : arrivalEvent ? (
           <SimpleStopArrivalTime>
             <ArrowRightLong fill="var(--blue)" width="0.75rem" height="0.75rem" />
             {getNormalTime(stopArrivalTime)}
@@ -140,7 +139,7 @@ export default ({stop, date, onClickTime}) => {
             <Text>filterpanel.journey.no_data</Text>
           </SmallText>
         )}
-        {departureMoment ? (
+        {departureEvent ? (
           <>
             {showPlannedArrivalTime && (
               <TimeHeading>

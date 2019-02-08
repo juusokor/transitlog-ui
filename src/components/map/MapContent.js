@@ -31,6 +31,7 @@ class MapContent extends Component {
   render() {
     const {
       journeys = [],
+      journeyStops,
       timePositions,
       route,
       zoom,
@@ -146,6 +147,7 @@ class MapContent extends Component {
                       onViewLocation={viewLocation}
                       key={`journey_stops_${journeyId}`}
                       route={route}
+                      journeyStops={journeyStops}
                       positions={journeyPositions}
                     />
                   ) : null,

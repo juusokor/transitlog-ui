@@ -63,6 +63,7 @@ export const stopArrivalTimes = (stopPositions = [], stopDeparture, date) => {
     arrivalColor,
     arrivalDiff,
     arrivalMoment,
+    doorDidOpen,
     plannedArrivalMoment: getAdjustedDepartureDate(stopDeparture, date, true),
   };
 };

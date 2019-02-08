@@ -1,13 +1,13 @@
 import React from "react";
 import flow from "lodash/flow";
 import RouteStopMarker from "./RouteStopMarker";
-import {inject, observer} from "mobx-react";
+import {observer} from "mobx-react-lite";
 import StopsByRouteQuery from "../../queries/StopsByRouteQuery";
-import {app} from "mobx-app";
+import {inject} from "../../helpers/inject";
 
 const decorate = flow(
   observer,
-  inject(app("state"))
+  inject("state")
 );
 
 function RouteStopsLayer({
@@ -16,15 +16,18 @@ function RouteStopsLayer({
   onViewLocation,
   showRadius,
   positions = [],
+  journeyStops = [],
 }) {
   return (
-    <StopsByRouteQuery route={route}>
-      {({stops}) =>
-        stops.map((stop, index) => {
+    <StopsByRouteQuery route={route} skip={journeyStops.length !== 0}>
+      {({stops}) => {
+        const stopsList = journeyStops.length !== 0 ? journeyStops : stops;
+
+        return stopsList.map((stop, index, arr) => {
           // Funnily enough, the first stop is last in the array.
-          const isFirst = index === stops.length - 1;
+          const isFirst = index === arr.length - 1;
           // ...and the last stop is first.
-          const isLast = index === 0;
+          const isLast = index === arr.length - 1;
 
           const isSelected = stop.stopId === selectedStop;
 
@@ -34,7 +37,6 @@ function RouteStopsLayer({
               selected={isSelected}
               firstTerminal={isFirst}
               lastTerminal={isLast}
-              positions={positions}
               selectedJourney={selectedJourney}
               stop={stop}
               date={date}
@@ -42,8 +44,8 @@ function RouteStopsLayer({
               showRadius={showRadius}
             />
           );
-        })
-      }
+        });
+      }}
     </StopsByRouteQuery>
   );
 }

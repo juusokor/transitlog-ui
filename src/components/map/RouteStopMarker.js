@@ -3,22 +3,14 @@ import {Marker, CircleMarker, Tooltip, Popup} from "react-leaflet";
 import {icon, latLng} from "leaflet";
 import TimingStopIcon from "../../icon-time1.svg";
 import {observer, inject} from "mobx-react";
-import {diffDepartureJourney} from "../../helpers/diffDepartureJourney";
-import getDelayType from "../../helpers/getDelayType";
-import orderBy from "lodash/orderBy";
-import groupBy from "lodash/groupBy";
 import {Heading, P} from "../Typography";
 import {ColoredBackgroundSlot} from "../TagButton";
 import styled from "styled-components";
-import {getTimelinessColor} from "../../helpers/timelinessColor";
-import moment from "moment-timezone";
 import {getPriorityMode, getModeColor} from "../../helpers/vehicleColor";
 import get from "lodash/get";
 import {StopRadius} from "./StopRadius";
-import DeparturesQuery from "../../queries/DeparturesQuery";
-import {departureTime} from "../../helpers/time";
+import {journeyEventTime, getNormalTime} from "../../helpers/time";
 import {Text} from "../../helpers/text";
-import {TIMEZONE} from "../../constants";
 import {app} from "mobx-app";
 
 const PopupParagraph = styled(P)`
@@ -89,20 +81,13 @@ class RouteStopMarker extends React.Component {
     );
   };
 
-  onShowStreetView = (e) => {
+  onShowStreetView = () => {
     const {onViewLocation, stop} = this.props;
     onViewLocation(latLng({lat: stop.lat, lng: stop.lon}));
   };
 
   render() {
-    const {
-      stop,
-      firstTerminal,
-      lastTerminal,
-      positions = [],
-      date,
-      selectedJourney,
-    } = this.props;
+    const {stop, firstTerminal, lastTerminal, selectedJourney} = this.props;
 
     const isTerminal = firstTerminal || lastTerminal;
 
@@ -133,164 +118,79 @@ class RouteStopMarker extends React.Component {
     let color = stopColor;
     let delayType = "none";
 
-    if (positions.length === 0 || !selectedJourney) {
+    if (!selectedJourney || !stop.departure || !stop.departureEvent) {
       return this.createStopMarker(delayType, color, isTerminal, markerChildren);
     }
 
     const {
-      route_id = "",
-      direction_id = "",
-      journey_start_time = "",
-    } = selectedJourney;
+      departureEvent,
+      plannedDepartureMoment,
+      departureMoment,
+      departureDelayType,
+      departureDiff,
+      plannedArrivalMoment,
+      arrivalMoment,
+      departureColor,
+      arrivalEvent,
+      doorDidOpen,
+    } = stop;
 
-    return (
-      <DeparturesQuery
-        stop={stop}
-        date={date}
-        route={{routeId: route_id, direction: direction_id}}>
-        {({departures = [], loading: departuresLoading}) => {
-          // Show a marker without the popup if we don't have any data
-          if (departuresLoading || departures.length === 0 || !journey_start_time) {
-            return this.createStopMarker(
-              delayType,
-              color,
-              isTerminal,
-              markerChildren
-            );
-          }
+    delayType = departureDelayType;
+    color = departureColor;
 
-          const groupedDepartures = groupBy(departures, ({originDeparture}) =>
-            departureTime(originDeparture)
-          );
+    const stopDepartureTime = journeyEventTime(departureEvent);
+    const stopArrivalTime = journeyEventTime(arrivalEvent);
 
-          let departure = get(groupedDepartures, `${journey_start_time}[0]`, null);
-
-          // If we don't have a departure, no biggie, just render the stop marker at this point.
-          if (!departure) {
-            return this.createStopMarker(
-              delayType,
-              color,
-              isTerminal,
-              markerChildren
-            );
-          }
-
-          const stopPositions = orderBy(
-            positions.filter(
-              (pos) =>
-                pos.journey_start_time === journey_start_time &&
-                pos.next_stop_id === stop.stopId
-            ),
-            "received_at_unix",
-            "desc"
-          );
-
-          // Find the hfp item that matches this departure.
-          // Sort by received_at descending and select the first element, this way we get the
-          // hfp item that represents the time when the vehicle left the stop, ie the
-          // last hfp item before the next_stop_id value changed.
-          let departureHfpItem = stopPositions[0];
-
-          // Again, render the marker at this point if we didn't find an hfp item.
-          if (!departureHfpItem) {
-            return this.createStopMarker(
-              delayType,
-              color,
-              isTerminal,
-              markerChildren
-            );
-          }
-
-          // Find out when the vehicle arrived at the stop
-          // by looking at when the doors were opened.
-          let doorDidOpen = false;
-          let arrivalHfpItem = departureHfpItem;
-
-          for (const positionIndex in stopPositions) {
-            const position = stopPositions[positionIndex];
-
-            if (doorDidOpen && !position.drst) {
-              arrivalHfpItem = stopPositions[positionIndex - 1];
-              break;
-            }
-
-            if (!doorDidOpen && !!position.drst) {
-              doorDidOpen = true;
-            }
-          }
-
-          // Get the difference between the planned and the observed time,
-          // now that we have both.
-          const {observedMoment, plannedMoment, diff} = diffDepartureJourney(
-            departureHfpItem,
-            departure,
-            date
-          );
-
-          delayType = getDelayType(diff);
-          color = getTimelinessColor(delayType, stopColor);
-
-          if (observedMoment) {
-            const observedTime = (
-              <ObservedTime
-                backgroundColor={color}
-                color={delayType === "late" ? "var(--dark-grey)" : "white"}>
-                {observedMoment.format("HH:mm:ss")}
-              </ObservedTime>
-            );
-
-            let arrivalMoment;
-
-            if (doorDidOpen) {
-              arrivalMoment = moment.tz(arrivalHfpItem.received_at, TIMEZONE);
-            }
-
-            const stopPopup = (
-              <Popup
-                maxHeight={750}
-                maxWidth={550}
-                autoPan={true}
-                key={`stop${stop.stopId}_popup`}>
-                <Heading level={4}>
-                  {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
-                </Heading>
-                {doorDidOpen ? (
-                  <PopupParagraph>
-                    <Text>map.stops.arrive</Text>:{" "}
-                    <PlannedTime>{arrivalMoment.format("HH:mm:ss")}</PlannedTime>
-                  </PopupParagraph>
-                ) : (
-                  <PopupParagraph>
-                    <Text>map.stops.doors_not_open</Text>
-                  </PopupParagraph>
-                )}
-                <PopupParagraph>
-                  <Text>map.stops.planned_driveby</Text>:{" "}
-                  <PlannedTime>{plannedMoment.format("HH:mm:ss")}</PlannedTime>
-                </PopupParagraph>
-                <PopupParagraph>
-                  <Text>map.stops.observed_driveby</Text>: {observedTime}
-                </PopupParagraph>
-                <button onClick={this.onShowStreetView}>
-                  <Text>map.stops.show_in_streetview</Text>
-                </button>
-              </Popup>
-            );
-
-            stopTooltip = (
-              <Tooltip key={`stop${stop.stopId}_tooltip`}>
-                {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})<br />
-                {observedTime}
-              </Tooltip>
-            );
-
-            markerChildren = [stopTooltip, stopPopup];
-          }
-
-          return this.createStopMarker(delayType, color, isTerminal, markerChildren);
-        }}
-      </DeparturesQuery>
+    const observedTime = (
+      <ObservedTime
+        backgroundColor={color}
+        color={delayType === "late" ? "var(--dark-grey)" : "white"}>
+        {getNormalTime(stopDepartureTime)}
+      </ObservedTime>
     );
+
+    const stopPopup = (
+      <Popup
+        maxHeight={750}
+        maxWidth={550}
+        autoPan={true}
+        key={`stop${stop.stopId}_popup`}>
+        <Heading level={4}>
+          {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
+        </Heading>
+        {doorDidOpen ? (
+          <PopupParagraph>
+            <Text>map.stops.arrive</Text>:{" "}
+            <PlannedTime>{getNormalTime(stopArrivalTime)}</PlannedTime>
+          </PopupParagraph>
+        ) : (
+          <PopupParagraph>
+            <Text>map.stops.doors_not_open</Text>
+          </PopupParagraph>
+        )}
+        <PopupParagraph>
+          <Text>map.stops.planned_driveby</Text>:{" "}
+          <PlannedTime>{plannedDepartureMoment.format("HH:mm:ss")}</PlannedTime>
+        </PopupParagraph>
+        <PopupParagraph>
+          <Text>map.stops.observed_driveby</Text>: {observedTime}
+        </PopupParagraph>
+        <button onClick={this.onShowStreetView}>
+          <Text>map.stops.show_in_streetview</Text>
+        </button>
+      </Popup>
+    );
+
+    stopTooltip = (
+      <Tooltip key={`stop${stop.stopId}_tooltip`}>
+        {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})<br />
+        {observedTime}
+      </Tooltip>
+    );
+
+    markerChildren = [stopTooltip, stopPopup];
+
+    return this.createStopMarker(delayType, color, isTerminal, markerChildren);
   }
 }
 
