@@ -4,7 +4,12 @@ import {icon, latLng} from "leaflet";
 import TimingStopIcon from "../../icon-time1.svg";
 import {observer, inject} from "mobx-react";
 import {Heading, P} from "../Typography";
-import {ColoredBackgroundSlot} from "../TagButton";
+import {
+  ColoredBackgroundSlot,
+  PlainSlot,
+  PlainSlotSmall,
+  TagButton,
+} from "../TagButton";
 import styled from "styled-components";
 import {getPriorityMode, getModeColor} from "../../helpers/vehicleColor";
 import get from "lodash/get";
@@ -12,8 +17,16 @@ import {StopRadius} from "./StopRadius";
 import {journeyEventTime, getNormalTime} from "../../helpers/time";
 import {Text} from "../../helpers/text";
 import {app} from "mobx-app";
+import {getTimelinessColor} from "../../helpers/timelinessColor";
+import doubleDigit from "../../helpers/doubleDigit";
+import {TimeHeading, StopHeading, StopContent} from "../StopElements";
 
 const PopupParagraph = styled(P)`
+  font-size: 1rem;
+`;
+
+const PopupStopContent = styled(StopContent)`
+  padding: 0 0 1rem;
   font-size: 1rem;
 `;
 
@@ -22,8 +35,8 @@ const PlannedTime = styled.span`
   font-weight: bold;
 `;
 
-const ObservedTime = styled(ColoredBackgroundSlot)`
-  font-size: 0.875rem;
+const DepartureTimeGroup = styled.div`
+  min-width: 300px;
 `;
 
 @inject(app("Filters"))
@@ -93,7 +106,10 @@ class RouteStopMarker extends React.Component {
 
     let stopTooltip = (
       <Tooltip key={`stop${stop.stopId}_tooltip`}>
-        {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
+        <StopHeading>
+          <strong>{stop.nameFi}</strong> {stop.stopId} (
+          {stop.shortId.replace(/ /g, "")})
+        </StopHeading>
       </Tooltip>
     );
 
@@ -103,9 +119,12 @@ class RouteStopMarker extends React.Component {
         maxWidth={800}
         autoPan={true}
         key={`stop_${stop.stopId}_popup`}>
-        <Heading level={4}>
-          {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
-        </Heading>
+        <PopupStopContent>
+          <StopHeading>
+            <strong>{stop.nameFi}</strong> {stop.stopId} (
+            {stop.shortId.replace(/ /g, "")})
+          </StopHeading>
+        </PopupStopContent>
         <button onClick={this.onShowStreetView}>Show in street view</button>
       </Popup>
     );
@@ -142,11 +161,25 @@ class RouteStopMarker extends React.Component {
     const stopArrivalTime = journeyEventTime(arrivalEvent);
 
     const observedTime = (
-      <ObservedTime
-        backgroundColor={color}
-        color={delayType === "late" ? "var(--dark-grey)" : "white"}>
-        {getNormalTime(stopDepartureTime)}
-      </ObservedTime>
+      <DepartureTimeGroup>
+        <TimeHeading>
+          <Text>journey.departure</Text>
+        </TimeHeading>
+        <TagButton>
+          <PlainSlot>{plannedDepartureMoment.format("HH:mm:ss")}</PlainSlot>
+          <ColoredBackgroundSlot
+            color={departureDelayType === "late" ? "var(--dark-grey)" : "white"}
+            backgroundColor={getTimelinessColor(
+              departureDelayType,
+              "var(--light-green)"
+            )}>
+            {departureDiff.sign}
+            {doubleDigit(get(departureDiff, "minutes", 0))}:
+            {doubleDigit(get(departureDiff, "seconds", 0))}
+          </ColoredBackgroundSlot>
+          <PlainSlotSmall>{getNormalTime(stopDepartureTime)}</PlainSlotSmall>
+        </TagButton>
+      </DepartureTimeGroup>
     );
 
     const stopPopup = (
@@ -155,26 +188,23 @@ class RouteStopMarker extends React.Component {
         maxWidth={550}
         autoPan={true}
         key={`stop${stop.stopId}_popup`}>
-        <Heading level={4}>
-          {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
-        </Heading>
-        {doorDidOpen ? (
-          <PopupParagraph>
-            <Text>map.stops.arrive</Text>:{" "}
-            <PlannedTime>{getNormalTime(stopArrivalTime)}</PlannedTime>
-          </PopupParagraph>
-        ) : (
-          <PopupParagraph>
-            <Text>map.stops.doors_not_open</Text>
-          </PopupParagraph>
-        )}
-        <PopupParagraph>
-          <Text>map.stops.planned_driveby</Text>:{" "}
-          <PlannedTime>{plannedDepartureMoment.format("HH:mm:ss")}</PlannedTime>
-        </PopupParagraph>
-        <PopupParagraph>
-          <Text>map.stops.observed_driveby</Text>: {observedTime}
-        </PopupParagraph>
+        <PopupStopContent>
+          <StopHeading>
+            <strong>{stop.nameFi}</strong> {stop.stopId} (
+            {stop.shortId.replace(/ /g, "")})
+          </StopHeading>
+          {doorDidOpen ? (
+            <PopupParagraph>
+              <Text>map.stops.arrive</Text>:{" "}
+              <PlannedTime>{getNormalTime(stopArrivalTime)}</PlannedTime>
+            </PopupParagraph>
+          ) : (
+            <PopupParagraph>
+              <Text>map.stops.doors_not_open</Text>
+            </PopupParagraph>
+          )}
+          {observedTime}
+        </PopupStopContent>
         <button onClick={this.onShowStreetView}>
           <Text>map.stops.show_in_streetview</Text>
         </button>
@@ -183,7 +213,10 @@ class RouteStopMarker extends React.Component {
 
     stopTooltip = (
       <Tooltip key={`stop${stop.stopId}_tooltip`}>
-        {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})<br />
+        <StopHeading>
+          <strong>{stop.nameFi}</strong> {stop.stopId} (
+          {stop.shortId.replace(/ /g, "")})
+        </StopHeading>
         {observedTime}
       </Tooltip>
     );

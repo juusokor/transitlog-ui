@@ -9,7 +9,8 @@ import {
   TimeHeading,
   StopHeading,
   StopContent,
-} from "./elements";
+  StopWrapper,
+} from "../../StopElements";
 import {PlainSlot, ColoredBackgroundSlot, PlainSlotSmall} from "../../TagButton";
 import {transportColor} from "../../transportModes";
 import {getTimelinessColor} from "../../../helpers/timelinessColor";
@@ -17,7 +18,11 @@ import doubleDigit from "../../../helpers/doubleDigit";
 import CalculateTerminalTime from "./CalculateTerminalTime";
 import {Text} from "../../../helpers/text";
 import {getNormalTime, journeyEventTime} from "../../../helpers/time";
-import {StopWrapper} from "./elements";
+import styled from "styled-components";
+
+const OriginStopContent = styled(StopContent)`
+  padding-bottom: 2.5rem;
+`;
 
 export default ({stop = {}, date, onClickTime}) => {
   const stopMode = get(stop, "modes.nodes[0]", "BUS");
@@ -30,11 +35,12 @@ export default ({stop = {}, date, onClickTime}) => {
         <StopElementsWrapper color={stopColor} terminus={"origin"}>
           <StopMarker color={stopColor} />
         </StopElementsWrapper>
-        <StopContent>
+        <OriginStopContent>
           <StopHeading>
-            <strong>{stop.nameFi}</strong> {stop.stopId} ({stop.shortId})
+            <strong>{stop.nameFi}</strong> {stop.stopId} (
+            {stop.shortId.replace(/ /g, "")})
           </StopHeading>
-        </StopContent>
+        </OriginStopContent>
       </StopWrapper>
     );
   }
@@ -57,9 +63,10 @@ export default ({stop = {}, date, onClickTime}) => {
       <StopElementsWrapper color={stopColor} terminus="origin">
         <StopMarker color={stopColor} />
       </StopElementsWrapper>
-      <StopContent terminus="origin">
+      <OriginStopContent terminus="origin">
         <StopHeading>
-          <strong>{stop.nameFi}</strong> {stop.stopId} ({stop.shortId})
+          <strong>{stop.nameFi}</strong> {stop.stopId} (
+          {stop.shortId.replace(/ /g, "")})
         </StopHeading>
         <CalculateTerminalTime
           date={date}
@@ -107,7 +114,7 @@ export default ({stop = {}, date, onClickTime}) => {
           </ColoredBackgroundSlot>
           <PlainSlotSmall>{departureMoment.format("HH:mm:ss")}</PlainSlotSmall>
         </StopDepartureTime>
-      </StopContent>
+      </OriginStopContent>
     </StopWrapper>
   );
 };

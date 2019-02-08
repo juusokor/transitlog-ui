@@ -11,7 +11,7 @@ import {
   StopHeading,
   TimeHeading,
   StopArrivalTime,
-} from "./elements";
+} from "../../StopElements";
 import {
   TagButton,
   PlainSlot,
@@ -33,7 +33,7 @@ const StopWrapper = styled(DefaultStopWrapper)`
 const SimpleStopArrivalTime = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: 1rem;
+  margin: 1rem 0 0.75rem;
   color: var(--dark-grey);
   font-size: 0.875rem;
 
@@ -96,7 +96,8 @@ export default ({stop, date, onClickTime}) => {
       </StopElementsWrapper>
       <StopContent>
         <StopHeading>
-          <strong>{stop.nameFi}</strong> {stop.stopId} ({stop.shortId})
+          <strong>{stop.nameFi}</strong> {stop.stopId} (
+          {stop.shortId.replace(/ /g, "")})
         </StopHeading>
         {showPlannedArrivalTime ? (
           <>

@@ -8,7 +8,7 @@ import {
   StopHeading,
   TimeHeading,
   StopArrivalTime,
-} from "./elements";
+} from "../../StopElements";
 import {PlainSlot, ColoredBackgroundSlot, PlainSlotSmall} from "../../TagButton";
 import {transportColor} from "../../transportModes";
 import doubleDigit from "../../../helpers/doubleDigit";
@@ -46,7 +46,8 @@ export default ({stop = {}, date, onClickTime}) => {
       </StopElementsWrapper>
       <StopContent terminus="destination">
         <StopHeading>
-          <strong>{stop.nameFi}</strong> {stop.stopId} ({stop.shortId})
+          <strong>{stop.nameFi}</strong> {stop.stopId} (
+          {stop.shortId.replace(/ /g, "")})
         </StopHeading>
         <CalculateTerminalTime
           recovery={true}
