@@ -72,7 +72,6 @@ class JourneysByDateQuery extends React.Component {
 
     return (
       <Query
-        fetchPolicy="cache-and-network"
         query={journeysByDateQuery}
         variables={{
           route_id: routeId,
