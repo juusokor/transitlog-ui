@@ -46,10 +46,12 @@ class JourneyDetails extends React.Component {
 
   render() {
     const {
-      state: {date, route},
+      state: {date},
+      route,
       selectedJourneyEvents,
       journeyStops,
     } = this.props;
+
     // Select the first event to define the journey
     const events = get(selectedJourneyEvents, "[0].events", []);
     const journey = get(events, "[0]", {});

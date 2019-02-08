@@ -21,8 +21,6 @@ import {stopArrivalTimes} from "../helpers/stopArrivalTimes";
 @withRoute
 @observer
 class JourneyStopTimes extends Component {
-  prevStops = [];
-
   render() {
     const {
       children,
@@ -38,7 +36,7 @@ class JourneyStopTimes extends Component {
     const journey = events[0];
 
     if (!journey || !stateRoute || !stateRoute.routeId || !stateRoute.dateBegin) {
-      return children({journeyStops: this.prevStops, loading: false});
+      return children({journeyStops: [], loading: false});
     }
 
     const journeyStartTime = get(journey, "journey_start_time", "");
@@ -56,7 +54,7 @@ class JourneyStopTimes extends Component {
         route={pick(stateRoute, "routeId", "direction", "dateBegin", "dateEnd")}>
         {({route, loading, error}) => {
           if (!route || loading || error) {
-            return children({journeyStops: this.prevStops, loading});
+            return children({journeyStops: [], loading});
           }
 
           // We need a departureId for getting the correct departure for each stop.
@@ -67,6 +65,10 @@ class JourneyStopTimes extends Component {
                 departureTime({hours, minutes, isNextDay}) === journeyStartTime &&
                 isWithinRange(date, dateBegin, dateEnd)
             ) || null;
+
+          if (!originDeparture) {
+            return children({journeyStops: [], loading});
+          }
 
           const stops = sortBy(
             filterRouteSegments(get(route, "routeSegments.nodes", []), date),
@@ -106,8 +108,6 @@ class JourneyStopTimes extends Component {
               ...stopArrival,
             };
           });
-
-          this.prevStops = stops;
 
           return children({journeyStops: stops, loading: false});
         }}

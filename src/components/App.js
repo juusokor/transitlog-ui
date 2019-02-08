@@ -90,7 +90,7 @@ function App({state, UI}) {
                       {({stop}) => (
                         <JourneyStopTimes
                           selectedJourneyEvents={selectedJourneyEvents}>
-                          {({journeyStops}) => (
+                          {({journeyStops = []}) => (
                             <>
                               <SidePanel
                                 areaEventsLoading={areaEventsLoading}
