@@ -30,7 +30,9 @@ import {
   StopHeading,
   StopContent,
   StopArrivalTime,
+  SmallText,
 } from "../StopElements";
+import CalculateTerminalTime from "../sidepanel/journeyDetails/CalculateTerminalTime";
 
 const PopupParagraph = styled(P)`
   font-family: var(--font-family);
@@ -40,11 +42,6 @@ const PopupParagraph = styled(P)`
 const PopupStopContent = styled(StopContent)`
   padding: 0 0 1rem;
   font-size: 1rem;
-`;
-
-const PlannedTime = styled.span`
-  font-size: 1rem;
-  font-weight: bold;
 `;
 
 const DepartureTimeGroup = styled.div`
@@ -114,6 +111,7 @@ class RouteStopMarker extends React.Component {
   render() {
     const {
       stop,
+      date,
       firstStop,
       firstTerminal,
       lastTerminal,
@@ -125,8 +123,8 @@ class RouteStopMarker extends React.Component {
     let stopTooltip = (
       <Tooltip key={`stop${stop.stopId}_tooltip`}>
         <StopHeading>
-          <strong>{stop.nameFi}</strong> {stop.stopId} (
-          {stop.shortId.replace(/ /g, "")})
+          <strong>{get(stop, "nameFi", "")}</strong> {get(stop, "stopId", "")} (
+          {get(stop, "shortId", "").replace(/ /g, "")})
         </StopHeading>
       </Tooltip>
     );
@@ -209,27 +207,97 @@ class RouteStopMarker extends React.Component {
       durationDiff = secondsToTimeObject(durationDiffSeconds);
     }
 
-    const observedTime = (
-      <DepartureTimeGroup>
-        <TimeHeading>
-          <Text>journey.departure</Text>
-        </TimeHeading>
-        <TagButton>
-          <PlainSlot>{plannedDepartureMoment.format("HH:mm:ss")}</PlainSlot>
-          <ColoredBackgroundSlot
-            color={departureDelayType === "late" ? "var(--dark-grey)" : "white"}
-            backgroundColor={getTimelinessColor(
-              departureDelayType,
-              "var(--light-green)"
-            )}>
-            {departureDiff.sign === "-" ? "-" : ""}
-            {doubleDigit(get(departureDiff, "minutes", 0))}:
-            {doubleDigit(get(departureDiff, "seconds", 0))}
-          </ColoredBackgroundSlot>
-          <PlainSlotSmall>{getNormalTime(stopDepartureTime)}</PlainSlotSmall>
-        </TagButton>
-      </DepartureTimeGroup>
+    const observedDepartureTime = (
+      <TagButton>
+        <PlainSlot>{plannedDepartureMoment.format("HH:mm:ss")}</PlainSlot>
+        <ColoredBackgroundSlot
+          color={departureDelayType === "late" ? "var(--dark-grey)" : "white"}
+          backgroundColor={getTimelinessColor(
+            departureDelayType,
+            "var(--light-green)"
+          )}>
+          {departureDiff.sign === "-" ? "-" : ""}
+          {departureDiff.hours ? doubleDigit(departureDiff.hours) + ":" : ""}
+          {doubleDigit(get(departureDiff, "minutes", 0))}:
+          {doubleDigit(get(departureDiff, "seconds", 0))}
+        </ColoredBackgroundSlot>
+        <PlainSlotSmall>{getNormalTime(stopDepartureTime)}</PlainSlotSmall>
+      </TagButton>
     );
+
+    let observedArrivalTime = null;
+
+    if (firstTerminal) {
+      observedArrivalTime = (
+        <CalculateTerminalTime
+          date={date}
+          departure={stop.departure}
+          event={arrivalEvent}>
+          {({offsetTime, wasLate, diffHours, diffMinutes, diffSeconds, sign}) => (
+            <>
+              <StopArrivalTime>
+                <PlainSlot
+                  style={{
+                    fontStyle: "italic",
+                    fontSize: "0.925rem",
+                    lineHeight: "1.2rem",
+                  }}>
+                  {offsetTime.format("HH:mm:ss")}*
+                </PlainSlot>
+                <ColoredBackgroundSlot
+                  color="white"
+                  backgroundColor={wasLate ? "var(--red)" : "var(--light-green)"}>
+                  {sign === "-" ? "-" : ""}
+                  {diffHours ? doubleDigit(diffHours) + ":" : ""}
+                  {doubleDigit(diffMinutes)}:{doubleDigit(diffSeconds)}
+                </ColoredBackgroundSlot>
+                <PlainSlotSmall>{getNormalTime(stopArrivalTime)}</PlainSlotSmall>
+              </StopArrivalTime>
+              <SmallText>
+                * <Text>journey.departure_minus_terminal</Text>
+              </SmallText>
+            </>
+          )}
+        </CalculateTerminalTime>
+      );
+    } else if (lastTerminal) {
+      observedArrivalTime = (
+        <CalculateTerminalTime
+          recovery={true}
+          date={date}
+          departure={stop.departure}
+          event={arrivalEvent}>
+          {({offsetTime, wasLate, diffHours, diffMinutes, diffSeconds, sign}) => (
+            <StopArrivalTime>
+              <PlainSlot>{offsetTime.format("HH:mm:ss")}</PlainSlot>
+              <ColoredBackgroundSlot
+                color="white"
+                backgroundColor={wasLate ? "var(--red)" : "var(--light-green)"}>
+                {sign === "-" ? "-" : ""}
+                {diffHours ? doubleDigit(diffHours) + ":" : ""}
+                {doubleDigit(diffMinutes)}:{doubleDigit(diffSeconds)}
+              </ColoredBackgroundSlot>
+              <PlainSlotSmall>{getNormalTime(stopArrivalTime)}</PlainSlotSmall>
+            </StopArrivalTime>
+          )}
+        </CalculateTerminalTime>
+      );
+    } else {
+      observedArrivalTime = (
+        <StopArrivalTime>
+          <PlainSlot>{plannedArrivalMoment.format("HH:mm:ss")}</PlainSlot>
+          <ColoredBackgroundSlot
+            color="var(--dark-grey)"
+            backgroundColor="var(--lighter-grey)">
+            {arrivalDiff.sign === "-" ? "-" : ""}
+            {arrivalDiff.hours ? doubleDigit(arrivalDiff.hours) + ":" : ""}
+            {doubleDigit(get(arrivalDiff, "minutes", 0))}:
+            {doubleDigit(get(arrivalDiff, "seconds", 0))}
+          </ColoredBackgroundSlot>
+          <PlainSlotSmall>{getNormalTime(stopArrivalTime)}</PlainSlotSmall>
+        </StopArrivalTime>
+      );
+    }
 
     const stopPopup = (
       <Popup
@@ -242,29 +310,29 @@ class RouteStopMarker extends React.Component {
             <strong>{stop.nameFi}</strong> {stop.stopId} (
             {stop.shortId.replace(/ /g, "")})
           </StopHeading>
-          {doorDidOpen && arrivalEvent ? (
+
+          {(isTerminal || doorDidOpen) && arrivalEvent ? (
             <>
               <TimeHeading>
                 <Text>journey.arrival</Text>
               </TimeHeading>
-              <StopArrivalTime>
-                <PlainSlot>{plannedArrivalMoment.format("HH:mm:ss")}</PlainSlot>
-                <ColoredBackgroundSlot
-                  color="var(--dark-grey)"
-                  backgroundColor="var(--lighter-grey)">
-                  {arrivalDiff.sign === "-" ? "-" : ""}
-                  {doubleDigit(get(arrivalDiff, "minutes", 0))}:
-                  {doubleDigit(get(arrivalDiff, "seconds", 0))}
-                </ColoredBackgroundSlot>
-                <PlainSlotSmall>{getNormalTime(stopArrivalTime)}</PlainSlotSmall>
-              </StopArrivalTime>
+              {observedArrivalTime}
             </>
           ) : !doorDidOpen ? (
             <PopupParagraph>
               <Text>map.stops.doors_not_open</Text>
             </PopupParagraph>
           ) : null}
-          {observedTime}
+
+          {!lastTerminal && (
+            <DepartureTimeGroup>
+              <TimeHeading>
+                <Text>journey.departure</Text>
+              </TimeHeading>
+              {observedDepartureTime}
+            </DepartureTimeGroup>
+          )}
+
           {plannedDuration > 0 && observedDuration > 0 && (
             <>
               <TimeHeading>
@@ -297,7 +365,21 @@ class RouteStopMarker extends React.Component {
           <strong>{stop.nameFi}</strong> {stop.stopId} (
           {stop.shortId.replace(/ /g, "")})
         </StopHeading>
-        {observedTime}
+        {lastTerminal ? (
+          <>
+            <TimeHeading>
+              <Text>journey.arrival</Text>
+            </TimeHeading>
+            {observedArrivalTime}
+          </>
+        ) : (
+          <>
+            <TimeHeading>
+              <Text>journey.departure</Text>
+            </TimeHeading>
+            {observedDepartureTime}
+          </>
+        )}
       </Tooltip>
     );
 

@@ -24,9 +24,13 @@ const OriginStopContent = styled(StopContent)`
   padding-bottom: 2.5rem;
 `;
 
-export default ({stop = {}, date, onClickTime}) => {
+export default ({stop = null, date, onClickTime}) => {
   const stopMode = get(stop, "modes.nodes[0]", "BUS");
   const stopColor = get(transportColor, stopMode, "var(--light-grey)");
+
+  if (!stop) {
+    return null;
+  }
 
   // Bail here if we don't have data about stop arrival and departure times.
   if (!stop.departureEvent) {
