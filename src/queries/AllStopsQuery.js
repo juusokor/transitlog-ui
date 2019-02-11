@@ -23,9 +23,6 @@ const allStopsQuery = gql`
 export default ({children}) => (
   <Query query={allStopsQuery}>
     {({loading, error, data}) => {
-      if (loading) return "Loading...";
-      if (error) return "Error!";
-
       const stops = get(data, "allStops.nodes", []);
 
       return children({

@@ -180,7 +180,9 @@ export default ({stop, journeyPositions = [], date, onClickTime}) => {
               <PlainSlotSmall>{departureMoment.format("HH:mm:ss")}</PlainSlotSmall>
             </StopDepartureTime>
             {endOfStream && (
-              <SmallText>End of HFP stream used as stop departure.</SmallText>
+              <SmallText>
+                <Text>journey.end_of_stream</Text>
+              </SmallText>
             )}
           </>
         ) : (

@@ -37,6 +37,11 @@
 
   "vehicle.next_stop": "Nästa hållplats",
   "vehicle.speed": "Hastighet",
+  "vehicle.registry_nr": "Registernummer",
+  "vehicle.age": "Fordonets ålder",
+  "vehicle.identifier": "Fordonets ID",
+  "vehicle.operator": "Operatör",
+  "vehicle.subcontractor": "Underleverantör",
   "vehicle.delay.late": "Försenad",
   "vehicle.delay.early": "Tidig",
   "vehicle.delay.ontime": "I tid",
@@ -48,12 +53,15 @@
   "journey.stops_hidden": "hållplatser gömda",
   "journey.arrival": "Ankomst",
   "journey.departure": "Avfärd",
+  "journey.end_of_stream": "De sista uppgifterna används som hållplatsens avfärd.",
 
   "domain.line": "Linje",
   "domain.route": "Rutt",
 
   "general.minutes": "minuter",
   "general.hour": "timme",
+  "general.year": "år",
+  "general.year.plural": "år",
   "general.timerange.min": "min",
   "general.timerange.max": "max",
   "general.day": "dag",

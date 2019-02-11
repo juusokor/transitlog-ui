@@ -18,13 +18,13 @@ const JourneyInfoRow = styled.div`
   flex-direction: column;
   justify-content: flex-start;
   width: 100%;
-  padding: 0.75rem 1rem;
-  background: var(--lightest-grey);
+  padding: 0.5rem 1rem;
+  background: transparent;
   font-size: 1rem;
   font-family: inherit;
 
   &:nth-child(even) {
-    background: rgba(0, 0, 0, 0.0075);
+    background: rgba(0, 0, 0, 0.03);
   }
 `;
 
@@ -43,8 +43,8 @@ const Line = styled.div`
 `;
 
 const LineHeading = styled.span`
-  color: var(--light-grey);
-  font-size: 1rem;
+  color: #888888;
+  font-size: 0.9rem;
   flex-wrap: nowrap;
   white-space: nowrap;
 `;
@@ -94,22 +94,6 @@ export default ({
 
   return (
     <JourneyInfo>
-      <JourneyInfoRow>
-        <Line>
-          <LineHeading>Operator</LineHeading>
-          <Values small>
-            <span>{operatorName}</span>
-          </Values>
-        </Line>
-        {observedOperatorName !== operatorName && (
-          <Line>
-            <LineHeading>Subcontractor</LineHeading>
-            <Values small>
-              <ObservedValue>{observedOperatorName}</ObservedValue>
-            </Values>
-          </Line>
-        )}
-      </JourneyInfoRow>
       <JourneyInfoRow>
         <Line>
           <LineHeading>
@@ -164,38 +148,101 @@ export default ({
       <JourneyInfoRow>
         <Line>
           <LineHeading>
-            <Text>journey.requested_equipment</Text>
+            <Text>vehicle.identifier</Text>
           </LineHeading>
           <Values>
-            <span>
-              {equipmentType
-                ? equipmentType
-                : equipmentCode
-                ? equipmentCode
-                : text("general.no_type")}
-              {get(departure, "trunkColorRequired", 0) === 1 && ", HSL-orans"}
-            </span>
+            <span>{journey.unique_vehicle_id}</span>
           </Values>
         </Line>
-        <Equipment journey={journey} departure={departure}>
-          {({equipment = []}) =>
-            equipment.length && (
-              <Line right>
-                <Values>
-                  {equipment.map((prop) => (
-                    <ObservedValue
-                      key={`equipment_prop_${prop.name}`}
-                      backgroundColor={prop.color}
-                      color={prop.required !== false ? "white" : "var(--dark-grey)"}>
-                      {prop.observed}
-                    </ObservedValue>
-                  ))}
-                </Values>
-              </Line>
-            )
-          }
-        </Equipment>
       </JourneyInfoRow>
+      <JourneyInfoRow>
+        <Line>
+          <LineHeading>
+            <Text>vehicle.operator</Text>
+          </LineHeading>
+          <Values small>
+            <span>{operatorName}</span>
+          </Values>
+        </Line>
+        {observedOperatorName !== operatorName && (
+          <Line>
+            <LineHeading>
+              <Text>vehicle.subcontractor</Text>
+            </LineHeading>
+            <Values small>
+              <ObservedValue>{observedOperatorName}</ObservedValue>
+            </Values>
+          </Line>
+        )}
+      </JourneyInfoRow>
+      <Equipment journey={journey} departure={departure}>
+        {({equipment = [], vehicle = null}) => (
+          <>
+            {!!vehicle && (
+              <>
+                <JourneyInfoRow>
+                  <Line>
+                    <LineHeading>
+                      <Text>vehicle.registry_nr</Text>
+                    </LineHeading>
+                    <Values>
+                      <span>{vehicle.registryNr}</span>
+                    </Values>
+                  </Line>
+                </JourneyInfoRow>
+                <JourneyInfoRow>
+                  <Line>
+                    <LineHeading>
+                      <Text>vehicle.age</Text>
+                    </LineHeading>
+                    <Values>
+                      <span>{vehicle.age}</span>
+                      &nbsp;
+                      <Text>
+                        {vehicle.age < 2 ? "general.year" : "general.year.plural"}
+                      </Text>
+                    </Values>
+                  </Line>
+                </JourneyInfoRow>
+              </>
+            )}
+            {equipment.length && (
+              <JourneyInfoRow>
+                <Line>
+                  <LineHeading>
+                    <Text>journey.requested_equipment</Text>
+                  </LineHeading>
+                  <Values>
+                    <span>
+                      {equipmentType
+                        ? equipmentType
+                        : equipmentCode
+                        ? equipmentCode
+                        : text("general.no_type")}
+                      {get(departure, "trunkColorRequired", 0) === 1 &&
+                        ", HSL-orans"}
+                    </span>
+                  </Values>
+                </Line>
+                <Line right>
+                  <Values>
+                    {equipment.map((prop) => (
+                      <ObservedValue
+                        key={`equipment_prop_${prop.name}`}
+                        backgroundColor={prop.color}
+                        color={
+                          prop.required !== false ? "white" : "var(--dark-grey)"
+                        }>
+                        {prop.observed}
+                      </ObservedValue>
+                    ))}
+                  </Values>
+                </Line>
+              </JourneyInfoRow>
+            )}
+          </>
+        )}
+      </Equipment>
     </JourneyInfo>
   );
 };

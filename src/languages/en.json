@@ -37,6 +37,11 @@
 
   "vehicle.next_stop": "Next stop",
   "vehicle.speed": "Speed",
+  "vehicle.registry_nr": "Registry number",
+  "vehicle.age": "Vehicle age",
+  "vehicle.identifier": "Vehicle identifier",
+  "vehicle.operator": "Operator",
+  "vehicle.subcontractor": "Subcontractor",
   "vehicle.delay.late": "Late",
   "vehicle.delay.early": "Early",
   "vehicle.delay.ontime": "On time",
@@ -48,12 +53,15 @@
   "journey.stops_hidden": "stops hidden",
   "journey.arrival": "Arrival",
   "journey.departure": "Departure",
+  "journey.end_of_stream": "End of stream used as stop departure.",
 
   "domain.line": "Line",
   "domain.route": "Route",
 
   "general.minutes": "minutes",
   "general.hour": "hour",
+  "general.year": "year",
+  "general.year.plural": "years",
   "general.timerange.min": "min",
   "general.timerange.max": "max",
   "general.day": "day",

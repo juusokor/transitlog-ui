@@ -11,6 +11,12 @@ import groupBy from "lodash/groupBy";
 import map from "lodash/map";
 import VehicleOptionsQuery from "../../queries/VehicleOptionsQuery";
 import {getOperatorName} from "../../helpers/getOperatorNameById";
+import Loading from "../Loading";
+import styled from "styled-components";
+
+const LoadingSpinner = styled(Loading)`
+  margin: 0.5rem 0.5rem 0.5rem 1rem;
+`;
 
 @inject(app("Filters"))
 @observer
@@ -46,7 +52,15 @@ class VehicleSettings extends React.Component {
     return (
       <>
         <VehicleOptionsQuery date={date}>
-          {({vehicles}) => {
+          {({vehicles, loading}) => {
+            if (loading) {
+              return this.renderInput(
+                <LoadingSpinner inline={true} />,
+                vehicle,
+                false
+              );
+            }
+
             const groupedVehicles = map(
               groupBy(
                 sortBy(vehicles, "owner_operator_id"),
