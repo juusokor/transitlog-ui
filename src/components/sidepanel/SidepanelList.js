@@ -78,9 +78,7 @@ class SidepanelList extends Component {
 
   @observable
   scrollOffset = 0;
-
   listHeight = 0;
-
   updateScrollOffsetTimer = 0;
 
   scrollTo = (offset) => {

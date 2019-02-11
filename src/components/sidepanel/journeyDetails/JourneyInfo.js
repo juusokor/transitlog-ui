@@ -55,7 +55,7 @@ const Values = styled.div`
   margin-left: auto;
   display: flex;
   justify-content: flex-start;
-  align-items: center;
+  align-items: baseline;
 
   > * {
     white-space: nowrap;
