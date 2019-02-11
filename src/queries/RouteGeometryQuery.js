@@ -29,7 +29,7 @@ const routeQuery = gql`
 `;
 
 // No @observer here, as it doesn't like shouldComponentUpdate
-class RouteQuery extends Component {
+class RouteGeometryQuery extends Component {
   static propTypes = {
     route: PropTypes.shape({
       routeId: PropTypes.string,
@@ -56,10 +56,11 @@ class RouteQuery extends Component {
 
   render() {
     const {route = {}, children} = this.props;
-    const {routeId, direction, dateBegin, dateEnd} = route;
+    const {routeId = "", direction, dateBegin = "", dateEnd} = route;
 
     return (
       <Query
+        skip={!routeId || !dateBegin}
         query={routeQuery}
         variables={{
           routeId,
@@ -85,4 +86,4 @@ class RouteQuery extends Component {
   }
 }
 
-export default RouteQuery;
+export default RouteGeometryQuery;

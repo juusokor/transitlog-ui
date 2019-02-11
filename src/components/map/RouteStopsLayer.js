@@ -18,7 +18,11 @@ function RouteStopsLayer({
   journeyStops = [],
 }) {
   return (
-    <StopsByRouteQuery route={route} skip={journeyStops.length !== 0}>
+    <StopsByRouteQuery
+      route={route}
+      skip={
+        !route || !route.routeId || !route.dateBegin || journeyStops.length !== 0
+      }>
       {({stops}) => {
         const stopsList = journeyStops.length !== 0 ? journeyStops : stops;
 

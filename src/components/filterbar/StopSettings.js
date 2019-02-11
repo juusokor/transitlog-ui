@@ -7,8 +7,10 @@ import {app} from "mobx-app";
 import AllStopsQuery from "../../queries/AllStopsQuery";
 import StopInput from "./StopInput";
 import StopsByRouteQuery from "../../queries/StopsByRouteQuery";
+import withRoute from "../../hoc/withRoute";
 
 @inject(app("Filters"))
+@withRoute()
 @observer
 class StopSettings extends React.Component {
   render() {

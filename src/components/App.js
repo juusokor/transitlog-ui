@@ -15,6 +15,8 @@ import SelectedJourneyEvents from "./SelectedJourneyEvents";
 import getJourneyId from "../helpers/getJourneyId";
 import JourneyStopTimes from "./JourneyStopTimes";
 import {inject} from "../helpers/inject";
+import flow from "lodash/flow";
+import withRoute from "../hoc/withRoute";
 
 const AppFrame = styled.main`
   width: 100%;
@@ -43,6 +45,12 @@ const MapPanel = styled(Map)`
   width: 100%;
   height: 100%;
 `;
+
+const decorate = flow(
+  observer,
+  withRoute(),
+  inject("state")
+);
 
 function App({state, UI}) {
   const {
@@ -182,4 +190,4 @@ function App({state, UI}) {
   );
 }
 
-export default inject("state", "UI")(observer(App));
+export default decorate(App);

@@ -4,6 +4,7 @@ import {Query} from "react-apollo";
 import get from "lodash/get";
 import pick from "lodash/pick";
 import compact from "lodash/compact";
+import omitBy from "lodash/omitBy";
 import {
   RouteFieldsFragment,
   ExtensiveRouteFieldsFragment,
@@ -61,12 +62,14 @@ function getRoute(data = {}, date) {
 
 export const SimpleRouteQuery = ({route, date, onCompleted, skip, children}) => {
   const {direction} = route;
+  // Omit empty values
+  const routeData = omitBy(route, (value) => !value);
 
   return (
     <Query
-      skip={skip}
+      skip={skip || Object.keys(routeData).length < 2} // It needs at least the routeId and the direction
       query={singleRouteQuery}
-      variables={{...route, direction: direction + ""}}
+      variables={{...routeData, direction: direction + ""}}
       onCompleted={(data) => onCompleted(getRoute(data, date))}>
       {({data, loading}) => {
         if (!data || loading) {
