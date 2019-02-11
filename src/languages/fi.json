@@ -41,7 +41,7 @@
   "vehicle.age": "Ajoneuvon ikä",
   "vehicle.identifier": "Kylkinumero",
   "vehicle.operator": "Liikennöitsijä",
-  "vehicle.subcontractor": "Liikennöitsijä",
+  "vehicle.subcontractor": "Ali-hankkija",
   "vehicle.delay.late": "Myöhässä",
   "vehicle.delay.early": "Etuajassa",
   "vehicle.delay.ontime": "Ajallaan",
