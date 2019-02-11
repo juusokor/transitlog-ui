@@ -39,6 +39,9 @@
   "vehicle.speed": "Nopeus",
   "vehicle.registry_nr": "Rekisterinumero",
   "vehicle.age": "Ajoneuvon ikä",
+  "vehicle.identifier": "Kylkinumero",
+  "vehicle.operator": "Liikennöitsijä",
+  "vehicle.subcontractor": "Liikennöitsijä",
   "vehicle.delay.late": "Myöhässä",
   "vehicle.delay.early": "Etuajassa",
   "vehicle.delay.ontime": "Ajallaan",
@@ -56,6 +59,8 @@
 
   "general.minutes": "minuutteja",
   "general.hour": "tunti",
+  "general.year": "vuosi",
+  "general.year.plural": "vuotta",
   "general.timerange.min": "min",
   "general.timerange.max": "maks",
   "general.day": "päivä",
