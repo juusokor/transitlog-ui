@@ -98,11 +98,12 @@ function App({state, UI}) {
                       {({stop}) => (
                         <JourneyStopTimes
                           selectedJourneyEvents={selectedJourneyEvents}>
-                          {({journeyStops = []}) => (
+                          {({journeyStops = [], loading: stopTimesLoading}) => (
                             <>
                               <SidePanel
                                 areaEventsLoading={areaEventsLoading}
                                 journeyEventsLoading={journeyEventsLoading}
+                                stopTimesLoading={stopTimesLoading}
                                 areaEvents={areaHfp}
                                 selectedJourneyEvents={selectedJourneyEvents}
                                 journeyStops={journeyStops}

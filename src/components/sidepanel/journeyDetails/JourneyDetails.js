@@ -5,6 +5,7 @@ import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import get from "lodash/get";
 import JourneyStops from "./JourneyStops";
+import Loading from "../../Loading";
 import JourneyInfo from "./JourneyInfo";
 import DestinationStop from "./DestinationStop";
 import withRoute from "../../../hoc/withRoute";
@@ -36,6 +37,13 @@ const StopsListWrapper = styled.div`
   padding: 2rem 0 1rem;
 `;
 
+const LoadingContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1rem auto 0;
+`;
+
 @inject(app("Time"))
 @withRoute()
 @observer
@@ -58,6 +66,7 @@ class JourneyDetails extends React.Component {
       route,
       selectedJourneyEvents,
       journeyStops,
+      loading = false,
     } = this.props;
     // Select the first event to define the journey
     const events = get(selectedJourneyEvents, "[0].events", []);
@@ -81,7 +90,7 @@ class JourneyDetails extends React.Component {
               originStop={journeyStops[0]}
               destinationStop={journeyStops.slice(-1)[0]}
             />
-            {journeyStops.length !== 0 && (
+            {journeyStops.length !== 0 ? (
               <StopsListWrapper>
                 <OriginStop
                   stop={journeyStops[0]}
@@ -103,7 +112,11 @@ class JourneyDetails extends React.Component {
                   onClickTime={this.onClickTime}
                 />
               </StopsListWrapper>
-            )}
+            ) : loading ? (
+              <LoadingContainer>
+                <Loading />
+              </LoadingContainer>
+            ) : null}
           </JourneyPanelContent>
         </ScrollContainer>
       </JourneyPanelWrapper>

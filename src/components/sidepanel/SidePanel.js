@@ -96,6 +96,7 @@ class SidePanel extends Component {
       journeyStops,
       journeyEventsLoading = false,
       areaEventsLoading = false,
+      stopTimesLoading = false,
       stop,
       state: {
         route,
@@ -163,6 +164,7 @@ class SidePanel extends Component {
           {/* The content of the sidebar is independent from the sidebar wrapper so that we can animate it. */}
           {journeyDetailsAreOpen && (
             <JourneyDetails
+              loading={stopTimesLoading || journeyEventsLoading}
               journeyStops={journeyStops}
               selectedJourneyEvents={selectedJourneyEvents}
             />
