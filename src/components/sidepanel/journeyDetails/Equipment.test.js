@@ -155,7 +155,7 @@ describe("Equipment", () => {
       color: "var(--red)",
     });
 
-    expect(cb.mock.calls[2][0].equipment[1]).toMatchObject({
+    return expect(cb.mock.calls[2][0].equipment[1]).toMatchObject({
       name: "exteriorColor",
       required: "HSL-orans",
       observed: "HSL-sin",
@@ -193,7 +193,7 @@ describe("Equipment", () => {
       color: "var(--lighter-grey)",
     });
 
-    expect(cb.mock.calls[2][0].equipment[1]).toMatchObject({
+    return expect(cb.mock.calls[2][0].equipment[1]).toMatchObject({
       name: "exteriorColor",
       required: false,
       observed: "HSL-sin",
