@@ -39,6 +39,12 @@ const PopupParagraph = styled(P)`
   font-size: 1rem;
 `;
 
+const TooltipParagraph = styled(P)`
+  font-family: var(--font-family);
+  font-size: 0.875rem;
+  margin: 0.5rem 0 -0.5rem;
+`;
+
 const PopupStopContent = styled(StopContent)`
   padding: 0 0 1rem;
   font-size: 1rem;
@@ -61,7 +67,13 @@ class RouteStopMarker extends React.Component {
     Filters.setStop(stop.stopId);
   };
 
-  createStopMarker = (delayType, color, isTerminal, children) => {
+  createStopMarker = (
+    delayType,
+    color,
+    isTerminal,
+    children,
+    doorDidOpen = true
+  ) => {
     const {stop, showRadius, selected} = this.props;
 
     const timingStopIcon = icon({
@@ -69,7 +81,9 @@ class RouteStopMarker extends React.Component {
       iconSize: [30, 30],
       iconAnchor: [23, 25 / 2],
       popupAnchor: [3, -15],
-      className: `stop-marker timing-stop ${delayType}`,
+      className: `stop-marker timing-stop ${delayType} ${
+        !doorDidOpen ? "doors-not-opened" : ""
+      }`,
     });
 
     const mode = getPriorityMode(get(stop, "modes.nodes", []));
@@ -85,10 +99,11 @@ class RouteStopMarker extends React.Component {
         center: markerPosition, // One marker type uses center...
         position: markerPosition, // ...the other uses position.
         color: color,
-        fillColor: selected ? stopColor : "white",
+        dashArray: !doorDidOpen ? "3 5" : "",
+        fillColor: selected ? "var(--lighter-blue)" : "white",
         fillOpacity: 1,
         strokeWeight: isTerminal ? 5 : 3,
-        radius: isTerminal || selected ? 12 : 8,
+        radius: isTerminal || selected ? 13 : 9,
         onClick: this.onClickMarker,
       },
       children
@@ -374,6 +389,11 @@ class RouteStopMarker extends React.Component {
           <strong>{stop.nameFi}</strong> {stop.stopId} (
           {stop.shortId.replace(/ /g, "")})
         </StopHeading>
+        {!doorDidOpen && (
+          <TooltipParagraph>
+            <Text>map.stops.doors_not_open</Text>
+          </TooltipParagraph>
+        )}
         {lastTerminal ? (
           <>
             <TimeHeading>
@@ -394,7 +414,13 @@ class RouteStopMarker extends React.Component {
 
     markerChildren = [stopTooltip, stopPopup];
 
-    return this.createStopMarker(delayType, color, isTerminal, markerChildren);
+    return this.createStopMarker(
+      delayType,
+      color,
+      isTerminal,
+      markerChildren,
+      doorDidOpen
+    );
   }
 }
 

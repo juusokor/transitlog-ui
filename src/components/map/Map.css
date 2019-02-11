@@ -13,6 +13,11 @@
   border-radius: 50%;
 }
 
+.timing-stop.doors-not-opened {
+  border: 3px dashed var(--blue);
+  box-sizing: content-box;
+}
+
 .leaflet-div-icon {
   border: 0;
   background: transparent;
