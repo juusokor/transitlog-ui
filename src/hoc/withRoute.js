@@ -70,9 +70,18 @@ export default (opts = {alwaysFetch: false}) => (Component) => {
           date={date}
           skip={shouldFetch(stateRoute) === false && opts.alwaysFetch === false}
           onCompleted={this.updateRoute}>
-          {({route}) => (
-            <Component {...this.props} route={route || prevRoute || stateRoute} />
-          )}
+          {({route}) => {
+            const useRoute = route || prevRoute;
+
+            // Ensure that the fetched route matches the state route
+            // to prevent async shenaningans.
+            const returnRoute =
+              useRoute && createRouteId(useRoute) === createRouteId(stateRoute)
+                ? useRoute
+                : stateRoute;
+
+            return <Component {...this.props} route={returnRoute} />;
+          }}
         </SimpleRouteQuery>
       );
     }

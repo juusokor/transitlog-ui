@@ -45,7 +45,7 @@ const LoadingContainer = styled.div`
 `;
 
 @inject(app("Time"))
-@withRoute()
+@withRoute({alwaysFetch: true})
 @observer
 class JourneyDetails extends React.Component {
   @observable
