@@ -37,13 +37,15 @@
 
   "vehicle.next_stop": "Seuraava pysäkki",
   "vehicle.speed": "Nopeus",
+  "vehicle.registry_nr": "Rekisterinumero",
+  "vehicle.age": "Ajoneuvon ikä",
   "vehicle.delay.late": "Myöhässä",
   "vehicle.delay.early": "Etuajassa",
   "vehicle.delay.ontime": "Ajallaan",
 
   "journey.terminal_time": "Terminaaliaika",
   "journey.recovery_time": "Elpymisaika",
-  "journey.requested_equipment": "Kalusto",
+  "journey.requested_equipment": "Kalustovaatimus",
   "journey.departure_minus_terminal": "Lähtöaika - terminaaliaika",
   "journey.stops_hidden": "pysäkkiä piilossa",
   "journey.arrival": "Saapuminen",
