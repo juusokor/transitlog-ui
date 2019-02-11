@@ -53,6 +53,7 @@
   "journey.stops_hidden": "pysäkkiä piilossa",
   "journey.arrival": "Saapuminen",
   "journey.departure": "Lähtö",
+  "journey.end_of_stream": "Tietovirran loppu käytetty pysäkin lähtöajankohtana.",
 
   "domain.line": "Linja",
   "domain.route": "Reitti",

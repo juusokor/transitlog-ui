@@ -53,6 +53,7 @@
   "journey.stops_hidden": "stops hidden",
   "journey.arrival": "Arrival",
   "journey.departure": "Departure",
+  "journey.end_of_stream": "End of stream used as stop departure.",
 
   "domain.line": "Line",
   "domain.route": "Route",
