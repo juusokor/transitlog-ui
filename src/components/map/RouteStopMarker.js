@@ -48,9 +48,14 @@ const DepartureTimeGroup = styled.div`
   min-width: 300px;
 `;
 
-@inject(app("Filters"))
+@inject(app("Filters", "Time"))
 @observer
 class RouteStopMarker extends React.Component {
+  onClickTime = (time) => (e) => {
+    e.preventDefault();
+    this.props.Time.setTime(time);
+  };
+
   onClickMarker = () => {
     const {stop, Filters} = this.props;
     Filters.setStop(stop.stopId);
@@ -173,6 +178,8 @@ class RouteStopMarker extends React.Component {
     const stopDepartureTime = journeyEventTime(departureEvent);
     const stopArrivalTime = journeyEventTime(arrivalEvent);
 
+    // Calculate the duration values
+
     let plannedDuration = 0;
     let observedDuration = 0;
     let durationDiff = 0;
@@ -207,8 +214,10 @@ class RouteStopMarker extends React.Component {
       durationDiff = secondsToTimeObject(durationDiffSeconds);
     }
 
+    // Create the arrival/departure time elements
+
     const observedDepartureTime = (
-      <TagButton>
+      <TagButton onClick={this.onClickTime(stopDepartureTime)}>
         <PlainSlot>{plannedDepartureMoment.format("HH:mm:ss")}</PlainSlot>
         <ColoredBackgroundSlot
           color={departureDelayType === "late" ? "var(--dark-grey)" : "white"}
@@ -235,7 +244,7 @@ class RouteStopMarker extends React.Component {
           event={arrivalEvent}>
           {({offsetTime, wasLate, diffHours, diffMinutes, diffSeconds, sign}) => (
             <>
-              <StopArrivalTime>
+              <StopArrivalTime onClick={this.onClickTime(stopArrivalTime)}>
                 <PlainSlot
                   style={{
                     fontStyle: "italic",
@@ -268,7 +277,7 @@ class RouteStopMarker extends React.Component {
           departure={stop.departure}
           event={arrivalEvent}>
           {({offsetTime, wasLate, diffHours, diffMinutes, diffSeconds, sign}) => (
-            <StopArrivalTime>
+            <StopArrivalTime onClick={this.onClickTime(stopArrivalTime)}>
               <PlainSlot>{offsetTime.format("HH:mm:ss")}</PlainSlot>
               <ColoredBackgroundSlot
                 color="white"
@@ -284,7 +293,7 @@ class RouteStopMarker extends React.Component {
       );
     } else {
       observedArrivalTime = (
-        <StopArrivalTime>
+        <StopArrivalTime onClick={this.onClickTime(stopArrivalTime)}>
           <PlainSlot>{plannedArrivalMoment.format("HH:mm:ss")}</PlainSlot>
           <ColoredBackgroundSlot
             color="var(--dark-grey)"

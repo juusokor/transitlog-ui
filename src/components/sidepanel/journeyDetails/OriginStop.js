@@ -19,12 +19,14 @@ import CalculateTerminalTime from "./CalculateTerminalTime";
 import {Text} from "../../../helpers/text";
 import {getNormalTime, journeyEventTime} from "../../../helpers/time";
 import styled from "styled-components";
+import {observer} from "mobx-react-lite";
 
 const OriginStopContent = styled(StopContent)`
-  padding-bottom: 2.5rem;
+  padding-bottom: ${({stopsExpanded = false}) =>
+    !stopsExpanded ? "1.5rem" : "2.75rem"};
 `;
 
-export default ({stop = null, date, onClickTime}) => {
+const OriginStop = observer(({stop = null, date, onClickTime, stopsExpanded}) => {
   const stopMode = get(stop, "modes.nodes[0]", "BUS");
   const stopColor = get(transportColor, stopMode, "var(--light-grey)");
 
@@ -39,7 +41,7 @@ export default ({stop = null, date, onClickTime}) => {
         <StopElementsWrapper color={stopColor} terminus={"origin"}>
           <StopMarker color={stopColor} />
         </StopElementsWrapper>
-        <OriginStopContent>
+        <OriginStopContent stopsExpanded={stopsExpanded}>
           <StopHeading>
             <strong>{stop.nameFi}</strong> {stop.stopId} (
             {stop.shortId.replace(/ /g, "")})
@@ -67,7 +69,7 @@ export default ({stop = null, date, onClickTime}) => {
       <StopElementsWrapper color={stopColor} terminus="origin">
         <StopMarker color={stopColor} />
       </StopElementsWrapper>
-      <OriginStopContent terminus="origin">
+      <OriginStopContent terminus="origin" stopsExpanded={stopsExpanded}>
         <StopHeading>
           <strong>{stop.nameFi}</strong> {stop.stopId} (
           {stop.shortId.replace(/ /g, "")})
@@ -121,4 +123,6 @@ export default ({stop = null, date, onClickTime}) => {
       </OriginStopContent>
     </StopWrapper>
   );
-};
+});
+
+export default OriginStop;

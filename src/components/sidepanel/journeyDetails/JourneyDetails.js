@@ -9,6 +9,7 @@ import JourneyInfo from "./JourneyInfo";
 import DestinationStop from "./DestinationStop";
 import withRoute from "../../../hoc/withRoute";
 import OriginStop from "./OriginStop";
+import {observable, action} from "mobx";
 
 const JourneyPanelWrapper = styled.div`
   height: 100%;
@@ -39,6 +40,13 @@ const StopsListWrapper = styled.div`
 @withRoute()
 @observer
 class JourneyDetails extends React.Component {
+  @observable
+  stopsExpanded = false;
+
+  toggleStopsExpanded = action((setTo = !this.stopsExpanded) => {
+    this.stopsExpanded = setTo;
+  });
+
   onClickTime = (time) => (e) => {
     e.preventDefault();
     this.props.Time.setTime(time);
@@ -79,12 +87,15 @@ class JourneyDetails extends React.Component {
                   stop={journeyStops[0]}
                   date={date}
                   onClickTime={this.onClickTime}
+                  stopsExpanded={this.stopsExpanded}
                 />
                 <JourneyStops
                   journeyStops={journeyStops.slice(1, -2)}
                   date={date}
                   route={route}
                   onClickTime={this.onClickTime}
+                  stopsExpanded={this.stopsExpanded}
+                  toggleStopsExpanded={this.toggleStopsExpanded}
                 />
                 <DestinationStop
                   stop={journeyStops.slice(-1)[0]}

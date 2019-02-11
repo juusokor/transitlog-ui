@@ -8,7 +8,7 @@ import {Text} from "../../../helpers/text";
 const JourneyStopsWrapper = styled.div`
   margin-left: ${({expanded}) => (expanded ? "0" : "calc(1.5rem - 1px)")};
   border-left: ${({expanded}) => (expanded ? "0" : "3px dotted var(--light-grey)")};
-  padding: ${({expanded}) => (expanded ? "0" : "1rem 0")};
+  padding: ${({expanded}) => (expanded ? "0" : "1.5rem 0")};
   position: relative;
 `;
 
@@ -24,7 +24,7 @@ const HiddenStopsMessage = styled.span`
 
 const JourneyExpandToggle = styled.button`
   position: absolute;
-  top: ${({expanded}) => (expanded ? "-1.5rem" : "0")};
+  top: ${({expanded}) => (expanded ? "-1.75rem" : "0.875rem")};
   left: 0;
   padding: 0;
   padding-left: ${({expanded}) => (expanded ? "1.5rem" : "0")};
@@ -46,22 +46,21 @@ const JourneyExpandToggle = styled.button`
 
 @observer
 class JourneyStops extends React.Component {
-  @observable
-  journeyIsExpanded = false;
-
-  toggleJourneyExpanded = action((setTo = !this.journeyIsExpanded) => {
-    this.journeyIsExpanded = setTo;
-  });
-
   render() {
-    const {journeyStops, date, onClickTime} = this.props;
+    const {
+      journeyStops,
+      date,
+      onClickTime,
+      stopsExpanded,
+      toggleStopsExpanded,
+    } = this.props;
 
     return (
-      <JourneyStopsWrapper expanded={this.journeyIsExpanded}>
+      <JourneyStopsWrapper expanded={stopsExpanded}>
         <JourneyExpandToggle
-          expanded={this.journeyIsExpanded}
-          onClick={() => this.toggleJourneyExpanded()}>
-          {this.journeyIsExpanded ? (
+          expanded={stopsExpanded}
+          onClick={() => toggleStopsExpanded()}>
+          {stopsExpanded ? (
             <HiddenStopsMessage>Hide stops</HiddenStopsMessage>
           ) : (
             <HiddenStopsMessage>
@@ -70,7 +69,7 @@ class JourneyStops extends React.Component {
           )}
         </JourneyExpandToggle>
         <StopsList>
-          {this.journeyIsExpanded &&
+          {stopsExpanded &&
             journeyStops.map((journeyStop) => (
               <JourneyStop
                 key={`journey_stop_${journeyStop.stopId}_${journeyStop.stopIndex}`}
