@@ -81,7 +81,7 @@ class StopMarker extends Component {
         fillColor={isSelected ? stopColor : "white"}
         fillOpacity={1}
         onClick={this.selectStop}
-        radius={isSelected ? 13 : 9}
+        radius={isSelected ? 12 : 8}
       />
     );
 
