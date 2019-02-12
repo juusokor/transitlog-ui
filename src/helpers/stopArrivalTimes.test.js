@@ -16,15 +16,15 @@ describe("stopArrivalTimes", () => {
     const events = [
       {
         drst: false,
-        received_at: "2019-01-30T16:04:09.000Z",
+        tst: "2019-01-30T16:04:09.000Z",
       },
       {
         drst: true,
-        received_at: "2019-01-30T16:04:10.000Z",
+        tst: "2019-01-30T16:04:10.000Z",
       },
       {
         drst: false,
-        received_at: "2019-01-30T16:04:11.000Z",
+        tst: "2019-01-30T16:04:11.000Z",
       },
     ];
 

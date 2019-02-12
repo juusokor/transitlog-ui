@@ -10,6 +10,7 @@ import {createHfpItem} from "../helpers/createHfpItem";
 import {setUpdateListener, removeUpdateListener} from "../stores/UpdateManager";
 import {timeToSeconds} from "../helpers/time";
 import moment from "moment-timezone";
+import {TIMEZONE} from "../constants";
 
 const areaHfpQuery = gql`
   query areaHfpQuery(
@@ -22,7 +23,7 @@ const areaHfpQuery = gql`
     $maxLong: float8!
   ) {
     vehicles(
-      order_by: {received_at: asc}
+      order_by: {tst: asc}
       where: {
         oday: {_eq: $date}
         received_at: {_lte: $maxTime, _gte: $minTime}
@@ -32,7 +33,8 @@ const areaHfpQuery = gql`
     ) {
       journey_start_time
       next_stop_id
-      received_at
+      tst
+      tsi
       lat
       long
       dl
@@ -44,6 +46,7 @@ const areaHfpQuery = gql`
       hdg
       direction_id
       route_id
+      __typename
     }
   }
 `;
@@ -109,10 +112,7 @@ class AreaHfpQuery extends Component {
               // Third, create journey items from the journey groups
               (events, groupName) => {
                 // Create a moment for the start of the journey
-                const journeyStartMoment = moment.tz(
-                  events[0].received_at,
-                  "Europe/Helsinki"
-                );
+                const journeyStartMoment = moment.tz(events[0].tst, TIMEZONE);
 
                 // The start moment is used in createHfpItem to figure out the 24h+ time for the journey
                 const hfpEvents = events.map((evt) =>

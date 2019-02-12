@@ -19,13 +19,13 @@ export const hfpQuery = gql`
     $compareReceivedAt: timestamptz_comparison_exp
   ) {
     vehicles(
-      order_by: {received_at: asc}
+      order_by: {tst: asc}
       where: {
         oday: {_eq: $oday}
         route_id: {_eq: $route_id}
         direction_id: {_eq: $direction_id}
         journey_start_time: {_eq: $journey_start_time}
-        received_at: $compareReceivedAt
+        tst: $compareReceivedAt
       }
     ) {
       ...HfpFieldsFragment

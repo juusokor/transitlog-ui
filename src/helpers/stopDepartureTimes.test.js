@@ -16,6 +16,7 @@ describe("stopTimes", () => {
         journey_start_time: "16:04:00",
         oday: date,
         received_at: "2019-01-30T16:05:30.000Z", // UTC timestamp 1:30 minutes after schedule
+        tst: "2019-01-30T16:05:30.000Z", // UTC timestamp 1:30 minutes after schedule
       },
     ];
 

@@ -35,10 +35,6 @@ class JourneyStopTimes extends Component {
     // like journey_start_time, should be read from this object.
     const journey = events[0];
 
-    if (!journey || !stateRoute || !stateRoute.routeId || !stateRoute.dateBegin) {
-      return children({journeyStops: [], loading: false});
-    }
-
     const journeyStartTime = get(journey, "journey_start_time", "");
     const [journeyStartHour] = journeyStartTime.split(":");
     const [departureHour, departureMinute] = getNormalTime(journeyStartTime).split(
@@ -47,13 +43,14 @@ class JourneyStopTimes extends Component {
 
     return (
       <SingleRouteQuery
+        skip={!stateRoute || !stateRoute.routeId || !stateRoute.dateBegin}
         date={date}
         departureIsNextDay={journeyStartHour > 23}
         departureHours={parseInt(departureHour, 10)}
         departureMinutes={parseInt(departureMinute, 10)}
         route={pick(stateRoute, "routeId", "direction", "dateBegin", "dateEnd")}>
         {({route, loading, error}) => {
-          if (!route || loading || error) {
+          if (!journey || !route || loading || error) {
             return children({journeyStops: [], loading});
           }
 

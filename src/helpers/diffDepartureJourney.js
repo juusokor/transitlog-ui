@@ -5,7 +5,7 @@ import {secondsToTimeObject} from "./time";
 import {TIMEZONE} from "../constants";
 
 export function diffDepartureJourney(journey, departure, date, useArrival = false) {
-  const receivedAt = get(journey, "received_at", null);
+  const receivedAt = get(journey, "tst", null);
 
   if (!receivedAt) {
     return null;

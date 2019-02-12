@@ -15,6 +15,7 @@ describe("diffDepartureJourney", () => {
       journey_start_time: "16:04:00",
       oday: date,
       received_at: "2019-01-27T16:05:30.000Z", // UTC timestamp 1:30 minutes after scheduled start
+      tst: "2019-01-27T16:05:30.000Z", // UTC timestamp 1:30 minutes after scheduled start
     };
 
     const diff = diffDepartureJourney(event, departure, date);
@@ -43,6 +44,7 @@ describe("diffDepartureJourney", () => {
       journey_start_time: "26:10:00",
       oday: date,
       received_at: "2019-01-28T02:11:30.000Z", // UTC timestamp 1:30 minutes after scheduled start
+      tst: "2019-01-28T02:11:30.000Z", // UTC timestamp 1:30 minutes after scheduled start
     };
 
     const diff = diffDepartureJourney(event, departure, date);

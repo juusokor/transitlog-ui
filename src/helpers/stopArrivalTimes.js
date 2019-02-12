@@ -44,7 +44,7 @@ export const stopArrivalTimes = (stopPositions = [], stopDeparture, date) => {
     }
   }
 
-  const arrivalTime = get(arrivalEvent, "received_at", null);
+  const arrivalTime = get(arrivalEvent, "tst", null);
   let arrivalMoment = null;
   let arrivalDelayType = null;
   let arrivalColor = null;

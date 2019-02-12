@@ -19,7 +19,7 @@ describe("CalculateTerminalTime", () => {
     };
 
     const event = {
-      received_at: "2019-01-30T16:07:00.000Z", // 3 minutes before departure, 1 minute before terminal time
+      tst: "2019-01-30T16:07:00.000Z", // 3 minutes before departure, 1 minute before terminal time
     };
 
     function assert({offsetTime, wasLate, diffMinutes, diffSeconds, sign}) {
@@ -52,7 +52,7 @@ describe("CalculateTerminalTime", () => {
     };
 
     const event = {
-      received_at: "2019-01-30T16:10:00.000Z", // Right on departure time, 2 minutes after terminal time
+      tst: "2019-01-30T16:10:00.000Z", // Right on departure time, 2 minutes after terminal time
     };
 
     function assert({offsetTime, wasLate, diffMinutes, diffSeconds, sign}) {
@@ -86,7 +86,7 @@ describe("CalculateTerminalTime", () => {
     };
 
     const event = {
-      received_at: "2019-01-30T16:11:00.000Z", // 1 minute after arrival time, within the recovery time.
+      tst: "2019-01-30T16:11:00.000Z", // 1 minute after arrival time, within the recovery time.
     };
 
     function assert({offsetTime, wasLate, diffMinutes, diffSeconds, sign}) {
@@ -116,7 +116,7 @@ describe("CalculateTerminalTime", () => {
     };
 
     const event = {
-      received_at: "2019-01-30T16:13:00.000Z", // 3 minute after arrival time, 1 minute after recovery time
+      tst: "2019-01-30T16:13:00.000Z", // 3 minute after arrival time, 1 minute after recovery time
     };
 
     function assert({offsetTime, wasLate, diffMinutes, diffSeconds, sign}) {

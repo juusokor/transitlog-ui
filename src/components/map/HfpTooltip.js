@@ -3,6 +3,7 @@ import {Tooltip} from "react-leaflet";
 import moment from "moment-timezone";
 import {observer} from "mobx-react";
 import {Text} from "../../helpers/text";
+import {TIMEZONE} from "../../constants";
 
 @observer
 class HfpTooltip extends Component {
@@ -36,9 +37,7 @@ class HfpTooltip extends Component {
           {usePosition.route_id} / {usePosition.direction_id}
         </strong>
         <br />
-        {moment
-          .tz(usePosition.received_at, "Europe/Helsinki")
-          .format("YYYY-MM-DD HH:mm:ss")}
+        {moment.tz(usePosition.tst, TIMEZONE).format("YYYY-MM-DD HH:mm:ss")}
         <br />
         {usePosition.unique_vehicle_id}
         <br />

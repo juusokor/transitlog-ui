@@ -1,11 +1,12 @@
 import React, {Component} from "react";
 import {Polyline} from "react-leaflet";
 import {latLng} from "leaflet";
-import moment from "moment";
+import moment from "moment-timezone";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import {text} from "../../helpers/text";
 import {interpolateRange} from "../../helpers/interpolateRange";
+import {TIMEZONE} from "../../constants";
 
 @inject(app("state"))
 @observer
@@ -37,7 +38,9 @@ class SimpleHfpLayer extends Component {
 
     if (hfpItem) {
       const line = event.target;
-      const tooltipContent = `${moment(hfpItem.received_at).format("HH:mm:ss")}<br />
+      const tooltipContent = `${moment
+        .tz(hfpItem.tst, TIMEZONE)
+        .format("HH:mm:ss")}<br />
 ${hfpItem.route_id} / ${hfpItem.direction_id}<br />
 ${hfpItem.unique_vehicle_id}<br />
 ${text("vehicle.speed")}: ${Math.round((hfpItem.spd * 18) / 5)} km/h`;

@@ -23,8 +23,8 @@ export function getTimeRangeFromPositions(positions) {
     .startOf("day");
 
   // Min and max moments for the position range
-  const minMoment = moment.tz(get(positions, "[0].received_at"), TIMEZONE);
-  const maxMoment = moment.tz(get(last(positions), "received_at"), TIMEZONE);
+  const minMoment = moment.tz(get(positions, "[0].tst"), TIMEZONE);
+  const maxMoment = moment.tz(get(last(positions), "tst"), TIMEZONE);
 
   return {
     min: dateToSeconds(minMoment, operationDay),
