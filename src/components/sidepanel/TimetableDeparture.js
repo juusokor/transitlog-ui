@@ -31,6 +31,15 @@ const ListRow = styled.div`
   background: ${({selected = false}) => (selected ? "var(--blue)" : "transparent")};
 `;
 
+const LineSlot = styled(ColoredSlot)`
+  font-size: 0.9333rem;
+  white-space: nowrap;
+`;
+
+const PlannedTimeSlot = styled(PlainSlot)`
+  min-width: 5.25rem;
+`;
+
 const InlineLoading = styled(Loading).attrs({inline: true, size: 18})`
   color: red;
   align-self: center;
@@ -65,13 +74,13 @@ class TimetableDeparture extends Component {
         hasData={!!children}
         selected={journeyIsSelected}
         onClick={onClick}>
-        <ColoredSlot color={color}>
-          {parseLineNumber(departure.routeId)} / {departure.direction}
-        </ColoredSlot>
-        <PlainSlot>
+        <LineSlot color={color}>
+          {parseLineNumber(departure.routeId)}/{departure.direction}
+        </LineSlot>
+        <PlannedTimeSlot>
           {doubleDigit(departure.hours)}:{doubleDigit(departure.minutes)}
           {isTimingStop && <TimingIcon src={timingStopIcon} />}
-        </PlainSlot>
+        </PlannedTimeSlot>
         {children}
       </TimetableButton>
     </ListRow>
