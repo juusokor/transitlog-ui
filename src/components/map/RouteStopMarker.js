@@ -100,7 +100,7 @@ class RouteStopMarker extends React.Component {
         position: markerPosition, // ...the other uses position.
         color: color,
         dashArray: !doorDidOpen ? "3 5" : "",
-        fillColor: selected ? "var(--lighter-blue)" : "white",
+        fillColor: selected ? stopColor : "white",
         fillOpacity: 1,
         strokeWeight: isTerminal ? 5 : 3,
         radius: isTerminal || selected ? 13 : 9,
