@@ -125,46 +125,45 @@ function App({state, UI}) {
                                       <>
                                         <Observer>
                                           {() => {
-                                            // Set the map center from here. We don't want to wrap the map
-                                            // in these frequently updating components.
+                                            // Set the map center from a selected stop position or selected journey position.
 
-                                            if (live) {
-                                              return null;
+                                            if (!live) {
+                                              const stopPosition = stop
+                                                ? latLng([stop.lat, stop.lon])
+                                                : false;
+
+                                              const selectedJourneyPosition = selectedJourney
+                                                ? currentTimePositions.get(
+                                                    selectedJourneyId
+                                                  )
+                                                : false;
+
+                                              const centerPosition = selectedJourneyPosition
+                                                ? latLng([
+                                                    selectedJourneyPosition.lat,
+                                                    selectedJourneyPosition.long,
+                                                  ])
+                                                : stopPosition;
+
+                                              setMapCenter(centerPosition);
                                             }
 
-                                            const stopPosition = stop
-                                              ? latLng([stop.lat, stop.lon])
-                                              : false;
-
-                                            const selectedJourneyPosition = selectedJourney
-                                              ? currentTimePositions.get(
-                                                  selectedJourneyId
-                                                )
-                                              : false;
-
-                                            const centerPosition = selectedJourneyPosition
-                                              ? latLng([
-                                                  selectedJourneyPosition.lat,
-                                                  selectedJourneyPosition.long,
-                                                ])
-                                              : stopPosition;
-
-                                            setMapCenter(centerPosition);
-                                            return null;
+                                            return (
+                                              <MapContent
+                                                queryBounds={queryBounds}
+                                                setMapBounds={setMapBounds}
+                                                journeys={currentPositions}
+                                                journeyStops={journeyStops}
+                                                timePositions={currentTimePositions}
+                                                route={route}
+                                                stop={stop}
+                                                zoom={zoom}
+                                                viewLocation={setViewerLocation}
+                                                stopsBbox={mapView}
+                                              />
+                                            );
                                           }}
                                         </Observer>
-                                        <MapContent
-                                          queryBounds={queryBounds}
-                                          setMapBounds={setMapBounds}
-                                          journeys={currentPositions}
-                                          journeyStops={journeyStops}
-                                          timePositions={currentTimePositions}
-                                          route={route}
-                                          stop={stop}
-                                          zoom={zoom}
-                                          viewLocation={setViewerLocation}
-                                          stopsBbox={mapView}
-                                        />
                                       </>
                                     )}
                                   </JourneyPosition>

@@ -86,7 +86,7 @@ export default (state) => {
           }
 
           update(true);
-        }, 2000);
+        }, 1500);
       }
     },
     {fireImmediately: true, delay: 100}
