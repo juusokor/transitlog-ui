@@ -61,7 +61,7 @@ export const ColoredBackgroundSlot = styled.span`
 `;
 
 export const PlainSlot = styled.span`
-  padding: 3px 8px;
+  padding: 3px 5px;
   border-left: 1px solid var(--lighter-grey);
   min-width: 6rem;
   font-weight: normal;
