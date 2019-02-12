@@ -4,14 +4,14 @@ const vehicleColors = {
   BUS: "var(--bus-blue)",
   TRAM: "var(--green)",
   RAIL: "var(--purple)",
+  TRAIN: "var(--purple)",
   TRUNK: "var(--orange)",
   SUBWAY: "var(--orange)",
   default: "var(--blue)",
 };
 
 export function getModeColor(mode = "default") {
-  const color = get(vehicleColors, mode, vehicleColors.default);
-  return color;
+  return get(vehicleColors, mode, vehicleColors.default);
 }
 
 // If there are many modes, return the most significant one with explicit logic.
