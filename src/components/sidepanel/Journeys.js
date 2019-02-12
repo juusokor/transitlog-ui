@@ -91,19 +91,27 @@ class Journeys extends Component {
 
     const selectedJourneyId = expr(() => getJourneyId(state.selectedJourney));
 
+    let focusedJourney = expr(() => {
+      // Make sure that the selected journey belongs to the currently selected route.
+      if (
+        selectedJourneyId &&
+        state.selectedJourney &&
+        createRouteId(state.selectedJourney) === createRouteId(route)
+      ) {
+        return selectedJourneyId;
+      }
+
+      return null;
+    });
+
     return (
       <RouteJourneys>
         {({journeys, loading}) => (
           <Observer>
             {() => {
-              let focusedJourney = expr(() => {
-                // Make sure that the selected journey belongs to the currently selected route.
-                if (
-                  selectedJourneyId &&
-                  state.selectedJourney &&
-                  createRouteId(state.selectedJourney) === createRouteId(route)
-                ) {
-                  return selectedJourneyId;
+              focusedJourney = expr(() => {
+                if (focusedJourney) {
+                  return focusedJourney;
                 }
 
                 const time = parseInt(state.time.replace(":", "").slice(0, 4));
