@@ -7,10 +7,12 @@ describe("getTimeRangeFromPositions", () => {
       {
         oday: "2019-01-28",
         received_at: "2019-01-28T00:00:00.000Z", // UTC time
+        tst: "2019-01-28T00:00:00.000Z", // UTC time
       },
       {
         oday: "2019-01-28",
         received_at: "2019-01-28T00:01:00.000Z", // UTC time, one minute later
+        tst: "2019-01-28T00:01:00.000Z", // UTC time, one minute later
       },
     ];
 
@@ -28,10 +30,12 @@ describe("getTimeRangeFromPositions", () => {
       {
         oday: "2019-01-28",
         received_at: "2019-01-28T00:00:00.000Z", // UTC time
+        tst: "2019-01-28T00:00:00.000Z", // UTC time
       },
       {
         oday: "2019-01-28", // Same oday
         received_at: "2019-01-30T00:00:00.000Z", // UTC time, 2 days later
+        tst: "2019-01-30T00:00:00.000Z", // UTC time, 2 days later
       },
     ];
 

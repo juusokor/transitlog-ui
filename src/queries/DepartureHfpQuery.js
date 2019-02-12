@@ -20,7 +20,7 @@ const stopDelayQuery = gql`
         {route_id: asc}
         {direction_id: asc}
         {journey_start_time: asc}
-        {received_at: desc}
+        {tst: desc}
       ]
       where: {
         journey_start_time: {_eq: $journeyStartTime}
@@ -32,12 +32,13 @@ const stopDelayQuery = gql`
     ) {
       journey_start_time
       next_stop_id
-      received_at
       oday
       direction_id
       route_id
       unique_vehicle_id
       received_at
+      tst
+      tsi
       lat
       long
     }

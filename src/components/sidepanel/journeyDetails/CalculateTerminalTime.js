@@ -14,7 +14,7 @@ export default function CalculateTerminalTime({
   recovery = false,
   children,
 }) {
-  const receivedAt = get(event, "received_at", null);
+  const receivedAt = get(event, "tst", null);
   const observedTime = moment.tz(receivedAt, TIMEZONE);
   const plannedTime = getAdjustedDepartureDate(departure, date, recovery);
   const bufferTime = get(departure, recovery ? "recoveryTime" : "terminalTime", 0);

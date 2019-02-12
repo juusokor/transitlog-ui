@@ -54,7 +54,7 @@ export function journeyStartTime(event, useMoment) {
     return "";
   }
 
-  const eventMoment = useMoment ? useMoment : moment.tz(event.received_at, TIMEZONE);
+  const eventMoment = useMoment ? useMoment : moment.tz(event.tst, TIMEZONE);
 
   let [hours, minutes, seconds] = event.journey_start_time.split(":");
   const intHours = parseInt(hours, 10);
@@ -83,7 +83,7 @@ export function journeyEventTime(event) {
     return "";
   }
 
-  const receivedAtMoment = moment.tz(event.received_at, TIMEZONE);
+  const receivedAtMoment = moment.tz(event.tst, TIMEZONE);
 
   let hours = receivedAtMoment.hours();
   let minutes = receivedAtMoment.minutes();

@@ -9,7 +9,7 @@ import {removeUpdateListener, setUpdateListener} from "../stores/UpdateManager";
 export const hfpQuery = gql`
   query vehicleHfpQuery($date: date!, $vehicle_id: String!) {
     vehicles(
-      order_by: {received_at: asc}
+      order_by: {tst: asc}
       where: {oday: {_eq: $date}, unique_vehicle_id: {_eq: $vehicle_id}}
     ) {
       ...HfpFieldsFragment

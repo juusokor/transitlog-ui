@@ -50,7 +50,7 @@ class SelectedJourneyEvents extends Component {
 
           // Get the real date when this journey started. This will let us determine
           // on which side of the 24h+ day the journey happened.
-          const realStartMoment = moment.tz(positions[0].received_at, TIMEZONE);
+          const realStartMoment = moment.tz(positions[0].tst, TIMEZONE);
 
           const events = filteredEvents.map((item) =>
             createHfpItem(item, realStartMoment)

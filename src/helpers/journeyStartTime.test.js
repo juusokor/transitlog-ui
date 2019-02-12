@@ -8,6 +8,7 @@ describe("journeyStartTime", () => {
       journey_start_time: "16:04:00",
       oday: "2019-01-27",
       received_at: "2019-01-27T16:30:00.000Z", // UTC timestamp 26 minutes after start
+      tst: "2019-01-27T16:30:00.000Z", // UTC timestamp 26 minutes after start
     };
 
     const startTime = journeyStartTime(journey);
@@ -23,6 +24,7 @@ describe("journeyStartTime", () => {
       journey_start_time: "00:05:00",
       oday: "2019-01-27",
       received_at: "2019-01-27T23:59:00.000Z", // UTC timestamp 6 minutes before official start
+      tst: "2019-01-27T23:59:00.000Z", // UTC timestamp 6 minutes before official start
     };
 
     const startTime1 = journeyStartTime(journey1);
@@ -35,6 +37,7 @@ describe("journeyStartTime", () => {
       journey_start_time: "00:05:00",
       oday: "2019-01-27",
       received_at: "2019-01-28T00:10:00.000Z", // UTC timestamp 5 minutes after start
+      tst: "2019-01-28T00:10:00.000Z", // UTC timestamp 5 minutes after start
     };
 
     const startTime2 = journeyStartTime(journey2);
@@ -46,6 +49,7 @@ describe("journeyStartTime", () => {
       journey_start_time: "03:30:00",
       oday: "2019-01-27",
       received_at: "2019-01-28T03:40:00.000Z", // this should be ignored. 10 minutes after start.
+      tst: "2019-01-28T03:40:00.000Z", // this should be ignored. 10 minutes after start.
     };
 
     // 10 minutes after start BUT it's the same date as the oday so it should not be a 24h+ time.
