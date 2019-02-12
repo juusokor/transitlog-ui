@@ -1,7 +1,9 @@
 {
   "extends": ["react-app", "plugin:prettier/recommended"],
+  "plugins": ["react-hooks"],
   "rules": {
     "import/no-webpack-loader-syntax": 0,
-    "import/first": 0
+    "import/first": 0,
+    "react-hooks/rules-of-hooks": "error"
   }
 }

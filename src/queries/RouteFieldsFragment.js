@@ -1,4 +1,5 @@
 import gql from "graphql-tag";
+import {StopFieldsFragment} from "./StopFieldsFragment";
 
 export const RouteFieldsFragment = gql`
   fragment RouteFieldsFragment on Route {
@@ -28,17 +29,17 @@ export const ExtensiveRouteFieldsFragment = gql`
     routeLength
     mode
     originStop: stopByOriginstopId {
-      nodeId
-      stopId
-      lat
-      lon
-      shortId
-      nameFi
-      modes {
-        nodes
-      }
+      ...StopFieldsFragment
       departures: departuresByStopId(
-        condition: {routeId: $routeId, direction: $direction, dayType: $dayType}
+        condition: {
+          routeId: $routeId
+          direction: $direction
+          dayType: $dayType
+          isNextDay: $isNextDay
+          # Limit the origin stop departures to ones matching the journey time
+          hours: $departureHours
+          minutes: $departureMinutes
+        }
       ) {
         nodes {
           stopId
@@ -63,15 +64,7 @@ export const ExtensiveRouteFieldsFragment = gql`
       }
     }
     destinationStop: stopByDestinationstopId {
-      nodeId
-      stopId
-      lat
-      lon
-      shortId
-      nameFi
-      modes {
-        nodes
-      }
+      ...StopFieldsFragment
       departures: departuresByStopId(
         condition: {routeId: $routeId, direction: $direction, dayType: $dayType}
       ) {
@@ -112,13 +105,7 @@ export const ExtensiveRouteFieldsFragment = gql`
         direction
         routeId
         stop: stopByStopId {
-          nameFi
-          stopId
-          shortId
-          stopType
-          modes {
-            nodes
-          }
+          ...StopFieldsFragment
           departures: departuresByStopId(
             condition: {routeId: $routeId, direction: $direction, dayType: $dayType}
           ) {
@@ -146,6 +133,7 @@ export const ExtensiveRouteFieldsFragment = gql`
       }
     }
   }
+  ${StopFieldsFragment}
 `;
 
 export default RouteFieldsFragment;

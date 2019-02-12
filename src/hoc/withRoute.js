@@ -5,6 +5,7 @@ import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import get from "lodash/get";
 import compact from "lodash/compact";
+import {createRouteId} from "../helpers/keys";
 
 function shouldFetch(route) {
   if (!get(route, "routeId", null)) {
@@ -33,7 +34,11 @@ function shouldFetch(route) {
   only contain routeId and direction.
  */
 
-export default (Component) => {
+// The state route only contains partial data. Store fetched route items here
+// so that it can be given as a prop in case some component needs more data.
+let prevRoute = null;
+
+export default (opts = {alwaysFetch: false}) => (Component) => {
   @inject(app("Filters"))
   @withApollo
   @observer
@@ -47,8 +52,9 @@ export default (Component) => {
       if (
         shouldFetch(stateRoute) &&
         fetchedRoute &&
-        stateRoute.routeId === fetchedRoute.routeId
+        createRouteId(stateRoute) === createRouteId(fetchedRoute)
       ) {
+        prevRoute = fetchedRoute;
         Filters.setRoute(fetchedRoute);
       }
     };
@@ -62,9 +68,20 @@ export default (Component) => {
         <SimpleRouteQuery
           route={stateRoute}
           date={date}
-          skip={!shouldFetch(stateRoute)}
+          skip={shouldFetch(stateRoute) === false && opts.alwaysFetch === false}
           onCompleted={this.updateRoute}>
-          {({route}) => <Component {...this.props} route={route || stateRoute} />}
+          {({route}) => {
+            const useRoute = route || prevRoute;
+
+            // Ensure that the fetched route matches the state route
+            // to prevent async shenaningans.
+            const returnRoute =
+              useRoute && createRouteId(useRoute) === createRouteId(stateRoute)
+                ? useRoute
+                : stateRoute;
+
+            return <Component {...this.props} route={returnRoute} />;
+          }}
         </SimpleRouteQuery>
       );
     }

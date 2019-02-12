@@ -6,6 +6,7 @@ import {inject, observer} from "mobx-react";
 import {app} from "mobx-app";
 import AllStopsQuery from "../../queries/AllStopsQuery";
 import StopInput from "./StopInput";
+import withRoute from "../../hoc/withRoute";
 import Loading from "../Loading";
 import styled from "styled-components";
 
@@ -14,6 +15,7 @@ const LoadingSpinner = styled(Loading)`
 `;
 
 @inject(app("Filters"))
+@withRoute()
 @observer
 class StopSettings extends React.Component {
   render() {

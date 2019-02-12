@@ -54,6 +54,7 @@
   "journey.arrival": "Ankomst",
   "journey.departure": "Avfärd",
   "journey.end_of_stream": "De sista uppgifterna används som hållplatsens avfärd.",
+  "journey.duration": "Resans tidslängd",
 
   "domain.line": "Linje",
   "domain.route": "Rutt",

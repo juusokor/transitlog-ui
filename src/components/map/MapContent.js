@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
 import StopLayer from "./StopLayer";
 import StopMarker from "./StopMarker";
-import RouteQuery from "../../queries/RouteQuery";
+import RouteGeometryQuery from "../../queries/RouteGeometryQuery";
 import RouteLayer from "./RouteLayer";
 import get from "lodash/get";
 import getJourneyId from "../../helpers/getJourneyId";
@@ -31,6 +31,7 @@ class MapContent extends Component {
   render() {
     const {
       journeys = [],
+      journeyStops,
       timePositions,
       route,
       zoom,
@@ -90,7 +91,7 @@ class MapContent extends Component {
         {/* When a route IS selected... */}
         {hasRoute && (
           <>
-            <RouteQuery
+            <RouteGeometryQuery
               key={`route_query_${createRouteKey(route, true)}`}
               route={route}>
               {({routeGeometry}) =>
@@ -105,7 +106,7 @@ class MapContent extends Component {
                   />
                 ) : null
               }
-            </RouteQuery>
+            </RouteGeometryQuery>
             {(!selectedJourney ||
               (selectedJourney.route_id !== route.routeId ||
                 journeys.length === 0)) && (
@@ -113,7 +114,6 @@ class MapContent extends Component {
                 showRadius={showStopRadius}
                 onViewLocation={viewLocation}
                 route={route}
-                positions={[]}
               />
             )}
 
@@ -146,7 +146,7 @@ class MapContent extends Component {
                       onViewLocation={viewLocation}
                       key={`journey_stops_${journeyId}`}
                       route={route}
-                      positions={journeyPositions}
+                      journeyStops={journeyStops}
                     />
                   ) : null,
                   <HfpMarkerLayer

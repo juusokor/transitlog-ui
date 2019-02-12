@@ -54,6 +54,7 @@
   "journey.arrival": "Arrival",
   "journey.departure": "Departure",
   "journey.end_of_stream": "End of stream used as stop departure.",
+  "journey.duration": "Journey duration",
 
   "domain.line": "Line",
   "domain.route": "Route",

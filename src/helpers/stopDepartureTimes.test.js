@@ -25,8 +25,8 @@ describe("stopTimes", () => {
     const expectPlannedMoment = getMomentFromDateTime(date, "16:04:00");
     const expectObservedMoment = getMomentFromDateTime(date, "16:05:30");
 
-    expect(departureTimes.color).toBe(expectedColor);
-    expect(departureTimes.delayType).toBe("on-time");
+    expect(departureTimes.departureColor).toBe(expectedColor);
+    expect(departureTimes.departureDelayType).toBe("on-time");
     expect(departureTimes.departureMoment.valueOf()).toBe(
       expectObservedMoment.valueOf()
     );
@@ -34,7 +34,6 @@ describe("stopTimes", () => {
       expectPlannedMoment.valueOf()
     );
     expect(departureTimes.departureEvent).toBe(events[0]);
-    expect(departureTimes.departure).toBe(stopDeparture);
   });
 
   test("Returns false if all arguments are not provided", () => {

@@ -10,8 +10,8 @@ import EnsureJourneySelection from "../helpers/EnsureJourneySelection";
 import moment from "moment-timezone";
 import {TIMEZONE} from "../constants";
 
-@withRoute
 @inject(app("state"))
+@withRoute()
 @observer
 class SelectedJourneyEvents extends Component {
   renderChildren = (children, events = [], loading = false, error = null) => (

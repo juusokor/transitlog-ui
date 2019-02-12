@@ -4,6 +4,7 @@ import {Query} from "react-apollo";
 import get from "lodash/get";
 import pick from "lodash/pick";
 import compact from "lodash/compact";
+import omitBy from "lodash/omitBy";
 import {
   RouteFieldsFragment,
   ExtensiveRouteFieldsFragment,
@@ -30,6 +31,9 @@ const extensiveSingleRouteQuery = gql`
     $direction: String!
     $dateBegin: Date!
     $dateEnd: Date!
+    $departureHours: Int
+    $departureMinutes: Int
+    $isNextDay: Boolean
     $dayType: String
   ) {
     route: routeByRouteIdAndDirectionAndDateBeginAndDateEnd(
@@ -58,12 +62,14 @@ function getRoute(data = {}, date) {
 
 export const SimpleRouteQuery = ({route, date, onCompleted, skip, children}) => {
   const {direction} = route;
+  // Omit empty values
+  const routeData = omitBy(route, (value) => !value);
 
   return (
     <Query
-      skip={skip}
+      skip={skip || Object.keys(routeData).length < 2} // It needs at least the routeId and the direction
       query={singleRouteQuery}
-      variables={{...route, direction: direction + ""}}
+      variables={{...routeData, direction: direction + ""}}
       onCompleted={(data) => onCompleted(getRoute(data, date))}>
       {({data, loading}) => {
         if (!data || loading) {
@@ -78,15 +84,25 @@ export const SimpleRouteQuery = ({route, date, onCompleted, skip, children}) => 
 };
 
 const ExtensiveRouteQuery = observer(
-  ({children, route, date, skip, onCompleted = () => {}}) => {
+  ({
+    children,
+    route,
+    date,
+    departureHours,
+    departureMinutes,
+    skip,
+    onCompleted = () => {},
+  }) => {
     const variables = {
       ...pick(route, "routeId", "dateBegin", "dateEnd"),
       dayType: getDayTypeFromDate(date),
       direction: route.direction + "",
+      departureHours,
+      departureMinutes,
     };
 
     // If some variable are missing the query may block the UI, so make sure everything's here.
-    const hasAllVariables = compact(Object.values(variables)).length === 5;
+    const hasAllVariables = compact(Object.values(variables)).length >= 5;
 
     return (
       <Query

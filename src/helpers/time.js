@@ -54,22 +54,22 @@ export function journeyStartTime(event, useMoment) {
     return "";
   }
 
-  const eventDate = useMoment ? useMoment : moment.tz(event.received_at, TIMEZONE);
+  const eventMoment = useMoment ? useMoment : moment.tz(event.received_at, TIMEZONE);
 
   let [hours, minutes, seconds] = event.journey_start_time.split(":");
   const intHours = parseInt(hours, 10);
 
   /*
-    TODO: Check this if something seems off with midnight journeys. 12 was chosen
-      as a convenient mid-point time that would only appear once in a 24h+ day.
-   */
+   Check this if something seems off with midnight journeys. 12 was chosen
+   as a convenient mid-point time that would only appear once in a 24h+ day.
+  */
 
   if (
     // If the journey start hour was before 12 (ie very early) and the received at time
     // was after, we can assume that this journey is at the late end of a 24h+ day.
     // Otherwise check if the oday and the received at date don't match.
-    (intHours < 12 && eventDate.hours() >= 12) ||
-    event.oday !== eventDate.format("YYYY-MM-DD")
+    (hours < 12 && eventMoment.hours() >= 12) ||
+    event.oday !== eventMoment.format("YYYY-MM-DD")
   ) {
     hours = intHours + 24;
     return getTimeString(hours, minutes, seconds);
@@ -78,9 +78,33 @@ export function journeyStartTime(event, useMoment) {
   return event.journey_start_time;
 }
 
+export function journeyEventTime(event) {
+  if (!event || !event.journey_start_time) {
+    return "";
+  }
+
+  const receivedAtMoment = moment.tz(event.received_at, TIMEZONE);
+
+  let hours = receivedAtMoment.hours();
+  let minutes = receivedAtMoment.minutes();
+  let seconds = receivedAtMoment.seconds();
+
+  if (event.oday !== receivedAtMoment.format("YYYY-MM-DD")) {
+    hours = hours + 24;
+  }
+
+  return getTimeString(hours, minutes, seconds);
+}
+
 // Return the departure time as a 24h+ time string
-export function departureTime(departure) {
-  const {isNextDay, hours, minutes} = departure;
+export function departureTime(departure, useArrival = false) {
+  let {isNextDay, hours, minutes} = departure;
+
+  if (useArrival) {
+    hours = departure.arrivalHours;
+    minutes = departure.arrivalMinutes;
+  }
+
   const hour = isNextDay ? hours + 24 : hours;
   return getTimeString(hour, minutes);
 }

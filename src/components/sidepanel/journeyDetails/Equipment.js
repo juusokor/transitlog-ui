@@ -1,29 +1,17 @@
 import React from "react";
-import styled from "styled-components";
 import EquipmentQuery from "../../../queries/EquipmentQuery";
 import map from "lodash/map";
 import {checkRequirements} from "./equipmentType";
 
-const EquipmentWrapper = styled.span``;
-
-const Requirement = styled.span`
-  color: ${({color}) => color};
-  font-weight: ${({bold = false}) => (bold ? "bold" : "normal")};
-
-  &:after {
-    content: ", ";
-  }
-
-  &:last-child:after {
-    content: " ";
-  }
-`;
-
 export default ({journey, departure, children}) => {
-  const {owner_operator_id, vehicle_number} = journey;
+  if (!journey || !departure) {
+    return children({equipment: [], loading: false});
+  }
+
+  const {owner_operator_id = 0, vehicle_number = 0} = journey;
 
   const operatorId = (owner_operator_id + "").padStart(4, "0");
-  const vehicleId = vehicle_number.toString();
+  const vehicleId = vehicle_number + "";
 
   return (
     <EquipmentQuery vehicleId={vehicleId} operatorId={operatorId}>

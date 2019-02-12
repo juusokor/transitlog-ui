@@ -13,7 +13,7 @@ export const TagButton = styled.button`
   outline: 0;
   width: 100%;
   max-width: 100%;
-  font-family: inherit;
+  font-family: var(--font-family);
   font-size: 1rem;
   padding: 0;
   cursor: pointer;

@@ -5,6 +5,7 @@ import styled from "styled-components";
 import Calendar from "../../../icons/Calendar";
 import JourneyPlanner from "../../../icons/JourneyPlanner";
 import Time2 from "../../../icons/Time2";
+import get from "lodash/get";
 
 const JourneyPanelHeader = styled.div`
   flex: none;
@@ -68,14 +69,14 @@ export default ({mode, routeId, date, name, journey}) => {
     <JourneyPanelHeader>
       <MainHeaderRow>
         <TransportIcon width={23} height={23} mode={mode} />
-        {journey.desi}
+        {get(journey, "desi", "")}
         <HeaderText>
           <JourneyPlanner fill="var(--blue)" width="1rem" height="1rem" />
           {routeId}
         </HeaderText>
         <HeaderText>
           <TransportIcon mode={mode} width={17} height={17} />
-          {journey.unique_vehicle_id}
+          {get(journey, "unique_vehicle_id", "")}
         </HeaderText>
       </MainHeaderRow>
       <DateTimeHeading>
@@ -85,7 +86,7 @@ export default ({mode, routeId, date, name, journey}) => {
         </HeaderText>
         <HeaderText>
           <Time2 fill="var(--blue)" width="1rem" height="1rem" />
-          {journey.journey_start_time}
+          {get(journey, "journey_start_time", "")}
         </HeaderText>
       </DateTimeHeading>
       <LineNameHeading>{name}</LineNameHeading>
