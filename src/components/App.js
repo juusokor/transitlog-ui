@@ -49,7 +49,7 @@ const MapPanel = styled(Map)`
 const decorate = flow(
   observer,
   withRoute(),
-  inject("state")
+  inject("UI")
 );
 
 function App({state, UI}) {
