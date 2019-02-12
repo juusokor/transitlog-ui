@@ -24,7 +24,6 @@ export const journeysByDateQuery = gql`
         next_stop_id: {_eq: $stopId}
       }
     ) {
-      received_at
       next_stop_id
       oday
       route_id

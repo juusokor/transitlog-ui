@@ -33,7 +33,6 @@ const areaHfpQuery = gql`
     ) {
       journey_start_time
       next_stop_id
-      received_at
       tst
       tsi
       lat

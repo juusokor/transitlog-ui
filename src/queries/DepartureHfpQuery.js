@@ -36,7 +36,6 @@ const stopDelayQuery = gql`
       direction_id
       route_id
       unique_vehicle_id
-      received_at
       tst
       tsi
       lat
