@@ -42,7 +42,7 @@ export default ({journey, departure, children}) => {
           }
         );
 
-        return children({equipment, loading});
+        return children({equipment, vehicle, loading});
       }}
     </EquipmentQuery>
   );

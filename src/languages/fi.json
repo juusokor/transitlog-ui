@@ -37,17 +37,23 @@
 
   "vehicle.next_stop": "Seuraava pysäkki",
   "vehicle.speed": "Nopeus",
+  "vehicle.registry_nr": "Rekisterinumero",
+  "vehicle.age": "Ajoneuvon ikä",
+  "vehicle.identifier": "Kylkinumero",
+  "vehicle.operator": "Liikennöitsijä",
+  "vehicle.subcontractor": "Ali-hankkija",
   "vehicle.delay.late": "Myöhässä",
   "vehicle.delay.early": "Etuajassa",
   "vehicle.delay.ontime": "Ajallaan",
 
   "journey.terminal_time": "Terminaaliaika",
   "journey.recovery_time": "Elpymisaika",
-  "journey.requested_equipment": "Kalusto",
+  "journey.requested_equipment": "Kalustovaatimus",
   "journey.departure_minus_terminal": "Lähtöaika - terminaaliaika",
   "journey.stops_hidden": "pysäkkiä piilossa",
   "journey.arrival": "Saapuminen",
   "journey.departure": "Lähtö",
+  "journey.end_of_stream": "Tietovirran loppu käytetty pysäkin lähtöajankohtana.",
   "journey.duration": "Matkan kesto",
 
   "domain.line": "Linja",
@@ -55,6 +61,8 @@
 
   "general.minutes": "minuutteja",
   "general.hour": "tunti",
+  "general.year": "vuosi",
+  "general.year.plural": "vuotta",
   "general.timerange.min": "min",
   "general.timerange.max": "maks",
   "general.day": "päivä",

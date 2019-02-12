@@ -5,7 +5,7 @@ import doubleDigit from "../../helpers/doubleDigit";
 import getDelayType from "../../helpers/getDelayType";
 import timingStopIcon from "../../icon-time1.svg";
 import {diffDepartureJourney} from "../../helpers/diffDepartureJourney";
-import {TransportIcon, transportColor} from "../transportModes";
+import {transportColor} from "../transportModes";
 import {
   ColoredBackgroundSlot,
   PlainSlot,
@@ -66,8 +66,7 @@ class TimetableDeparture extends Component {
         selected={journeyIsSelected}
         onClick={onClick}>
         <ColoredSlot color={color}>
-          <TransportIcon mode={mode} />
-          {parseLineNumber(departure.routeId)}
+          {parseLineNumber(departure.routeId)} / {departure.direction}
         </ColoredSlot>
         <PlainSlot>
           {doubleDigit(departure.hours)}:{doubleDigit(departure.minutes)}
@@ -159,7 +158,7 @@ class TimetableDeparture extends Component {
                   delayType,
                   "var(--light-green)"
                 )}>
-                {plannedObservedDiff.sign}
+                {plannedObservedDiff.sign === "-" ? "-" : ""}
                 {doubleDigit(plannedObservedDiff.minutes)}:
                 {doubleDigit(plannedObservedDiff.seconds)}
               </ColoredBackgroundSlot>

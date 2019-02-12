@@ -9,7 +9,7 @@ import get from "lodash/get";
 
 const JourneyPanelHeader = styled.div`
   flex: none;
-  padding: 1rem 1rem 1.5rem 1rem;
+  padding: 1rem;
   border-bottom: 1px solid var(--lighter-grey);
   width: 100%;
 
@@ -38,9 +38,10 @@ const LineNameHeading = styled(Heading).attrs({level: 4})`
 
 const MainHeaderRow = styled(Heading).attrs({level: 3})`
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: flex-start;
   width: 100%;
+  margin-bottom: 1.3rem;
 `;
 
 const HeaderText = styled.span`
@@ -49,7 +50,7 @@ const HeaderText = styled.span`
   display: inline-flex;
   align-items: center;
   font-size: 0.875rem;
-  padding-bottom: 1px;
+  padding-bottom: 0.2rem;
   overflow: visible;
 
   &:first-child {

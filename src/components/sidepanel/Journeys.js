@@ -22,8 +22,7 @@ const JourneyListRow = styled.button`
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  background: ${({selected = false}) =>
-    selected ? "var(--blue)" : "rgba(0, 0, 0, 0.025)"};
+  background: ${({selected = false}) => (selected ? "var(--blue)" : "transparent")};
   padding: 0.75rem 1rem;
   border: 0;
   max-width: none;
@@ -35,7 +34,7 @@ const JourneyListRow = styled.button`
 
   &:nth-child(odd) {
     background: ${({selected = false}) =>
-      selected ? "var(--blue)" : "rgba(255, 255, 255, 0.025)"};
+      selected ? "var(--blue)" : "rgba(0, 0, 0, 0.03)"};
   }
 `;
 

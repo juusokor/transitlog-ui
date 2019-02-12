@@ -13,6 +13,7 @@ import Info from "../../icons/Info";
 import {createRouteKey} from "../../helpers/keys";
 import Timetable from "../../icons/Timetable";
 import ControlBar from "./ControlBar";
+import {UsageInstructions} from "./UsageInstructions";
 
 const SidePanelContainer = styled.div`
   background: var(--lightest-grey);
@@ -121,44 +122,51 @@ class SidePanel extends Component {
     if (hasRoute) suggestedTab = "journeys";
     if (stateStop) suggestedTab = "timetables";
 
+    const allTabsHidden =
+      !hasRoute && areaEvents.length === 0 && !vehicle && !stateStop;
+
     return (
       <SidePanelContainer visible={sidePanelVisible}>
         <MainSidePanel>
           <ControlBar />
-          <Tabs suggestedTab={suggestedTab}>
-            {!hasRoute && (areaEvents.length !== 0 || areaEventsLoading) && (
-              <AreaJourneyList
-                loading={areaEventsLoading}
-                journeys={areaEvents}
-                name="area-journeys"
-                label={text("sidepanel.tabs.area_events")}
-              />
-            )}
-            {hasRoute && (
-              <Journeys
-                key={`route_journeys_${createRouteKey(route, true)}_${date}`}
-                route={route}
-                loading={journeyEventsLoading}
-                name="journeys"
-                label={text("sidepanel.tabs.journeys")}
-              />
-            )}
-            {vehicle && (
-              <VehicleJourneys
-                loading={journeyEventsLoading}
-                name="vehicle-journeys"
-                label={text("sidepanel.tabs.vehicle_journeys")}
-              />
-            )}
-            {stateStop && (
-              <TimetablePanel
-                stop={stop}
-                loading={journeyEventsLoading}
-                name="timetables"
-                label={text("sidepanel.tabs.timetables")}
-              />
-            )}
-          </Tabs>
+          {allTabsHidden ? (
+            <UsageInstructions />
+          ) : (
+            <Tabs suggestedTab={suggestedTab}>
+              {!hasRoute && (areaEvents.length !== 0 || areaEventsLoading) && (
+                <AreaJourneyList
+                  loading={areaEventsLoading}
+                  journeys={areaEvents}
+                  name="area-journeys"
+                  label={text("sidepanel.tabs.area_events")}
+                />
+              )}
+              {hasRoute && (
+                <Journeys
+                  key={`route_journeys_${createRouteKey(route, true)}_${date}`}
+                  route={route}
+                  loading={journeyEventsLoading}
+                  name="journeys"
+                  label={text("sidepanel.tabs.journeys")}
+                />
+              )}
+              {vehicle && (
+                <VehicleJourneys
+                  loading={journeyEventsLoading}
+                  name="vehicle-journeys"
+                  label={text("sidepanel.tabs.vehicle_journeys")}
+                />
+              )}
+              {stateStop && (
+                <TimetablePanel
+                  stop={stop}
+                  loading={journeyEventsLoading}
+                  name="timetables"
+                  label={text("sidepanel.tabs.timetables")}
+                />
+              )}
+            </Tabs>
+          )}
         </MainSidePanel>
         <JourneyPanel visible={journeyDetailsAreOpen}>
           {/* The content of the sidebar is independent from the sidebar wrapper so that we can animate it. */}

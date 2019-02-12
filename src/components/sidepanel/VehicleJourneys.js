@@ -6,7 +6,7 @@ import sortBy from "lodash/sortBy";
 import get from "lodash/get";
 import {app} from "mobx-app";
 import getJourneyId from "../../helpers/getJourneyId";
-import {transportColor, TransportIcon} from "../transportModes";
+import {transportColor} from "../transportModes";
 import {
   ColoredSlot,
   TagButton,
@@ -40,12 +40,10 @@ const HeaderRowLeft = styled.span`
   width: 100%;
 `;
 
-const HeadsignSlot = styled(ColoredSlot)`
-  min-width: 4rem;
-`;
+const HeadsignSlot = styled(ColoredSlot)``;
 
 const TimeSlot = styled(PlainSlot)`
-  min-width: 6rem;
+  min-width: 5rem;
   font-weight: normal;
   text-align: center;
 `;
@@ -184,8 +182,7 @@ class VehicleJourneys extends Component {
                 <NextPrevLabel>
                   {selectedJourney ? (
                     <>
-                      {vehicle}, {selectedJourney.journey_start_time} /{" "}
-                      {selectedJourney.direction_id}
+                      {vehicle}, {selectedJourney.journey_start_time.slice(0, -3)}
                     </>
                   ) : (
                     vehicle
@@ -241,17 +238,16 @@ class VehicleJourneys extends Component {
                   onClick={this.onSelectJourney(journey)}>
                   <HeadsignSlot
                     color={get(transportColor, mode, "var(--light-grey)")}>
-                    <TransportIcon mode={mode} />
-                    {lineNumber}
+                    {lineNumber} / {journey.direction_id}
                   </HeadsignSlot>
-                  <TimeSlot>{journeyTime}</TimeSlot>
+                  <TimeSlot>{journeyTime.slice(0, -3)}</TimeSlot>
                   <ColoredBackgroundSlot
                     color={delayType === "late" ? "var(--dark-grey)" : "white"}
                     backgroundColor={getTimelinessColor(
                       delayType,
                       "var(--light-green)"
                     )}>
-                    {plannedObservedDiff.sign}
+                    {plannedObservedDiff.sign === "-" ? "-" : ""}
                     {doubleDigit(plannedObservedDiff.minutes)}:
                     {doubleDigit(plannedObservedDiff.seconds)}
                   </ColoredBackgroundSlot>
