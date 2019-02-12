@@ -1,10 +1,11 @@
 import {ApolloClient} from "apollo-client";
-import {concat, split} from "apollo-link";
+import {concat, split, ApolloLink} from "apollo-link";
 import {BatchHttpLink} from "apollo-link-batch-http";
 import {HttpLink} from "apollo-link-http";
 import {InMemoryCache} from "apollo-cache-inmemory";
 import {onError} from "apollo-link-error";
 import get from "lodash/get";
+import uniqBy from "lodash/uniqBy";
 
 const joreUrl = process.env.REACT_APP_JORE_GRAPHQL_URL;
 const hfpUrl = process.env.REACT_APP_HFP_GRAPHQL_URL;
@@ -49,6 +50,16 @@ export const getClient = async (UIStore) => {
     }
   });
 
+  const dedupVehiclesLink = new ApolloLink((operation, forward) => {
+    return forward(operation).map((data) => {
+      if (data.data.vehicles.length > 5000) {
+        data.data.vehicles = uniqBy(data.data.vehicles, "tst");
+      }
+
+      return data;
+    });
+  });
+
   const cache = new InMemoryCache();
 
   const joreLink = new BatchHttpLink({
@@ -57,9 +68,12 @@ export const getClient = async (UIStore) => {
     batchInterval: 10,
   });
 
-  const hfpLink = new HttpLink({
-    uri: hfpUrl,
-  });
+  const hfpLink = concat(
+    dedupVehiclesLink,
+    new HttpLink({
+      uri: hfpUrl,
+    })
+  );
 
   // Split the operation between the JORE api and the HFP api depending on the query.
   const splitLink = split(

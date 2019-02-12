@@ -9,7 +9,6 @@ import {setUpdateListener, removeUpdateListener} from "../stores/UpdateManager";
 import {getNormalTime} from "../helpers/time";
 import moment from "moment-timezone";
 import {TIMEZONE} from "../constants";
-import {uniqBy} from "lodash";
 
 export const hfpQuery = gql`
   query selectedJourneyQuery(
@@ -85,12 +84,7 @@ class SelectedJourneyQuery extends React.Component {
 
           setUpdateListener(updateListenerName, this.onUpdate(refetch));
 
-          let vehicles = get(data, "vehicles", []);
-
-          if (vehicles.length > 9000) {
-            vehicles = uniqBy(vehicles, "tst");
-          }
-
+          const vehicles = get(data, "vehicles", []);
           return children({positions: vehicles, loading, error});
         }}
       </Query>
