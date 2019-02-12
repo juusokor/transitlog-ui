@@ -42,6 +42,7 @@ export const journeysByDateQuery = gql`
       desi
       tst
       tsi
+      __typename
     }
   }
 `;

@@ -47,6 +47,7 @@ const areaHfpQuery = gql`
       hdg
       direction_id
       route_id
+      __typename
     }
   }
 `;

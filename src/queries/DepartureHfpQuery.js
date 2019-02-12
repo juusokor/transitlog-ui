@@ -41,6 +41,7 @@ const stopDelayQuery = gql`
       tsi
       lat
       long
+      __typename
     }
   }
 `;

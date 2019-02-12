@@ -14,6 +14,7 @@ const vehiclesQuery = gql`
       unique_vehicle_id
       vehicle_number
       owner_operator_id
+      __typename
     }
   }
 `;
