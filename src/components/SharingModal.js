@@ -6,6 +6,7 @@ import copy from "copy-text-to-clipboard";
 import {observable, action, runInAction} from "mobx";
 import {observer} from "mobx-react";
 import Checkmark from "../icons/Checkmark";
+import Close from "../icons/Cross";
 
 const ShareModal = StyledModal.styled`
   width: 40vw;
@@ -35,10 +36,10 @@ const ModalContent = styled.div`
   flex-direction: column;
   align-items: flex-start;
   width: 100%;
+  position: relative;
 `;
 
 const CopyButton = styled(Button)`
-  margin-left: auto;
   background: ${({copied = false}) =>
     copied ? "var(--light-green)" : "var(--blue)"};
   border: 0;
@@ -47,6 +48,15 @@ const CopyButton = styled(Button)`
     margin-right: 0.5rem;
     margin-left: -0.5rem;
   }
+`;
+
+const DoneButton = styled(Button)``;
+
+const ButtonRow = styled.div`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 `;
 
 @observer
@@ -96,15 +106,18 @@ class SharingModal extends React.Component {
         onEscapeKeydown={onClose}>
         <ModalContent>
           <UrlDisplay resizeable={false} rows={4} value={shareUrl} disabled={true} />
-          <CopyButton
-            copied={this.copied === shareUrl}
-            primary
-            onClick={() => this.onCopy(shareUrl)}>
-            {this.copied === shareUrl && (
-              <Checkmark width="1.5rem" height="1.5rem" fill="white" />
-            )}{" "}
-            {this.copied === shareUrl ? "Copied!" : "Copy"}
-          </CopyButton>
+          <ButtonRow>
+            <CopyButton
+              copied={this.copied === shareUrl}
+              primary
+              onClick={() => this.onCopy(shareUrl)}>
+              {this.copied === shareUrl && (
+                <Checkmark width="1.5rem" height="1.5rem" fill="white" />
+              )}{" "}
+              {this.copied === shareUrl ? "Copied!" : "Copy"}
+            </CopyButton>
+            <DoneButton onClick={onClose}>Done</DoneButton>
+          </ButtonRow>
         </ModalContent>
       </ShareModal>
     );
