@@ -109,9 +109,13 @@ class Map extends Component {
 
     const prevCenter = this.prevCenter;
 
-    if (!prevCenter || (prevCenter && !center.equals(prevCenter))) {
+    if (prevCenter && !center.equals(prevCenter)) {
       this.prevCenter = center;
       map.setView(center);
+    }
+
+    if (!prevCenter) {
+      this.prevCenter = center;
     }
   };
 
