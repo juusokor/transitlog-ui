@@ -3,6 +3,7 @@ import get from "lodash/get";
 import SuggestionInput, {SuggestionContent, SuggestionText} from "./SuggestionInput";
 import getTransportType from "../../helpers/getTransportType";
 import {observer} from "mobx-react";
+import {sortBy} from "lodash";
 
 const parseLineNumber = (lineId) =>
   // Remove 1st number, which represents the city
@@ -27,13 +28,18 @@ const getSuggestions = (lines) => (value = "") => {
   const inputValue = value.trim().toLowerCase();
   const inputLength = inputValue.length;
 
+  const sortedLines = sortBy(lines, ({lineId}) => {
+    const parsedLine = parseLineNumber(lineId);
+    return parseInt(parsedLine, 10) + getTransportType(lineId, true);
+  });
+
   return inputLength === 0
-    ? lines
-    : lines.filter((line) =>
-        parseLineNumber(line.lineId.toLowerCase()).includes(
+    ? sortedLines
+    : sortedLines.filter((line) => {
+        return parseLineNumber(line.lineId.toLowerCase()).includes(
           inputValue.slice(0, inputLength)
-        )
-      );
+        );
+      });
 };
 
 @observer
