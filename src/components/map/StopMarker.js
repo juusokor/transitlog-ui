@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect} from "react";
+import React, {useCallback, useEffect, useRef} from "react";
 import {observer} from "mobx-react-lite";
 import {Popup, CircleMarker} from "react-leaflet";
 import {latLng} from "leaflet";
@@ -39,7 +39,19 @@ const decorate = flow(
 );
 
 const StopMarker = decorate(
-  ({stop, state, showRadius = true, onViewLocation, Filters}) => {
+  ({popupOpen, stop, state, showRadius = true, onViewLocation, Filters}) => {
+    const didAutoOpen = useRef(false);
+    const markerRef = useRef(null);
+
+    useEffect(() => {
+      if (popupOpen && markerRef.current) {
+        markerRef.current.leafletElement.openPopup();
+        didAutoOpen.current = true;
+      } else if (didAutoOpen.current) {
+        markerRef.current.leafletElement.closePopup();
+      }
+    }, [popupOpen]);
+
     const selectRoute = (route) => () => {
       if (route) {
         Filters.setRoute(route);
@@ -47,8 +59,6 @@ const StopMarker = decorate(
     };
 
     const selectStop = useCallback(() => {
-      this.togglePopup();
-
       if (stop) {
         Filters.setStop(stop.stopId);
       }
@@ -58,26 +68,6 @@ const StopMarker = decorate(
       onViewLocation(latLng({lat: stop.lat, lng: stop.lon}));
     }, [onViewLocation, stop]);
 
-    const [popupOpen, togglePopup] = useToggle(false);
-
-    useEffect(() => {
-      let wasPreviouslyOpened = false;
-
-      return reaction(
-        () => state.stop,
-        (stateStop) => {
-          if (stateStop && stateStop === stop.stopId) {
-            togglePopup(true);
-            wasPreviouslyOpened = true;
-          } else if (wasPreviouslyOpened) {
-            togglePopup(false);
-            wasPreviouslyOpened = false;
-          }
-        },
-        {fireImmediately: true}
-      );
-    }, [stop]);
-
     const {stop: selectedStop} = state;
 
     const isSelected = selectedStop === stop.stopId;
@@ -85,42 +75,12 @@ const StopMarker = decorate(
     const stopColor = getModeColor(mode);
     const {stopRadius} = stop;
 
-    const markerPosition = latLng(stop.lat, stop.lon);
-
-    const markerElement = (
-      <CircleMarker
-        pane="stops"
-        center={markerPosition}
-        color={stopColor}
-        fillColor={isSelected ? stopColor : "white"}
-        fillOpacity={1}
-        onClick={selectStop}
-        radius={isSelected ? 12 : 8}
-      />
-    );
-
-    const stopMarkerElement = showRadius ? (
-      <StopRadius
-        // The "pane" prop on the Circle element is not dynamic, so the
-        // StopRadius component should be remounted when selected or
-        // deselected for the circle to appear on the correct layer.
-        key={`stop_radius_${stop.stopId}${isSelected ? "_selected" : ""}`}
-        isHighlighted={isSelected}
-        center={markerPosition}
-        color={stopColor}
-        radius={stopRadius}>
-        {markerElement}
-      </StopRadius>
-    ) : (
-      markerElement
-    );
-
     const popupElement = (
       <Popup
-        position={markerPosition}
         autoPan={false}
         autoClose={false}
         keepInView={false}
+        onClose={() => (didAutoOpen.current = false)}
         minWidth={300}
         maxHeight={750}
         maxWidth={550}>
@@ -143,12 +103,39 @@ const StopMarker = decorate(
       </Popup>
     );
 
-    return (
-      <>
-        {stopMarkerElement}
-        {popupOpen && popupElement}
-      </>
+    const markerPosition = latLng(stop.lat, stop.lon);
+
+    const markerElement = (
+      <CircleMarker
+        ref={markerRef}
+        pane="stops"
+        center={markerPosition}
+        color={stopColor}
+        fillColor={isSelected ? stopColor : "white"}
+        fillOpacity={1}
+        onClick={selectStop}
+        radius={isSelected ? 12 : 8}>
+        {popupElement}
+      </CircleMarker>
     );
+
+    const stopMarkerElement = showRadius ? (
+      <StopRadius
+        // The "pane" prop on the Circle element is not dynamic, so the
+        // StopRadius component should be remounted when selected or
+        // deselected for the circle to appear on the correct layer.
+        key={`stop_radius_${stop.stopId}${isSelected ? "_selected" : ""}`}
+        isHighlighted={isSelected}
+        center={markerPosition}
+        color={stopColor}
+        radius={stopRadius}>
+        {markerElement}
+      </StopRadius>
+    ) : (
+      markerElement
+    );
+
+    return stopMarkerElement;
   }
 );
 

@@ -70,12 +70,13 @@ class SuggestionInput extends Component {
 
   onChange = (event, {newValue}) => {
     const value = newValue;
+    const {getValue} = this.props;
 
     if (!value) {
       this.props.onSelect("");
     }
 
-    this.setValue(value);
+    this.setValue(getValue(value));
   };
 
   onSuggestionSelected = (event, {suggestion}) => {
@@ -96,12 +97,16 @@ class SuggestionInput extends Component {
   };
 
   componentDidUpdate() {
-    const {value, getValue} = this.props;
-    const nextValue = getValue(value);
+    const {onSelect, value, getValue} = this.props;
+    const nextValue = !value ? "" : getValue(value);
 
-    if (nextValue !== this.prevInputValue) {
+    if (!nextValue || nextValue !== this.prevInputValue) {
       this.setValue(nextValue);
       this.prevInputValue = nextValue;
+    }
+
+    if (!nextValue) {
+      onSelect(nextValue);
     }
   }
 

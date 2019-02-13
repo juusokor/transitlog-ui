@@ -4,8 +4,17 @@ import StopsByBboxQuery from "../../queries/StopsByBboxQuery";
 import StopMarker from "./StopMarker";
 import {latLng} from "leaflet";
 import CompoundStopMarker from "./CompoundStopMarker";
+import {flow} from "lodash";
+import {inject} from "../../helpers/inject";
 
-const StopLayer = observer(({bounds, date, onViewLocation, showRadius}) => {
+const decorate = flow(
+  observer,
+  inject("state")
+);
+
+const StopLayer = decorate(({bounds, date, onViewLocation, showRadius, state}) => {
+  const {stop: selectedStop} = state;
+
   const bbox = bounds
     ? {
         minLat: bounds.getSouth(),
@@ -42,24 +51,33 @@ const StopLayer = observer(({bounds, date, onViewLocation, showRadius}) => {
           return groups.set(groupBounds, stopGroup);
         }, new Map());
 
-        return Array.from(stopAreas.entries()).map(([bounds, stopCluster]) => {
-          return stopCluster.length === 1 ? (
-            <StopMarker
-              showRadius={showRadius}
-              onViewLocation={onViewLocation}
-              key={`stops_${stopCluster[0].stopId}`}
-              stop={stopCluster[0]}
-            />
-          ) : (
-            <CompoundStopMarker
-              bounds={bounds}
-              showRadius={showRadius}
-              onViewLocation={onViewLocation}
-              key={`stopcluster_${bounds.toBBoxString()}`}
-              stops={stopCluster}
-            />
-          );
-        });
+        const stopComponents = Array.from(stopAreas.entries()).map(
+          ([bounds, stopCluster]) => {
+            const clusterIsSelected = stopCluster.some(
+              ({stopId}) => stopId === selectedStop
+            );
+
+            return stopCluster.length === 1 ? (
+              <StopMarker
+                popupOpen={clusterIsSelected}
+                showRadius={showRadius}
+                onViewLocation={onViewLocation}
+                key={`stops_${stopCluster[0].stopId}`}
+                stop={stopCluster[0]}
+              />
+            ) : (
+              <CompoundStopMarker
+                popupOpen={clusterIsSelected}
+                bounds={bounds}
+                showRadius={showRadius}
+                onViewLocation={onViewLocation}
+                key={`stopcluster_${bounds.toBBoxString()}`}
+                stops={stopCluster}
+              />
+            );
+          }
+        );
+        return stopComponents;
       }}
     </StopsByBboxQuery>
   );
