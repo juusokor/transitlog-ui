@@ -37,6 +37,7 @@ const JourneyExpandToggle = styled.button`
   cursor: pointer;
   outline: none;
   text-align: left;
+  width: auto;
 
   &:hover {
     transform: scale(1.025);
@@ -52,6 +53,7 @@ class JourneyStops extends React.Component {
       onClickTime,
       stopsExpanded,
       toggleStopsExpanded,
+      onSelectStop,
     } = this.props;
 
     return (
@@ -71,6 +73,7 @@ class JourneyStops extends React.Component {
           {stopsExpanded &&
             journeyStops.map((journeyStop) => (
               <JourneyStop
+                onSelectStop={onSelectStop}
                 key={`journey_stop_${journeyStop.stopId}_${journeyStop.stopIndex}`}
                 stop={journeyStop}
                 date={date}

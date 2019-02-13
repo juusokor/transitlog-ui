@@ -44,21 +44,23 @@ const SimpleStopArrivalTime = styled.div`
 
 const StopDepartureTime = styled(TagButton)``;
 
-export default ({stop, date, onClickTime}) => {
+export default ({stop, date, onClickTime, onSelectStop = () => {}}) => {
   const departure = stop.departure;
 
   const stopMode = get(stop, "modes.nodes[0]", "BUS");
   const stopColor = get(transportColor, stopMode, "var(--light-grey)");
+
+  const onStopClick = onSelectStop(stop.stopId);
 
   // Bail early if we don't have all the data yet.
   if (!departure || !stop.departureEvent) {
     return (
       <StopWrapper>
         <StopElementsWrapper color={stopColor}>
-          <StopMarker color={stopColor} />
+          <StopMarker color={stopColor} onClick={onStopClick} />
         </StopElementsWrapper>
         <StopContent>
-          <StopHeading>
+          <StopHeading onClick={onStopClick}>
             <strong>{stop.nameFi}</strong> {stop.stopId} ({stop.shortId})
           </StopHeading>
         </StopContent>
@@ -89,13 +91,13 @@ export default ({stop, date, onClickTime}) => {
     <StopWrapper>
       <StopElementsWrapper color={stopColor}>
         {isTimingStop ? (
-          <TimingStopMarker color={stopColor} />
+          <TimingStopMarker color={stopColor} onClick={onStopClick} />
         ) : (
-          <StopMarker color={stopColor} />
+          <StopMarker color={stopColor} onClick={onStopClick} />
         )}
       </StopElementsWrapper>
       <StopContent>
-        <StopHeading>
+        <StopHeading onClick={onStopClick}>
           <strong>{stop.nameFi}</strong> {stop.stopId} (
           {stop.shortId.replace(/ /g, "")})
         </StopHeading>

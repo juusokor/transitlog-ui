@@ -44,7 +44,7 @@ const LoadingContainer = styled.div`
   margin: 1rem auto 0;
 `;
 
-@inject(app("Time"))
+@inject(app("Time", "Filters"))
 @withRoute({alwaysFetch: true})
 @observer
 class JourneyDetails extends React.Component {
@@ -58,6 +58,14 @@ class JourneyDetails extends React.Component {
   onClickTime = (time) => (e) => {
     e.preventDefault();
     this.props.Time.setTime(time);
+  };
+
+  onSelectStop = (stopId) => () => {
+    const {Filters} = this.props;
+
+    if (stopId) {
+      Filters.setStop(stopId);
+    }
   };
 
   render() {
@@ -93,12 +101,14 @@ class JourneyDetails extends React.Component {
             {journeyStops.length !== 0 ? (
               <StopsListWrapper>
                 <OriginStop
+                  onSelectStop={this.onSelectStop}
                   stop={journeyStops[0]}
                   date={date}
                   onClickTime={this.onClickTime}
                   stopsExpanded={this.stopsExpanded}
                 />
                 <JourneyStops
+                  onSelectStop={this.onSelectStop}
                   journeyStops={journeyStops.slice(1, -2)}
                   date={date}
                   route={route}
@@ -107,6 +117,7 @@ class JourneyDetails extends React.Component {
                   toggleStopsExpanded={this.toggleStopsExpanded}
                 />
                 <DestinationStop
+                  onSelectStop={this.onSelectStop}
                   stop={journeyStops.slice(-1)[0]}
                   date={date}
                   onClickTime={this.onClickTime}
