@@ -5,10 +5,16 @@ import getTransportType from "../../helpers/getTransportType";
 import {observer} from "mobx-react";
 import {sortBy} from "lodash";
 
-const parseLineNumber = (lineId) =>
+const parseLineNumber = (lineId) => {
+  // Special case for train lines, they should only show a letter.
+  if (/^300[12]/.test(lineId)) {
+    return lineId.replace(/\d+/, "");
+  }
+
   // Remove 1st number, which represents the city
   // Remove all zeros from the beginning
-  lineId.substring(1).replace(/^0+/, "");
+  return lineId.substring(1).replace(/^0+/, "");
+};
 
 const getSuggestionValue = (suggestion) =>
   parseLineNumber(get(suggestion, "lineId", ""));
@@ -30,7 +36,12 @@ const getSuggestions = (lines) => (value = "") => {
 
   const sortedLines = sortBy(lines, ({lineId}) => {
     const parsedLine = parseLineNumber(lineId);
-    return parseInt(parsedLine, 10) + getTransportType(lineId, true);
+    // Convert a letter line id to a number, so that a => 1, b => 2 etc.
+    const lineNum = isNaN(parseInt(parsedLine, 10))
+      ? parsedLine.charCodeAt(0) - 97
+      : parsedLine;
+
+    return getTransportType(lineId, true) + lineNum;
   });
 
   return inputLength === 0
