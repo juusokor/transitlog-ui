@@ -47,7 +47,7 @@ const StopMarker = decorate(
       if (popupOpen && markerRef.current) {
         markerRef.current.leafletElement.openPopup();
         didAutoOpen.current = true;
-      } else if (didAutoOpen.current) {
+      } else if (didAutoOpen.current && markerRef.current) {
         markerRef.current.leafletElement.closePopup();
       }
     }, [popupOpen]);

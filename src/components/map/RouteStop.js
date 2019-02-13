@@ -33,6 +33,7 @@ import {
   SmallText,
 } from "../StopElements";
 import CalculateTerminalTime from "../sidepanel/journeyDetails/CalculateTerminalTime";
+import RouteStopMarker from "./RouteStopMarker";
 
 const PopupParagraph = styled(P)`
   font-family: var(--font-family);
@@ -56,71 +57,10 @@ const DepartureTimeGroup = styled.div`
 
 @inject(app("Filters", "Time"))
 @observer
-class RouteStopMarker extends React.Component {
+class RouteStop extends React.Component {
   onClickTime = (time) => (e) => {
     e.preventDefault();
     this.props.Time.setTime(time);
-  };
-
-  onClickMarker = () => {
-    const {stop, Filters} = this.props;
-    Filters.setStop(stop.stopId);
-  };
-
-  createStopMarker = (
-    delayType,
-    color,
-    isTerminal,
-    children,
-    doorDidOpen = true
-  ) => {
-    const {stop, showRadius, selected} = this.props;
-
-    const timingStopIcon = icon({
-      iconUrl: TimingStopIcon,
-      iconSize: [30, 30],
-      iconAnchor: [23, 25 / 2],
-      popupAnchor: [3, -15],
-      className: `stop-marker timing-stop ${delayType} ${
-        !doorDidOpen ? "doors-not-opened" : ""
-      }`,
-    });
-
-    const mode = getPriorityMode(get(stop, "modes.nodes", []));
-    const stopColor = getModeColor(mode);
-
-    const markerPosition = [stop.lat, stop.lon];
-
-    const markerElement = React.createElement(
-      stop.timingStopType ? Marker : CircleMarker,
-      {
-        pane: "stops",
-        icon: stop.timingStopType ? timingStopIcon : null,
-        center: markerPosition, // One marker type uses center...
-        position: markerPosition, // ...the other uses position.
-        color: color,
-        dashArray: !doorDidOpen ? "3 5" : "",
-        fillColor: selected ? stopColor : "white",
-        fillOpacity: 1,
-        strokeWeight: isTerminal ? 5 : 3,
-        radius: isTerminal || selected ? 13 : 9,
-        onClick: this.onClickMarker,
-      },
-      children
-    );
-
-    return showRadius ? (
-      <StopRadius
-        key={`stop_radius_${stop.stopId}${selected ? "_selected" : ""}`}
-        isHighlighted={selected}
-        center={markerPosition}
-        radius={stop.stopRadius}
-        color={stopColor}>
-        {markerElement}
-      </StopRadius>
-    ) : (
-      markerElement
-    );
   };
 
   onShowStreetView = () => {
@@ -136,6 +76,8 @@ class RouteStopMarker extends React.Component {
       firstTerminal,
       lastTerminal,
       selectedJourney,
+      showRadius,
+      selected,
     } = this.props;
 
     const isTerminal = firstTerminal || lastTerminal;
@@ -172,7 +114,17 @@ class RouteStopMarker extends React.Component {
     let delayType = "none";
 
     if (!selectedJourney || !stop.departure || !stop.departureEvent) {
-      return this.createStopMarker(delayType, color, isTerminal, markerChildren);
+      return (
+        <RouteStopMarker
+          delayType={delayType}
+          color={color}
+          isTerminal={isTerminal}
+          stop={stop}
+          showRadius={showRadius}
+          selected={selected}>
+          {markerChildren}
+        </RouteStopMarker>
+      );
     }
 
     const {
@@ -414,14 +366,18 @@ class RouteStopMarker extends React.Component {
 
     markerChildren = [stopTooltip, stopPopup];
 
-    return this.createStopMarker(
-      delayType,
-      color,
-      isTerminal,
-      markerChildren,
-      doorDidOpen
+    return (
+      <RouteStopMarker
+        delayType={delayType}
+        color={color}
+        isTerminal={isTerminal}
+        stop={stop}
+        showRadius={showRadius}
+        selected={selected}>
+        {markerChildren}
+      </RouteStopMarker>
     );
   }
 }
 
-export default RouteStopMarker;
+export default RouteStop;
