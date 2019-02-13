@@ -1,5 +1,5 @@
-import React, {PureComponent} from "react";
-import {inject} from "mobx-react";
+import React, {Component} from "react";
+import {inject, observer} from "mobx-react";
 import LeafletMap from "./LeafletMap";
 import {app} from "mobx-app";
 import invoke from "lodash/invoke";
@@ -17,7 +17,8 @@ const MAP_BOUNDS_URL_KEY = "mapView";
  */
 
 @inject(app("Journey"))
-class Map extends PureComponent {
+@observer
+class Map extends Component {
   static defaultProps = {
     onMapChanged: () => {},
     onMapChange: () => {},

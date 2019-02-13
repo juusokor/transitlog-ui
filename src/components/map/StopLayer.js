@@ -15,13 +15,9 @@ const StopLayer = observer(({bounds, date, onViewLocation, showRadius}) => {
       }
     : {};
 
-  console.log(bounds);
-
   return (
     <StopsByBboxQuery skip={!bounds} variables={{...bbox, date}}>
       {({stops}) => {
-        console.log(stops);
-
         const stopAreas = stops.reduce((groups, stop) => {
           const pos = latLng(stop.lat, stop.lon);
           let groupBounds;
