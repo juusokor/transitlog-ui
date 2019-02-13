@@ -65,7 +65,7 @@ class CompoundStopMarker extends Component {
   @observable
   popupOpen = false;
 
-  togglePopupOpen = action((setTo = !this.popupOpen) => {
+  togglePopup = action((setTo = !this.popupOpen) => {
     this.popupOpen = setTo;
   });
 
@@ -126,7 +126,7 @@ class CompoundStopMarker extends Component {
 
     const markerElement = (
       <Marker
-        onClick={() => this.togglePopupOpen()}
+        onClick={() => this.togglePopup()}
         icon={markerIcon}
         pane="stops"
         position={markerPosition}

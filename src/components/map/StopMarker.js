@@ -37,7 +37,7 @@ class StopMarker extends Component {
   @observable
   popupOpen = false;
 
-  togglePopupOpen = action((setTo = !this.popupOpen) => {
+  togglePopup = action((setTo = !this.popupOpen) => {
     this.popupOpen = setTo;
   });
 
@@ -50,7 +50,7 @@ class StopMarker extends Component {
   selectStop = () => {
     const {stop, Filters} = this.props;
 
-    this.togglePopupOpen();
+    this.togglePopup();
 
     if (stop) {
       Filters.setStop(stop.stopId);
