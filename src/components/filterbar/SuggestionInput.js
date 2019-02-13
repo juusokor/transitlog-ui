@@ -97,16 +97,12 @@ class SuggestionInput extends Component {
   };
 
   componentDidUpdate() {
-    const {onSelect, value, getValue} = this.props;
-    const nextValue = !value ? "" : getValue(value);
+    const {value, getValue} = this.props;
+    const nextValue = getValue(value);
 
-    if (!nextValue || nextValue !== this.prevInputValue) {
+    if (nextValue !== this.prevInputValue) {
       this.setValue(nextValue);
       this.prevInputValue = nextValue;
-    }
-
-    if (!nextValue) {
-      onSelect(nextValue);
     }
   }
 

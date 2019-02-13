@@ -17,7 +17,9 @@ const parseLineNumber = (lineId) => {
 };
 
 const getSuggestionValue = (suggestion) =>
-  parseLineNumber(get(suggestion, "lineId", ""));
+  typeof suggestion === "string"
+    ? suggestion
+    : parseLineNumber(get(suggestion, "lineId", ""));
 
 const renderSuggestion = (suggestion, {query, isHighlighted}) => (
   <SuggestionContent
@@ -78,7 +80,6 @@ class LineInput extends React.Component {
 
   render() {
     const {line, lines, onSelect} = this.props;
-
     return (
       <SuggestionInput
         minimumInput={1}
