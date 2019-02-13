@@ -63,7 +63,7 @@ class MapContent extends Component {
                 showRadius={showStopRadius}
                 onViewLocation={viewLocation}
                 stop={stop}
-                selected={true}
+                popupOpen={true}
                 date={date}
               />
             ) : null}
