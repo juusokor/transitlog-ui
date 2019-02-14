@@ -61,18 +61,18 @@ class VehicleSettings extends React.Component {
               );
             }
 
-            const groupedVehicles = map(
-              groupBy(
-                sortBy(vehicles, "owner_operator_id"),
-                ({owner_operator_id}) => owner_operator_id
+            const groupedVehicles = sortBy(
+              map(
+                groupBy(vehicles, ({operatorId}) => parseInt(operatorId, 10) + ""),
+                (vehicles, operatorId) => {
+                  return {
+                    operatorName: getOperatorName(operatorId),
+                    operatorId: operatorId,
+                    vehicles: sortBy(vehicles, "vehicleId"),
+                  };
+                }
               ),
-              (vehicles, operatorId) => {
-                return {
-                  operatorName: getOperatorName(operatorId),
-                  operatorId: operatorId,
-                  vehicles: sortBy(vehicles, "vehicle_number"),
-                };
-              }
+              "operatorId"
             );
 
             return this.renderInput(
