@@ -15,7 +15,7 @@ import {app} from "mobx-app";
 const SiteHeader = styled(Header)`
   flex: 0 0 auto;
   z-index: 1;
-  width: 25rem;
+  width: 26rem;
   height: 100%;
 `;
 
@@ -26,7 +26,7 @@ const FilterBarWrapper = styled.div`
   overflow: visible;
   height: 100%;
   display: flex;
-  flex: 1 1 calc(100% - 25rem);
+  flex: 1 1 calc(100% - 26rem);
   flex-direction: row;
   position: relative;
 `;
@@ -43,7 +43,7 @@ const BottomSlider = styled(TimeSlider)`
   position: absolute;
   bottom: -1rem;
   right: 0;
-  width: calc((100% - 25rem) + 2px);
+  width: calc((100% - 26rem) + 2px);
   z-index: 10;
 `;
 
