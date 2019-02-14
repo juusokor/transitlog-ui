@@ -83,6 +83,8 @@ class JourneyPosition extends Component {
   };
 
   indexJourneys = (journeys) => {
+    console.log("index positions");
+
     this.hfpPositions.clear();
 
     this.positions = journeys.reduce(
@@ -123,7 +125,10 @@ class JourneyPosition extends Component {
     } = this.props;
 
     // If the positions changed we need to index again.
-    if (!this.isLive && positions.length !== prevPositions.length) {
+    if (
+      !this.isLive &&
+      (positions !== prevPositions || positions.length !== prevPositions.length)
+    ) {
       this.indexJourneys(positions);
       this.getHfpPositions(unixTime);
     }
