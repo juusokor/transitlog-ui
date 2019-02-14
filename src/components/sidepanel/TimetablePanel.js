@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import withAllStopDepartures from "../../hoc/withAllStopDepartures";
-import {toJS, reaction} from "mobx";
+import {toJS, reaction, observable, action} from "mobx";
 import styled from "styled-components";
 import Input from "../Input";
 import {text} from "../../helpers/text";
@@ -19,6 +19,7 @@ import {getDepartureByTime} from "../../helpers/getDepartureByTime";
 import getJourneyId from "../../helpers/getJourneyId";
 import {createCompositeJourney} from "../../stores/journeyActions";
 import {timeToSeconds, departureTime} from "../../helpers/time";
+import {setUpdateListener} from "../../stores/UpdateManager";
 
 const TimetableFilters = styled.div`
   display: flex;
@@ -58,6 +59,7 @@ const ClearButton = styled(Button).attrs({small: true, primary: true})`
 @observer
 class TimetablePanel extends Component {
   removeResetListener = () => {};
+  removeUpdateListener = () => {};
   disposeScrollResetReaction = () => {};
   updateScrollOffset = () => {};
 
@@ -75,8 +77,14 @@ class TimetablePanel extends Component {
   // as there is a lot to render and it would be too heavy.
   reactionlessTime = toJS(this.props.state.time);
 
+  // We need to kick the virtualized list in order to update the observed times.
+  // Achieve that by updating this property.
+  @observable
+  updatedAt = toJS(this.props.state.time);
+
   componentDidMount() {
     this.removeResetListener = setResetListener(this.onClearFilters);
+    this.removeUpdateListener = setUpdateListener("timetable list", this.onUpdate);
 
     this.disposeScrollResetReaction = reaction(
       () => [this.timeRangeFilter.debouncedValue, this.routeFilter.debouncedValue],
@@ -90,7 +98,10 @@ class TimetablePanel extends Component {
     // an unmount often, so it is very important to do it here.
     this.disposeScrollResetReaction();
 
-    // Remove the reset listener
+    // Dispose the reset listener
+    this.removeResetListener();
+
+    // Dispose the update listener
     this.removeResetListener();
   }
 
@@ -155,6 +166,13 @@ class TimetablePanel extends Component {
       timeToSeconds(departureTime(departure))
     );
   }
+
+  onUpdate = action(() => {
+    const {
+      state: {time},
+    } = this.props;
+    this.updatedAt = toJS(time);
+  });
 
   renderRow = (list, props) => ({key, index, style, isScrolling, isVisible}) => {
     const departure = list[index];
@@ -252,6 +270,7 @@ class TimetablePanel extends Component {
           date={date}
           scrollToIndex={focusedIndex !== -1 ? focusedIndex : undefined}
           list={sortedDepartures}
+          updatedAt={this.updatedAt}
           renderRow={rowRenderer}
           rowHeight={35}
           loading={timetableLoading}

@@ -3,6 +3,7 @@ import {observer} from "mobx-react";
 import {Query} from "react-apollo";
 import gql from "graphql-tag";
 import get from "lodash/get";
+import compact from "lodash/compact";
 import {removeUpdateListener, setUpdateListener} from "../stores/UpdateManager";
 
 const stopDelayQuery = gql`
@@ -45,7 +46,7 @@ const stopDelayQuery = gql`
   }
 `;
 
-const updateListenerName = "stop hfp query";
+const updateListenerName = "stop_hfp_query_";
 
 @observer
 class DepartureHfpQuery extends Component {
@@ -53,12 +54,12 @@ class DepartureHfpQuery extends Component {
     removeUpdateListener(updateListenerName);
   }
 
-  onUpdate = (refetch) => () => {
-    const {date, stopId, skip} = this.props;
-
-    if (!skip) {
-      refetch({date, stopId});
-    }
+  getUpdateListenerName = () => {
+    const {routeId, direction, date, journeyStartTime} = this.props;
+    return (
+      updateListenerName +
+      compact([routeId, direction, date, journeyStartTime]).join("_")
+    );
   };
 
   render() {
@@ -84,8 +85,10 @@ class DepartureHfpQuery extends Component {
         }}
         query={stopDelayQuery}>
         {({loading, data, error, refetch, variables}) => {
-          setUpdateListener(updateListenerName, this.onUpdate(refetch), false);
+          setUpdateListener(this.getUpdateListenerName(), refetch, false);
           const vehicles = get(data, "vehicles", []);
+
+          console.log(loading);
 
           if (vehicles.length === 0 || loading || error) {
             return children({event: null, loading, error, variables});

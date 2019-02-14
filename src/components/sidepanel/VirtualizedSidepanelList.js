@@ -64,6 +64,7 @@ class VirtualizedSidepanelList extends Component {
       loading = false,
       rowHeight,
       scrollToIndex,
+      updatedAt,
     } = this.props;
 
     return (
@@ -73,6 +74,7 @@ class VirtualizedSidepanelList extends Component {
           <AutoSizer>
             {({height, width}) => (
               <List
+                updatedAt={updatedAt}
                 date={date}
                 scrollToIndex={scrollToIndex}
                 estimatedRowSize={35}
