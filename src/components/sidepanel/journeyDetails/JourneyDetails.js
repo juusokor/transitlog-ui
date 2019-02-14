@@ -108,7 +108,7 @@ class JourneyDetails extends React.Component {
                 />
                 <JourneyStops
                   onSelectStop={this.onSelectStop}
-                  journeyStops={journeyStops.slice(1, -2)}
+                  journeyStops={journeyStops.slice(1, -1)}
                   date={date}
                   route={route}
                   onClickTime={this.onClickTime}
