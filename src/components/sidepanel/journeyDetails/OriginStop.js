@@ -35,7 +35,8 @@ const OriginStop = observer(
       return null;
     }
 
-    const onStopClick = onSelectStop(stop.stopId);
+    const selectWithStopId = onSelectStop(stop.stopId);
+    let onStopClick = selectWithStopId;
 
     // Bail here if we don't have data about stop arrival and departure times.
     if (!stop.departureEvent) {
@@ -66,6 +67,13 @@ const OriginStop = observer(
 
     const stopArrivalTime = journeyEventTime(arrivalEvent);
     const stopDepartureTime = journeyEventTime(departureEvent);
+
+    const selectDepartureTime = onClickTime(stopDepartureTime);
+
+    onStopClick = () => {
+      selectWithStopId();
+      selectDepartureTime();
+    };
 
     return (
       <StopWrapper>
@@ -112,7 +120,7 @@ const OriginStop = observer(
           <TimeHeading>
             <Text>journey.departure</Text>
           </TimeHeading>
-          <StopDepartureTime onClick={onClickTime(stopDepartureTime)}>
+          <StopDepartureTime onClick={selectDepartureTime}>
             <PlainSlot>{plannedDepartureMoment.format("HH:mm:ss")}</PlainSlot>
             <ColoredBackgroundSlot
               color={delayType === "late" ? "var(--dark-grey)" : "white"}

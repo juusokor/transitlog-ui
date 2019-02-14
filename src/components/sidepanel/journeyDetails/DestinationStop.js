@@ -20,7 +20,8 @@ export default ({stop = {}, date, onClickTime, onSelectStop = () => {}}) => {
   const stopMode = get(stop, "modes.nodes[0]", "BUS");
   const stopColor = get(transportColor, stopMode, "var(--light-grey)");
 
-  const onStopClick = onSelectStop(stop.stopId);
+  const selectWithStopId = onSelectStop(stop.stopId);
+  let onStopClick = selectWithStopId;
 
   // Bail here if we don't have data about stop arrival and departure times.
   if (!stop.arrivalEvent) {
@@ -40,6 +41,13 @@ export default ({stop = {}, date, onClickTime, onSelectStop = () => {}}) => {
 
   const {departure, arrivalEvent} = stop;
   const stopArrivalTime = journeyEventTime(arrivalEvent);
+
+  const selectArrivalTime = onClickTime(stopArrivalTime);
+
+  onStopClick = () => {
+    selectWithStopId();
+    selectArrivalTime();
+  };
 
   return (
     <StopWrapper>
@@ -61,7 +69,7 @@ export default ({stop = {}, date, onClickTime, onSelectStop = () => {}}) => {
               <TimeHeading>
                 <Text>journey.arrival</Text>
               </TimeHeading>
-              <StopArrivalTime onClick={onClickTime(stopArrivalTime)}>
+              <StopArrivalTime onClick={selectArrivalTime}>
                 <PlainSlot>{offsetTime.format("HH:mm:ss")}</PlainSlot>
                 <ColoredBackgroundSlot
                   color="white"

@@ -55,8 +55,7 @@ class JourneyDetails extends React.Component {
     this.stopsExpanded = setTo;
   });
 
-  onClickTime = (time) => (e) => {
-    e.preventDefault();
+  onClickTime = (time) => () => {
     this.props.Time.setTime(time);
   };
 

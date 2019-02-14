@@ -50,7 +50,8 @@ export default ({stop, date, onClickTime, onSelectStop = () => {}}) => {
   const stopMode = get(stop, "modes.nodes[0]", "BUS");
   const stopColor = get(transportColor, stopMode, "var(--light-grey)");
 
-  const onStopClick = onSelectStop(stop.stopId);
+  const selectWithStopId = onSelectStop(stop.stopId);
+  let onStopClick = selectWithStopId;
 
   // Bail early if we don't have all the data yet.
   if (!departure || !stop.departureEvent) {
@@ -80,6 +81,13 @@ export default ({stop, date, onClickTime, onSelectStop = () => {}}) => {
 
   const stopDepartureTime = journeyEventTime(departureEvent);
   const stopArrivalTime = journeyEventTime(arrivalEvent);
+
+  const selectDepartureTime = onClickTime(stopDepartureTime);
+
+  onStopClick = () => {
+    selectWithStopId();
+    selectDepartureTime();
+  };
 
   const isTimingStop = stop.timingStopType > 0;
 
@@ -128,7 +136,7 @@ export default ({stop, date, onClickTime, onSelectStop = () => {}}) => {
                 <Text>journey.departure</Text>
               </TimeHeading>
             )}
-            <StopDepartureTime onClick={onClickTime(stopDepartureTime)}>
+            <StopDepartureTime onClick={selectDepartureTime}>
               <PlainSlot>{plannedDepartureMoment.format("HH:mm:ss")}</PlainSlot>
               <ColoredBackgroundSlot
                 color={departureDelayType === "late" ? "var(--dark-grey)" : "white"}
