@@ -21,9 +21,6 @@ const areaHfpQuery = gql`
     $maxLat: float8!
     $minLong: float8!
     $maxLong: float8!
-    $excludeRouteId: String
-    $excludeDirectionId: smallint
-    $excludeJourneyStartTime: time
   ) {
     vehicles(
       order_by: {tst: asc}
@@ -32,11 +29,6 @@ const areaHfpQuery = gql`
         received_at: {_lte: $maxTime, _gte: $minTime}
         lat: {_lte: $maxLat, _gte: $minLat}
         long: {_lte: $maxLong, _gte: $minLong}
-        _not: {
-          route_id: {_eq: $excludeRouteId}
-          direction_id: {_eq: $excludeDirectionId}
-          journey_start_time: {_eq: $excludeJourneyStartTime}
-        }
       }
     ) {
       journey_start_time
@@ -68,19 +60,9 @@ class AreaHfpQuery extends Component {
     removeUpdateListener(updateListenerName);
   }
 
-  getExcludedProps = (excludeJourney) => {
-    const journey = excludeJourney || {};
-
-    return {
-      excludeRouteId: journey.route_id,
-      excludeDirectionId: journey.direction_id,
-      excludeJourneyStartTime: journey.journey_start_time,
-    };
-  };
-
   onUpdate = (refetch) => () => {
     const {date, getQueryParams, skip} = this.props;
-    const {minTime, maxTime, excludeJourney, ...area} = getQueryParams();
+    const {minTime, maxTime, ...area} = getQueryParams();
     const {minLat, maxLat, minLong, maxLong} = area;
 
     if (!skip && Object.keys(area).length !== 0) {
@@ -92,21 +74,12 @@ class AreaHfpQuery extends Component {
         maxLat,
         minLong,
         maxLong,
-        ...this.getExcludedProps(excludeJourney),
       });
     }
   };
 
   render() {
-    const {
-      date,
-      minTime,
-      maxTime,
-      area,
-      skip,
-      excludeJourney = {},
-      children,
-    } = this.props;
+    const {date, minTime, maxTime, area, skip, children} = this.props;
     const {minLat, maxLat, minLong, maxLong} = area;
 
     if (skip) {
@@ -125,7 +98,6 @@ class AreaHfpQuery extends Component {
           maxLat,
           minLong,
           maxLong,
-          ...this.getExcludedProps(excludeJourney),
         }}
         query={areaHfpQuery}>
         {({loading, data, error, refetch, ...rest}) => {

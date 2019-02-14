@@ -50,7 +50,7 @@ class MapContent extends Component {
 
     return (
       <>
-        <AreaSelect enabled={zoom > 14} onSelectArea={queryBounds} />
+        <AreaSelect enabled={zoom > 12} onSelectArea={queryBounds} />
         {/* When a route is NOT selected... */}
         {!hasRoute && (
           <>

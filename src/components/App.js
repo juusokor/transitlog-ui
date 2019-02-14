@@ -17,6 +17,7 @@ import JourneyStopTimes from "./JourneyStopTimes";
 import {inject} from "../helpers/inject";
 import flow from "lodash/flow";
 import withRoute from "../hoc/withRoute";
+import {mergeJourneyEvents} from "../helpers/mergeJourneyEvents";
 
 const AppFrame = styled.main`
   width: 100%;
@@ -74,7 +75,10 @@ function App({state, UI}) {
               loading: journeyEventsLoading,
             }) => {
               // The currently fetched positions, either area hfp or selected journey hfp.
-              const allCurrentPositions = [...selectedJourneyEvents, ...areaEvents];
+              const allCurrentPositions = mergeJourneyEvents(
+                selectedJourneyEvents,
+                areaEvents
+              );
 
               return (
                 <AppGrid>

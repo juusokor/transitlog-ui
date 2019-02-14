@@ -83,8 +83,6 @@ class JourneyPosition extends Component {
   };
 
   indexJourneys = (journeys) => {
-    console.log("index positions");
-
     this.hfpPositions.clear();
 
     this.positions = journeys.reduce(

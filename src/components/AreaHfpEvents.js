@@ -39,7 +39,7 @@ class AreaHfpEvents extends PureComponent {
 
   // When the query bounds change, update the params.
   getQueryParams = (bounds) => {
-    const {state, selectedJourney} = this.props;
+    const {state} = this.props;
 
     if (!bounds || (typeof bounds.isValid === "function" && !bounds.isValid())) {
       return {};
@@ -63,7 +63,6 @@ class AreaHfpEvents extends PureComponent {
       maxLong: bounds.getEast(),
       minLat: bounds.getSouth(),
       maxLat: bounds.getNorth(),
-      excludeJourney: selectedJourney,
     };
   };
 
@@ -78,7 +77,7 @@ class AreaHfpEvents extends PureComponent {
   }
 
   render() {
-    const {children, date, defaultBounds, skip, selectedJourney} = this.props;
+    const {children, date, defaultBounds, skip} = this.props;
 
     const {bounds} = this.state;
 
@@ -98,8 +97,6 @@ class AreaHfpEvents extends PureComponent {
         date={date}
         minTime={minTime ? minTime.toISOString() : null}
         maxTime={maxTime ? maxTime.toISOString() : null}
-        // Need to exclude the selected journey, otherwise it will be limited to what is fetched here.
-        excludeJourney={selectedJourney || {}}
         getQueryParams={() => this.getQueryParams(useBounds)}
         area={area}>
         {({events, loading, error}) =>
