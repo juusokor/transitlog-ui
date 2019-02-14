@@ -2,13 +2,10 @@ import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import RangeInput from "../RangeInput";
-import {
-  dateToSeconds,
-  getTimeRangeFromPositions,
-} from "../../helpers/getTimeRangeFromPositions";
-import getJourneyId from "../../helpers/getJourneyId";
+import {getTimeRangeFromPositions} from "../../helpers/getTimeRangeFromPositions";
 import get from "lodash/get";
 import {timeToSeconds} from "../../helpers/time";
+import flatten from "lodash/flatten";
 
 export const TIME_SLIDER_MAX = 86400;
 export const TIME_SLIDER_MIN = 0;
@@ -33,33 +30,10 @@ class TimeSlider extends Component {
     Time.setSeconds(value);
   };
 
-  getRange = () => {
-    const {
-      positions,
-      timeRange,
-      state: {selectedJourney, route},
-    } = this.props;
-
-    if ((!route || !route.routeId) && timeRange) {
-      const operationDay = timeRange.min.clone().startOf("day");
-
-      return {
-        min: dateToSeconds(timeRange.min, operationDay),
-        max: dateToSeconds(timeRange.max, operationDay),
-      };
-    }
-
-    const selectedJourneyId = getJourneyId(selectedJourney);
-    let selectedJourneyPositions = [];
-
-    if (selectedJourneyId && positions.length !== 0) {
-      selectedJourneyPositions = get(
-        positions.find(({journeyId}) => journeyId === selectedJourneyId),
-        "events",
-        []
-      );
-
-      const positionsTimeRange = getTimeRangeFromPositions(selectedJourneyPositions);
+  getRange = (positions) => {
+    if (positions.length !== 0) {
+      const allPositions = flatten(positions.map(({events}) => events));
+      const positionsTimeRange = getTimeRangeFromPositions(allPositions);
 
       if (positionsTimeRange) {
         return positionsTimeRange;
@@ -70,8 +44,8 @@ class TimeSlider extends Component {
   };
 
   render() {
-    const {className, state} = this.props;
-    const {min = TIME_SLIDER_MIN, max = TIME_SLIDER_MAX} = this.getRange();
+    const {className, state, positions} = this.props;
+    const {min = TIME_SLIDER_MIN, max = TIME_SLIDER_MAX} = this.getRange(positions);
 
     const sliderValue = this.getNumericValueFromTime(state.time);
 

@@ -83,6 +83,8 @@ class JourneyPosition extends Component {
   };
 
   indexJourneys = (journeys) => {
+    this.hfpPositions.clear();
+
     this.positions = journeys.reduce(
       (journeyIndex, {journeyId = "", events = []}) => {
         journeyIndex.set(journeyId, this.indexPositions(events));
@@ -114,14 +116,14 @@ class JourneyPosition extends Component {
     );
   }
 
-  componentDidUpdate() {
+  componentDidUpdate({positions: prevPositions}) {
     const {
       positions = [],
       state: {unixTime},
     } = this.props;
 
     // If the positions changed we need to index again.
-    if (!this.isLive && positions.length !== 0) {
+    if (!this.isLive && positions.length !== prevPositions.length) {
       this.indexJourneys(positions);
       this.getHfpPositions(unixTime);
     }

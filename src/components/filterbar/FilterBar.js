@@ -60,16 +60,8 @@ class FilterBar extends Component {
   calendarRootRef = React.createRef();
 
   render() {
-    const {
-      state,
-      selectedJourneyEvents = [],
-      areaEvents = [],
-      timeRange,
-    } = this.props;
+    const {state, currentPositions = []} = this.props;
     const {sidePanelVisible: visible} = state;
-
-    const currentPositions =
-      areaEvents.length !== 0 ? areaEvents : selectedJourneyEvents;
 
     return (
       <FilterBarWrapper visible={visible}>
@@ -95,10 +87,7 @@ class FilterBar extends Component {
             <StopSettings />
           </FilterSection>
         </FilterBarGrid>
-        <BottomSlider
-          positions={currentPositions}
-          timeRange={areaEvents.length !== 0 ? timeRange : null}
-        />
+        <BottomSlider positions={currentPositions} />
       </FilterBarWrapper>
     );
   }

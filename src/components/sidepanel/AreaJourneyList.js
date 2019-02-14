@@ -38,6 +38,13 @@ const JourneyRowLeft = styled.span`
   text-align: left;
 `;
 
+const TimeSlot = styled.span`
+  font-size: 0.857rem;
+  font-family: "Courier New", Courier, monospace;
+  min-width: 5rem;
+  text-align: right;
+`;
+
 @inject(app("Journey", "Time", "Filters", "UI"))
 @observer
 class AreaJourneyList extends Component {
@@ -117,7 +124,7 @@ class AreaJourneyList extends Component {
                 <JourneyRowLeft>
                   {route_id} / {direction_id}
                 </JourneyRowLeft>
-                <span>{journey_start_time}</span>
+                <TimeSlot>{journey_start_time}</TimeSlot>
               </JourneyListRow>
             );
           })

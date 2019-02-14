@@ -62,37 +62,23 @@ function App({state, UI}) {
     live,
   } = state;
 
-  const hasRoute = !!route && !!route.routeId;
-
   const selectedJourneyId = getJourneyId(selectedJourney);
 
   return (
     <AppFrame>
-      <AreaHfpEvents date={date} skip={hasRoute}>
-        {({
-          queryBounds,
-          events: areaEvents = [],
-          loading: areaEventsLoading,
-          timeRange,
-        }) => (
+      <AreaHfpEvents selectedJourney={selectedJourney} date={date}>
+        {({queryBounds, events: areaEvents = [], loading: areaEventsLoading}) => (
           <SelectedJourneyEvents>
             {({
               events: selectedJourneyEvents = [],
               loading: journeyEventsLoading,
             }) => {
-              let areaHfp = !hasRoute && areaEvents.length !== 0 ? areaEvents : [];
-
               // The currently fetched positions, either area hfp or selected journey hfp.
-              const currentPositions =
-                areaHfp.length !== 0 ? areaHfp : selectedJourneyEvents;
+              const allCurrentPositions = [...selectedJourneyEvents, ...areaEvents];
 
               return (
                 <AppGrid>
-                  <FilterBar
-                    timeRange={timeRange}
-                    areaEvents={areaHfp}
-                    selectedJourneyEvents={selectedJourneyEvents}
-                  />
+                  <FilterBar currentPositions={allCurrentPositions} />
                   <SidepanelAndMapWrapper>
                     <SingleStopQuery date={date} stop={selectedStopId}>
                       {({stop}) => (
@@ -104,7 +90,7 @@ function App({state, UI}) {
                                 areaEventsLoading={areaEventsLoading}
                                 journeyEventsLoading={journeyEventsLoading}
                                 stopTimesLoading={stopTimesLoading}
-                                areaEvents={areaHfp}
+                                areaEvents={areaEvents}
                                 selectedJourneyEvents={selectedJourneyEvents}
                                 journeyStops={journeyStops}
                                 route={route}
@@ -120,7 +106,7 @@ function App({state, UI}) {
                                 }) => (
                                   <JourneyPosition
                                     date={date}
-                                    positions={currentPositions}>
+                                    positions={allCurrentPositions}>
                                     {(currentTimePositions) => (
                                       <>
                                         <Observer>
@@ -132,11 +118,13 @@ function App({state, UI}) {
                                                 ? latLng([stop.lat, stop.lon])
                                                 : false;
 
-                                              const selectedJourneyPosition = selectedJourney
-                                                ? currentTimePositions.get(
-                                                    selectedJourneyId
-                                                  )
-                                                : false;
+                                              const selectedJourneyPosition =
+                                                selectedJourney &&
+                                                currentTimePositions.size === 1
+                                                  ? currentTimePositions.get(
+                                                      selectedJourneyId
+                                                    )
+                                                  : false;
 
                                               const centerPosition = selectedJourneyPosition
                                                 ? latLng([
@@ -152,7 +140,7 @@ function App({state, UI}) {
                                               <MapContent
                                                 queryBounds={queryBounds}
                                                 setMapBounds={setMapBounds}
-                                                journeys={currentPositions}
+                                                journeys={allCurrentPositions}
                                                 journeyStops={journeyStops}
                                                 timePositions={currentTimePositions}
                                                 route={route}

@@ -2,6 +2,7 @@ import {isWithinRange, intval} from "./isWithinRange";
 import reduce from "lodash/reduce";
 import orderBy from "lodash/orderBy";
 import groupBy from "lodash/groupBy";
+import {uniqBy} from "lodash";
 
 function ensureActive(items, date) {
   return items.filter((item) => {
@@ -46,7 +47,7 @@ export function filterDepartures(departures, date) {
 }
 
 export function filterRouteSegments(routeSegments, date = false) {
-  let validSegments = routeSegments;
+  let validSegments = uniqBy(routeSegments, "stopId");
 
   if (date) {
     validSegments = ensureActive(validSegments, date);
