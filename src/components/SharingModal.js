@@ -6,7 +6,6 @@ import copy from "copy-text-to-clipboard";
 import {observable, action, runInAction} from "mobx";
 import {observer} from "mobx-react";
 import Checkmark from "../icons/Checkmark";
-import Close from "../icons/Cross";
 
 const ShareModal = StyledModal.styled`
   width: 40vw;

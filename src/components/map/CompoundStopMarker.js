@@ -1,4 +1,4 @@
-import React, {Component, useRef, useEffect, useCallback} from "react";
+import React, {useRef, useEffect, useCallback} from "react";
 import {observer} from "mobx-react-lite";
 import {Popup, Marker} from "react-leaflet";
 import {Heading} from "../Typography";
@@ -9,7 +9,6 @@ import styled, {createGlobalStyle} from "styled-components";
 import {StopRadius} from "./StopRadius";
 import {divIcon, latLng} from "leaflet";
 import {getPriorityMode, getModeColor} from "../../helpers/vehicleColor";
-import {observable, action} from "mobx";
 import {flow} from "lodash";
 import {inject} from "../../helpers/inject";
 

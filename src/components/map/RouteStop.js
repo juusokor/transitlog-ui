@@ -1,7 +1,6 @@
 import React from "react";
-import {Marker, CircleMarker, Tooltip, Popup} from "react-leaflet";
-import {icon, latLng} from "leaflet";
-import TimingStopIcon from "../../icon-time1.svg";
+import {Tooltip, Popup} from "react-leaflet";
+import {latLng} from "leaflet";
 import {observer, inject} from "mobx-react";
 import {P} from "../Typography";
 import {
@@ -13,7 +12,6 @@ import {
 import styled from "styled-components";
 import {getPriorityMode, getModeColor} from "../../helpers/vehicleColor";
 import get from "lodash/get";
-import {StopRadius} from "./StopRadius";
 import {
   journeyEventTime,
   getNormalTime,

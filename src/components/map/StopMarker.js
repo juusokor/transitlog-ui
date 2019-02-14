@@ -7,9 +7,7 @@ import get from "lodash/get";
 import styled from "styled-components";
 import {getPriorityMode, getModeColor} from "../../helpers/vehicleColor";
 import {StopRadius} from "./StopRadius";
-import {reaction} from "mobx";
 import {Text} from "../../helpers/text";
-import {useToggle} from "../../hooks/useToggle";
 import {flow} from "lodash";
 import {inject} from "../../helpers/inject";
 
