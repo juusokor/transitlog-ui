@@ -64,6 +64,8 @@ class AreaJourneyList extends Component {
 
         Filters.setRoute(route);
         Journey.setSelectedJourney(journey);
+      } else {
+        Journey.setSelectedJourney(null);
       }
     }
   };
