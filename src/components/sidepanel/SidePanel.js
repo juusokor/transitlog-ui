@@ -133,7 +133,7 @@ class SidePanel extends Component {
             <UsageInstructions />
           ) : (
             <Tabs suggestedTab={suggestedTab}>
-              {(areaEvents.length !== 0 || (!hasRoute && areaEventsLoading)) && (
+              {(areaEvents.length !== 0 || areaEventsLoading) && (
                 <AreaJourneyList
                   loading={areaEventsLoading}
                   journeys={areaEvents}

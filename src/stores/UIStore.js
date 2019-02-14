@@ -35,7 +35,7 @@ export default (state) => {
       // Otherwise the journey details can open even though the user has not made a selection.
       return !!(
         createRouteId(state.route) === createRouteId(state.selectedJourney) &&
-        getJourneyId(state.selectedJourney)
+        state.selectedJourney
       );
     },
     get journeyDetailsAreOpen() {
