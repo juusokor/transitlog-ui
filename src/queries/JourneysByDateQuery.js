@@ -91,7 +91,18 @@ class JourneysByDateQuery extends React.Component {
           const journeyItems = vehicles.reduce((journeys, rawEvent) => {
             const event = createHfpItem(rawEvent);
             const journeyId = getJourneyId(event);
-            journeys[journeyId] = event;
+            const journeyEvents = journeys[journeyId];
+
+            if (
+              typeof journeyEvents !== "undefined" &&
+              Array.isArray(journeyEvents)
+            ) {
+              event.instance = 1;
+              journeyEvents.push(event);
+            } else {
+              journeys[journeyId] = [event];
+            }
+
             return journeys;
           }, {});
 

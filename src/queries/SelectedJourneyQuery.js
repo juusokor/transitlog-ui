@@ -14,9 +14,10 @@ import {TIMEZONE} from "../constants";
 export const hfpQuery = gql`
   query selectedJourneyQuery(
     $oday: date!
-    $route_id: String
-    $journey_start_time: time
-    $direction_id: smallint
+    $route_id: String!
+    $journey_start_time: time!
+    $direction_id: smallint!
+    $unique_vehicle_id: String
     $compareReceivedAt: timestamptz_comparison_exp
   ) {
     vehicles(
@@ -26,6 +27,7 @@ export const hfpQuery = gql`
         route_id: {_eq: $route_id}
         direction_id: {_eq: $direction_id}
         journey_start_time: {_eq: $journey_start_time}
+        unique_vehicle_id: {_eq: $unique_vehicle_id}
         tst: $compareReceivedAt
       }
     ) {
@@ -68,7 +70,8 @@ class SelectedJourneyQuery extends React.Component {
         "route_id",
         "direction_id",
         "journey_start_time",
-        "oday"
+        "oday",
+        "unique_vehicle_id"
       ),
       journey_start_time: normalStartTime,
       compareReceivedAt: isNextDay
