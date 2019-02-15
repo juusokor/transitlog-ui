@@ -6,7 +6,7 @@ const getJourneyId = (journey = null) => {
     journey_start_time = null,
     route_id = null,
     direction_id = null,
-    instance = 1,
+    instance = 0,
   } = pickJourneyProps(journey || {});
 
   if (!route_id || !oday || !journey_start_time) return "";

@@ -47,7 +47,7 @@ class RouteJourneys extends React.Component {
                         date,
                         departure,
                         timeStr,
-                        1
+                        0
                       );
 
                       // A theoretically-valid journey id can be derived from the departure data

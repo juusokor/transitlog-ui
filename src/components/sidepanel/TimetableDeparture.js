@@ -113,7 +113,9 @@ class TimetableDeparture extends Component {
     const journeyIsSelected =
       !!selectedJourneyId &&
       selectedJourneyId ===
-        getJourneyId(createCompositeJourney(date, departure, originDepartureTime));
+        getJourneyId(
+          createCompositeJourney(date, departure, originDepartureTime, 0)
+        );
 
     const renderListRow = this.renderListRow(
       journeyIsSelected,

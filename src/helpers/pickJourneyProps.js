@@ -2,7 +2,7 @@ import pick from "lodash/pick";
 
 export function pickJourneyProps(hfp) {
   return pick(
-    {instance: 1, unique_vehicle_id: "unknown-vehicle", ...hfp},
+    {instance: 0, unique_vehicle_id: "unknown-vehicle", ...hfp},
     "oday",
     "journey_start_time",
     "direction_id",

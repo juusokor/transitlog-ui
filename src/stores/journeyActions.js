@@ -8,14 +8,14 @@ import get from "lodash/get";
 export function createJourneyPath(journey) {
   const dateStr = journey.oday.replace(/-/g, "");
   const timeStr = journey.journey_start_time.replace(/:/g, "");
-  const instance = get(journey, "instance", 1);
+  const instance = get(journey, "instance", 0);
 
   return `/journey/${dateStr}/${timeStr}/${journey.route_id}/${
     journey.direction_id
   }/${instance}`;
 }
 
-export function createCompositeJourney(date, route, time, instance = 1) {
+export function createCompositeJourney(date, route, time, instance = 0) {
   if (!route || !route.routeId || !date || !time) {
     return false;
   }
@@ -25,7 +25,7 @@ export function createCompositeJourney(date, route, time, instance = 1) {
     journey_start_time: time,
     route_id: route.routeId,
     direction_id: route.direction,
-    instance: instance || 1,
+    instance: instance || 0,
   };
 
   return journey;
