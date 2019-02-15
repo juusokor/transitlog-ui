@@ -1,30 +1,39 @@
-import React, {useState} from "react";
+import React, {useRef, useEffect} from "react";
 import styled from "styled-components";
+import pick from "lodash/pick";
+import {registerTooltip} from "./Tooltip";
 
-const HoverWrapper = styled.div`
-  display: inline-block;
-  position: relative;
-`;
-
-const HelpContent = styled.div`
+const HoverArea = styled.div`
   position: absolute;
   top: 0;
-  min-width: 10rem;
-  min-height: 5rem;
-  background: white;
-  border-radius: 5px;
-  box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
-  transform: translate(0, 100%);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
 `;
 
 const Help = ({children, helpText = "This is Help"}) => {
-  const [showHelp, toggleHelp] = useState(false);
+  const hoverRef = useRef(null);
+
+  useEffect(() => {
+    if (hoverRef.current) {
+      const rect = pick(
+        hoverRef.current.getBoundingClientRect(),
+        "top",
+        "left",
+        "right",
+        "bottom"
+      );
+
+      return registerTooltip(rect, helpText);
+    }
+  }, [hoverRef.current]);
 
   return (
-    <HoverWrapper>
+    <>
+      <HoverArea ref={hoverRef} />
       {children}
-      <HelpContent>{helpText}</HelpContent>
-    </HoverWrapper>
+    </>
   );
 };
 

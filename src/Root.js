@@ -11,6 +11,7 @@ import {observable, runInAction} from "mobx";
 import Loading from "./components/Loading";
 import {ModalProvider, BaseModalBackground} from "styled-react-modal";
 import styled from "styled-components";
+import {TooltipContainer} from "./helpers/Tooltip";
 
 const SpecialModalBackground = styled(BaseModalBackground)`
   z-index: 100;
@@ -46,11 +47,13 @@ class Root extends React.Component {
     return (
       <ApolloProvider client={this.client}>
         <ModalProvider backgroundComponent={SpecialModalBackground}>
-          <>
-            <GlobalFormStyle />
-            <App />
-            <DevTools />
-          </>
+          <TooltipContainer>
+            <>
+              <GlobalFormStyle />
+              <App />
+              <DevTools />
+            </>
+          </TooltipContainer>
         </ModalProvider>
       </ApolloProvider>
     );

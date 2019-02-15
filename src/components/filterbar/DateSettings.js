@@ -12,11 +12,11 @@ import PlusMinusInput from "../PlusMinusInput";
 import Input from "../Input";
 import styled from "styled-components";
 import {TIMEZONE} from "../../constants";
+import Help from "../../helpers/Help";
 
 const DateControlGroup = styled(ControlGroup)`
   margin-bottom: 1.25rem;
   position: relative;
-  // z-index: 100;
 `;
 
 const DateInput = styled(PlusMinusInput)`
@@ -113,27 +113,29 @@ class DateSettings extends Component {
 
     return (
       <DateControlGroup>
-        <Input label={text("filterpanel.choose_date_time")} animatedLabel={false}>
-          <WeekInput
-            minusLabel={<>&laquo; 7</>}
-            plusLabel={<>7 &raquo;</>}
-            onDecrease={this.onDateButtonClick(-7)}
-            onIncrease={this.onDateButtonClick(7)}>
-            <DateInput
-              minusLabel={<>&lsaquo; 1</>}
-              plusLabel={<>1 &rsaquo;</>}
-              onDecrease={this.onDateButtonClick(-1)}
-              onIncrease={this.onDateButtonClick(1)}>
-              <Calendar
-                dateFormat="yyyy-MM-dd"
-                selected={moment.tz(date, TIMEZONE).toDate()}
-                onChange={this.setDate}
-                className="calendar"
-                calendarContainer={CalendarContainer(calendarRoot)}
-              />
-            </DateInput>
-          </WeekInput>
-        </Input>
+        <Help>
+          <Input label={text("filterpanel.choose_date_time")} animatedLabel={false}>
+            <WeekInput
+              minusLabel={<>&laquo; 7</>}
+              plusLabel={<>7 &raquo;</>}
+              onDecrease={this.onDateButtonClick(-7)}
+              onIncrease={this.onDateButtonClick(7)}>
+              <DateInput
+                minusLabel={<>&lsaquo; 1</>}
+                plusLabel={<>1 &rsaquo;</>}
+                onDecrease={this.onDateButtonClick(-1)}
+                onIncrease={this.onDateButtonClick(1)}>
+                <Calendar
+                  dateFormat="yyyy-MM-dd"
+                  selected={moment.tz(date, TIMEZONE).toDate()}
+                  onChange={this.setDate}
+                  className="calendar"
+                  calendarContainer={CalendarContainer(calendarRoot)}
+                />
+              </DateInput>
+            </WeekInput>
+          </Input>
+        </Help>
       </DateControlGroup>
     );
   }
