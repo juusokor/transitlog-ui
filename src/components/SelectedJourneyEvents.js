@@ -31,6 +31,8 @@ class SelectedJourneyEvents extends Component {
       parseInt(get(route, "direction", 0), 10) ===
         parseInt(selectedJourney.direction_id, 10);
 
+    console.log(selectedJourney);
+
     return (
       <SelectedJourneyQuery
         skip={!selectedJourneyValid}
@@ -52,9 +54,10 @@ class SelectedJourneyEvents extends Component {
           // on which side of the 24h+ day the journey happened.
           const realStartMoment = moment.tz(positions[0].tst, TIMEZONE);
 
-          const events = filteredEvents.map((item) =>
-            createHfpItem(item, realStartMoment)
-          );
+          const events = filteredEvents.map((item) => {
+            item.instance = selectedJourney.instance || 0;
+            return createHfpItem(item, realStartMoment);
+          });
 
           const journeyId = getJourneyId(events[0]);
 

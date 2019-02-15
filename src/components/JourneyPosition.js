@@ -114,14 +114,17 @@ class JourneyPosition extends Component {
     );
   }
 
-  componentDidUpdate() {
+  componentDidUpdate({positions: prevPositions}) {
     const {
       positions = [],
       state: {unixTime},
     } = this.props;
 
     // If the positions changed we need to index again.
-    if (!this.isLive && positions.length !== 0) {
+    if (
+      !this.isLive &&
+      (positions !== prevPositions || positions.length !== prevPositions.length)
+    ) {
       this.indexJourneys(positions);
       this.getHfpPositions(unixTime);
     }
