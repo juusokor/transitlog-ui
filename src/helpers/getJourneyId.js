@@ -1,7 +1,7 @@
 import {pickJourneyProps} from "./pickJourneyProps";
 
-const getJourneyId = (journey = null) => {
-  const {
+const getJourneyId = (journey = null, matchInstance = true) => {
+  let {
     oday = null,
     journey_start_time = null,
     route_id = null,
@@ -10,6 +10,10 @@ const getJourneyId = (journey = null) => {
   } = pickJourneyProps(journey || {});
 
   if (!route_id || !oday || !journey_start_time) return "";
+
+  if (!matchInstance) {
+    instance = 0;
+  }
 
   return `journey:${oday}_${journey_start_time}_${route_id}_${direction_id}_${instance}`;
 };

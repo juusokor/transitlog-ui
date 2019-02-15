@@ -73,7 +73,7 @@ class SelectedJourneyQuery extends React.Component {
         "journey_start_time",
         "oday"
       ),
-      unique_vehicle_id: selectedJourney.unique_vehicle_id || undefined,
+      unique_vehicle_id: get(selectedJourney, "unique_vehicle_id") || undefined,
       journey_start_time: normalStartTime,
       compareReceivedAt: isNextDay
         ? {
