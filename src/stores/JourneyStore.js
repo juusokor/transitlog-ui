@@ -38,6 +38,7 @@ export default (state) => {
 
       let dateStr = "";
       let timeStr = "";
+      const vehicleId = getUrlValue("vehicle", "");
 
       if (date.isValid()) {
         dateStr = date.format("YYYY-MM-DD");
@@ -68,6 +69,7 @@ export default (state) => {
           direction_id,
           journey_start_time: timeStr,
           instance: instance ? parseInt(instance, 10) : 0,
+          unique_vehicle_id: vehicleId,
         });
 
         if (getJourneyId(state.selectedJourney) !== getJourneyId(journey)) {

@@ -31,8 +31,6 @@ class SelectedJourneyEvents extends Component {
       parseInt(get(route, "direction", 0), 10) ===
         parseInt(selectedJourney.direction_id, 10);
 
-    console.log(selectedJourney);
-
     return (
       <SelectedJourneyQuery
         skip={!selectedJourneyValid}

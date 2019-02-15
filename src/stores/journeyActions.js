@@ -47,6 +47,11 @@ export default (state) => {
         setPathName("/");
       } else if (hfpItem) {
         state.selectedJourney = pickJourneyProps(hfpItem);
+
+        if (hfpItem.unique_vehicle_id) {
+          filters.setVehicle(hfpItem.unique_vehicle_id);
+        }
+
         setPathName(createJourneyPath(hfpItem));
       }
     }

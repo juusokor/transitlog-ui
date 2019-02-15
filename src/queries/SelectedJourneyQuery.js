@@ -1,6 +1,7 @@
 import React from "react";
 import get from "lodash/get";
 import pick from "lodash/pick";
+import groupBy from "lodash/groupBy";
 import gql from "graphql-tag";
 import HfpFieldsFragment from "./HfpFieldsFragment";
 import {observer, inject} from "mobx-react";
@@ -70,9 +71,9 @@ class SelectedJourneyQuery extends React.Component {
         "route_id",
         "direction_id",
         "journey_start_time",
-        "oday",
-        "unique_vehicle_id"
+        "oday"
       ),
+      unique_vehicle_id: selectedJourney.unique_vehicle_id || undefined,
       journey_start_time: normalStartTime,
       compareReceivedAt: isNextDay
         ? {
@@ -94,7 +95,25 @@ class SelectedJourneyQuery extends React.Component {
 
           setUpdateListener(updateListenerName, this.onUpdate(refetch));
 
-          const vehicles = get(data, "vehicles", []);
+          let vehicles = get(data, "vehicles", []);
+
+          // If there is multiple instances of the journey and the selected journey
+          // was not fetched with a vehicle ID, get the relevant journey
+          // instance from the result.
+          if (
+            selectedJourney &&
+            selectedJourney.instance &&
+            !selectedJourney.unique_vehicle_id
+          ) {
+            const vehicleGroups = Object.values(
+              groupBy(vehicles, "unique_vehicle_id")
+            );
+
+            if (vehicleGroups.length > 1) {
+              vehicles = vehicleGroups[selectedJourney.instance];
+            }
+          }
+
           return children({positions: vehicles, loading, error});
         }}
       </Query>
