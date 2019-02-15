@@ -1,6 +1,6 @@
 import React, {Component, Children} from "react";
 import {observer} from "mobx-react";
-import styled from "styled-components";
+import styled, {keyframes} from "styled-components";
 import compact from "lodash/compact";
 import difference from "lodash/difference";
 import {setUrlValue, getUrlValue} from "../../stores/UrlManager";
@@ -24,7 +24,7 @@ const TabButtonsWrapper = styled.div`
 
 const TabButton = styled.button`
   font-family: inherit;
-  font-size: 0.75rem;
+  font-size: ${({fontSizeMultiplier = 1}) => `calc(0.5rem * ${fontSizeMultiplier})`};
   text-transform: uppercase;
   background-color: ${({selected}) => (selected ? "white" : "var(--lightest-grey)")};
   border: 1px solid var(--alt-grey);
@@ -39,7 +39,9 @@ const TabButton = styled.button`
   justify-content: center;
   cursor: pointer;
   outline: 0;
-  padding: 0.75rem 0.5rem;
+  padding: 0.7rem 3px;
+  position: relative;
+  overflow: hidden;
 
   &:last-child {
     border-right: 0;
@@ -53,6 +55,36 @@ const TabButton = styled.button`
 const TabContentWrapper = styled.div`
   background: white;
   height: 100%;
+`;
+
+const progress = keyframes`
+  from {
+    transform: translateX(-100%);
+  }
+  
+  to {
+    transform: translateX(100%);
+  }
+`;
+
+const LoadingIndicator = styled.div`
+  animation: ${progress} 0.75s linear infinite;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  background-image: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0) 20%,
+    var(--lighter-green) 50%,
+    rgba(0, 0, 0, 0) 80%
+  );
+  z-index: 0;
+`;
+
+const TabLabel = styled.span`
+  position: relative;
+  white-space: nowrap;
 `;
 
 let selectedTab = "";
@@ -115,12 +147,12 @@ class Tabs extends Component {
     // Compact() removes all such falsy values from the array.
     const validChildren = compact(Children.toArray(children));
 
-    const tabs = validChildren.map((tabContent, idx, allChildren) => {
+    let tabs = validChildren.map((tabContent, idx, allChildren) => {
       if (!tabContent || !React.isValidElement(tabContent)) {
         return null;
       }
 
-      const {name, label} = tabContent.props;
+      const {name, label, loading} = tabContent.props;
 
       // If there is only one tab, select it right off. Or, if there
       // is no tab selected, autoselect the first tab.
@@ -136,7 +168,7 @@ class Tabs extends Component {
         selectedTabContent = tabContent;
       }
 
-      return {name, label, content: tabContent};
+      return {name, label, content: tabContent, loading};
     });
 
     if (tabs.length === 0) {
@@ -153,15 +185,22 @@ class Tabs extends Component {
       selectedTabContent = content;
     }
 
+    tabs = compact(tabs);
+
+    const tabLabelFontSizeMultiplier =
+      tabs.length < 2 ? 1.75 : tabs.length < 4 ? 1.5 : 1.2;
+
     return (
       <TabsWrapper className={className}>
         <TabButtonsWrapper>
-          {compact(tabs).map((tabOption, index) => (
+          {tabs.map((tabOption, index) => (
             <TabButton
+              fontSizeMultiplier={tabLabelFontSizeMultiplier}
               key={`tab_${tabOption.name}_${index}`}
               selected={selectedTab === tabOption.name}
               onClick={this.onTabClick(tabOption.name)}>
-              {tabOption.label}
+              {tabOption.loading && <LoadingIndicator />}
+              <TabLabel>{tabOption.label}</TabLabel>
             </TabButton>
           ))}
         </TabButtonsWrapper>

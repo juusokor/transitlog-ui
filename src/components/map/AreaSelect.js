@@ -8,6 +8,7 @@ import {getUrlValue, setUrlValue} from "../../stores/UrlManager";
 import {observable, action} from "mobx";
 import {setResetListener} from "../../stores/FilterStore";
 import {boundsFromBBoxString} from "../../helpers/boundsFromBBoxString";
+import CancelControl from "./CancelControl";
 
 // The key under which the bounds will be recorded in the URL.
 const AREA_BOUNDS_URL_KEY = "areaBounds";
@@ -30,6 +31,9 @@ class AreaSelect extends Component {
   @observable.ref
   initialRectangle = false;
 
+  @observable
+  hasAreas = false;
+
   @action
   setInitialRectangle = (bounds) => {
     this.initialRectangle = bounds;
@@ -42,6 +46,8 @@ class AreaSelect extends Component {
 
     // Record the bounds in the URL
     setUrlValue(AREA_BOUNDS_URL_KEY, layerBounds.toBBoxString());
+
+    this.checkAreas();
   };
 
   clearAreas = () => {
@@ -54,7 +60,15 @@ class AreaSelect extends Component {
     // Also clear the URL value
     setUrlValue(AREA_BOUNDS_URL_KEY, "");
     onSelectArea(null);
+
+    this.checkAreas();
   };
+
+  checkAreas = action(() => {
+    this.hasAreas =
+      this.featureLayer.current &&
+      this.featureLayer.current.leafletElement.getLayers().length !== 0;
+  });
 
   onBoundsSelected = (bounds) => {
     const {onSelectArea} = this.props;
@@ -83,6 +97,10 @@ class AreaSelect extends Component {
         this.setInitialRectangle(bounds);
       }
     }
+
+    setTimeout(() => {
+      this.checkAreas();
+    }, 1);
   }
 
   render() {
@@ -112,6 +130,9 @@ class AreaSelect extends Component {
             circlemarker: false,
           }}
         />
+        {this.hasAreas && (
+          <CancelControl position="bottomright" onCancel={this.clearAreas} />
+        )}
         {this.initialRectangle && (
           // If there were bounds set in the URL, draw them on the map
           <Rectangle bounds={this.initialRectangle} {...rectangleStyle} />

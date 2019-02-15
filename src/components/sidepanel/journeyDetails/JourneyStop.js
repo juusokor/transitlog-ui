@@ -44,21 +44,24 @@ const SimpleStopArrivalTime = styled.div`
 
 const StopDepartureTime = styled(TagButton)``;
 
-export default ({stop, date, onClickTime}) => {
+export default ({stop, date, onClickTime, onSelectStop = () => {}}) => {
   const departure = stop.departure;
 
   const stopMode = get(stop, "modes.nodes[0]", "BUS");
   const stopColor = get(transportColor, stopMode, "var(--light-grey)");
+
+  const selectWithStopId = onSelectStop(stop.stopId);
+  let onStopClick = selectWithStopId;
 
   // Bail early if we don't have all the data yet.
   if (!departure || !stop.departureEvent) {
     return (
       <StopWrapper>
         <StopElementsWrapper color={stopColor}>
-          <StopMarker color={stopColor} />
+          <StopMarker color={stopColor} onClick={onStopClick} />
         </StopElementsWrapper>
         <StopContent>
-          <StopHeading>
+          <StopHeading onClick={onStopClick}>
             <strong>{stop.nameFi}</strong> {stop.stopId} ({stop.shortId})
           </StopHeading>
         </StopContent>
@@ -79,6 +82,13 @@ export default ({stop, date, onClickTime}) => {
   const stopDepartureTime = journeyEventTime(departureEvent);
   const stopArrivalTime = journeyEventTime(arrivalEvent);
 
+  const selectDepartureTime = onClickTime(stopDepartureTime);
+
+  onStopClick = () => {
+    selectWithStopId();
+    selectDepartureTime();
+  };
+
   const isTimingStop = stop.timingStopType > 0;
 
   let showPlannedArrivalTime =
@@ -89,13 +99,13 @@ export default ({stop, date, onClickTime}) => {
     <StopWrapper>
       <StopElementsWrapper color={stopColor}>
         {isTimingStop ? (
-          <TimingStopMarker color={stopColor} />
+          <TimingStopMarker color={stopColor} onClick={onStopClick} />
         ) : (
-          <StopMarker color={stopColor} />
+          <StopMarker color={stopColor} onClick={onStopClick} />
         )}
       </StopElementsWrapper>
       <StopContent>
-        <StopHeading>
+        <StopHeading onClick={onStopClick}>
           <strong>{stop.nameFi}</strong> {stop.stopId} (
           {stop.shortId.replace(/ /g, "")})
         </StopHeading>
@@ -126,7 +136,7 @@ export default ({stop, date, onClickTime}) => {
                 <Text>journey.departure</Text>
               </TimeHeading>
             )}
-            <StopDepartureTime onClick={onClickTime(stopDepartureTime)}>
+            <StopDepartureTime onClick={selectDepartureTime}>
               <PlainSlot>{plannedDepartureMoment.format("HH:mm:ss")}</PlainSlot>
               <ColoredBackgroundSlot
                 color={departureDelayType === "late" ? "var(--dark-grey)" : "white"}

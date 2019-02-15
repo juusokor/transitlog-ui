@@ -20,7 +20,7 @@ Spinner.propTypes = {
 };
 
 Spinner.defaultProps = {
-  fill: Colors.secondary.hslPink,
+  fill: Colors.secondary.hslGreenLight,
 };
 
 Spinner.displayName = "Spinner";

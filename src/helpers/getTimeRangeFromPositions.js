@@ -2,6 +2,7 @@ import moment from "moment-timezone";
 import get from "lodash/get";
 import last from "lodash/last";
 import {TIMEZONE} from "../constants";
+import {sortBy} from "lodash";
 
 export const dateToSeconds = (date, operationDay) => {
   return date.diff(operationDay, "seconds");
@@ -22,9 +23,11 @@ export function getTimeRangeFromPositions(positions) {
     .tz(get(positions, "[0].oday"), TIMEZONE)
     .startOf("day");
 
+  const sortedPositions = sortBy(positions, "tsi");
+
   // Min and max moments for the position range
-  const minMoment = moment.tz(get(positions, "[0].tst"), TIMEZONE);
-  const maxMoment = moment.tz(get(last(positions), "tst"), TIMEZONE);
+  const minMoment = moment.tz(get(sortedPositions, "[0].tst"), TIMEZONE);
+  const maxMoment = moment.tz(get(last(sortedPositions), "tst"), TIMEZONE);
 
   return {
     min: dateToSeconds(minMoment, operationDay),

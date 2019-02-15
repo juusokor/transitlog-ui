@@ -3,7 +3,6 @@ import {inject} from "mobx-react";
 import {app} from "mobx-app";
 import AreaHfpQuery from "../queries/AreaHfpQuery";
 import invoke from "lodash/invoke";
-import moment from "moment-timezone";
 import {getMomentFromDateTime} from "../helpers/time";
 import {setResetListener} from "../stores/FilterStore";
 import {TIMEZONE} from "../constants";
@@ -79,6 +78,7 @@ class AreaHfpEvents extends PureComponent {
 
   render() {
     const {children, date, defaultBounds, skip} = this.props;
+
     const {bounds} = this.state;
 
     const useBounds =
@@ -99,18 +99,12 @@ class AreaHfpEvents extends PureComponent {
         maxTime={maxTime ? maxTime.toISOString() : null}
         getQueryParams={() => this.getQueryParams(useBounds)}
         area={area}>
-        {({events, loading, error, variables: {minTime, maxTime}}) =>
+        {({events, loading, error}) =>
           children({
             queryBounds: this.setQueryBounds,
             events,
             loading,
             error,
-            timeRange: minTime
-              ? {
-                  min: moment.tz(minTime, TIMEZONE),
-                  max: moment.tz(maxTime, TIMEZONE),
-                }
-              : null,
           })
         }
       </AreaHfpQuery>

@@ -2,7 +2,6 @@ import styled from "styled-components";
 import TimingStopIcon from "../icon-time1.svg";
 import React from "react";
 import {TagButton} from "./TagButton";
-import {Heading} from "./Typography";
 
 export const SmallText = styled.span`
   display: block;
@@ -11,13 +10,16 @@ export const SmallText = styled.span`
   color: var(--light-grey);
 `;
 
-export const StopMarker = styled.div`
+export const StopMarker = styled.button`
   border-radius: 50%;
   flex: 0 0 1.5rem;
   width: 1.5rem;
   height: 1.5rem;
   background: white;
   border: 3px solid ${({color = "var(--blue)"}) => color};
+  outline: 0;
+  padding: 0;
+  cursor: pointer;
 `;
 
 const TimingStopMarkerBackground = styled(StopMarker)`
@@ -70,12 +72,18 @@ export const StopContent = styled.div`
   padding: 0 1.25rem 1.5rem 0.75rem;
   width: 100%;
 `;
-export const StopHeading = styled(Heading).attrs({level: 5})`
+export const StopHeading = styled.button`
   margin: 0.2rem 0 0;
   color: var(--dark-grey);
   font-size: 0.875rem;
   font-weight: normal;
   font-family: var(--font-family);
+  background: transparent;
+  border: 0;
+  padding: 0;
+  outline: 0;
+  text-align: left;
+  cursor: pointer;
 `;
 export const TimeHeading = styled.div`
   font-size: 0.75rem;

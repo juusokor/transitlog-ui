@@ -27,11 +27,25 @@ export const StopFieldsWithRouteSegmentsFragment = gql`
     modes {
       nodes
     }
-    timingStopTypes: routeSegmentsForDate(date: $date) {
+    routeSegmentsForDate(date: $date) {
       nodes {
-        timingStopType
-        direction
+        line {
+          nodes {
+            lineId
+            dateBegin
+            dateEnd
+          }
+        }
+        dateBegin
+        dateEnd
         routeId
+        direction
+        timingStopType
+        route {
+          nodes {
+            ...RouteFieldsFragment
+          }
+        }
       }
     }
   }

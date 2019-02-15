@@ -29,6 +29,7 @@
               "dateEnd": "2050-12-31",
               "routeId": "1023N",
               "direction": "2",
+              "timingStopType": 0,
               "route": {
                 "nodes": [
                   {
@@ -92,6 +93,7 @@
               "dateEnd": "2019-06-16",
               "routeId": "1009 9",
               "direction": "2",
+              "timingStopType": 0,
               "route": {
                 "nodes": [
                   {
@@ -139,6 +141,7 @@
               "dateEnd": "2019-06-16",
               "routeId": "1009 8",
               "direction": "2",
+              "timingStopType": 0,
               "route": {
                 "nodes": [
                   {
@@ -186,6 +189,7 @@
               "dateEnd": "2019-06-16",
               "routeId": "1009 3",
               "direction": "2",
+              "timingStopType": 0,
               "route": {
                 "nodes": [
                   {
@@ -233,6 +237,7 @@
               "dateEnd": "2050-12-31",
               "routeId": "1009",
               "direction": "2",
+              "timingStopType": 0,
               "route": {
                 "nodes": [
                   {

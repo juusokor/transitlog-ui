@@ -3,14 +3,23 @@ import get from "lodash/get";
 import SuggestionInput, {SuggestionContent, SuggestionText} from "./SuggestionInput";
 import getTransportType from "../../helpers/getTransportType";
 import {observer} from "mobx-react";
+import {sortBy} from "lodash";
 
-const parseLineNumber = (lineId) =>
+const parseLineNumber = (lineId) => {
+  // Special case for train lines, they should only show a letter.
+  if (/^300[12]/.test(lineId)) {
+    return lineId.replace(/\d+/, "");
+  }
+
   // Remove 1st number, which represents the city
   // Remove all zeros from the beginning
-  lineId.substring(1).replace(/^0+/, "");
+  return lineId.substring(1).replace(/^0+/, "");
+};
 
 const getSuggestionValue = (suggestion) =>
-  parseLineNumber(get(suggestion, "lineId", ""));
+  typeof suggestion === "string"
+    ? suggestion
+    : parseLineNumber(get(suggestion, "lineId", ""));
 
 const renderSuggestion = (suggestion, {query, isHighlighted}) => (
   <SuggestionContent
@@ -27,13 +36,23 @@ const getSuggestions = (lines) => (value = "") => {
   const inputValue = value.trim().toLowerCase();
   const inputLength = inputValue.length;
 
+  const sortedLines = sortBy(lines, ({lineId}) => {
+    const parsedLine = parseLineNumber(lineId);
+    // Convert a letter line id to a number, so that a => 1, b => 2 etc.
+    const lineNum = isNaN(parseInt(parsedLine, 10))
+      ? parsedLine.charCodeAt(0) - 97
+      : parsedLine;
+
+    return getTransportType(lineId, true) + lineNum;
+  });
+
   return inputLength === 0
-    ? lines
-    : lines.filter((line) =>
-        parseLineNumber(line.lineId.toLowerCase()).includes(
+    ? sortedLines
+    : sortedLines.filter((line) => {
+        return parseLineNumber(line.lineId.toLowerCase()).includes(
           inputValue.slice(0, inputLength)
-        )
-      );
+        );
+      });
 };
 
 @observer
@@ -61,7 +80,6 @@ class LineInput extends React.Component {
 
   render() {
     const {line, lines, onSelect} = this.props;
-
     return (
       <SuggestionInput
         minimumInput={1}

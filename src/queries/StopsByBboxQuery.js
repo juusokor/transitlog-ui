@@ -30,6 +30,7 @@ export const stopsByBboxQuery = gql`
             dateEnd
             routeId
             direction
+            timingStopType
             route {
               nodes {
                 ...RouteFieldsFragment

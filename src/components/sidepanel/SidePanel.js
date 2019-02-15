@@ -23,7 +23,7 @@ const SidePanelContainer = styled.div`
   z-index: 1;
   display: flex;
   margin-left: ${({visible}) =>
-    visible ? 0 : "-25rem"}; // Makes the map area larger when the sidebar is hidden
+    visible ? 0 : "-26rem"}; // Makes the map area larger when the sidebar is hidden
   transition: margin-left 0.2s ease-out;
 `;
 
@@ -69,7 +69,7 @@ const ToggleJourneyDetailsButton = styled(ToggleSidePanelButton)`
 const MainSidePanel = styled.div`
   height: 100%;
   border-right: 1px solid var(--alt-grey);
-  width: 25rem;
+  width: 26rem;
   position: relative;
   z-index: 1;
   display: flex;
@@ -133,7 +133,7 @@ class SidePanel extends Component {
             <UsageInstructions />
           ) : (
             <Tabs suggestedTab={suggestedTab}>
-              {!hasRoute && (areaEvents.length !== 0 || areaEventsLoading) && (
+              {(areaEvents.length !== 0 || areaEventsLoading) && (
                 <AreaJourneyList
                   loading={areaEventsLoading}
                   journeys={areaEvents}
