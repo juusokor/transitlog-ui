@@ -73,8 +73,12 @@ class DepartureHfpQuery extends Component {
       children,
     } = this.props;
 
+    // TODO: If things are off with how the component responds to updates, check
+    //  the fetchPolicy here. It seems to fix the no-updates-at-all problem though.
+
     return (
       <Query
+        fetchPolicy="cache-and-network"
         skip={skip}
         variables={{
           date,
@@ -87,8 +91,6 @@ class DepartureHfpQuery extends Component {
         {({loading, data, error, refetch, variables}) => {
           setUpdateListener(this.getUpdateListenerName(), refetch, false);
           const vehicles = get(data, "vehicles", []);
-
-          console.log(loading);
 
           if (vehicles.length === 0 || loading || error) {
             return children({event: null, loading, error, variables});
