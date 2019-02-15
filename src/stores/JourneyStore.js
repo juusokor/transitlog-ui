@@ -30,6 +30,7 @@ export default (state) => {
       journey_start_time,
       route_id,
       direction_id,
+      instance = 1,
     ] = pathname.split("/");
 
     if (basePath === "journey") {
@@ -66,6 +67,7 @@ export default (state) => {
           route_id,
           direction_id,
           journey_start_time: timeStr,
+          instance: instance ? parseInt(instance, 10) : 1,
         });
 
         if (getJourneyId(state.selectedJourney) !== getJourneyId(journey)) {

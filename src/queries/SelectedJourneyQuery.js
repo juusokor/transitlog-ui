@@ -1,5 +1,6 @@
 import React from "react";
 import get from "lodash/get";
+import pick from "lodash/pick";
 import gql from "graphql-tag";
 import HfpFieldsFragment from "./HfpFieldsFragment";
 import {observer, inject} from "mobx-react";
@@ -62,7 +63,13 @@ class SelectedJourneyQuery extends React.Component {
     const isNextDay = normalStartTime !== journeyStartTime;
 
     const queryVars = {
-      ...selectedJourney,
+      ...pick(
+        selectedJourney,
+        "route_id",
+        "direction_id",
+        "journey_start_time",
+        "oday"
+      ),
       journey_start_time: normalStartTime,
       compareReceivedAt: isNextDay
         ? {

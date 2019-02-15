@@ -15,8 +15,8 @@ export const journeysByDateQuery = gql`
     $stopId: String
   ) {
     vehicles(
-      distinct_on: journey_start_time
-      order_by: [{journey_start_time: asc}, {tst: desc}]
+      distinct_on: [journey_start_time, unique_vehicle_id]
+      order_by: [{journey_start_time: asc}, {unique_vehicle_id: asc}, {tst: desc}]
       where: {
         oday: {_eq: $date}
         route_id: {_eq: $route_id}

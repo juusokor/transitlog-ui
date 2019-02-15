@@ -40,7 +40,7 @@ class MapContent extends Component {
       setMapBounds,
       viewLocation,
       queryBounds,
-      state: {vehicle, selectedJourney, date, mapOverlays, areaEventsStyle},
+      state: {selectedJourney, date, mapOverlays, areaEventsStyle},
     } = this.props;
 
     const hasRoute = !!route && !!route.routeId;
@@ -120,8 +120,10 @@ class MapContent extends Component {
             {journeys.length !== 0 &&
               journeys.map(({events: journeyPositions, journeyId}) => {
                 if (
-                  vehicle &&
-                  get(journeyPositions, "[0].unique_vehicle_id", "") !== vehicle
+                  selectedJourney &&
+                  selectedJourney.unique_vehicle_id &&
+                  get(journeyPositions, "[0].unique_vehicle_id", "") !==
+                    selectedJourney.unique_vehicle_id
                 ) {
                   return null;
                 }

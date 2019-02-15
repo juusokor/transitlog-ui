@@ -41,13 +41,7 @@ class VehicleSettings extends React.Component {
 
   render() {
     const {state} = this.props;
-    const {vehicle = "", date, selectedJourney} = state;
-
-    const isDisabled = !!selectedJourney;
-
-    if (isDisabled) {
-      return this.renderInput(undefined, vehicle, true);
-    }
+    const {vehicle = "", date} = state;
 
     return (
       <>

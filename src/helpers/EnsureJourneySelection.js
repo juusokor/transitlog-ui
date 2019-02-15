@@ -21,7 +21,9 @@ class EnsureJourneySelection extends Component {
     if ((!events || events.length === 0) && !eventsLoading) {
       Journey.setSelectedJourney(null);
     } else if (events && !eventsLoading) {
-      Filters.setVehicle(get(events, "[0].events[0].unique_vehicle_id", ""));
+      const vehicleId = get(events, "[0].events[0].unique_vehicle_id", "");
+      Filters.setVehicle(vehicleId);
+      Journey.setJourneyVehicle(vehicleId);
     }
   }
 
