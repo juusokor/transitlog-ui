@@ -1,15 +1,15 @@
-import React, {Component} from "react";
-import {observer, inject} from "mobx-react";
+import React, {useCallback, useEffect, useRef} from "react";
+import {observer} from "mobx-react-lite";
 import {Popup, CircleMarker} from "react-leaflet";
 import {latLng} from "leaflet";
 import {Heading} from "../Typography";
 import get from "lodash/get";
 import styled from "styled-components";
-import {app} from "mobx-app";
 import {getPriorityMode, getModeColor} from "../../helpers/vehicleColor";
 import {StopRadius} from "./StopRadius";
-import {observable, action} from "mobx";
 import {Text} from "../../helpers/text";
+import {flow} from "lodash";
+import {inject} from "../../helpers/inject";
 
 const StopOptionButton = styled.button`
   text-decoration: none;
@@ -31,39 +31,41 @@ function cleanRouteId(routeId) {
   return routeId.substring(1).replace(/^0+/, "");
 }
 
-@inject(app("Filters"))
-@observer
-class StopMarker extends Component {
-  @observable
-  popupOpen = false;
+const decorate = flow(
+  observer,
+  inject("Filters")
+);
 
-  togglePopupOpen = action((setTo = !this.popupOpen) => {
-    this.popupOpen = setTo;
-  });
+const StopMarker = decorate(
+  ({popupOpen, stop, state, showRadius = true, onViewLocation, Filters}) => {
+    const didAutoOpen = useRef(false);
+    const markerRef = useRef(null);
 
-  selectRoute = (route) => () => {
-    if (route) {
-      this.props.Filters.setRoute(route);
-    }
-  };
+    useEffect(() => {
+      if (popupOpen && markerRef.current) {
+        markerRef.current.leafletElement.openPopup();
+        didAutoOpen.current = true;
+      } else if (didAutoOpen.current && markerRef.current) {
+        markerRef.current.leafletElement.closePopup();
+      }
+    }, [popupOpen]);
 
-  selectStop = () => {
-    const {stop, Filters} = this.props;
+    const selectRoute = (route) => () => {
+      if (route) {
+        Filters.setRoute(route);
+      }
+    };
 
-    this.togglePopupOpen();
+    const selectStop = useCallback(() => {
+      if (stop) {
+        Filters.setStop(stop.stopId);
+      }
+    }, [stop]);
 
-    if (stop) {
-      Filters.setStop(stop.stopId);
-    }
-  };
+    const onShowStreetView = useCallback(() => {
+      onViewLocation(latLng({lat: stop.lat, lng: stop.lon}));
+    }, [onViewLocation, stop]);
 
-  onShowStreetView = (e) => {
-    const {onViewLocation, stop} = this.props;
-    onViewLocation(latLng({lat: stop.lat, lng: stop.lon}));
-  };
-
-  render() {
-    const {stop, state, showRadius = true} = this.props;
     const {stop: selectedStop} = state;
 
     const isSelected = selectedStop === stop.stopId;
@@ -71,18 +73,48 @@ class StopMarker extends Component {
     const stopColor = getModeColor(mode);
     const {stopRadius} = stop;
 
+    const popupElement = (
+      <Popup
+        autoPan={false}
+        autoClose={false}
+        keepInView={false}
+        onClose={() => (didAutoOpen.current = false)}
+        minWidth={300}
+        maxHeight={750}
+        maxWidth={550}>
+        <Heading level={4}>
+          {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
+        </Heading>
+        {get(stop, "routeSegmentsForDate.nodes", []).map((routeSegment) => (
+          <StopOptionButton
+            color={stopColor}
+            key={`route_${cleanRouteId(routeSegment.routeId)}_${
+              routeSegment.direction
+            }_${routeSegment.dateBegin}_${routeSegment.dateEnd}`}
+            onClick={selectRoute(get(routeSegment, "route.nodes[0]", null))}>
+            {cleanRouteId(routeSegment.routeId)}
+          </StopOptionButton>
+        ))}
+        <button onClick={onShowStreetView}>
+          <Text>map.stops.show_in_streetview</Text>
+        </button>
+      </Popup>
+    );
+
     const markerPosition = latLng(stop.lat, stop.lon);
 
     const markerElement = (
       <CircleMarker
+        ref={markerRef}
         pane="stops"
         center={markerPosition}
         color={stopColor}
         fillColor={isSelected ? stopColor : "white"}
         fillOpacity={1}
-        onClick={this.selectStop}
-        radius={isSelected ? 12 : 8}
-      />
+        onClick={selectStop}
+        radius={isSelected ? 12 : 8}>
+        {popupElement}
+      </CircleMarker>
     );
 
     const stopMarkerElement = showRadius ? (
@@ -101,41 +133,8 @@ class StopMarker extends Component {
       markerElement
     );
 
-    const popupElement = (
-      <Popup
-        position={markerPosition}
-        autoPan={false}
-        autoClose={false}
-        keepInView={false}
-        minWidth={300}
-        maxHeight={750}
-        maxWidth={550}>
-        <Heading level={4}>
-          {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
-        </Heading>
-        {get(stop, "routeSegmentsForDate.nodes", []).map((routeSegment) => (
-          <StopOptionButton
-            color={stopColor}
-            key={`route_${cleanRouteId(routeSegment.routeId)}_${
-              routeSegment.direction
-            }_${routeSegment.dateBegin}_${routeSegment.dateEnd}`}
-            onClick={this.selectRoute(get(routeSegment, "route.nodes[0]", null))}>
-            {cleanRouteId(routeSegment.routeId)}
-          </StopOptionButton>
-        ))}
-        <button onClick={this.onShowStreetView}>
-          <Text>map.stops.show_in_streetview</Text>
-        </button>
-      </Popup>
-    );
-
-    return (
-      <>
-        {stopMarkerElement}
-        {this.popupOpen && popupElement}
-      </>
-    );
+    return stopMarkerElement;
   }
-}
+);
 
 export default StopMarker;

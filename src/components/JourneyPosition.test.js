@@ -4,7 +4,7 @@ import "jest-styled-components";
 import {cleanup} from "react-testing-library";
 import JourneyPosition from "./JourneyPosition";
 import {renderComponent} from "../__tests__/util/renderComponent";
-import {ObservableMap, observable} from "mobx";
+import {ObservableMap, observable, toJS} from "mobx";
 
 describe("JourneyPosition", () => {
   const {render, onBeforeEach} = renderComponent((props) => (
@@ -168,10 +168,10 @@ describe("JourneyPosition", () => {
     state.unixTime = 120;
 
     expect(childrenMock).toHaveBeenCalledTimes(2);
-    expect(childrenMock.mock.calls[0][0]).toBeInstanceOf(ObservableMap);
-    expect(childrenMock.mock.calls[0][0].get("test")).toHaveProperty(
+    expect(childrenMock.mock.calls[1][0]).toBeInstanceOf(ObservableMap);
+    expect(childrenMock.mock.calls[1][0].get("test")).toHaveProperty(
       "received_at_unix",
-      120 // 30 is the time of the most recent event.
+      120
     );
   });
 });

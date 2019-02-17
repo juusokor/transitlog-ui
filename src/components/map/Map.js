@@ -1,5 +1,5 @@
-import React, {PureComponent} from "react";
-import {inject} from "mobx-react";
+import React, {Component} from "react";
+import {inject, observer} from "mobx-react";
 import LeafletMap from "./LeafletMap";
 import {app} from "mobx-app";
 import invoke from "lodash/invoke";
@@ -7,7 +7,7 @@ import trim from "lodash/trim";
 import get from "lodash/get";
 import debounce from "lodash/debounce";
 import {setUrlValue, getUrlValue} from "../../stores/UrlManager";
-import {reaction} from "mobx";
+import {reaction, observable, action, runInAction} from "mobx";
 
 const MAP_BOUNDS_URL_KEY = "mapView";
 
@@ -17,7 +17,8 @@ const MAP_BOUNDS_URL_KEY = "mapView";
  */
 
 @inject(app("Journey"))
-class Map extends PureComponent {
+@observer
+class Map extends Component {
   static defaultProps = {
     onMapChanged: () => {},
     onMapChange: () => {},
@@ -31,23 +32,20 @@ class Map extends PureComponent {
 
   mapRef = React.createRef();
 
-  state = {
-    zoom: 13,
-    mapView: null,
-    currentMapillaryViewerLocation: false,
-  };
+  @observable
+  zoom = 13;
+  @observable.ref
+  mapView = null;
+  @observable
+  currentMapillaryViewerLocation = false;
 
-  setMapillaryViewerLocation = (location) => {
-    this.setState({
-      currentMapillaryViewerLocation: location,
-    });
-  };
+  setMapillaryViewerLocation = action((location) => {
+    this.currentMapillaryViewerLocation = location;
+  });
 
-  setMapZoom = (zoom) => {
-    this.setState({
-      zoom,
-    });
-  };
+  setMapZoom = action((zoom) => {
+    this.zoom = zoom;
+  });
 
   getLeaflet = () => {
     return get(this.mapRef, "current.leafletElement", null);
@@ -78,7 +76,7 @@ class Map extends PureComponent {
     if (map) {
       urlCenter = getUrlValue(MAP_BOUNDS_URL_KEY);
 
-      let [lat = "", lng = "", zoom = this.state.zoom] = urlCenter.split(",");
+      let [lat = "", lng = "", zoom = this.zoom] = urlCenter.split(",");
 
       if (!lat || !trim(lat) || !parseInt(lat)) {
         lat = 60.170988;
@@ -111,9 +109,13 @@ class Map extends PureComponent {
 
     const prevCenter = this.prevCenter;
 
-    if (!prevCenter || (prevCenter && !center.equals(prevCenter))) {
+    if (prevCenter && !center.equals(prevCenter)) {
       this.prevCenter = center;
       map.setView(center);
+    }
+
+    if (!prevCenter) {
+      this.prevCenter = center;
     }
   };
 
@@ -142,22 +144,18 @@ class Map extends PureComponent {
       return;
     }
 
-    this.setState((state) => {
-      const bounds = map.getBounds();
-      const {mapView} = state;
+    const bounds = map.getBounds();
+    const {mapView} = this;
 
-      if (
-        !bounds ||
-        !invoke(bounds, "isValid") ||
-        (mapView && bounds.equals(mapView))
-      ) {
-        return state;
-      }
+    if (
+      !bounds ||
+      !invoke(bounds, "isValid") ||
+      (mapView && bounds.equals(mapView))
+    ) {
+      return;
+    }
 
-      return {
-        mapView: bounds,
-      };
-    });
+    runInAction(() => (this.mapView = bounds));
   };
 
   onMapChanged = () => {
@@ -181,22 +179,21 @@ class Map extends PureComponent {
   };
 
   render() {
-    const {zoom, currentMapillaryViewerLocation, mapView} = this.state;
     const {children, className} = this.props;
 
     return (
       <LeafletMap
         setMapillaryViewerLocation={this.setMapillaryViewerLocation}
-        currentMapillaryViewerLocation={currentMapillaryViewerLocation}
+        currentMapillaryViewerLocation={this.currentMapillaryViewerLocation}
         mapRef={this.mapRef}
-        mapView={mapView}
+        mapView={this.mapView}
         className={className}
         onMapChanged={this.onMapChanged}
         onZoom={this.onZoom}>
         {children({
           setViewerLocation: this.setMapillaryViewerLocation,
-          zoom,
-          mapView,
+          zoom: this.zoom,
+          mapView: this.mapView,
           setMapBounds: this.setMapBounds,
           setMapCenter: this.setMapCenter,
         })}

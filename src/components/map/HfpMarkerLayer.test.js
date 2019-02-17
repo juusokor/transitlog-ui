@@ -73,8 +73,7 @@ describe("HfpMarkerLayer", () => {
     );
 
     expect(getByTestId("icon-icon").className).toContain("BUS");
-    expect(getByTestId("icon-rotation")).toHaveStyleRule(
-      "transform",
+    expect(getByTestId("icon-rotation").style.getPropertyValue("transform")).toBe(
       "rotate(45deg)"
     );
   });

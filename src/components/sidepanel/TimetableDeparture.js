@@ -96,7 +96,7 @@ class TimetableDeparture extends Component {
     const stopMode = modes[0];
     const currentTransportColor = get(transportColor, stopMode, "var(--light-grey)");
     const selectedJourneyId = getJourneyId(selectedJourney);
-    const isTimingStop = !!get(stop, "timingStopTypes.nodes", []).find(
+    const isTimingStop = !!get(stop, "routeSegmentsForDate.nodes", []).find(
       (segment) =>
         segment.timingStopType !== 0 &&
         segment.routeId === departure.routeId &&
