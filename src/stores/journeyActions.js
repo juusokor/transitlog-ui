@@ -3,17 +3,19 @@ import getJourneyId from "../helpers/getJourneyId";
 import {pickJourneyProps} from "../helpers/pickJourneyProps";
 import filterActions from "./filterActions";
 import {setPathName} from "./UrlManager";
+import get from "lodash/get";
 
 export function createJourneyPath(journey) {
   const dateStr = journey.oday.replace(/-/g, "");
   const timeStr = journey.journey_start_time.replace(/:/g, "");
+  const instance = get(journey, "instance", 0);
 
   return `/journey/${dateStr}/${timeStr}/${journey.route_id}/${
     journey.direction_id
-  }`;
+  }/${instance}`;
 }
 
-export function createCompositeJourney(date, route, time) {
+export function createCompositeJourney(date, route, time, instance = 0) {
   if (!route || !route.routeId || !date || !time) {
     return false;
   }
@@ -23,6 +25,7 @@ export function createCompositeJourney(date, route, time) {
     journey_start_time: time,
     route_id: route.routeId,
     direction_id: route.direction,
+    instance: instance || 0,
   };
 
   return journey;
@@ -30,14 +33,6 @@ export function createCompositeJourney(date, route, time) {
 
 export default (state) => {
   const filters = filterActions(state);
-
-  // Sets the resolved state of a fetched journey.
-  const setJourneyFetchState = action(
-    "Set the status of a requested journey",
-    (journeyId, resolveState) => {
-      state.resolvedJourneyStates.set(journeyId, resolveState);
-    }
-  );
 
   const setSelectedJourney = action(
     "Set selected journey",
@@ -51,8 +46,7 @@ export default (state) => {
         filters.setVehicle(null);
         setPathName("/");
       } else if (hfpItem) {
-        const journey = pickJourneyProps(hfpItem);
-        state.selectedJourney = journey;
+        state.selectedJourney = pickJourneyProps(hfpItem);
 
         if (hfpItem.unique_vehicle_id) {
           filters.setVehicle(hfpItem.unique_vehicle_id);
@@ -63,9 +57,22 @@ export default (state) => {
     }
   );
 
+  const setJourneyVehicle = action((vehicleId) => {
+    const {selectedJourney} = state;
+
+    if (
+      vehicleId &&
+      selectedJourney &&
+      (!selectedJourney.unique_vehicle_id ||
+        selectedJourney.unique_vehicle_id === "unknown-vehicle")
+    ) {
+      selectedJourney.unique_vehicle_id = vehicleId;
+    }
+  });
+
   return {
     setSelectedJourney,
-    setJourneyFetchState,
+    setJourneyVehicle,
     createCompositeJourney,
   };
 };

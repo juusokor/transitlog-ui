@@ -236,7 +236,7 @@ class TimetablePanel extends Component {
           return (
             selectedJourneyId ===
             getJourneyId(
-              createCompositeJourney(date, departure, originDepartureTime)
+              createCompositeJourney(date, departure, originDepartureTime, 0)
             )
           );
         })

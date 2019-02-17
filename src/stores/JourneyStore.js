@@ -30,6 +30,7 @@ export default (state) => {
       journey_start_time,
       route_id,
       direction_id,
+      instance = 0,
     ] = pathname.split("/");
 
     if (basePath === "journey") {
@@ -37,6 +38,7 @@ export default (state) => {
 
       let dateStr = "";
       let timeStr = "";
+      const vehicleId = getUrlValue("vehicle", "");
 
       if (date.isValid()) {
         dateStr = date.format("YYYY-MM-DD");
@@ -66,6 +68,8 @@ export default (state) => {
           route_id,
           direction_id,
           journey_start_time: timeStr,
+          instance: instance ? parseInt(instance, 10) : 0,
+          unique_vehicle_id: vehicleId,
         });
 
         if (getJourneyId(state.selectedJourney) !== getJourneyId(journey)) {
