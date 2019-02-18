@@ -1,9 +1,7 @@
-import React, {useEffect, useCallback, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useTransition, animated} from "react-spring";
 import styled from "styled-components";
 import {useMousePosition} from "../hooks/useMousePosition";
-
-export const TooltipContext = React.createContext();
 
 const Tooltip = styled(animated.div).attrs(({position = {x: 0, y: 0}}) => ({
   style: {
@@ -25,8 +23,8 @@ const Tooltip = styled(animated.div).attrs(({position = {x: 0, y: 0}}) => ({
   overflow: hidden;
 `;
 
-function createTooltipId(rect, text) {
-  return Object.values(rect).join(",") + text;
+function createTooltipId(rect) {
+  return Object.values(rect).join(",");
 }
 
 const tooltips = new Map();
@@ -45,10 +43,10 @@ export const registerTooltip = (rect = {}, text = "[Text not set]") => {
 };
 
 export const TooltipContainer = ({children}) => {
-  const [tooltipText, setTooltip] = useState("");
+  const [selectedTooltip, selectTooltip] = useState(null);
   const mousePosition = useMousePosition();
 
-  const transitions = useTransition(!!tooltipText, null, {
+  const transitions = useTransition(selectedTooltip, (t) => (t ? t.id : ""), {
     enter: {opacity: 1},
     leave: {opacity: 0},
   });
@@ -57,15 +55,16 @@ export const TooltipContainer = ({children}) => {
     const {x, y} = mousePosition;
     let didFindTooltip = false;
 
-    for (const {left, right, top, bottom, text} of tooltips.values()) {
+    for (const tooltip of tooltips.values()) {
+      const {left, right, top, bottom} = tooltip;
       if (x >= left && x <= right && y >= top && y <= bottom) {
-        setTooltip(text);
+        selectTooltip(tooltip);
         didFindTooltip = true;
       }
     }
 
     if (!didFindTooltip) {
-      setTooltip("");
+      selectTooltip(null);
     }
   }, [mousePosition.x, mousePosition.y]);
 
@@ -76,7 +75,7 @@ export const TooltipContainer = ({children}) => {
         ({item, key, props}) =>
           item && (
             <Tooltip position={mousePosition} key={key} style={props}>
-              {tooltipText}
+              {item.text}
             </Tooltip>
           )
       )}
