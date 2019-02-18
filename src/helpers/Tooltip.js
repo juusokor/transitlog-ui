@@ -2,6 +2,7 @@ import React, {useEffect, useState} from "react";
 import {useTransition, animated} from "react-spring";
 import styled from "styled-components";
 import {useMousePosition} from "../hooks/useMousePosition";
+import {bounds as leafletBounds, point} from "leaflet";
 
 const Tooltip = styled(animated.div).attrs(({position = {x: 0, y: 0}}) => ({
   style: {
@@ -31,9 +32,11 @@ const tooltips = new Map();
 
 export const registerTooltip = (rect = {}, text = "[Text not set]") => {
   const tooltipId = createTooltipId(rect, text);
+  const bounds = leafletBounds([[rect.left, rect.top], [rect.right, rect.bottom]]);
 
   const tooltipConfig = {
-    ...rect,
+    id: tooltipId,
+    bounds,
     text,
   };
 
@@ -53,19 +56,29 @@ export const TooltipContainer = ({children}) => {
 
   useEffect(() => {
     const {x, y} = mousePosition;
-    let didFindTooltip = false;
+    const mousePoint = point(x, y);
+
+    let candidate = null;
 
     for (const tooltip of tooltips.values()) {
-      const {left, right, top, bottom} = tooltip;
-      if (x >= left && x <= right && y >= top && y <= bottom) {
-        selectTooltip(tooltip);
-        didFindTooltip = true;
+      const {bounds} = tooltip;
+
+      if (bounds.contains(mousePoint)) {
+        if (!candidate) {
+          candidate = tooltip;
+          continue;
+        }
+
+        if (
+          bounds.overlaps(candidate.bounds) &&
+          bounds.getSize() < candidate.bounds.getSize()
+        ) {
+          candidate = tooltip;
+        }
       }
     }
 
-    if (!didFindTooltip) {
-      selectTooltip(null);
-    }
+    selectTooltip(candidate);
   }, [mousePosition.x, mousePosition.y]);
 
   return (

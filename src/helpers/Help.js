@@ -1,22 +1,20 @@
-import React, {useRef, useEffect} from "react";
-import styled from "styled-components";
+import React, {useRef, useEffect, useMemo} from "react";
 import pick from "lodash/pick";
 import {registerTooltip} from "./Tooltip";
-
-const HoverArea = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  pointer-events: none;
-`;
 
 const Help = ({children, helpText = "This is Help"}) => {
   const hoverRef = useRef(null);
 
+  const child = useMemo(() => {
+    const onlyChild = React.Children.only(children);
+    return React.cloneElement(onlyChild, {ref: hoverRef});
+  }, [children]);
+
   useEffect(() => {
-    if (hoverRef.current) {
+    if (
+      hoverRef.current &&
+      typeof hoverRef.current.getBoundingClientRect === "function"
+    ) {
       const rect = pick(
         hoverRef.current.getBoundingClientRect(),
         "top",
@@ -29,12 +27,7 @@ const Help = ({children, helpText = "This is Help"}) => {
     }
   }, [hoverRef.current]);
 
-  return (
-    <>
-      <HoverArea ref={hoverRef} />
-      {children}
-    </>
-  );
+  return child;
 };
 
 export default Help;
