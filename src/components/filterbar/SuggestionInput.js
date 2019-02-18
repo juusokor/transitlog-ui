@@ -53,7 +53,6 @@ export const SuggestionSectionTitle = styled.div`
 class SuggestionInput extends Component {
   @observable
   inputValue = this.props.getValue(this.props.value);
-  prevInputValue = "";
 
   @observable
   suggestions = [];
@@ -80,7 +79,9 @@ class SuggestionInput extends Component {
   };
 
   onSuggestionSelected = (event, {suggestion}) => {
-    this.props.onSelect(suggestion);
+    const selectedValue = this.props.getValue(suggestion);
+    this.props.onSelect(selectedValue);
+    this.setValue(selectedValue);
   };
 
   onSuggestionsFetchRequested = ({value}) => {
@@ -96,13 +97,12 @@ class SuggestionInput extends Component {
     return value.trim().length >= limit;
   };
 
-  componentDidUpdate() {
+  componentDidUpdate({value: prevValue}) {
     const {value, getValue} = this.props;
-    const nextValue = getValue(value);
 
-    if (nextValue !== this.prevInputValue) {
+    if (value !== prevValue) {
+      const nextValue = getValue(value);
       this.setValue(nextValue);
-      this.prevInputValue = nextValue;
     }
   }
 

@@ -6,9 +6,9 @@ import SuggestionInput, {
 } from "./SuggestionInput";
 import flow from "lodash/flow";
 import get from "lodash/get";
-import {observer, inject} from "mobx-react";
-import {app} from "mobx-app";
+import {observer} from "mobx-react-lite";
 import styled from "styled-components";
+import {inject} from "../../helpers/inject";
 
 const VehicleSuggestion = styled(SuggestionContent)`
   background: ${({inService = true, isHighlighted = false}) =>
@@ -16,26 +16,31 @@ const VehicleSuggestion = styled(SuggestionContent)`
 `;
 
 const getSuggestionValue = (suggestion) => {
-  const vehicleId = get(suggestion, "vehicleId", "");
-  const operatorId = get(suggestion, "operatorId", "");
-  const registryNr = get(suggestion, "registryNr", "");
+  if (typeof suggestion === "string") {
+    return suggestion;
+  }
 
-  let uniqueVehicleId = !vehicleId ? "" : `${operatorId}/${vehicleId}`;
+  const vehicleId = get(suggestion, "vehicleId", "");
+  const operatorId = parseInt(get(suggestion, "operatorId", ""), 10);
+  return !vehicleId ? "" : `${operatorId}/${vehicleId}`;
+};
+
+const renderSuggestion = (suggestion, {query, isHighlighted}) => {
+  const registryNr = get(suggestion, "registryNr", "");
+  let uniqueVehicleId = getSuggestionValue(suggestion);
 
   if (registryNr) {
     uniqueVehicleId = `${uniqueVehicleId} (${registryNr})`;
   }
 
-  return uniqueVehicleId;
+  return (
+    <VehicleSuggestion
+      isHighlighted={isHighlighted}
+      inService={!!suggestion.inServiceOnDate}>
+      <SuggestionText>{uniqueVehicleId}</SuggestionText>
+    </VehicleSuggestion>
+  );
 };
-
-const renderSuggestion = (suggestion, {query, isHighlighted}) => (
-  <VehicleSuggestion
-    isHighlighted={isHighlighted}
-    inService={!!suggestion.inServiceOnDate}>
-    <SuggestionText>{getSuggestionValue(suggestion)}</SuggestionText>
-  </VehicleSuggestion>
-);
 
 const renderSectionTitle = (section) => (
   <SuggestionSectionTitle>
@@ -70,30 +75,27 @@ const getSuggestions = (operators) => (value = "") => {
     term.toLowerCase()
   );
 
-  const suggestions =
-    inputLength === 0 || operators.length === 0
-      ? operators
-      : operators.reduce((matches, operator) => {
-          for (const inputWord of inputWords) {
-            // Match input value to operator name first.
-            if (operator.operatorName.toLowerCase().includes(inputWord)) {
-              matches.push(operator);
-              return matches;
-            }
-
-            const vehicleMatches = matchVehicleTerms(operator.vehicles, inputWord);
-            matches.push({...operator, vehicles: vehicleMatches});
+  return inputLength === 0 || operators.length === 0
+    ? operators
+    : operators.reduce((matches, operator) => {
+        for (const inputWord of inputWords) {
+          // Match input value to operator name first.
+          if (operator.operatorName.toLowerCase().includes(inputWord)) {
+            matches.push(operator);
+            return matches;
           }
 
-          return matches;
-        }, []);
+          const vehicleMatches = matchVehicleTerms(operator.vehicles, inputWord);
+          matches.push({...operator, vehicles: vehicleMatches});
+        }
 
-  return suggestions.length !== 0 ? suggestions.slice(0, 100) : [];
+        return matches;
+      }, []);
 };
 
 const enhance = flow(
   observer,
-  inject(app("state"))
+  inject("state")
 );
 
 export default enhance(({value = "", onSelect, options = []}) => {
