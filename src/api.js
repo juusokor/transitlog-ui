@@ -53,7 +53,6 @@ export const getClient = async (UIStore) => {
   const dedupVehiclesLink = new ApolloLink((operation, forward) => {
     return forward(operation).map((data) => {
       if (data.data.vehicles.length > 5000) {
-        console.log("boop");
         data.data.vehicles = uniqBy(data.data.vehicles, "tst");
       }
 
