@@ -65,6 +65,19 @@ class LineInput extends React.Component {
     this.ensureLine();
   }
 
+  onSelectLine = (lineId) => {
+    const {lines, onSelect} = this.props;
+
+    // If there is a preset lineId, find the rest of the line data from lines.
+    if (lines.length !== 0 && lineId) {
+      const lineData = lines.find((l) => parseLineNumber(l.lineId) === lineId);
+
+      if (lineData) {
+        onSelect(lineData);
+      }
+    }
+  };
+
   ensureLine = () => {
     const {line, lines, onSelect} = this.props;
 
@@ -79,12 +92,13 @@ class LineInput extends React.Component {
   };
 
   render() {
-    const {line, lines, onSelect} = this.props;
+    const {line, lines} = this.props;
+
     return (
       <SuggestionInput
         minimumInput={1}
-        value={line}
-        onSelect={onSelect}
+        value={parseLineNumber(get(line, "lineId", ""))}
+        onSelect={this.onSelectLine}
         getValue={getSuggestionValue}
         renderSuggestion={renderSuggestion}
         getSuggestions={getSuggestions(lines)}
