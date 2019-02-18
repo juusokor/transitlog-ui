@@ -1,5 +1,5 @@
-import React, {Component} from "react";
-import {observer} from "mobx-react";
+import React, {useState, useCallback} from "react";
+import {observer} from "mobx-react-lite";
 import styled from "styled-components";
 import {StyledInputBase} from "./Forms";
 
@@ -8,40 +8,26 @@ const Select = styled(StyledInputBase.withComponent("select"))`
   width: 100%;
 `;
 
-@observer
-class Dropdown extends Component {
-  state = {
-    isEmpty: !this.props.value,
-  };
+const Dropdown = observer((props) => {
+  const [isEmpty, setIsEmpty] = useState(!props.value);
 
-  onChange = (e) => {
-    const {onChange} = this.props;
+  const onChange = useCallback(
+    (e) => {
+      setIsEmpty(!e.target.value);
+      props.onChange(e);
+    },
+    [props.onChange]
+  );
 
-    if (!e.target.value) {
-      this.setState({
-        isEmpty: true,
-      });
-    } else {
-      this.setState({
-        isEmpty: false,
-      });
-    }
+  const {className} = props;
 
-    onChange(e);
-  };
-
-  render() {
-    const {className, ...props} = this.props;
-    const {isEmpty} = this.state;
-
-    return (
-      <Select
-        {...props}
-        onChange={this.onChange}
-        className={`${className} ${isEmpty ? "empty-select" : ""}`}
-      />
-    );
-  }
-}
+  return (
+    <Select
+      {...props}
+      onChange={onChange}
+      className={`${className} ${isEmpty ? "empty-select" : ""}`}
+    />
+  );
+});
 
 export default Dropdown;

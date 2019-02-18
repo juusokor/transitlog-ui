@@ -1,0 +1,6 @@
+{
+  "Help test": "Help test",
+  "Select date by week": "Select a date by stepping a week backwards or forwards from the current date.",
+  "Select date by day": "Select a date by stepping one day backwards or forwards from the current date.",
+  "Select date field": "Select a date. All data that Transitlog shows is based on this date."
+}

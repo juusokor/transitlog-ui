@@ -1,6 +1,7 @@
 import React, {useRef, useEffect, useMemo} from "react";
 import pick from "lodash/pick";
 import {registerTooltip} from "./Tooltip";
+import {helpText as translateHelpText} from "./text";
 
 const Help = ({children, rectRef = null, helpText = "This is Help"}) => {
   let hoverRef = useRef(null);
@@ -8,6 +9,8 @@ const Help = ({children, rectRef = null, helpText = "This is Help"}) => {
   if (rectRef) {
     hoverRef = rectRef;
   }
+
+  const translatedText = translateHelpText(helpText);
 
   const child = useMemo(() => {
     const onlyChild = React.Children.only(children);
@@ -17,7 +20,8 @@ const Help = ({children, rectRef = null, helpText = "This is Help"}) => {
   useEffect(() => {
     if (
       hoverRef.current &&
-      typeof hoverRef.current.getBoundingClientRect === "function"
+      typeof hoverRef.current.getBoundingClientRect === "function" &&
+      translatedText
     ) {
       const rect = pick(
         hoverRef.current.getBoundingClientRect(),
@@ -27,9 +31,9 @@ const Help = ({children, rectRef = null, helpText = "This is Help"}) => {
         "bottom"
       );
 
-      return registerTooltip(rect, helpText);
+      return registerTooltip(rect, translatedText);
     }
-  }, [hoverRef.current]);
+  }, [hoverRef.current, translatedText]);
 
   return child;
 };

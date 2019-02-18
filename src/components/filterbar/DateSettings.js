@@ -116,34 +116,33 @@ class DateSettings extends Component {
     return (
       <DateControlGroup>
         <Input label={text("filterpanel.choose_date_time")} animatedLabel={false}>
-          <Help helpText="Select a date by stepping a week backwards or forwards from the current date.">
-            <WeekInput
-              minusLabel={<>&laquo; 7</>}
-              plusLabel={<>7 &raquo;</>}
-              onDecrease={this.onDateButtonClick(-7)}
-              onIncrease={this.onDateButtonClick(7)}>
-              <Help helpText="Select a date by stepping one day backwards or forwards from the current date.">
-                <DateInput
-                  minusLabel={<>&lsaquo; 1</>}
-                  plusLabel={<>1 &rsaquo;</>}
-                  onDecrease={this.onDateButtonClick(-1)}
-                  onIncrease={this.onDateButtonClick(1)}>
-                  <DatePicker
-                    customInput={
-                      <CalendarInput helpText="This is the main date that all other settings revolve around. Choose carefully." />
-                    }
-                    dateFormat="yyyy-MM-dd"
-                    selected={moment.tz(date, TIMEZONE).toDate()}
-                    onChange={this.setDate}
-                    className="calendar"
-                    // Z-indexing is tricky in the filterbar, so the calendarcontainer mounts
-                    // a portal in a better place for the datepicker.
-                    calendarContainer={CalendarContainer(calendarRootRef)}
-                  />
-                </DateInput>
-              </Help>
-            </WeekInput>
-          </Help>
+          <WeekInput
+            minusHelp="One week backwards"
+            plusHelp="One week forwards"
+            minusLabel={<>&laquo; 7</>}
+            plusLabel={<>7 &raquo;</>}
+            onDecrease={this.onDateButtonClick(-7)}
+            onIncrease={this.onDateButtonClick(7)}>
+            <DateInput
+              minusHelp="One day backwards"
+              plusHelp="One day forwards"
+              minusLabel={<>&lsaquo; 1</>}
+              plusLabel={<>1 &rsaquo;</>}
+              onDecrease={this.onDateButtonClick(-1)}
+              onIncrease={this.onDateButtonClick(1)}>
+              <DatePicker
+                dropdownMode="select"
+                customInput={<CalendarInput helpText="Select date field" />}
+                dateFormat="yyyy-MM-dd"
+                selected={moment.tz(date, TIMEZONE).toDate()}
+                onChange={this.setDate}
+                className="calendar"
+                // Z-indexing is tricky in the filterbar, so the calendarcontainer mounts
+                // a portal in a better place for the datepicker.
+                calendarContainer={CalendarContainer(calendarRootRef)}
+              />
+            </DateInput>
+          </WeekInput>
         </Input>
       </DateControlGroup>
     );
