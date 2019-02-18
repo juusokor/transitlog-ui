@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import withAllStopDepartures from "../../hoc/withAllStopDepartures";
-import {toJS, reaction} from "mobx";
+import {toJS, reaction, observable, action} from "mobx";
 import styled from "styled-components";
 import Input from "../Input";
 import {text} from "../../helpers/text";
@@ -19,6 +19,7 @@ import {getDepartureByTime} from "../../helpers/getDepartureByTime";
 import getJourneyId from "../../helpers/getJourneyId";
 import {createCompositeJourney} from "../../stores/journeyActions";
 import {timeToSeconds, departureTime} from "../../helpers/time";
+import {setUpdateListener} from "../../stores/UpdateManager";
 
 const TimetableFilters = styled.div`
   display: flex;
@@ -90,7 +91,7 @@ class TimetablePanel extends Component {
     // an unmount often, so it is very important to do it here.
     this.disposeScrollResetReaction();
 
-    // Remove the reset listener
+    // Dispose the reset listener
     this.removeResetListener();
   }
 
