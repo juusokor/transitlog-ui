@@ -15,8 +15,8 @@ export const journeysByDateQuery = gql`
     $stopId: String
   ) {
     vehicles(
-      distinct_on: journey_start_time
-      order_by: [{journey_start_time: asc}, {tst: desc}]
+      distinct_on: [journey_start_time, unique_vehicle_id]
+      order_by: [{journey_start_time: asc}, {unique_vehicle_id: asc}, {tst: desc}]
       where: {
         oday: {_eq: $date}
         route_id: {_eq: $route_id}
@@ -91,7 +91,18 @@ class JourneysByDateQuery extends React.Component {
           const journeyItems = vehicles.reduce((journeys, rawEvent) => {
             const event = createHfpItem(rawEvent);
             const journeyId = getJourneyId(event);
-            journeys[journeyId] = event;
+            const journeyEvents = journeys[journeyId];
+
+            if (
+              typeof journeyEvents !== "undefined" &&
+              Array.isArray(journeyEvents)
+            ) {
+              event.instance = 1;
+              journeyEvents.push(event);
+            } else {
+              journeys[journeyId] = [event];
+            }
+
             return journeys;
           }, {});
 

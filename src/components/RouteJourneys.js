@@ -46,7 +46,8 @@ class RouteJourneys extends React.Component {
                       const departureJourney = createCompositeJourney(
                         date,
                         departure,
-                        timeStr
+                        timeStr,
+                        0
                       );
 
                       // A theoretically-valid journey id can be derived from the departure data
@@ -73,10 +74,13 @@ class RouteJourneys extends React.Component {
 
                 // Map HFP journeys to the departures through the journey id.
                 const departureJourneys = sortedJourneys.map((plannedJourney) => {
-                  const journey = get(journeys, plannedJourney.journeyId, null);
+                  const journeyEvents = get(journeys, plannedJourney.journeyId, []);
                   return {
                     ...plannedJourney,
-                    events: !journey ? journeyHfpStates.NOT_FOUND : [journey],
+                    events:
+                      journeyEvents.length === 0
+                        ? journeyHfpStates.NOT_FOUND
+                        : journeyEvents,
                   };
                 });
 

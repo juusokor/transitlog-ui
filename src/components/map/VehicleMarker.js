@@ -74,8 +74,6 @@ const HeadingArrow = styled.span`
   z-index: 0;
 `;
 
-// Creates a portal that renders the vehicle markers
-
 class VehicleMarker extends React.Component {
   render() {
     const {position} = this.props;

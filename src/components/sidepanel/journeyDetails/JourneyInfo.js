@@ -106,7 +106,7 @@ export default ({journey, date, originStop = {}, destinationStop = {}}) => {
                   <ObservedValue
                     color={wasLate ? "white" : "var(--dark-grey)"}
                     backgroundColor={wasLate ? "var(--red)" : "var(--lighter-grey)"}>
-                    {sign === "+" ? "-" : ""}
+                    {sign === "-" ? "-" : ""}
                     {doubleDigit(diffMinutes)}:{doubleDigit(diffSeconds)}
                   </ObservedValue>
                 )}
