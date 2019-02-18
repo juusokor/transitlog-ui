@@ -1,5 +1,4 @@
-import React, {Component} from "react";
-import {observer} from "mobx-react";
+import React from "react";
 import {Button, InputBase} from "./Forms";
 import styled from "styled-components";
 import PlusIcon from "../icons/Plus";
@@ -35,30 +34,27 @@ const Wrapper = styled.div`
   }
 `;
 
-@observer
-class PlusMinusInput extends Component {
-  render() {
-    const {
-      onIncrease,
-      onDecrease,
-      className,
-      children,
-      plusLabel = <PlusIcon fill="white" width={15} />,
-      minusLabel = <MinusIcon fill="white" width={15} />,
-    } = this.props;
+const PlusMinusInput = React.forwardRef((props, ref) => {
+  const {
+    onIncrease,
+    onDecrease,
+    className,
+    children,
+    plusLabel = <PlusIcon fill="white" width={15} />,
+    minusLabel = <MinusIcon fill="white" width={15} />,
+  } = props;
 
-    return (
-      <Wrapper className={className}>
-        <PlusMinusButton small primary side="left" onClick={onDecrease}>
-          {minusLabel}
-        </PlusMinusButton>
-        {children}
-        <PlusMinusButton small primary side="right" onClick={onIncrease}>
-          {plusLabel}
-        </PlusMinusButton>
-      </Wrapper>
-    );
-  }
-}
+  return (
+    <Wrapper className={className} ref={ref}>
+      <PlusMinusButton small primary side="left" onClick={onDecrease}>
+        {minusLabel}
+      </PlusMinusButton>
+      {children}
+      <PlusMinusButton small primary side="right" onClick={onIncrease}>
+        {plusLabel}
+      </PlusMinusButton>
+    </Wrapper>
+  );
+});
 
 export default PlusMinusInput;
