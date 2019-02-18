@@ -113,29 +113,33 @@ class DateSettings extends Component {
 
     return (
       <DateControlGroup>
-        <Help>
-          <Input label={text("filterpanel.choose_date_time")} animatedLabel={false}>
+        <Input label={text("filterpanel.choose_date_time")} animatedLabel={false}>
+          <Help helpText="Select a date by stepping a week backwards or forwards from the current date.">
             <WeekInput
               minusLabel={<>&laquo; 7</>}
               plusLabel={<>7 &raquo;</>}
               onDecrease={this.onDateButtonClick(-7)}
               onIncrease={this.onDateButtonClick(7)}>
-              <DateInput
-                minusLabel={<>&lsaquo; 1</>}
-                plusLabel={<>1 &rsaquo;</>}
-                onDecrease={this.onDateButtonClick(-1)}
-                onIncrease={this.onDateButtonClick(1)}>
-                <Calendar
-                  dateFormat="yyyy-MM-dd"
-                  selected={moment.tz(date, TIMEZONE).toDate()}
-                  onChange={this.setDate}
-                  className="calendar"
-                  calendarContainer={CalendarContainer(calendarRoot)}
-                />
-              </DateInput>
+              <Help helpText="Select a date by stepping one day backwards or forwards from the current date.">
+                <DateInput
+                  minusLabel={<>&lsaquo; 1</>}
+                  plusLabel={<>1 &rsaquo;</>}
+                  onDecrease={this.onDateButtonClick(-1)}
+                  onIncrease={this.onDateButtonClick(1)}>
+                  <Help helpText="This is the main date that all other settings revolve around. Choose carefully.">
+                    <Calendar
+                      dateFormat="yyyy-MM-dd"
+                      selected={moment.tz(date, TIMEZONE).toDate()}
+                      onChange={this.setDate}
+                      className="calendar"
+                      calendarContainer={CalendarContainer(calendarRoot)}
+                    />
+                  </Help>
+                </DateInput>
+              </Help>
             </WeekInput>
-          </Input>
-        </Help>
+          </Help>
+        </Input>
       </DateControlGroup>
     );
   }
