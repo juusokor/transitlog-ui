@@ -1,16 +1,16 @@
-import React, {Component} from "react";
-import {observer, inject} from "mobx-react";
+import React, {useRef, useEffect, useCallback} from "react";
+import {observer} from "mobx-react-lite";
 import {Popup, Marker} from "react-leaflet";
 import {Heading} from "../Typography";
 import get from "lodash/get";
 import compact from "lodash/compact";
 import uniq from "lodash/uniq";
 import styled, {createGlobalStyle} from "styled-components";
-import {app} from "mobx-app";
 import {StopRadius} from "./StopRadius";
 import {divIcon, latLng} from "leaflet";
 import {getPriorityMode, getModeColor} from "../../helpers/vehicleColor";
-import {observable, action} from "mobx";
+import {flow} from "lodash";
+import {inject} from "../../helpers/inject";
 
 const StopOptionButton = styled.button`
   text-decoration: none;
@@ -59,32 +59,45 @@ const MarkerIconStyle = createGlobalStyle`
   }
 `;
 
-@inject(app("Filters"))
-@observer
-class CompoundStopMarker extends Component {
-  @observable
-  popupOpen = false;
+const decorate = flow(
+  observer,
+  inject("Filters")
+);
 
-  togglePopupOpen = action((setTo = !this.popupOpen) => {
-    this.popupOpen = setTo;
-  });
+const CompoundStopMarker = decorate(
+  ({
+    popupOpen,
+    stops,
+    state,
+    showRadius = true,
+    bounds,
+    onViewLocation,
+    Filters,
+  }) => {
+    const didAutoOpen = useRef(false);
+    const markerRef = useRef(null);
 
-  selectRoute = (route) => () => {
-    if (route) {
-      this.props.Filters.setRoute(route);
-    }
-  };
+    useEffect(() => {
+      if (popupOpen && markerRef.current) {
+        markerRef.current.leafletElement.openPopup();
+        didAutoOpen.current = true;
+      } else if (didAutoOpen.current && markerRef.current) {
+        markerRef.current.leafletElement.closePopup();
+      }
+    }, [popupOpen]);
 
-  selectStop = (stopId) => {
-    const {Filters} = this.props;
+    const selectRoute = (route) => () => {
+      if (route) {
+        Filters.setRoute(route);
+      }
+    };
 
-    if (stopId) {
-      Filters.setStop(stopId);
-    }
-  };
+    const selectStop = useCallback((stopId) => {
+      if (stopId) {
+        Filters.setStop(stopId);
+      }
+    }, []);
 
-  render() {
-    const {stops, state, showRadius = true, bounds, onViewLocation} = this.props;
     const {stop: selectedStop} = state;
 
     const selectedStopObj =
@@ -118,19 +131,68 @@ class CompoundStopMarker extends Component {
 
     const markerIcon = divIcon({
       className: "compoundIconWrapper",
-      html: `<span data-testid="compound-marker-icon" class="compoundMarkerIcon" style="border-color: ${stopColor}">${
-        stops.length
-      }</span>`,
+      html: `<span
+data-testid="compound-marker-icon"
+class="compoundMarkerIcon"
+style="border-color: ${stopColor}; background-color: ${
+        selectedStopObj ? stopColor : "white"
+      }; color: ${selectedStopObj ? "white" : stopColor}">
+  ${stops.length}
+</span>`,
       iconSize: 27.5,
     });
 
     const markerElement = (
       <Marker
-        onClick={() => this.togglePopupOpen()}
+        ref={markerRef}
         icon={markerIcon}
         pane="stops"
-        position={markerPosition}
-      />
+        position={markerPosition}>
+        <Popup
+          autoClose={false}
+          autoPan={false}
+          keepInView={false}
+          onClose={() => (didAutoOpen.current = false)}
+          minWidth={300}
+          maxHeight={750}
+          maxWidth={550}>
+          <ChooseStopHeading>Select stop:</ChooseStopHeading>
+          {stops.map((stopInGroup) => {
+            const mode = getPriorityMode(get(stopInGroup, "modes.nodes", []));
+            const stopColor = getModeColor(mode);
+
+            return (
+              <StopOptionButton
+                color={stopColor}
+                onClick={() => selectStop(stopInGroup.stopId)}
+                key={`stop_select_${stopInGroup.stopId}`}>
+                {stopInGroup.stopId} - {stopInGroup.nameFi}
+              </StopOptionButton>
+            );
+          })}
+          {selectedStopObj && (
+            <>
+              <Heading level={4}>
+                {selectedStopObj.nameFi}, {selectedStopObj.shortId.replace(/ /g, "")}{" "}
+                ({selectedStopObj.stopId})
+              </Heading>
+              {get(selectedStopObj, "routeSegmentsForDate.nodes", []).map(
+                (routeSegment) => (
+                  <StopOptionButton
+                    color={stopColor}
+                    key={`route_${routeSegment.routeId}_${routeSegment.direction}`}
+                    onClick={selectRoute(get(routeSegment, "route.nodes[0]", null))}>
+                    {routeSegment.routeId.substring(1).replace(/^0+/, "")}
+                  </StopOptionButton>
+                )
+              )}
+            </>
+          )}
+          <button onClick={() => onViewLocation(markerPosition)}>
+            Show in street view
+          </button>
+        </Popup>
+      </Marker>
     );
 
     const stopMarkerElement =
@@ -150,63 +212,13 @@ class CompoundStopMarker extends Component {
         markerElement
       );
 
-    const popupElement = (
-      <Popup
-        position={markerPosition}
-        autoClose={false}
-        autoPan={false}
-        keepInView={false}
-        minWidth={300}
-        maxHeight={750}
-        maxWidth={550}>
-        <ChooseStopHeading>Select stop:</ChooseStopHeading>
-        {stops.map((stopInGroup) => {
-          const mode = getPriorityMode(get(stopInGroup, "modes.nodes", []));
-          const stopColor = getModeColor(mode);
-
-          return (
-            <StopOptionButton
-              color={stopColor}
-              onClick={() => this.selectStop(stopInGroup.stopId)}
-              key={`stop_select_${stopInGroup.stopId}`}>
-              {stopInGroup.stopId} - {stopInGroup.nameFi}
-            </StopOptionButton>
-          );
-        })}
-        {selectedStopObj && (
-          <>
-            <Heading level={4}>
-              {selectedStopObj.nameFi}, {selectedStopObj.shortId.replace(/ /g, "")} (
-              {selectedStopObj.stopId})
-            </Heading>
-            {get(selectedStopObj, "routeSegmentsForDate.nodes", []).map(
-              (routeSegment) => (
-                <StopOptionButton
-                  color={stopColor}
-                  key={`route_${routeSegment.routeId}_${routeSegment.direction}`}
-                  onClick={this.selectRoute(
-                    get(routeSegment, "route.nodes[0]", null)
-                  )}>
-                  {routeSegment.routeId.substring(1).replace(/^0+/, "")}
-                </StopOptionButton>
-              )
-            )}
-          </>
-        )}
-        <button onClick={() => onViewLocation(markerPosition)}>
-          Show in street view
-        </button>
-      </Popup>
-    );
-
     return (
       <>
         <MarkerIconStyle color={stopColor} />
         {stopMarkerElement}
-        {this.popupOpen && popupElement}
       </>
     );
   }
-}
+);
 
 export default CompoundStopMarker;

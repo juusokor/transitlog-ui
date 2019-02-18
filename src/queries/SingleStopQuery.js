@@ -4,6 +4,7 @@ import {Query} from "react-apollo";
 import get from "lodash/get";
 import {StopFieldsWithRouteSegmentsFragment} from "./StopFieldsFragment";
 import {observer} from "mobx-react";
+import {RouteFieldsFragment} from "./RouteFieldsFragment";
 
 export const singleStopQuery = gql`
   query singleStopQuery($stop: String!, $date: Date) {
@@ -14,6 +15,7 @@ export const singleStopQuery = gql`
     }
   }
   ${StopFieldsWithRouteSegmentsFragment}
+  ${RouteFieldsFragment}
 `;
 
 @observer

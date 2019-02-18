@@ -16,19 +16,22 @@ import CalculateTerminalTime from "./CalculateTerminalTime";
 import {Text} from "../../../helpers/text";
 import {getNormalTime, journeyEventTime} from "../../../helpers/time";
 
-export default ({stop = {}, date, onClickTime}) => {
+export default ({stop = {}, date, onClickTime, onSelectStop = () => {}}) => {
   const stopMode = get(stop, "modes.nodes[0]", "BUS");
   const stopColor = get(transportColor, stopMode, "var(--light-grey)");
+
+  const selectWithStopId = onSelectStop(stop.stopId);
+  let onStopClick = selectWithStopId;
 
   // Bail here if we don't have data about stop arrival and departure times.
   if (!stop.arrivalEvent) {
     return (
       <StopWrapper>
         <StopElementsWrapper color={stopColor} terminus="destination">
-          <StopMarker color={stopColor} />
+          <StopMarker color={stopColor} onClick={onStopClick} />
         </StopElementsWrapper>
         <StopContent>
-          <StopHeading>
+          <StopHeading onClick={onStopClick}>
             <strong>{stop.nameFi}</strong> {stop.stopId} ({stop.shortId})
           </StopHeading>
         </StopContent>
@@ -39,13 +42,20 @@ export default ({stop = {}, date, onClickTime}) => {
   const {departure, arrivalEvent} = stop;
   const stopArrivalTime = journeyEventTime(arrivalEvent);
 
+  const selectArrivalTime = onClickTime(stopArrivalTime);
+
+  onStopClick = () => {
+    selectWithStopId();
+    selectArrivalTime();
+  };
+
   return (
     <StopWrapper>
       <StopElementsWrapper color={stopColor} terminus="destination">
-        <StopMarker color={stopColor} />
+        <StopMarker color={stopColor} onClick={onStopClick} />
       </StopElementsWrapper>
       <StopContent terminus="destination">
-        <StopHeading>
+        <StopHeading onClick={onStopClick}>
           <strong>{stop.nameFi}</strong> {stop.stopId} (
           {stop.shortId.replace(/ /g, "")})
         </StopHeading>
@@ -59,7 +69,7 @@ export default ({stop = {}, date, onClickTime}) => {
               <TimeHeading>
                 <Text>journey.arrival</Text>
               </TimeHeading>
-              <StopArrivalTime onClick={onClickTime(stopArrivalTime)}>
+              <StopArrivalTime onClick={selectArrivalTime}>
                 <PlainSlot>{offsetTime.format("HH:mm:ss")}</PlainSlot>
                 <ColoredBackgroundSlot
                   color="white"

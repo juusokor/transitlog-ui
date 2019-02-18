@@ -47,14 +47,17 @@ const Indicator = styled.span`
   border-radius: 50%;
 `;
 
-const RotationWrapper = styled.span`
+const RotationWrapper = styled.span.attrs(({rotation}) => ({
+  style: {
+    transform: `rotate(${rotation}deg)`,
+  },
+}))`
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   transform-origin: center;
-  transform: ${({rotation}) => `rotate(${rotation}deg)`};
   z-index: 1;
 `;
 

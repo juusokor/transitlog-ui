@@ -2,7 +2,7 @@ import React from "react";
 import SuggestionInput, {SuggestionContent, SuggestionText} from "./SuggestionInput";
 import orderBy from "lodash/orderBy";
 import get from "lodash/get";
-import {observer} from "mobx-react";
+import {observer} from "mobx-react-lite";
 
 const getSuggestionValue = (suggestion) =>
   get(suggestion, "stopId", "")

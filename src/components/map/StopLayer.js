@@ -1,54 +1,65 @@
-import React, {Component} from "react";
-import {observer} from "mobx-react";
+import React from "react";
+import {observer} from "mobx-react-lite";
 import StopsByBboxQuery from "../../queries/StopsByBboxQuery";
 import StopMarker from "./StopMarker";
 import {latLng} from "leaflet";
 import CompoundStopMarker from "./CompoundStopMarker";
+import {flow} from "lodash";
+import {inject} from "../../helpers/inject";
 
-@observer
-class StopLayer extends Component {
-  render() {
-    const {bounds, date, onViewLocation, showRadius} = this.props;
+const decorate = flow(
+  observer,
+  inject("state")
+);
 
-    const bbox = bounds
-      ? {
-          minLat: bounds.getSouth(),
-          minLon: bounds.getWest(),
-          maxLat: bounds.getNorth(),
-          maxLon: bounds.getEast(),
-        }
-      : {};
+const StopLayer = decorate(({bounds, date, onViewLocation, showRadius, state}) => {
+  const {stop: selectedStop} = state;
 
-    return (
-      <StopsByBboxQuery skip={!bounds} variables={{...bbox, date}}>
-        {({stops}) => {
-          const stopAreas = stops.reduce((groups, stop) => {
-            const pos = latLng(stop.lat, stop.lon);
-            let groupBounds;
+  const bbox = bounds
+    ? {
+        minLat: bounds.getSouth(),
+        minLon: bounds.getWest(),
+        maxLat: bounds.getNorth(),
+        maxLon: bounds.getEast(),
+      }
+    : {};
 
-            if (groups.size !== 0) {
-              const groupEntries = groups.entries();
-              for (const [area] of groupEntries) {
-                if (area.contains(pos)) {
-                  groupBounds = area;
-                  break;
-                }
+  return (
+    <StopsByBboxQuery skip={!bounds} variables={{...bbox, date}}>
+      {({stops}) => {
+        const stopAreas = stops.reduce((groups, stop) => {
+          const pos = latLng(stop.lat, stop.lon);
+          let groupBounds;
+
+          if (groups.size !== 0) {
+            const groupEntries = groups.entries();
+            for (const [area] of groupEntries) {
+              if (area.contains(pos)) {
+                groupBounds = area;
+                break;
               }
             }
+          }
 
-            if (!groupBounds) {
-              groupBounds = pos.toBounds(3);
-            }
+          if (!groupBounds) {
+            groupBounds = pos.toBounds(3);
+          }
 
-            const stopGroup = groups.get(groupBounds) || [];
-            stopGroup.push(stop);
+          const stopGroup = groups.get(groupBounds) || [];
+          stopGroup.push(stop);
 
-            return groups.set(groupBounds, stopGroup);
-          }, new Map());
+          return groups.set(groupBounds, stopGroup);
+        }, new Map());
 
-          return Array.from(stopAreas.entries()).map(([bounds, stopCluster]) =>
-            stopCluster.length === 1 ? (
+        const stopComponents = Array.from(stopAreas.entries()).map(
+          ([bounds, stopCluster]) => {
+            const clusterIsSelected = stopCluster.some(
+              ({stopId}) => stopId === selectedStop
+            );
+
+            return stopCluster.length === 1 ? (
               <StopMarker
+                popupOpen={clusterIsSelected}
                 showRadius={showRadius}
                 onViewLocation={onViewLocation}
                 key={`stops_${stopCluster[0].stopId}`}
@@ -56,18 +67,20 @@ class StopLayer extends Component {
               />
             ) : (
               <CompoundStopMarker
+                popupOpen={clusterIsSelected}
                 bounds={bounds}
                 showRadius={showRadius}
                 onViewLocation={onViewLocation}
                 key={`stopcluster_${bounds.toBBoxString()}`}
                 stops={stopCluster}
               />
-            )
-          );
-        }}
-      </StopsByBboxQuery>
-    );
-  }
-}
+            );
+          }
+        );
+        return stopComponents;
+      }}
+    </StopsByBboxQuery>
+  );
+});
 
 export default StopLayer;

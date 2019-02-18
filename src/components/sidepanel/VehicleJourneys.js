@@ -146,7 +146,8 @@ class VehicleJourneys extends Component {
     if (
       nextSelectedJourney &&
       ((selectedJourney &&
-        getJourneyId(nextSelectedJourney) !== getJourneyId(selectedJourney)) ||
+        getJourneyId(nextSelectedJourney, false) !==
+          getJourneyId(selectedJourney, false)) ||
         !selectedJourney)
     ) {
       this.selectJourney(nextSelectedJourney);
@@ -160,7 +161,7 @@ class VehicleJourneys extends Component {
       state: {selectedJourney, date, vehicle},
     } = this.props;
 
-    const selectedJourneyId = getJourneyId(selectedJourney);
+    const selectedJourneyId = getJourneyId(selectedJourney, false);
     // Keep track of the journey index independent of vehicle groups
     let journeyIndex = -1;
 
@@ -195,7 +196,7 @@ class VehicleJourneys extends Component {
         {(scrollRef) =>
           sortedPositions.map((journey) => {
             journeyIndex++;
-            const journeyId = getJourneyId(journey);
+            const journeyId = getJourneyId(journey, false);
 
             const mode = get(journey, "mode", "").toUpperCase();
             const journeyTime = get(journey, "journey_start_time", "");

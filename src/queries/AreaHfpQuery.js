@@ -90,7 +90,15 @@ class AreaHfpQuery extends Component {
       <Query
         partialRefetch={true}
         skip={skip}
-        variables={{date, minTime, maxTime, minLat, maxLat, minLong, maxLong}}
+        variables={{
+          date,
+          minTime,
+          maxTime,
+          minLat,
+          maxLat,
+          minLong,
+          maxLong,
+        }}
         query={areaHfpQuery}>
         {({loading, data, error, refetch, ...rest}) => {
           if (!data || loading) {

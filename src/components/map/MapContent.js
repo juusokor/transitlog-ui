@@ -40,14 +40,17 @@ class MapContent extends Component {
       setMapBounds,
       viewLocation,
       queryBounds,
-      state: {vehicle, selectedJourney, date, mapOverlays, areaEventsStyle},
+      state: {selectedJourney, date, mapOverlays, areaEventsStyle},
     } = this.props;
 
     const hasRoute = !!route && !!route.routeId;
     const showStopRadius = expr(() => mapOverlays.indexOf("Stop radius") !== -1);
 
+    const selectedJourneyId = getJourneyId(selectedJourney);
+
     return (
       <>
+        <AreaSelect enabled={zoom > 12} onSelectArea={queryBounds} />
         {/* When a route is NOT selected... */}
         {!hasRoute && (
           <>
@@ -63,29 +66,10 @@ class MapContent extends Component {
                 showRadius={showStopRadius}
                 onViewLocation={viewLocation}
                 stop={stop}
-                selected={true}
+                popupOpen={true}
                 date={date}
               />
             ) : null}
-            <AreaSelect enabled={zoom > 14} onSelectArea={queryBounds} />
-            {journeys.length !== 0 &&
-              journeys.map(({journeyId, events}) =>
-                areaEventsStyle === areaEventsStyles.MARKERS ? (
-                  <HfpMarkerLayer
-                    key={`hfp_markers_${journeyId}`}
-                    onMarkerClick={this.onClickVehicleMarker}
-                    currentPosition={timePositions.get(journeyId)}
-                    journeyId={journeyId}
-                  />
-                ) : (
-                  <SimpleHfpLayer
-                    zoom={zoom}
-                    name={journeyId}
-                    key={`hfp_polyline_${journeyId}`}
-                    positions={events}
-                  />
-                )
-              )}
           </>
         )}
         {/* When a route IS selected... */}
@@ -120,14 +104,15 @@ class MapContent extends Component {
             {journeys.length !== 0 &&
               journeys.map(({events: journeyPositions, journeyId}) => {
                 if (
-                  vehicle &&
-                  get(journeyPositions, "[0].unique_vehicle_id", "") !== vehicle
+                  selectedJourney &&
+                  selectedJourney.unique_vehicle_id &&
+                  get(journeyPositions, "[0].unique_vehicle_id", "") !==
+                    selectedJourney.unique_vehicle_id
                 ) {
                   return null;
                 }
 
-                const isSelectedJourney =
-                  selectedJourney && getJourneyId(selectedJourney) === journeyId;
+                const isSelectedJourney = selectedJourneyId === journeyId;
 
                 const currentPosition = timePositions.get(journeyId);
 
@@ -159,6 +144,36 @@ class MapContent extends Component {
               })}
           </>
         )}
+        {journeys.length !== 0 &&
+          journeys
+            .filter(({journeyId}) => journeyId !== selectedJourneyId)
+            .map(({journeyId, events}) => {
+              if (areaEventsStyle === areaEventsStyles.MARKERS) {
+                const event = timePositions.get(journeyId);
+
+                if (!event) {
+                  return null;
+                }
+
+                return (
+                  <HfpMarkerLayer
+                    key={`hfp_markers_${journeyId}`}
+                    onMarkerClick={this.onClickVehicleMarker}
+                    currentPosition={event}
+                    journeyId={journeyId}
+                  />
+                );
+              }
+
+              return (
+                <SimpleHfpLayer
+                  zoom={zoom}
+                  name={journeyId}
+                  key={`hfp_polyline_${journeyId}`}
+                  positions={events}
+                />
+              );
+            })}
       </>
     );
   }
