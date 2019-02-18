@@ -59,7 +59,7 @@ const WeekInput = styled(PlusMinusInput)`
   }
 `;
 
-const Calendar = styled(InputBase.withComponent(DatePicker))`
+const CalendarInput = styled(InputBase)`
   min-width: 8rem;
   height: calc(2rem + 6px);
   text-align: center;
@@ -68,7 +68,9 @@ const Calendar = styled(InputBase.withComponent(DatePicker))`
 
 // A simple portal to render the calendar outside the FilterSection.
 const CalendarContainer = (root) => ({className, children}) =>
-  root ? createPortal(<div className={className}>{children}</div>, root) : null;
+  root.current
+    ? createPortal(<div className={className}>{children}</div>, root.current)
+    : null;
 
 @inject(app("Filters", "Time"))
 @observer
@@ -107,7 +109,7 @@ class DateSettings extends Component {
 
   render() {
     const {
-      calendarRoot,
+      calendarRootRef,
       state: {date},
     } = this.props;
 
@@ -126,15 +128,18 @@ class DateSettings extends Component {
                   plusLabel={<>1 &rsaquo;</>}
                   onDecrease={this.onDateButtonClick(-1)}
                   onIncrease={this.onDateButtonClick(1)}>
-                  <Help helpText="This is the main date that all other settings revolve around. Choose carefully.">
-                    <Calendar
-                      dateFormat="yyyy-MM-dd"
-                      selected={moment.tz(date, TIMEZONE).toDate()}
-                      onChange={this.setDate}
-                      className="calendar"
-                      calendarContainer={CalendarContainer(calendarRoot)}
-                    />
-                  </Help>
+                  <DatePicker
+                    customInput={
+                      <CalendarInput helpText="This is the main date that all other settings revolve around. Choose carefully." />
+                    }
+                    dateFormat="yyyy-MM-dd"
+                    selected={moment.tz(date, TIMEZONE).toDate()}
+                    onChange={this.setDate}
+                    className="calendar"
+                    // Z-indexing is tricky in the filterbar, so the calendarcontainer mounts
+                    // a portal in a better place for the datepicker.
+                    calendarContainer={CalendarContainer(calendarRootRef)}
+                  />
                 </DateInput>
               </Help>
             </WeekInput>

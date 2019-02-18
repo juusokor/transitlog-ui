@@ -1,4 +1,6 @@
 import styled, {css, createGlobalStyle} from "styled-components";
+import React from "react";
+import Help from "../helpers/Help";
 
 export const GlobalFormStyle = createGlobalStyle`
   select,
@@ -50,9 +52,25 @@ export const InputStyles = css`
   }
 `;
 
-export const InputBase = styled.input`
-  ${InputStyles};
+export const StyledInputBase = styled.input`
+  ${InputStyles}
 `;
+
+export const InputBase = React.forwardRef(({helpText, children, ...props}, ref) => {
+  const inputChildren = children ? (
+    children
+  ) : (
+    <StyledInputBase {...props} ref={ref}>
+      {children}
+    </StyledInputBase>
+  );
+
+  if (!helpText) {
+    return inputChildren;
+  }
+
+  return <Help helpText={helpText}>{inputChildren}</Help>;
+});
 
 export const Button = styled.button`
   font-family: var(--font-family);

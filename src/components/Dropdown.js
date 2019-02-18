@@ -1,9 +1,9 @@
 import React, {Component} from "react";
 import {observer} from "mobx-react";
 import styled from "styled-components";
-import {InputBase} from "./Forms";
+import {StyledInputBase} from "./Forms";
 
-const Select = styled(InputBase.withComponent("select"))`
+const Select = styled(StyledInputBase.withComponent("select"))`
   padding: 0 0.7rem;
   width: 100%;
 `;

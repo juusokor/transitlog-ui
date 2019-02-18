@@ -2,8 +2,12 @@ import React, {useRef, useEffect, useMemo} from "react";
 import pick from "lodash/pick";
 import {registerTooltip} from "./Tooltip";
 
-const Help = ({children, helpText = "This is Help"}) => {
-  const hoverRef = useRef(null);
+const Help = ({children, rectRef = null, helpText = "This is Help"}) => {
+  let hoverRef = useRef(null);
+
+  if (rectRef) {
+    hoverRef = rectRef;
+  }
 
   const child = useMemo(() => {
     const onlyChild = React.Children.only(children);
