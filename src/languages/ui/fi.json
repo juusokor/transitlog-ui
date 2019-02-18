@@ -7,7 +7,7 @@
   "filterpanel.time_increment": "Aikamuutos (sek.)",
   "filterpanel.simulate.start": "Simuloi",
   "filterpanel.simulate.stop": "Pysäytä simulaatio",
-  "filterpanel.filter_by_vehicle": "Hae kulkuneuvoa",
+  "filterpanel.filter_by_vehicle": "Hae ajoneuvoa",
   "filterpanel.filter_by_stop": "Hae pysäkkiä",
   "filterpanel.filter_by_line": "Hae linjaa",
   "filterpanel.find_line_route": "Hae linja ja reitti",

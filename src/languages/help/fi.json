@@ -1,8 +1,16 @@
 {
   "Help test": "Help test",
-  "One week backwards": "Valitse päivämäärä yhden viikon takaa.",
-  "One week forwards": "Valitse päivämäärä yhden viikon päästä.",
-  "One day backwards": "Valitse eilinen päivämääräksi.",
-  "One day forwards": "Valitse huominen päivämääräksi.",
-  "Select date field": "Valitse päivämäärä. Kaikki Transitlogin näyttämät tiedot ovat tämän päivämäärän mukaisia."
+  "One week backward": "Valitse päivämäärä yhden viikon takaa.",
+  "One week forward": "Valitse päivämäärä yhden viikon päästä.",
+  "One day backward": "Valitse eilinen päivämääräksi.",
+  "One day forward": "Valitse huominen päivämääräksi.",
+  "Select date field": "Valitse päivämäärä. Kaikki Transitlogin näyttämät tiedot ovat tämän päivämäärän mukaisia.",
+  "One time step backward": "Yksi aika-askel taaksepäin",
+  "One time step forward": "Yksi aika-askel eteenpäin",
+  "Select time": "Valitse aika josta haluat tutkia tietoja. Voit myös asettaa aikaa liukusäätimellä.",
+  "Select line": "Valitse linja. Kirjoittamalla linjan alkunumeroa näet sillä alkunumerolla alkavia linjoja.",
+  "Select route": "Valitse linjan reitti. Valikossa näkyy vain reittejä jotka olivat voimassa valitun päivämäärän aikana.",
+  "Select vehicle": "Etsi HSL-alueen ajoneuvoa rekisterinumerolla, kylkinumerolla tai liikennöitsijän nimellä. Ajoneuvot jotka eivät olleet liikenteessä valittuna päivämääränä näkyy väritetylä taustalla.",
+  "Select vehicle disabled": "Ajoneuvohaku on suljettu kun sinulla on valittu lähtö. Poista lähtö-valinta niin voit hakea ajoneuvoa.",
+  "Select stop": "Etsi pysäkki pysäkkinumerolla, tunnisteella tai nimellä."
 }

@@ -82,6 +82,7 @@ class LineInput extends React.Component {
     const {line, lines, onSelect} = this.props;
     return (
       <SuggestionInput
+        helpText="Select line"
         minimumInput={1}
         value={line}
         onSelect={onSelect}

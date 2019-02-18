@@ -1,11 +1,10 @@
-import React, {useRef, useEffect, useMemo, useState, useCallback} from "react";
+import React, {useRef, useEffect, useMemo, useState} from "react";
 import pick from "lodash/pick";
 import {registerTooltip} from "./Tooltip";
 import {helpText as translateHelpText} from "./text";
 
 const Help = ({children, rectRef = null, helpText = "This is Help"}) => {
   let hoverRef = useRef(null);
-  const observerRef = useRef(null);
   const [rect, setRect] = useState(null);
 
   if (rectRef) {
@@ -19,36 +18,18 @@ const Help = ({children, rectRef = null, helpText = "This is Help"}) => {
     return React.cloneElement(onlyChild, {ref: hoverRef});
   }, [children]);
 
-  const intersectionCallback = useCallback(([entry]) => {
-    const currentRect = pick(
-      entry.boundingClientRect,
-      "top",
-      "left",
-      "right",
-      "bottom"
-    );
-
-    console.log(currentRect);
-    setRect(currentRect);
-  }, []);
-
   useEffect(() => {
     if (hoverRef.current && hoverRef.current instanceof Element) {
-      if (!observerRef.current) {
-        observerRef.current = new IntersectionObserver(intersectionCallback, {
-          root: null,
-        });
-      }
+      const currentRect = pick(
+        hoverRef.current.getBoundingClientRect(),
+        "top",
+        "left",
+        "right",
+        "bottom"
+      );
 
-      observerRef.current.observe(hoverRef.current);
+      setRect(currentRect);
     }
-
-    return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-        observerRef.current = null;
-      }
-    };
   }, [hoverRef.current]);
 
   useEffect(() => {

@@ -5,6 +5,7 @@ import {observer} from "mobx-react";
 import styled from "styled-components";
 import {InputStyles} from "../Forms";
 import {observable, action} from "mobx";
+import Help from "../../helpers/Help";
 
 const AutosuggestWrapper = styled.div`
   width: 100%;
@@ -116,6 +117,7 @@ class SuggestionInput extends Component {
       multiSection,
       renderSectionTitle,
       getSectionSuggestions,
+      helpText = "",
     } = this.props;
 
     const inputProps = {
@@ -125,22 +127,24 @@ class SuggestionInput extends Component {
     };
 
     return (
-      <AutosuggestWrapper className={className}>
-        <Autosuggest
-          suggestions={this.suggestions}
-          shouldRenderSuggestions={this.shouldRenderSuggestions(minimumInput)}
-          onSuggestionSelected={this.onSuggestionSelected}
-          onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
-          onSuggestionsClearRequested={this.onSuggestionsClearRequested}
-          getSuggestionValue={getValue}
-          highlightFirstSuggestion={true}
-          multiSection={multiSection}
-          renderSectionTitle={renderSectionTitle}
-          getSectionSuggestions={getSectionSuggestions}
-          renderSuggestion={renderSuggestion}
-          inputProps={inputProps}
-        />
-      </AutosuggestWrapper>
+      <Help helpText={helpText}>
+        <AutosuggestWrapper className={className}>
+          <Autosuggest
+            suggestions={this.suggestions}
+            shouldRenderSuggestions={this.shouldRenderSuggestions(minimumInput)}
+            onSuggestionSelected={this.onSuggestionSelected}
+            onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
+            onSuggestionsClearRequested={this.onSuggestionsClearRequested}
+            getSuggestionValue={getValue}
+            highlightFirstSuggestion={true}
+            multiSection={multiSection}
+            renderSectionTitle={renderSectionTitle}
+            getSectionSuggestions={getSectionSuggestions}
+            renderSuggestion={renderSuggestion}
+            inputProps={inputProps}
+          />
+        </AutosuggestWrapper>
+      </Help>
     );
   }
 }

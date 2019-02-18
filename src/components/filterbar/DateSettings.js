@@ -6,13 +6,11 @@ import {app} from "mobx-app";
 import DatePicker from "react-datepicker";
 import {text} from "../../helpers/text";
 import {InputBase, ControlGroup} from "../Forms";
-
 import "react-datepicker/dist/react-datepicker.css";
 import PlusMinusInput from "../PlusMinusInput";
 import Input from "../Input";
 import styled from "styled-components";
 import {TIMEZONE} from "../../constants";
-import Help from "../../helpers/Help";
 
 const DateControlGroup = styled(ControlGroup)`
   margin-bottom: 1.25rem;
@@ -117,15 +115,15 @@ class DateSettings extends Component {
       <DateControlGroup>
         <Input label={text("filterpanel.choose_date_time")} animatedLabel={false}>
           <WeekInput
-            minusHelp="One week backwards"
-            plusHelp="One week forwards"
+            minusHelp="One week backward"
+            plusHelp="One week forward"
             minusLabel={<>&laquo; 7</>}
             plusLabel={<>7 &raquo;</>}
             onDecrease={this.onDateButtonClick(-7)}
             onIncrease={this.onDateButtonClick(7)}>
             <DateInput
-              minusHelp="One day backwards"
-              plusHelp="One day forwards"
+              minusHelp="One day backward"
+              plusHelp="One day forward"
               minusLabel={<>&lsaquo; 1</>}
               plusLabel={<>1 &rsaquo;</>}
               onDecrease={this.onDateButtonClick(-1)}

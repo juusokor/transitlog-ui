@@ -12,7 +12,7 @@ const Tooltip = styled(animated.div).attrs(({position = {x: 0, y: 0}}) => ({
   position: fixed;
   top: 0;
   left: 0;
-  max-width: 30rem;
+  max-width: 20rem;
   max-height: 10rem;
   padding: 0.5rem;
   font-size: 0.875rem;

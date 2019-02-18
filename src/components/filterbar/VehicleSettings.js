@@ -29,6 +29,7 @@ class VehicleSettings extends React.Component {
     return (
       <ControlGroup>
         <Input
+          helpText="Select vehicle disabled"
           label={text("filterpanel.filter_by_vehicle")}
           animatedLabel={false}
           value={value}

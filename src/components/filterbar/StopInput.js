@@ -59,6 +59,7 @@ const getSuggestions = (stops = []) => (value = "") => {
 export default observer(({stops, onSelect, stop}) => {
   return (
     <SuggestionInput
+      helpText="Select stop"
       minimumInput={0}
       value={stop}
       onSelect={onSelect}
