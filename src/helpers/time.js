@@ -64,12 +64,15 @@ export function journeyStartTime(event, useMoment) {
    as a convenient mid-point time that would only appear once in a 24h+ day.
   */
 
+  // TODO: Fix for area query
+
   if (
     // If the journey start hour was before 12 (ie very early) and the received at time
     // was after, we can assume that this journey is at the late end of a 24h+ day.
     // Otherwise check if the oday and the received at date don't match.
-    (hours < 12 && eventMoment.hours() >= 12) ||
-    event.oday !== eventMoment.format("YYYY-MM-DD")
+    ((hours < 12 && eventMoment.hours() >= 12) ||
+      event.oday !== eventMoment.format("YYYY-MM-DD")) &&
+    intHours < 24
   ) {
     hours = intHours + 24;
     return getTimeString(hours, minutes, seconds);
