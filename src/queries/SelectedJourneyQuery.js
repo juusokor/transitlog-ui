@@ -47,25 +47,18 @@ class SelectedJourneyQuery extends React.Component {
     removeUpdateListener(updateListenerName);
   }
 
-  onUpdate = (refetch) => () => {
+  // Needed for both the initial fetch and for the update refetch.
+  // Variables might be updated so refetch should use the newest props.
+  getQueryVars = () => {
     const {
       state: {selectedJourney},
-      skip,
     } = this.props;
-
-    if (selectedJourney && !skip) {
-      refetch(selectedJourney);
-    }
-  };
-
-  render() {
-    const {skip, selectedJourney, children} = this.props;
 
     const journeyStartTime = get(selectedJourney, "journey_start_time", "");
     const normalStartTime = getNormalTime(journeyStartTime);
     const isNextDay = normalStartTime !== journeyStartTime;
 
-    const queryVars = {
+    return {
       ...pick(
         selectedJourney,
         "route_id",
@@ -81,6 +74,23 @@ class SelectedJourneyQuery extends React.Component {
           }
         : undefined,
     };
+  };
+
+  onUpdate = (refetch) => () => {
+    const {
+      state: {selectedJourney},
+      skip,
+    } = this.props;
+
+    if (selectedJourney && !skip) {
+      refetch(this.getQueryVars());
+    }
+  };
+
+  render() {
+    const {skip, selectedJourney, children} = this.props;
+
+    const queryVars = this.getQueryVars();
 
     return (
       <Query
