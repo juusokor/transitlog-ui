@@ -42,7 +42,7 @@ export const registerTooltip = (rect = {}, text = "[Text not set]") => {
 
   tooltips.set(tooltipId, tooltipConfig);
 
-  return () => tooltips.remove(tooltipId);
+  return () => tooltips.delete(tooltipId);
 };
 
 export const TooltipContainer = ({children}) => {
