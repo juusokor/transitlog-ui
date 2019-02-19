@@ -30,8 +30,8 @@ export default (state, initialState) => {
 
       return moment.tz(new Date(), TIMEZONE).isBetween(minTime, maxTime);
     },
-    timeIncrement: 5,
-    areaSearchRangeMinutes: 60,
+    timeIncrement: get(initialState, "time_increment", 5),
+    areaSearchRangeMinutes: get(initialState, "area_search_minutes", 60),
   });
 
   const actions = timeActions(state);
