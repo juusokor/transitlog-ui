@@ -9,6 +9,8 @@ import getJourneyId from "../helpers/getJourneyId";
 import {createHfpItem} from "../helpers/createHfpItem";
 import {setUpdateListener, removeUpdateListener} from "../stores/UpdateManager";
 import {timeToSeconds} from "../helpers/time";
+import moment from "moment-timezone";
+import {TIMEZONE} from "../constants";
 
 const areaHfpQuery = gql`
   query areaHfpQuery(
@@ -24,7 +26,7 @@ const areaHfpQuery = gql`
       order_by: {tst: asc}
       where: {
         oday: {_eq: $date}
-        received_at: {_lte: $maxTime, _gte: $minTime}
+        tst: {_lte: $maxTime, _gte: $minTime}
         lat: {_lte: $maxLat, _gte: $minLat}
         long: {_lte: $maxLong, _gte: $minLong}
       }
@@ -117,9 +119,10 @@ class AreaHfpQuery extends Component {
               ),
               // Third, create journey items from the journey groups
               (events, groupName) => {
-                // The start moment is used in createHfpItem to figure out the 24h+ time for the journey
+                const realStartMoment = moment.tz(events[0].tst, TIMEZONE);
+
                 const hfpEvents = events.map((evt) =>
-                  createHfpItem(evt, searchTime)
+                  createHfpItem(evt, realStartMoment)
                 );
 
                 return {

@@ -7,7 +7,6 @@ describe("journeyStartTime", () => {
     const journey = {
       journey_start_time: "16:04:00",
       oday: "2019-01-27",
-      received_at: "2019-01-27T16:30:00.000Z", // UTC timestamp 26 minutes after start
       tst: "2019-01-27T16:30:00.000Z", // UTC timestamp 26 minutes after start
     };
 
@@ -23,7 +22,6 @@ describe("journeyStartTime", () => {
     const journey1 = {
       journey_start_time: "00:05:00",
       oday: "2019-01-27",
-      received_at: "2019-01-27T23:59:00.000Z", // UTC timestamp 6 minutes before official start
       tst: "2019-01-27T23:59:00.000Z", // UTC timestamp 6 minutes before official start
     };
 
@@ -36,19 +34,39 @@ describe("journeyStartTime", () => {
     const journey2 = {
       journey_start_time: "00:05:00",
       oday: "2019-01-27",
-      received_at: "2019-01-28T00:10:00.000Z", // UTC timestamp 5 minutes after start
       tst: "2019-01-28T00:10:00.000Z", // UTC timestamp 5 minutes after start
     };
 
     const startTime2 = journeyStartTime(journey2);
     expect(startTime2).toBe(expectedStartTime);
+
+    const journey3 = {
+      journey_start_time: "04:44:00", // Morning journey
+      oday: "2019-01-27",
+      tst: "2019-01-28T05:26:00.000Z", // UTC timestamp 42 minutes after start
+    };
+
+    const expectedTime3 = "28:44:00";
+
+    const startTime3 = journeyStartTime(journey3);
+    expect(startTime3).toBe(expectedTime3);
+
+    const journey4 = {
+      journey_start_time: "23:44:00",
+      oday: "2019-01-27",
+      tst: "2019-01-28T00:13:00.000Z", // UTC timestamp 29 minutes after start, but it's the next day
+    };
+
+    const expectedTime4 = "23:44:00"; // Should not be a 24h+ time
+
+    const startTime4 = journeyStartTime(journey4);
+    expect(startTime4).toBe(expectedTime4);
   });
 
   test("journeyStartTime can receive a moment to compare the time against", () => {
     const journey = {
       journey_start_time: "03:30:00",
       oday: "2019-01-27",
-      received_at: "2019-01-28T03:40:00.000Z", // this should be ignored. 10 minutes after start.
       tst: "2019-01-28T03:40:00.000Z", // this should be ignored. 10 minutes after start.
     };
 
