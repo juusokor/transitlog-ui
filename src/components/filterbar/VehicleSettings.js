@@ -13,6 +13,7 @@ import VehicleOptionsQuery from "../../queries/VehicleOptionsQuery";
 import {getOperatorName} from "../../helpers/getOperatorNameById";
 import Loading from "../Loading";
 import styled from "styled-components";
+import Tooltip from "../Tooltip";
 
 const LoadingSpinner = styled(Loading)`
   margin: 0.5rem 0.5rem 0.5rem 1rem;
@@ -87,12 +88,14 @@ class VehicleSettings extends React.Component {
           }}
         </VehicleOptionsQuery>
         {!!vehicle && (
-          <Button
-            primary={false}
-            small={true}
-            onClick={() => this.onChangeQueryVehicle("")}>
-            <Text>filterpanel.clear.vehicle</Text>
-          </Button>
+          <Tooltip helpText="Clear vehicle">
+            <Button
+              primary={false}
+              small={true}
+              onClick={() => this.onChangeQueryVehicle("")}>
+              <Text>filterpanel.clear.vehicle</Text>
+            </Button>
+          </Tooltip>
         )}
       </>
     );

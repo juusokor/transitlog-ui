@@ -1,5 +1,5 @@
-import React, {Component} from "react";
-import {observer} from "mobx-react";
+import React from "react";
+import {observer} from "mobx-react-lite";
 import styled, {css} from "styled-components";
 
 const SliderThumb = css`
@@ -82,23 +82,19 @@ const Slider = styled.input.attrs({type: "range", step: 1})`
   }
 `;
 
-@observer
-class RangeInput extends Component {
-  render() {
-    const {value, onChange, min, max, className} = this.props;
+const RangeInput = observer(({title, value, onChange, min, max, className}) => {
+  const safeVal = !value || isNaN(value) ? 0 : value;
 
-    const safeVal = !value || isNaN(value) ? 0 : value;
-
-    return (
-      <Slider
-        className={className}
-        min={min}
-        max={max}
-        value={safeVal}
-        onChange={onChange}
-      />
-    );
-  }
-}
+  return (
+    <Slider
+      title={title}
+      className={className}
+      min={min}
+      max={max}
+      value={safeVal}
+      onChange={onChange}
+    />
+  );
+});
 
 export default RangeInput;

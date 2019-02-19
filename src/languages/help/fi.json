@@ -12,5 +12,8 @@
   "Select route": "Valitse linjan reitti. Valikossa näkyy vain reittejä jotka olivat voimassa valitun päivämäärän aikana.",
   "Select vehicle": "Etsi HSL-alueen ajoneuvoa rekisterinumerolla, kylkinumerolla tai liikennöitsijän nimellä. Ajoneuvot jotka eivät olleet liikenteessä valittuna päivämääränä näkyy väritetylä taustalla.",
   "Select vehicle disabled": "Ajoneuvohaku on suljettu kun sinulla on valittu lähtö. Poista lähtö-valinta niin voit hakea ajoneuvoa.",
-  "Select stop": "Etsi pysäkki pysäkkinumerolla, tunnisteella tai nimellä."
+  "Select stop": "Etsi pysäkki pysäkkinumerolla, tunnisteella tai nimellä.",
+  "Clear vehicle": "Tyhjentää ajoneuvohaku-kenttää. Tiedot mitkä haettiin ajoneuvotiedon pohjalta tyhjentyy myös.",
+  "Clear stop": "Tyhjentää pysäkkihaku-kenttää. Tiedot jotka haettiin pysäkkitiedon pohjalta tyhjentyy myös.",
+  "Time slider": "Säädä aika-asetus vierittämällä liukusäädintä. Säädin on rajoitettu yhteen päivään kun matkaa ei ole valittuna, ja rajoitettu valitun matkan alku- ja loppuaikaan kun on valittu. Aika päivittyy heti ja liukusäädin on kätevä tapa tutkia matkojen etenemisiä."
 }

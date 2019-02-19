@@ -4,6 +4,7 @@ import styled from "styled-components";
 import PlusIcon from "../icons/Plus";
 import MinusIcon from "../icons/Minus";
 import Tooltip from "./Tooltip";
+import {useTooltip} from "../hooks/useTooltip";
 
 const PlusMinusButton = styled(Button)`
   display: inline-block;
@@ -47,19 +48,28 @@ const PlusMinusInput = React.forwardRef((props, ref) => {
     minusHelp = "",
   } = props;
 
+  const plusButtonTooltip = useTooltip(plusHelp);
+  const minusButtonTooltip = useTooltip(minusHelp);
+
   return (
     <Wrapper className={className} ref={ref}>
-      <Tooltip helpText={minusHelp}>
-        <PlusMinusButton small primary side="left" onClick={onDecrease}>
-          {minusLabel}
-        </PlusMinusButton>
-      </Tooltip>
+      <PlusMinusButton
+        small
+        primary
+        side="left"
+        onClick={onDecrease}
+        {...minusButtonTooltip}>
+        {minusLabel}
+      </PlusMinusButton>
       {children}
-      <Tooltip helpText={plusHelp}>
-        <PlusMinusButton small primary side="right" onClick={onIncrease}>
-          {plusLabel}
-        </PlusMinusButton>
-      </Tooltip>
+      <PlusMinusButton
+        small
+        primary
+        side="right"
+        onClick={onIncrease}
+        {...plusButtonTooltip}>
+        {plusLabel}
+      </PlusMinusButton>
     </Wrapper>
   );
 });
