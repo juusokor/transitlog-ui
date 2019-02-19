@@ -19,7 +19,7 @@ export const hfpQuery = gql`
     $journey_start_time: time!
     $direction_id: smallint!
     $unique_vehicle_id: String
-    $compareReceivedAt: timestamptz_comparison_exp
+    $compareEventTime: timestamptz_comparison_exp
   ) {
     vehicles(
       order_by: {tst: asc}
@@ -29,7 +29,7 @@ export const hfpQuery = gql`
         direction_id: {_eq: $direction_id}
         journey_start_time: {_eq: $journey_start_time}
         unique_vehicle_id: {_eq: $unique_vehicle_id}
-        tst: $compareReceivedAt
+        tst: $compareEventTime
       }
     ) {
       ...HfpFieldsFragment
@@ -68,7 +68,7 @@ class SelectedJourneyQuery extends React.Component {
       ),
       unique_vehicle_id: get(selectedJourney, "unique_vehicle_id") || undefined,
       journey_start_time: normalStartTime,
-      compareReceivedAt: isNextDay
+      compareEventTime: isNextDay
         ? {
             _gt: moment.tz(get(selectedJourney, "oday", 0), TIMEZONE).toISOString(),
           }

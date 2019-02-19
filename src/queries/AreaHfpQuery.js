@@ -26,7 +26,7 @@ const areaHfpQuery = gql`
       order_by: {tst: asc}
       where: {
         oday: {_eq: $date}
-        received_at: {_lte: $maxTime, _gte: $minTime}
+        tst: {_lte: $maxTime, _gte: $minTime}
         lat: {_lte: $maxLat, _gte: $minLat}
         long: {_lte: $maxLong, _gte: $minLong}
       }
@@ -79,7 +79,7 @@ class AreaHfpQuery extends Component {
   };
 
   render() {
-    const {date, minTime, maxTime, area, skip, children} = this.props;
+    const {date, searchTime, minTime, maxTime, area, skip, children} = this.props;
     const {minLat, maxLat, minLong, maxLong} = area;
 
     if (skip) {
@@ -119,12 +119,10 @@ class AreaHfpQuery extends Component {
               ),
               // Third, create journey items from the journey groups
               (events, groupName) => {
-                // Create a moment for the start of the journey
-                const journeyStartMoment = moment.tz(events[0].tst, TIMEZONE);
+                const realStartMoment = moment.tz(events[0].tst, TIMEZONE);
 
-                // The start moment is used in createHfpItem to figure out the 24h+ time for the journey
                 const hfpEvents = events.map((evt) =>
-                  createHfpItem(evt, journeyStartMoment)
+                  createHfpItem(evt, realStartMoment)
                 );
 
                 return {

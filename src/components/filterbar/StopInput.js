@@ -4,12 +4,13 @@ import orderBy from "lodash/orderBy";
 import get from "lodash/get";
 import {observer} from "mobx-react-lite";
 
-const getSuggestionValue = (suggestion) =>
-  get(suggestion, "stopId", "")
-    ? `${suggestion.stopId} (${suggestion.shortId.replace(/ /g, "")}) ${
-        suggestion.nameFi
-      }`
-    : suggestion;
+const getSuggestionValue = (suggestion) => {
+  if (typeof suggestion === "string") {
+    return suggestion;
+  }
+
+  return get(suggestion, "stopId", "");
+};
 
 const renderSuggestion = (suggestion, {query, isHighlighted}) => (
   <SuggestionContent isHighlighted={isHighlighted}>
@@ -39,15 +40,16 @@ const getSuggestions = (stops = []) => (value = "") => {
   const inputValue = value.trim().toLowerCase();
   const inputLength = inputValue.length;
 
+  function getSearchValue(item) {
+    const {stopId = "", shortId = "", nameFi = ""} = item;
+    const val = stopId ? `${stopId} (${shortId.replace(/ /g, "")}) ${nameFi}` : item;
+    return val.trim().toLowerCase();
+  }
+
   const suggestionStops =
     inputLength === 0 || stops.length === 0
       ? stops
-      : stops.filter((item) =>
-          getSuggestionValue(item)
-            .trim()
-            .toLowerCase()
-            .includes(inputValue)
-        );
+      : stops.filter((item) => getSearchValue(item).includes(inputValue));
 
   return orderBy(
     suggestionStops,

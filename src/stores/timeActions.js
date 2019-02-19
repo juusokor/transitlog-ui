@@ -19,13 +19,15 @@ const timeActions = (state) => {
     setTime(`${doubleDigit(hours)}:${doubleDigit(minutes)}:${doubleDigit(seconds)}`);
   };
 
-  const setTimeIncrement = action(
-    (timeIncrementValue) => (state.timeIncrement = timeIncrementValue)
-  );
+  const setTimeIncrement = action((timeIncrementValue) => {
+    state.timeIncrement = timeIncrementValue;
+    setUrlValue("time_increment", state.timeIncrement);
+  });
 
-  const setAreaSearchMinutes = action(
-    (searchValue) => (state.areaSearchRangeMinutes = searchValue)
-  );
+  const setAreaSearchMinutes = action((searchValue) => {
+    state.areaSearchRangeMinutes = searchValue;
+    setUrlValue("area_search_minutes", state.areaSearchRangeMinutes);
+  });
 
   const toggleLive = action((setTo = !state.live) => {
     state.live = setTo;

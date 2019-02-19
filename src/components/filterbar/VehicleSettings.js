@@ -5,7 +5,6 @@ import {inject, observer} from "mobx-react";
 import {app} from "mobx-app";
 import VehicleInput from "./VehicleInput";
 import Input from "../Input";
-import get from "lodash/get";
 import sortBy from "lodash/sortBy";
 import groupBy from "lodash/groupBy";
 import map from "lodash/map";
@@ -22,7 +21,7 @@ const LoadingSpinner = styled(Loading)`
 @observer
 class VehicleSettings extends React.Component {
   onChangeQueryVehicle = (value) => {
-    this.props.Filters.setVehicle(get(value, "unique_vehicle_id", ""));
+    this.props.Filters.setVehicle(value);
   };
 
   renderInput(children, value, isDisabled = false) {

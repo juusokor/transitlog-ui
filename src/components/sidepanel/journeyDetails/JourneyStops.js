@@ -54,6 +54,7 @@ class JourneyStops extends React.Component {
       stopsExpanded,
       toggleStopsExpanded,
       onSelectStop,
+      onHoverStop,
     } = this.props;
 
     return (
@@ -73,6 +74,7 @@ class JourneyStops extends React.Component {
           {stopsExpanded &&
             journeyStops.map((journeyStop) => (
               <JourneyStop
+                onHoverStop={onHoverStop}
                 onSelectStop={onSelectStop}
                 key={`journey_stop_${journeyStop.stopId}_${journeyStop.stopIndex}`}
                 stop={journeyStop}

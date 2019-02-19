@@ -25,6 +25,7 @@ export default (state) => {
     journeyDetailsOpen: getUrlValue("journeyDetailsOpen", true),
     mapOverlays: getUrlValue("mapOverlays", "").split(","),
     areaEventsStyle: getUrlValue("areaEventsStyle", areaEventsStyles.MARKERS),
+    highlightedStop: "",
     language: languageState.language,
     errors: [],
     shareModalOpen: false,

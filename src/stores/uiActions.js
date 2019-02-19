@@ -83,6 +83,10 @@ export default (state) => {
       state.mapOverlays.replace(overlays);
     });
 
+  const highlightStop = action((stopId) => {
+    state.highlightedStop = stopId;
+  });
+
   return {
     toggleSidePanel,
     toggleJourneyDetails,
@@ -92,5 +96,6 @@ export default (state) => {
     removeError,
     setAreaEventsStyle,
     toggleShareModal,
+    highlightStop,
   };
 };

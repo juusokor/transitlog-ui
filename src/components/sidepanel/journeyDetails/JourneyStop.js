@@ -44,7 +44,13 @@ const SimpleStopArrivalTime = styled.div`
 
 const StopDepartureTime = styled(TagButton)``;
 
-export default ({stop, date, onClickTime, onSelectStop = () => {}}) => {
+export default ({
+  stop,
+  date,
+  onClickTime,
+  onSelectStop = () => {},
+  onHoverStop = () => {},
+}) => {
   const departure = stop.departure;
 
   const stopMode = get(stop, "modes.nodes[0]", "BUS");
@@ -53,15 +59,20 @@ export default ({stop, date, onClickTime, onSelectStop = () => {}}) => {
   const selectWithStopId = onSelectStop(stop.stopId);
   let onStopClick = selectWithStopId;
 
+  const hoverProps = {
+    onMouseEnter: onHoverStop(stop.stopId),
+    onMouseLeave: onHoverStop(""),
+  };
+
   // Bail early if we don't have all the data yet.
   if (!departure || !stop.departureEvent) {
     return (
       <StopWrapper>
         <StopElementsWrapper color={stopColor}>
-          <StopMarker color={stopColor} onClick={onStopClick} />
+          <StopMarker color={stopColor} onClick={onStopClick} {...hoverProps} />
         </StopElementsWrapper>
         <StopContent>
-          <StopHeading onClick={onStopClick}>
+          <StopHeading onClick={onStopClick} {...hoverProps}>
             <strong>{stop.nameFi}</strong> {stop.stopId} ({stop.shortId})
           </StopHeading>
         </StopContent>
@@ -99,13 +110,17 @@ export default ({stop, date, onClickTime, onSelectStop = () => {}}) => {
     <StopWrapper>
       <StopElementsWrapper color={stopColor}>
         {isTimingStop ? (
-          <TimingStopMarker color={stopColor} onClick={onStopClick} />
+          <TimingStopMarker
+            color={stopColor}
+            onClick={onStopClick}
+            {...hoverProps}
+          />
         ) : (
-          <StopMarker color={stopColor} onClick={onStopClick} />
+          <StopMarker color={stopColor} onClick={onStopClick} {...hoverProps} />
         )}
       </StopElementsWrapper>
       <StopContent>
-        <StopHeading onClick={onStopClick}>
+        <StopHeading onClick={onStopClick} {...hoverProps}>
           <strong>{stop.nameFi}</strong> {stop.stopId} (
           {stop.shortId.replace(/ /g, "")})
         </StopHeading>

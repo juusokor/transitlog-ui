@@ -57,6 +57,7 @@ class AreaHfpEvents extends PureComponent {
 
     // Translate the bounding box to a min/max query for the HFP api and create a time range.
     return {
+      searchTime: moment,
       minTime: min,
       maxTime: max,
       minLong: bounds.getWest(),
@@ -85,7 +86,7 @@ class AreaHfpEvents extends PureComponent {
       bounds || (defaultBounds ? defaultBounds.getCenter().toBounds(1000) : null);
 
     const queryParams = this.getQueryParams(useBounds);
-    const {minTime, maxTime, ...area} = queryParams;
+    const {minTime, maxTime, searchTime, ...area} = queryParams;
 
     return (
       <AreaHfpQuery
@@ -97,6 +98,7 @@ class AreaHfpEvents extends PureComponent {
         date={date}
         minTime={minTime ? minTime.toISOString() : null}
         maxTime={maxTime ? maxTime.toISOString() : null}
+        searchTime={searchTime}
         getQueryParams={() => this.getQueryParams(useBounds)}
         area={area}>
         {({events, loading, error}) =>

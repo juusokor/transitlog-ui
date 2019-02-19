@@ -27,7 +27,14 @@ const OriginStopContent = styled(StopContent)`
 `;
 
 const OriginStop = observer(
-  ({stop = null, date, onClickTime, onSelectStop = () => {}, stopsExpanded}) => {
+  ({
+    stop = null,
+    date,
+    onClickTime,
+    onSelectStop = () => {},
+    onHoverStop = () => {},
+    stopsExpanded,
+  }) => {
     const stopMode = get(stop, "modes.nodes[0]", "BUS");
     const stopColor = get(transportColor, stopMode, "var(--light-grey)");
 
@@ -38,15 +45,20 @@ const OriginStop = observer(
     const selectWithStopId = onSelectStop(stop.stopId);
     let onStopClick = selectWithStopId;
 
+    const hoverProps = {
+      onMouseEnter: onHoverStop(stop.stopId),
+      onMouseLeave: onHoverStop(""),
+    };
+
     // Bail here if we don't have data about stop arrival and departure times.
     if (!stop.departureEvent) {
       return (
         <StopWrapper>
           <StopElementsWrapper color={stopColor} terminus={"origin"}>
-            <StopMarker color={stopColor} onClick={onStopClick} />
+            <StopMarker color={stopColor} onClick={onStopClick} {...hoverProps} />
           </StopElementsWrapper>
           <OriginStopContent stopsExpanded={stopsExpanded}>
-            <StopHeading onClick={onStopClick}>
+            <StopHeading onClick={onStopClick} {...hoverProps}>
               <strong>{stop.nameFi}</strong> {stop.stopId} (
               {stop.shortId.replace(/ /g, "")})
             </StopHeading>
@@ -78,10 +90,10 @@ const OriginStop = observer(
     return (
       <StopWrapper>
         <StopElementsWrapper color={stopColor} terminus="origin">
-          <StopMarker color={stopColor} onClick={onStopClick} />
+          <StopMarker color={stopColor} onClick={onStopClick} {...hoverProps} />
         </StopElementsWrapper>
         <OriginStopContent terminus="origin" stopsExpanded={stopsExpanded}>
-          <StopHeading onClick={onStopClick}>
+          <StopHeading onClick={onStopClick} {...hoverProps}>
             <strong>{stop.nameFi}</strong> {stop.stopId} (
             {stop.shortId.replace(/ /g, "")})
           </StopHeading>

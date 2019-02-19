@@ -16,22 +16,33 @@ import CalculateTerminalTime from "./CalculateTerminalTime";
 import {Text} from "../../../helpers/text";
 import {getNormalTime, journeyEventTime} from "../../../helpers/time";
 
-export default ({stop = {}, date, onClickTime, onSelectStop = () => {}}) => {
+export default ({
+  stop = {},
+  date,
+  onClickTime,
+  onSelectStop = () => {},
+  onHoverStop = () => {},
+}) => {
   const stopMode = get(stop, "modes.nodes[0]", "BUS");
   const stopColor = get(transportColor, stopMode, "var(--light-grey)");
 
   const selectWithStopId = onSelectStop(stop.stopId);
   let onStopClick = selectWithStopId;
 
+  const hoverProps = {
+    onMouseEnter: onHoverStop(stop.stopId),
+    onMouseLeave: onHoverStop(""),
+  };
+
   // Bail here if we don't have data about stop arrival and departure times.
   if (!stop.arrivalEvent) {
     return (
       <StopWrapper>
         <StopElementsWrapper color={stopColor} terminus="destination">
-          <StopMarker color={stopColor} onClick={onStopClick} />
+          <StopMarker color={stopColor} onClick={onStopClick} {...hoverProps} />
         </StopElementsWrapper>
         <StopContent>
-          <StopHeading onClick={onStopClick}>
+          <StopHeading onClick={onStopClick} {...hoverProps}>
             <strong>{stop.nameFi}</strong> {stop.stopId} ({stop.shortId})
           </StopHeading>
         </StopContent>
@@ -52,10 +63,10 @@ export default ({stop = {}, date, onClickTime, onSelectStop = () => {}}) => {
   return (
     <StopWrapper>
       <StopElementsWrapper color={stopColor} terminus="destination">
-        <StopMarker color={stopColor} onClick={onStopClick} />
+        <StopMarker color={stopColor} onClick={onStopClick} {...hoverProps} />
       </StopElementsWrapper>
       <StopContent terminus="destination">
-        <StopHeading onClick={onStopClick}>
+        <StopHeading onClick={onStopClick} {...hoverProps}>
           <strong>{stop.nameFi}</strong> {stop.stopId} (
           {stop.shortId.replace(/ /g, "")})
         </StopHeading>
