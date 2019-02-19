@@ -68,7 +68,7 @@ export function journeyStartTime(event, useMoment) {
     If the eventMoment was more than a day after the operation day, we're probably
     dealing with a 24h+ journey. Also make sure that the start time hours are under 21,
     which was chosen as a time that shouldn't appear more than once in a 24h+ day.
-    Thus, the maximum day length supported is 44h. After that things get weird.
+    Thus, the maximum day length supported is 36h. After that things get weird.
     
     There must be an upper limit to intHours, otherwise times such as 23:59 get 24 hours
     added to them if the event happens after midnight. Not good.
@@ -77,7 +77,7 @@ export function journeyStartTime(event, useMoment) {
     planned start times for journeys that teeter in the edge of midnight.
    */
 
-  if (intHours <= 20 && Math.floor(diff) >= 23) {
+  if (intHours <= 12 && Math.floor(diff) >= 23) {
     intHours = intHours + Math.max(1, Math.floor(diff / 24)) * 24;
   }
 
