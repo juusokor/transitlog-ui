@@ -53,7 +53,7 @@ const DepartureTimeGroup = styled.div`
   min-width: 300px;
 `;
 
-@inject(app("Filters", "Time"))
+@inject(app("Time"))
 @observer
 class RouteStop extends React.Component {
   onClickTime = (time) => (e) => {
@@ -76,6 +76,7 @@ class RouteStop extends React.Component {
       selectedJourney,
       showRadius,
       selected,
+      highlighted,
     } = this.props;
 
     const isTerminal = firstTerminal || lastTerminal;
@@ -366,11 +367,13 @@ class RouteStop extends React.Component {
 
     return (
       <RouteStopMarker
+        doorDidOpen={doorDidOpen}
         delayType={delayType}
         color={color}
         isTerminal={isTerminal}
         stop={stop}
         showRadius={showRadius}
+        highlighted={highlighted}
         selected={selected}>
         {markerChildren}
       </RouteStopMarker>

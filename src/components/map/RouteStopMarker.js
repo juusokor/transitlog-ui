@@ -19,6 +19,7 @@ const RouteStopMarker = decorate(
     stop,
     showRadius,
     selected,
+    highlighted,
     delayType,
     color,
     isTerminal,
@@ -68,7 +69,7 @@ const RouteStopMarker = decorate(
         position: markerPosition, // ...the other uses position.
         color: color,
         dashArray: !doorDidOpen ? "3 5" : "",
-        fillColor: selected ? stopColor : "white",
+        fillColor: highlighted ? "var(--purple)" : selected ? stopColor : "white",
         fillOpacity: 1,
         strokeWeight: isTerminal ? 5 : 3,
         radius: isTerminal || selected ? 13 : 9,

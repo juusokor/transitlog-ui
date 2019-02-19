@@ -44,7 +44,7 @@ const LoadingContainer = styled.div`
   margin: 1rem auto 0;
 `;
 
-@inject(app("Time", "Filters"))
+@inject(app("UI", "Time", "Filters"))
 @withRoute({alwaysFetch: true})
 @observer
 class JourneyDetails extends React.Component {
@@ -65,6 +65,10 @@ class JourneyDetails extends React.Component {
     if (stopId) {
       Filters.setStop(stopId);
     }
+  };
+
+  onHoverStop = (stopId) => () => {
+    this.props.UI.highlightStop(stopId);
   };
 
   render() {
@@ -100,6 +104,7 @@ class JourneyDetails extends React.Component {
             {journeyStops.length !== 0 ? (
               <StopsListWrapper>
                 <OriginStop
+                  onHoverStop={this.onHoverStop}
                   onSelectStop={this.onSelectStop}
                   stop={journeyStops[0]}
                   date={date}
@@ -107,6 +112,7 @@ class JourneyDetails extends React.Component {
                   stopsExpanded={this.stopsExpanded}
                 />
                 <JourneyStops
+                  onHoverStop={this.onHoverStop}
                   onSelectStop={this.onSelectStop}
                   journeyStops={journeyStops.slice(1, -1)}
                   date={date}
@@ -116,6 +122,7 @@ class JourneyDetails extends React.Component {
                   toggleStopsExpanded={this.toggleStopsExpanded}
                 />
                 <DestinationStop
+                  onHoverStop={this.onHoverStop}
                   onSelectStop={this.onSelectStop}
                   stop={journeyStops.slice(-1)[0]}
                   date={date}
