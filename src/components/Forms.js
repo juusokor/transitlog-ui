@@ -1,6 +1,6 @@
 import styled, {css, createGlobalStyle} from "styled-components";
 import React from "react";
-import Help from "../helpers/Help";
+import Tooltip from "./Tooltip";
 
 export const GlobalFormStyle = createGlobalStyle`
   select,
@@ -69,7 +69,7 @@ export const InputBase = React.forwardRef(({helpText, children, ...props}, ref) 
     return inputChildren;
   }
 
-  return <Help helpText={helpText}>{inputChildren}</Help>;
+  return <Tooltip helpText={helpText}>{inputChildren}</Tooltip>;
 });
 
 export const Button = styled.button`

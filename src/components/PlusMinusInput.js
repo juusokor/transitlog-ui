@@ -3,7 +3,7 @@ import {Button, InputBase} from "./Forms";
 import styled from "styled-components";
 import PlusIcon from "../icons/Plus";
 import MinusIcon from "../icons/Minus";
-import Help from "../helpers/Help";
+import Tooltip from "./Tooltip";
 
 const PlusMinusButton = styled(Button)`
   display: inline-block;
@@ -49,17 +49,17 @@ const PlusMinusInput = React.forwardRef((props, ref) => {
 
   return (
     <Wrapper className={className} ref={ref}>
-      <Help helpText={minusHelp}>
+      <Tooltip helpText={minusHelp}>
         <PlusMinusButton small primary side="left" onClick={onDecrease}>
           {minusLabel}
         </PlusMinusButton>
-      </Help>
+      </Tooltip>
       {children}
-      <Help helpText={plusHelp}>
+      <Tooltip helpText={plusHelp}>
         <PlusMinusButton small primary side="right" onClick={onIncrease}>
           {plusLabel}
         </PlusMinusButton>
-      </Help>
+      </Tooltip>
     </Wrapper>
   );
 });

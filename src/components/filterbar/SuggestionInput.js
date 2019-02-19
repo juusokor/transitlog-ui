@@ -5,7 +5,7 @@ import {observer} from "mobx-react";
 import styled from "styled-components";
 import {InputStyles} from "../Forms";
 import {observable, action} from "mobx";
-import Help from "../../helpers/Help";
+import Tooltip from "../Tooltip";
 
 const AutosuggestWrapper = styled.div`
   width: 100%;
@@ -127,7 +127,7 @@ class SuggestionInput extends Component {
     };
 
     return (
-      <Help helpText={helpText}>
+      <Tooltip helpText={helpText}>
         <AutosuggestWrapper className={className}>
           <Autosuggest
             suggestions={this.suggestions}
@@ -144,7 +144,7 @@ class SuggestionInput extends Component {
             inputProps={inputProps}
           />
         </AutosuggestWrapper>
-      </Help>
+      </Tooltip>
     );
   }
 }
