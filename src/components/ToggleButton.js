@@ -1,6 +1,7 @@
-import React, {Component} from "react";
-import {observer} from "mobx-react";
+import React from "react";
+import {observer} from "mobx-react-lite";
 import styled from "styled-components";
+import {useTooltip} from "../hooks/useTooltip";
 
 const Container = styled.label`
   flex: 1;
@@ -68,44 +69,36 @@ const TextContainer = styled.div`
   font-size: 0.875rem;
 `;
 
-@observer
-class ToggleButton extends Component {
-  render() {
-    const {
-      type = "radio",
-      checked,
-      name,
-      onChange,
-      value,
-      disabled,
-      isSwitch = false,
-      children,
-      label = children,
-      preLabel,
-      className,
-    } = this.props;
-
-    return (
-      <Container className={className}>
-        {preLabel && <TextContainer isPreLabel={true}>{preLabel}</TextContainer>}
-        <ToggleInput
-          type={type}
-          name={name}
-          onChange={onChange}
-          value={value}
-          disabled={disabled}
-          checked={checked}
-        />
-        <ToggleContainer isSwitch={isSwitch} checked={checked} disabled={disabled}>
-          <ToggleMarker
-            checked={!checked ? isSwitch : checked}
-            disabled={disabled}
-          />
-        </ToggleContainer>
-        <TextContainer>{label}</TextContainer>
-      </Container>
-    );
-  }
-}
-
+const ToggleButton = observer(
+  ({
+    type = "radio",
+    checked,
+    name,
+    onChange,
+    value,
+    disabled,
+    isSwitch = false,
+    children,
+    label = children,
+    preLabel,
+    className,
+    helpText,
+  }) => (
+    <Container {...useTooltip(helpText)} className={className}>
+      {preLabel && <TextContainer isPreLabel={true}>{preLabel}</TextContainer>}
+      <ToggleInput
+        type={type}
+        name={name}
+        onChange={onChange}
+        value={value}
+        disabled={disabled}
+        checked={checked}
+      />
+      <ToggleContainer isSwitch={isSwitch} checked={checked} disabled={disabled}>
+        <ToggleMarker checked={!checked ? isSwitch : checked} disabled={disabled} />
+      </ToggleContainer>
+      <TextContainer>{label}</TextContainer>
+    </Container>
+  )
+);
 export default ToggleButton;

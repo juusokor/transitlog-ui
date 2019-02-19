@@ -1,6 +1,8 @@
 import styled, {css, createGlobalStyle} from "styled-components";
 import React from "react";
 import Tooltip from "./Tooltip";
+import {useTooltip} from "../hooks/useTooltip";
+import {observer} from "mobx-react-lite";
 
 export const GlobalFormStyle = createGlobalStyle`
   select,
@@ -56,23 +58,11 @@ export const StyledInputBase = styled.input`
   ${InputStyles}
 `;
 
-export const InputBase = React.forwardRef(({helpText, children, ...props}, ref) => {
-  const inputChildren = children ? (
-    children
-  ) : (
-    <StyledInputBase {...props} ref={ref}>
-      {children}
-    </StyledInputBase>
-  );
+export const InputBase = React.forwardRef(({helpText, children, ...props}, ref) => (
+  <StyledInputBase {...props} {...useTooltip(helpText)} ref={ref} />
+));
 
-  if (!helpText) {
-    return inputChildren;
-  }
-
-  return <Tooltip helpText={helpText}>{inputChildren}</Tooltip>;
-});
-
-export const Button = styled.button`
+export const StyledButton = styled.button`
   font-family: var(--font-family);
   font-size: ${({small = false}) => (small ? "0.75rem" : "1rem")};
   font-weight: 500;
@@ -103,3 +93,7 @@ export const Button = styled.button`
     transform: scale(1.05);
   }
 `;
+
+export const Button = React.forwardRef(({helpText, ...props}, ref) => (
+  <StyledButton {...props} {...useTooltip(helpText)} ref={ref} />
+));

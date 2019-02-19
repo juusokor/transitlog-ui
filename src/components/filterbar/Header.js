@@ -4,10 +4,11 @@ import {Text} from "../../helpers/text";
 import styled from "styled-components";
 import {Heading} from "../Typography";
 import LanguageSelect from "./LanguageSelect";
-import {observer, inject} from "mobx-react";
+import {observer} from "mobx-react-lite";
 import {Button} from "../Forms";
-import {app} from "mobx-app";
 import flow from "lodash/flow";
+import {inject} from "../../helpers/inject";
+import {useTooltip} from "../../hooks/useTooltip";
 
 const Header = styled.header`
   width: 100%;
@@ -57,7 +58,7 @@ const BottomRow = styled.div`
 
 const decorate = flow(
   observer,
-  inject(app("UI"))
+  inject("UI")
 );
 
 export default decorate(({UI, className}) => (
@@ -67,7 +68,11 @@ export default decorate(({UI, className}) => (
       <Text>filterpanel.heading</Text>
     </MainHeading>
     <BottomRow>
-      <Button small transparent onClick={() => UI.toggleShareModal(true)}>
+      <Button
+        helpText="Share button"
+        small
+        transparent
+        onClick={() => UI.toggleShareModal(true)}>
         <Text>general.share</Text>
       </Button>
       <LangSelectContainer>

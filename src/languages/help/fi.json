@@ -15,5 +15,19 @@
   "Select stop": "Etsi pysäkki pysäkkinumerolla, tunnisteella tai nimellä.",
   "Clear vehicle": "Tyhjentää ajoneuvohaku-kenttää. Tiedot mitkä haettiin ajoneuvotiedon pohjalta tyhjentyy myös.",
   "Clear stop": "Tyhjentää pysäkkihaku-kenttää. Tiedot jotka haettiin pysäkkitiedon pohjalta tyhjentyy myös.",
-  "Time slider": "Säädä aika-asetus vierittämällä liukusäädintä. Säädin on rajoitettu yhteen päivään kun matkaa ei ole valittuna, ja rajoitettu valitun matkan alku- ja loppuaikaan kun on valittu. Aika päivittyy heti ja liukusäädin on kätevä tapa tutkia matkojen etenemisiä."
+  "Time slider": "Säädä aika-asetus vierittämällä liukusäädintä. Säädin on rajoitettu yhteen päivään kun matkaa ei ole valittuna, ja rajoitettu valitun matkan alku- ja loppuaikaan kun on valittu. Aika päivittyy heti ja liukusäädin on kätevä tapa tutkia matkojen etenemisiä.",
+  "Share button": "Avaa ikkuna mistä voit kopioida linkin jaettavaksi. Linkin avaaja näkee juuri saman näkymän kun mitä sinä näet nyt.",
+  "Language select finnish": "Valitse käyttöliittymän kieleksi suomi.",
+  "Language select swedish": "Valitse käyttöliittymän kieleksi ruotsi.",
+  "Language select english": "Valitse käyttöliittymän kieleksi englanti.",
+  "Reset button": "Nollaa ja tyhjentää kaikki kentät ja asetukset. Jättää aika-asetukset (päivämäärä ja aika) ennalleen.",
+  "Update button": "Päivittää aika-asetukset (päivämäärä ja aika) nykyhetkeen ja virkistää kaikkia haettuja HFP-tietoja.",
+  "Live toggle": "Jos aika-asetukset ovat asetettu nykyhetkeen, päivittää haettuja HFP-tietoja noin kerran sekunnissa. Jos aika-asetukset ovat asetettu menneisyyteen, lisää 5 sekuntia (tai \"aikamuutos\" asetuksen mukainen arvo) kelloon per sekunti jolloin aika-herkät tiedot päivittyy.",
+  "Area search tab": "Aluehaun tulokset ryhmitetty matkoittain.",
+  "Journeys tab": "Valitun reitin kaikki matkat valitun päivän aikana.",
+  "Vehicle journeys tab": "Valitun ajoneuvon koko lähtöketju valitun päivän aikana.",
+  "Timetable tab": "Valitun pysäkin kaikki lähdöt valitun päivän aikana.",
+  "Help tab": "Ohjeet alkuun pääsemiseksi.",
+  "Toggle sidebar button": "Piilota tai näytä sivupalkki.",
+  "Toggle journey details button": "Piilota tai näytä valitun matkan tiedot."
 }
