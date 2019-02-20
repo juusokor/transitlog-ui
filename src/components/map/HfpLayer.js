@@ -19,7 +19,7 @@ export function getLineChunksByDelay(positions, journeyId) {
     .filter((pos) => getJourneyId(pos) === journeyId)
     .reduce((allChunks, position) => {
       const positionDelay = get(position, "dl", 0);
-      const delayType = getDelayType(positionDelay); // "early", "late" or "on-time"
+      const delayType = getDelayType(-positionDelay); // "early", "late" or "on-time"
 
       // If this is the first position, allChunks will be empty.
       // Add it as a new chunk to kick things off.

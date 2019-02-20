@@ -18,7 +18,7 @@ describe("SimpleHfpLayer", () => {
 
       positions.push({
         ...defaultPosition,
-        dl: i > 6 ? -40 : i > 3 ? 0 : 300, // Create three chunks
+        dl: i > 6 ? 40 : i > 3 ? 0 : -300, // Create three chunks
       });
     }
 
