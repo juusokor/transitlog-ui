@@ -16,6 +16,8 @@ import {getTimelinessColor} from "../../helpers/timelinessColor";
 import {expr} from "mobx-utils";
 import RouteJourneys, {journeyHfpStates} from "../RouteJourneys";
 import {getNormalTime} from "../../helpers/time";
+import Tooltip from "../Tooltip";
+import {applyTooltip} from "../../hooks/useTooltip";
 
 const JourneyListRow = styled.button`
   display: flex;
@@ -193,11 +195,15 @@ class Journeys extends Component {
                             key={`planned_journey_row_${journeyId}`}
                             selected={journeyIsSelected}
                             onClick={this.selectJourney(journey.time)}>
-                            <JourneyRowLeft>
-                              {getNormalTime(journey.time)}
-                            </JourneyRowLeft>
+                            <Tooltip helpText="Planned journey time">
+                              <JourneyRowLeft>
+                                {getNormalTime(journey.time)}
+                              </JourneyRowLeft>
+                            </Tooltip>
                             {fetchStatus === journeyHfpStates.NOT_FOUND ? (
-                              <span>{text("filterpanel.journey.no_data")}</span>
+                              <Tooltip helpText="Journey no data">
+                                <span>{text("filterpanel.journey.no_data")}</span>
+                              </Tooltip>
                             ) : fetchStatus === journeyHfpStates.LOADING ? (
                               <Loading inline />
                             ) : (
@@ -246,25 +252,29 @@ class Journeys extends Component {
 
                             observedJourney = (
                               <>
-                                <DelaySlot
-                                  adjustLeft={eventsLength > 1}
-                                  color={
-                                    delayType === "late"
-                                      ? "var(--dark-grey)"
-                                      : "white"
-                                  }
-                                  backgroundColor={getTimelinessColor(
-                                    delayType,
-                                    "var(--light-green)"
-                                  )}>
-                                  {plannedObservedDiff.sign === "-" ? "-" : ""}
-                                  {plannedObservedDiff.hours
-                                    ? doubleDigit(plannedObservedDiff.hours) + ":"
-                                    : ""}
-                                  {doubleDigit(plannedObservedDiff.minutes)}:
-                                  {doubleDigit(plannedObservedDiff.seconds)}
-                                </DelaySlot>
-                                <TimeSlot>{observedTimeString}</TimeSlot>
+                                <Tooltip helpText="Journey list diff">
+                                  <DelaySlot
+                                    adjustLeft={eventsLength > 1}
+                                    color={
+                                      delayType === "late"
+                                        ? "var(--dark-grey)"
+                                        : "white"
+                                    }
+                                    backgroundColor={getTimelinessColor(
+                                      delayType,
+                                      "var(--light-green)"
+                                    )}>
+                                    {plannedObservedDiff.sign === "-" ? "-" : ""}
+                                    {plannedObservedDiff.hours
+                                      ? doubleDigit(plannedObservedDiff.hours) + ":"
+                                      : ""}
+                                    {doubleDigit(plannedObservedDiff.minutes)}:
+                                    {doubleDigit(plannedObservedDiff.seconds)}
+                                  </DelaySlot>
+                                </Tooltip>
+                                <Tooltip helpText="Journey list observed">
+                                  <TimeSlot>{observedTimeString}</TimeSlot>
+                                </Tooltip>
                               </>
                             );
                           }
@@ -274,16 +284,19 @@ class Journeys extends Component {
 
                           return (
                             <JourneyListRow
+                              {...applyTooltip("Journey list row")}
                               ref={journeyIsFocused ? scrollRef : null}
                               selected={journeyIsSelected}
                               key={`journey_row_${journeyId}`}
                               onClick={this.selectJourney(journeyEvent)}>
-                              <JourneyRowLeft>
+                              <JourneyRowLeft
+                                {...applyTooltip("Planned journey time with data")}>
                                 {getNormalTime(
                                   get(journeyEvent, "journey_start_time", "")
                                 )}
                                 {eventsLength > 1 && (
-                                  <JourneyInstanceDisplay>
+                                  <JourneyInstanceDisplay
+                                    {...applyTooltip("Journey instance")}>
                                     {eventIndex + 1}
                                   </JourneyInstanceDisplay>
                                 )}

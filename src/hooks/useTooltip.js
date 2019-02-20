@@ -12,3 +12,11 @@ export const useTooltip = (helpText) => {
     title: translatedText,
   };
 };
+
+export const applyTooltip = (helpText) => {
+  const translatedText = translateHelpText(helpText);
+
+  return {
+    title: translatedText,
+  };
+};
