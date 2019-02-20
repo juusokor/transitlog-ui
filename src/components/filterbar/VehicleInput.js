@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useMemo} from "react";
 import SuggestionInput, {
   SuggestionContent,
   SuggestionText,
@@ -36,7 +36,10 @@ const renderSuggestion = (suggestion, {query, isHighlighted}) => {
   return (
     <VehicleSuggestion
       isHighlighted={isHighlighted}
-      inService={!!suggestion.inServiceOnDate}>
+      inService={
+        typeof suggestion.inServiceOnDate === "undefined" ||
+        suggestion.inServiceOnDate === true
+      }>
       <SuggestionText>{uniqueVehicleId}</SuggestionText>
     </VehicleSuggestion>
   );
@@ -49,23 +52,6 @@ const renderSectionTitle = (section) => (
 );
 
 const getSectionSuggestions = (section) => section.vehicles;
-
-function matchVehicleTerms(vehicles, term) {
-  let matches = [];
-
-  // Search operator vehicles and return the matching ones.
-  const matchingVehicles = vehicles.filter((vehicle) =>
-    (vehicle.vehicleId + vehicle.operatorId + vehicle.registryNr)
-      .toLowerCase()
-      .includes(term)
-  );
-
-  if (matchingVehicles.length !== 0) {
-    matches = matchingVehicles;
-  }
-
-  return matches;
-}
 
 function escapeRegexCharacters(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -107,6 +93,8 @@ const enhance = flow(
 );
 
 export default enhance(({value = "", onSelect, options = []}) => {
+  const suggestions = useMemo(() => getSuggestions(options), [options]);
+
   return (
     <SuggestionInput
       minimumInput={0}
@@ -117,7 +105,7 @@ export default enhance(({value = "", onSelect, options = []}) => {
       getSectionSuggestions={getSectionSuggestions}
       getValue={getSuggestionValue}
       renderSuggestion={renderSuggestion}
-      getSuggestions={getSuggestions(options)}
+      getSuggestions={suggestions}
     />
   );
 });
