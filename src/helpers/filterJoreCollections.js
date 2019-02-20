@@ -4,7 +4,7 @@ import orderBy from "lodash/orderBy";
 import groupBy from "lodash/groupBy";
 import {uniqBy} from "lodash";
 
-function ensureActive(items, date) {
+export function ensureActive(items, date) {
   return items.filter((item) => {
     return isWithinRange(date, item.dateBegin, item.dateEnd);
   });
@@ -80,4 +80,19 @@ export function filterLines(lines, date) {
 
   const groupedLines = groupBy(validLines, "lineId");
   return reduceGroupsToNewestItem(groupedLines);
+}
+
+export function filterRoutes(routes, date) {
+  let validRoutes = routes;
+
+  if (date) {
+    validRoutes = ensureActive(validRoutes, date);
+  }
+
+  const groupedRoutes = groupBy(
+    validRoutes,
+    ({routeId, direction}) => `${routeId}.${direction}`
+  );
+
+  return reduceGroupsToNewestItem(groupedRoutes);
 }
