@@ -67,30 +67,38 @@ function matchVehicleTerms(vehicles, term) {
   return matches;
 }
 
+function escapeRegexCharacters(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 const getSuggestions = (operators) => (value = "") => {
   const inputValue = value.trim().toLowerCase();
-  const inputLength = inputValue.length;
+  const inputWords = (inputValue.match(/\w+/g) || [""])
+    .map(escapeRegexCharacters)
+    .filter((w) => !!w);
 
-  const inputWords = (inputValue.match(/\w+/g) || [""]).map((term) =>
-    term.toLowerCase()
-  );
+  if (inputWords.length === 0) {
+    return operators;
+  }
 
-  return inputLength === 0 || operators.length === 0
+  return operators.length === 0
     ? operators
-    : operators.reduce((matches, operator) => {
-        for (const inputWord of inputWords) {
-          // Match input value to operator name first.
-          if (operator.operatorName.toLowerCase().includes(inputWord)) {
-            matches.push(operator);
-            return matches;
-          }
+    : operators
+        .map(({operatorName, operatorId, vehicles}) => {
+          return {
+            operatorName,
+            operatorId,
+            vehicles: vehicles.filter(({registryNr, vehicleId}) => {
+              const testStr = `${operatorName} ${operatorId} ${registryNr} ${vehicleId}`;
 
-          const vehicleMatches = matchVehicleTerms(operator.vehicles, inputWord);
-          matches.push({...operator, vehicles: vehicleMatches});
-        }
-
-        return matches;
-      }, []);
+              return inputWords.every((inputWord) => {
+                const regex = new RegExp(inputWord, "gi");
+                return regex.test(testStr);
+              });
+            }),
+          };
+        })
+        .filter((operator) => operator.vehicles.length > 0);
 };
 
 const enhance = flow(
