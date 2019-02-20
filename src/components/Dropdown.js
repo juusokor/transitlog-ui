@@ -1,7 +1,8 @@
 import React, {useState, useCallback} from "react";
 import {observer} from "mobx-react-lite";
 import styled from "styled-components";
-import {StyledInputBase, InputBase} from "./Forms";
+import {StyledInputBase} from "./Forms";
+import {useTooltip} from "../hooks/useTooltip";
 
 const Select = styled(StyledInputBase.withComponent("select"))`
   padding: 0 0.7rem;
@@ -22,13 +23,12 @@ const Dropdown = observer((props) => {
   const {className, helpText = ""} = props;
 
   return (
-    <InputBase helpText={helpText}>
-      <Select
-        {...props}
-        onChange={onChange}
-        className={`${className} ${isEmpty ? "empty-select" : ""}`}
-      />
-    </InputBase>
+    <Select
+      {...props}
+      {...useTooltip(helpText)}
+      onChange={onChange}
+      className={`${className} ${isEmpty ? "empty-select" : ""}`}
+    />
   );
 });
 
