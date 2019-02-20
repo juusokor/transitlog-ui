@@ -86,7 +86,7 @@ class SuggestionInput extends Component {
 
   onSuggestionsFetchRequested = ({value}) => {
     const {getSuggestions} = this.props;
-    this.setSuggestions(getSuggestions(value));
+    this.setSuggestions(getSuggestions(value) || []);
   };
 
   onSuggestionsClearRequested = () => {

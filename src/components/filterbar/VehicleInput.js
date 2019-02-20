@@ -58,7 +58,7 @@ function escapeRegexCharacters(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-const getSuggestions = (operators) => (value = "") => {
+const matchSuggestions = (operators, value = "") => {
   const inputValue = escapeRegexCharacters(value.trim().toLowerCase());
   const inputWords = words(inputValue, /[^\s]+/g).filter((w) => !!w);
 
@@ -87,6 +87,8 @@ const getSuggestions = (operators) => (value = "") => {
         })
         .filter((operator) => operator.vehicles.length > 0);
 };
+
+const getSuggestions = (operators) => (value) => matchSuggestions(operators, value);
 
 const enhance = flow(
   observer,
