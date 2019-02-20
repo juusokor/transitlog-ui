@@ -6,6 +6,7 @@ import SuggestionInput, {
 } from "./SuggestionInput";
 import flow from "lodash/flow";
 import get from "lodash/get";
+import words from "lodash/words";
 import {observer} from "mobx-react-lite";
 import styled from "styled-components";
 import {inject} from "../../helpers/inject";
@@ -58,10 +59,8 @@ function escapeRegexCharacters(str) {
 }
 
 const getSuggestions = (operators) => (value = "") => {
-  const inputValue = value.trim().toLowerCase();
-  const inputWords = (inputValue.match(/\w+/g) || [""])
-    .map(escapeRegexCharacters)
-    .filter((w) => !!w);
+  const inputValue = escapeRegexCharacters(value.trim().toLowerCase());
+  const inputWords = words(inputValue, /[^\s]+/g).filter((w) => !!w);
 
   if (inputWords.length === 0) {
     return operators;
@@ -75,7 +74,9 @@ const getSuggestions = (operators) => (value = "") => {
             operatorName,
             operatorId,
             vehicles: vehicles.filter(({registryNr, vehicleId}) => {
-              const testStr = `${operatorName} ${operatorId} ${registryNr} ${vehicleId}`;
+              const testStr = `${operatorName} ${operatorId} ${vehicleId} ${registryNr} ${operatorId}/${vehicleId}`
+                .trim()
+                .toLowerCase();
 
               return inputWords.every((inputWord) => {
                 const regex = new RegExp(inputWord, "gi");
