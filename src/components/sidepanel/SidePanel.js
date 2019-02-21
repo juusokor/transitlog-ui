@@ -14,6 +14,7 @@ import {createRouteKey} from "../../helpers/keys";
 import Timetable from "../../icons/Timetable";
 import ControlBar from "./ControlBar";
 import {UsageInstructions} from "./UsageInstructions";
+import Tooltip from "../Tooltip";
 
 const SidePanelContainer = styled.div`
   background: var(--lightest-grey);
@@ -135,6 +136,7 @@ class SidePanel extends Component {
             <Tabs suggestedTab={suggestedTab}>
               {(areaEvents.length !== 0 || areaEventsLoading) && (
                 <AreaJourneyList
+                  helpText="Area search tab"
                   loading={areaEventsLoading}
                   journeys={areaEvents}
                   name="area-journeys"
@@ -143,6 +145,7 @@ class SidePanel extends Component {
               )}
               {hasRoute && (
                 <Journeys
+                  helpText="Journeys tab"
                   key={`route_journeys_${createRouteKey(route, true)}_${date}`}
                   route={route}
                   loading={journeyEventsLoading}
@@ -152,6 +155,7 @@ class SidePanel extends Component {
               )}
               {vehicle && (
                 <VehicleJourneys
+                  helpText="Vehicle journeys tab"
                   loading={journeyEventsLoading}
                   name="vehicle-journeys"
                   label={text("sidepanel.tabs.vehicle_journeys")}
@@ -159,6 +163,7 @@ class SidePanel extends Component {
               )}
               {stateStop && (
                 <TimetablePanel
+                  helpText="Timetable tab"
                   stop={stop}
                   loading={journeyEventsLoading}
                   name="timetables"
@@ -178,18 +183,22 @@ class SidePanel extends Component {
             />
           )}
           {hasEvents && journeyDetailsCanOpen && (
-            <ToggleJourneyDetailsButton
-              isVisible={journeyDetailsAreOpen}
-              onClick={() => toggleJourneyDetails()}>
-              <Info fill="white" height="1rem" width="1rem" />
-            </ToggleJourneyDetailsButton>
+            <Tooltip helpText="Toggle journey details button">
+              <ToggleJourneyDetailsButton
+                isVisible={journeyDetailsAreOpen}
+                onClick={() => toggleJourneyDetails()}>
+                <Info fill="white" height="1rem" width="1rem" />
+              </ToggleJourneyDetailsButton>
+            </Tooltip>
           )}
         </JourneyPanel>
-        <ToggleSidePanelButton
-          isVisible={sidePanelVisible}
-          onClick={() => toggleSidePanel()}>
-          <Timetable fill="white" height="1.2rem" width="1rem" />
-        </ToggleSidePanelButton>
+        <Tooltip helpText="Toggle sidebar button">
+          <ToggleSidePanelButton
+            isVisible={sidePanelVisible}
+            onClick={() => toggleSidePanel()}>
+            <Timetable fill="white" height="1.2rem" width="1rem" />
+          </ToggleSidePanelButton>
+        </Tooltip>
       </SidePanelContainer>
     );
   }

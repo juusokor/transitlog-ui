@@ -9,6 +9,7 @@ import StopInput from "./StopInput";
 import withRoute from "../../hoc/withRoute";
 import Loading from "../Loading";
 import styled from "styled-components";
+import Tooltip from "../Tooltip";
 
 const LoadingSpinner = styled(Loading)`
   margin: 0.5rem 0.5rem 0.5rem 1rem;
@@ -44,9 +45,11 @@ class StopSettings extends React.Component {
           </Input>
         </ControlGroup>
         {!!stop && (
-          <Button primary={false} small={true} onClick={() => Filters.setStop("")}>
-            <Text>filterpanel.clear.stop</Text>
-          </Button>
+          <Tooltip helpText="Clear stop">
+            <Button primary={false} small={true} onClick={() => Filters.setStop("")}>
+              <Text>filterpanel.clear.stop</Text>
+            </Button>
+          </Tooltip>
         )}
       </>
     );

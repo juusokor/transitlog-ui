@@ -4,6 +4,7 @@ import styled, {keyframes} from "styled-components";
 import compact from "lodash/compact";
 import difference from "lodash/difference";
 import {setUrlValue, getUrlValue} from "../../stores/UrlManager";
+import Tooltip from "../Tooltip";
 
 const TabsWrapper = styled.div`
   height: 100%;
@@ -152,7 +153,7 @@ class Tabs extends Component {
         return null;
       }
 
-      const {name, label, loading} = tabContent.props;
+      const {name, label, loading, helpText = ""} = tabContent.props;
 
       // If there is only one tab, select it right off. Or, if there
       // is no tab selected, autoselect the first tab.
@@ -168,7 +169,7 @@ class Tabs extends Component {
         selectedTabContent = tabContent;
       }
 
-      return {name, label, content: tabContent, loading};
+      return {name, label, content: tabContent, helpText, loading};
     });
 
     if (tabs.length === 0) {
@@ -194,14 +195,17 @@ class Tabs extends Component {
       <TabsWrapper className={className}>
         <TabButtonsWrapper>
           {tabs.map((tabOption, index) => (
-            <TabButton
-              fontSizeMultiplier={tabLabelFontSizeMultiplier}
-              key={`tab_${tabOption.name}_${index}`}
-              selected={selectedTab === tabOption.name}
-              onClick={this.onTabClick(tabOption.name)}>
-              {tabOption.loading && <LoadingIndicator />}
-              <TabLabel>{tabOption.label}</TabLabel>
-            </TabButton>
+            <Tooltip
+              helpText={tabOption.helpText}
+              key={`tab_${tabOption.name}_${index}`}>
+              <TabButton
+                fontSizeMultiplier={tabLabelFontSizeMultiplier}
+                selected={selectedTab === tabOption.name}
+                onClick={this.onTabClick(tabOption.name)}>
+                {tabOption.loading && <LoadingIndicator />}
+                <TabLabel>{tabOption.label}</TabLabel>
+              </TabButton>
+            </Tooltip>
           ))}
         </TabButtonsWrapper>
         <TabContentWrapper>{selectedTabContent}</TabContentWrapper>

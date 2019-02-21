@@ -9295,6 +9295,13 @@ react-primitives-svg@^0.0.3:
   resolved "https://registry.yarnpkg.com/react-primitives-svg/-/react-primitives-svg-0.0.3.tgz#c4ea4b9b0d3120c5365acf23b55d89f0430382e4"
   integrity sha512-OpLxrVAsl80iNiqeaqTl7O5QGXscymL9sufAklGwgyiepFTBF5rR45S6dCwKFVfBkypUcbp/maMFm9RH6ton3Q==
 
+react-spring@^8.0.7:
+  version "8.0.7"
+  resolved "https://registry.yarnpkg.com/react-spring/-/react-spring-8.0.7.tgz#55b1d298be16b308388cb865ee707a1194112fe0"
+  integrity sha512-QHEjWLvEuRCGFRlR29o03CMc+uN1QMPt8Gxxp37szpnkJUq+HDIWNXNCacQ+kJxqzcu65JoeWV6D5q3/y5VK6Q==
+  dependencies:
+    "@babel/runtime" "^7.3.1"
+
 react-test-renderer@^16.7.0:
   version "16.8.1"
   resolved "https://registry.yarnpkg.com/react-test-renderer/-/react-test-renderer-16.8.1.tgz#72845ad9269be526126e97853311982f781767be"

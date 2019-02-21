@@ -140,9 +140,12 @@ class TimeSettings extends Component {
     return (
       <TimeControlGroup>
         <PlusMinusInput
+          minusHelp="One time step backward"
+          plusHelp="One time step forward"
           onIncrease={this.onTimeButtonClick(timeIncrement)}
           onDecrease={this.onTimeButtonClick(-timeIncrement)}>
           <TimeInput
+            helpText="Select time"
             value={this.displayTime}
             onBlur={this.onBlur}
             onFocus={this.onFocus}

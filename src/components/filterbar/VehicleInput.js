@@ -101,6 +101,7 @@ const enhance = flow(
 export default enhance(({value = "", onSelect, options = []}) => {
   return (
     <SuggestionInput
+      helpText="Select vehicle"
       minimumInput={0}
       value={value}
       onSelect={onSelect}

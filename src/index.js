@@ -16,8 +16,10 @@ const root = document.getElementById("root");
 const render = () => {
   const Root = require("./Root").default;
 
+  /* inject() from mobx-react uses the first Provider context */
   ReactDOM.render(
     <Provider {...store}>
+      {/* Our own inject() helper uses this context */}
       <StoreContext.Provider value={store}>
         <Root />
       </StoreContext.Provider>

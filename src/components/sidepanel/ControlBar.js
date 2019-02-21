@@ -38,13 +38,14 @@ class ControlBar extends Component {
 
     return (
       <Bar>
-        <ControlButton onClick={this.onClickReset}>
+        <ControlButton helpText="Reset button" onClick={this.onClickReset}>
           <Text>filterpanel.reset</Text>
         </ControlButton>
-        <ControlButton onClick={this.onClickUpdate}>
+        <ControlButton helpText="Update button" onClick={this.onClickUpdate}>
           <Text>general.update</Text>
         </ControlButton>
         <PollToggle
+          helpText="Live toggle"
           type="checkbox"
           onChange={this.onToggleLive}
           name="query_polling"

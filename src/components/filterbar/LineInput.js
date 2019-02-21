@@ -96,6 +96,7 @@ class LineInput extends React.Component {
 
     return (
       <SuggestionInput
+        helpText="Select line"
         minimumInput={1}
         value={parseLineNumber(get(line, "lineId", ""))}
         onSelect={this.onSelectLine}

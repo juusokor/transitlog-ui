@@ -6,6 +6,7 @@ import {getTimeRangeFromPositions} from "../../helpers/getTimeRangeFromPositions
 import get from "lodash/get";
 import {timeToSeconds} from "../../helpers/time";
 import flatten from "lodash/flatten";
+import Tooltip from "../Tooltip";
 
 export const TIME_SLIDER_MAX = 86400;
 export const TIME_SLIDER_MIN = 0;
@@ -51,12 +52,14 @@ class TimeSlider extends Component {
 
     return (
       <div className={className}>
-        <RangeInput
-          value={sliderValue}
-          min={Math.min(sliderValue, min)}
-          max={Math.max(sliderValue, max)}
-          onChange={this.onChange}
-        />
+        <Tooltip helpText="Time slider">
+          <RangeInput
+            value={sliderValue}
+            min={Math.min(sliderValue, min)}
+            max={Math.max(sliderValue, max)}
+            onChange={this.onChange}
+          />
+        </Tooltip>
       </div>
     );
   }
