@@ -26,6 +26,8 @@ const routeQuery = gql`
       geometries {
         nodes {
           geometry
+          dateBegin
+          dateEnd
         }
       }
     }
@@ -42,6 +44,7 @@ class RouteGeometryQuery extends Component {
       dateBegin: PropTypes.string.isRequired,
       dateEnd: PropTypes.string.isRequired,
     }).isRequired,
+    date: PropTypes.string,
     children: PropTypes.func.isRequired,
   };
 
@@ -72,13 +75,17 @@ class RouteGeometryQuery extends Component {
             return null;
           }
 
-          const positions = get(
-            data,
-            "route.geometries.nodes[0].geometry.coordinates",
-            []
-          ).map(([lon, lat]) => [lat, lon]);
+          const geometries = get(data, "route.geometries.nodes", []);
+          const geometry = geometries.find(
+            ({dateBegin: geomDateBegin, dateEnd: geomDateEnd}) =>
+              geomDateBegin === dateBegin && geomDateEnd === dateEnd
+          );
 
-          return children({routeGeometry: positions});
+          const coordinates = get(geometry, "geometry.coordinates", []).map(
+            ([lon, lat]) => [lat, lon]
+          );
+
+          return children({routeGeometry: coordinates});
         }}
       </Query>
     );
