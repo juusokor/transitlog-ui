@@ -12,7 +12,7 @@ import {
 import {observer} from "mobx-react";
 import orderBy from "lodash/orderBy";
 import {getDayTypeFromDate} from "../helpers/getDayTypeFromDate";
-import {isWithinRange} from "../helpers/isWithinRange";
+import {filterRoutes} from "../helpers/filterJoreCollections";
 
 export const singleRouteQuery = gql`
   query singleRouteQuery($routeId: String!, $direction: String!) {
@@ -52,12 +52,7 @@ const extensiveSingleRouteQuery = gql`
 
 function getRoute(data = {}, date) {
   let routes = get(data, "allRoutes.nodes", []);
-
-  return orderBy(
-    routes.filter(({dateBegin, dateEnd}) => isWithinRange(date, dateBegin, dateEnd)),
-    "dateBegin",
-    "desc"
-  )[0];
+  return orderBy(filterRoutes(routes, date), "dateBegin", "desc")[0];
 }
 
 export const SimpleRouteQuery = ({route, date, onCompleted, skip, children}) => {

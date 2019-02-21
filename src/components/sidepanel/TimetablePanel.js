@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import withAllStopDepartures from "../../hoc/withAllStopDepartures";
-import {toJS, reaction, observable, action} from "mobx";
+import {toJS, reaction} from "mobx";
 import styled from "styled-components";
 import Input from "../Input";
 import {text} from "../../helpers/text";
@@ -19,7 +19,6 @@ import {getDepartureByTime} from "../../helpers/getDepartureByTime";
 import getJourneyId from "../../helpers/getJourneyId";
 import {createCompositeJourney} from "../../stores/journeyActions";
 import {timeToSeconds, departureTime} from "../../helpers/time";
-import {setUpdateListener} from "../../stores/UpdateManager";
 
 const TimetableFilters = styled.div`
   display: flex;

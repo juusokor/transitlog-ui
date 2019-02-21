@@ -19,6 +19,10 @@ const routeQuery = gql`
     ) {
       nodeId
       originstopId
+      dateBegin
+      dateEnd
+      routeId
+      direction
       geometries {
         nodes {
           geometry
@@ -32,17 +36,12 @@ const routeQuery = gql`
 class RouteGeometryQuery extends Component {
   static propTypes = {
     route: PropTypes.shape({
-      routeId: PropTypes.string,
-      direction: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-      dateBegin: PropTypes.string,
-      dateEnd: PropTypes.string,
+      routeId: PropTypes.string.isRequired,
+      direction: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+        .isRequired,
+      dateBegin: PropTypes.string.isRequired,
+      dateEnd: PropTypes.string.isRequired,
     }).isRequired,
-    hfpPositions: PropTypes.arrayOf(
-      PropTypes.shape({
-        lat: PropTypes.number,
-        long: PropTypes.number,
-      })
-    ),
     children: PropTypes.func.isRequired,
   };
 
@@ -56,7 +55,9 @@ class RouteGeometryQuery extends Component {
 
   render() {
     const {route = {}, children} = this.props;
-    const {routeId = "", direction, dateBegin = "", dateEnd} = route;
+    const {routeId = "", direction, dateBegin = "", dateEnd = ""} = route;
+
+    console.log(dateBegin, dateEnd);
 
     return (
       <Query

@@ -8,6 +8,12 @@ import RoutesByLineQuery from "../../queries/RoutesByLineQuery";
 import RouteInput from "./RouteInput";
 import {app} from "mobx-app";
 import {text} from "../../helpers/text";
+import styled from "styled-components";
+import Loading from "../Loading";
+
+const LoadingSpinner = styled(Loading)`
+  margin: 0.5rem 0.5rem 0.5rem 1rem;
+`;
 
 @inject(app("Filters"))
 @observer
@@ -43,9 +49,13 @@ class LineSettings extends Component {
               key={`line_route_${Object.values(line).join("_")}`}
               date={date}
               line={line}>
-              {({routes}) => {
-                if (!routes) {
+              {({routes, loading}) => {
+                if (!routes && !loading) {
                   return <RouteInput route={route} routes={[]} />;
+                }
+
+                if (loading) {
+                  return <LoadingSpinner inline={true} />;
                 }
 
                 return <RouteInput route={route} routes={routes} />;

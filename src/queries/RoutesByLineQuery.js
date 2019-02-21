@@ -32,7 +32,10 @@ export default observer(({line, date, children}) => (
   <Query query={routesByLineQuery} variables={line}>
     {({loading, error, data}) => {
       const routes = get(data, "line.routes.nodes", []);
-      const filteredRoutes = orderBy(filterRoutes(routes, date), "routeId");
+      const filteredRoutes = orderBy(filterRoutes(routes, date), [
+        "routeId",
+        "direction",
+      ]);
 
       return children({
         loading,

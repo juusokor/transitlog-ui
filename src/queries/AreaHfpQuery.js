@@ -79,7 +79,7 @@ class AreaHfpQuery extends Component {
   };
 
   render() {
-    const {date, searchTime, minTime, maxTime, area, skip, children} = this.props;
+    const {date, minTime, maxTime, area, skip, children} = this.props;
     const {minLat, maxLat, minLong, maxLong} = area;
 
     if (skip) {
