@@ -57,8 +57,6 @@ class RouteGeometryQuery extends Component {
     const {route = {}, children} = this.props;
     const {routeId = "", direction, dateBegin = "", dateEnd = ""} = route;
 
-    console.log(dateBegin, dateEnd);
-
     return (
       <Query
         skip={!routeId || !dateBegin}

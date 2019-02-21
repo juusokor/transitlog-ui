@@ -212,5 +212,5 @@ export function filterRoutes(routes, date) {
     ({routeId, direction}) => `${routeId}.${direction}`
   );
 
-  return getValidItemsByDateChains(groupedRoutes, date, "route");
+  return getValidItemsByDateChains(groupedRoutes, date);
 }
