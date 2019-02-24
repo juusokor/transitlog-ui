@@ -105,6 +105,7 @@ class SidePanel extends Component {
         date,
         vehicle,
         stop: stateStop,
+        selectedJourney,
         sidePanelVisible,
         journeyDetailsAreOpen,
         journeyDetailsCanOpen,
@@ -119,8 +120,9 @@ class SidePanel extends Component {
     let suggestedTab = "";
 
     if (!hasRoute && !vehicle) suggestedTab = "area-journeys";
-    if (!hasRoute && vehicle) suggestedTab = "vehicle-journeys";
     if (hasRoute) suggestedTab = "journeys";
+    if (vehicle) suggestedTab = "vehicle-journeys";
+    if (selectedJourney) suggestedTab = "journeys";
     if (stateStop) suggestedTab = "timetables";
 
     const allTabsHidden =

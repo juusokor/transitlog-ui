@@ -22,7 +22,7 @@ const availableVehiclesQuery = gql`
     vehicles(
       distinct_on: [unique_vehicle_id]
       order_by: [{unique_vehicle_id: asc}]
-      where: {oday: {_eq: $date}, geohash_level: {_eq: 1}}
+      where: {oday: {_eq: $date}, geohash_level: {_eq: 0}}
     ) {
       unique_vehicle_id
       vehicle_number
@@ -49,16 +49,27 @@ export default observer(({children, date, skip}) => (
 
             const hfpVehicles = get(hfpData, "vehicles", []);
 
+            if (hfpVehicles.length === 0) {
+              return children({
+                loading: loading || hfpLoading,
+                error,
+                vehicles: joreVehicles,
+              });
+            }
+
             const vehicles = joreVehicles.map((vehicle) => {
               const joreVehicleId = `${vehicle.operatorId}/${vehicle.vehicleId}`;
 
-              const hfpVehicle = hfpVehicles.find(
-                ({owner_operator_id, vehicle_number}) => {
+              const hfpVehicle = hfpVehicles.reduce(
+                (foundVehicleId, {owner_operator_id, vehicle_number}) => {
                   const ownerId = (owner_operator_id + "").padStart(4, "0");
                   const hfpVehicleId = `${ownerId}/${vehicle_number}`;
 
-                  return hfpVehicleId === joreVehicleId;
-                }
+                  return hfpVehicleId === joreVehicleId
+                    ? hfpVehicleId
+                    : foundVehicleId;
+                },
+                ""
               );
 
               return {

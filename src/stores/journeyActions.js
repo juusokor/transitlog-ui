@@ -34,6 +34,8 @@ export function createCompositeJourney(date, route, time, instance = 0) {
 export default (state) => {
   const filters = filterActions(state);
 
+  let prevVehicle = null;
+
   const setSelectedJourney = action(
     "Set selected journey",
     (hfpItem = null, toggle = true) => {
@@ -43,12 +45,14 @@ export default (state) => {
           getJourneyId(state.selectedJourney) === getJourneyId(hfpItem))
       ) {
         state.selectedJourney = null;
-        filters.setVehicle(null);
+        filters.setVehicle(prevVehicle);
         setPathName("/");
       } else if (hfpItem) {
         state.selectedJourney = pickJourneyProps(hfpItem);
 
         if (hfpItem.unique_vehicle_id) {
+          // Remember the previous selection so that we can set it back when deselecting the journey.
+          prevVehicle = state.vehicle || null;
           filters.setVehicle(hfpItem.unique_vehicle_id);
         }
 

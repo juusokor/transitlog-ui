@@ -62,10 +62,8 @@ export const getClient = async (UIStore) => {
 
   const cache = new InMemoryCache();
 
-  const joreLink = new BatchHttpLink({
+  const joreLink = new HttpLink({
     uri: joreUrl,
-    batchMax: 10,
-    batchInterval: 10,
   });
 
   const hfpLink = concat(
@@ -76,10 +74,12 @@ export const getClient = async (UIStore) => {
   );
 
   // Split the operation between the JORE api and the HFP api depending on the query.
+  // Since the HFP api only has one query we can just check if we're fetching that.
   const splitLink = split(
     (operation) => {
       const queryName = get(
         operation,
+        // Need to dig a little deeper for unnamed queries
         "query.definitions[0].selectionSet.selections[0].name.value",
         "none"
       );

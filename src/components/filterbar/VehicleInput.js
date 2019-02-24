@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useMemo} from "react";
 import SuggestionInput, {
   SuggestionContent,
   SuggestionText,
@@ -6,6 +6,7 @@ import SuggestionInput, {
 } from "./SuggestionInput";
 import flow from "lodash/flow";
 import get from "lodash/get";
+import words from "lodash/words";
 import {observer} from "mobx-react-lite";
 import styled from "styled-components";
 import {inject} from "../../helpers/inject";
@@ -36,7 +37,10 @@ const renderSuggestion = (suggestion, {query, isHighlighted}) => {
   return (
     <VehicleSuggestion
       isHighlighted={isHighlighted}
-      inService={!!suggestion.inServiceOnDate}>
+      inService={
+        typeof suggestion.inServiceOnDate === "undefined" ||
+        suggestion.inServiceOnDate === true
+      }>
       <SuggestionText>{uniqueVehicleId}</SuggestionText>
     </VehicleSuggestion>
   );
@@ -50,48 +54,41 @@ const renderSectionTitle = (section) => (
 
 const getSectionSuggestions = (section) => section.vehicles;
 
-function matchVehicleTerms(vehicles, term) {
-  let matches = [];
-
-  // Search operator vehicles and return the matching ones.
-  const matchingVehicles = vehicles.filter((vehicle) =>
-    (vehicle.vehicleId + vehicle.operatorId + vehicle.registryNr)
-      .toLowerCase()
-      .includes(term)
-  );
-
-  if (matchingVehicles.length !== 0) {
-    matches = matchingVehicles;
-  }
-
-  return matches;
+function escapeRegexCharacters(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-const getSuggestions = (operators) => (value = "") => {
-  const inputValue = value.trim().toLowerCase();
-  const inputLength = inputValue.length;
+const matchSuggestions = (operators, value = "") => {
+  const inputValue = escapeRegexCharacters(value.trim().toLowerCase());
+  const inputWords = words(inputValue, /[^\s]+/g).filter((w) => !!w);
 
-  const inputWords = (inputValue.match(/\w+/g) || [""]).map((term) =>
-    term.toLowerCase()
-  );
+  if (inputWords.length === 0) {
+    return operators;
+  }
 
-  return inputLength === 0 || operators.length === 0
+  return operators.length === 0
     ? operators
-    : operators.reduce((matches, operator) => {
-        for (const inputWord of inputWords) {
-          // Match input value to operator name first.
-          if (operator.operatorName.toLowerCase().includes(inputWord)) {
-            matches.push(operator);
-            return matches;
-          }
+    : operators
+        .map(({operatorName, operatorId, vehicles}) => {
+          return {
+            operatorName,
+            operatorId,
+            vehicles: vehicles.filter(({registryNr, vehicleId}) => {
+              const testStr = `${operatorName} ${operatorId} ${vehicleId} ${registryNr} ${operatorId}/${vehicleId}`
+                .trim()
+                .toLowerCase();
 
-          const vehicleMatches = matchVehicleTerms(operator.vehicles, inputWord);
-          matches.push({...operator, vehicles: vehicleMatches});
-        }
-
-        return matches;
-      }, []);
+              return inputWords.every((inputWord) => {
+                const regex = new RegExp(inputWord, "gi");
+                return regex.test(testStr);
+              });
+            }),
+          };
+        })
+        .filter((operator) => operator.vehicles.length > 0);
 };
+
+const getSuggestions = (operators) => (value) => matchSuggestions(operators, value);
 
 const enhance = flow(
   observer,
@@ -99,6 +96,8 @@ const enhance = flow(
 );
 
 export default enhance(({value = "", onSelect, options = []}) => {
+  const suggestions = useMemo(() => getSuggestions(options), [options]);
+
   return (
     <SuggestionInput
       helpText="Select vehicle"
@@ -110,7 +109,7 @@ export default enhance(({value = "", onSelect, options = []}) => {
       getSectionSuggestions={getSectionSuggestions}
       getValue={getSuggestionValue}
       renderSuggestion={renderSuggestion}
-      getSuggestions={getSuggestions(options)}
+      getSuggestions={suggestions}
     />
   );
 });
