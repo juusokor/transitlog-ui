@@ -5,7 +5,7 @@ import get from "lodash/get";
 import RouteFieldsFragment from "./RouteFieldsFragment";
 import {observer} from "mobx-react";
 import orderBy from "lodash/orderBy";
-import {isWithinRange} from "../helpers/isWithinRange";
+import {filterRoutes} from "../helpers/filterJoreCollections";
 
 const routesByLineQuery = gql`
   query routesByLineQuery($lineId: String!, $dateBegin: Date!, $dateEnd: Date!) {
@@ -32,13 +32,10 @@ export default observer(({line, date, children}) => (
   <Query query={routesByLineQuery} variables={line}>
     {({loading, error, data}) => {
       const routes = get(data, "line.routes.nodes", []);
-
-      const filteredRoutes = orderBy(
-        routes.filter(({dateBegin, dateEnd}) =>
-          isWithinRange(date, dateBegin, dateEnd)
-        ),
-        "routeId"
-      );
+      const filteredRoutes = orderBy(filterRoutes(routes, date), [
+        "routeId",
+        "direction",
+      ]);
 
       return children({
         loading,

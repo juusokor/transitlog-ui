@@ -19,9 +19,15 @@ const routeQuery = gql`
     ) {
       nodeId
       originstopId
+      dateBegin
+      dateEnd
+      routeId
+      direction
       geometries {
         nodes {
           geometry
+          dateBegin
+          dateEnd
         }
       }
     }
@@ -32,17 +38,13 @@ const routeQuery = gql`
 class RouteGeometryQuery extends Component {
   static propTypes = {
     route: PropTypes.shape({
-      routeId: PropTypes.string,
-      direction: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-      dateBegin: PropTypes.string,
-      dateEnd: PropTypes.string,
+      routeId: PropTypes.string.isRequired,
+      direction: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+        .isRequired,
+      dateBegin: PropTypes.string.isRequired,
+      dateEnd: PropTypes.string.isRequired,
     }).isRequired,
-    hfpPositions: PropTypes.arrayOf(
-      PropTypes.shape({
-        lat: PropTypes.number,
-        long: PropTypes.number,
-      })
-    ),
+    date: PropTypes.string,
     children: PropTypes.func.isRequired,
   };
 
@@ -56,7 +58,7 @@ class RouteGeometryQuery extends Component {
 
   render() {
     const {route = {}, children} = this.props;
-    const {routeId = "", direction, dateBegin = "", dateEnd} = route;
+    const {routeId = "", direction, dateBegin = "", dateEnd = ""} = route;
 
     return (
       <Query
@@ -73,13 +75,17 @@ class RouteGeometryQuery extends Component {
             return null;
           }
 
-          const positions = get(
-            data,
-            "route.geometries.nodes[0].geometry.coordinates",
-            []
-          ).map(([lon, lat]) => [lat, lon]);
+          const geometries = get(data, "route.geometries.nodes", []);
+          const geometry = geometries.find(
+            ({dateBegin: geomDateBegin, dateEnd: geomDateEnd}) =>
+              geomDateBegin === dateBegin && geomDateEnd === dateEnd
+          );
 
-          return children({routeGeometry: positions});
+          const coordinates = get(geometry, "geometry.coordinates", []).map(
+            ([lon, lat]) => [lat, lon]
+          );
+
+          return children({routeGeometry: coordinates});
         }}
       </Query>
     );
