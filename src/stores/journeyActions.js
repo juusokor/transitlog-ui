@@ -4,6 +4,7 @@ import {pickJourneyProps} from "../helpers/pickJourneyProps";
 import filterActions from "./filterActions";
 import {setPathName} from "./UrlManager";
 import get from "lodash/get";
+import timeActions from "./timeActions";
 
 export function createJourneyPath(journey) {
   const dateStr = journey.oday.replace(/-/g, "");
@@ -33,7 +34,7 @@ export function createCompositeJourney(date, route, time, instance = 0) {
 
 export default (state) => {
   const filters = filterActions(state);
-
+  const time = timeActions(state);
   let prevVehicle = null;
 
   const setSelectedJourney = action(
@@ -58,6 +59,8 @@ export default (state) => {
 
         setPathName(createJourneyPath(hfpItem));
       }
+
+      time.toggleLive(false);
     }
   );
 
