@@ -7,7 +7,7 @@ import get from "lodash/get";
 import first from "lodash/first";
 import last from "lodash/last";
 import flatten from "lodash/flatten";
-import diffDays from "date-fns/difference_in_days";
+import diffHours from "date-fns/difference_in_hours";
 import {MAX_JORE_YEAR} from "../constants";
 
 export function filterActive(items, date) {
@@ -60,16 +60,16 @@ function getValidItemsByDateChains(groups, date) {
       // If it returns false, it did not find a result and item would end the chain.
       function findNextLink(item) {
         for (const candidate of dateEndOrdered) {
-          const dayDiff = diffDays(
+          const hoursDiff = diffHours(
             // To get a positive number, put the date we presume to be LATER first.
             get(item, "dateBegin", MAX_JORE_YEAR + "-12-31"),
             // and put the date we presume to be EARLIER second.
             get(candidate, "dateEnd", MAX_JORE_YEAR + "-12-31")
           );
 
-          // If the candidate's dateEnd is exactly one day before our item's dateBegin,
-          // it is a valid link for the chain.
-          if (dayDiff === 1) {
+          // If the candidate's dateEnd is roughly one day before our item's dateBegin,
+          // it is a valid link for the chain. Need to use hours because of DST.
+          if (hoursDiff > 22 && hoursDiff < 26) {
             return candidate;
           }
         }
