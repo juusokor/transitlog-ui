@@ -7,7 +7,7 @@ import {List, AutoSizer} from "react-virtualized";
 const ListWrapper = styled.div`
   height: 100%;
   display: grid;
-  grid-template-rows: ${({hasHeader}) => (hasHeader ? "auto 1fr" : "1fr")};
+  grid-template-rows: ${({hasHeader}) => (hasHeader ? "5rem 1fr" : "1fr")};
 `;
 
 const ListHeader = styled.header`
@@ -84,10 +84,10 @@ class VirtualizedSidepanelList extends Component {
               />
             )}
           </AutoSizer>
+          <LoadingContainer loading={loading}>
+            <Loading />
+          </LoadingContainer>
         </div>
-        <LoadingContainer loading={loading}>
-          <Loading />
-        </LoadingContainer>
       </ListWrapper>
     );
   }

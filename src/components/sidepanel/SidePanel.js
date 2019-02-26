@@ -73,7 +73,8 @@ const MainSidePanel = styled.div`
   width: 26rem;
   position: relative;
   z-index: 1;
-  display: flex;
+  display: grid;
+  grid-template-rows: auto 1fr;
   flex-direction: column;
 `;
 
@@ -101,6 +102,7 @@ class SidePanel extends Component {
       stopTimesLoading = false,
       stop,
       state: {
+        language,
         route,
         date,
         vehicle,
@@ -133,7 +135,7 @@ class SidePanel extends Component {
         <MainSidePanel>
           <ControlBar />
           {allTabsHidden ? (
-            <UsageInstructions />
+            <UsageInstructions language={language} />
           ) : (
             <Tabs suggestedTab={suggestedTab}>
               {(areaEvents.length !== 0 || areaEventsLoading) && (

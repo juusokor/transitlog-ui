@@ -13,7 +13,8 @@ const ListWrapper = styled.div`
 
 const ListRows = styled.div`
   position: relative;
-  overflow-y: auto;
+  height: 100%;
+  overflow-y: scroll;
 `;
 
 const ListHeader = styled.header`
@@ -162,12 +163,12 @@ class SidepanelList extends Component {
           <ScrollContainer>
             {children(this.scrollPositionRef, this.updateScrollOffset)}
           </ScrollContainer>
+          {!live && (
+            <LoadingContainer loading={loading}>
+              <Loading />
+            </LoadingContainer>
+          )}
         </ListRows>
-        {!live && (
-          <LoadingContainer loading={loading}>
-            <Loading />
-          </LoadingContainer>
-        )}
       </ListWrapper>
     );
   }
