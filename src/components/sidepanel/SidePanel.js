@@ -101,6 +101,7 @@ class SidePanel extends Component {
       stopTimesLoading = false,
       stop,
       state: {
+        language,
         route,
         date,
         vehicle,
@@ -133,7 +134,7 @@ class SidePanel extends Component {
         <MainSidePanel>
           <ControlBar />
           {allTabsHidden ? (
-            <UsageInstructions />
+            <UsageInstructions language={language} />
           ) : (
             <Tabs suggestedTab={suggestedTab}>
               {(areaEvents.length !== 0 || areaEventsLoading) && (

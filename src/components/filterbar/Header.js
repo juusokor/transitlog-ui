@@ -8,7 +8,6 @@ import {observer} from "mobx-react-lite";
 import {Button} from "../Forms";
 import flow from "lodash/flow";
 import {inject} from "../../helpers/inject";
-import {useTooltip} from "../../hooks/useTooltip";
 
 const Header = styled.header`
   width: 100%;
