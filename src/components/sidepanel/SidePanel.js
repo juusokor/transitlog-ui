@@ -73,7 +73,8 @@ const MainSidePanel = styled.div`
   width: 26rem;
   position: relative;
   z-index: 1;
-  display: flex;
+  display: grid;
+  grid-template-rows: auto 1fr;
   flex-direction: column;
 `;
 
