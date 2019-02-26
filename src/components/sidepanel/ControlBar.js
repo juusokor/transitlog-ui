@@ -13,6 +13,7 @@ const Bar = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex: 1 0 auto;
 `;
 
 const ControlButton = styled(Button).attrs({small: true})`
