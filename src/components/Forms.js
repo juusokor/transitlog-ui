@@ -50,6 +50,11 @@ export const InputStyles = css`
   &:focus {
     border-color: var(--blue);
   }
+
+  &:disabled {
+    background: var(--lighter-grey);
+    color: var(--dark-grey);
+  }
 `;
 
 export const StyledInputBase = styled.input`
