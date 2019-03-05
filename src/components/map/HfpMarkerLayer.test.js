@@ -3,7 +3,7 @@ import "jest-dom/extend-expect";
 import "jest-styled-components";
 import HfpMarkerLayer from "./HfpMarkerLayer";
 import {Map, TileLayer, Pane} from "react-leaflet";
-import {render, fireEvent, cleanup} from "react-testing-library";
+import {render, cleanup} from "react-testing-library";
 import VehicleMarker from "./VehicleMarker";
 
 describe("HfpMarkerLayer", () => {
