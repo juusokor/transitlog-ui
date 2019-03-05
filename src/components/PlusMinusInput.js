@@ -3,7 +3,6 @@ import {Button, InputBase} from "./Forms";
 import styled from "styled-components";
 import PlusIcon from "../icons/Plus";
 import MinusIcon from "../icons/Minus";
-import {useTooltip} from "../hooks/useTooltip";
 
 const PlusMinusButton = styled(Button)`
   display: inline-block;

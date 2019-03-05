@@ -5,7 +5,6 @@ import filterActions from "./filterActions";
 import {setPathName} from "./UrlManager";
 import get from "lodash/get";
 import timeActions from "./timeActions";
-import {setResetListener} from "./FilterStore";
 
 export function createJourneyPath(journey) {
   const dateStr = journey.oday.replace(/-/g, "");

@@ -1,6 +1,5 @@
 import {ApolloClient} from "apollo-client";
 import {concat, split, ApolloLink} from "apollo-link";
-import {BatchHttpLink} from "apollo-link-batch-http";
 import {HttpLink} from "apollo-link-http";
 import {InMemoryCache} from "apollo-cache-inmemory";
 import {onError} from "apollo-link-error";

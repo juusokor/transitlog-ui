@@ -11,6 +11,7 @@ const IconWrapper = styled.span`
   border-radius: 50%;
   position: relative;
   background-color: ${({color}) => color};
+  opacity: ${({translucent}) => (translucent ? 0.65 : 1)};
 `;
 
 const Icon = styled.div`
@@ -65,9 +66,9 @@ const HeadingArrow = styled.span`
   width: 0;
   height: 0;
   position: absolute;
-  top: -29px;
-  left: 5px;
-  border-width: 17px 13px;
+  top: ${({small}) => (small ? "-24px" : "-29px")};
+  left: ${({small}) => (small ? "4px" : "5px")};
+  border-width: ${({small}) => (small ? "14px 10px" : "17px 13px")};
   border-color: transparent transparent ${({color = "var(--blue)"}) => color}
     transparent;
   border-style: solid;
@@ -76,15 +77,21 @@ const HeadingArrow = styled.span`
 
 class VehicleMarker extends React.Component {
   render() {
-    const {position} = this.props;
+    const {position, isSelectedJourney = false} = this.props;
 
     const color = getModeColor(get(position, "mode", "").toUpperCase());
 
     // The spd value can be a bit flaky, so I decided that under 2 m/s is stopped enough.
     const isStopped = position.spd < 2;
 
+    // TODO: Highlight non-selected journeys
+
     return (
-      <IconWrapper color={color} isStopped={isStopped} data-testid="hfp-marker-icon">
+      <IconWrapper
+        translucent={!isSelectedJourney}
+        color={color}
+        isStopped={isStopped}
+        data-testid="hfp-marker-icon">
         <Icon
           data-testid="icon-icon"
           // The mode className applies the vehicle icon
@@ -96,7 +103,11 @@ class VehicleMarker extends React.Component {
           {position.drst && <Indicator position="right" color="var(--dark-blue)" />}
           {position.full && <Indicator position="left" color="var(--red)" />}
           {!isStopped && (
-            <HeadingArrow className="hfp-marker-heading" color={color} />
+            <HeadingArrow
+              small={!isSelectedJourney}
+              className="hfp-marker-heading"
+              color={color}
+            />
           )}
         </RotationWrapper>
       </IconWrapper>

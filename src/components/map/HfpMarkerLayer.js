@@ -29,7 +29,7 @@ class HfpMarkerLayer extends Component {
   };
 
   render() {
-    const {currentPosition: position} = this.props;
+    const {currentPosition: position, isSelectedJourney = false} = this.props;
 
     if (!position) {
       return null;
@@ -40,9 +40,11 @@ class HfpMarkerLayer extends Component {
         ref={this.markerRef} // Needs ref for testing
         onClick={this.onMarkerClick(position)}
         position={[position.lat, position.long]}
-        iconSize={[36, 36]}
-        icon={<VehicleMarker position={position} />}
-        pane="hfp-markers">
+        iconSize={isSelectedJourney ? [36, 36] : [28, 28]}
+        icon={
+          <VehicleMarker isSelectedJourney={isSelectedJourney} position={position} />
+        }
+        pane={isSelectedJourney ? "hfp-markers-primary" : "hfp-markers"}>
         <HfpTooltip
           key={`permanent=${this.tooltipOpen}`}
           position={position}
