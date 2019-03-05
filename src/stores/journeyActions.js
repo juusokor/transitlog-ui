@@ -5,6 +5,7 @@ import filterActions from "./filterActions";
 import {setPathName} from "./UrlManager";
 import get from "lodash/get";
 import timeActions from "./timeActions";
+import {setResetListener} from "./FilterStore";
 
 export function createJourneyPath(journey) {
   const dateStr = journey.oday.replace(/-/g, "");
@@ -35,7 +36,6 @@ export function createCompositeJourney(date, route, time, instance = 0) {
 export default (state) => {
   const filters = filterActions(state);
   const time = timeActions(state);
-  let prevVehicle = null;
 
   const setSelectedJourney = action(
     "Set selected journey",
@@ -46,14 +46,12 @@ export default (state) => {
           getJourneyId(state.selectedJourney) === getJourneyId(hfpItem))
       ) {
         state.selectedJourney = null;
-        filters.setVehicle(prevVehicle);
+        filters.setVehicle(null);
         setPathName("/");
       } else if (hfpItem) {
         state.selectedJourney = pickJourneyProps(hfpItem);
 
         if (hfpItem.unique_vehicle_id) {
-          // Remember the previous selection so that we can set it back when deselecting the journey.
-          prevVehicle = state.vehicle || null;
           filters.setVehicle(hfpItem.unique_vehicle_id);
         }
 
