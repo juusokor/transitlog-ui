@@ -18,6 +18,7 @@ import {inject} from "../helpers/inject";
 import flow from "lodash/flow";
 import withRoute from "../hoc/withRoute";
 import {mergeJourneyEvents} from "../helpers/mergeJourneyEvents";
+import {useWeather} from "../hooks/useWeather";
 
 const AppFrame = styled.main`
   width: 100%;
