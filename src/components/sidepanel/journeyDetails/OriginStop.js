@@ -71,7 +71,7 @@ const OriginStop = observer(
       departure,
       plannedDepartureMoment,
       departureMoment,
-      delayType,
+      departureDelayType,
       departureDiff,
       departureEvent,
       arrivalEvent,
@@ -135,8 +135,11 @@ const OriginStop = observer(
           <StopDepartureTime onClick={selectDepartureTime}>
             <PlainSlot>{plannedDepartureMoment.format("HH:mm:ss")}</PlainSlot>
             <ColoredBackgroundSlot
-              color={delayType === "late" ? "var(--dark-grey)" : "white"}
-              backgroundColor={getTimelinessColor(delayType, "var(--light-green)")}>
+              color={departureDelayType === "late" ? "var(--dark-grey)" : "white"}
+              backgroundColor={getTimelinessColor(
+                departureDelayType,
+                "var(--light-green)"
+              )}>
               {departureDiff.sign === "-" ? "-" : ""}
               {doubleDigit(get(departureDiff, "minutes", 0))}:
               {doubleDigit(get(departureDiff, "seconds", 0))}
