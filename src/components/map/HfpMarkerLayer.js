@@ -1,18 +1,16 @@
 import React, {Component} from "react";
-import PropTypes from "prop-types";
-import {observer} from "mobx-react";
+import {observer, inject} from "mobx-react";
 import "./Map.css";
 import VehicleMarker from "./VehicleMarker";
 import DivIcon from "../../helpers/DivIcon";
 import HfpTooltip from "./HfpTooltip";
 import {observable, action} from "mobx";
+import {app} from "mobx-app";
+import getJourneyId from "../../helpers/getJourneyId";
 
+@inject(app("Journey"))
 @observer
 class HfpMarkerLayer extends Component {
-  static propTypes = {
-    onMarkerClick: PropTypes.func.isRequired,
-  };
-
   markerRef = React.createRef();
 
   @observable
@@ -22,10 +20,13 @@ class HfpMarkerLayer extends Component {
     this.tooltipOpen = setTo;
   });
 
-  onMarkerClick = (positionWhenClicked) => () => {
-    const {onMarkerClick} = this.props;
+  onMarkerClick = () => {
     this.toggleTooltip();
-    onMarkerClick(positionWhenClicked);
+    const {Journey, state, currentPosition: journey} = this.props;
+
+    if (journey && getJourneyId(state.selectedJourney) !== getJourneyId(journey)) {
+      Journey.setSelectedJourney(journey);
+    }
   };
 
   render() {
@@ -38,7 +39,7 @@ class HfpMarkerLayer extends Component {
     return (
       <DivIcon
         ref={this.markerRef} // Needs ref for testing
-        onClick={this.onMarkerClick(position)}
+        onClick={this.onMarkerClick}
         position={[position.lat, position.long]}
         iconSize={isSelectedJourney ? [36, 36] : [20, 20]}
         icon={

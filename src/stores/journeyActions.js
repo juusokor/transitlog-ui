@@ -50,6 +50,11 @@ export default (state) => {
       } else if (hfpItem) {
         state.selectedJourney = pickJourneyProps(hfpItem);
 
+        filters.setRoute({
+          routeId: hfpItem.route_id,
+          direction: hfpItem.direction_id + "",
+        });
+
         if (hfpItem.unique_vehicle_id) {
           filters.setVehicle(hfpItem.unique_vehicle_id);
         }

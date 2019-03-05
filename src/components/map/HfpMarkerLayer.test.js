@@ -23,7 +23,6 @@ describe("HfpMarkerLayer", () => {
       mode: "BUS",
     };
 
-    const onClick = jest.fn();
     const {lat, long} = position;
     const markerRef = React.createRef();
 
@@ -31,23 +30,17 @@ describe("HfpMarkerLayer", () => {
       <Map center={[lat, long]} zoom={13}>
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <Pane name="hfp-markers" style={{zIndex: 430}} />
-        <HfpMarkerLayer
-          ref={markerRef}
-          currentPosition={position}
-          onMarkerClick={onClick}
-        />
+        <HfpMarkerLayer ref={markerRef} currentPosition={position} />
       </Map>
     );
 
     // Nice path
-    expect(markerRef.current.markerRef.current.leafletElement._latlng).toEqual({
+    expect(
+      markerRef.current.wrappedInstance.markerRef.current.leafletElement._latlng
+    ).toEqual({
       lat,
       lng: long,
     });
-
-    fireEvent.click(markerRef.current.markerRef.current.leafletElement._icon);
-
-    return expect(onClick).toHaveBeenCalledWith(position);
   });
 
   test("The icon gets the correct color and vehicle icon", () => {
