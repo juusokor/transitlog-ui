@@ -36,23 +36,28 @@ const getSuggestions = (lines) => (value = "") => {
   const inputValue = value.trim().toLowerCase();
   const inputLength = inputValue.length;
 
-  const sortedLines = sortBy(lines, ({lineId}) => {
-    const parsedLine = parseLineNumber(lineId);
-    // Convert a letter line id to a number, so that a => 1, b => 2 etc.
-    const lineNum = isNaN(parseInt(parsedLine, 10))
-      ? parsedLine.charCodeAt(0) - 97
-      : parsedLine;
+  const filteredLines =
+    inputLength === 0
+      ? lines
+      : lines.filter((line) => {
+          return parseLineNumber(line.lineId.toLowerCase()).includes(
+            inputValue.slice(0, inputLength)
+          );
+        });
 
+  const sortedLines = sortBy(filteredLines, ({lineId}) => {
+    const parsedLineId = parseLineNumber(lineId);
+    const numericLineId = parsedLineId.replace(/[^0-9]*/g, "");
+
+    if (!numericLineId) {
+      return getTransportType(lineId, true);
+    }
+
+    const lineNum = parseInt(numericLineId, 10);
     return getTransportType(lineId, true) + lineNum;
   });
 
-  return inputLength === 0
-    ? sortedLines
-    : sortedLines.filter((line) => {
-        return parseLineNumber(line.lineId.toLowerCase()).includes(
-          inputValue.slice(0, inputLength)
-        );
-      });
+  return sortedLines;
 };
 
 @observer

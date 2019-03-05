@@ -13,7 +13,7 @@ function getTransportType(lineId, numeric = false) {
 
   if (/^300[12]/.test(lineType)) {
     if (numeric) {
-      return 100;
+      return 15;
     }
 
     return "RAIL";
