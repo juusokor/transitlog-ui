@@ -16,18 +16,9 @@ import {areaEventsStyles} from "../../stores/UIStore";
 import SimpleHfpLayer from "./SimpleHfpLayer";
 import {createRouteKey} from "../../helpers/keys";
 
-@inject(app("Journey", "Filters"))
+@inject(app("state"))
 @observer
 class MapContent extends Component {
-  onClickVehicleMarker = (journey) => {
-    const {Journey, Filters, state} = this.props;
-
-    if (journey && getJourneyId(state.selectedJourney) !== getJourneyId(journey)) {
-      Filters.setVehicle(journey.unique_vehicle_id);
-      Journey.setSelectedJourney(journey);
-    }
-  };
-
   render() {
     const {
       journeys = [],
@@ -113,7 +104,6 @@ class MapContent extends Component {
                 }
 
                 const isSelectedJourney = selectedJourneyId === journeyId;
-
                 const currentPosition = timePositions.get(journeyId);
 
                 return [
@@ -136,9 +126,9 @@ class MapContent extends Component {
                   ) : null,
                   <HfpMarkerLayer
                     key={`hfp_markers_${journeyId}`}
-                    onMarkerClick={this.onClickVehicleMarker}
                     currentPosition={currentPosition}
                     journeyId={journeyId}
+                    isSelectedJourney={isSelectedJourney}
                   />,
                 ];
               })}
@@ -158,9 +148,9 @@ class MapContent extends Component {
                 return (
                   <HfpMarkerLayer
                     key={`hfp_markers_${journeyId}`}
-                    onMarkerClick={this.onClickVehicleMarker}
                     currentPosition={event}
                     journeyId={journeyId}
+                    isSelectedJourney={false}
                   />
                 );
               }

@@ -82,13 +82,6 @@ class VehicleJourneys extends Component {
         Time.setTime(journey.journey_start_time);
         Filters.setVehicle(journey.unique_vehicle_id);
       }
-
-      const route = {
-        routeId: journey.route_id,
-        direction: journey.direction_id + "",
-      };
-
-      Filters.setRoute(route);
     }
 
     Journey.setSelectedJourney(journey);

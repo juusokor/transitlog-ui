@@ -45,24 +45,18 @@ const TimeSlot = styled.span`
   text-align: right;
 `;
 
-@inject(app("Journey", "Time", "Filters", "UI"))
+@inject(app("Journey", "Time", "UI"))
 @observer
 class AreaJourneyList extends Component {
   selectJourney = (journey) => (e) => {
     e.preventDefault();
-    const {Filters, Journey, state} = this.props;
+    const {Journey, state} = this.props;
 
     if (journey) {
       const journeyId = getJourneyId(journey);
 
       // Only set these if the journey is truthy and was not already selected
       if (journeyId && getJourneyId(state.selectedJourney) !== journeyId) {
-        const route = {
-          routeId: journey.route_id,
-          direction: parseInt(journey.direction_id, 10),
-        };
-
-        Filters.setRoute(route);
         Journey.setSelectedJourney(journey);
       } else {
         Journey.setSelectedJourney(null);

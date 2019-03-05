@@ -22,15 +22,16 @@ const Icon = styled.div`
   border-radius: 50%;
   position: relative;
   z-index: 10;
-  overflow: hidden;
   transform: ${({rotation}) => `rotate(${rotation}deg)`};
+  background-color: ${({color}) => color};
 
   &:before {
     content: " ";
-    width: 90%;
-    height: 90%;
-    margin: 0 0 1px;
+    width: 100%;
+    height: 100%;
+    margin: 0;
     display: block;
+    transform: scale(0.925, 0.925);
   }
 `;
 
@@ -42,8 +43,8 @@ const Indicator = styled.span`
   left: ${({position = "left"}) => (position === "left" ? "-7px" : "auto")};
   background: ${({color = "var(--dark-blue)"}) => color};
   border: 2px solid white;
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
 `;
 
@@ -65,9 +66,9 @@ const HeadingArrow = styled.span`
   width: 0;
   height: 0;
   position: absolute;
-  top: -29px;
-  left: 5px;
-  border-width: 17px 13px;
+  top: ${({small}) => (small ? "-14px" : "-29px")};
+  left: ${({small}) => (small ? "2px" : "5px")};
+  border-width: ${({small}) => (small ? "9px 8px" : "17px 13px")};
   border-color: transparent transparent ${({color = "var(--blue)"}) => color}
     transparent;
   border-style: solid;
@@ -76,27 +77,39 @@ const HeadingArrow = styled.span`
 
 class VehicleMarker extends React.Component {
   render() {
-    const {position} = this.props;
+    const {position, isSelectedJourney = false} = this.props;
 
     const color = getModeColor(get(position, "mode", "").toUpperCase());
 
     // The spd value can be a bit flaky, so I decided that under 2 m/s is stopped enough.
     const isStopped = position.spd < 2;
 
+    // TODO: Highlight non-selected journeys
+
     return (
-      <IconWrapper color={color} isStopped={isStopped} data-testid="hfp-marker-icon">
+      <IconWrapper
+        translucent={!isSelectedJourney}
+        color={color}
+        isStopped={isStopped}
+        data-testid="hfp-marker-icon">
         <Icon
+          color={color}
           data-testid="icon-icon"
           // The mode className applies the vehicle icon
           className={get(position, "mode", "BUS").toUpperCase()}
         />
         <RotationWrapper
+          color={color}
           rotation={get(position, "hdg", 0)}
           data-testid="icon-rotation">
           {position.drst && <Indicator position="right" color="var(--dark-blue)" />}
           {position.full && <Indicator position="left" color="var(--red)" />}
           {!isStopped && (
-            <HeadingArrow className="hfp-marker-heading" color={color} />
+            <HeadingArrow
+              small={!isSelectedJourney}
+              className="hfp-marker-heading"
+              color={color}
+            />
           )}
         </RotationWrapper>
       </IconWrapper>
