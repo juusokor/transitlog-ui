@@ -79,6 +79,7 @@
     "react-datepicker": "^2.0.0",
     "react-dev-utils": "^7.0.0",
     "react-dom": "^16.8.1",
+    "react-fetch-hook": "^1.2.1",
     "react-hot-loader": "^4.6.5",
     "react-leaflet": "^2.2.0",
     "react-leaflet-draw": "^0.19.0",

@@ -1,8 +1,7 @@
-import React, {Component} from "react";
+import React, {useCallback} from "react";
 import {createPortal} from "react-dom";
 import moment from "moment-timezone";
-import {inject, observer} from "mobx-react";
-import {app} from "mobx-app";
+import {observer} from "mobx-react-lite";
 import DatePicker from "react-datepicker";
 import {text} from "../../helpers/text";
 import {InputBase, ControlGroup} from "../Forms";
@@ -11,6 +10,8 @@ import PlusMinusInput from "../PlusMinusInput";
 import Input from "../Input";
 import styled from "styled-components";
 import {TIMEZONE} from "../../constants";
+import {flow} from "lodash";
+import {inject} from "../../helpers/inject";
 
 const DateControlGroup = styled(ControlGroup)`
   margin-bottom: 1.25rem;
@@ -70,46 +71,42 @@ const CalendarContainer = (root) => ({className, children}) =>
     ? createPortal(<div className={className}>{children}</div>, root.current)
     : null;
 
-@inject(app("Filters", "Time"))
-@observer
-class DateSettings extends Component {
-  onDateButtonClick = (modifier) => () => {
-    const {Filters, state} = this.props;
+const decorate = flow(
+  observer,
+  inject("Filters", "Time")
+);
 
-    if (!state.date) {
-      Filters.setDate("");
-    } else {
-      const nextDate = moment.tz(state.date, "YYYY-MM-DD", TIMEZONE);
+const DateSettings = decorate(
+  ({calendarRootRef, Filters, Time, state: {date, live}}) => {
+    const setDate = useCallback(
+      (dateVal) => {
+        if (live) {
+          Time.toggleLive(false);
+        }
 
-      if (modifier < 0) {
-        nextDate.subtract(Math.abs(modifier), "days");
-      } else {
-        nextDate.add(Math.abs(modifier), "days");
-      }
+        Filters.setDate(dateVal);
+      },
+      [Time, Filters, live]
+    );
 
-      this.setDate(nextDate);
-    }
-  };
+    const onDateButtonClick = useCallback(
+      (modifier) => {
+        if (!date) {
+          Filters.setDate("");
+        } else {
+          const nextDate = moment.tz(date, "YYYY-MM-DD", TIMEZONE);
 
-  setDate = (dateVal) => {
-    const {
-      Filters,
-      Time,
-      state: {live},
-    } = this.props;
+          if (modifier < 0) {
+            nextDate.subtract(Math.abs(modifier), "days");
+          } else {
+            nextDate.add(Math.abs(modifier), "days");
+          }
 
-    if (live) {
-      Time.toggleLive(false);
-    }
-
-    Filters.setDate(dateVal);
-  };
-
-  render() {
-    const {
-      calendarRootRef,
-      state: {date},
-    } = this.props;
+          setDate(nextDate);
+        }
+      },
+      [Filters, date, setDate]
+    );
 
     return (
       <DateControlGroup>
@@ -119,21 +116,21 @@ class DateSettings extends Component {
             plusHelp="One week forward"
             minusLabel={<>&laquo; 7</>}
             plusLabel={<>7 &raquo;</>}
-            onDecrease={this.onDateButtonClick(-7)}
-            onIncrease={this.onDateButtonClick(7)}>
+            onDecrease={onDateButtonClick.bind(undefined, -7)}
+            onIncrease={onDateButtonClick.bind(undefined, 7)}>
             <DateInput
               minusHelp="One day backward"
               plusHelp="One day forward"
               minusLabel={<>&lsaquo; 1</>}
               plusLabel={<>1 &rsaquo;</>}
-              onDecrease={this.onDateButtonClick(-1)}
-              onIncrease={this.onDateButtonClick(1)}>
+              onDecrease={onDateButtonClick.bind(undefined, -1)}
+              onIncrease={onDateButtonClick.bind(undefined, 1)}>
               <DatePicker
                 dropdownMode="select"
                 customInput={<CalendarInput helpText="Select date field" />}
                 dateFormat="yyyy-MM-dd"
                 selected={moment.tz(date, TIMEZONE).toDate()}
-                onChange={this.setDate}
+                onChange={setDate}
                 className="calendar"
                 // Z-indexing is tricky in the filterbar, so the calendarcontainer mounts
                 // a portal in a better place for the datepicker.
@@ -145,6 +142,6 @@ class DateSettings extends Component {
       </DateControlGroup>
     );
   }
-}
+);
 
 export default DateSettings;
