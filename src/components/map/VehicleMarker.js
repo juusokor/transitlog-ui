@@ -32,7 +32,6 @@ const Icon = styled.div`
     margin: 0;
     display: block;
     transform: scale(0.925, 0.925);
-    mix-blend-mode: lighten;
   }
 `;
 
