@@ -137,10 +137,10 @@ class LeafletMap extends Component {
           <Pane name="mapillary-location" style={{zIndex: 400}} />
           <Pane name="route-lines" style={{zIndex: 410}} />
           <Pane name="hfp-lines" style={{zIndex: 420}} />
-          <Pane name="hfp-markers" style={{zIndex: 430}} />
           <Pane name="stop-radius" style={{zIndex: 440}} />
           <Pane name="selected-stop-radius" style={{zIndex: 445}} />
           <Pane name="stops" style={{zIndex: 450}} />
+          <Pane name="hfp-markers" style={{zIndex: 460}} />
           <ZoomControl position="topright" />
           {children}
         </Map>
