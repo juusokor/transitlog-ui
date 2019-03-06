@@ -83,6 +83,8 @@ class LeafletMap extends Component {
           key="the-map"
           ref={mapRef}
           maxZoom={20}
+          zoomSnap={1}
+          wheelPxPerZoomLevel={50}
           selectArea={true}
           zoomControl={false}
           onBaselayerchange={this.onChangeBaseLayer}
