@@ -17,6 +17,10 @@ import SimpleHfpLayer from "./SimpleHfpLayer";
 import {createRouteKey} from "../../helpers/keys";
 import {inject} from "../../helpers/inject";
 import {useWeather} from "../../hooks/useWeather";
+import WeatherDisplay from "./WeatherDisplay";
+import {useDebouncedValue} from "../../hooks/useDebouncedValue";
+import {getWeatherForArea} from "../../helpers/getWeatherForArea";
+import {getRoadConditionsForArea} from "../../helpers/getRoadConditionsForArea";
 
 const decorate = flow(
   observer,
@@ -30,15 +34,22 @@ const MapContent = decorate(
     timePositions,
     route,
     zoom,
-    stopsBbox,
+    mapBounds,
     stop,
     setMapBounds,
     viewLocation,
     queryBounds,
     state: {selectedJourney, date, time, mapOverlays, areaEventsStyle},
   }) => {
-    const [weather, weatherLoading] = useWeather(stopsBbox, date, time);
-    console.log(weather);
+    const debouncedTime = useDebouncedValue(time);
+
+    const [weather] = useWeather(mapBounds, date, debouncedTime, getWeatherForArea);
+    const [roadConditions] = useWeather(
+      mapBounds,
+      date,
+      debouncedTime,
+      getRoadConditionsForArea
+    );
 
     const hasRoute = !!route && !!route.routeId;
     const showStopRadius = expr(() => mapOverlays.indexOf("Stop radius") !== -1);
@@ -56,7 +67,7 @@ const MapContent = decorate(
                 showRadius={showStopRadius}
                 onViewLocation={viewLocation}
                 date={date}
-                bounds={stopsBbox}
+                bounds={mapBounds}
               />
             ) : stop ? (
               <StopMarker
@@ -170,6 +181,12 @@ const MapContent = decorate(
                 />
               );
             })}
+        <WeatherDisplay
+          weatherData={weather}
+          roadConditions={roadConditions}
+          date={date}
+          time={time}
+        />
       </>
     );
   }

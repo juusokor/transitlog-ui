@@ -1,18 +1,19 @@
-import {useState, useEffect} from "react";
+import {useState, useEffect, useRef} from "react";
 import {getMomentFromDateTime} from "../helpers/time";
-import {getWeatherForArea} from "../helpers/getWeatherForArea";
+import moment from "moment-timezone";
 
 // Round down to three decimals
 function floor(number) {
-  return Math.floor(number * 1000) / 1000;
+  return Math.floor(number * 100) / 100;
 }
 
 // Round up to three decimals
 function ceil(number) {
-  return Math.ceil(number * 1000) / 1000;
+  return Math.ceil(number * 100) / 100;
 }
 
-export const useWeather = (bounds, date, time) => {
+export const useWeather = (bounds, date, time, weatherRequest) => {
+  const onCancel = useRef(() => {});
   const [weatherData, setWeatherData] = useState(null);
   const [weatherLoading, setWeatherLoading] = useState(false);
 
@@ -22,17 +23,21 @@ export const useWeather = (bounds, date, time) => {
   const north = ceil(bounds.getNorth());
   const south = floor(bounds.getSouth());
 
-  const dateTime = getMomentFromDateTime(date, time).startOf("hour");
   const bboxStr = `${west},${south},${east},${north}`;
 
   useEffect(() => {
     if (weatherLoading) {
-      return;
+      return onCancel.current;
     }
+
+    const dateTime = moment.min(
+      getMomentFromDateTime(date, time).startOf("hour"),
+      moment().startOf("hour")
+    );
 
     setWeatherLoading(true);
 
-    getWeatherForArea(bboxStr, dateTime)
+    weatherRequest(bboxStr, dateTime, (cancelCb) => (onCancel.current = cancelCb))
       .then((data) => {
         setWeatherData(data);
         setWeatherLoading(false);
@@ -40,7 +45,9 @@ export const useWeather = (bounds, date, time) => {
       .catch((err) => {
         console.log(err);
       });
-  }, [dateTime.toISOString(true), bboxStr]);
+
+    return onCancel.current;
+  }, [date, time, bboxStr]);
 
   return [weatherData, weatherLoading];
 };

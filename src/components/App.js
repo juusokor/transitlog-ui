@@ -152,7 +152,7 @@ function App({state, UI}) {
                                                 stop={stop}
                                                 zoom={zoom}
                                                 viewLocation={setViewerLocation}
-                                                stopsBbox={mapView}
+                                                mapBounds={mapView}
                                               />
                                             );
                                           }}

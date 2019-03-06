@@ -1,13 +1,16 @@
 import Metolib from "@fmidev/metolib";
 import {FMI_APIKEY} from "../constants";
-import moment from "moment-timezone";
 
 const SERVER_URL = `https://data.fmi.fi/fmi-apikey/${FMI_APIKEY}/wfs`;
-const STORED_QUERY_OBSERVATION = "fmi::observations::weather::multipointcoverage";
+const STORED_QUERY_OBSERVATION = "livi::observations::road::multipointcoverage";
 
-export async function getWeatherForArea(bbox, dateTime, setCancelCb = () => {}) {
+export async function getRoadConditionsForArea(
+  bbox,
+  dateTime,
+  setCancelCb = () => {}
+) {
   const endTime = dateTime.toDate();
-  const startTime = dateTime.subtract(30, "minutes").toDate();
+  const startTime = dateTime.subtract(6, "hours").toDate();
 
   return new Promise((resolve, reject) => {
     const connection = new Metolib.WfsConnection();
@@ -15,10 +18,10 @@ export async function getWeatherForArea(bbox, dateTime, setCancelCb = () => {}) 
       setCancelCb(() => connection.disconnect());
 
       connection.getData({
-        requestParameter: "t2m,ws_10min,ri_10min,snow_aws,vis,n_man,wawa",
+        requestParameter: "rscal,rscst,rscif,rsil",
         begin: startTime,
         end: endTime,
-        timestep: 10 * 60 * 1000,
+        timestep: 60 * 60 * 1000,
         bbox: bbox,
         callback: function(data, errors) {
           connection.disconnect();
