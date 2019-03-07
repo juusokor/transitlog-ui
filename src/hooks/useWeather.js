@@ -5,30 +5,8 @@ import {getWeatherForArea} from "../helpers/getWeatherForArea";
 import {getRoadConditionsForArea} from "../helpers/getRoadConditionsForArea";
 import merge from "lodash/merge";
 import {floorMoment} from "../helpers/roundMoment";
-
-// Round down to three decimals
-function floor(number) {
-  return Math.floor(number * 100) / 100;
-}
-
-// Round up to three decimals
-function ceil(number) {
-  return Math.ceil(number * 100) / 100;
-}
-
-function getRoundedBbox(bounds) {
-  if (!bounds) {
-    return "";
-  }
-
-  // Round the bounds to whole numbers
-  const west = floor(bounds.getWest());
-  const east = ceil(bounds.getEast());
-  const north = ceil(bounds.getNorth());
-  const south = floor(bounds.getSouth());
-
-  return `${west},${south},${east},${north}`;
-}
+import {getRoundedBbox} from "../helpers/getRoundedBbox";
+import {LatLng} from "leaflet";
 
 export const useWeather = (bounds, date, time) => {
   const cancelCallbacks = useRef([]);
@@ -39,7 +17,13 @@ export const useWeather = (bounds, date, time) => {
   const [weatherData, setWeatherData] = useState(null);
   const [weatherLoading, setWeatherLoading] = useState(false);
 
-  const bbox = getRoundedBbox(bounds);
+  let validBounds = bounds || null;
+
+  if (bounds instanceof LatLng) {
+    validBounds = bounds.toBounds(8000);
+  }
+
+  const bbox = validBounds ? getRoundedBbox(validBounds) : "";
 
   useEffect(() => {
     if (weatherLoading || !bbox) {
@@ -49,20 +33,24 @@ export const useWeather = (bounds, date, time) => {
     cancelCallbacks.current = [];
 
     const dateTime = moment.min(
-      floorMoment(getMomentFromDateTime(date, time), 10, "minutes"),
+      floorMoment(
+        moment.isMoment(date) ? date : getMomentFromDateTime(date, time),
+        10,
+        "minutes"
+      ),
       floorMoment(moment(), 10, "minutes")
     );
 
-    setWeatherLoading(true);
-
     const weatherEnd = dateTime.toDate();
     const weatherStart = dateTime
-      .clone()
-      .subtract(30, "minutes")
+      .clone() // Clone to not interfere with road condition times
+      .subtract(20, "minutes")
       .toDate();
 
     const roadEnd = dateTime.startOf("hour").toDate();
     const roadStart = dateTime.subtract(1, "hour").toDate();
+
+    setWeatherLoading(true);
 
     const weatherPromise = getWeatherForArea(
       bbox,

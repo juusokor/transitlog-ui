@@ -5,9 +5,11 @@ import {app} from "mobx-app";
 import trim from "lodash/trim";
 import get from "lodash/get";
 import debounce from "lodash/debounce";
+import invoke from "lodash/invoke";
 import {setUrlValue, getUrlValue} from "../../stores/UrlManager";
 import {reaction, observable, action} from "mobx";
 import {LatLngBounds} from "leaflet";
+import {runInAction} from "mobx";
 
 const MAP_BOUNDS_URL_KEY = "mapView";
 
@@ -32,6 +34,9 @@ class Map extends Component {
 
   @observable
   zoom = 13;
+
+  @observable.ref
+  mapView = null;
 
   @observable
   currentMapillaryViewerLocation = false;
@@ -96,7 +101,7 @@ class Map extends Component {
 
     const prevCenter = this.prevCenter;
 
-    if (prevCenter && !center.equals(prevCenter)) {
+    if (prevCenter && !center.equals()) {
       this.prevCenter = center;
 
       if (center instanceof LatLngBounds) {
@@ -127,7 +132,32 @@ class Map extends Component {
   onMapChanged = () => {
     const map = this.getLeaflet();
     this.setMapUrlState(map.getCenter(), map.getZoom());
-    this.props.onViewChanged(map.getBounds());
+    this.setMapViewState(map);
+  };
+
+  setMapViewState = (map) => {
+    if (!map) {
+      return;
+    }
+
+    const {route} = this.props.state;
+
+    if (route && route.routeId) {
+      return;
+    }
+
+    const bounds = map.getBounds();
+    const {mapView} = this;
+
+    if (
+      !bounds ||
+      !invoke(bounds, "isValid") ||
+      (mapView && bounds.equals(mapView))
+    ) {
+      return;
+    }
+
+    runInAction(() => (this.mapView = bounds));
   };
 
   onZoom = (event) => {
@@ -150,6 +180,7 @@ class Map extends Component {
         {children({
           setViewerLocation: this.setMapillaryViewerLocation,
           zoom: this.zoom,
+          mapView: this.mapView,
           setMapView: this.setMapView,
         })}
       </LeafletMap>

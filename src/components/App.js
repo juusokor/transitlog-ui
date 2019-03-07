@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React from "react";
 import FilterBar from "./filterbar/FilterBar";
 import {Observer, observer} from "mobx-react-lite";
 import Map from "./map/Map";
@@ -18,7 +18,6 @@ import {inject} from "../helpers/inject";
 import flow from "lodash/flow";
 import withRoute from "../hoc/withRoute";
 import {mergeJourneyEvents} from "../helpers/mergeJourneyEvents";
-import {useWeather} from "../hooks/useWeather";
 
 const AppFrame = styled.main`
   width: 100%;
@@ -63,8 +62,6 @@ function App({state, UI}) {
     selectedJourney,
     live,
   } = state;
-  const [mapView, setMapViewState] = useState(null);
-
   const selectedJourneyId = getJourneyId(selectedJourney);
 
   return (
@@ -91,24 +88,29 @@ function App({state, UI}) {
                         <JourneyStopTimes
                           selectedJourneyEvents={selectedJourneyEvents}>
                           {({journeyStops = [], loading: stopTimesLoading}) => (
-                            <>
-                              <SidePanel
-                                areaEventsLoading={areaEventsLoading}
-                                journeyEventsLoading={journeyEventsLoading}
-                                stopTimesLoading={stopTimesLoading}
-                                areaEvents={areaEvents}
-                                selectedJourneyEvents={selectedJourneyEvents}
-                                journeyStops={journeyStops}
-                                route={route}
-                                stop={stop}
-                              />
-                              <MapPanel
-                                onViewChanged={(bounds) => setMapViewState(bounds)}>
-                                {({zoom, setMapView, setViewerLocation}) => (
-                                  <JourneyPosition
-                                    date={date}
-                                    positions={allCurrentPositions}>
-                                    {(currentTimePositions) => (
+                            <JourneyPosition
+                              date={date}
+                              positions={allCurrentPositions}>
+                              {(currentTimePositions) => (
+                                <>
+                                  <SidePanel
+                                    areaEventsLoading={areaEventsLoading}
+                                    journeyEventsLoading={journeyEventsLoading}
+                                    stopTimesLoading={stopTimesLoading}
+                                    areaEvents={areaEvents}
+                                    selectedJourneyEvents={selectedJourneyEvents}
+                                    journeyStops={journeyStops}
+                                    journeyPositions={currentTimePositions}
+                                    route={route}
+                                    stop={stop}
+                                  />
+                                  <MapPanel>
+                                    {({
+                                      zoom,
+                                      setMapView,
+                                      mapView,
+                                      setViewerLocation,
+                                    }) => (
                                       <>
                                         <Observer>
                                           {() => {
@@ -134,7 +136,9 @@ function App({state, UI}) {
                                                   ])
                                                 : stopPosition;
 
-                                              setMapView(centerPosition);
+                                              if (centerPosition) {
+                                                setMapView(centerPosition);
+                                              }
                                             }
 
                                             return (
@@ -155,10 +159,10 @@ function App({state, UI}) {
                                         </Observer>
                                       </>
                                     )}
-                                  </JourneyPosition>
-                                )}
-                              </MapPanel>
-                            </>
+                                  </MapPanel>
+                                </>
+                              )}
+                            </JourneyPosition>
                           )}
                         </JourneyStopTimes>
                       )}
