@@ -13,26 +13,26 @@ import {useDebouncedValue} from "../../hooks/useDebouncedValue";
 const WeatherContainer = styled.div`
   position: absolute;
   z-index: 500;
-  top: 0;
-  left: 0;
-  min-width: 20rem;
-  padding: 0.25rem 3rem 1.5rem 0.5rem;
-  background: radial-gradient(
-    ellipse at top left,
-    rgba(0, 98, 161, 0.875) 0,
-    rgba(0, 98, 161, 0) 70%
-  );
-  color: white;
+  top: 1rem;
+  left: 1rem;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 5px;
+  border: 1px solid var(--alt-grey);
+  font-family: var(--font-family);
 `;
 
 const Temperature = styled.div`
-  font-size: 1.5rem;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.75);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: ${({uncertain = false}) =>
+    uncertain ? "var(--light-grey)" : "var(--blue)"};
 `;
 
 const RoadStatus = styled.div`
   font-size: 1rem;
-  text-shadow: 1px 1px 1px rgba(0, 0, 0, 1);
+  color: ${({uncertain = false}) =>
+    uncertain ? "var(--light-grey)" : "var(--blue)"};
 `;
 
 function getValues(locations, value) {
@@ -77,9 +77,10 @@ const WeatherDisplay = decorate(({className, state, position}) => {
   const {date, time} = state;
   const debouncedTime = useDebouncedValue(time);
   const [weatherData] = useWeather(position, date, debouncedTime);
+  const prevData = useRef({});
 
   const {weather, roadCondition} = weatherData || {};
-  const prevTemperature = useRef(false);
+
   const weatherLocations = get(weather, "locations", []);
   const roadConditionLocations = get(roadCondition, "locations", []);
 
@@ -89,17 +90,31 @@ const WeatherDisplay = decorate(({className, state, position}) => {
   const temperature =
     areaAverage !== false
       ? Math.round(areaAverage * 10) / 10
-      : prevTemperature.current;
+      : get(prevData, "current.weather", false);
+
+  const roadStatusTerm = roadStatus || get(prevData, "current.roadStatus", "");
 
   if (temperature !== false) {
-    prevTemperature.current = temperature;
+    prevData.current.weather = temperature;
+  }
+
+  if (roadStatusTerm) {
+    prevData.current.roadStatus = roadStatusTerm;
   }
 
   return (
-    (temperature !== false || roadStatus.length !== 0) && (
+    (temperature !== false || roadStatusTerm.length !== 0) && (
       <WeatherContainer className={className}>
-        {temperature !== false && <Temperature>{temperature} &deg;C</Temperature>}
-        {roadStatus.length !== 0 && <RoadStatus>Road: {roadStatus}</RoadStatus>}
+        {temperature !== false && (
+          <Temperature uncertain={weatherLocations.length === 0}>
+            {temperature} &deg;C
+          </Temperature>
+        )}
+        {roadStatusTerm.length !== 0 && (
+          <RoadStatus uncertain={roadConditionLocations.length === 0}>
+            Road: {roadStatusTerm}
+          </RoadStatus>
+        )}
       </WeatherContainer>
     )
   );
