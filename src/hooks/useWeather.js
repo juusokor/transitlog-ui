@@ -6,9 +6,9 @@ import {getRoadConditionsForArea} from "../helpers/getRoadConditionsForArea";
 import merge from "lodash/merge";
 import {floorMoment} from "../helpers/roundMoment";
 import {getRoundedBbox} from "../helpers/getRoundedBbox";
-import {LatLng} from "leaflet";
+import {LatLngBounds} from "leaflet";
 
-export const useWeather = (bounds, date, time) => {
+export const useWeather = (point, date, time) => {
   const cancelCallbacks = useRef([]);
   const onCancel = useCallback(() => {
     cancelCallbacks.current.forEach((cb) => cb());
@@ -17,13 +17,14 @@ export const useWeather = (bounds, date, time) => {
   const [weatherData, setWeatherData] = useState(null);
   const [weatherLoading, setWeatherLoading] = useState(false);
 
-  let validBounds = bounds || null;
+  let validPoint = point || null;
 
-  if (bounds instanceof LatLng) {
-    validBounds = bounds.toBounds(8000);
+  if (point instanceof LatLngBounds) {
+    validPoint = point.getCenter();
   }
 
-  const bbox = validBounds ? getRoundedBbox(validBounds) : "";
+  let bounds = validPoint ? validPoint.toBounds(8000) : null;
+  const bbox = bounds ? getRoundedBbox(bounds) : "";
 
   useEffect(() => {
     if (weatherLoading || !bbox) {

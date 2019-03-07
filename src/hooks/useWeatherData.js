@@ -14,7 +14,7 @@ function getValues(locations, value) {
   }, []);
 }
 
-function getAverageValue(locations, value) {
+export function getAverageValue(locations, value) {
   const timeValues = getValues(locations, value);
   const average = meanBy(timeValues, "value");
   return isNaN(average) ? false : average;
@@ -31,10 +31,10 @@ const roadConditionStatus = {
   "8": "icy",
 };
 
-function getRoadStatus(locations) {
+export function getRoadStatus(locations) {
   const timeValues = getValues(locations, "rscst");
   const status = orderBy(uniqBy(timeValues, "value"), "value", "desc")[0];
-  return get(roadConditionStatus, `${get(status, "value")}`, "");
+  return get(roadConditionStatus, `${Math.min(get(status, "value", 1), 8)}`, "");
 }
 
 export const useWeatherData = (weatherData) => {

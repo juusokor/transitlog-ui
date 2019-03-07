@@ -115,21 +115,31 @@ class LeafletMap extends Component {
             </LayersControl.BaseLayer>
             <LayersControl.Overlay
               name="Mapillary"
-              checked={mapOverlays.indexOf("Mapillary") !== -1}>
+              checked={mapOverlays.includes("Mapillary")}>
               <MapillaryGeoJSONLayer
                 map={get(mapRef, "current.leafletElement", null)}
                 viewBbox={mapView}
                 location={currentMapillaryMapLocation}
-                layerIsActive={mapOverlays.indexOf("Mapillary") !== -1}
+                layerIsActive={mapOverlays.includes("Mapillary")}
                 onSelectLocation={setMapillaryViewerLocation}
               />
             </LayersControl.Overlay>
             <LayersControl.Overlay
               name="Stop radius"
-              checked={mapOverlays.indexOf("Stop radius") !== -1}>
+              checked={mapOverlays.includes("Stop radius")}>
               <FeatureGroup>
                 {/*
                   The stop radius is rendered in the StopMarker component. This featuregroup
+                  is just a dummy so that the option will show in the layer control.
+                */}
+              </FeatureGroup>
+            </LayersControl.Overlay>
+            <LayersControl.Overlay
+              name="Weather"
+              checked={mapOverlays.includes("Weather")}>
+              <FeatureGroup>
+                {/*
+                  The weather display is rendered in MapContent. This featuregroup
                   is just a dummy so that the option will show in the layer control.
                 */}
               </FeatureGroup>
