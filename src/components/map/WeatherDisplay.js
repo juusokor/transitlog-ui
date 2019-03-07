@@ -4,6 +4,11 @@ import styled from "styled-components";
 import get from "lodash/get";
 import meanBy from "lodash/meanBy";
 import uniqBy from "lodash/uniqBy";
+import flow from "lodash/flow";
+import orderBy from "lodash/orderBy";
+import {inject} from "../../helpers/inject";
+import {useWeather} from "../../hooks/useWeather";
+import {useDebouncedValue} from "../../hooks/useDebouncedValue";
 
 const WeatherContainer = styled.div`
   position: absolute;
@@ -59,26 +64,27 @@ const roadConditionStatus = {
 
 function getRoadStatus(locations) {
   const timeValues = getValues(locations, "rscst");
-  const statuses = uniqBy(timeValues, "value");
-
-  return (
-    statuses
-      // Map status codes to words
-      .map(({value}) => get(roadConditionStatus, `${value}`, ""))
-      // filter out any falsy statuses
-      .filter((s) => !!s)
-  );
+  const status = orderBy(uniqBy(timeValues, "value"), "value", "desc")[0];
+  return get(roadConditionStatus, `${get(status, "value")}`, "");
 }
 
-const WeatherDisplay = observer(({weatherData, roadConditions}) => {
-  console.log(roadConditions);
+const decorate = flow(
+  observer,
+  inject("state")
+);
 
+const WeatherDisplay = decorate(({className, state, position}) => {
+  const {date, time} = state;
+  const debouncedTime = useDebouncedValue(time);
+  const [weatherData] = useWeather(position, date, debouncedTime);
+
+  const {weather, roadCondition} = weatherData || {};
   const prevTemperature = useRef(false);
-  const weatherLocations = get(weatherData, "locations", []);
-  const roadConditionLocations = get(roadConditions, "locations", []);
+  const weatherLocations = get(weather, "locations", []);
+  const roadConditionLocations = get(roadCondition, "locations", []);
 
   const areaAverage = getAverageValue(weatherLocations, "t2m");
-  const roadStatuses = getRoadStatus(roadConditionLocations);
+  const roadStatus = getRoadStatus(roadConditionLocations);
 
   const temperature =
     areaAverage !== false
@@ -90,12 +96,10 @@ const WeatherDisplay = observer(({weatherData, roadConditions}) => {
   }
 
   return (
-    (temperature !== false || roadStatuses.length !== 0) && (
-      <WeatherContainer>
+    (temperature !== false || roadStatus.length !== 0) && (
+      <WeatherContainer className={className}>
         {temperature !== false && <Temperature>{temperature} &deg;C</Temperature>}
-        {roadStatuses.length !== 0 && (
-          <RoadStatus>Road: {roadStatuses.join(", ")}</RoadStatus>
-        )}
+        {roadStatus.length !== 0 && <RoadStatus>Road: {roadStatus}</RoadStatus>}
       </WeatherContainer>
     )
   );

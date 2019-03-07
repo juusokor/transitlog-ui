@@ -1,6 +1,9 @@
-import {useState, useEffect, useRef} from "react";
+import {useState, useEffect, useRef, useCallback} from "react";
 import {getMomentFromDateTime} from "../helpers/time";
 import moment from "moment-timezone";
+import {getWeatherForArea} from "../helpers/getWeatherForArea";
+import {getRoadConditionsForArea} from "../helpers/getRoadConditionsForArea";
+import merge from "lodash/merge";
 
 // Round down to three decimals
 function floor(number) {
@@ -12,10 +15,10 @@ function ceil(number) {
   return Math.ceil(number * 100) / 100;
 }
 
-export const useWeather = (bounds, date, time, weatherRequest) => {
-  const onCancel = useRef(() => {});
-  const [weatherData, setWeatherData] = useState(null);
-  const [weatherLoading, setWeatherLoading] = useState(false);
+function getRoundedBbox(bounds) {
+  if (!bounds) {
+    return "";
+  }
 
   // Round the bounds to whole numbers
   const west = floor(bounds.getWest());
@@ -23,12 +26,26 @@ export const useWeather = (bounds, date, time, weatherRequest) => {
   const north = ceil(bounds.getNorth());
   const south = floor(bounds.getSouth());
 
-  const bboxStr = `${west},${south},${east},${north}`;
+  return `${west},${south},${east},${north}`;
+}
+
+export const useWeather = (bounds, date, time) => {
+  const cancelCallbacks = useRef([]);
+  const onCancel = useCallback(() => {
+    cancelCallbacks.current.forEach((cb) => cb());
+  }, [cancelCallbacks.current]);
+
+  const [weatherData, setWeatherData] = useState(null);
+  const [weatherLoading, setWeatherLoading] = useState(false);
+
+  const bbox = getRoundedBbox(bounds);
 
   useEffect(() => {
-    if (weatherLoading) {
-      return onCancel.current;
+    if (weatherLoading || !bbox) {
+      return onCancel;
     }
+
+    cancelCallbacks.current = [];
 
     const dateTime = moment.min(
       getMomentFromDateTime(date, time).startOf("hour"),
@@ -37,17 +54,25 @@ export const useWeather = (bounds, date, time, weatherRequest) => {
 
     setWeatherLoading(true);
 
-    weatherRequest(bboxStr, dateTime, (cancelCb) => (onCancel.current = cancelCb))
-      .then((data) => {
-        setWeatherData(data);
+    const weatherPromise = getWeatherForArea(bbox, dateTime, (cancelCb) =>
+      cancelCallbacks.current.push(cancelCb)
+    ).then((data) => ({weather: data}));
+
+    const roadConditionPromise = getRoadConditionsForArea(
+      bbox,
+      dateTime,
+      (cancelCb) => cancelCallbacks.current.push(cancelCb)
+    ).then((data) => ({roadCondition: data}));
+
+    Promise.all([weatherPromise, roadConditionPromise])
+      .then((allData) => {
+        setWeatherData(merge(...allData));
         setWeatherLoading(false);
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => console.error(err));
 
-    return onCancel.current;
-  }, [date, time, bboxStr]);
+    return onCancel;
+  }, [date, time, bbox]);
 
   return [weatherData, weatherLoading];
 };
