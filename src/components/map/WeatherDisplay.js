@@ -64,65 +64,71 @@ export const WeatherWidget = ({
     </WeatherContainer>
   );
 
-const WeatherDisplay = decorate(({className, state, position}) => {
-  const {date, time} = state;
-  const debouncedTime = useDebouncedValue(time, 1000);
-  const [weatherData] = useWeather(position, date, debouncedTime);
+const WeatherDisplay = decorate(
+  ({className, showWidget = true, state, position}) => {
+    const {date, time} = state;
+    const debouncedTime = useDebouncedValue(time, 1000);
+    const [weatherData] = useWeather(position, date, debouncedTime);
 
-  const parsedWeatherData = useWeatherData(weatherData);
+    const parsedWeatherData = useWeatherData(weatherData);
 
-  return (
-    <>
-      {weatherData &&
-        get(weatherData, "weather.locations", []).map((weatherLocation) => {
-          let temp = meanBy(
-            get(weatherLocation, "data.t2m.timeValuePairs", []),
-            "value"
-          );
+    // TODO: Why isn't the data available when a route is selected
 
-          temp = isNaN(temp) ? "?" : Math.round(temp * 10) / 10;
+    return (
+      <>
+        {weatherData &&
+          get(weatherData, "weather.locations", []).map((weatherLocation) => {
+            let temp = meanBy(
+              get(weatherLocation, "data.t2m.timeValuePairs", []),
+              "value"
+            );
 
-          return (
-            <CircleMarker
-              radius={7}
-              fillColor="var(--light-blue)"
-              fillOpacity={1}
-              color="white"
-              weight={2}
-              key={`weather_marker_${weatherLocation.info.id}`}
-              center={latLng(
-                get(weatherLocation, "info.position", []).map((c) => parseFloat(c))
-              )}>
-              <Tooltip offset={[10, 0]}>
-                <Temperature>{temp} &deg;C</Temperature>
-              </Tooltip>
-            </CircleMarker>
-          );
-        })}
-      {weatherData &&
-        get(weatherData, "roadCondition.locations", []).map((roadLocation) => {
-          let roadStatus = getRoadStatus([roadLocation]);
+            temp = isNaN(temp) ? "?" : Math.round(temp * 10) / 10;
 
-          return (
-            <CircleMarker
-              radius={7}
-              fillColor="var(--lighter-grey)"
-              fillOpacity={1}
-              color="var(--dark-grey)"
-              weight={2}
-              key={`road_marker_${roadLocation.info.id}`}
-              center={latLng(
-                get(roadLocation, "info.position", []).map((c) => parseFloat(c))
-              )}>
-              <Tooltip offset={[10, 0]}>
-                <RoadStatus>Road condition: {roadStatus || "unknown"}</RoadStatus>
-              </Tooltip>
-            </CircleMarker>
-          );
-        })}
-      <WeatherWidget {...parsedWeatherData} className={className} />
-    </>
-  );
-});
+            return (
+              <CircleMarker
+                radius={7}
+                fillColor="var(--light-blue)"
+                fillOpacity={1}
+                color="white"
+                weight={2}
+                key={`weather_marker_${weatherLocation.info.id}`}
+                center={latLng(
+                  get(weatherLocation, "info.position", []).map((c) => parseFloat(c))
+                )}>
+                <Tooltip offset={[10, 0]}>
+                  <Temperature>{temp} &deg;C</Temperature>
+                </Tooltip>
+              </CircleMarker>
+            );
+          })}
+        {weatherData &&
+          get(weatherData, "roadCondition.locations", []).map((roadLocation) => {
+            let roadStatus = getRoadStatus([roadLocation]);
+
+            return (
+              <CircleMarker
+                radius={7}
+                fillColor="var(--lighter-grey)"
+                fillOpacity={1}
+                color="var(--dark-grey)"
+                weight={2}
+                key={`road_marker_${roadLocation.info.id}`}
+                center={latLng(
+                  get(roadLocation, "info.position", []).map((c) => parseFloat(c))
+                )}>
+                <Tooltip offset={[10, 0]}>
+                  <RoadStatus>Road condition: {roadStatus || "unknown"}</RoadStatus>
+                </Tooltip>
+              </CircleMarker>
+            );
+          })}
+        {showWidget && (
+          <WeatherWidget {...parsedWeatherData} className={className} />
+        )}
+      </>
+    );
+  }
+);
 
 export default WeatherDisplay;
