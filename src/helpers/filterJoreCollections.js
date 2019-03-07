@@ -1,4 +1,4 @@
-import {isWithinRange, intval} from "./isWithinRange";
+import {isWithinRange} from "./isWithinRange";
 import reduce from "lodash/reduce";
 import orderBy from "lodash/orderBy";
 import groupBy from "lodash/groupBy";
@@ -10,21 +10,11 @@ import diffHours from "date-fns/difference_in_hours";
 import {MAX_JORE_YEAR} from "../constants";
 
 export function filterActive(items, date) {
-  return items.filter((item) => isWithinRange(date, item.dateBegin, item.dateEnd));
-}
+  if (!date) {
+    return items;
+  }
 
-function reduceGroupsToNewestItem(groups) {
-  return reduce(
-    groups,
-    (filtered, items) => {
-      filtered.push(
-        // Pick the most recent item by sorting it first in the list.
-        orderBy(items, ({dateBegin}) => intval(dateBegin), "desc")[0]
-      );
-      return filtered;
-    },
-    []
-  );
+  return items.filter((item) => isWithinRange(date, item.dateBegin, item.dateEnd));
 }
 
 // JORE objects have dateBegin and dateEnd props that express a validity range.
@@ -171,13 +161,16 @@ export function filterDepartures(departures, date) {
   return getValidItemsByDateChains(groupedDepartures, date);
 }
 
-export function filterRouteSegments(routeSegments, date = false) {
+export function filterRouteSegments(routeSegments, date, groupByIndex = false) {
   // The departures may contain items that are identical and have overlapping
   // in-effect ranges resulting in doubles showing up in the UI lists.
   // They are filtered out here.
   const groupedSegments = groupBy(
     routeSegments,
-    (segment) => segment.routeId + segment.direction + segment.stopId
+    (segment) =>
+      segment.routeId +
+      segment.direction +
+      (groupByIndex ? segment.stopIndex : segment.stopId)
   );
 
   // Pick the most recent departure item from each group.
