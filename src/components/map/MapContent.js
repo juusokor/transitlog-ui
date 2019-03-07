@@ -16,11 +16,7 @@ import {areaEventsStyles} from "../../stores/UIStore";
 import SimpleHfpLayer from "./SimpleHfpLayer";
 import {createRouteKey} from "../../helpers/keys";
 import {inject} from "../../helpers/inject";
-import {useWeather} from "../../hooks/useWeather";
 import WeatherDisplay from "./WeatherDisplay";
-import {useDebouncedValue} from "../../hooks/useDebouncedValue";
-import {getWeatherForArea} from "../../helpers/getWeatherForArea";
-import {getRoadConditionsForArea} from "../../helpers/getRoadConditionsForArea";
 
 const decorate = flow(
   observer,
@@ -34,23 +30,13 @@ const MapContent = decorate(
     timePositions,
     route,
     zoom,
-    mapBounds,
+    mapBounds, // The current map view
     stop,
-    setMapBounds,
+    setMapView,
     viewLocation,
-    queryBounds,
+    queryBounds, // The bounds queried for with area search
     state: {selectedJourney, date, time, mapOverlays, areaEventsStyle},
   }) => {
-    const debouncedTime = useDebouncedValue(time);
-
-    const [weather] = useWeather(mapBounds, date, debouncedTime, getWeatherForArea);
-    const [roadConditions] = useWeather(
-      mapBounds,
-      date,
-      debouncedTime,
-      getRoadConditionsForArea
-    );
-
     const hasRoute = !!route && !!route.routeId;
     const showStopRadius = expr(() => mapOverlays.indexOf("Stop radius") !== -1);
 
@@ -93,7 +79,7 @@ const MapContent = decorate(
                       routeGeometry.length !== 0 ? createRouteKey(route) : null
                     }
                     routeGeometry={routeGeometry}
-                    setMapBounds={setMapBounds}
+                    setMapView={setMapView}
                     key={`route_line_${createRouteKey(route, true)}`}
                   />
                 ) : null
@@ -181,12 +167,7 @@ const MapContent = decorate(
                 />
               );
             })}
-        <WeatherDisplay
-          weatherData={weather}
-          roadConditions={roadConditions}
-          date={date}
-          time={time}
-        />
+        <WeatherDisplay position={mapBounds} date={date} time={time} />
       </>
     );
   }

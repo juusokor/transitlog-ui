@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import FilterBar from "./filterbar/FilterBar";
 import {Observer, observer} from "mobx-react-lite";
 import Map from "./map/Map";
@@ -63,6 +63,7 @@ function App({state, UI}) {
     selectedJourney,
     live,
   } = state;
+  const [mapView, setMapViewState] = useState(null);
 
   const selectedJourneyId = getJourneyId(selectedJourney);
 
@@ -101,14 +102,9 @@ function App({state, UI}) {
                                 route={route}
                                 stop={stop}
                               />
-                              <MapPanel>
-                                {({
-                                  zoom,
-                                  setMapBounds,
-                                  setMapCenter,
-                                  setViewerLocation,
-                                  mapView,
-                                }) => (
+                              <MapPanel
+                                onViewChanged={(bounds) => setMapViewState(bounds)}>
+                                {({zoom, setMapView, setViewerLocation}) => (
                                   <JourneyPosition
                                     date={date}
                                     positions={allCurrentPositions}>
@@ -138,13 +134,13 @@ function App({state, UI}) {
                                                   ])
                                                 : stopPosition;
 
-                                              setMapCenter(centerPosition);
+                                              setMapView(centerPosition);
                                             }
 
                                             return (
                                               <MapContent
                                                 queryBounds={queryBounds}
-                                                setMapBounds={setMapBounds}
+                                                setMapView={setMapView}
                                                 journeys={allCurrentPositions}
                                                 journeyStops={journeyStops}
                                                 timePositions={currentTimePositions}
