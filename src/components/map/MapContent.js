@@ -167,7 +167,9 @@ const MapContent = decorate(
                 />
               );
             })}
-        <WeatherDisplay position={mapBounds} date={date} time={time} />
+        {!selectedJourney && (
+          <WeatherDisplay position={mapBounds} date={date} time={time} />
+        )}
       </>
     );
   }

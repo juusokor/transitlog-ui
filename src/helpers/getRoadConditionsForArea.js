@@ -6,12 +6,10 @@ const STORED_QUERY_OBSERVATION = "livi::observations::road::multipointcoverage";
 
 export async function getRoadConditionsForArea(
   bbox,
-  dateTime,
+  startDate,
+  endDate,
   setCancelCb = () => {}
 ) {
-  const endTime = dateTime.toDate();
-  const startTime = dateTime.subtract(6, "hours").toDate();
-
   return new Promise((resolve, reject) => {
     const connection = new Metolib.WfsConnection();
     if (connection.connect(SERVER_URL, STORED_QUERY_OBSERVATION)) {
@@ -19,8 +17,8 @@ export async function getRoadConditionsForArea(
 
       connection.getData({
         requestParameter: "rscal,rscst,rscif,rsil",
-        begin: startTime,
-        end: endTime,
+        begin: startDate,
+        end: endDate,
         timestep: 60 * 60 * 1000,
         bbox: bbox,
         callback: function(data, errors) {

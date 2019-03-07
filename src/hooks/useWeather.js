@@ -4,6 +4,7 @@ import moment from "moment-timezone";
 import {getWeatherForArea} from "../helpers/getWeatherForArea";
 import {getRoadConditionsForArea} from "../helpers/getRoadConditionsForArea";
 import merge from "lodash/merge";
+import {floorMoment} from "../helpers/roundMoment";
 
 // Round down to three decimals
 function floor(number) {
@@ -48,19 +49,32 @@ export const useWeather = (bounds, date, time) => {
     cancelCallbacks.current = [];
 
     const dateTime = moment.min(
-      getMomentFromDateTime(date, time).startOf("hour"),
-      moment().startOf("hour")
+      floorMoment(getMomentFromDateTime(date, time), 10, "minutes"),
+      floorMoment(moment(), 10, "minutes")
     );
 
     setWeatherLoading(true);
 
-    const weatherPromise = getWeatherForArea(bbox, dateTime, (cancelCb) =>
-      cancelCallbacks.current.push(cancelCb)
+    const weatherEnd = dateTime.toDate();
+    const weatherStart = dateTime
+      .clone()
+      .subtract(30, "minutes")
+      .toDate();
+
+    const roadEnd = dateTime.startOf("hour").toDate();
+    const roadStart = dateTime.subtract(1, "hour").toDate();
+
+    const weatherPromise = getWeatherForArea(
+      bbox,
+      weatherStart,
+      weatherEnd,
+      (cancelCb) => cancelCallbacks.current.push(cancelCb)
     ).then((data) => ({weather: data}));
 
     const roadConditionPromise = getRoadConditionsForArea(
       bbox,
-      dateTime,
+      roadStart,
+      roadEnd,
       (cancelCb) => cancelCallbacks.current.push(cancelCb)
     ).then((data) => ({roadCondition: data}));
 
