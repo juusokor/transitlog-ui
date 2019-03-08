@@ -11,6 +11,7 @@ import DestinationStop from "./DestinationStop";
 import withRoute from "../../../hoc/withRoute";
 import OriginStop from "./OriginStop";
 import {observable, action} from "mobx";
+import {getMomentFromDateTime} from "../../../helpers/time";
 
 const JourneyPanelWrapper = styled.div`
   height: 100%;
@@ -73,7 +74,7 @@ class JourneyDetails extends React.Component {
 
   render() {
     const {
-      state: {date},
+      state: {date, time},
       route,
       selectedJourneyEvents,
       journeyStops,
@@ -86,6 +87,7 @@ class JourneyDetails extends React.Component {
     return (
       <JourneyPanelWrapper>
         <JourneyDetailsHeader
+          currentTime={getMomentFromDateTime(date, time)}
           events={events}
           journey={journey}
           date={date}

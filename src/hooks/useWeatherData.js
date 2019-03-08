@@ -1,4 +1,4 @@
-import {useRef} from "react";
+import {useRef, useMemo} from "react";
 import get from "lodash/get";
 import meanBy from "lodash/meanBy";
 import orderBy from "lodash/orderBy";
@@ -14,10 +14,37 @@ function getValues(locations, value) {
   }, []);
 }
 
+function getClosestTimeValue(values, timestamp) {
+  let prevClosest = 0;
+  let selected = values[0];
+
+  for (const value of values) {
+    const {time} = value;
+    const diff = Math.abs(timestamp - time);
+
+    if (!prevClosest || diff < prevClosest) {
+      selected = value;
+      prevClosest = diff;
+
+      if (diff < 10) {
+        break;
+      }
+    }
+  }
+
+  return selected;
+}
+
 export function getAverageValue(locations, value) {
   const timeValues = getValues(locations, value);
   const average = meanBy(timeValues, "value");
   return isNaN(average) ? false : average;
+}
+
+export function getTimeValue(timestamp, locations, value) {
+  const timeValues = getValues(locations, value);
+  const timeValue = getClosestTimeValue(timeValues, timestamp);
+  return get(timeValue, "value", false);
 }
 
 const roadConditionStatus = {
@@ -31,42 +58,53 @@ const roadConditionStatus = {
   "8": "icy",
 };
 
-export function getRoadStatus(locations) {
+export function getRoadStatus(locations, timestamp) {
   const timeValues = getValues(locations, "rscst");
-  const status = orderBy(uniqBy(timeValues, "value"), "value", "desc")[0];
+  let status = {value: 1};
+
+  if (timestamp) {
+    status = getClosestTimeValue(timeValues, timestamp);
+  } else {
+    status = orderBy(uniqBy(timeValues, "value"), "value", "desc")[0];
+  }
   return get(roadConditionStatus, `${Math.min(get(status, "value", 1), 8)}`, "");
 }
 
-export const useWeatherData = (weatherData) => {
+export const useWeatherData = (weatherData, timestamp) => {
   const prevData = useRef({});
 
-  const {weather, roadCondition} = weatherData || {};
+  return useMemo(() => {
+    const {weather, roadCondition} = weatherData || {};
 
-  const weatherLocations = get(weather, "locations", []);
-  const roadConditionLocations = get(roadCondition, "locations", []);
+    const weatherLocations = get(weather, "locations", []);
+    const roadConditionLocations = get(roadCondition, "locations", []);
 
-  const areaAverage = getAverageValue(weatherLocations, "t2m");
-  const roadStatus = getRoadStatus(roadConditionLocations);
+    const areaTemperature = timestamp
+      ? getTimeValue(timestamp, weatherLocations, "t2m")
+      : getAverageValue(weatherLocations, "t2m");
 
-  const temperature =
-    areaAverage !== false
-      ? Math.round(areaAverage * 10) / 10
-      : get(prevData, "current.weather", false);
+    const roadStatus = getRoadStatus(roadConditionLocations, timestamp);
 
-  const roadStatusTerm = roadStatus || get(prevData, "current.roadStatus", "");
+    const temperature =
+      areaTemperature !== false
+        ? Math.round(areaTemperature * 10) / 10
+        : get(prevData, "current.weather", false);
 
-  if (temperature !== false) {
-    prevData.current.weather = temperature;
-  }
+    const roadStatusTerm = roadStatus || get(prevData, "current.roadStatus", "");
 
-  if (roadStatusTerm) {
-    prevData.current.roadStatus = roadStatusTerm;
-  }
+    if (temperature !== false) {
+      prevData.current.weather = temperature;
+    }
 
-  return {
-    temperature,
-    roadCondition: roadStatusTerm,
-    temperatureIsUncertain: weatherLocations.length === 0,
-    roadConditionIsUncertain: roadConditionLocations.length === 0,
-  };
+    if (roadStatusTerm) {
+      prevData.current.roadStatus = roadStatusTerm;
+    }
+
+    return {
+      temperature,
+      roadCondition: roadStatusTerm,
+      temperatureIsUncertain: weatherLocations.length === 0,
+      roadConditionIsUncertain: roadConditionLocations.length === 0,
+    };
+  }, [weatherData, timestamp, prevData.current]);
 };
