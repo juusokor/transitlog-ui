@@ -26,13 +26,23 @@ export const useJourneyWeather = (events, journeyId) => {
 
   const startDate = useMemo(
     () =>
-      minPosition ? moment.tz(minPosition.tst, TIMEZONE).toISOString(true) : null,
+      minPosition
+        ? moment
+            .tz(minPosition.tst, TIMEZONE)
+            .startOf("hour")
+            .toISOString(true)
+        : null,
     [minPosition]
   );
 
   const endDate = useMemo(
     () =>
-      maxPosition ? moment.tz(maxPosition.tst, TIMEZONE).toISOString(true) : null,
+      maxPosition
+        ? moment
+            .tz(maxPosition.tst, TIMEZONE)
+            .endOf("hour")
+            .toISOString(true)
+        : null,
     [maxPosition]
   );
   // Routes can be quite one-dimensional (straight-ish line horizontally or vertically),

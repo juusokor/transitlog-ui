@@ -47,6 +47,7 @@ export function getTimeValue(timestamp, locations, value) {
   return get(timeValue, "value", false);
 }
 
+// TODO: add the correct road states.
 const roadConditionStatus = {
   "1": "dry",
   "2": "damp",
