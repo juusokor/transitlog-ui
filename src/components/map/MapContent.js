@@ -30,7 +30,8 @@ class MapContent extends Component {
       stop,
       setMapBounds,
       viewLocation,
-      queryBounds,
+      setQueryBounds,
+      actualQueryBounds,
       state: {selectedJourney, date, mapOverlays, areaEventsStyle},
     } = this.props;
 
@@ -41,7 +42,11 @@ class MapContent extends Component {
 
     return (
       <>
-        <AreaSelect enabled={zoom > 12} onSelectArea={queryBounds} />
+        <AreaSelect
+          enabled={zoom > 12}
+          usingBounds={actualQueryBounds}
+          onSelectArea={setQueryBounds}
+        />
         {/* When a route is NOT selected... */}
         {!hasRoute && (
           <>

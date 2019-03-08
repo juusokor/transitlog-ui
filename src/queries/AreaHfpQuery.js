@@ -23,12 +23,17 @@ const areaHfpQuery = gql`
     $maxLong: float8!
   ) {
     vehicles(
-      order_by: {tst: asc}
+      order_by: {tsi: asc}
       where: {
-        oday: {_eq: $date}
-        tst: {_lte: $maxTime, _gte: $minTime}
-        lat: {_lte: $maxLat, _gte: $minLat}
-        long: {_lte: $maxLong, _gte: $minLong}
+        _and: [
+          {oday: {_eq: $date}}
+          {tst: {_lte: $maxTime}}
+          {tst: {_gte: $minTime}}
+          {lat: {_lte: $maxLat}}
+          {lat: {_gte: $minLat}}
+          {long: {_lte: $maxLong}}
+          {long: {_gte: $minLong}}
+        ]
       }
     ) {
       journey_start_time
@@ -46,7 +51,6 @@ const areaHfpQuery = gql`
       hdg
       direction_id
       route_id
-      __typename
     }
   }
 `;
@@ -62,10 +66,14 @@ class AreaHfpQuery extends Component {
 
   onUpdate = (refetch) => () => {
     const {date, getQueryParams, skip} = this.props;
-    const {minTime, maxTime, ...area} = getQueryParams();
-    const {minLat, maxLat, minLong, maxLong} = area;
+    const queryParams = getQueryParams();
+    const {minTime, maxTime, minLat, maxLat, minLong, maxLong} = queryParams;
 
-    if (!skip && Object.keys(area).length !== 0) {
+    const queryParamsValid =
+      Object.keys(queryParams).length > 1 &&
+      Object.values(queryParams).every((p) => !!p);
+
+    if (!skip && queryParamsValid) {
       refetch({
         date,
         minTime: minTime.toISOString(),
@@ -79,21 +87,27 @@ class AreaHfpQuery extends Component {
   };
 
   render() {
-    const {date, minTime, maxTime, area, skip, children} = this.props;
-    const {minLat, maxLat, minLong, maxLong} = area;
+    const {date, getQueryParams, skip, children} = this.props;
+    const queryParams = getQueryParams();
+    const {minLat, maxLat, minLong, maxLong, minTime, maxTime} = queryParams;
 
-    if (skip) {
+    const queryParamsValid =
+      Object.keys(queryParams).length > 1 &&
+      Object.values(queryParams).every((p) => !!p);
+
+    const shouldSkip = skip || !queryParamsValid;
+
+    if (shouldSkip) {
       this.prevResults = [];
     }
 
     return (
       <Query
-        partialRefetch={true}
-        skip={skip}
+        skip={shouldSkip}
         variables={{
           date,
-          minTime,
-          maxTime,
+          minTime: minTime ? minTime.toISOString() : null,
+          maxTime: maxTime ? maxTime.toISOString() : null,
           minLat,
           maxLat,
           minLong,
@@ -106,17 +120,19 @@ class AreaHfpQuery extends Component {
           }
 
           // Make sure the data is in the same format as the normal hfp events are.
-          const groupedEvents = sortBy(
+          let groupedEvents = groupBy(
+            // First, filter out the null events
+            get(data, "vehicles", []).filter(
+              // Filter out null positions. Can't draw them on the map.
+              (evt) => !!evt && !!evt.lat && !!evt.long
+            ),
+            getJourneyId
+          );
+
+          groupedEvents = sortBy(
             map(
               // Second, group the events by the journey
-              groupBy(
-                // First, filter out the null events
-                get(data, "vehicles", []).filter(
-                  // Filter out null positions. Can't draw them on the map.
-                  (evt) => !!evt && !!evt.lat && !!evt.long
-                ),
-                getJourneyId
-              ),
+              groupedEvents,
               // Third, create journey items from the journey groups
               (events, groupName) => {
                 const realStartMoment = moment.tz(events[0].tst, TIMEZONE);

@@ -1,54 +1,55 @@
-import React, {PureComponent} from "react";
-import {inject} from "mobx-react";
+import React, {Component} from "react";
+import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import AreaHfpQuery from "../queries/AreaHfpQuery";
 import invoke from "lodash/invoke";
 import {getMomentFromDateTime} from "../helpers/time";
 import {setResetListener} from "../stores/FilterStore";
 import {TIMEZONE} from "../constants";
+import {action, observable} from "mobx";
 
 @inject(app("state"))
-class AreaHfpEvents extends PureComponent {
+@observer
+class AreaHfpEvents extends Component {
   disposeResetListener = () => {};
 
-  state = {
-    bounds: null,
+  @observable.ref
+  queryBounds = null;
+
+  @action
+  setQueryBounds = (bounds) => {
+    const current = this.queryBounds;
+
+    if (!bounds || !invoke(bounds, "isValid")) {
+      this.queryBounds = null;
+    }
+
+    if (current && current.isValid() && current.equals(bounds)) {
+      return;
+    }
+
+    this.queryBounds = bounds;
   };
 
-  setQueryBounds = (bounds) => {
-    this.setState((state) => {
-      const current = state.bounds;
+  getBoundsForQuery = (bounds) => {
+    if (!bounds || !bounds.isValid()) {
+      return false;
+    }
 
-      if (!bounds || !invoke(bounds, "isValid")) {
-        return {
-          bounds: null,
-        };
-      }
-
-      if (!current || (current && current.isValid() && !current.equals(bounds))) {
-        return {
-          bounds,
-        };
-      }
-
-      return {
-        bounds: current,
-      };
-    });
+    return bounds;
   };
 
   // When the query bounds change, update the params.
   getQueryParams = (bounds) => {
     const {state} = this.props;
+    const {areaSearchRangeMinutes = 60, isLiveAndCurrent, time, date} = state;
 
     if (!bounds || (typeof bounds.isValid === "function" && !bounds.isValid())) {
       return {};
     }
 
-    const {areaSearchRangeMinutes = 10, live, timeIsCurrent, time, date} = state;
-
-    // Constrain search time span to 5 minutes when auto-polling.
-    const timespan = live && timeIsCurrent ? 5 : areaSearchRangeMinutes;
+    // Constrain search time span to 1 minute when auto-polling.
+    const timespan = isLiveAndCurrent ? 1 : areaSearchRangeMinutes;
 
     const moment = getMomentFromDateTime(date, time, TIMEZONE);
 
@@ -57,7 +58,6 @@ class AreaHfpEvents extends PureComponent {
 
     // Translate the bounding box to a min/max query for the HFP api and create a time range.
     return {
-      searchTime: moment,
       minTime: min,
       maxTime: max,
       minLong: bounds.getWest(),
@@ -68,9 +68,7 @@ class AreaHfpEvents extends PureComponent {
   };
 
   componentDidMount() {
-    this.disposeResetListener = setResetListener(() =>
-      this.setState({bounds: null})
-    );
+    this.disposeResetListener = setResetListener(() => this.setQueryBounds(null));
   }
 
   componentWillUnmount() {
@@ -78,32 +76,26 @@ class AreaHfpEvents extends PureComponent {
   }
 
   render() {
-    const {children, date, defaultBounds, skip} = this.props;
+    const {
+      children,
+      date,
+      skip,
+      state: {isLiveAndCurrent},
+    } = this.props;
 
-    const {bounds} = this.state;
-
-    const useBounds =
-      bounds || (defaultBounds ? defaultBounds.getCenter().toBounds(1000) : null);
-
-    const queryParams = this.getQueryParams(useBounds);
-    const {minTime, maxTime, searchTime, ...area} = queryParams;
+    const currentBounds = this.queryBounds;
+    const bounds = this.getBoundsForQuery(currentBounds, isLiveAndCurrent);
 
     return (
       <AreaHfpQuery
-        skip={
-          skip ||
-          Object.keys(queryParams).length === 0 ||
-          Object.values(queryParams).some((p) => !p)
-        } // Skip query if some params are falsy
+        skip={skip} // Skip query if some params are falsy
         date={date}
-        minTime={minTime ? minTime.toISOString() : null}
-        maxTime={maxTime ? maxTime.toISOString() : null}
-        searchTime={searchTime}
-        getQueryParams={() => this.getQueryParams(useBounds)}
-        area={area}>
+        getQueryParams={() => this.getQueryParams(bounds)}>
         {({events, loading, error}) =>
           children({
-            queryBounds: this.setQueryBounds,
+            setQueryBounds: this.setQueryBounds,
+            actualQueryBounds:
+              bounds && !bounds.equals(currentBounds) ? bounds : false,
             events,
             loading,
             error,

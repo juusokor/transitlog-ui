@@ -4,7 +4,7 @@ import "jest-styled-components";
 import {cleanup} from "react-testing-library";
 import JourneyPosition from "./JourneyPosition";
 import {renderComponent} from "../__tests__/util/renderComponent";
-import {ObservableMap, observable, toJS} from "mobx";
+import {ObservableMap, observable} from "mobx";
 
 describe("JourneyPosition", () => {
   const {render, onBeforeEach} = renderComponent((props) => (
@@ -35,6 +35,7 @@ describe("JourneyPosition", () => {
       children: childrenMock,
       state: {
         live: false,
+        isLiveAndCurrent: false,
         unixTime: 2, // Query for an event matching time 2.
       },
     });
@@ -66,6 +67,7 @@ describe("JourneyPosition", () => {
       children: childrenMock,
       state: {
         live: false,
+        isLiveAndCurrent: false,
         unixTime: 22, // Query for an event matching time 22.
       },
     });
@@ -99,6 +101,7 @@ describe("JourneyPosition", () => {
         // Tell the component that we're live-updating and that the time is current (ie real time)
         live: true,
         timeIsCurrent: true,
+        isLiveAndCurrent: true,
         // The time only matters for the computed timeIsCurrent property.
         // Since we're faking it, the time doesn't matter in this case.
         unixTime: 1,
@@ -128,6 +131,7 @@ describe("JourneyPosition", () => {
     // The positions are re-indexed when the time changes, so we need observable state.
     const state = observable({
       live: false,
+      isLiveAndCurrent: false,
       unixTime: 20, // Query for an event matching time 20.
     });
 
