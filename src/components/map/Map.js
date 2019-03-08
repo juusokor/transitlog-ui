@@ -140,30 +140,24 @@ class Map extends Component {
       return;
     }
 
-    const {route} = this.props.state;
-
-    if (route && route.routeId) {
-      return;
-    }
-
     const bounds = map.getBounds();
     const {mapView} = this;
 
-    if (
-      !bounds ||
-      !invoke(bounds, "isValid") ||
-      (mapView && bounds.equals(mapView))
-    ) {
+    if (mapView && bounds.equals(mapView)) {
       return;
     }
 
-    runInAction(() => (this.mapView = bounds));
+    setTimeout(() => {
+      runInAction(() => (this.mapView = bounds));
+    }, 1);
   };
 
   onZoom = (event) => {
     const zoom = event.target.getZoom();
     this.setMapZoom(zoom);
   };
+
+  getMapView = () => this.mapView;
 
   render() {
     const {children, className} = this.props;
@@ -173,14 +167,13 @@ class Map extends Component {
         setMapillaryViewerLocation={this.setMapillaryViewerLocation}
         currentMapillaryViewerLocation={this.currentMapillaryViewerLocation}
         mapRef={this.mapRef}
-        mapView={this.mapView}
         className={className}
         onMapChanged={this.onMapChanged}
         onZoom={this.onZoom}>
         {children({
           setViewerLocation: this.setMapillaryViewerLocation,
           zoom: this.zoom,
-          mapView: this.mapView,
+          getMapView: this.getMapView,
           setMapView: this.setMapView,
         })}
       </LeafletMap>

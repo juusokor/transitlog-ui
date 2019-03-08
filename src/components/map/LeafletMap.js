@@ -68,12 +68,17 @@ class LeafletMap extends Component {
       mapRef,
       children,
       className,
-      mapView,
       currentMapillaryViewerLocation,
       setMapillaryViewerLocation,
       onZoom = () => {},
       onMapChanged = () => {},
     } = this.props;
+
+    let mapView = null;
+
+    if (mapRef.current) {
+      mapView = mapRef.current.leafletElement.getBounds();
+    }
 
     const {currentBaseLayer, currentMapillaryMapLocation} = this.state;
 

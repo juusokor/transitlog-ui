@@ -9379,6 +9379,11 @@ react-themeable@^1.1.0:
   dependencies:
     object-assign "^3.0.0"
 
+react-timer-hook@^1.1.4:
+  version "1.1.4"
+  resolved "https://registry.yarnpkg.com/react-timer-hook/-/react-timer-hook-1.1.4.tgz#6c45d0ceb01d61a06690609ba8171fefe54ade72"
+  integrity sha512-jNrLA3Z3JBjHGLi00FxoPhiXvjs2sQZ4OzzjlxIUVVUmleRfQrPWbWSmQ1NcLQZXZq6xpZ2mgwV04np4VW9nzg==
+
 react-virtualized@^9.21.0:
   version "9.21.0"
   resolved "https://registry.yarnpkg.com/react-virtualized/-/react-virtualized-9.21.0.tgz#8267c40ffb48db35b242a36dea85edcf280a6506"

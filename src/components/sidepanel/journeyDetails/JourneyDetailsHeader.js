@@ -76,7 +76,7 @@ const WeatherDisplay = styled(WeatherWidget)`
 
 const DateTimeHeading = styled.div``;
 
-export default ({mode, routeId, date, name, journey, journeyWeather = {}}) => {
+export default ({mode, routeId, date, name, journey, journeyWeather = null}) => {
   return (
     <JourneyPanelHeader>
       <MainHeaderRow>
@@ -90,7 +90,7 @@ export default ({mode, routeId, date, name, journey, journeyWeather = {}}) => {
           <TransportIcon mode={mode} width={17} height={17} />
           {get(journey, "unique_vehicle_id", "")}
         </HeaderText>
-        <WeatherDisplay {...journeyWeather} />
+        <WeatherDisplay {...journeyWeather || {}} />
       </MainHeaderRow>
       <DateTimeHeading>
         <HeaderText>

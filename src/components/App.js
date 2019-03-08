@@ -18,6 +18,7 @@ import {inject} from "../helpers/inject";
 import flow from "lodash/flow";
 import withRoute from "../hoc/withRoute";
 import {mergeJourneyEvents} from "../helpers/mergeJourneyEvents";
+import {trace} from "mobx";
 
 const AppFrame = styled.main`
   width: 100%;
@@ -108,7 +109,7 @@ function App({state, UI}) {
                                     {({
                                       zoom,
                                       setMapView,
-                                      mapView,
+                                      getMapView,
                                       setViewerLocation,
                                     }) => (
                                       <>
@@ -141,22 +142,21 @@ function App({state, UI}) {
                                               }
                                             }
 
-                                            return (
-                                              <MapContent
-                                                queryBounds={queryBounds}
-                                                setMapView={setMapView}
-                                                journeys={allCurrentPositions}
-                                                journeyStops={journeyStops}
-                                                timePositions={currentTimePositions}
-                                                route={route}
-                                                stop={stop}
-                                                zoom={zoom}
-                                                viewLocation={setViewerLocation}
-                                                mapBounds={mapView}
-                                              />
-                                            );
+                                            return null;
                                           }}
                                         </Observer>
+                                        <MapContent
+                                          queryBounds={queryBounds}
+                                          setMapView={setMapView}
+                                          journeys={allCurrentPositions}
+                                          journeyStops={journeyStops}
+                                          timePositions={currentTimePositions}
+                                          route={route}
+                                          stop={stop}
+                                          zoom={zoom}
+                                          viewLocation={setViewerLocation}
+                                          mapBounds={getMapView()}
+                                        />
                                       </>
                                     )}
                                   </MapPanel>

@@ -34,6 +34,7 @@
   "map.stops.observed_driveby": "Toteutunut ohitusaika",
   "map.stops.show_in_streetview": "Näytä katunäkymässä",
   "map.stops.doors_not_open": "Ovet eivät avautuneet tällä pysäkillä.",
+  "map.road": "Tie",
 
   "vehicle.next_stop": "Seuraava pysäkki",
   "vehicle.speed": "Nopeus",
@@ -74,5 +75,6 @@
   "general.update": "Päivitä",
   "general.live": "Live",
   "general.no_type": "Ei tyyppiä",
+  "general.no_data": "Ei tietoja",
   "general.share": "Jaa näkymää"
 }

@@ -8,6 +8,22 @@ import {floorMoment} from "../helpers/roundMoment";
 import {getRoundedBbox} from "../helpers/getRoundedBbox";
 import {LatLngBounds} from "leaflet";
 
+export function getWeatherSampleBounds(point) {
+  let validPoint = point || null;
+  let bounds = null;
+
+  if (point instanceof LatLngBounds) {
+    // If this is a bounds, get the center point as we want to always
+    // have a standard-sized area.
+    bounds = point;
+  } else {
+    // Convert the point to a bounds of 8 square kilometers.
+    bounds = validPoint ? validPoint.toBounds(8000) : null;
+  }
+
+  return getRoundedBbox(bounds);
+}
+
 export const useWeather = (point, date, time) => {
   const cancelCallbacks = useRef([]);
   const onCancel = useCallback(() => {
@@ -17,14 +33,8 @@ export const useWeather = (point, date, time) => {
   const [weatherData, setWeatherData] = useState(null);
   const [weatherLoading, setWeatherLoading] = useState(false);
 
-  let validPoint = point || null;
-
-  if (point instanceof LatLngBounds) {
-    validPoint = point.getCenter();
-  }
-
-  let bounds = validPoint ? validPoint.toBounds(8000) : null;
-  const bbox = bounds ? getRoundedBbox(bounds) : "";
+  const roundedBounds = getWeatherSampleBounds(point);
+  const bbox = roundedBounds ? roundedBounds.toBBoxString() : "";
 
   useEffect(() => {
     if (weatherLoading || !bbox) {

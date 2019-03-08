@@ -167,14 +167,7 @@ const MapContent = decorate(
                 />
               );
             })}
-        {mapOverlays.includes("Weather") && (
-          <WeatherDisplay
-            showWidget={!selectedJourney}
-            position={mapBounds}
-            date={date}
-            time={time}
-          />
-        )}
+        {mapOverlays.includes("Weather") && <WeatherDisplay position={mapBounds} />}
       </>
     );
   }

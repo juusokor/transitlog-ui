@@ -1,4 +1,6 @@
 // Round down to three decimals
+import {latLngBounds} from "leaflet";
+
 export function floor(number) {
   return Math.floor(number * 100) / 100;
 }
@@ -15,14 +17,14 @@ export function round(number) {
 
 export function getRoundedBbox(bounds) {
   if (!bounds) {
-    return "";
+    return null;
   }
 
-  // Round the bounds to whole numbers
+  // Round the bounds to three decimals
   const west = floor(bounds.getWest());
   const east = ceil(bounds.getEast());
   const north = ceil(bounds.getNorth());
   const south = floor(bounds.getSouth());
 
-  return `${west},${south},${east},${north}`;
+  return latLngBounds([south, west], [north, east]);
 }

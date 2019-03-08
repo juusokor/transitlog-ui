@@ -86,6 +86,7 @@
     "react-leaflet-draw": "^0.19.0",
     "react-primitives-svg": "^0.0.3",
     "react-spring": "^8.0.7",
+    "react-timer-hook": "^1.1.4",
     "react-virtualized": "^9.21.0",
     "resolve": "^1.9.0",
     "sass-loader": "^7.1.0",

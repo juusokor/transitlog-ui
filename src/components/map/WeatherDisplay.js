@@ -5,11 +5,12 @@ import flow from "lodash/flow";
 import get from "lodash/get";
 import meanBy from "lodash/meanBy";
 import {inject} from "../../helpers/inject";
-import {useWeather} from "../../hooks/useWeather";
+import {useWeather, getWeatherSampleBounds} from "../../hooks/useWeather";
 import {useDebouncedValue} from "../../hooks/useDebouncedValue";
 import {useWeatherData, getRoadStatus} from "../../hooks/useWeatherData";
-import {CircleMarker, Tooltip} from "react-leaflet";
+import {CircleMarker, Tooltip, Rectangle} from "react-leaflet";
 import {latLng} from "leaflet";
+import {text, Text} from "../../helpers/text";
 
 const WeatherContainer = styled.div`
   position: absolute;
@@ -31,6 +32,13 @@ const Temperature = styled.div`
     uncertain ? "var(--light-grey)" : "var(--blue)"};
 `;
 
+const TooltipText = styled.div`
+  font-family: var(--font-family);
+  font-size: 1.2em;
+  font-weight: 700;
+  color: var(--blue);
+`;
+
 const RoadStatus = styled.div`
   font-size: 1em;
   color: ${({uncertain = false}) =>
@@ -43,10 +51,10 @@ const decorate = flow(
 );
 
 export const WeatherWidget = ({
-  temperature,
-  temperatureIsUncertain,
-  roadCondition,
-  roadConditionIsUncertain,
+  temperature = false,
+  temperatureIsUncertain = true,
+  roadCondition = false,
+  roadConditionIsUncertain = true,
   className,
 }) =>
   (temperature !== false || roadCondition) && (
@@ -58,77 +66,81 @@ export const WeatherWidget = ({
       )}
       {roadCondition.length !== 0 && (
         <RoadStatus uncertain={roadConditionIsUncertain}>
-          Road: {roadCondition}
+          <Text>map.road</Text>: {roadCondition}
         </RoadStatus>
       )}
     </WeatherContainer>
   );
 
-const WeatherDisplay = decorate(
-  ({className, showWidget = true, state, position}) => {
-    const {date, time} = state;
-    const debouncedTime = useDebouncedValue(time, 1000);
-    const [weatherData] = useWeather(position, date, debouncedTime);
+const WeatherMarker = ({children, location, color}) => (
+  <CircleMarker
+    radius={7}
+    fill={true}
+    fillColor={color}
+    fillOpacity={1}
+    stroke={false}
+    center={latLng(get(location, "position", []).map((c) => parseFloat(c)))}>
+    <Tooltip offset={[10, 0]}>{children}</Tooltip>
+  </CircleMarker>
+);
 
-    const parsedWeatherData = useWeatherData(weatherData);
+const WeatherDisplay = decorate(({className, state, position}) => {
+  const {date, time, selectedJourney} = state;
+  const debouncedTime = useDebouncedValue(time, 1000);
+  const [weatherData] = useWeather(position, date, debouncedTime);
 
-    // TODO: Why isn't the data available when a route is selected
+  const parsedWeatherData = useWeatherData(weatherData);
+  const showWidget = !selectedJourney;
 
-    return (
-      <>
-        {weatherData &&
-          get(weatherData, "weather.locations", []).map((weatherLocation) => {
+  return (
+    <>
+      {/*<Rectangle
+        fill={false}
+        color="var(--light-grey)"
+        weight={1}
+        dashArray="8 8"
+        bounds={getWeatherSampleBounds(position)}
+      />*/}
+      {weatherData && (
+        <>
+          {get(weatherData, "weather.locations", []).map((weatherLocation) => {
             let temp = meanBy(
               get(weatherLocation, "data.t2m.timeValuePairs", []),
               "value"
             );
 
-            temp = isNaN(temp) ? "?" : Math.round(temp * 10) / 10;
+            temp = isNaN(temp)
+              ? text("general.no_data")
+              : Math.round(temp * 10) / 10 + " &deg;C";
 
             return (
-              <CircleMarker
-                radius={7}
-                fillColor="var(--light-blue)"
-                fillOpacity={1}
-                color="white"
-                weight={2}
+              <WeatherMarker
                 key={`weather_marker_${weatherLocation.info.id}`}
-                center={latLng(
-                  get(weatherLocation, "info.position", []).map((c) => parseFloat(c))
-                )}>
-                <Tooltip offset={[10, 0]}>
-                  <Temperature>{temp} &deg;C</Temperature>
-                </Tooltip>
-              </CircleMarker>
+                color="var(--light-blue)"
+                location={weatherLocation.info}>
+                <TooltipText dangerouslySetInnerHTML={{__html: temp}} />
+              </WeatherMarker>
             );
           })}
-        {weatherData &&
-          get(weatherData, "roadCondition.locations", []).map((roadLocation) => {
+          {get(weatherData, "roadCondition.locations", []).map((roadLocation) => {
             let roadStatus = getRoadStatus([roadLocation]);
 
             return (
-              <CircleMarker
-                radius={7}
-                fillColor="var(--lighter-grey)"
-                fillOpacity={1}
-                color="var(--dark-grey)"
-                weight={2}
-                key={`road_marker_${roadLocation.info.id}`}
-                center={latLng(
-                  get(roadLocation, "info.position", []).map((c) => parseFloat(c))
-                )}>
-                <Tooltip offset={[10, 0]}>
-                  <RoadStatus>Road condition: {roadStatus || "unknown"}</RoadStatus>
-                </Tooltip>
-              </CircleMarker>
+              <WeatherMarker
+                color="var(--light-grey)"
+                location={roadLocation.info}
+                key={`road_marker_${roadLocation.info.id}`}>
+                <TooltipText>
+                  <Text>map.road</Text>: {roadStatus || text("general.no_data")}
+                </TooltipText>
+              </WeatherMarker>
             );
           })}
-        {showWidget && (
-          <WeatherWidget {...parsedWeatherData} className={className} />
-        )}
-      </>
-    );
-  }
-);
+        </>
+      )}
+      {showWidget && <WeatherWidget {...parsedWeatherData} className={className} />}
+    </>
+  );
+});
 
 export default WeatherDisplay;
