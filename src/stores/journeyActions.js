@@ -59,10 +59,9 @@ export default (state) => {
           filters.setVehicle(hfpItem.unique_vehicle_id);
         }
 
+        time.toggleLive(false);
         setPathName(createJourneyPath(hfpItem));
       }
-
-      time.toggleLive(false);
     }
   );
 
