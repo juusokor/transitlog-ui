@@ -32,6 +32,7 @@ class MapContent extends Component {
       viewLocation,
       setQueryBounds,
       actualQueryBounds,
+      centerOnRoute = true,
       state: {selectedJourney, date, mapOverlays, areaEventsStyle},
     } = this.props;
 
@@ -81,6 +82,7 @@ class MapContent extends Component {
                       routeGeometry.length !== 0 ? createRouteKey(route) : null
                     }
                     routeGeometry={routeGeometry}
+                    canCenterOnRoute={centerOnRoute}
                     setMapBounds={setMapBounds}
                     key={`route_line_${createRouteKey(route, true)}`}
                   />

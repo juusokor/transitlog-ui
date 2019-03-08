@@ -147,6 +147,9 @@ function App({state, UI}) {
 
                                             return (
                                               <MapContent
+                                                centerOnRoute={
+                                                  areaEvents.length === 0
+                                                }
                                                 setQueryBounds={setQueryBounds}
                                                 actualQueryBounds={actualQueryBounds}
                                                 setMapBounds={setMapBounds}
