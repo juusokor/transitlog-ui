@@ -1,16 +1,17 @@
 import {observer} from "mobx-react-lite";
-import React from "react";
+import React, {useMemo} from "react";
 import styled from "styled-components";
 import flow from "lodash/flow";
 import get from "lodash/get";
 import meanBy from "lodash/meanBy";
 import {inject} from "../../helpers/inject";
-import {useWeather, getWeatherSampleBounds} from "../../hooks/useWeather";
+import {useWeather} from "../../hooks/useWeather";
 import {useDebouncedValue} from "../../hooks/useDebouncedValue";
 import {useWeatherData, getRoadStatus} from "../../hooks/useWeatherData";
-import {CircleMarker, Tooltip, Rectangle} from "react-leaflet";
+import {CircleMarker, Tooltip} from "react-leaflet";
 import {latLng} from "leaflet";
 import {text, Text} from "../../helpers/text";
+import {getMomentFromDateTime} from "../../helpers/time";
 
 const WeatherContainer = styled.div`
   position: absolute;
@@ -85,12 +86,16 @@ const WeatherMarker = ({children, location, color}) => (
 );
 
 const WeatherDisplay = decorate(({className, state, position}) => {
-  const {date, time, selectedJourney} = state;
+  const {date, time} = state;
   const debouncedTime = useDebouncedValue(time, 1000);
-  const [weatherData] = useWeather(position, date, debouncedTime);
 
+  const startDate = useMemo(
+    () => getMomentFromDateTime(date, debouncedTime).toISOString(true),
+    [date, debouncedTime]
+  );
+
+  const [weatherData] = useWeather(position, startDate);
   const parsedWeatherData = useWeatherData(weatherData);
-  const showWidget = !selectedJourney;
 
   return (
     <>
@@ -138,7 +143,7 @@ const WeatherDisplay = decorate(({className, state, position}) => {
           })}
         </>
       )}
-      {showWidget && <WeatherWidget {...parsedWeatherData} className={className} />}
+      <WeatherWidget {...parsedWeatherData} className={className} />
     </>
   );
 });

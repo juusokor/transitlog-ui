@@ -167,7 +167,9 @@ const MapContent = decorate(
                 />
               );
             })}
-        {mapOverlays.includes("Weather") && <WeatherDisplay position={mapBounds} />}
+        {mapOverlays.includes("Weather") && !selectedJourney && (
+          <WeatherDisplay position={mapBounds} />
+        )}
       </>
     );
   }

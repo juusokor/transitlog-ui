@@ -7,6 +7,9 @@ import JourneyPlanner from "../../../icons/JourneyPlanner";
 import Time2 from "../../../icons/Time2";
 import get from "lodash/get";
 import {WeatherWidget} from "../../map/WeatherDisplay";
+import {useJourneyWeather} from "../../../hooks/useJourneyWeather";
+import {useWeatherData} from "../../../hooks/useWeatherData";
+import getJourneyId from "../../../helpers/getJourneyId";
 
 const JourneyPanelHeader = styled.div`
   flex: none;
@@ -76,7 +79,10 @@ const WeatherDisplay = styled(WeatherWidget)`
 
 const DateTimeHeading = styled.div``;
 
-export default ({mode, routeId, date, name, journey, journeyWeather = null}) => {
+export default ({mode, routeId, date, name, journey, events}) => {
+  const [currentJourneyWeather] = useJourneyWeather(events, getJourneyId(journey));
+  const journeyWeather = useWeatherData(currentJourneyWeather);
+
   return (
     <JourneyPanelHeader>
       <MainHeaderRow>

@@ -18,7 +18,6 @@ import {inject} from "../helpers/inject";
 import flow from "lodash/flow";
 import withRoute from "../hoc/withRoute";
 import {mergeJourneyEvents} from "../helpers/mergeJourneyEvents";
-import {trace} from "mobx";
 
 const AppFrame = styled.main`
   width: 100%;

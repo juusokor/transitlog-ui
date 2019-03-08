@@ -78,7 +78,6 @@ class JourneyDetails extends React.Component {
       selectedJourneyEvents,
       journeyStops,
       loading = false,
-      journeyWeather = null,
     } = this.props;
     // Select the first event to define the journey
     const events = get(selectedJourneyEvents, "[0].events", []);
@@ -87,7 +86,7 @@ class JourneyDetails extends React.Component {
     return (
       <JourneyPanelWrapper>
         <JourneyDetailsHeader
-          journeyWeather={journeyWeather}
+          events={events}
           journey={journey}
           date={date}
           mode={get(route, "mode", "BUS")}

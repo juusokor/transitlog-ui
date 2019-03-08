@@ -5,7 +5,6 @@ import {app} from "mobx-app";
 import trim from "lodash/trim";
 import get from "lodash/get";
 import debounce from "lodash/debounce";
-import invoke from "lodash/invoke";
 import {setUrlValue, getUrlValue} from "../../stores/UrlManager";
 import {reaction, observable, action} from "mobx";
 import {LatLngBounds} from "leaflet";

@@ -1,12 +1,12 @@
 import {useState, useEffect, useRef, useCallback} from "react";
-import {getMomentFromDateTime} from "../helpers/time";
 import moment from "moment-timezone";
 import {getWeatherForArea} from "../helpers/getWeatherForArea";
 import {getRoadConditionsForArea} from "../helpers/getRoadConditionsForArea";
 import merge from "lodash/merge";
-import {floorMoment} from "../helpers/roundMoment";
+import {floorMoment, ceilMoment} from "../helpers/roundMoment";
 import {getRoundedBbox} from "../helpers/getRoundedBbox";
 import {LatLngBounds} from "leaflet";
+import {TIMEZONE} from "../constants";
 
 export function getWeatherSampleBounds(point) {
   let validPoint = point || null;
@@ -15,7 +15,7 @@ export function getWeatherSampleBounds(point) {
   if (point instanceof LatLngBounds) {
     // If this is a bounds, get the center point as we want to always
     // have a standard-sized area.
-    bounds = point;
+    bounds = point.pad(0.1);
   } else {
     // Convert the point to a bounds of 8 square kilometers.
     bounds = validPoint ? validPoint.toBounds(8000) : null;
@@ -24,7 +24,7 @@ export function getWeatherSampleBounds(point) {
   return getRoundedBbox(bounds);
 }
 
-export const useWeather = (point, date, time) => {
+export const useWeather = (point, date, startDate = null) => {
   const cancelCallbacks = useRef([]);
   const onCancel = useCallback(() => {
     cancelCallbacks.current.forEach((cb) => cb());
@@ -37,29 +37,30 @@ export const useWeather = (point, date, time) => {
   const bbox = roundedBounds ? roundedBounds.toBBoxString() : "";
 
   useEffect(() => {
-    if (weatherLoading || !bbox) {
+    if (weatherLoading || !bbox || !date) {
       return onCancel;
     }
 
     cancelCallbacks.current = [];
 
     const dateTime = moment.min(
-      floorMoment(
-        moment.isMoment(date) ? date : getMomentFromDateTime(date, time),
-        10,
-        "minutes"
-      ),
-      floorMoment(moment(), 10, "minutes")
+      ceilMoment(moment.tz(date, TIMEZONE).clone(), 10, "minutes"),
+      floorMoment(moment.tz(), 10, "minutes")
     );
 
+    const weatherStartDate = !startDate
+      ? dateTime.clone().subtract(20, "minutes")
+      : floorMoment(moment.tz(startDate, TIMEZONE), 10, "minutes");
+
+    const roadStartDate = !startDate
+      ? dateTime.clone().subtract(1, "hour")
+      : moment.tz(startDate, TIMEZONE).startOf("hour");
+
     const weatherEnd = dateTime.toDate();
-    const weatherStart = dateTime
-      .clone() // Clone to not interfere with road condition times
-      .subtract(20, "minutes")
-      .toDate();
+    const weatherStart = weatherStartDate.toDate();
 
     const roadEnd = dateTime.startOf("hour").toDate();
-    const roadStart = dateTime.subtract(1, "hour").toDate();
+    const roadStart = roadStartDate.toDate();
 
     setWeatherLoading(true);
 
@@ -85,7 +86,7 @@ export const useWeather = (point, date, time) => {
       .catch((err) => console.error(err));
 
     return onCancel;
-  }, [date, time, bbox]);
+  }, [date, startDate, bbox]);
 
   return [weatherData, weatherLoading];
 };

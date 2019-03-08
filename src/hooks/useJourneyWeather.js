@@ -1,37 +1,43 @@
 import moment from "moment-timezone";
-import {floorMoment} from "../helpers/roundMoment";
 import {TIMEZONE} from "../constants";
 import {useWeather} from "./useWeather";
-import {latLng} from "leaflet";
+import {latLngBounds} from "leaflet";
 import {useMemo} from "react";
-import {useDebouncedValue} from "./useDebouncedValue";
-import getJourneyId from "../helpers/getJourneyId";
 
-export const useJourneyWeather = (journeyPositions, selectedJourney = "") => {
-  let journeyPosition = !journeyPositions
-    ? null
-    : journeyPositions.get(getJourneyId(selectedJourney));
-
-  journeyPosition = useDebouncedValue(journeyPosition, 1000);
-
-  const dateTime = useMemo(
-    () =>
-      journeyPosition
-        ? floorMoment(moment.tz(journeyPosition.tst, TIMEZONE), 10, "minutes")
-        : null,
-    [journeyPosition]
+export const useJourneyWeather = (events, journeyId) => {
+  const {minPosition, maxPosition} = useMemo(
+    () => ({
+      minPosition: events[0],
+      maxPosition: events[events.length - 1],
+    }),
+    [typeof events[0] !== "undefined", journeyId]
   );
 
-  const pos = useMemo(
+  const bounds = useMemo(
     () =>
-      journeyPosition
-        ? latLng({
-            lat: journeyPosition.lat,
-            lng: journeyPosition.long,
-          })
+      minPosition
+        ? latLngBounds(
+            [minPosition.lat, minPosition.long],
+            [maxPosition.lat, maxPosition.long]
+          )
         : null,
-    [journeyPosition]
+    [minPosition]
   );
 
-  return useWeather(pos, dateTime);
+  const startDate = useMemo(
+    () =>
+      minPosition ? moment.tz(minPosition.tst, TIMEZONE).toISOString(true) : null,
+    [minPosition]
+  );
+
+  const endDate = useMemo(
+    () =>
+      maxPosition ? moment.tz(maxPosition.tst, TIMEZONE).toISOString(true) : null,
+    [maxPosition]
+  );
+  // Routes can be quite one-dimensional (straight-ish line horizontally or vertically),
+  // so we let the weather hook create a square bounding box.
+  const point = useMemo(() => (bounds ? bounds.getCenter() : null), [bounds]);
+
+  return useWeather(point, endDate, startDate);
 };

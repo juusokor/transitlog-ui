@@ -15,9 +15,7 @@ import ControlBar from "./ControlBar";
 import {UsageInstructions} from "./UsageInstructions";
 import Tooltip from "../Tooltip";
 import flow from "lodash/flow";
-import {useJourneyWeather} from "../../hooks/useJourneyWeather";
 import {inject} from "../../helpers/inject";
-import {useWeatherData} from "../../hooks/useWeatherData";
 
 const SidePanelContainer = styled.div`
   background: var(--lightest-grey);
@@ -105,7 +103,6 @@ const SidePanel = decorate((props) => {
     journeyEventsLoading = false,
     areaEventsLoading = false,
     stopTimesLoading = false,
-    journeyPositions = null,
     stop,
     state: {
       language,
@@ -135,13 +132,6 @@ const SidePanel = decorate((props) => {
 
   const allTabsHidden =
     !hasRoute && areaEvents.length === 0 && !vehicle && !stateStop;
-
-  const [currentJourneyWeather] = useJourneyWeather(
-    journeyPositions,
-    selectedJourney
-  );
-
-  const parsedWeatherData = useWeatherData(currentJourneyWeather);
 
   return (
     <SidePanelContainer visible={sidePanelVisible}>
@@ -194,7 +184,6 @@ const SidePanel = decorate((props) => {
         {/* The content of the sidebar is independent from the sidebar wrapper so that we can animate it. */}
         {journeyDetailsAreOpen && (
           <JourneyDetails
-            journeyWeather={parsedWeatherData}
             loading={stopTimesLoading || journeyEventsLoading}
             journeyStops={journeyStops}
             selectedJourneyEvents={selectedJourneyEvents}
