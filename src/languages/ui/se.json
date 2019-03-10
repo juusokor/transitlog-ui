@@ -34,6 +34,7 @@
   "map.stops.observed_driveby": "Observerad körtid",
   "map.stops.show_in_streetview": "Visa i gatuvy",
   "map.stops.doors_not_open": "Dörrarna öppnades aldrig på denna hållplats",
+  "map.road": "Väg",
 
   "vehicle.next_stop": "Nästa hållplats",
   "vehicle.speed": "Hastighet",
@@ -74,5 +75,6 @@
   "general.update": "Uppdatera",
   "general.live": "Live",
   "general.no_type": "Ingen typ",
+  "general.no_data": "Ingen data",
   "general.share": "Dela vy"
 }

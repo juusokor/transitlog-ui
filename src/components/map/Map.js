@@ -2,12 +2,13 @@ import React, {Component} from "react";
 import {inject, observer} from "mobx-react";
 import LeafletMap from "./LeafletMap";
 import {app} from "mobx-app";
-import invoke from "lodash/invoke";
 import trim from "lodash/trim";
 import get from "lodash/get";
 import debounce from "lodash/debounce";
 import {setUrlValue, getUrlValue} from "../../stores/UrlManager";
-import {reaction, observable, action, runInAction} from "mobx";
+import {reaction, observable, action} from "mobx";
+import {LatLngBounds} from "leaflet";
+import {runInAction} from "mobx";
 
 const MAP_BOUNDS_URL_KEY = "mapView";
 
@@ -20,9 +21,7 @@ const MAP_BOUNDS_URL_KEY = "mapView";
 @observer
 class Map extends Component {
   static defaultProps = {
-    onMapChanged: () => {},
-    onMapChange: () => {},
-    bounds: null,
+    onViewChanged: () => {},
   };
 
   canSetView = false;
@@ -34,8 +33,10 @@ class Map extends Component {
 
   @observable
   zoom = 13;
+
   @observable.ref
   mapView = null;
+
   @observable
   currentMapillaryViewerLocation = false;
 
@@ -66,33 +67,23 @@ class Map extends Component {
           leafletMap.invalidateSize(true);
         }
       },
-      {
-        delay: 500,
-      }
+      {delay: 500}
     );
 
     let urlCenter = "";
 
     if (map) {
       urlCenter = getUrlValue(MAP_BOUNDS_URL_KEY);
-
       let [lat = "", lng = "", zoom = this.zoom] = urlCenter.split(",");
 
       if (!lat || !trim(lat) || !parseInt(lat)) {
         lat = 60.170988;
       }
-
       if (!lng || !trim(lng) || !parseInt(lng)) {
         lng = 24.940842;
       }
 
-      map.setView(
-        {
-          lat,
-          lng,
-        },
-        zoom
-      );
+      map.setView({lat, lng}, zoom);
     }
 
     // To prevent the map from moving away from the view shared in the URL, allow
@@ -100,7 +91,7 @@ class Map extends Component {
     setTimeout(() => (this.canSetView = true), urlCenter ? 3000 : 0);
   }
 
-  setMapCenter = (center) => {
+  setMapView = (center) => {
     const map = this.getLeaflet();
 
     if (!this.canSetView || !center || !map) {
@@ -109,9 +100,14 @@ class Map extends Component {
 
     const prevCenter = this.prevCenter;
 
-    if (prevCenter && !center.equals(prevCenter)) {
+    if (prevCenter && !center.equals()) {
       this.prevCenter = center;
-      map.setView(center);
+
+      if (center instanceof LatLngBounds) {
+        map.fitBounds(center);
+      } else {
+        map.setView(center);
+      }
     }
 
     if (!prevCenter) {
@@ -123,47 +119,6 @@ class Map extends Component {
     this.disposeSidePanelReaction();
   }
 
-  setMapBounds = (bounds = null) => {
-    if (this.canSetView && bounds && invoke(bounds, "isValid")) {
-      const map = this.getLeaflet();
-
-      if (map) {
-        map.fitBounds(bounds);
-      }
-    }
-  };
-
-  setMapView = (map) => {
-    if (!map) {
-      return;
-    }
-
-    const {route} = this.props.state;
-
-    if (route && route.routeId) {
-      return;
-    }
-
-    const bounds = map.getBounds();
-    const {mapView} = this;
-
-    if (
-      !bounds ||
-      !invoke(bounds, "isValid") ||
-      (mapView && bounds.equals(mapView))
-    ) {
-      return;
-    }
-
-    runInAction(() => (this.mapView = bounds));
-  };
-
-  onMapChanged = () => {
-    const map = this.getLeaflet();
-    this.setMapView(map);
-    this.setMapUrlState(map.getCenter(), map.getZoom());
-  };
-
   setMapUrlState = debounce(
     (center, zoom) =>
       center.lat &&
@@ -173,10 +128,35 @@ class Map extends Component {
     500
   );
 
+  onMapChanged = () => {
+    const map = this.getLeaflet();
+    this.setMapUrlState(map.getCenter(), map.getZoom());
+    this.setMapViewState(map);
+  };
+
+  setMapViewState = (map) => {
+    if (!map) {
+      return;
+    }
+
+    const bounds = map.getBounds();
+    const {mapView} = this;
+
+    if (mapView && bounds.equals(mapView)) {
+      return;
+    }
+
+    setTimeout(() => {
+      runInAction(() => (this.mapView = bounds));
+    }, 1);
+  };
+
   onZoom = (event) => {
     const zoom = event.target.getZoom();
     this.setMapZoom(zoom);
   };
+
+  getMapView = () => this.mapView;
 
   render() {
     const {children, className} = this.props;
@@ -186,16 +166,14 @@ class Map extends Component {
         setMapillaryViewerLocation={this.setMapillaryViewerLocation}
         currentMapillaryViewerLocation={this.currentMapillaryViewerLocation}
         mapRef={this.mapRef}
-        mapView={this.mapView}
         className={className}
         onMapChanged={this.onMapChanged}
         onZoom={this.onZoom}>
         {children({
           setViewerLocation: this.setMapillaryViewerLocation,
           zoom: this.zoom,
-          mapView: this.mapView,
-          setMapBounds: this.setMapBounds,
-          setMapCenter: this.setMapCenter,
+          getMapView: this.getMapView,
+          setMapView: this.setMapView,
         })}
       </LeafletMap>
     );

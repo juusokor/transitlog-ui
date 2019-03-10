@@ -23,15 +23,14 @@ class RouteLayer extends Component {
   };
 
   setBounds() {
-    const {routeGeometry, setMapBounds = () => {}} = this.props;
+    const {routeGeometry, setMapView = () => {}} = this.props;
 
     if (routeGeometry.length === 0) {
       return;
     }
 
     const bounds = calculateBoundsFromPositions(routeGeometry);
-
-    setMapBounds(bounds);
+    setMapView(bounds);
   }
 
   render() {

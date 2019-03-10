@@ -1,8 +1,7 @@
-import React, {Component} from "react";
-import {observer, inject} from "mobx-react";
+import React from "react";
+import {observer} from "mobx-react-lite";
 import Journeys from "./Journeys";
 import styled from "styled-components";
-import {app} from "mobx-app";
 import Tabs from "./Tabs";
 import TimetablePanel from "./TimetablePanel";
 import VehicleJourneys from "./VehicleJourneys";
@@ -15,6 +14,8 @@ import Timetable from "../../icons/Timetable";
 import ControlBar from "./ControlBar";
 import {UsageInstructions} from "./UsageInstructions";
 import Tooltip from "../Tooltip";
+import flow from "lodash/flow";
+import {inject} from "../../helpers/inject";
 
 const SidePanelContainer = styled.div`
   background: var(--lightest-grey);
@@ -88,124 +89,125 @@ const JourneyPanel = styled.div`
   border-right: 1px solid var(--alt-grey);
 `;
 
-@inject(app("UI"))
-@observer
-class SidePanel extends Component {
-  render() {
-    const {
-      UI: {toggleSidePanel, toggleJourneyDetails},
-      areaEvents = [],
-      selectedJourneyEvents = [],
-      journeyStops,
-      journeyEventsLoading = false,
-      areaEventsLoading = false,
-      stopTimesLoading = false,
-      stop,
-      state: {
-        language,
-        route,
-        date,
-        vehicle,
-        stop: stateStop,
-        selectedJourney,
-        sidePanelVisible,
-        journeyDetailsAreOpen,
-        journeyDetailsCanOpen,
-      },
-    } = this.props;
+const decorate = flow(
+  observer,
+  inject("UI")
+);
 
-    const hasRoute = !!route && !!route.routeId;
-    const hasEvents = !journeyEventsLoading && selectedJourneyEvents.length !== 0;
+const SidePanel = decorate((props) => {
+  const {
+    UI: {toggleSidePanel, toggleJourneyDetails},
+    areaEvents = [],
+    selectedJourneyEvents = [],
+    journeyStops,
+    journeyEventsLoading = false,
+    areaEventsLoading = false,
+    stopTimesLoading = false,
+    stop,
+    state: {
+      language,
+      route,
+      date,
+      vehicle,
+      stop: stateStop,
+      selectedJourney,
+      sidePanelVisible,
+      journeyDetailsAreOpen,
+      journeyDetailsCanOpen,
+    },
+  } = props;
 
-    // Figure out which tab is suggested. It will not be outright selected, but
-    // if it appears and nothing else is selected then it will be.
-    let suggestedTab = "";
+  const hasRoute = !!route && !!route.routeId;
+  const hasEvents = !journeyEventsLoading && selectedJourneyEvents.length !== 0;
 
-    if (!hasRoute && !vehicle) suggestedTab = "area-journeys";
-    if (hasRoute) suggestedTab = "journeys";
-    if (vehicle) suggestedTab = "vehicle-journeys";
-    if (selectedJourney) suggestedTab = "journeys";
-    if (stateStop) suggestedTab = "timetables";
+  // Figure out which tab is suggested. It will not be outright selected, but
+  // if it appears and nothing else is selected then it will be.
+  let suggestedTab = "";
 
-    const allTabsHidden =
-      !hasRoute && areaEvents.length === 0 && !vehicle && !stateStop;
+  if (!hasRoute && !vehicle) suggestedTab = "area-journeys";
+  if (hasRoute) suggestedTab = "journeys";
+  if (vehicle) suggestedTab = "vehicle-journeys";
+  if (selectedJourney) suggestedTab = "journeys";
+  if (stateStop) suggestedTab = "timetables";
 
-    return (
-      <SidePanelContainer visible={sidePanelVisible}>
-        <MainSidePanel>
-          <ControlBar />
-          {allTabsHidden ? (
-            <UsageInstructions language={language} />
-          ) : (
-            <Tabs suggestedTab={suggestedTab}>
-              {(areaEvents.length !== 0 || areaEventsLoading) && (
-                <AreaJourneyList
-                  helpText="Area search tab"
-                  loading={areaEventsLoading}
-                  journeys={areaEvents}
-                  name="area-journeys"
-                  label={text("sidepanel.tabs.area_events")}
-                />
-              )}
-              {hasRoute && (
-                <Journeys
-                  helpText="Journeys tab"
-                  key={`route_journeys_${createRouteKey(route, true)}_${date}`}
-                  route={route}
-                  loading={journeyEventsLoading}
-                  name="journeys"
-                  label={text("sidepanel.tabs.journeys")}
-                />
-              )}
-              {vehicle && (
-                <VehicleJourneys
-                  helpText="Vehicle journeys tab"
-                  loading={journeyEventsLoading}
-                  name="vehicle-journeys"
-                  label={text("sidepanel.tabs.vehicle_journeys")}
-                />
-              )}
-              {stateStop && (
-                <TimetablePanel
-                  helpText="Timetable tab"
-                  stop={stop}
-                  loading={journeyEventsLoading}
-                  name="timetables"
-                  label={text("sidepanel.tabs.timetables")}
-                />
-              )}
-            </Tabs>
-          )}
-        </MainSidePanel>
-        <JourneyPanel visible={journeyDetailsAreOpen}>
-          {/* The content of the sidebar is independent from the sidebar wrapper so that we can animate it. */}
-          {journeyDetailsAreOpen && (
-            <JourneyDetails
-              loading={stopTimesLoading || journeyEventsLoading}
-              journeyStops={journeyStops}
-              selectedJourneyEvents={selectedJourneyEvents}
-            />
-          )}
-          {hasEvents && journeyDetailsCanOpen && (
-            <Tooltip helpText="Toggle journey details button">
-              <ToggleJourneyDetailsButton
-                isVisible={journeyDetailsAreOpen}
-                onClick={() => toggleJourneyDetails()}>
-                <Info fill="white" height="1rem" width="1rem" />
-              </ToggleJourneyDetailsButton>
-            </Tooltip>
-          )}
-        </JourneyPanel>
-        <Tooltip helpText="Toggle sidebar button">
-          <ToggleSidePanelButton
-            isVisible={sidePanelVisible}
-            onClick={() => toggleSidePanel()}>
-            <Timetable fill="white" height="1.2rem" width="1rem" />
-          </ToggleSidePanelButton>
-        </Tooltip>
-      </SidePanelContainer>
-    );
-  }
-}
+  const allTabsHidden =
+    !hasRoute && areaEvents.length === 0 && !vehicle && !stateStop;
+
+  return (
+    <SidePanelContainer visible={sidePanelVisible}>
+      <MainSidePanel>
+        <ControlBar />
+        {allTabsHidden ? (
+          <UsageInstructions language={language} />
+        ) : (
+          <Tabs suggestedTab={suggestedTab}>
+            {(areaEvents.length !== 0 || areaEventsLoading) && (
+              <AreaJourneyList
+                helpText="Area search tab"
+                loading={areaEventsLoading}
+                journeys={areaEvents}
+                name="area-journeys"
+                label={text("sidepanel.tabs.area_events")}
+              />
+            )}
+            {hasRoute && (
+              <Journeys
+                helpText="Journeys tab"
+                key={`route_journeys_${createRouteKey(route, true)}_${date}`}
+                route={route}
+                loading={journeyEventsLoading}
+                name="journeys"
+                label={text("sidepanel.tabs.journeys")}
+              />
+            )}
+            {vehicle && (
+              <VehicleJourneys
+                helpText="Vehicle journeys tab"
+                loading={journeyEventsLoading}
+                name="vehicle-journeys"
+                label={text("sidepanel.tabs.vehicle_journeys")}
+              />
+            )}
+            {stateStop && (
+              <TimetablePanel
+                helpText="Timetable tab"
+                stop={stop}
+                loading={journeyEventsLoading}
+                name="timetables"
+                label={text("sidepanel.tabs.timetables")}
+              />
+            )}
+          </Tabs>
+        )}
+      </MainSidePanel>
+      <JourneyPanel visible={journeyDetailsAreOpen}>
+        {/* The content of the sidebar is independent from the sidebar wrapper so that we can animate it. */}
+        {journeyDetailsAreOpen && (
+          <JourneyDetails
+            loading={stopTimesLoading || journeyEventsLoading}
+            journeyStops={journeyStops}
+            selectedJourneyEvents={selectedJourneyEvents}
+          />
+        )}
+        {hasEvents && journeyDetailsCanOpen && (
+          <Tooltip helpText="Toggle journey details button">
+            <ToggleJourneyDetailsButton
+              isVisible={journeyDetailsAreOpen}
+              onClick={() => toggleJourneyDetails()}>
+              <Info fill="white" height="1rem" width="1rem" />
+            </ToggleJourneyDetailsButton>
+          </Tooltip>
+        )}
+      </JourneyPanel>
+      <Tooltip helpText="Toggle sidebar button">
+        <ToggleSidePanelButton
+          isVisible={sidePanelVisible}
+          onClick={() => toggleSidePanel()}>
+          <Timetable fill="white" height="1.2rem" width="1rem" />
+        </ToggleSidePanelButton>
+      </Tooltip>
+    </SidePanelContainer>
+  );
+});
 
 export default SidePanel;

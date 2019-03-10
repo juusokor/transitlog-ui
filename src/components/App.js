@@ -62,7 +62,6 @@ function App({state, UI}) {
     selectedJourney,
     live,
   } = state;
-
   const selectedJourneyId = getJourneyId(selectedJourney);
 
   return (
@@ -89,29 +88,29 @@ function App({state, UI}) {
                         <JourneyStopTimes
                           selectedJourneyEvents={selectedJourneyEvents}>
                           {({journeyStops = [], loading: stopTimesLoading}) => (
-                            <>
-                              <SidePanel
-                                areaEventsLoading={areaEventsLoading}
-                                journeyEventsLoading={journeyEventsLoading}
-                                stopTimesLoading={stopTimesLoading}
-                                areaEvents={areaEvents}
-                                selectedJourneyEvents={selectedJourneyEvents}
-                                journeyStops={journeyStops}
-                                route={route}
-                                stop={stop}
-                              />
-                              <MapPanel>
-                                {({
-                                  zoom,
-                                  setMapBounds,
-                                  setMapCenter,
-                                  setViewerLocation,
-                                  mapView,
-                                }) => (
-                                  <JourneyPosition
-                                    date={date}
-                                    positions={allCurrentPositions}>
-                                    {(currentTimePositions) => (
+                            <JourneyPosition
+                              date={date}
+                              positions={allCurrentPositions}>
+                              {(currentTimePositions) => (
+                                <>
+                                  <SidePanel
+                                    areaEventsLoading={areaEventsLoading}
+                                    journeyEventsLoading={journeyEventsLoading}
+                                    stopTimesLoading={stopTimesLoading}
+                                    areaEvents={areaEvents}
+                                    selectedJourneyEvents={selectedJourneyEvents}
+                                    journeyStops={journeyStops}
+                                    journeyPositions={currentTimePositions}
+                                    route={route}
+                                    stop={stop}
+                                  />
+                                  <MapPanel>
+                                    {({
+                                      zoom,
+                                      setMapView,
+                                      getMapView,
+                                      setViewerLocation,
+                                    }) => (
                                       <>
                                         <Observer>
                                           {() => {
@@ -137,31 +136,32 @@ function App({state, UI}) {
                                                   ])
                                                 : stopPosition;
 
-                                              setMapCenter(centerPosition);
+                                              if (centerPosition) {
+                                                setMapView(centerPosition);
+                                              }
                                             }
 
-                                            return (
-                                              <MapContent
-                                                queryBounds={queryBounds}
-                                                setMapBounds={setMapBounds}
-                                                journeys={allCurrentPositions}
-                                                journeyStops={journeyStops}
-                                                timePositions={currentTimePositions}
-                                                route={route}
-                                                stop={stop}
-                                                zoom={zoom}
-                                                viewLocation={setViewerLocation}
-                                                stopsBbox={mapView}
-                                              />
-                                            );
+                                            return null;
                                           }}
                                         </Observer>
+                                        <MapContent
+                                          queryBounds={queryBounds}
+                                          setMapView={setMapView}
+                                          journeys={allCurrentPositions}
+                                          journeyStops={journeyStops}
+                                          timePositions={currentTimePositions}
+                                          route={route}
+                                          stop={stop}
+                                          zoom={zoom}
+                                          viewLocation={setViewerLocation}
+                                          mapBounds={getMapView()}
+                                        />
                                       </>
                                     )}
-                                  </JourneyPosition>
-                                )}
-                              </MapPanel>
-                            </>
+                                  </MapPanel>
+                                </>
+                              )}
+                            </JourneyPosition>
                           )}
                         </JourneyStopTimes>
                       )}

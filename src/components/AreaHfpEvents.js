@@ -68,9 +68,7 @@ class AreaHfpEvents extends PureComponent {
   };
 
   componentDidMount() {
-    this.disposeResetListener = setResetListener(() =>
-      this.setState({bounds: null})
-    );
+    this.disposeResetListener = setResetListener(() => this.setQueryBounds(null));
   }
 
   componentWillUnmount() {
