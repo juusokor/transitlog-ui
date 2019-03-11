@@ -100,7 +100,7 @@ class Map extends Component {
 
     const prevCenter = this.prevCenter;
 
-    if (prevCenter && !center.equals()) {
+    if (prevCenter && !center.equals(prevCenter)) {
       this.prevCenter = center;
 
       if (center instanceof LatLngBounds) {
