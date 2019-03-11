@@ -1,6 +1,5 @@
 import React from "react";
 import flow from "lodash/flow";
-import uniqBy from "lodash/uniqBy";
 import RouteStop from "./RouteStop";
 import {observer} from "mobx-react-lite";
 import StopsByRouteQuery from "../../queries/StopsByRouteQuery";
