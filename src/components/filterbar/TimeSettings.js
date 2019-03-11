@@ -1,7 +1,11 @@
 import React, {Component} from "react";
 import {app} from "mobx-app";
 import {inject, observer} from "mobx-react";
-import {getMomentFromDateTime} from "../../helpers/time";
+import {
+  getMomentFromDateTime,
+  timeToSeconds,
+  secondsToTime,
+} from "../../helpers/time";
 import {InputBase, ControlGroup} from "../Forms";
 import PlusMinusInput from "../PlusMinusInput";
 import styled from "styled-components";
@@ -56,15 +60,17 @@ class TimeSettings extends Component {
 
   onTimeButtonClick = (modifier) => () => {
     const {
-      state: {date, time},
+      state: {time},
       Time,
     } = this.props;
 
-    const currentTime = getMomentFromDateTime(date, time, TIMEZONE);
-    const nextTime = currentTime.add(modifier, "seconds").format("HH:mm:ss");
+    const currentTime = timeToSeconds(time);
+    const nextTime = currentTime + modifier;
 
-    Time.toggleLive(false);
-    Time.setTime(nextTime);
+    if (nextTime >= 0) {
+      Time.toggleLive(false);
+      Time.setTime(secondsToTime(nextTime));
+    }
   };
 
   setTimeValue = action((value, dirtyVal = true) => {
