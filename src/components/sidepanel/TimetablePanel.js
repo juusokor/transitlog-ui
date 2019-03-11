@@ -157,7 +157,7 @@ class TimetablePanel extends Component {
     );
   }
 
-  renderRow = (list, props) => ({key, index, style, isScrolling, isVisible}) => {
+  renderRow = (props) => (list) => ({key, index, style, isScrolling, isVisible}) => {
     const departure = list[index];
 
     return (
@@ -185,7 +185,7 @@ class TimetablePanel extends Component {
         date={date}
         scrollToIndex={focusedIndex !== -1 ? focusedIndex : undefined}
         list={departures}
-        renderRow={renderRow}
+        renderRow={renderRow(departures)}
         rowHeight={35}
         loading={loading}
         header={
@@ -266,13 +266,6 @@ class TimetablePanel extends Component {
       })
     );
 
-    const rowRenderer = this.renderRow(sortedDepartures, {
-      selectedJourney,
-      onClick: this.selectAsJourney,
-      stop,
-      date,
-    });
-
     const selectedJourneyId = getJourneyId(selectedJourney);
 
     const focusedDeparture = selectedJourneyId
@@ -298,6 +291,13 @@ class TimetablePanel extends Component {
     return (
       <DepartureHfpQuery stopId={stopId} date={date}>
         {({events: stopEvents = [], loading: eventsLoading}) => {
+          const rowRenderer = this.renderRow({
+            selectedJourney,
+            onClick: this.selectAsJourney,
+            stop,
+            date,
+          });
+
           if (stopEvents.length === 0) {
             return this.renderList(
               sortedDepartures,

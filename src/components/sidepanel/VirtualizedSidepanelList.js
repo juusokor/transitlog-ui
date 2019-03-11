@@ -60,8 +60,8 @@ class VirtualizedSidepanelList extends Component {
               />
             )}
           </AutoSizer>
+          <LoadingDisplay loading={loading} />
         </div>
-        <LoadingDisplay loading={loading} />
       </ListWrapper>
     );
   }
