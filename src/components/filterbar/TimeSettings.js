@@ -1,18 +1,13 @@
 import React, {Component} from "react";
 import {app} from "mobx-app";
 import {inject, observer} from "mobx-react";
-import {
-  getMomentFromDateTime,
-  timeToSeconds,
-  secondsToTime,
-} from "../../helpers/time";
+import {timeToSeconds, secondsToTime} from "../../helpers/time";
 import {InputBase, ControlGroup} from "../Forms";
 import PlusMinusInput from "../PlusMinusInput";
 import styled from "styled-components";
 import doubleDigit from "../../helpers/doubleDigit";
 import {observable, action, computed} from "mobx";
 import {setResetListener} from "../../stores/FilterStore";
-import {TIMEZONE} from "../../constants";
 
 const TimeControlGroup = styled(ControlGroup)`
   margin-bottom: 1.25rem;
