@@ -16,7 +16,6 @@ import {
 import {getTimelinessColor} from "../../helpers/timelinessColor";
 import styled from "styled-components";
 import Loading from "../Loading";
-import DepartureHfpQuery from "../../queries/DepartureHfpQuery";
 import getJourneyId from "../../helpers/getJourneyId";
 import {createCompositeJourney} from "../../stores/journeyActions";
 
@@ -87,7 +86,7 @@ class TimetableDeparture extends Component {
   );
 
   render() {
-    const {departure, date, stop, onClick, selectedJourney, isVisible} = this.props;
+    const {departure, date, stop, onClick, selectedJourney} = this.props;
 
     const {
       modes: {nodes: modes},
@@ -125,62 +124,38 @@ class TimetableDeparture extends Component {
       isTimingStop
     );
 
-    const skipQuery = !isVisible || !originDeparture;
+    const event = get(departure, "observed", null);
 
-    return (
-      <DepartureHfpQuery
-        skip={skipQuery}
-        date={date}
-        stopId={stop.stopId}
-        routeId={departure.routeId}
-        journeyStartTime={originDepartureTime}
-        direction={parseInt(departure.direction, 10)}>
-        {({event, loading}) => {
-          if (!event && !loading) {
-            return renderListRow(null, onClick(departure));
-          }
+    let plannedObservedDiff = null;
+    let observedTimeString = "";
+    let delayType = "none";
 
-          if (loading) {
-            return renderListRow(<InlineLoading />, onClick(departure));
-          }
+    if (event) {
+      // Diff planned and observed times
+      plannedObservedDiff = diffDepartureJourney(event, departure, date);
+      observedTimeString = plannedObservedDiff
+        ? plannedObservedDiff.observedMoment.format("HH:mm:ss")
+        : "";
 
-          // Bake the hfp data into the departure object
-          // for selecting the journey when clicked.
-          const departureData = {
-            ...departure,
-            observed: event,
-          };
+      delayType = plannedObservedDiff
+        ? getDelayType(plannedObservedDiff.diff)
+        : "none";
+    }
 
-          // Diff planned and observed times
-          const plannedObservedDiff = diffDepartureJourney(event, departure, date);
-          const observedTimeString = plannedObservedDiff
-            ? plannedObservedDiff.observedMoment.format("HH:mm:ss")
-            : "";
+    const hfpChildren = plannedObservedDiff ? (
+      <>
+        <ColoredBackgroundSlot
+          color={delayType === "late" ? "var(--dark-grey)" : "white"}
+          backgroundColor={getTimelinessColor(delayType, "var(--light-green)")}>
+          {plannedObservedDiff.sign === "-" ? "-" : ""}
+          {doubleDigit(plannedObservedDiff.minutes)}:
+          {doubleDigit(plannedObservedDiff.seconds)}
+        </ColoredBackgroundSlot>
+        <ObservedTimeDisplay>{observedTimeString}</ObservedTimeDisplay>
+      </>
+    ) : null;
 
-          const delayType = plannedObservedDiff
-            ? getDelayType(plannedObservedDiff.diff)
-            : "none";
-
-          const hfpChildren = plannedObservedDiff ? (
-            <>
-              <ColoredBackgroundSlot
-                color={delayType === "late" ? "var(--dark-grey)" : "white"}
-                backgroundColor={getTimelinessColor(
-                  delayType,
-                  "var(--light-green)"
-                )}>
-                {plannedObservedDiff.sign === "-" ? "-" : ""}
-                {doubleDigit(plannedObservedDiff.minutes)}:
-                {doubleDigit(plannedObservedDiff.seconds)}
-              </ColoredBackgroundSlot>
-              <ObservedTimeDisplay>{observedTimeString}</ObservedTimeDisplay>
-            </>
-          ) : null;
-
-          return renderListRow(hfpChildren, onClick(departureData));
-        }}
-      </DepartureHfpQuery>
-    );
+    return renderListRow(hfpChildren, onClick(departure));
   }
 }
 

@@ -85,7 +85,7 @@ export default ({className, inline, size}) => {
 };
 
 export const LoadingDisplay = ({loading = false, className, inline, size}) => (
-  <LoadingContainer loading={loading}>
-    <Loading className={className} inline={inline} size={size} />
+  <LoadingContainer className={className} loading={loading}>
+    <Loading inline={inline} size={size} />
   </LoadingContainer>
 );

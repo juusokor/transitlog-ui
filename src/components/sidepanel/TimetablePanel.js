@@ -18,9 +18,8 @@ import TimetableDeparture from "./TimetableDeparture";
 import {getDepartureByTime} from "../../helpers/getDepartureByTime";
 import getJourneyId from "../../helpers/getJourneyId";
 import {createCompositeJourney} from "../../stores/journeyActions";
-import {timeToSeconds, departureTime} from "../../helpers/time";
+import {timeToSeconds, departureTime, journeyStartTime} from "../../helpers/time";
 import DepartureHfpQuery from "../../queries/DepartureHfpQuery";
-import {LoadingDisplay} from "../Loading";
 
 const TimetableFilters = styled.div`
   display: flex;
@@ -274,16 +273,6 @@ class TimetablePanel extends Component {
       date,
     });
 
-    return (
-      <DepartureHfpQuery stopId={stopId} date={date}>
-        {({events: stopEvents, loading}) => {
-          if (stopEvents.length === 0 || loading) {
-            return this.renderList(sortedDepartures);
-          }
-        }}
-      </DepartureHfpQuery>
-    );
-
     const selectedJourneyId = getJourneyId(selectedJourney);
 
     const focusedDeparture = selectedJourneyId
@@ -305,6 +294,54 @@ class TimetablePanel extends Component {
     const focusedIndex = focusedDeparture
       ? sortedDepartures.findIndex((departure) => departure === focusedDeparture)
       : -1;
+
+    return (
+      <DepartureHfpQuery stopId={stopId} date={date}>
+        {({events: stopEvents = [], loading: eventsLoading}) => {
+          if (stopEvents.length === 0 || eventsLoading) {
+            return this.renderList(
+              sortedDepartures,
+              rowRenderer,
+              timetableLoading || eventsLoading,
+              focusedIndex
+            );
+          }
+
+          const departuresWithEvents = sortedDepartures.map((departure) => {
+            const originDeparture = get(departure, "originDeparture", null);
+            const originDepartureTime = originDeparture
+              ? departureTime(originDeparture)
+              : "";
+
+            if (!originDepartureTime) {
+              return departure;
+            }
+
+            const routeId = get(departure, "routeId", "");
+            const direction = parseInt(get(departure, "direction", "0"), 10);
+
+            const departureEvent = stopEvents.find(
+              (event) =>
+                event.route_id === routeId &&
+                event.direction_id === direction &&
+                journeyStartTime(event) === originDepartureTime
+            );
+
+            return {
+              ...departure,
+              observed: departureEvent,
+            };
+          });
+
+          return this.renderList(
+            departuresWithEvents,
+            rowRenderer,
+            timetableLoading,
+            focusedIndex
+          );
+        }}
+      </DepartureHfpQuery>
+    );
   }
 }
 
