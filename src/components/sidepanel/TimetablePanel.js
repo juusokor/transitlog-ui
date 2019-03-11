@@ -19,6 +19,8 @@ import {getDepartureByTime} from "../../helpers/getDepartureByTime";
 import getJourneyId from "../../helpers/getJourneyId";
 import {createCompositeJourney} from "../../stores/journeyActions";
 import {timeToSeconds, departureTime} from "../../helpers/time";
+import DepartureHfpQuery from "../../queries/DepartureHfpQuery";
+import {LoadingDisplay} from "../Loading";
 
 const TimetableFilters = styled.div`
   display: flex;
@@ -174,6 +176,54 @@ class TimetablePanel extends Component {
     );
   };
 
+  renderList = (departures, renderRow, loading, focusedIndex) => {
+    const {
+      state: {date, stop: stopId},
+    } = this.props;
+
+    return stopId ? (
+      <VirtualizedSidepanelList
+        date={date}
+        scrollToIndex={focusedIndex !== -1 ? focusedIndex : undefined}
+        list={departures}
+        renderRow={renderRow}
+        rowHeight={35}
+        loading={loading}
+        header={
+          <TimetableFilters>
+            <RouteFilterContainer>
+              <Input
+                value={this.routeFilter.value} // The value is not debounced here
+                animatedLabel={false}
+                onChange={this.setRouteFilter}
+                label={text("domain.route")}
+              />
+            </RouteFilterContainer>
+            <TimeRangeFilterContainer>
+              <Input
+                type="number"
+                value={this.timeRangeFilter.value.min} // The value is not debounced here either
+                animatedLabel={false}
+                label={`${text("general.timerange.min")} ${text("general.hour")}`}
+                onChange={this.setTimeRangeFilter("min")}
+              />
+              <Input
+                type="number"
+                value={this.timeRangeFilter.value.max} // Nor is it debounced here :)
+                animatedLabel={false}
+                label={`${text("general.timerange.max")} ${text("general.hour")}`}
+                onChange={this.setTimeRangeFilter("max")}
+              />
+            </TimeRangeFilterContainer>
+            <ClearButton onClick={this.onClearFilters}>Clear</ClearButton>
+          </TimetableFilters>
+        }
+      />
+    ) : (
+      "No departures."
+    );
+  };
+
   render() {
     const {
       state: {date, selectedJourney, stop: stopId},
@@ -224,6 +274,16 @@ class TimetablePanel extends Component {
       date,
     });
 
+    return (
+      <DepartureHfpQuery stopId={stopId} date={date}>
+        {({events: stopEvents, loading}) => {
+          if (stopEvents.length === 0 || loading) {
+            return this.renderList(sortedDepartures);
+          }
+        }}
+      </DepartureHfpQuery>
+    );
+
     const selectedJourneyId = getJourneyId(selectedJourney);
 
     const focusedDeparture = selectedJourneyId
@@ -245,48 +305,6 @@ class TimetablePanel extends Component {
     const focusedIndex = focusedDeparture
       ? sortedDepartures.findIndex((departure) => departure === focusedDeparture)
       : -1;
-
-    return (
-      stopId && (
-        <VirtualizedSidepanelList
-          date={date}
-          scrollToIndex={focusedIndex !== -1 ? focusedIndex : undefined}
-          list={sortedDepartures}
-          renderRow={rowRenderer}
-          rowHeight={35}
-          loading={timetableLoading}
-          header={
-            <TimetableFilters>
-              <RouteFilterContainer>
-                <Input
-                  value={this.routeFilter.value} // The value is not debounced here
-                  animatedLabel={false}
-                  onChange={this.setRouteFilter}
-                  label={text("domain.route")}
-                />
-              </RouteFilterContainer>
-              <TimeRangeFilterContainer>
-                <Input
-                  type="number"
-                  value={this.timeRangeFilter.value.min} // The value is not debounced here either
-                  animatedLabel={false}
-                  label={`${text("general.timerange.min")} ${text("general.hour")}`}
-                  onChange={this.setTimeRangeFilter("min")}
-                />
-                <Input
-                  type="number"
-                  value={this.timeRangeFilter.value.max} // Nor is it debounced here :)
-                  animatedLabel={false}
-                  label={`${text("general.timerange.max")} ${text("general.hour")}`}
-                  onChange={this.setTimeRangeFilter("max")}
-                />
-              </TimeRangeFilterContainer>
-              <ClearButton onClick={this.onClearFilters}>Clear</ClearButton>
-            </TimetableFilters>
-          }
-        />
-      )
-    );
   }
 }
 

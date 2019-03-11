@@ -49,6 +49,31 @@ const Loading = styled.div`
   }
 `;
 
+const LoadingContainer = styled.div`
+  position: absolute;
+  top: 8rem;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  user-select: none;
+  transition: opacity 0.1s ease-out, transform 0.2s ease-out;
+  transform: translateY(-5rem);
+  z-index: 10;
+
+  ${({loading = false}) =>
+    loading
+      ? css`
+          opacity: 1;
+          pointer-events: all;
+          transform: translateY(0);
+        `
+      : ""};
+`;
+
 export default ({className, inline, size}) => {
   const defaultSize = inline ? 24 : 35;
 
@@ -58,3 +83,9 @@ export default ({className, inline, size}) => {
     </Loading>
   );
 };
+
+export const LoadingDisplay = ({loading = false, className, inline, size}) => (
+  <LoadingContainer loading={loading}>
+    <Loading className={className} inline={inline} size={size} />
+  </LoadingContainer>
+);
