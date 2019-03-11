@@ -1,5 +1,6 @@
 import React from "react";
 import flow from "lodash/flow";
+import uniqBy from "lodash/uniqBy";
 import RouteStop from "./RouteStop";
 import {observer} from "mobx-react-lite";
 import StopsByRouteQuery from "../../queries/StopsByRouteQuery";
@@ -39,7 +40,7 @@ const RouteStopsLayer = decorate(
 
             return (
               <RouteStop
-                key={`stop_marker_${stop.stopId}`}
+                key={`stop_marker_${stop.stopId}_${stop.stopIndex}`}
                 selected={isSelected}
                 highlighted={isHighlighted}
                 firstTerminal={isFirst}
