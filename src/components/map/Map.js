@@ -100,7 +100,27 @@ class Map extends Component {
 
     const prevCenter = this.prevCenter;
 
-    if (prevCenter && !center.equals(prevCenter)) {
+    // We must be absolutely sure that both sides of center.equals() is the same
+    // type of leaflet object, otherwise Leaflet will throw a hissy fit.
+    // Uses duck typing to find out which kind of object it is.
+    const prevCenterType = prevCenter
+      ? typeof prevCenter.toBBoxString === "function"
+        ? "LatLngBounds"
+        : "LatLng"
+      : false;
+
+    const centerType = center
+      ? typeof center.toBBoxString === "function"
+        ? "LatLngBounds"
+        : "LatLng"
+      : false;
+
+    if (
+      prevCenterType &&
+      centerType &&
+      prevCenterType === centerType &&
+      !center.equals(prevCenter)
+    ) {
       this.prevCenter = center;
 
       if (center instanceof LatLngBounds) {
@@ -108,9 +128,7 @@ class Map extends Component {
       } else {
         map.setView(center);
       }
-    }
-
-    if (!prevCenter) {
+    } else if (!prevCenter) {
       this.prevCenter = center;
     }
   };
