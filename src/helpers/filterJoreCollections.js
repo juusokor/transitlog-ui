@@ -1,8 +1,7 @@
-import {isWithinRange, intval} from "./isWithinRange";
+import {isWithinRange} from "./isWithinRange";
 import reduce from "lodash/reduce";
 import orderBy from "lodash/orderBy";
 import groupBy from "lodash/groupBy";
-import uniqBy from "lodash/uniqBy";
 import get from "lodash/get";
 import first from "lodash/first";
 import last from "lodash/last";
@@ -11,23 +10,11 @@ import diffHours from "date-fns/difference_in_hours";
 import {MAX_JORE_YEAR} from "../constants";
 
 export function filterActive(items, date) {
-  return items.filter((item) => {
-    return isWithinRange(date, item.dateBegin, item.dateEnd);
-  });
-}
+  if (!date) {
+    return items;
+  }
 
-function reduceGroupsToNewestItem(groups) {
-  return reduce(
-    groups,
-    (filtered, items) => {
-      filtered.push(
-        // Pick the most recent item by sorting it first in the list.
-        orderBy(items, ({dateBegin}) => intval(dateBegin), "desc")[0]
-      );
-      return filtered;
-    },
-    []
-  );
+  return items.filter((item) => isWithinRange(date, item.dateBegin, item.dateEnd));
 }
 
 // JORE objects have dateBegin and dateEnd props that express a validity range.
@@ -59,6 +46,10 @@ function getValidItemsByDateChains(groups, date) {
       // It checks the candidate's dateEnd if it is exactly a day off from item.
       // If it returns false, it did not find a result and item would end the chain.
       function findNextLink(item) {
+        if (!item) {
+          return false;
+        }
+
         for (const candidate of dateEndOrdered) {
           const hoursDiff = diffHours(
             // To get a positive number, put the date we presume to be LATER first.
@@ -83,33 +74,33 @@ function getValidItemsByDateChains(groups, date) {
       function createChain(startingPoint) {
         const chain = [];
 
-        // Keep track of the iteration so that we can kill the loop if it happens
-        // to run off.
+        // Keep track of the iteration so that we can
+        // kill the loop if it happens to run off.
         let i = 0;
         const maxIterations = 100;
 
-        // Until the chain ends with the minDate, run the loop. Extra precautions for runaway loops.
+        // Until the chain ends with the minDate, run the loop.
+        // Extra precautions for runaway loops.
         while (get(last(chain), "dateBegin") !== minDate && i < maxIterations) {
-          let item;
-
           if (chain.length === 0) {
             // Use the starting item to start it off. This would be the "last" item in the chain.
-            item = startingPoint;
 
-            // If the chain wouldn't end with this link, or if its' dateBegin equals the minDate,
-            // add it to the chain.
-            if (findNextLink(item) || item.dateBegin === minDate) {
-              chain.push(item);
+            // If the chain wouldn't end with this link, or if its
+            // dateBegin equals the minDate, add it to the chain.
+            if (findNextLink(startingPoint) || startingPoint.dateBegin === minDate) {
+              chain.push(startingPoint);
 
               // If the dateBegin value is a valid minDate, we can end the chain right here.
-              if (item.dateBegin === minDate) {
+              if (startingPoint.dateBegin === minDate) {
                 break;
               }
+
+              continue;
             }
           }
 
-          // Continue off from the initial item or pick the last added item.
-          item = item || last(chain);
+          // Pick the last added item.
+          const item = last(chain);
           const nextItem = findNextLink(item);
 
           // If there isn't anything to add, I guess we're done...
@@ -155,14 +146,8 @@ function getValidItemsByDateChains(groups, date) {
 }
 
 export function filterDepartures(departures, date) {
-  let departureItems = departures;
-
-  if (date) {
-    departureItems = filterActive(departureItems, date);
-  }
-
   const groupedDepartures = groupBy(
-    departureItems,
+    departures,
     (departure) =>
       departure.routeId +
       departure.direction +
@@ -173,32 +158,23 @@ export function filterDepartures(departures, date) {
       departure.extraDeparture
   );
 
-  return reduceGroupsToNewestItem(groupedDepartures);
+  return getValidItemsByDateChains(groupedDepartures, date);
 }
 
-export function filterRouteSegments(routeSegments, date = false) {
-  let validSegments = uniqBy(routeSegments, "stopId");
-
-  if (date) {
-    validSegments = filterActive(validSegments, date);
-  }
-
+export function filterRouteSegments(routeSegments, date, groupByIndex = false) {
   // The departures may contain items that are identical and have overlapping
   // in-effect ranges resulting in doubles showing up in the UI lists.
   // They are filtered out here.
   const groupedSegments = groupBy(
-    validSegments,
+    routeSegments,
     (segment) =>
       segment.routeId +
       segment.direction +
-      segment.stopId +
-      segment.nextStopId +
-      segment.stopIndex +
-      segment.timingStopType
+      (groupByIndex ? segment.stopIndex : segment.stopId)
   );
 
   // Pick the most recent departure item from each group.
-  return reduceGroupsToNewestItem(groupedSegments);
+  return getValidItemsByDateChains(groupedSegments, date);
 }
 
 export function filterLines(lines, date) {

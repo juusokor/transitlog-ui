@@ -34,8 +34,10 @@ const MapContent = decorate(
     stop,
     setMapView,
     viewLocation,
-    queryBounds, // The bounds queried for with area search
-    state: {selectedJourney, date, time, mapOverlays, areaEventsStyle},
+    setQueryBounds,
+    actualQueryBounds,
+    centerOnRoute = true,
+    state: {selectedJourney, time, date, mapOverlays, areaEventsStyle},
   }) => {
     const hasRoute = !!route && !!route.routeId;
     const showStopRadius = expr(() => mapOverlays.indexOf("Stop radius") !== -1);
@@ -44,7 +46,11 @@ const MapContent = decorate(
 
     return (
       <>
-        <AreaSelect enabled={zoom > 12} onSelectArea={queryBounds} />
+        <AreaSelect
+          enabled={zoom > 12}
+          usingBounds={actualQueryBounds}
+          onSelectArea={setQueryBounds}
+        />
         {/* When a route is NOT selected... */}
         {!hasRoute && (
           <>
@@ -79,6 +85,7 @@ const MapContent = decorate(
                       routeGeometry.length !== 0 ? createRouteKey(route) : null
                     }
                     routeGeometry={routeGeometry}
+                    canCenterOnRoute={centerOnRoute}
                     setMapView={setMapView}
                     key={`route_line_${createRouteKey(route, true)}`}
                   />

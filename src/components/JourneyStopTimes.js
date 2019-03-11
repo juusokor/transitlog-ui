@@ -1,19 +1,21 @@
 import React, {Component} from "react";
 import {inject, observer} from "mobx-react";
 import {app} from "mobx-app";
-import pick from "lodash/pick";
 import SingleRouteQuery from "../queries/SingleRouteQuery";
 import withRoute from "../hoc/withRoute";
 import get from "lodash/get";
 import {departureTime, getNormalTime} from "../helpers/time";
 import {isWithinRange} from "../helpers/isWithinRange";
-import sortBy from "lodash/sortBy";
 import {
   filterRouteSegments,
   filterDepartures,
 } from "../helpers/filterJoreCollections";
 import omit from "lodash/omit";
+import pick from "lodash/pick";
 import orderBy from "lodash/orderBy";
+import reduce from "lodash/reduce";
+import map from "lodash/map";
+import groupBy from "lodash/groupBy";
 import {stopDepartureTimes} from "../helpers/stopDepartureTimes";
 import {stopArrivalTimes} from "../helpers/stopArrivalTimes";
 
@@ -67,22 +69,52 @@ class JourneyStopTimes extends Component {
             return children({journeyStops: [], loading});
           }
 
-          const stops = sortBy(
-            filterRouteSegments(get(route, "routeSegments.nodes", []), date),
-            "stopIndex"
-          ).map((routeSegment) => {
+          let routeSegments = filterRouteSegments(
+            get(route, "routeSegments.nodes", []),
+            date
+          );
+
+          routeSegments = groupBy(
+            orderBy(routeSegments, "stopIndex"),
+            "stopIndex",
+            "asc"
+          );
+
+          const allStopEvents = reduce(
+            groupBy(events, "next_stop_id"),
+            (eventGroups, eventsAtStop, stopId) => {
+              eventGroups[stopId] = orderBy(
+                eventsAtStop,
+                "received_at_unix",
+                "desc"
+              );
+              return eventGroups;
+            },
+            {}
+          );
+
+          const stops = map(routeSegments, (routeSegmentsAtIndex) => {
+            // If there are many route segments for this stop, as can happen when
+            // data is added in JORE, only select the route segment that has hfp events.
+            let routeSegment = routeSegmentsAtIndex.reduce(
+              (chosenSegment, segment) => {
+                if (segment.stopId in allStopEvents) {
+                  return segment;
+                }
+
+                return chosenSegment;
+              },
+              routeSegmentsAtIndex[0] // Default to the first segment
+            );
+
+            const stopEvents = allStopEvents[routeSegment.stopId];
+
             const departure = filterDepartures(
               get(routeSegment, "stop.departures.nodes", []),
               date
             ).filter(
               (departure) => departure.departureId === originDeparture.departureId
             )[0];
-
-            const stopEvents = orderBy(
-              events.filter((pos) => pos.next_stop_id === routeSegment.stopId),
-              "received_at_unix",
-              "desc"
-            );
 
             const stopArrival = departure
               ? stopArrivalTimes(stopEvents, departure, date)

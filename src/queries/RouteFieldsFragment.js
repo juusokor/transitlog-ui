@@ -110,6 +110,7 @@ export const ExtensiveRouteFieldsFragment = gql`
             condition: {routeId: $routeId, direction: $direction, dayType: $dayType}
           ) {
             nodes {
+              stopId
               routeId
               direction
               hours

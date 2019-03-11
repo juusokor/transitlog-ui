@@ -124,14 +124,18 @@ const SidePanel = decorate((props) => {
   // if it appears and nothing else is selected then it will be.
   let suggestedTab = "";
 
-  if (!hasRoute && !vehicle) suggestedTab = "area-journeys";
+  if ((!hasRoute && !vehicle) || (areaEvents.length !== 0 || areaEventsLoading))
+    suggestedTab = "area-journeys";
   if (hasRoute) suggestedTab = "journeys";
   if (vehicle) suggestedTab = "vehicle-journeys";
   if (selectedJourney) suggestedTab = "journeys";
   if (stateStop) suggestedTab = "timetables";
 
   const allTabsHidden =
-    !hasRoute && areaEvents.length === 0 && !vehicle && !stateStop;
+    !hasRoute &&
+    (areaEvents.length === 0 && !areaEventsLoading) &&
+    !vehicle &&
+    !stateStop;
 
   return (
     <SidePanelContainer visible={sidePanelVisible}>

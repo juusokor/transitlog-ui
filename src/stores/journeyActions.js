@@ -36,35 +36,31 @@ export default (state) => {
   const filters = filterActions(state);
   const time = timeActions(state);
 
-  const setSelectedJourney = action(
-    "Set selected journey",
-    (hfpItem = null, toggle = true) => {
-      if (
-        (!hfpItem && toggle) ||
-        (state.selectedJourney &&
-          getJourneyId(state.selectedJourney) === getJourneyId(hfpItem))
-      ) {
-        state.selectedJourney = null;
-        filters.setVehicle(null);
-        setPathName("/");
-      } else if (hfpItem) {
-        state.selectedJourney = pickJourneyProps(hfpItem);
+  const setSelectedJourney = action("Set selected journey", (hfpItem = null) => {
+    if (
+      !hfpItem ||
+      (state.selectedJourney &&
+        getJourneyId(state.selectedJourney) === getJourneyId(hfpItem))
+    ) {
+      state.selectedJourney = null;
+      filters.setVehicle(null);
+      setPathName("/");
+    } else if (hfpItem) {
+      state.selectedJourney = pickJourneyProps(hfpItem);
 
-        filters.setRoute({
-          routeId: hfpItem.route_id,
-          direction: hfpItem.direction_id + "",
-        });
+      filters.setRoute({
+        routeId: hfpItem.route_id,
+        direction: hfpItem.direction_id + "",
+      });
 
-        if (hfpItem.unique_vehicle_id) {
-          filters.setVehicle(hfpItem.unique_vehicle_id);
-        }
-
-        setPathName(createJourneyPath(hfpItem));
+      if (hfpItem.unique_vehicle_id) {
+        filters.setVehicle(hfpItem.unique_vehicle_id);
       }
 
       time.toggleLive(false);
+      setPathName(createJourneyPath(hfpItem));
     }
-  );
+  });
 
   const setJourneyVehicle = action((vehicleId) => {
     const {selectedJourney} = state;

@@ -20,6 +20,7 @@ const RouteStopsLayer = decorate(
   }) => {
     return (
       <StopsByRouteQuery
+        date={date}
         route={route}
         skip={
           !route || !route.routeId || !route.dateBegin || journeyStops.length !== 0

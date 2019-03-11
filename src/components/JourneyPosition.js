@@ -1,6 +1,6 @@
 import {Component} from "react";
 import {observer, inject} from "mobx-react";
-import {reaction, observable, action, computed} from "mobx";
+import {reaction, observable, action} from "mobx";
 
 @inject("state")
 @observer
@@ -10,12 +10,6 @@ class JourneyPosition extends Component {
 
   @observable
   hfpPositions = new Map();
-
-  @computed get isLive() {
-    // Determine if the app is live-updating or just simulating.
-    const {live, timeIsCurrent} = this.props.state;
-    return live && timeIsCurrent;
-  }
 
   // Matches the current time setting with a HFP position from this journey.
   getHfpPositions = (time) => {
@@ -50,9 +44,9 @@ class JourneyPosition extends Component {
     let checkSeconds = time;
     let nextHfpPosition = null;
 
-    // Max iterations is 120, which means events can be at most 60 seconds before
+    // Max iterations is 60, which means events can be at most 30 seconds before
     // or after i to be displayed.
-    while (!nextHfpPosition && i <= 120) {
+    while (!nextHfpPosition && i <= 60) {
       // Alternately check after (even i) and before (odd i) `time`
       if (i % 2 === 0) {
         checkSeconds = time + Math.round(i / 2);
@@ -61,8 +55,7 @@ class JourneyPosition extends Component {
       }
 
       nextHfpPosition = indexedEvents.get(checkSeconds);
-
-      i += 1;
+      i++;
     }
 
     return nextHfpPosition;
@@ -97,16 +90,16 @@ class JourneyPosition extends Component {
   componentDidMount() {
     const {state, positions} = this.props;
 
-    if (!this.isLive && positions.length !== 0) {
+    if (!state.isLiveAndCurrent && positions.length !== 0) {
       // Index once when mounted if not live-updating
       this.indexJourneys(positions);
-    } else if (this.isLive && positions.length !== 0) {
+    } else if (state.isLiveAndCurrent && positions.length !== 0) {
       this.getLivePositions(positions);
     }
 
     // A reaction to set the hfp event that matches the currently selected time
     this.positionReaction = reaction(
-      () => [state.unixTime, this.isLive],
+      () => [state.unixTime, state.isLiveAndCurrent],
       ([time, live]) => {
         if (!live && time) {
           this.getHfpPositions(time);
@@ -119,19 +112,19 @@ class JourneyPosition extends Component {
   componentDidUpdate({positions: prevPositions}) {
     const {
       positions = [],
-      state: {unixTime},
+      state: {unixTime, isLiveAndCurrent},
     } = this.props;
 
     // If the positions changed we need to index again.
     if (
-      !this.isLive &&
+      !isLiveAndCurrent &&
       (positions !== prevPositions || positions.length !== prevPositions.length)
     ) {
       this.indexJourneys(positions);
       this.getHfpPositions(unixTime);
     }
 
-    if (this.isLive && positions.length !== 0) {
+    if (isLiveAndCurrent && positions.length !== 0) {
       this.getLivePositions(positions);
     }
   }

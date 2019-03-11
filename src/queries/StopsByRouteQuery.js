@@ -48,20 +48,24 @@ const stopsByRouteQuery = gql`
   ${StopFieldsFragment}
 `;
 
-export default observer(({children, route, skip}) => (
-  <Query
-    skip={skip}
-    query={stopsByRouteQuery}
-    variables={{
-      routeId: get(route, "routeId", ""),
-      direction: get(route, "direction", ""),
-      dateBegin: get(route, "dateBegin", ""),
-      dateEnd: get(route, "dateEnd", ""),
-    }}>
-    {({loading, error, data}) => {
-      const stops = sortBy(
-        filterRouteSegments(get(data, "route.routeSegments.nodes", [])).map(
-          (segment) => ({
+export default observer(({children, route, date, skip}) => {
+  return (
+    <Query
+      skip={skip}
+      query={stopsByRouteQuery}
+      variables={{
+        routeId: get(route, "routeId", ""),
+        direction: get(route, "direction", "") + "",
+        dateBegin: get(route, "dateBegin", ""),
+        dateEnd: get(route, "dateEnd", ""),
+      }}>
+      {({loading, error, data}) => {
+        const stops = sortBy(
+          filterRouteSegments(
+            get(data, "route.routeSegments.nodes", []),
+            date,
+            true // Pass true to filter by stopIndex instead of stopId, which is used when we have hfp data.
+          ).map((segment) => ({
             ...segment.stop,
             timingStopType: segment.timingStopType,
             dateBegin: segment.dateBegin,
@@ -69,16 +73,16 @@ export default observer(({children, route, skip}) => (
             stopIndex: segment.stopIndex,
             distanceFromPrevious: segment.distanceFromPrevious,
             distanceFromStart: segment.distanceFromStart,
-          })
-        ),
-        "stopIndex"
-      );
+          })),
+          "stopIndex"
+        );
 
-      return children({
-        loading,
-        error,
-        stops,
-      });
-    }}
-  </Query>
-));
+        return children({
+          loading,
+          error,
+          stops,
+        });
+      }}
+    </Query>
+  );
+});

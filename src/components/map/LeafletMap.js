@@ -6,6 +6,7 @@ import {
   Pane,
   LayersControl,
   FeatureGroup,
+  ScaleControl,
 } from "react-leaflet";
 import {latLng} from "leaflet";
 import get from "lodash/get";
@@ -160,6 +161,7 @@ class LeafletMap extends Component {
           <Pane name="hfp-markers" style={{zIndex: 460}} />
           <Pane name="hfp-markers-primary" style={{zIndex: 465}} />
           <ZoomControl position="topright" />
+          <ScaleControl position="bottomleft" imperial={false} />
           {children}
         </Map>
         {currentMapillaryViewerLocation && (

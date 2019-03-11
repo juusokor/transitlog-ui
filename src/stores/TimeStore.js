@@ -30,6 +30,10 @@ export default (state, initialState) => {
 
       return moment.tz(new Date(), TIMEZONE).isBetween(minTime, maxTime);
     },
+    get isLiveAndCurrent() {
+      const {live, timeIsCurrent} = state;
+      return live && timeIsCurrent;
+    },
     timeIncrement: get(initialState, "time_increment", 5),
     areaSearchRangeMinutes: get(initialState, "area_search_minutes", 60),
   });

@@ -67,7 +67,12 @@ function App({state, UI}) {
   return (
     <AppFrame>
       <AreaHfpEvents selectedJourney={selectedJourney} date={date}>
-        {({queryBounds, events: areaEvents = [], loading: areaEventsLoading}) => (
+        {({
+          setQueryBounds,
+          actualQueryBounds,
+          events: areaEvents = [],
+          loading: areaEventsLoading,
+        }) => (
           <SelectedJourneyEvents>
             {({
               events: selectedJourneyEvents = [],
@@ -145,7 +150,9 @@ function App({state, UI}) {
                                           }}
                                         </Observer>
                                         <MapContent
-                                          queryBounds={queryBounds}
+                                          centerOnRoute={areaEvents.length === 0}
+                                          setQueryBounds={setQueryBounds}
+                                          actualQueryBounds={actualQueryBounds}
                                           setMapView={setMapView}
                                           journeys={allCurrentPositions}
                                           journeyStops={journeyStops}

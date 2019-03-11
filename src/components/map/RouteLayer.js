@@ -1,7 +1,9 @@
 import React, {Component} from "react";
 import {Polyline} from "react-leaflet";
 import calculateBoundsFromPositions from "../../helpers/calculateBoundsFromPositions";
+import {observer} from "mobx-react";
 
+@observer
 class RouteLayer extends Component {
   currentRouteId = "";
 
@@ -23,9 +25,13 @@ class RouteLayer extends Component {
   };
 
   setBounds() {
-    const {routeGeometry, setMapView = () => {}} = this.props;
+    const {
+      canCenterOnRoute = true,
+      routeGeometry,
+      setMapView = () => {},
+    } = this.props;
 
-    if (routeGeometry.length === 0) {
+    if (!canCenterOnRoute || routeGeometry.length === 0) {
       return;
     }
 
