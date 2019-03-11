@@ -1,41 +1,44 @@
-import React, {Component} from "react";
-import {observer, inject} from "mobx-react";
+import React from "react";
+import {observer} from "mobx-react-lite";
 import StopLayer from "./StopLayer";
 import StopMarker from "./StopMarker";
 import RouteGeometryQuery from "../../queries/RouteGeometryQuery";
 import RouteLayer from "./RouteLayer";
 import get from "lodash/get";
+import flow from "lodash/flow";
 import getJourneyId from "../../helpers/getJourneyId";
 import HfpLayer from "./HfpLayer";
 import HfpMarkerLayer from "./HfpMarkerLayer";
-import {app} from "mobx-app";
 import RouteStopsLayer from "./RouteStopsLayer";
 import AreaSelect from "./AreaSelect";
 import {expr} from "mobx-utils";
 import {areaEventsStyles} from "../../stores/UIStore";
 import SimpleHfpLayer from "./SimpleHfpLayer";
 import {createRouteKey} from "../../helpers/keys";
+import {inject} from "../../helpers/inject";
+import WeatherDisplay from "./WeatherDisplay";
 
-@inject(app("state"))
-@observer
-class MapContent extends Component {
-  render() {
-    const {
-      journeys = [],
-      journeyStops,
-      timePositions,
-      route,
-      zoom,
-      stopsBbox,
-      stop,
-      setMapBounds,
-      viewLocation,
-      setQueryBounds,
-      actualQueryBounds,
-      centerOnRoute = true,
-      state: {selectedJourney, date, mapOverlays, areaEventsStyle},
-    } = this.props;
+const decorate = flow(
+  observer,
+  inject("state")
+);
 
+const MapContent = decorate(
+  ({
+    journeys = [],
+    journeyStops,
+    timePositions,
+    route,
+    zoom,
+    mapBounds, // The current map view
+    stop,
+    setMapView,
+    viewLocation,
+    setQueryBounds,
+    actualQueryBounds,
+    centerOnRoute = true,
+    state: {selectedJourney, time, date, mapOverlays, areaEventsStyle},
+  }) => {
     const hasRoute = !!route && !!route.routeId;
     const showStopRadius = expr(() => mapOverlays.indexOf("Stop radius") !== -1);
 
@@ -56,7 +59,7 @@ class MapContent extends Component {
                 showRadius={showStopRadius}
                 onViewLocation={viewLocation}
                 date={date}
-                bounds={stopsBbox}
+                bounds={mapBounds}
               />
             ) : stop ? (
               <StopMarker
@@ -83,7 +86,7 @@ class MapContent extends Component {
                     }
                     routeGeometry={routeGeometry}
                     canCenterOnRoute={centerOnRoute}
-                    setMapBounds={setMapBounds}
+                    setMapView={setMapView}
                     key={`route_line_${createRouteKey(route, true)}`}
                   />
                 ) : null
@@ -171,9 +174,12 @@ class MapContent extends Component {
                 />
               );
             })}
+        {mapOverlays.includes("Weather") && !selectedJourney && (
+          <WeatherDisplay position={mapBounds} />
+        )}
       </>
     );
   }
-}
+);
 
 export default MapContent;

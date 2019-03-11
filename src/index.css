@@ -18,7 +18,7 @@
   --yellow: #fed100;
   --dark-grey: #333333;
   --grey: #616365;
-  --light-grey: #666666;
+  --light-grey: #999999;
   --lighter-grey: #dddddc;
   --lightest-grey: #eef1f3;
   --alt-grey: #ccccdf;
@@ -33,12 +33,12 @@
 html {
   height: 100%;
   font-size: 100%;
+  font-family: var(--font-family);
 }
 
 body {
   margin: 0;
   padding: 0;
-  font-family: var(--font-family);
   height: 100%;
   background: var(--dark-grey);
 }

@@ -6,6 +6,12 @@ import Calendar from "../../../icons/Calendar";
 import JourneyPlanner from "../../../icons/JourneyPlanner";
 import Time2 from "../../../icons/Time2";
 import get from "lodash/get";
+import {WeatherWidget} from "../../map/WeatherDisplay";
+import {useJourneyWeather} from "../../../hooks/useJourneyWeather";
+import {useWeatherData} from "../../../hooks/useWeatherData";
+import getJourneyId from "../../../helpers/getJourneyId";
+import {observer} from "mobx-react-lite";
+import {useDebouncedValue} from "../../../hooks/useDebouncedValue";
 
 const JourneyPanelHeader = styled.div`
   flex: none;
@@ -38,7 +44,7 @@ const LineNameHeading = styled(Heading).attrs({level: 4})`
 
 const MainHeaderRow = styled(Heading).attrs({level: 3})`
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: flex-start;
   width: 100%;
   margin-bottom: 1.3rem;
@@ -48,7 +54,7 @@ const HeaderText = styled.span`
   font-weight: normal;
   margin-left: 1.25rem;
   display: inline-flex;
-  align-items: center;
+  align-items: flex-start;
   font-size: 0.875rem;
   padding-bottom: 0.2rem;
   overflow: visible;
@@ -62,34 +68,52 @@ const HeaderText = styled.span`
   }
 `;
 
+const WeatherDisplay = styled(WeatherWidget)`
+  position: static;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  margin-left: auto;
+  font-size: 0.75rem;
+  text-align: right;
+  max-height: 1.2rem;
+`;
+
 const DateTimeHeading = styled.div``;
 
-export default ({mode, routeId, date, name, journey}) => {
-  return (
-    <JourneyPanelHeader>
-      <MainHeaderRow>
-        <TransportIcon width={23} height={23} mode={mode} />
-        {get(journey, "desi", "")}
-        <HeaderText>
-          <JourneyPlanner fill="var(--blue)" width="1rem" height="1rem" />
-          {routeId}
-        </HeaderText>
-        <HeaderText>
-          <TransportIcon mode={mode} width={17} height={17} />
-          {get(journey, "unique_vehicle_id", "")}
-        </HeaderText>
-      </MainHeaderRow>
-      <DateTimeHeading>
-        <HeaderText>
-          <Calendar fill="var(--blue)" width="1rem" height="1rem" />
-          {date}
-        </HeaderText>
-        <HeaderText>
-          <Time2 fill="var(--blue)" width="1rem" height="1rem" />
-          {get(journey, "journey_start_time", "")}
-        </HeaderText>
-      </DateTimeHeading>
-      <LineNameHeading>{name}</LineNameHeading>
-    </JourneyPanelHeader>
-  );
-};
+export default observer(
+  ({mode, routeId, date, name, journey, events, currentTime}) => {
+    const [currentJourneyWeather] = useJourneyWeather(events, getJourneyId(journey));
+    const debouncedTime = useDebouncedValue(currentTime.valueOf(), 1000);
+    const journeyWeather = useWeatherData(currentJourneyWeather, debouncedTime);
+
+    return (
+      <JourneyPanelHeader>
+        <MainHeaderRow>
+          <TransportIcon width={23} height={23} mode={mode} />
+          {get(journey, "desi", "")}
+          <HeaderText>
+            <JourneyPlanner fill="var(--blue)" width="1rem" height="1rem" />
+            {routeId}
+          </HeaderText>
+          <HeaderText>
+            <TransportIcon mode={mode} width={17} height={17} />
+            {get(journey, "unique_vehicle_id", "")}
+          </HeaderText>
+          <WeatherDisplay {...journeyWeather || {}} />
+        </MainHeaderRow>
+        <DateTimeHeading>
+          <HeaderText>
+            <Calendar fill="var(--blue)" width="1rem" height="1rem" />
+            {date}
+          </HeaderText>
+          <HeaderText>
+            <Time2 fill="var(--blue)" width="1rem" height="1rem" />
+            {get(journey, "journey_start_time", "")}
+          </HeaderText>
+        </DateTimeHeading>
+        <LineNameHeading>{name}</LineNameHeading>
+      </JourneyPanelHeader>
+    );
+  }
+);
