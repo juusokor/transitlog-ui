@@ -298,7 +298,7 @@ class TimetablePanel extends Component {
     return (
       <DepartureHfpQuery stopId={stopId} date={date}>
         {({events: stopEvents = [], loading: eventsLoading}) => {
-          if (stopEvents.length === 0 || eventsLoading) {
+          if (stopEvents.length === 0) {
             return this.renderList(
               sortedDepartures,
               rowRenderer,

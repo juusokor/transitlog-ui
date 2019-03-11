@@ -53,14 +53,15 @@ class VirtualizedSidepanelList extends Component {
                 estimatedRowSize={35}
                 height={height}
                 width={width}
+                loading={loading}
                 rowCount={list.length}
                 rowHeight={rowHeight}
                 rowRenderer={renderRow}
               />
             )}
           </AutoSizer>
-          <LoadingDisplay loading={loading} />
         </div>
+        <LoadingDisplay loading={loading} />
       </ListWrapper>
     );
   }

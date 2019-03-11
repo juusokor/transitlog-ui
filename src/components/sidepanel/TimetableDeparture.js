@@ -15,7 +15,6 @@ import {
 } from "../TagButton";
 import {getTimelinessColor} from "../../helpers/timelinessColor";
 import styled from "styled-components";
-import Loading from "../Loading";
 import getJourneyId from "../../helpers/getJourneyId";
 import {createCompositeJourney} from "../../stores/journeyActions";
 
@@ -37,13 +36,6 @@ const LineSlot = styled(ColoredSlot)`
 
 const PlannedTimeSlot = styled(PlainSlot)`
   min-width: 5.25rem;
-`;
-
-const InlineLoading = styled(Loading).attrs({inline: true, size: 18})`
-  color: red;
-  align-self: center;
-  margin-left: auto;
-  margin-top: 5px;
 `;
 
 const TimingIcon = styled.img`
