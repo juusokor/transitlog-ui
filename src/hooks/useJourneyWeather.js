@@ -45,16 +45,17 @@ export const useJourneyWeather = (events, journeyId, onBounds = () => {}) => {
   );
 
   // Routes can be quite one-dimensional (straight-ish line horizontally or vertically),
-  // so we let the weather hook create a square bounding box.
+  // so first create a new bbox from the center of the route and extend it over the
+  // start and end points with 5 km^2 of padding at either end.
   const routeBounds = useMemo(() => {
     if (!bounds) {
       return null;
     }
 
     const center = bounds.getCenter();
-    const squareBounds = center.toBounds(8000);
-    squareBounds.extend(minPosition.toBounds(5000));
-    squareBounds.extend(maxPosition.toBounds(5000));
+    const squareBounds = center.toBounds(8000); // 8km^2 bbox from the center
+    squareBounds.extend(minPosition.toBounds(5000)); // Extend bounds to contain 5km^2 around the start position
+    squareBounds.extend(maxPosition.toBounds(5000)); // Extend bounds to contain 5km^2 around the end position
 
     return squareBounds;
   }, [bounds, minPosition, maxPosition]);
