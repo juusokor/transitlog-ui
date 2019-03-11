@@ -1,53 +1,63 @@
 import moment from "moment-timezone";
 import {TIMEZONE} from "../constants";
 import {useWeather} from "./useWeather";
-import {latLngBounds} from "leaflet";
+import {latLngBounds, latLng} from "leaflet";
 import {useMemo} from "react";
 
-export const useJourneyWeather = (events, journeyId) => {
-  const {minPosition, maxPosition} = useMemo(
+export const useJourneyWeather = (events, journeyId, onBounds = () => {}) => {
+  const {minEvent, maxEvent} = useMemo(
     () => ({
-      minPosition: events[0],
-      maxPosition: events[events.length - 1],
+      minEvent: events[0],
+      maxEvent: events[events.length - 1],
     }),
     [typeof events[0] !== "undefined", journeyId]
   );
 
+  const minPosition = minEvent ? latLng(minEvent.lat, minEvent.long) : null;
+  const maxPosition = maxEvent ? latLng(maxEvent.lat, maxEvent.long) : null;
+
   const bounds = useMemo(
     () =>
-      minPosition
-        ? latLngBounds(
-            [minPosition.lat, minPosition.long],
-            [maxPosition.lat, maxPosition.long]
-          )
-        : null,
-    [minPosition]
+      minPosition && maxPosition ? latLngBounds(minPosition, maxPosition) : null,
+    [minPosition, maxPosition]
   );
 
   const startDate = useMemo(
     () =>
-      minPosition
+      minEvent
         ? moment
-            .tz(minPosition.tst, TIMEZONE)
+            .tz(minEvent.tst, TIMEZONE)
             .startOf("hour")
             .toISOString(true)
         : null,
-    [minPosition]
+    [minEvent]
   );
 
   const endDate = useMemo(
     () =>
-      maxPosition
+      maxEvent
         ? moment
-            .tz(maxPosition.tst, TIMEZONE)
+            .tz(maxEvent.tst, TIMEZONE)
             .endOf("hour")
             .toISOString(true)
         : null,
-    [maxPosition]
+    [maxEvent]
   );
+
   // Routes can be quite one-dimensional (straight-ish line horizontally or vertically),
   // so we let the weather hook create a square bounding box.
-  const point = useMemo(() => (bounds ? bounds.getCenter() : null), [bounds]);
+  const routeBounds = useMemo(() => {
+    if (!bounds) {
+      return null;
+    }
 
-  return useWeather(point, endDate, startDate);
+    const center = bounds.getCenter();
+    const squareBounds = center.toBounds(8000);
+    squareBounds.extend(minPosition.toBounds(5000));
+    squareBounds.extend(maxPosition.toBounds(5000));
+
+    return squareBounds;
+  }, [bounds, minPosition, maxPosition]);
+
+  return useWeather(routeBounds, endDate, startDate);
 };

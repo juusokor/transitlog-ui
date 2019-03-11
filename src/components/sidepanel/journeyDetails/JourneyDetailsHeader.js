@@ -12,6 +12,7 @@ import {useWeatherData} from "../../../hooks/useWeatherData";
 import getJourneyId from "../../../helpers/getJourneyId";
 import {observer} from "mobx-react-lite";
 import {useDebouncedValue} from "../../../hooks/useDebouncedValue";
+import {visualizeBounds} from "../../map/LeafletMap";
 
 const JourneyPanelHeader = styled.div`
   flex: none;
@@ -83,7 +84,11 @@ const DateTimeHeading = styled.div``;
 
 export default observer(
   ({mode, routeId, date, name, journey, events, currentTime}) => {
-    const [currentJourneyWeather] = useJourneyWeather(events, getJourneyId(journey));
+    const [currentJourneyWeather] = useJourneyWeather(
+      events,
+      getJourneyId(journey),
+      visualizeBounds
+    );
     const debouncedTime = useDebouncedValue(currentTime.valueOf(), 1000);
     const journeyWeather = useWeatherData(currentJourneyWeather, debouncedTime);
 
