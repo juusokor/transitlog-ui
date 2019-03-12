@@ -7,29 +7,11 @@ import compact from "lodash/compact";
 import {removeUpdateListener, setUpdateListener} from "../stores/UpdateManager";
 
 const stopDelayQuery = gql`
-  query stopDelay(
-    $date: date!
-    $stopId: String!
-    $routeId: String!
-    $directionId: smallint!
-    $journeyStartTime: time
-  ) {
+  query stopDelay($date: date!, $stopId: String!) {
     vehicles(
-      distinct_on: [oday, route_id, direction_id, journey_start_time]
-      order_by: [
-        {oday: asc}
-        {route_id: asc}
-        {direction_id: asc}
-        {journey_start_time: asc}
-        {tst: desc}
-      ]
-      where: {
-        journey_start_time: {_eq: $journeyStartTime}
-        route_id: {_eq: $routeId}
-        direction_id: {_eq: $directionId}
-        oday: {_eq: $date}
-        next_stop_id: {_eq: $stopId}
-      }
+      distinct_on: [journey_start_time, unique_vehicle_id]
+      order_by: [{journey_start_time: asc}, {unique_vehicle_id: asc}, {tst: desc}]
+      where: {next_stop_id: {_eq: $stopId}, oday: {_eq: $date}}
     ) {
       journey_start_time
       next_stop_id
@@ -63,29 +45,17 @@ class DepartureHfpQuery extends Component {
   };
 
   render() {
-    const {
-      routeId,
-      direction,
-      date,
-      stopId,
-      journeyStartTime,
-      skip,
-      children,
-    } = this.props;
+    const {date, stopId, skip = false, children} = this.props;
 
     // TODO: If things are off with how the component responds to updates, check
     //  the fetchPolicy here. It seems to fix the no-updates-at-all problem though.
 
     return (
       <Query
-        fetchPolicy="cache-and-network"
         skip={skip}
         variables={{
           date,
           stopId,
-          routeId,
-          journeyStartTime,
-          directionId: direction,
         }}
         query={stopDelayQuery}>
         {({loading, data, error, refetch, variables}) => {
@@ -93,10 +63,10 @@ class DepartureHfpQuery extends Component {
           const vehicles = get(data, "vehicles", []);
 
           if (vehicles.length === 0 || loading || error) {
-            return children({event: null, loading, error, variables});
+            return children({events: [], loading, error, variables});
           }
 
-          return children({event: vehicles[0], loading, error, variables});
+          return children({events: vehicles, loading, error, variables});
         }}
       </Query>
     );

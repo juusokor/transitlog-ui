@@ -7,6 +7,7 @@ import {
   LayersControl,
   FeatureGroup,
   ScaleControl,
+  Rectangle,
 } from "react-leaflet";
 import {latLng} from "leaflet";
 import get from "lodash/get";
@@ -17,6 +18,7 @@ import MapillaryGeoJSONLayer from "./MapillaryGeoJSONLayer";
 import {setUrlValue, getUrlValue} from "../../stores/UrlManager";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
+import {observable, action} from "mobx";
 
 const MapContainer = styled.div`
   overflow: hidden;
@@ -37,6 +39,13 @@ const MapillaryView = styled(MapillaryViewer)`
   flex: 1 1 50%;
   position: relative;
 `;
+
+const visualLog = observable({bounds: null}, {bounds: observable.ref});
+
+// Call this to visualize bounds anywhere in the app. Dev tool.
+export const visualizeBounds = action((bounds) => {
+  visualLog.bounds = bounds;
+});
 
 @inject(app("UI"))
 @observer
@@ -162,6 +171,7 @@ class LeafletMap extends Component {
           <Pane name="hfp-markers-primary" style={{zIndex: 465}} />
           <ZoomControl position="topright" />
           <ScaleControl position="bottomleft" imperial={false} />
+          {visualLog.bounds && <Rectangle bounds={visualLog.bounds} />}
           {children}
         </Map>
         {currentMapillaryViewerLocation && (
