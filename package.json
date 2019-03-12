@@ -136,7 +136,7 @@
     "react-testing-library": "^5.4.4"
   },
   "lint-staged": {
-    "*.js": [
+    "src/**/*.js": [
       "prettier --write",
       "eslint --fix",
       "git add",
