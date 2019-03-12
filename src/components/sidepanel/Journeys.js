@@ -287,7 +287,7 @@ class Journeys extends Component {
                               {...applyTooltip("Journey list row")}
                               ref={journeyIsFocused ? scrollRef : null}
                               selected={journeyIsSelected}
-                              key={`journey_row_${journeyId}`}
+                              key={`journey_row_${journeyId}_${eventIndex}`}
                               onClick={this.selectJourney(journeyEvent)}>
                               <JourneyRowLeft
                                 {...applyTooltip("Planned journey time with data")}>

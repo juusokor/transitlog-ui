@@ -14,8 +14,9 @@ class SimpleHfpLayer extends Component {
   mouseOver = false;
 
   findHfpItem = (positions = [], latlng) => {
-    const hfpItem = positions.find((hfp) =>
-      latlng.equals(latLng(hfp.lat, hfp.long), 0.0001)
+    const hfpItem = positions.find(
+      (hfp) =>
+        hfp.lat && hfp.long && latlng.equals(latLng(hfp.lat, hfp.long), 0.0001)
     );
 
     return hfpItem || null;

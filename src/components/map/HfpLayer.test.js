@@ -8,6 +8,8 @@ describe("SimpleHfpLayer", () => {
     route_id: "routeid",
     direction_id: "direction",
     dl: 0,
+    lat: 1,
+    long: 1,
   };
 
   function createPositions() {

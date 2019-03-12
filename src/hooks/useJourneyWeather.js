@@ -15,13 +15,18 @@ export const useJourneyWeather = (events, journeyId) => {
 
   const bounds = useMemo(
     () =>
-      minPosition
+      minPosition &&
+      maxPosition &&
+      minPosition.lat &&
+      minPosition.long &&
+      maxPosition.lat &&
+      maxPosition.long
         ? latLngBounds(
             [minPosition.lat, minPosition.long],
             [maxPosition.lat, maxPosition.long]
           )
         : null,
-    [minPosition]
+    [minPosition, maxPosition]
   );
 
   const startDate = useMemo(
