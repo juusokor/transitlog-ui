@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
 import styled from "styled-components";
-import {action, observable, reaction} from "mobx";
+import {action, observable} from "mobx";
 import {app} from "mobx-app";
 import {LoadingDisplay} from "../Loading";
 
@@ -57,22 +57,15 @@ class SidepanelList extends Component {
   listHeight = 0;
   updateScrollOffsetTimer = 0;
 
+  // Scrolls the list so that the focused element is in the middle.
   scrollTo = (offset) => {
-    if (this.scrollElementRef.current) {
+    if (offset && this.scrollElementRef.current) {
       this.scrollElementRef.current.scrollTop = offset - this.listHeight / 2;
     }
   };
 
   componentDidMount() {
-    this.disposeScrollOffsetReaction = reaction(
-      () => this.scrollOffset,
-      (offset) => {
-        if (!this.props.loading) {
-          this.scrollTo(offset);
-        }
-      }
-    );
-
+    // Set the height of the list on mount
     if (this.scrollElementRef.current) {
       this.listHeight = this.scrollElementRef.current.getBoundingClientRect().height;
     }
@@ -90,9 +83,12 @@ class SidepanelList extends Component {
         clearTimeout(this.updateScrollOffsetTimer);
       }
 
+      // Update the scroll offset 100 ms after any update.
+      // There must be a timer here otherwise the list may not be rendered
+      // before the scroll offset is read.
       this.updateScrollOffsetTimer = setTimeout(
         () => this.updateScrollOffset(reset),
-        500
+        300
       );
     }
   }
@@ -100,11 +96,12 @@ class SidepanelList extends Component {
   updateScrollOffset = (reset = false) => {
     const offset = this.getScrollOffset(reset);
 
-    if (!this.scrollOffset || offset !== this.scrollOffset) {
+    if (offset && (!this.scrollOffset || offset !== this.scrollOffset)) {
       this.setScrollOffset(offset);
     }
   };
 
+  // Get the scroll offset in pixels.
   // This method only gets a new position if the scrollOffset has not previously been set.
   // This behaviour can be overridden by setting the reset arg to true.
   getScrollOffset = (reset = false) => {
@@ -130,6 +127,8 @@ class SidepanelList extends Component {
       children = () => {},
       loading = false,
     } = this.props;
+
+    this.scrollTo(this.scrollOffset);
 
     return (
       <ListWrapper hasHeader={!!header}>

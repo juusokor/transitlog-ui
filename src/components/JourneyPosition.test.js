@@ -19,9 +19,9 @@ describe("JourneyPosition", () => {
       {
         journeyId: "test",
         events: [
-          {received_at_unix: 1},
-          {received_at_unix: 2},
-          {received_at_unix: 3},
+          {received_at_unix: 1, lat: 1, long: 1},
+          {received_at_unix: 2, lat: 1, long: 1},
+          {received_at_unix: 3, lat: 1, long: 1},
         ],
       },
     ];
@@ -53,9 +53,9 @@ describe("JourneyPosition", () => {
       {
         journeyId: "test",
         events: [
-          {received_at_unix: 10},
-          {received_at_unix: 20},
-          {received_at_unix: 30},
+          {received_at_unix: 10, lat: 1, long: 1},
+          {received_at_unix: 20, lat: 1, long: 1},
+          {received_at_unix: 30, lat: 1, long: 1},
         ],
       },
     ];
@@ -85,9 +85,9 @@ describe("JourneyPosition", () => {
       {
         journeyId: "test",
         events: [
-          {received_at_unix: 10},
-          {received_at_unix: 20},
-          {received_at_unix: 30},
+          {received_at_unix: 10, lat: 1, long: 1},
+          {received_at_unix: 20, lat: 1, long: 1},
+          {received_at_unix: 30, lat: 1, long: 1},
         ],
       },
     ];
@@ -121,9 +121,9 @@ describe("JourneyPosition", () => {
       {
         journeyId: "test",
         events: [
-          {received_at_unix: 10},
-          {received_at_unix: 20},
-          {received_at_unix: 30},
+          {received_at_unix: 10, lat: 1, long: 1},
+          {received_at_unix: 20, lat: 1, long: 1},
+          {received_at_unix: 30, lat: 1, long: 1},
         ],
       },
     ];
@@ -154,9 +154,9 @@ describe("JourneyPosition", () => {
       {
         journeyId: "test",
         events: [
-          {received_at_unix: 100},
-          {received_at_unix: 110},
-          {received_at_unix: 120},
+          {received_at_unix: 100, lat: 1, long: 1},
+          {received_at_unix: 110, lat: 1, long: 1},
+          {received_at_unix: 120, lat: 1, long: 1},
         ],
       },
     ];

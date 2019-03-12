@@ -100,7 +100,7 @@ class Journeys extends Component {
         journeyToSelect = journey;
       }
     }
-    Journey.setSelectedJourney(journeyToSelect);
+    Journey.setSelectedJourney(journeyToSelect, instance);
   };
 
   render() {
@@ -175,17 +175,22 @@ class Journeys extends Component {
                   }>
                   {(scrollRef) =>
                     journeys.map((journey) => {
-                      if (!journey.events || typeof journey.events === "string") {
-                        const journeyId = journey.journeyId;
+                      if (
+                        !journey.events ||
+                        journey.events.length === 0 ||
+                        typeof journey.events === "string"
+                      ) {
+                        const journeyId = journey.journeyId.slice(0, -1);
 
                         const journeyIsSelected = expr(
                           () =>
                             state.selectedJourney &&
-                            selectedJourneyId === journeyId[0]
+                            selectedJourneyId.slice(0, -1) === journeyId
                         );
 
                         const journeyIsFocused =
-                          focusedJourney && focusedJourney === journeyId;
+                          focusedJourney &&
+                          focusedJourney.slice(0, -1) === journeyId;
 
                         let fetchStatus = journey.events;
 
@@ -217,13 +222,12 @@ class Journeys extends Component {
 
                       const journeyEvents = get(journey, "events", []);
 
-                      if (journeyEvents.length === 0) {
-                        return null;
-                      }
-
                       return journeyEvents.map(
                         (journeyEvent, eventIndex, {length: eventsLength}) => {
-                          const journeyId = getJourneyId(journeyEvent);
+                          const journeyId = getJourneyId({
+                            ...journeyEvent,
+                            instance: eventIndex,
+                          });
 
                           let observedJourney = (
                             <Text>filterpanel.journey.incomplete_data</Text>
@@ -231,8 +235,7 @@ class Journeys extends Component {
 
                           const journeyIsSelected = expr(
                             () =>
-                              state.selectedJourney &&
-                              journeyId.includes(selectedJourneyId)
+                              selectedJourneyId && selectedJourneyId === journeyId
                           );
 
                           if (journeyEvents.length !== 0) {
@@ -279,8 +282,12 @@ class Journeys extends Component {
                             );
                           }
 
+                          // The focused journey is used for scrolling and comparing
+                          // instances is problematic, so strip the instance char
+                          // from both sides of the comparison.
                           const journeyIsFocused =
-                            focusedJourney && journeyId.includes(focusedJourney);
+                            focusedJourney &&
+                            focusedJourney.slice(0, -1) === journeyId.slice(0, -1);
 
                           return (
                             <JourneyListRow
@@ -288,7 +295,7 @@ class Journeys extends Component {
                               ref={journeyIsFocused ? scrollRef : null}
                               selected={journeyIsSelected}
                               key={`journey_row_${journeyId}_${eventIndex}`}
-                              onClick={this.selectJourney(journeyEvent)}>
+                              onClick={this.selectJourney(journeyEvent, eventIndex)}>
                               <JourneyRowLeft
                                 {...applyTooltip("Planned journey time with data")}>
                                 {getNormalTime(

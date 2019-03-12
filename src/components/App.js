@@ -134,10 +134,8 @@ function App({state, UI}) {
                                                     )
                                                   : false;
 
-                                              const {
-                                                lat,
-                                                long,
-                                              } = selectedJourneyPosition;
+                                              const {lat, long} =
+                                                selectedJourneyPosition || {};
 
                                               const centerPosition =
                                                 lat && long
