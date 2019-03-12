@@ -10246,11 +10246,6 @@ snapdragon@^0.8.1:
     source-map-resolve "^0.5.0"
     use "^3.1.0"
 
-snifferjs@^3.1.1:
-  version "3.1.1"
-  resolved "https://registry.yarnpkg.com/snifferjs/-/snifferjs-3.1.1.tgz#26c6b41b51a395fe6625e4414613c2a3a49c528c"
-  integrity sha1-Jsa0G1Gjlf5mJeRBRhPCo6ScUow=
-
 sockjs-client@1.3.0:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/sockjs-client/-/sockjs-client-1.3.0.tgz#12fc9d6cb663da5739d3dc5fb6e8687da95cb177"
