@@ -12,7 +12,7 @@ const spin = keyframes`
   }
 `;
 
-const Loading = styled.div`
+const LoadingIndicator = styled.div`
   background: white;
   border-radius: 50%;
   padding: 0.75rem;
@@ -49,12 +49,45 @@ const Loading = styled.div`
   }
 `;
 
-export default ({className, inline, size}) => {
+const LoadingContainer = styled.div`
+  position: absolute;
+  top: 1rem;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  user-select: none;
+  transition: opacity 0.1s ease-out, transform 0.2s ease-out;
+  transform: translateY(-5rem);
+  z-index: 10;
+
+  ${({loading = false}) =>
+    loading
+      ? css`
+          opacity: 1;
+          pointer-events: all;
+          transform: translateY(0);
+        `
+      : ""};
+`;
+
+const Loading = ({className, inline, size}) => {
   const defaultSize = inline ? 24 : 35;
 
   return (
-    <Loading inline={inline} className={className}>
+    <LoadingIndicator inline={inline} className={className}>
       <Spinner width={size || defaultSize} height={size || defaultSize} />
-    </Loading>
+    </LoadingIndicator>
   );
 };
+
+export default Loading;
+
+export const LoadingDisplay = ({loading = false, className, inline, size}) => (
+  <LoadingContainer className={className} loading={loading}>
+    <Loading inline={inline} size={size} />
+  </LoadingContainer>
+);

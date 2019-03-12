@@ -18,7 +18,8 @@ import TimetableDeparture from "./TimetableDeparture";
 import {getDepartureByTime} from "../../helpers/getDepartureByTime";
 import getJourneyId from "../../helpers/getJourneyId";
 import {createCompositeJourney} from "../../stores/journeyActions";
-import {timeToSeconds, departureTime} from "../../helpers/time";
+import {timeToSeconds, departureTime, journeyStartTime} from "../../helpers/time";
+import DepartureHfpQuery from "../../queries/DepartureHfpQuery";
 
 const TimetableFilters = styled.div`
   display: flex;
@@ -156,7 +157,7 @@ class TimetablePanel extends Component {
     );
   }
 
-  renderRow = (list, props) => ({key, index, style, isScrolling, isVisible}) => {
+  renderRow = (props) => (list) => ({key, index, style, isScrolling, isVisible}) => {
     const departure = list[index];
 
     return (
@@ -171,6 +172,54 @@ class TimetablePanel extends Component {
           {...props}
         />
       </div>
+    );
+  };
+
+  renderList = (departures, renderRow, loading, focusedIndex) => {
+    const {
+      state: {date, stop: stopId},
+    } = this.props;
+
+    return stopId ? (
+      <VirtualizedSidepanelList
+        date={date}
+        scrollToIndex={focusedIndex !== -1 ? focusedIndex : undefined}
+        list={departures}
+        renderRow={renderRow(departures)}
+        rowHeight={35}
+        loading={loading}
+        header={
+          <TimetableFilters>
+            <RouteFilterContainer>
+              <Input
+                value={this.routeFilter.value} // The value is not debounced here
+                animatedLabel={false}
+                onChange={this.setRouteFilter}
+                label={text("domain.route")}
+              />
+            </RouteFilterContainer>
+            <TimeRangeFilterContainer>
+              <Input
+                type="number"
+                value={this.timeRangeFilter.value.min} // The value is not debounced here either
+                animatedLabel={false}
+                label={`${text("general.timerange.min")} ${text("general.hour")}`}
+                onChange={this.setTimeRangeFilter("min")}
+              />
+              <Input
+                type="number"
+                value={this.timeRangeFilter.value.max} // Nor is it debounced here :)
+                animatedLabel={false}
+                label={`${text("general.timerange.max")} ${text("general.hour")}`}
+                onChange={this.setTimeRangeFilter("max")}
+              />
+            </TimeRangeFilterContainer>
+            <ClearButton onClick={this.onClearFilters}>Clear</ClearButton>
+          </TimetableFilters>
+        }
+      />
+    ) : (
+      "No departures."
     );
   };
 
@@ -217,13 +266,6 @@ class TimetablePanel extends Component {
       })
     );
 
-    const rowRenderer = this.renderRow(sortedDepartures, {
-      selectedJourney,
-      onClick: this.selectAsJourney,
-      stop,
-      date,
-    });
-
     const selectedJourneyId = getJourneyId(selectedJourney);
 
     const focusedDeparture = selectedJourneyId
@@ -247,45 +289,58 @@ class TimetablePanel extends Component {
       : -1;
 
     return (
-      stopId && (
-        <VirtualizedSidepanelList
-          date={date}
-          scrollToIndex={focusedIndex !== -1 ? focusedIndex : undefined}
-          list={sortedDepartures}
-          renderRow={rowRenderer}
-          rowHeight={35}
-          loading={timetableLoading}
-          header={
-            <TimetableFilters>
-              <RouteFilterContainer>
-                <Input
-                  value={this.routeFilter.value} // The value is not debounced here
-                  animatedLabel={false}
-                  onChange={this.setRouteFilter}
-                  label={text("domain.route")}
-                />
-              </RouteFilterContainer>
-              <TimeRangeFilterContainer>
-                <Input
-                  type="number"
-                  value={this.timeRangeFilter.value.min} // The value is not debounced here either
-                  animatedLabel={false}
-                  label={`${text("general.timerange.min")} ${text("general.hour")}`}
-                  onChange={this.setTimeRangeFilter("min")}
-                />
-                <Input
-                  type="number"
-                  value={this.timeRangeFilter.value.max} // Nor is it debounced here :)
-                  animatedLabel={false}
-                  label={`${text("general.timerange.max")} ${text("general.hour")}`}
-                  onChange={this.setTimeRangeFilter("max")}
-                />
-              </TimeRangeFilterContainer>
-              <ClearButton onClick={this.onClearFilters}>Clear</ClearButton>
-            </TimetableFilters>
+      <DepartureHfpQuery stopId={stopId} date={date}>
+        {({events: stopEvents = [], loading: eventsLoading}) => {
+          const rowRenderer = this.renderRow({
+            selectedJourney,
+            onClick: this.selectAsJourney,
+            stop,
+            date,
+          });
+
+          if (stopEvents.length === 0) {
+            return this.renderList(
+              sortedDepartures,
+              rowRenderer,
+              timetableLoading || eventsLoading,
+              focusedIndex
+            );
           }
-        />
-      )
+
+          const departuresWithEvents = sortedDepartures.map((departure) => {
+            const originDeparture = get(departure, "originDeparture", null);
+            const originDepartureTime = originDeparture
+              ? departureTime(originDeparture)
+              : "";
+
+            if (!originDepartureTime) {
+              return departure;
+            }
+
+            const routeId = get(departure, "routeId", "");
+            const direction = parseInt(get(departure, "direction", "0"), 10);
+
+            const departureEvent = stopEvents.find(
+              (event) =>
+                event.route_id === routeId &&
+                event.direction_id === direction &&
+                journeyStartTime(event) === originDepartureTime
+            );
+
+            return {
+              ...departure,
+              observed: departureEvent,
+            };
+          });
+
+          return this.renderList(
+            departuresWithEvents,
+            rowRenderer,
+            timetableLoading,
+            focusedIndex
+          );
+        }}
+      </DepartureHfpQuery>
     );
   }
 }

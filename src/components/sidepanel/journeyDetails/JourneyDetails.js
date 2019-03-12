@@ -5,7 +5,7 @@ import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import get from "lodash/get";
 import JourneyStops from "./JourneyStops";
-import Loading from "../../Loading";
+import {LoadingDisplay} from "../../Loading";
 import JourneyInfo from "./JourneyInfo";
 import DestinationStop from "./DestinationStop";
 import withRoute from "../../../hoc/withRoute";
@@ -38,7 +38,7 @@ const StopsListWrapper = styled.div`
   padding: 2rem 0 1rem;
 `;
 
-const LoadingContainer = styled.div`
+const Loading = styled(LoadingDisplay)`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -133,9 +133,7 @@ class JourneyDetails extends React.Component {
                 />
               </StopsListWrapper>
             ) : loading ? (
-              <LoadingContainer>
-                <Loading />
-              </LoadingContainer>
+              <Loading loading={true} />
             ) : null}
           </JourneyPanelContent>
         </ScrollContainer>
