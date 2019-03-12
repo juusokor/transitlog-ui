@@ -16,7 +16,7 @@ export function getLineChunksByDelay(positions, journeyId) {
   // Get only the positions from the same journey and create latLng items for Leaflet.
   // Additional data can be passed as the third array element which Leaflet won't touch.
   return positions
-    .filter((pos) => getJourneyId(pos) === journeyId)
+    .filter((pos) => getJourneyId(pos) === journeyId && !!pos.lat && !!pos.long)
     .reduce((allChunks, position) => {
       const positionDelay = get(position, "dl", 0);
       const delayType = getDelayType(-positionDelay); // "early", "late" or "on-time"

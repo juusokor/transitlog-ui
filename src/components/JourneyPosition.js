@@ -1,6 +1,7 @@
 import {Component} from "react";
 import {observer, inject} from "mobx-react";
 import {reaction, observable, action} from "mobx";
+import findLast from "lodash/findLast";
 
 @inject("state")
 @observer
@@ -34,7 +35,11 @@ class JourneyPosition extends Component {
   getLivePositions = (journeys) => {
     journeys.forEach(({journeyId, events = []}) => {
       if (events.length !== 0) {
-        this.setHfpPosition(journeyId, events[events.length - 1]);
+        const event = findLast(events, (pos) => !!pos.lat && !!pos.long);
+
+        if (event) {
+          this.setHfpPosition(journeyId, event);
+        }
       }
     });
   };
@@ -69,8 +74,11 @@ class JourneyPosition extends Component {
   // This is a performance optimization.
   indexPositions = (positions) => {
     return positions.reduce((positionIndex, position) => {
-      const key = position.received_at_unix;
-      positionIndex.set(key, position);
+      if (position.lat && position.long) {
+        const key = position.received_at_unix;
+        positionIndex.set(key, position);
+      }
+
       return positionIndex;
     }, new Map());
   };

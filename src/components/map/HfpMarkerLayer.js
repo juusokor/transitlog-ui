@@ -32,7 +32,7 @@ class HfpMarkerLayer extends Component {
   render() {
     const {currentPosition: position, isSelectedJourney = false} = this.props;
 
-    if (!position) {
+    if (!position || !(position.lat && position.long)) {
       return null;
     }
 

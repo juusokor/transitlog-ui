@@ -134,12 +134,13 @@ function App({state, UI}) {
                                                     )
                                                   : false;
 
-                                              const centerPosition = selectedJourneyPosition
-                                                ? latLng([
-                                                    selectedJourneyPosition.lat,
-                                                    selectedJourneyPosition.long,
-                                                  ])
-                                                : stopPosition;
+                                              const {lat, long} =
+                                                selectedJourneyPosition || {};
+
+                                              const centerPosition =
+                                                lat && long
+                                                  ? latLng([lat, long])
+                                                  : stopPosition;
 
                                               if (centerPosition) {
                                                 setMapView(centerPosition);

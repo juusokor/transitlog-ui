@@ -4,7 +4,7 @@ import {useWeather} from "./useWeather";
 import {latLngBounds, latLng} from "leaflet";
 import {useMemo} from "react";
 
-export const useJourneyWeather = (events, journeyId, onBounds = () => {}) => {
+export const useJourneyWeather = (events, journeyId) => {
   const {minEvent, maxEvent} = useMemo(
     () => ({
       minEvent: events[0],
@@ -13,8 +13,11 @@ export const useJourneyWeather = (events, journeyId, onBounds = () => {}) => {
     [typeof events[0] !== "undefined", journeyId]
   );
 
-  const minPosition = minEvent ? latLng(minEvent.lat, minEvent.long) : null;
-  const maxPosition = maxEvent ? latLng(maxEvent.lat, maxEvent.long) : null;
+  const minPosition =
+    minEvent && minEvent.lat ? latLng(minEvent.lat, minEvent.long) : null;
+
+  const maxPosition =
+    maxEvent && maxEvent.lat ? latLng(maxEvent.lat, maxEvent.long) : null;
 
   const bounds = useMemo(
     () =>
