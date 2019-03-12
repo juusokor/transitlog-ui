@@ -1,7 +1,4 @@
 /* eslint-disable import/first */
-import {checkBrowser} from "./helpers/checkBrowser";
-checkBrowser();
-
 import moment from "moment-timezone";
 import {TIMEZONE} from "./constants";
 
