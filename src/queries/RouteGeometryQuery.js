@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import get from "lodash/get";
 import {Query} from "react-apollo";
 import gql from "graphql-tag";
+import {createRouteId, createRouteKey} from "../helpers/keys";
 
 const routeQuery = gql`
   query routeQuery(
@@ -52,8 +53,9 @@ class RouteGeometryQuery extends Component {
     route: {},
   };
 
-  shouldComponentUpdate({route}) {
-    return !!route.routeId; // Stop the map from flashing and thrashing
+  shouldComponentUpdate({route: nextRoute}) {
+    const {route} = this.props;
+    return !!route.routeId && createRouteKey(route) !== createRouteKey(nextRoute); // Stop the map from flashing and thrashing
   }
 
   render() {
