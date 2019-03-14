@@ -81,7 +81,6 @@ export function getValidItemsByDateChains(groups, date, log = false) {
         let i = 0;
         const maxIterations = 100;
 
-        // Until the chain ends with the minDate, run the loop.
         // Extra precautions for runaway loops.
         while (get(last(chain), "dateBegin") !== minDate && i < maxIterations) {
           if (chain.length === 0) {

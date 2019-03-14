@@ -33,25 +33,17 @@ class RouteInput extends Component {
     } = this.props;
 
     const options = routes.map((routeOption) => {
-      const {
-        nodeId,
-        routeId,
-        direction,
-        originFi,
-        destinationFi,
-        dateBegin,
-        dateEnd,
-      } = routeOption;
+      const {id, routeId, direction, origin, destination} = routeOption;
 
       return {
-        key: nodeId,
-        value: createRouteKey(routeOption),
-        label: `${routeId} - suunta ${direction}, ${originFi} - ${destinationFi} (${dateBegin} - ${dateEnd})`,
+        key: id,
+        value: id,
+        label: `${routeId} - suunta ${direction}, ${origin} - ${destination}`,
       };
     });
 
     options.unshift({value: "", label: text("filterpanel.select_route")});
-    const currentValue = createRouteKey(route);
+    const currentValue = route.id;
 
     return (
       <Dropdown

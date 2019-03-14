@@ -27,17 +27,12 @@ export default (state, initialState = {}) => {
     date: moment.tz(new Date(), TIMEZONE).format("YYYY-MM-DD"),
     stop: "",
     vehicle: "",
-    line: {
-      lineId: "",
-      dateBegin: "",
-      dateEnd: "",
-    },
+    line: "",
     route: {
+      id: "",
       routeId: "",
       direction: "",
-      dateBegin: "",
-      dateEnd: "",
-      originstopId: "",
+      originStopId: "",
     },
   };
 

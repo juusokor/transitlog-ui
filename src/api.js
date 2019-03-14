@@ -8,6 +8,7 @@ import uniqBy from "lodash/uniqBy";
 
 const joreUrl = process.env.REACT_APP_JORE_GRAPHQL_URL;
 const hfpUrl = process.env.REACT_APP_HFP_GRAPHQL_URL;
+const serverUrl = process.env.REACT_APP_TRANSITLOG_SERVER;
 
 if (!joreUrl) {
   console.error("JORE GraphQL URL not set!");
@@ -17,13 +18,11 @@ if (!hfpUrl) {
   console.error("HFP GraphQL URL not set!");
 }
 
-let createdClient = null;
+if (!serverUrl) {
+  console.error("Tansitlog server URL not set!");
+}
 
-export const getClient = async (UIStore) => {
-  if (createdClient) {
-    return createdClient;
-  }
-
+function createErrorLink(UIStore) {
   function notifyError(type, message) {
     if (UIStore) {
       return UIStore.addError(type, message);
@@ -32,7 +31,7 @@ export const getClient = async (UIStore) => {
     console.warn(`${type} error: ${message}`);
   }
 
-  const errorLink = onError(({graphQLErrors, networkError}) => {
+  return onError(({graphQLErrors, networkError}) => {
     if (graphQLErrors && process.env.NODE_ENV === "development") {
       graphQLErrors.map(({message}) => console.warn(message));
     }
@@ -48,6 +47,38 @@ export const getClient = async (UIStore) => {
       );
     }
   });
+}
+
+let createdClient = null;
+let serverClient = null;
+
+export const getServerClient = () => {
+  if (serverClient) {
+    return serverClient;
+  }
+
+  const errorLink = createErrorLink();
+
+  const cache = new InMemoryCache();
+
+  const serverLink = new HttpLink({
+    uri: serverUrl,
+  });
+
+  serverClient = new ApolloClient({
+    link: concat(errorLink, serverLink),
+    cache: cache,
+  });
+
+  return serverClient;
+};
+
+export const getClient = async (UIStore) => {
+  if (createdClient) {
+    return createdClient;
+  }
+
+  const errorLink = createErrorLink(UIStore);
 
   const dedupVehiclesLink = new ApolloLink((operation, forward) => {
     return forward(operation).map((data) => {

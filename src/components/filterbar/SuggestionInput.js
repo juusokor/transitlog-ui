@@ -53,14 +53,14 @@ export const SuggestionSectionTitle = styled.div`
 @observer
 class SuggestionInput extends Component {
   @observable
-  inputValue = this.props.getValue(this.props.value);
+  inputValue = this.getValue(this.props.value);
 
   @observable
   suggestions = [];
 
   @action
   setValue(value) {
-    this.inputValue = value;
+    this.inputValue = this.getValue(value);
   }
 
   @action
@@ -68,21 +68,24 @@ class SuggestionInput extends Component {
     this.suggestions = suggestions;
   }
 
+  getValue = (val) => {
+    const {getValue, getDisplayValue = getValue} = this.props;
+    return getDisplayValue(getValue(val));
+  };
+
   onChange = (event, {newValue}) => {
     const value = newValue;
-    const {getValue} = this.props;
 
     if (!value) {
       this.props.onSelect("");
     }
 
-    this.setValue(getValue(value));
+    this.setValue(value);
   };
 
   onSuggestionSelected = (event, {suggestion}) => {
-    const selectedValue = this.props.getValue(suggestion);
-    this.props.onSelect(selectedValue);
-    this.setValue(selectedValue);
+    this.props.onSelect(this.props.getValue(suggestion));
+    this.setValue(suggestion);
   };
 
   onSuggestionsFetchRequested = ({value}) => {
@@ -99,11 +102,10 @@ class SuggestionInput extends Component {
   };
 
   componentDidUpdate({value: prevValue}) {
-    const {value, getValue} = this.props;
+    const {value} = this.props;
 
     if (value !== prevValue) {
-      const nextValue = getValue(value);
-      this.setValue(nextValue);
+      this.setValue(value);
     }
   }
 
@@ -112,6 +114,7 @@ class SuggestionInput extends Component {
       className,
       placeholder,
       getValue,
+      getDisplayValue = getValue,
       renderSuggestion,
       minimumInput = 3,
       multiSection,

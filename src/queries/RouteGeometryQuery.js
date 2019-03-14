@@ -36,24 +36,10 @@ const routeQuery = gql`
   }
 `;
 
+// TODO: Migrate this query to use transitlog-server.
+
 // No @observer here, as it doesn't like shouldComponentUpdate
 class RouteGeometryQuery extends Component {
-  static propTypes = {
-    route: PropTypes.shape({
-      routeId: PropTypes.string.isRequired,
-      direction: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-        .isRequired,
-      dateBegin: PropTypes.string.isRequired,
-      dateEnd: PropTypes.string.isRequired,
-    }).isRequired,
-    date: PropTypes.string.isRequired,
-    children: PropTypes.func.isRequired,
-  };
-
-  static defaultProps = {
-    route: {},
-  };
-
   shouldComponentUpdate({route: nextRoute}) {
     const {route} = this.props;
     return !!route.routeId && createRouteKey(route) !== createRouteKey(nextRoute); // Stop the map from flashing and thrashing
@@ -61,17 +47,15 @@ class RouteGeometryQuery extends Component {
 
   render() {
     const {route = {}, children, date} = this.props;
-    const {routeId = "", direction, dateBegin = "", dateEnd = ""} = route;
+    const {routeId = "", direction} = route;
 
     return (
       <Query
-        skip={!routeId || !dateBegin}
+        skip={!routeId}
         query={routeQuery}
         variables={{
           routeId,
           direction,
-          dateBegin,
-          dateEnd,
         }}>
         {({loading, error, data}) => {
           if (loading || error) {

@@ -30,28 +30,22 @@ const filterActions = (state) => {
     setUrlValue("vehicle", state.vehicle);
   });
 
-  const setLine = action(
-    "Set line",
-    ({lineId = "", dateBegin = "", dateEnd = ""}) => {
-      state.line.lineId = lineId;
-      state.line.dateBegin = dateBegin;
-      state.line.dateEnd = dateEnd;
-
-      setUrlValue("line.lineId", state.line.lineId);
-    }
-  );
+  const setLine = action("Set line", (lineId) => {
+    state.line = lineId;
+    setUrlValue("line", state.line);
+  });
 
   const setRoute = action("Set route", (route) => {
+    state.route.id = get(route, "id", "");
     state.route.routeId = get(route, "routeId", "");
     state.route.direction = get(route, "direction", "") + "";
-    state.route.dateBegin = get(route, "dateBegin", "");
-    state.route.dateEnd = get(route, "dateEnd", "");
-    state.route.originstopId = get(route, "originstopId", "");
+    state.route.originStopId = get(route, "originStopId", "");
 
+    setUrlValue("route.id", state.route.id);
     setUrlValue("route.routeId", state.route.routeId);
     setUrlValue("route.direction", state.route.direction);
 
-    const routeLine = get(route, "line.nodes[0]", null);
+    const routeLine = get(route, "lineId", "");
 
     if (routeLine) {
       setLine(routeLine);
