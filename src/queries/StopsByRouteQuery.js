@@ -49,23 +49,27 @@ const stopsByRouteQuery = gql`
 `;
 
 export default observer(({children, route, date, skip}) => {
+  const dateBegin = get(route, "dateBegin", "");
+  const dateEnd = get(route, "dateEnd", "");
+
   return (
     <Query
-      skip={skip}
+      skip={skip || (!dateBegin && !dateEnd)}
       query={stopsByRouteQuery}
       variables={{
         routeId: get(route, "routeId", ""),
         direction: get(route, "direction", "") + "",
-        dateBegin: get(route, "dateBegin", ""),
-        dateEnd: get(route, "dateEnd", ""),
+        dateBegin,
+        dateEnd,
       }}>
       {({loading, error, data}) => {
+        const segments = filterRouteSegments(
+          get(data, "route.routeSegments.nodes", []),
+          date
+        );
+
         const stops = sortBy(
-          filterRouteSegments(
-            get(data, "route.routeSegments.nodes", []),
-            date,
-            true // Pass true to filter by stopIndex instead of stopId, which is used when we have hfp data.
-          ).map((segment) => ({
+          segments.map((segment) => ({
             ...segment.stop,
             timingStopType: segment.timingStopType,
             dateBegin: segment.dateBegin,
