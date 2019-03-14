@@ -54,7 +54,7 @@ export default observer(({children, route, date, skip}) => {
 
   return (
     <Query
-      skip={skip}
+      skip={skip || (!dateBegin && !dateEnd)}
       query={stopsByRouteQuery}
       variables={{
         routeId: get(route, "routeId", ""),
@@ -65,12 +65,8 @@ export default observer(({children, route, date, skip}) => {
       {({loading, error, data}) => {
         const segments = filterRouteSegments(
           get(data, "route.routeSegments.nodes", []),
-          date,
-          dateBegin,
-          dateEnd
+          date
         );
-
-        // TODO: check all problem routes
 
         const stops = sortBy(
           segments.map((segment) => ({

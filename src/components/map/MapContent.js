@@ -77,7 +77,8 @@ const MapContent = decorate(
           <>
             <RouteGeometryQuery
               key={`route_query_${createRouteKey(route, true)}`}
-              route={route}>
+              route={route}
+              date={date}>
               {({routeGeometry}) =>
                 routeGeometry.length !== 0 ? (
                   <RouteLayer

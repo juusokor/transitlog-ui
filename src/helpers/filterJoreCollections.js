@@ -72,6 +72,10 @@ export function getValidItemsByDateChains(groups, date, log = false) {
       function createChain(startingPoint) {
         const chain = [];
 
+        if (!startingPoint) {
+          return chain;
+        }
+
         // Keep track of the iteration so that we can
         // kill the loop if it happens to run off.
         let i = 0;
@@ -82,13 +86,7 @@ export function getValidItemsByDateChains(groups, date, log = false) {
         while (get(last(chain), "dateBegin") !== minDate && i < maxIterations) {
           if (chain.length === 0) {
             // Use the starting item to start it off. This would be the "last" item in the chain.
-
-            // If the chain wouldn't end with this link, or if its
-            // dateBegin equals the minDate, add it to the chain.
-            if (findNextLink(startingPoint) || startingPoint.dateBegin === minDate) {
-              chain.push(startingPoint);
-              continue;
-            }
+            chain.push(startingPoint);
           }
 
           // Pick the last added item.
@@ -100,17 +98,13 @@ export function getValidItemsByDateChains(groups, date, log = false) {
             break;
           }
 
-          // Make sure the item won't end the chain or is a valid end to the chain.
-          if (findNextLink(nextItem) || nextItem.dateBegin === minDate) {
-            chain.push(nextItem);
-          }
-
+          chain.push(nextItem);
           i++;
         }
 
         // Since we went with the most distant endDate first, the chain is reversed.
         // The rest of the app, as well as the user, expects the items to be in ascending
-        // chronological order so the chain just needs to be reversed.
+        // chronological order so the chain just needs to be reversed again.
         chain.reverse();
         return chain;
       }
@@ -122,6 +116,7 @@ export function getValidItemsByDateChains(groups, date, log = false) {
         console.log(chains);
       }
 
+      // The lack of chains is not very useful, so bail here in that case.
       if (chains.length === 0) {
         return filtered;
       }
@@ -131,27 +126,48 @@ export function getValidItemsByDateChains(groups, date, log = false) {
       const longestChain = lengthOrdered[0];
       const longestLength = longestChain.length;
 
+      // Empty chains are not very useful, so bail here in that case.
       if (longestLength === 0) {
         return filtered;
       }
 
-      const winningChains = lengthOrdered.filter(
+      // There may be multiple chains with the same length. They all share the first
+      // prize, but we still need to declare an actual winner.
+      let winningChains = lengthOrdered.filter(
         (chain) => chain.length === longestLength
       );
 
+      // Default to the first one. If there is only one longest chain, it will be used.
       let winningChain = winningChains[0];
 
+      // In the case of many longest chains, further logic is needed. This means
+      // that items have probably been deleted and modified in JORE, like for
+      // exceptions that are in effect for a shorter time. Thus we want the
+      // chain that has the least amount of days between its items.
       if (winningChains.length > 1) {
-        // Pick the chain with the least amount of days when where are many
-        // with the same length.
-        winningChain = orderBy(winningChains, (chain) => {
-          let days = 0;
-          for (const item in chain) {
-            days += diffDays(item.dateEnd, item.dateBegin);
-          }
+        // First make sure that the chains actually have a valid item
+        winningChains = winningChains.filter(
+          (chain) => filterActive(chain, date).length !== 0
+        );
 
-          return days;
-        })[0]; // The shortest-by-days chain is first
+        if (winningChains.length > 0) {
+          // Pick the chain with the least amount of days when where are many
+          // with the same length. The logic is that this should result in a
+          // "tighter fit" around the current date.
+          winningChain = orderBy(
+            winningChains,
+            (chain) => {
+              let days = 0;
+
+              for (const item of chain) {
+                days += diffDays(item.dateEnd, item.dateBegin);
+              }
+
+              return days;
+            },
+            "asc"
+          )[0]; // The shortest-by-days chain is first
+        }
       }
 
       // Get the item that is active for the selected date from the chain of valid items.
@@ -180,13 +196,8 @@ export function filterDepartures(departures, date) {
   return getValidItemsByDateChains(groupedDepartures, date);
 }
 
-export function filterRouteSegments(
-  routeSegments,
-  date,
-  dateBegin = "",
-  dateEnd = ""
-) {
-  // The departures may contain items that are identical and have overlapping
+export function filterRouteSegments(routeSegments, date) {
+  // The segments may contain items that are identical and have overlapping
   // in-effect ranges resulting in doubles showing up in the UI lists.
   // They are filtered out here.
   const groupedSegments = groupBy(
@@ -194,16 +205,7 @@ export function filterRouteSegments(
     (segment) => segment.routeId + segment.direction + segment.stopIndex
   );
 
-  if (dateBegin && dateEnd) {
-    const validForRange = map(groupedSegments, (segments) =>
-      segments.find((seg) => seg.dateBegin === dateBegin && seg.dateEnd === dateEnd)
-    );
-
-    return validForRange.filter((segment) => !!segment);
-  } else {
-    // Pick the most recent departure item from each group.
-    return getValidItemsByDateChains(groupedSegments, date, false);
-  }
+  return getValidItemsByDateChains(groupedSegments, date, false);
 }
 
 export function filterLines(lines, date) {
