@@ -7,7 +7,6 @@ import get from "lodash/get";
 import debounce from "lodash/debounce";
 import {setUrlValue, getUrlValue} from "../../stores/UrlManager";
 import {reaction, observable, action} from "mobx";
-import {LatLngBounds} from "leaflet";
 import {runInAction} from "mobx";
 
 const MAP_BOUNDS_URL_KEY = "mapView";
@@ -99,37 +98,29 @@ class Map extends Component {
     }
 
     const prevCenter = this.prevCenter;
+    let useCenter = center;
+    let bounds = null;
 
-    // We must be absolutely sure that both sides of center.equals() is the same
-    // type of leaflet object, otherwise Leaflet will throw a hissy fit.
-    // Uses duck typing to find out which kind of object it is.
-    const prevCenterType = prevCenter
-      ? typeof prevCenter.toBBoxString === "function"
-        ? "LatLngBounds"
-        : "LatLng"
-      : false;
-
-    const centerType = center
-      ? typeof center.toBBoxString === "function"
-        ? "LatLngBounds"
-        : "LatLng"
-      : false;
+    if (typeof useCenter.toBBoxString === "function") {
+      useCenter = center.getCenter();
+      bounds = center;
+    } else {
+      useCenter = null;
+    }
 
     if (
-      prevCenterType &&
-      centerType &&
-      prevCenterType === centerType &&
-      !center.equals(prevCenter)
+      (!prevCenter && useCenter) ||
+      (prevCenter && useCenter && !useCenter.equals(prevCenter))
     ) {
-      this.prevCenter = center;
+      this.prevCenter = useCenter;
 
-      if (center instanceof LatLngBounds) {
-        map.fitBounds(center);
+      if (bounds) {
+        map.fitBounds(bounds);
       } else {
-        map.setView(center);
+        map.setView(useCenter);
       }
-    } else if (!prevCenter) {
-      this.prevCenter = center;
+    } else if (!prevCenter && useCenter) {
+      this.prevCenter = useCenter;
     }
   };
 
