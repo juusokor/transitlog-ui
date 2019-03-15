@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import get from "lodash/get";
 import {Query} from "react-apollo";
 import gql from "graphql-tag";
-import {createRouteId, createRouteKey} from "../helpers/keys";
+import {createRouteKey} from "../helpers/keys";
 import {getValidItemsByDateChains} from "../helpers/filterJoreCollections";
 
 const routeQuery = gql`

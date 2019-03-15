@@ -30,18 +30,23 @@ export default (state) => {
   const filterActions = FilterActions(state);
 
   const updateTime = (forceCurrent = false) => {
-    const {time, timeIncrement, timeIsCurrent} = state;
+    const {time, date, timeIncrement, timeIsCurrent} = state;
 
     if (!timeIsCurrent && !forceCurrent) {
       const currentTime = timeToSeconds(time);
       const nextTime = currentTime + timeIncrement;
       timeActions.setTime(secondsToTime(Math.max(0, nextTime)));
     } else {
-      // Live-updating is impossible for 24+h journeys, as the date will
+      // Live-updating is impossible for 24h+ journeys, as the date will
       // just be the current, real date.
       const nowMoment = moment.tz(new Date(), TIMEZONE);
+
       timeActions.setTime(nowMoment.format("HH:mm:ss"));
-      filterActions.setDate(nowMoment.format("YYYY-MM-DD"));
+      const currentDate = nowMoment.format("YYYY-MM-DD");
+
+      if (currentDate !== date) {
+        filterActions.setDate(currentDate);
+      }
     }
   };
 

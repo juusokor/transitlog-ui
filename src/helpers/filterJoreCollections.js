@@ -5,7 +5,6 @@ import groupBy from "lodash/groupBy";
 import get from "lodash/get";
 import first from "lodash/first";
 import last from "lodash/last";
-import map from "lodash/map";
 import flatten from "lodash/flatten";
 import diffHours from "date-fns/difference_in_hours";
 import diffDays from "date-fns/difference_in_days";

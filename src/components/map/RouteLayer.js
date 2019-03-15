@@ -36,7 +36,10 @@ class RouteLayer extends Component {
     }
 
     const bounds = calculateBoundsFromPositions(routeGeometry);
-    setMapView(bounds);
+
+    if (bounds && bounds.isValid()) {
+      setMapView(bounds);
+    }
   }
 
   render() {

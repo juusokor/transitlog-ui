@@ -20,12 +20,12 @@ const timeActions = (state) => {
   };
 
   const setTimeIncrement = action((timeIncrementValue) => {
-    state.timeIncrement = timeIncrementValue;
+    state.timeIncrement = parseInt(timeIncrementValue, 10);
     setUrlValue("time_increment", state.timeIncrement);
   });
 
   const setAreaSearchMinutes = action((searchValue) => {
-    state.areaSearchRangeMinutes = searchValue;
+    state.areaSearchRangeMinutes = parseInt(searchValue, 10);
     setUrlValue("area_search_minutes", state.areaSearchRangeMinutes);
   });
 
