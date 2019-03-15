@@ -60,7 +60,7 @@ class SuggestionInput extends Component {
 
   @action
   setValue(value) {
-    this.inputValue = this.getValue(value);
+    this.inputValue = value;
   }
 
   @action
@@ -80,12 +80,16 @@ class SuggestionInput extends Component {
       this.props.onSelect("");
     }
 
+    if (typeof this.props.onInputChange === "function") {
+      this.props.onInputChange(value);
+    }
+
     this.setValue(value);
   };
 
   onSuggestionSelected = (event, {suggestion}) => {
     this.props.onSelect(this.props.getValue(suggestion));
-    this.setValue(suggestion);
+    this.setValue(this.getValue(suggestion));
   };
 
   onSuggestionsFetchRequested = ({value}) => {
@@ -105,7 +109,7 @@ class SuggestionInput extends Component {
     const {value} = this.props;
 
     if (value !== prevValue) {
-      this.setValue(value);
+      this.setValue(this.getValue(value));
     }
   }
 
@@ -114,7 +118,6 @@ class SuggestionInput extends Component {
       className,
       placeholder,
       getValue,
-      getDisplayValue = getValue,
       renderSuggestion,
       minimumInput = 3,
       multiSection,

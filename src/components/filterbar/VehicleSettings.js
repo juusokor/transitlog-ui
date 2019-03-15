@@ -10,18 +10,20 @@ import groupBy from "lodash/groupBy";
 import map from "lodash/map";
 import VehicleOptionsQuery from "../../queries/VehicleOptionsQuery";
 import {getOperatorName} from "../../helpers/getOperatorNameById";
-import Loading from "../Loading";
-import styled from "styled-components";
 import Tooltip from "../Tooltip";
-
-const LoadingSpinner = styled(Loading)`
-  margin: 0.5rem 0.5rem 0.5rem 1rem;
-`;
+import {observable, action} from "mobx";
 
 @inject(app("Filters"))
 @observer
 class VehicleSettings extends React.Component {
-  onChangeQueryVehicle = (value) => {
+  @observable
+  vehicleSearch = "";
+
+  onInputChange = action((value) => {
+    this.vehicleSearch = value;
+  });
+
+  onSelectVehicle = (value) => {
     this.props.Filters.setVehicle(value);
   };
 
@@ -52,16 +54,8 @@ class VehicleSettings extends React.Component {
 
     return (
       <>
-        <VehicleOptionsQuery date={date}>
-          {({vehicles, loading}) => {
-            if (loading) {
-              return this.renderInput(
-                <LoadingSpinner inline={true} />,
-                vehicle,
-                false
-              );
-            }
-
+        <VehicleOptionsQuery date={date} search={this.vehicleSearch}>
+          {({vehicles}) => {
             const groupedVehicles = sortBy(
               map(
                 groupBy(vehicles, ({operatorId}) => parseInt(operatorId, 10) + ""),
@@ -78,9 +72,10 @@ class VehicleSettings extends React.Component {
 
             return this.renderInput(
               <VehicleInput
+                onInputChange={this.onInputChange}
                 options={groupedVehicles}
                 value={vehicle}
-                onSelect={this.onChangeQueryVehicle}
+                onSelect={this.onSelectVehicle}
               />,
               vehicle
             );
@@ -91,7 +86,7 @@ class VehicleSettings extends React.Component {
             <Button
               primary={false}
               small={true}
-              onClick={() => this.onChangeQueryVehicle("")}>
+              onClick={() => this.onSelectVehicle("")}>
               <Text>filterpanel.clear.vehicle</Text>
             </Button>
           </Tooltip>

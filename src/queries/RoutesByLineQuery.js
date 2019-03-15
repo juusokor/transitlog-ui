@@ -4,7 +4,6 @@ import {Query} from "react-apollo";
 import get from "lodash/get";
 import {observer} from "mobx-react";
 import orderBy from "lodash/orderBy";
-import {filterRoutes} from "../helpers/filterJoreCollections";
 import {getServerClient} from "../api";
 
 const routesQuery = gql`
@@ -26,17 +25,19 @@ const routesQuery = gql`
 
 const client = getServerClient();
 
-export default observer(({line, date, children}) => (
-  <Query query={routesQuery} variables={{line, date}} client={client}>
-    {({loading, error, data}) => {
-      const routes = get(data, "routes", []);
-      const filteredRoutes = orderBy(routes, ["routeId", "direction"]);
+export default observer(({line, date, children}) => {
+  return (
+    <Query query={routesQuery} variables={{line, date}} client={client}>
+      {({loading, error, data}) => {
+        const routes = get(data, "routes", []);
+        const filteredRoutes = orderBy(routes, ["routeId", "direction"]);
 
-      return children({
-        loading,
-        error,
-        routes: filteredRoutes.length !== 0 ? filteredRoutes : routes,
-      });
-    }}
-  </Query>
-));
+        return children({
+          loading,
+          error,
+          routes: filteredRoutes.length !== 0 ? filteredRoutes : routes,
+        });
+      }}
+    </Query>
+  );
+});
