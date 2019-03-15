@@ -1,4 +1,4 @@
-import React, {useMemo, useCallback} from "react";
+import React, {useCallback} from "react";
 import SuggestionInput, {
   SuggestionContent,
   SuggestionText,
@@ -58,7 +58,9 @@ const enhance = flow(
 );
 
 export default enhance(({value = "", onSelect, onInputChange, options = []}) => {
-  const getSuggestions = useCallback(() => options, [options]);
+  const getSuggestions = useCallback((value) => onInputChange(value), [
+    onInputChange,
+  ]);
 
   return (
     <SuggestionInput
@@ -73,6 +75,7 @@ export default enhance(({value = "", onSelect, onInputChange, options = []}) => 
       getValue={getSuggestionValue}
       renderSuggestion={renderSuggestion}
       getSuggestions={getSuggestions}
+      suggestions={options}
     />
   );
 });

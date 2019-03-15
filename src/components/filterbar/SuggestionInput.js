@@ -63,25 +63,21 @@ class SuggestionInput extends Component {
     this.inputValue = value;
   }
 
+  getValue(val) {
+    const {getValue, getDisplayValue = getValue} = this.props;
+    return getDisplayValue(getValue(val));
+  }
+
   @action
   setSuggestions(suggestions) {
     this.suggestions = suggestions;
   }
-
-  getValue = (val) => {
-    const {getValue, getDisplayValue = getValue} = this.props;
-    return getDisplayValue(getValue(val));
-  };
 
   onChange = (event, {newValue}) => {
     const value = newValue;
 
     if (!value) {
       this.props.onSelect("");
-    }
-
-    if (typeof this.props.onInputChange === "function") {
-      this.props.onInputChange(value);
     }
 
     this.setValue(value);
@@ -92,12 +88,21 @@ class SuggestionInput extends Component {
     this.setValue(this.getValue(suggestion));
   };
 
-  onSuggestionsFetchRequested = ({value}) => {
+  onSuggestionsFetchRequested = async ({value}) => {
     const {getSuggestions} = this.props;
-    this.setSuggestions(getSuggestions(value) || []);
+    let options = getSuggestions(value);
+
+    if (options instanceof Promise) {
+      options = await options;
+    }
+
+    this.setSuggestions(options || []);
   };
 
   onSuggestionsClearRequested = () => {
+    const {getSuggestions} = this.props;
+    getSuggestions("");
+
     this.setSuggestions([]);
   };
 
@@ -106,11 +111,13 @@ class SuggestionInput extends Component {
   };
 
   componentDidUpdate({value: prevValue}) {
-    const {value} = this.props;
+    const {value, suggestions = []} = this.props;
 
     if (value !== prevValue) {
       this.setValue(this.getValue(value));
     }
+
+    this.suggestions.replace(suggestions);
   }
 
   render() {

@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useRef} from "react";
 import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import get from "lodash/get";
@@ -21,19 +21,23 @@ const vehiclesQuery = gql`
 
 const client = getServerClient();
 
-export default observer(({children, date, search, skip}) => {
+export default observer(({children, date, search = "", skip}) => {
+  const prevResults = useRef([]);
+
   return (
     <Query
+      fetchPolicy="network-only"
       query={vehiclesQuery}
-      variables={{date, search}}
+      variables={{date, search: search || ""}}
       skip={skip}
       client={client}>
       {({loading, error, data}) => {
         if (loading || !data) {
-          return children({loading, error, vehicles: []});
+          return children({loading, error, vehicles: prevResults.current});
         }
 
         const vehicles = get(data, "equipment", []);
+        prevResults.current = vehicles;
 
         return children({
           loading: loading,

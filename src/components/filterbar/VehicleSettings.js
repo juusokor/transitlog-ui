@@ -8,6 +8,7 @@ import Input from "../Input";
 import sortBy from "lodash/sortBy";
 import groupBy from "lodash/groupBy";
 import map from "lodash/map";
+import debounce from "lodash/debounce";
 import VehicleOptionsQuery from "../../queries/VehicleOptionsQuery";
 import {getOperatorName} from "../../helpers/getOperatorNameById";
 import Tooltip from "../Tooltip";
@@ -19,9 +20,13 @@ class VehicleSettings extends React.Component {
   @observable
   vehicleSearch = "";
 
-  onInputChange = action((value) => {
-    this.vehicleSearch = value;
-  });
+  onInputChange = debounce(
+    action((value) => {
+      this.vehicleSearch = value;
+    }),
+    300,
+    {leading: true, trailing: false}
+  );
 
   onSelectVehicle = (value) => {
     this.props.Filters.setVehicle(value);
