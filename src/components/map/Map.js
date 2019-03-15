@@ -7,7 +7,6 @@ import get from "lodash/get";
 import debounce from "lodash/debounce";
 import {setUrlValue, getUrlValue} from "../../stores/UrlManager";
 import {reaction, observable, action} from "mobx";
-import {LatLngBounds} from "leaflet";
 import {runInAction} from "mobx";
 
 const MAP_BOUNDS_URL_KEY = "mapView";
@@ -56,6 +55,10 @@ class Map extends Component {
     const {state} = this.props;
     const map = this.getLeaflet();
 
+    // Leaflet has some itnernal calculations about which area of the map is rendered.
+    // If the map's viewport changes, we need to tell Leaflet to recalculate by calling
+    // invalidateSize. This is done with this reaction when the side panels are toggled.
+    // TODO: Fix this, it doesn't work properly.
     this.disposeSidePanelReaction = reaction(
       () =>
         (state.sidePanelVisible ? "visible" : "not visible") +
@@ -70,12 +73,14 @@ class Map extends Component {
       {delay: 500}
     );
 
+    // Center the map on the enter position provided through the URL.
     let urlCenter = "";
 
     if (map) {
       urlCenter = getUrlValue(MAP_BOUNDS_URL_KEY);
       let [lat = "", lng = "", zoom = this.zoom] = urlCenter.split(",");
 
+      // Use default coordinates if parsing or validation fails.
       if (!lat || !trim(lat) || !parseInt(lat)) {
         lat = 60.170988;
       }
@@ -91,45 +96,47 @@ class Map extends Component {
     setTimeout(() => (this.canSetView = true), urlCenter ? 3000 : 0);
   }
 
+  /**
+   * This method focuses the Leaflet map on the provided location. Center is either
+   * LatLng compatible data or a latLngBounds. Sets the center directly on the Leaflet
+   * map, bypassing both state and React-Leaflet. This yields the best performance.
+   * @param center LatLng or LatLngBounds representing the location that the map should center on.
+   */
   setMapView = (center) => {
     const map = this.getLeaflet();
 
+    // Bail if we're not allowed to set the view yet (after mount when the position
+    // is set from the url) or if there are other problems.
     if (!this.canSetView || !center || !map) {
       return;
     }
 
     const prevCenter = this.prevCenter;
+    let useCenter = center;
+    let bounds = null;
 
-    // We must be absolutely sure that both sides of center.equals() is the same
-    // type of leaflet object, otherwise Leaflet will throw a hissy fit.
-    // Uses duck typing to find out which kind of object it is.
-    const prevCenterType = prevCenter
-      ? typeof prevCenter.toBBoxString === "function"
-        ? "LatLngBounds"
-        : "LatLng"
-      : false;
+    // If we got passed a bounds, get the center from it for validating against
+    // prevCenter, but also save the bounds.
+    if (typeof useCenter.toBBoxString === "function") {
+      useCenter = center.getCenter();
+      bounds = center;
+    } else {
+      useCenter = null;
+    }
 
-    const centerType = center
-      ? typeof center.toBBoxString === "function"
-        ? "LatLngBounds"
-        : "LatLng"
-      : false;
-
+    // We don't want to set invalid centers or centers that were set previously.
     if (
-      prevCenterType &&
-      centerType &&
-      prevCenterType === centerType &&
-      !center.equals(prevCenter)
+      (!prevCenter && useCenter) ||
+      (prevCenter && useCenter && !useCenter.equals(prevCenter))
     ) {
-      this.prevCenter = center;
+      this.prevCenter = useCenter;
 
-      if (center instanceof LatLngBounds) {
-        map.fitBounds(center);
+      // If we have a bounds we might as well use it.
+      if (bounds) {
+        map.fitBounds(bounds);
       } else {
-        map.setView(center);
+        map.setView(useCenter);
       }
-    } else if (!prevCenter) {
-      this.prevCenter = center;
     }
   };
 
@@ -137,6 +144,8 @@ class Map extends Component {
     this.disposeSidePanelReaction();
   }
 
+  // Debounced method that sets the current map position into the URL state when
+  // it changes.
   setMapUrlState = debounce(
     (center, zoom) =>
       center.lat &&
@@ -152,6 +161,9 @@ class Map extends Component {
     this.setMapViewState(map);
   };
 
+  // This method sets the observable map view props of this component. This method is
+  // called AFTER the view has been changed and it will NOT center the map or change
+  // the view, the state is just passed on to children.
   setMapViewState = (map) => {
     if (!map) {
       return;
@@ -174,6 +186,7 @@ class Map extends Component {
     this.setMapZoom(zoom);
   };
 
+  // The state is provided through a function to not trigger unwanted re-renders in consumers.
   getMapView = () => this.mapView;
 
   render() {
