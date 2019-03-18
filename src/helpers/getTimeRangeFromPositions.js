@@ -19,9 +19,7 @@ export function getTimeRangeFromPositions(positions) {
   }
 
   // The day when the journey is scheduled. This is the base that the seconds are relative to.
-  const operationDay = moment
-    .tz(get(positions, "[0].oday"), TIMEZONE)
-    .startOf("day");
+  const operationDay = moment.tz(get(positions, "[0].oday"), TIMEZONE).startOf("day");
 
   const sortedPositions = sortBy(positions, "tsi");
 

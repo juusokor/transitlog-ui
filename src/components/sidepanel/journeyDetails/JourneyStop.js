@@ -110,19 +110,14 @@ export default ({
     <StopWrapper>
       <StopElementsWrapper color={stopColor}>
         {isTimingStop ? (
-          <TimingStopMarker
-            color={stopColor}
-            onClick={onStopClick}
-            {...hoverProps}
-          />
+          <TimingStopMarker color={stopColor} onClick={onStopClick} {...hoverProps} />
         ) : (
           <StopMarker color={stopColor} onClick={onStopClick} {...hoverProps} />
         )}
       </StopElementsWrapper>
       <StopContent>
         <StopHeading onClick={onStopClick} {...hoverProps}>
-          <strong>{stop.nameFi}</strong> {stop.stopId} (
-          {stop.shortId.replace(/ /g, "")})
+          <strong>{stop.nameFi}</strong> {stop.stopId} ({stop.shortId.replace(/ /g, "")})
         </StopHeading>
         {showPlannedArrivalTime ? (
           <>

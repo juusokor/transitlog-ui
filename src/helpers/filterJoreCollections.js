@@ -131,9 +131,7 @@ export function getValidItemsByDateChains(groups, date, log = false) {
 
       // There may be multiple chains with the same length. They all share the first
       // prize, but we still need to declare an actual winner.
-      let winningChains = lengthOrdered.filter(
-        (chain) => chain.length === longestLength
-      );
+      let winningChains = lengthOrdered.filter((chain) => chain.length === longestLength);
 
       // Default to the first one. If there is only one longest chain, it will be used.
       let winningChain = winningChains[0];

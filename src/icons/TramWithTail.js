@@ -1,13 +1,5 @@
 import React from "react";
-import {
-  Circle,
-  Defs,
-  G,
-  LinearGradient,
-  Path,
-  Stop,
-  Svg,
-} from "react-primitives-svg";
+import {Circle, Defs, G, LinearGradient, Path, Stop, Svg} from "react-primitives-svg";
 import PropTypes from "prop-types";
 import {svgSize, svgTranslate} from "../helpers/svg";
 import {Colors} from "./HSL_COLORS";
@@ -30,12 +22,7 @@ export default function Icon({fill, height, width, ...rest}) {
           <Stop stopColor={fill} stopOpacity="0.5" offset="100%" />
         </LinearGradient>
       </Defs>
-      <G
-        id="icon-tram-live"
-        stroke="none"
-        strokeWidth="1"
-        fill="none"
-        fillRule="evenodd">
+      <G id="icon-tram-live" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
         <Path
           fill="url(#TramWithTail-linearGradient-1)"
           d="M12,54 C18.627417,54 24,48.627417 24,42 C24,35.372583 18.627417,0 12,0 C5.372583,0 0,35.372583 0,42 C0,48.627417 5.372583,54 12,54 Z"

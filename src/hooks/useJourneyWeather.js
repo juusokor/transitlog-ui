@@ -20,8 +20,7 @@ export const useJourneyWeather = (events, journeyId) => {
     maxEvent && maxEvent.lat ? latLng(maxEvent.lat, maxEvent.long) : null;
 
   const bounds = useMemo(
-    () =>
-      minPosition && maxPosition ? latLngBounds(minPosition, maxPosition) : null,
+    () => (minPosition && maxPosition ? latLngBounds(minPosition, maxPosition) : null),
     [minPosition, maxPosition]
   );
 

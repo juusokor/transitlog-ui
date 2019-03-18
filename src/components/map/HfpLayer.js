@@ -99,10 +99,7 @@ class HfpLayer extends Component {
   render() {
     const {name, selectedJourney, positions: hfpPositions} = this.props;
 
-    const positions = getLineChunksByDelay(
-      hfpPositions,
-      getJourneyId(selectedJourney)
-    );
+    const positions = getLineChunksByDelay(hfpPositions, getJourneyId(selectedJourney));
 
     return (
       <React.Fragment>

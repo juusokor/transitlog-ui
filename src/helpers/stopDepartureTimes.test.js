@@ -28,9 +28,7 @@ describe("stopTimes", () => {
 
     expect(departureTimes.departureColor).toBe(expectedColor);
     expect(departureTimes.departureDelayType).toBe("on-time");
-    expect(departureTimes.departureMoment.valueOf()).toBe(
-      expectObservedMoment.valueOf()
-    );
+    expect(departureTimes.departureMoment.valueOf()).toBe(expectObservedMoment.valueOf());
     expect(departureTimes.plannedDepartureMoment.valueOf()).toBe(
       expectPlannedMoment.valueOf()
     );

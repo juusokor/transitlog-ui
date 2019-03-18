@@ -67,8 +67,7 @@ export default ({
       </StopElementsWrapper>
       <StopContent terminus="destination">
         <StopHeading onClick={onStopClick} {...hoverProps}>
-          <strong>{stop.nameFi}</strong> {stop.stopId} (
-          {stop.shortId.replace(/ /g, "")})
+          <strong>{stop.nameFi}</strong> {stop.stopId} ({stop.shortId.replace(/ /g, "")})
         </StopHeading>
         <CalculateTerminalTime
           recovery={true}

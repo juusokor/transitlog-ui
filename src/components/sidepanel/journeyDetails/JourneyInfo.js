@@ -215,8 +215,7 @@ export default ({journey, date, originStop = {}, destinationStop = {}}) => {
                         : equipmentCode
                         ? equipmentCode
                         : text("general.no_type")}
-                      {get(departure, "trunkColorRequired", 0) === 1 &&
-                        ", HSL-orans"}
+                      {get(departure, "trunkColorRequired", 0) === 1 && ", HSL-orans"}
                     </span>
                   </Values>
                 </Line>
@@ -226,9 +225,7 @@ export default ({journey, date, originStop = {}, destinationStop = {}}) => {
                       <ObservedValue
                         key={`equipment_prop_${prop.name}`}
                         backgroundColor={prop.color}
-                        color={
-                          prop.required !== false ? "white" : "var(--dark-grey)"
-                        }>
+                        color={prop.required !== false ? "white" : "var(--dark-grey)"}>
                         {prop.observed}
                       </ObservedValue>
                     ))}

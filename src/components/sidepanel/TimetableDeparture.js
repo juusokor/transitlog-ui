@@ -104,9 +104,7 @@ class TimetableDeparture extends Component {
     const journeyIsSelected =
       !!selectedJourneyId &&
       selectedJourneyId ===
-        getJourneyId(
-          createCompositeJourney(date, departure, originDepartureTime, 0)
-        );
+        getJourneyId(createCompositeJourney(date, departure, originDepartureTime, 0));
 
     const renderListRow = this.renderListRow(
       journeyIsSelected,
@@ -129,9 +127,7 @@ class TimetableDeparture extends Component {
         ? plannedObservedDiff.observedMoment.format("HH:mm:ss")
         : "";
 
-      delayType = plannedObservedDiff
-        ? getDelayType(plannedObservedDiff.diff)
-        : "none";
+      delayType = plannedObservedDiff ? getDelayType(plannedObservedDiff.diff) : "none";
     }
 
     const hfpChildren = plannedObservedDiff ? (

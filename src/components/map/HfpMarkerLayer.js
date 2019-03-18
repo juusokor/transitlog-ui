@@ -42,9 +42,7 @@ class HfpMarkerLayer extends Component {
         onClick={this.onMarkerClick}
         position={[position.lat, position.long]}
         iconSize={isSelectedJourney ? [36, 36] : [20, 20]}
-        icon={
-          <VehicleMarker isSelectedJourney={isSelectedJourney} position={position} />
-        }
+        icon={<VehicleMarker isSelectedJourney={isSelectedJourney} position={position} />}
         pane={isSelectedJourney ? "hfp-markers-primary" : "hfp-markers"}>
         <HfpTooltip
           key={`permanent=${this.tooltipOpen}`}

@@ -57,10 +57,7 @@ class VehicleSettings extends React.Component {
         </VehicleOptionsQuery>
         {!!vehicle && (
           <Tooltip helpText="Clear vehicle">
-            <Button
-              primary={false}
-              small={true}
-              onClick={() => Filters.setVehicle("")}>
+            <Button primary={false} small={true} onClick={() => Filters.setVehicle("")}>
               <Text>filterpanel.clear.vehicle</Text>
             </Button>
           </Tooltip>

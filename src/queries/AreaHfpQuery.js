@@ -70,8 +70,7 @@ class AreaHfpQuery extends Component {
     const {minTime, maxTime, minLat, maxLat, minLong, maxLong} = queryParams;
 
     const queryParamsValid =
-      Object.keys(queryParams).length > 1 &&
-      Object.values(queryParams).every((p) => !!p);
+      Object.keys(queryParams).length > 1 && Object.values(queryParams).every((p) => !!p);
 
     if (!skip && queryParamsValid) {
       refetch({
@@ -92,8 +91,7 @@ class AreaHfpQuery extends Component {
     const {minLat, maxLat, minLong, maxLong, minTime, maxTime} = queryParams;
 
     const queryParamsValid =
-      Object.keys(queryParams).length > 1 &&
-      Object.values(queryParams).every((p) => !!p);
+      Object.keys(queryParams).length > 1 && Object.values(queryParams).every((p) => !!p);
 
     const shouldSkip = skip || !queryParamsValid;
 

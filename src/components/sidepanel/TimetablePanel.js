@@ -152,9 +152,7 @@ class TimetablePanel extends Component {
   };
 
   sortDepartures(departures) {
-    return sortBy(departures, (departure) =>
-      timeToSeconds(departureTime(departure))
-    );
+    return sortBy(departures, (departure) => timeToSeconds(departureTime(departure)));
   }
 
   renderRow = (props) => (list) => ({key, index, style, isScrolling, isVisible}) => {
@@ -255,10 +253,7 @@ class TimetablePanel extends Component {
 
         // If there is a route filter set, we don't want
         // to query for routes that do not match.
-        if (
-          routeFilter &&
-          !routeIdFilterTerm.startsWith(routeFilter.toLowerCase())
-        ) {
+        if (routeFilter && !routeIdFilterTerm.startsWith(routeFilter.toLowerCase())) {
           return false;
         }
 
@@ -277,9 +272,7 @@ class TimetablePanel extends Component {
 
           return (
             selectedJourneyId ===
-            getJourneyId(
-              createCompositeJourney(date, departure, originDepartureTime, 0)
-            )
+            getJourneyId(createCompositeJourney(date, departure, originDepartureTime, 0))
           );
         })
       : getDepartureByTime(sortedDepartures, this.reactionlessTime);

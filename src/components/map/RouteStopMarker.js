@@ -59,9 +59,7 @@ const RouteStopMarker = decorate(
     const markerElement = React.createElement(
       stop.timingStopType ? Marker : CircleMarker,
       {
-        key: `route_stop_marker_${stop.stopId}_${
-          stop.stopIndex
-        }_${doorDidOpen}_${color}`,
+        key: `route_stop_marker_${stop.stopId}_${stop.stopIndex}_${doorDidOpen}_${color}`,
         ref: markerRef,
         pane: "stops",
         icon: stop.timingStopType ? timingStopIcon : null,

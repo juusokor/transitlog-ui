@@ -7,8 +7,7 @@ export const TagButton = styled.button`
   align-items: stretch;
   justify-content: space-between;
   border-radius: 4px;
-  border: 1px solid
-    ${({selected}) => (selected ? "var(--blue)" : "var(--lighter-grey)")};
+  border: 1px solid ${({selected}) => (selected ? "var(--blue)" : "var(--lighter-grey)")};
   background: #fefefe;
   outline: 0;
   width: 100%;

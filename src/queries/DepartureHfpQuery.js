@@ -39,8 +39,7 @@ class DepartureHfpQuery extends Component {
   getUpdateListenerName = () => {
     const {routeId, direction, date, journeyStartTime} = this.props;
     return (
-      updateListenerName +
-      compact([routeId, direction, date, journeyStartTime]).join("_")
+      updateListenerName + compact([routeId, direction, date, journeyStartTime]).join("_")
     );
   };
 

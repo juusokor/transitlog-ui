@@ -3,12 +3,7 @@ import {Tooltip, Popup} from "react-leaflet";
 import {latLng} from "leaflet";
 import {observer, inject} from "mobx-react";
 import {P} from "../Typography";
-import {
-  ColoredBackgroundSlot,
-  PlainSlot,
-  PlainSlotSmall,
-  TagButton,
-} from "../TagButton";
+import {ColoredBackgroundSlot, PlainSlot, PlainSlotSmall, TagButton} from "../TagButton";
 import styled from "styled-components";
 import {getPriorityMode, getModeColor} from "../../helpers/vehicleColor";
 import get from "lodash/get";
@@ -98,8 +93,8 @@ class RouteStop extends React.Component {
         key={`stop_${stop.stopId}_popup`}>
         <PopupStopContent>
           <StopHeading>
-            <strong>{stop.nameFi}</strong> {stop.stopId} (
-            {stop.shortId.replace(/ /g, "")})
+            <strong>{stop.nameFi}</strong> {stop.stopId} ({stop.shortId.replace(/ /g, "")}
+            )
           </StopHeading>
         </PopupStopContent>
         <button onClick={this.onShowStreetView}>Show in street view</button>
@@ -151,11 +146,7 @@ class RouteStop extends React.Component {
     let durationDiff = 0;
     let durationDiffSign = "";
 
-    const firstStopPlannedDepartureTime = get(
-      firstStop,
-      "plannedDepartureMoment",
-      null
-    );
+    const firstStopPlannedDepartureTime = get(firstStop, "plannedDepartureMoment", null);
 
     if (firstStopPlannedDepartureTime && plannedDepartureMoment) {
       plannedDuration = plannedDepartureMoment.diff(
@@ -187,10 +178,7 @@ class RouteStop extends React.Component {
         <PlainSlot>{plannedDepartureMoment.format("HH:mm:ss")}</PlainSlot>
         <ColoredBackgroundSlot
           color={departureDelayType === "late" ? "var(--dark-grey)" : "white"}
-          backgroundColor={getTimelinessColor(
-            departureDelayType,
-            "var(--light-green)"
-          )}>
+          backgroundColor={getTimelinessColor(departureDelayType, "var(--light-green)")}>
           {departureDiff.sign === "-" ? "-" : ""}
           {departureDiff.hours ? doubleDigit(departureDiff.hours) + ":" : ""}
           {doubleDigit(get(departureDiff, "minutes", 0))}:
@@ -282,8 +270,8 @@ class RouteStop extends React.Component {
         key={`stop${stop.stopId}_popup`}>
         <PopupStopContent>
           <StopHeading>
-            <strong>{stop.nameFi}</strong> {stop.stopId} (
-            {stop.shortId.replace(/ /g, "")})
+            <strong>{stop.nameFi}</strong> {stop.stopId} ({stop.shortId.replace(/ /g, "")}
+            )
           </StopHeading>
 
           {(isTerminal || doorDidOpen) && arrivalEvent ? (
@@ -337,8 +325,7 @@ class RouteStop extends React.Component {
     stopTooltip = (
       <Tooltip key={`stop${stop.stopId}_tooltip`}>
         <StopHeading>
-          <strong>{stop.nameFi}</strong> {stop.stopId} (
-          {stop.shortId.replace(/ /g, "")})
+          <strong>{stop.nameFi}</strong> {stop.stopId} ({stop.shortId.replace(/ /g, "")})
         </StopHeading>
         {!doorDidOpen && (
           <TooltipParagraph>

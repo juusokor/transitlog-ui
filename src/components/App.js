@@ -74,10 +74,7 @@ function App({state, UI}) {
           loading: areaEventsLoading,
         }) => (
           <SelectedJourneyEvents>
-            {({
-              events: selectedJourneyEvents = [],
-              loading: journeyEventsLoading,
-            }) => {
+            {({events: selectedJourneyEvents = [], loading: journeyEventsLoading}) => {
               // The currently fetched positions, either area hfp or selected journey hfp.
               const allCurrentPositions = mergeJourneyEvents(
                 selectedJourneyEvents,
@@ -90,12 +87,9 @@ function App({state, UI}) {
                   <SidepanelAndMapWrapper>
                     <SingleStopQuery date={date} stop={selectedStopId}>
                       {({stop}) => (
-                        <JourneyStopTimes
-                          selectedJourneyEvents={selectedJourneyEvents}>
+                        <JourneyStopTimes selectedJourneyEvents={selectedJourneyEvents}>
                           {({journeyStops = [], loading: stopTimesLoading}) => (
-                            <JourneyPosition
-                              date={date}
-                              positions={allCurrentPositions}>
+                            <JourneyPosition date={date} positions={allCurrentPositions}>
                               {(currentTimePositions) => (
                                 <>
                                   <SidePanel
@@ -182,10 +176,7 @@ function App({state, UI}) {
         )}
       </AreaHfpEvents>
       <ErrorMessages />
-      <SharingModal
-        isOpen={shareModalOpen}
-        onClose={() => UI.toggleShareModal(false)}
-      />
+      <SharingModal isOpen={shareModalOpen} onClose={() => UI.toggleShareModal(false)} />
     </AppFrame>
   );
 }

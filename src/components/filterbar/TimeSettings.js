@@ -124,9 +124,7 @@ class TimeSettings extends Component {
     }
 
     // Make it into a valid time string
-    const nextTimeVal = `${doubleDigit(hours)}:${padStart(minutes)}:${padStart(
-      seconds
-    )}`;
+    const nextTimeVal = `${doubleDigit(hours)}:${padStart(minutes)}:${padStart(seconds)}`;
 
     // Assign it to the state for stuff to happen
     Time.setTime(nextTimeVal);

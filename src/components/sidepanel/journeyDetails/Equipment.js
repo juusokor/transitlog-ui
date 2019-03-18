@@ -22,25 +22,22 @@ export default ({journey, departure, children}) => {
 
         const equipmentRequirements = checkRequirements(departure, vehicle);
 
-        const equipment = map(
-          equipmentRequirements,
-          ({observed, required}, prop) => {
-            const isRequired = required !== false;
+        const equipment = map(equipmentRequirements, ({observed, required}, prop) => {
+          const isRequired = required !== false;
 
-            const color = isRequired
-              ? observed === required
-                ? "var(--light-green)"
-                : "var(--red)"
-              : "var(--lighter-grey)";
+          const color = isRequired
+            ? observed === required
+              ? "var(--light-green)"
+              : "var(--red)"
+            : "var(--lighter-grey)";
 
-            return {
-              name: prop,
-              observed,
-              required,
-              color,
-            };
-          }
-        );
+          return {
+            name: prop,
+            observed,
+            required,
+            color,
+          };
+        });
 
         return children({equipment, vehicle, loading});
       }}

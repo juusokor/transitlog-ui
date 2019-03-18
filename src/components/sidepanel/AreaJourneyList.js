@@ -108,8 +108,7 @@ class AreaJourneyList extends Component {
           journeyHfpEvents.map(({journeyId, position}) => {
             const {route_id, direction_id, journey_start_time} = position;
 
-            const journeyIsSelected =
-              selectedJourney && selectedJourneyId === journeyId;
+            const journeyIsSelected = selectedJourney && selectedJourneyId === journeyId;
 
             return (
               <JourneyListRow

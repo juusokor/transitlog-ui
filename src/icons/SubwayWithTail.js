@@ -1,13 +1,5 @@
 import React from "react";
-import {
-  Circle,
-  Defs,
-  G,
-  LinearGradient,
-  Path,
-  Stop,
-  Svg,
-} from "react-primitives-svg";
+import {Circle, Defs, G, LinearGradient, Path, Stop, Svg} from "react-primitives-svg";
 import PropTypes from "prop-types";
 import {svgSize, svgTranslate} from "../helpers/svg";
 import {Colors} from "./HSL_COLORS";

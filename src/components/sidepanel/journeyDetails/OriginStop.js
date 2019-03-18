@@ -22,8 +22,7 @@ import styled from "styled-components";
 import {observer} from "mobx-react-lite";
 
 const OriginStopContent = styled(StopContent)`
-  padding-bottom: ${({stopsExpanded = false}) =>
-    !stopsExpanded ? "1.5rem" : "2.75rem"};
+  padding-bottom: ${({stopsExpanded = false}) => (!stopsExpanded ? "1.5rem" : "2.75rem")};
 `;
 
 const OriginStop = observer(
@@ -94,13 +93,10 @@ const OriginStop = observer(
         </StopElementsWrapper>
         <OriginStopContent terminus="origin" stopsExpanded={stopsExpanded}>
           <StopHeading onClick={onStopClick} {...hoverProps}>
-            <strong>{stop.nameFi}</strong> {stop.stopId} (
-            {stop.shortId.replace(/ /g, "")})
+            <strong>{stop.nameFi}</strong> {stop.stopId} ({stop.shortId.replace(/ /g, "")}
+            )
           </StopHeading>
-          <CalculateTerminalTime
-            date={date}
-            departure={departure}
-            event={arrivalEvent}>
+          <CalculateTerminalTime date={date} departure={departure} event={arrivalEvent}>
             {({offsetTime, wasLate, diffMinutes, diffSeconds, sign}) => (
               <>
                 <TimeHeading>

@@ -39,9 +39,7 @@ const getFilteredSuggestions = (lines, {value = ""}) => {
     inputLength === 0
       ? lines
       : lines.filter((line) => {
-          return line.lineId
-            .toLowerCase()
-            .includes(inputValue.slice(0, inputLength));
+          return line.lineId.toLowerCase().includes(inputValue.slice(0, inputLength));
         });
 
   const sortedLines = sortBy(filteredLines, ({lineId}) => {

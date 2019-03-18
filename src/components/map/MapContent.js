@@ -82,9 +82,7 @@ const MapContent = decorate(
               {({routeGeometry}) =>
                 routeGeometry.length !== 0 ? (
                   <RouteLayer
-                    routeId={
-                      routeGeometry.length !== 0 ? createRouteKey(route) : null
-                    }
+                    routeId={routeGeometry.length !== 0 ? createRouteKey(route) : null}
                     routeGeometry={routeGeometry}
                     canCenterOnRoute={centerOnRoute}
                     setMapView={setMapView}
@@ -94,8 +92,7 @@ const MapContent = decorate(
               }
             </RouteGeometryQuery>
             {(!selectedJourney ||
-              (selectedJourney.route_id !== route.routeId ||
-                journeys.length === 0)) && (
+              (selectedJourney.route_id !== route.routeId || journeys.length === 0)) && (
               <RouteStopsLayer
                 showRadius={showStopRadius}
                 onViewLocation={viewLocation}

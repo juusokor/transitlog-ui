@@ -89,9 +89,7 @@ describe("Equipment", () => {
     };
 
     // The test will wait for the mock element to exist, so mount it only when the data finished loading.
-    const cb = jest.fn(({loading}) =>
-      loading ? null : <div data-testid="equipment" />
-    );
+    const cb = jest.fn(({loading}) => (loading ? null : <div data-testid="equipment" />));
 
     const {getByTestId} = render({
       journey: event,
@@ -136,9 +134,7 @@ describe("Equipment", () => {
       equipmentType: "0", // 0 corresponds to type C. The equipment will have type A1 so it's an error.
     };
 
-    const cb = jest.fn(({loading}) =>
-      loading ? null : <div data-testid="equipment" />
-    );
+    const cb = jest.fn(({loading}) => (loading ? null : <div data-testid="equipment" />));
 
     const {getByTestId} = render({
       journey: event,
@@ -174,9 +170,7 @@ describe("Equipment", () => {
       equipmentType: "0", // 0 corresponds to type C, but it's not a hard requirement in this case.
     };
 
-    const cb = jest.fn(({loading}) =>
-      loading ? null : <div data-testid="equipment" />
-    );
+    const cb = jest.fn(({loading}) => (loading ? null : <div data-testid="equipment" />));
 
     const {getByTestId} = render({
       journey: event,

@@ -94,8 +94,7 @@ class AreaHfpEvents extends Component {
         {({events, loading, error}) =>
           children({
             setQueryBounds: this.setQueryBounds,
-            actualQueryBounds:
-              bounds && !bounds.equals(currentBounds) ? bounds : false,
+            actualQueryBounds: bounds && !bounds.equals(currentBounds) ? bounds : false,
             events,
             loading,
             error,

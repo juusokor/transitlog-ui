@@ -65,15 +65,7 @@ const decorate = flow(
 );
 
 const CompoundStopMarker = decorate(
-  ({
-    popupOpen,
-    stops,
-    state,
-    showRadius = true,
-    bounds,
-    onViewLocation,
-    Filters,
-  }) => {
+  ({popupOpen, stops, state, showRadius = true, bounds, onViewLocation, Filters}) => {
     const didAutoOpen = useRef(false);
     const markerRef = useRef(null);
 
@@ -106,9 +98,7 @@ const CompoundStopMarker = decorate(
         : null;
 
     const modesInCluster = uniq(
-      compact(
-        stops.map((stop) => getPriorityMode(get(stop, "modes.nodes", ["BUS"])))
-      )
+      compact(stops.map((stop) => getPriorityMode(get(stop, "modes.nodes", ["BUS"]))))
     );
 
     let mode =
@@ -143,11 +133,7 @@ style="border-color: ${stopColor}; background-color: ${
     });
 
     const markerElement = (
-      <Marker
-        ref={markerRef}
-        icon={markerIcon}
-        pane="stops"
-        position={markerPosition}>
+      <Marker ref={markerRef} icon={markerIcon} pane="stops" position={markerPosition}>
         <Popup
           autoClose={false}
           autoPan={false}
@@ -173,8 +159,8 @@ style="border-color: ${stopColor}; background-color: ${
           {selectedStopObj && (
             <>
               <Heading level={4}>
-                {selectedStopObj.nameFi}, {selectedStopObj.shortId.replace(/ /g, "")}{" "}
-                ({selectedStopObj.stopId})
+                {selectedStopObj.nameFi}, {selectedStopObj.shortId.replace(/ /g, "")} (
+                {selectedStopObj.stopId})
               </Heading>
               {get(selectedStopObj, "routeSegmentsForDate.nodes", []).map(
                 (routeSegment) => (

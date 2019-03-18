@@ -93,11 +93,8 @@ export const useWeather = (point, date, startDate = null) => {
 
     // Start the requests. Each promise returns an object containing
     // the data and request namespace.
-    const weatherPromise = getWeatherForArea(
-      bbox,
-      weatherStart,
-      weatherEnd,
-      (cancelCb) => cancelCallbacks.current.push(cancelCb)
+    const weatherPromise = getWeatherForArea(bbox, weatherStart, weatherEnd, (cancelCb) =>
+      cancelCallbacks.current.push(cancelCb)
     ).then((data) => ({weather: data})); // namespace under "weather"
 
     const roadConditionPromise = getRoadConditionsForArea(

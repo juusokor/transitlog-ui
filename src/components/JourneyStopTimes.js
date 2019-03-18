@@ -6,10 +6,7 @@ import withRoute from "../hoc/withRoute";
 import get from "lodash/get";
 import {departureTime, getNormalTime} from "../helpers/time";
 import {isWithinRange} from "../helpers/isWithinRange";
-import {
-  filterRouteSegments,
-  filterDepartures,
-} from "../helpers/filterJoreCollections";
+import {filterRouteSegments, filterDepartures} from "../helpers/filterJoreCollections";
 import omit from "lodash/omit";
 import pick from "lodash/pick";
 import orderBy from "lodash/orderBy";
@@ -39,9 +36,7 @@ class JourneyStopTimes extends Component {
 
     const journeyStartTime = get(journey, "journey_start_time", "");
     const [journeyStartHour] = journeyStartTime.split(":");
-    const [departureHour, departureMinute] = getNormalTime(journeyStartTime).split(
-      ":"
-    );
+    const [departureHour, departureMinute] = getNormalTime(journeyStartTime).split(":");
 
     return (
       <SingleRouteQuery
@@ -83,11 +78,7 @@ class JourneyStopTimes extends Component {
           const allStopEvents = reduce(
             groupBy(events, "next_stop_id"),
             (eventGroups, eventsAtStop, stopId) => {
-              eventGroups[stopId] = orderBy(
-                eventsAtStop,
-                "received_at_unix",
-                "desc"
-              );
+              eventGroups[stopId] = orderBy(eventsAtStop, "received_at_unix", "desc");
               return eventGroups;
             },
             {}

@@ -35,9 +35,7 @@ describe("stopArrivalTimes", () => {
 
     expect(arrivalTimes.arrivalEvent).toBe(events[1]);
 
-    expect(arrivalTimes.arrivalMoment.valueOf()).toBe(
-      expectObservedMoment.valueOf()
-    );
+    expect(arrivalTimes.arrivalMoment.valueOf()).toBe(expectObservedMoment.valueOf());
     expect(arrivalTimes.plannedArrivalMoment.valueOf()).toBe(
       expectPlannedMoment.valueOf()
     );

@@ -202,11 +202,7 @@ class VehicleJourneys extends Component {
               minutes: parseInt(minutes, 10),
             };
 
-            const plannedObservedDiff = diffDepartureJourney(
-              journey,
-              departure,
-              date
-            );
+            const plannedObservedDiff = diffDepartureJourney(journey, departure, date);
             const observedTimeString = plannedObservedDiff
               ? plannedObservedDiff.observedMoment.format("HH:mm:ss")
               : "";
@@ -215,8 +211,7 @@ class VehicleJourneys extends Component {
               ? getDelayType(plannedObservedDiff.diff)
               : "none";
 
-            const journeyIsSelected =
-              selectedJourney && selectedJourneyId === journeyId;
+            const journeyIsSelected = selectedJourney && selectedJourneyId === journeyId;
 
             if (journeyIsSelected) {
               this.selectedJourneyIndex = journeyIndex;
@@ -230,17 +225,13 @@ class VehicleJourneys extends Component {
                 <TagButton
                   selected={journeyIsSelected}
                   onClick={this.onSelectJourney(journey)}>
-                  <HeadsignSlot
-                    color={get(transportColor, mode, "var(--light-grey)")}>
+                  <HeadsignSlot color={get(transportColor, mode, "var(--light-grey)")}>
                     {lineNumber} / {journey.direction_id}
                   </HeadsignSlot>
                   <TimeSlot>{journeyTime.slice(0, -3)}</TimeSlot>
                   <ColoredBackgroundSlot
                     color={delayType === "late" ? "var(--dark-grey)" : "white"}
-                    backgroundColor={getTimelinessColor(
-                      delayType,
-                      "var(--light-green)"
-                    )}>
+                    backgroundColor={getTimelinessColor(delayType, "var(--light-green)")}>
                     {plannedObservedDiff.sign === "-" ? "-" : ""}
                     {doubleDigit(plannedObservedDiff.minutes)}:
                     {doubleDigit(plannedObservedDiff.seconds)}

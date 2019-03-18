@@ -15,8 +15,7 @@ class SimpleHfpLayer extends Component {
 
   findHfpItem = (positions = [], latlng) => {
     const hfpItem = positions.find(
-      (hfp) =>
-        hfp.lat && hfp.long && latlng.equals(latLng(hfp.lat, hfp.long), 0.0001)
+      (hfp) => hfp.lat && hfp.long && latlng.equals(latLng(hfp.lat, hfp.long), 0.0001)
     );
 
     return hfpItem || null;
@@ -39,9 +38,7 @@ class SimpleHfpLayer extends Component {
 
     if (hfpItem) {
       const line = event.target;
-      const tooltipContent = `${moment
-        .tz(hfpItem.tst, TIMEZONE)
-        .format("HH:mm:ss")}<br />
+      const tooltipContent = `${moment.tz(hfpItem.tst, TIMEZONE).format("HH:mm:ss")}<br />
 ${hfpItem.route_id} / ${hfpItem.direction_id}<br />
 ${hfpItem.unique_vehicle_id}<br />
 ${text("vehicle.speed")}: ${Math.round((hfpItem.spd * 18) / 5)} km/h`;

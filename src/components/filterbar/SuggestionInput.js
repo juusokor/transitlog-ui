@@ -22,8 +22,7 @@ export const SuggestionContent = styled.div`
   background: ${({isHighlighted = false}) =>
       isHighlighted ? "var(--light-blue)" : "transparent"}
     no-repeat;
-  color: ${({isHighlighted = false}) =>
-    isHighlighted ? "white" : "var(--dark-grey)"};
+  color: ${({isHighlighted = false}) => (isHighlighted ? "white" : "var(--dark-grey)")};
   padding: 0.25rem 0.5rem;
 
   ${({withIcon = false}) =>

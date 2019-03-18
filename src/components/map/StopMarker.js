@@ -88,9 +88,9 @@ const StopMarker = decorate(
         {get(stop, "routeSegmentsForDate.nodes", []).map((routeSegment) => (
           <StopOptionButton
             color={stopColor}
-            key={`route_${cleanRouteId(routeSegment.routeId)}_${
-              routeSegment.direction
-            }_${routeSegment.dateBegin}_${routeSegment.dateEnd}`}
+            key={`route_${cleanRouteId(routeSegment.routeId)}_${routeSegment.direction}_${
+              routeSegment.dateBegin
+            }_${routeSegment.dateEnd}`}
             onClick={selectRoute(get(routeSegment, "route.nodes[0]", null))}>
             {cleanRouteId(routeSegment.routeId)}
           </StopOptionButton>

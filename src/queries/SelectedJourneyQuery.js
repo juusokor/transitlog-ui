@@ -59,13 +59,7 @@ class SelectedJourneyQuery extends React.Component {
     const isNextDay = normalStartTime !== journeyStartTime;
 
     return {
-      ...pick(
-        selectedJourney,
-        "route_id",
-        "direction_id",
-        "journey_start_time",
-        "oday"
-      ),
+      ...pick(selectedJourney, "route_id", "direction_id", "journey_start_time", "oday"),
       unique_vehicle_id: get(selectedJourney, "unique_vehicle_id") || undefined,
       journey_start_time: normalStartTime,
       compareEventTime: isNextDay
@@ -115,9 +109,7 @@ class SelectedJourneyQuery extends React.Component {
             selectedJourney.instance &&
             !selectedJourney.unique_vehicle_id
           ) {
-            const vehicleGroups = Object.values(
-              groupBy(vehicles, "unique_vehicle_id")
-            );
+            const vehicleGroups = Object.values(groupBy(vehicles, "unique_vehicle_id"));
 
             if (vehicleGroups.length > 1) {
               vehicles = vehicleGroups[selectedJourney.instance];

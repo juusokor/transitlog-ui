@@ -5,10 +5,7 @@ import get from "lodash/get";
 import pick from "lodash/pick";
 import compact from "lodash/compact";
 import omitBy from "lodash/omitBy";
-import {
-  RouteFieldsFragment,
-  ExtensiveRouteFieldsFragment,
-} from "./RouteFieldsFragment";
+import {RouteFieldsFragment, ExtensiveRouteFieldsFragment} from "./RouteFieldsFragment";
 import {observer} from "mobx-react";
 import orderBy from "lodash/orderBy";
 import {getDayTypeFromDate} from "../helpers/getDayTypeFromDate";

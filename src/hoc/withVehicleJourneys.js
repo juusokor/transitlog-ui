@@ -26,10 +26,7 @@ export default (Component) => {
             // Group and order by journey_start_time, and get the HFP item that
             // represents the start of the journey.
             const vehicleJourneys = map(
-              groupBy(
-                orderBy(positions, "journey_start_time"),
-                "journey_start_time"
-              ),
+              groupBy(orderBy(positions, "journey_start_time"), "journey_start_time"),
               (positions) => findJourneyStartPosition(positions)
             );
 

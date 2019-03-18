@@ -86,13 +86,10 @@ class JourneyPosition extends Component {
   indexJourneys = (journeys) => {
     this.hfpPositions.clear();
 
-    this.positions = journeys.reduce(
-      (journeyIndex, {journeyId = "", events = []}) => {
-        journeyIndex.set(journeyId, this.indexPositions(events));
-        return journeyIndex;
-      },
-      new Map()
-    );
+    this.positions = journeys.reduce((journeyIndex, {journeyId = "", events = []}) => {
+      journeyIndex.set(journeyId, this.indexPositions(events));
+      return journeyIndex;
+    }, new Map());
   };
 
   componentDidMount() {

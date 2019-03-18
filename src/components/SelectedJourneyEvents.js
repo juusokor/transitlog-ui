@@ -59,12 +59,7 @@ class SelectedJourneyEvents extends Component {
 
           const journeyId = getJourneyId(events[0]);
 
-          return this.renderChildren(
-            children,
-            [{journeyId, events}],
-            loading,
-            error
-          );
+          return this.renderChildren(children, [{journeyId, events}], loading, error);
         }}
       </SelectedJourneyQuery>
     );

@@ -26,10 +26,7 @@ export default observer(({children, date}) => {
   return (
     <Query query={linesQuery} variables={{date}} client={client}>
       {({loading, error, data}) => {
-        let lines = orderBy(
-          get(data, "lines", []).filter(removeFerryFilter),
-          "lineId"
-        );
+        let lines = orderBy(get(data, "lines", []).filter(removeFerryFilter), "lineId");
 
         return children({
           loading,
