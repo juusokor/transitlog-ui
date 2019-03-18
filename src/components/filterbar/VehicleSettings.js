@@ -31,7 +31,7 @@ class VehicleSettings extends React.Component {
   }
 
   render() {
-    const {state} = this.props;
+    const {state, Filters} = this.props;
     const {vehicle = "", date, selectedJourney} = state;
 
     const isDisabled = !!selectedJourney;
@@ -60,7 +60,7 @@ class VehicleSettings extends React.Component {
             <Button
               primary={false}
               small={true}
-              onClick={() => this.onSelectVehicle("")}>
+              onClick={() => Filters.setVehicle("")}>
               <Text>filterpanel.clear.vehicle</Text>
             </Button>
           </Tooltip>

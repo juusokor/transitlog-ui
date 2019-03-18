@@ -39,13 +39,19 @@ class HfpVehicleQuery extends React.Component {
 
   render() {
     const {date, vehicleId, children} = this.props;
+    let [operatorId, vehicleNumber] = vehicleId.split("/");
+
+    operatorId = parseInt(operatorId, 10);
+    vehicleNumber = parseInt(vehicleNumber, 10);
+
+    const vehicle_id = `${operatorId}/${vehicleNumber}`;
 
     return (
       <Query
         query={hfpQuery}
         variables={{
           date,
-          vehicle_id: vehicleId,
+          vehicle_id,
         }}>
         {({data, loading, refetch}) => {
           if (!loading) {
@@ -55,6 +61,7 @@ class HfpVehicleQuery extends React.Component {
           const vehicles = get(data, "vehicles", []).filter(
             (event) => event.journey_start_time
           );
+
           return children({positions: vehicles, loading});
         }}
       </Query>

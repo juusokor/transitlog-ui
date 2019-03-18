@@ -1,4 +1,4 @@
-import React, {useCallback, useState, useEffect, useMemo} from "react";
+import React, {useMemo} from "react";
 import SuggestionInput, {
   SuggestionContent,
   SuggestionText,
@@ -12,8 +12,7 @@ import {inject} from "../../helpers/inject";
 import orderBy from "lodash/orderBy";
 import map from "lodash/map";
 import groupBy from "lodash/groupBy";
-import debounce from "lodash/debounce";
-import {useToggle} from "../../hooks/useToggle";
+import {useSearchOptions} from "../../hooks/useSearchOptions";
 
 const VehicleSuggestion = styled(SuggestionContent)`
   color: ${({inService = true, isHighlighted = false}) =>
@@ -72,18 +71,13 @@ const getVehicleGroups = (vehicles = [], sortByMatchScore = false) => {
         combinedMatchScore: sortByMatchScore
           ? vehicles.reduce((score, {_matchScore = 0}) => score + _matchScore, 0)
           : 0,
-        vehicles: orderBy(vehicles, sortVehiclesBy, sortDirection),
+        vehicles: orderBy(vehicles, sortVehiclesBy, sortDirection).slice(0, 50),
       })
     ),
     sortGroupsBy,
     sortDirection
-  );
+  ).slice(0, 5);
 };
-
-const createDebouncedSearcher = (search) =>
-  debounce(async (searchTerm) => {
-    await search(searchTerm);
-  }, 300);
 
 const enhance = flow(
   observer,
@@ -91,27 +85,11 @@ const enhance = flow(
 );
 
 export default enhance(({value = "", onSelect, search, options = []}) => {
-  const [isSearch, toggleIsSearch] = useToggle(false);
-  const [vehicleOptions, setVehicleOptions] = useState([]);
-  const searcher = useMemo(() => createDebouncedSearcher(search), [search]);
+  const [getSuggestions, searchActive] = useSearchOptions(search);
 
-  useEffect(() => {
-    const vehicleGroups = getVehicleGroups(options, isSearch);
-    setVehicleOptions(vehicleGroups);
-  }, [options]);
-
-  const getSuggestions = useCallback(
-    ({value: searchTerm = ""}) => {
-      if (searchTerm && !isSearch) {
-        toggleIsSearch(true);
-      } else if (!searchTerm && isSearch) {
-        toggleIsSearch(false);
-      }
-
-      searcher(searchTerm);
-    },
-    [search, isSearch]
-  );
+  const vehicleOptions = useMemo(() => getVehicleGroups(options, searchActive), [
+    options,
+  ]);
 
   return (
     <SuggestionInput

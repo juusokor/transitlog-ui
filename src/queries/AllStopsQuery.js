@@ -1,35 +1,59 @@
-import React from "react";
+import React, {useCallback, useRef} from "react";
 import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import get from "lodash/get";
+import {getServerClient} from "../api";
 
 const allStopsQuery = gql`
-  query allStopsQuery {
-    allStops {
-      nodes {
-        nodeId
-        stopId
-        shortId
-        lat
-        lon
-        nameFi
-        stopRadius
-        __typename
-      }
+  query allStopsQuery($search: String) {
+    stops(filter: {search: $search}) {
+      id
+      stopId
+      shortId
+      lat
+      lng
+      name
+      radius
+      modes
+      _matchScore
     }
   }
 `;
 
-export default ({children}) => (
-  <Query query={allStopsQuery}>
-    {({loading, error, data}) => {
-      const stops = get(data, "allStops.nodes", []);
+const client = getServerClient();
 
-      return children({
-        loading,
-        error,
-        stops,
-      });
-    }}
-  </Query>
-);
+export default ({children}) => {
+  const prevResults = useRef([]);
+
+  const createSearchFetcher = useCallback(
+    (refetch) => (searchTerm) => refetch({search: searchTerm}),
+    []
+  );
+
+  return (
+    <Query query={allStopsQuery} client={client}>
+      {({loading, error, data, refetch}) => {
+        const search = createSearchFetcher(refetch);
+
+        if (loading || !data) {
+          return children({
+            loading,
+            error,
+            stops: prevResults.current,
+            search,
+          });
+        }
+
+        const stops = get(data, "stops", []);
+        prevResults.current = stops;
+
+        return children({
+          loading,
+          error,
+          stops,
+          search,
+        });
+      }}
+    </Query>
+  );
+};
