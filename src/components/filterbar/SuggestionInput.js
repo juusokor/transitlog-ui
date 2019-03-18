@@ -52,11 +52,14 @@ export const SuggestionSectionTitle = styled.div`
 
 @observer
 class SuggestionInput extends Component {
-  @observable
-  inputValue = this.getValue(this.props.value);
+  static defaultProps = {
+    onSuggestionsClearRequested: () => [],
+    onSuggestionsFetchRequested: () => {},
+    suggestions: [],
+  };
 
   @observable
-  suggestions = [];
+  inputValue = this.getValue(this.props.value);
 
   @action
   setValue(value) {
@@ -66,11 +69,6 @@ class SuggestionInput extends Component {
   getValue(val) {
     const {getValue, getDisplayValue = getValue} = this.props;
     return getDisplayValue(getValue(val));
-  }
-
-  @action
-  setSuggestions(suggestions) {
-    this.suggestions = suggestions;
   }
 
   onChange = (event, {newValue}) => {
@@ -88,37 +86,9 @@ class SuggestionInput extends Component {
     this.setValue(this.getValue(suggestion));
   };
 
-  onSuggestionsFetchRequested = async ({value}) => {
-    const {getSuggestions} = this.props;
-    let options = getSuggestions(value);
-
-    if (options instanceof Promise) {
-      options = await options;
-    }
-
-    this.setSuggestions(options || []);
-  };
-
-  onSuggestionsClearRequested = () => {
-    const {getSuggestions} = this.props;
-    getSuggestions("");
-
-    this.setSuggestions([]);
-  };
-
   shouldRenderSuggestions = (limit) => (value) => {
     return value.trim().length >= limit;
   };
-
-  componentDidUpdate({value: prevValue}) {
-    const {value, suggestions = []} = this.props;
-
-    if (value !== prevValue) {
-      this.setValue(this.getValue(value));
-    }
-
-    this.suggestions.replace(suggestions);
-  }
 
   render() {
     const {
@@ -131,6 +101,7 @@ class SuggestionInput extends Component {
       renderSectionTitle,
       getSectionSuggestions,
       helpText = "",
+      ...autosuggestProps
     } = this.props;
 
     const inputProps = {
@@ -143,11 +114,8 @@ class SuggestionInput extends Component {
       <Tooltip helpText={helpText}>
         <AutosuggestWrapper className={className}>
           <Autosuggest
-            suggestions={this.suggestions}
             shouldRenderSuggestions={this.shouldRenderSuggestions(minimumInput)}
             onSuggestionSelected={this.onSuggestionSelected}
-            onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
-            onSuggestionsClearRequested={this.onSuggestionsClearRequested}
             getSuggestionValue={getValue}
             highlightFirstSuggestion={true}
             multiSection={multiSection}
@@ -155,6 +123,7 @@ class SuggestionInput extends Component {
             getSectionSuggestions={getSectionSuggestions}
             renderSuggestion={renderSuggestion}
             inputProps={inputProps}
+            {...autosuggestProps}
           />
         </AutosuggestWrapper>
       </Tooltip>

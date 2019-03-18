@@ -5,29 +5,12 @@ import {inject, observer} from "mobx-react";
 import {app} from "mobx-app";
 import VehicleInput from "./VehicleInput";
 import Input from "../Input";
-import sortBy from "lodash/sortBy";
-import groupBy from "lodash/groupBy";
-import map from "lodash/map";
-import debounce from "lodash/debounce";
 import VehicleOptionsQuery from "../../queries/VehicleOptionsQuery";
-import {getOperatorName} from "../../helpers/getOperatorNameById";
 import Tooltip from "../Tooltip";
-import {observable, action} from "mobx";
 
 @inject(app("Filters"))
 @observer
 class VehicleSettings extends React.Component {
-  @observable
-  vehicleSearch = "";
-
-  onInputChange = debounce(
-    action((value) => {
-      this.vehicleSearch = value;
-    }),
-    300,
-    {leading: true, trailing: false}
-  );
-
   onSelectVehicle = (value) => {
     this.props.Filters.setVehicle(value);
   };
@@ -59,32 +42,18 @@ class VehicleSettings extends React.Component {
 
     return (
       <>
-        <VehicleOptionsQuery date={date} search={this.vehicleSearch}>
-          {({vehicles}) => {
-            const groupedVehicles = sortBy(
-              map(
-                groupBy(vehicles, ({operatorId}) => parseInt(operatorId, 10) + ""),
-                (vehicles, operatorId) => {
-                  return {
-                    operatorName: getOperatorName(operatorId),
-                    operatorId: operatorId,
-                    vehicles: sortBy(vehicles, "vehicleId"),
-                  };
-                }
-              ),
-              "operatorId"
-            );
-
-            return this.renderInput(
+        <VehicleOptionsQuery date={date}>
+          {({vehicles, search}) =>
+            this.renderInput(
               <VehicleInput
-                onInputChange={this.onInputChange}
-                options={groupedVehicles}
+                search={search}
+                options={vehicles}
                 value={vehicle}
                 onSelect={this.onSelectVehicle}
               />,
               vehicle
-            );
-          }}
+            )
+          }
         </VehicleOptionsQuery>
         {!!vehicle && (
           <Tooltip helpText="Clear vehicle">

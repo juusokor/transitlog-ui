@@ -1,4 +1,4 @@
-import React, {useRef} from "react";
+import React, {useRef, useCallback} from "react";
 import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import get from "lodash/get";
@@ -12,36 +12,47 @@ const vehiclesQuery = gql`
       age
       id
       inService
-      operatorId
-      registryNr
       vehicleId
+      operatorId
+      operatorName
+      registryNr
+      exteriorColor
+      emissionClass
+      emissionDesc
+      type
     }
   }
 `;
 
 const client = getServerClient();
 
-export default observer(({children, date, search = "", skip}) => {
+export default observer(({children, date, skip}) => {
   const prevResults = useRef([]);
 
+  const createSearchFetcher = useCallback(
+    (refetch) => (searchTerm) => refetch({search: searchTerm, date}),
+    [date]
+  );
+
   return (
-    <Query
-      fetchPolicy="network-only"
-      query={vehiclesQuery}
-      variables={{date, search: search || ""}}
-      skip={skip}
-      client={client}>
-      {({loading, error, data}) => {
+    <Query query={vehiclesQuery} variables={{date}} skip={skip} client={client}>
+      {({loading, error, data, refetch}) => {
         if (loading || !data) {
-          return children({loading, error, vehicles: prevResults.current});
+          return children({
+            loading,
+            error,
+            search: createSearchFetcher(refetch),
+            vehicles: prevResults.current,
+          });
         }
 
-        const vehicles = get(data, "equipment", []);
+        const vehicles = [...get(data, "equipment", [])];
         prevResults.current = vehicles;
 
         return children({
           loading: loading,
           error,
+          search: createSearchFetcher(refetch),
           vehicles,
         });
       }}

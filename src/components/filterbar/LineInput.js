@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState, useCallback} from "react";
 import get from "lodash/get";
 import SuggestionInput, {SuggestionContent, SuggestionText} from "./SuggestionInput";
 import getTransportType from "../../helpers/getTransportType";
@@ -31,7 +31,7 @@ const renderSuggestion = (suggestion, {query, isHighlighted}) => {
   );
 };
 
-const getSuggestions = (lines) => (value = "") => {
+const getFilteredSuggestions = (lines, {value = ""}) => {
   const inputValue = value.trim().toLowerCase();
   const inputLength = inputValue.length;
 
@@ -60,6 +60,16 @@ const getSuggestions = (lines) => (value = "") => {
 };
 
 const LineInput = observer(({line, lines, onSelect}) => {
+  const [options, setOptions] = useState([]);
+
+  const getSuggestions = useCallback(
+    (value) => {
+      const nextOptions = getFilteredSuggestions(lines, value);
+      setOptions(nextOptions);
+    },
+    [lines, setOptions]
+  );
+
   return (
     <SuggestionInput
       helpText="Select line"
@@ -69,7 +79,8 @@ const LineInput = observer(({line, lines, onSelect}) => {
       getValue={getSuggestionValue}
       getDisplayValue={parseLineNumber}
       renderSuggestion={renderSuggestion}
-      getSuggestions={getSuggestions(lines)}
+      suggestions={options}
+      onSuggestionsFetchRequested={getSuggestions}
     />
   );
 });
