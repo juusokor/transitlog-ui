@@ -4,6 +4,7 @@
   "rules": {
     "import/no-webpack-loader-syntax": 0,
     "import/first": 0,
+    "prettier/prettier": true,
     "react-hooks/rules-of-hooks": "error"
   }
 }

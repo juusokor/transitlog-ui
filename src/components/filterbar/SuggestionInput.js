@@ -90,6 +90,15 @@ class SuggestionInput extends Component {
     return value.trim().length >= limit;
   };
 
+  componentDidUpdate({value: prevValue}) {
+    const {value, getValue} = this.props;
+
+    if (value !== prevValue) {
+      const nextValue = getValue(value);
+      this.setValue(nextValue);
+    }
+  }
+
   render() {
     const {
       className,
@@ -114,6 +123,7 @@ class SuggestionInput extends Component {
       <Tooltip helpText={helpText}>
         <AutosuggestWrapper className={className}>
           <Autosuggest
+            focusInputOnSuggestionClick={false}
             shouldRenderSuggestions={this.shouldRenderSuggestions(minimumInput)}
             onSuggestionSelected={this.onSuggestionSelected}
             getSuggestionValue={getValue}
