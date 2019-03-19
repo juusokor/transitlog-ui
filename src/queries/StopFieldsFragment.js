@@ -15,6 +15,7 @@ export const StopFieldsFragment = gql`
       isTimingStop
       originStopId
       routeId
+      lineId
     }
   }
 `;

@@ -79,10 +79,7 @@ class TimetableDeparture extends Component {
 
   render() {
     const {departure, date, stop, onClick, selectedJourney} = this.props;
-
-    const {
-      modes: {nodes: modes},
-    } = stop;
+    const {modes = []} = stop;
 
     const stopMode = modes[0];
     const currentTransportColor = get(transportColor, stopMode, "var(--light-grey)");
