@@ -2,7 +2,6 @@ import React, {Component} from "react";
 import {inject, observer} from "mobx-react";
 import {app} from "mobx-app";
 import SingleRouteQuery from "../queries/SingleRouteQuery";
-import withRoute from "../hoc/withRoute";
 import get from "lodash/get";
 import {departureTime, getNormalTime} from "../helpers/time";
 import {isWithinRange} from "../helpers/isWithinRange";
@@ -17,7 +16,6 @@ import {stopDepartureTimes} from "../helpers/stopDepartureTimes";
 import {stopArrivalTimes} from "../helpers/stopArrivalTimes";
 
 @inject(app("state"))
-@withRoute()
 @observer
 class JourneyStopTimes extends Component {
   render() {

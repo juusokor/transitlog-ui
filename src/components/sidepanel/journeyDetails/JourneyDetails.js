@@ -8,7 +8,6 @@ import JourneyStops from "./JourneyStops";
 import {LoadingDisplay} from "../../Loading";
 import JourneyInfo from "./JourneyInfo";
 import DestinationStop from "./DestinationStop";
-import withRoute from "../../../hoc/withRoute";
 import OriginStop from "./OriginStop";
 import {observable, action} from "mobx";
 import {getMomentFromDateTime} from "../../../helpers/time";
@@ -46,7 +45,6 @@ const Loading = styled(LoadingDisplay)`
 `;
 
 @inject(app("UI", "Time", "Filters"))
-@withRoute({alwaysFetch: true})
 @observer
 class JourneyDetails extends React.Component {
   @observable

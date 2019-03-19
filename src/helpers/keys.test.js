@@ -1,7 +1,7 @@
-import {createRouteKey, createRouteId} from "./keys";
+import {createRouteId, createRouteId} from "./keys";
 
 describe("Key helpers", () => {
-  test("createRouteKey creates a route identifier from a route object", () => {
+  test("createRouteId creates a route identifier from a route object", () => {
     const route = {
       id: "123",
       routeId: "123",
@@ -10,7 +10,7 @@ describe("Key helpers", () => {
       dateEnd: "2019-01-28",
     };
 
-    const routeId = createRouteKey(route);
+    const routeId = createRouteId(route);
     const expected = "123";
 
     expect(routeId).toBe(expected);

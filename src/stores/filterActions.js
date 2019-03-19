@@ -3,6 +3,7 @@ import moment from "moment-timezone";
 import get from "lodash/get";
 import {setUrlValue} from "./UrlManager";
 import {TIMEZONE} from "../constants";
+import {intval} from "../helpers/isWithinRange";
 
 const filterActions = (state) => {
   // Make sure all dates are correctly formed.
@@ -36,12 +37,17 @@ const filterActions = (state) => {
   });
 
   const setRoute = action("Set route", (route) => {
-    state.route.id = get(route, "id", "");
-    state.route.routeId = get(route, "routeId", "");
-    state.route.direction = get(route, "direction", "") + "";
-    state.route.originStopId = get(route, "originStopId", "");
+    const {routeId = "", direction = "", originStopId = ""} = route || {};
 
-    setUrlValue("route.id", state.route.id);
+    if (routeId && !originStopId) {
+      console.warn("Tried to set route without origin stop.");
+      return;
+    }
+
+    state.route.routeId = routeId;
+    state.route.direction = intval(direction);
+    state.route.originStopId = originStopId;
+
     setUrlValue("route.routeId", state.route.routeId);
     setUrlValue("route.direction", state.route.direction);
     setUrlValue("route.originStopId", state.route.originStopId);

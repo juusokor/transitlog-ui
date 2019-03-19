@@ -6,15 +6,15 @@ import {observer} from "mobx-react-lite";
 import sortBy from "lodash/sortBy";
 
 const parseLineNumber = (lineId = "") => {
-  console.log(lineId);
+  const lineStr = lineId + "";
   // Special case for train lines, they should only show a letter.
-  if (/^300[12]/.test(lineId)) {
-    return lineId.replace(/\d+/, "");
+  if (/^300[12]/.test(lineStr)) {
+    return lineStr.replace(/\d+/, "");
   }
 
   // Remove 1st number, which represents the city
   // Remove all zeros from the beginning
-  return lineId.substring(1).replace(/^0+/, "");
+  return lineStr.substring(1).replace(/^0+/, "");
 };
 
 const getSuggestionValue = (suggestion) => get(suggestion, "lineId", suggestion);

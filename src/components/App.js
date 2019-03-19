@@ -16,7 +16,6 @@ import getJourneyId from "../helpers/getJourneyId";
 import JourneyStopTimes from "./JourneyStopTimes";
 import {inject} from "../helpers/inject";
 import flow from "lodash/flow";
-import withRoute from "../hoc/withRoute";
 import {mergeJourneyEvents} from "../helpers/mergeJourneyEvents";
 
 const AppFrame = styled.main`
@@ -49,7 +48,6 @@ const MapPanel = styled(Map)`
 
 const decorate = flow(
   observer,
-  withRoute(),
   inject("UI")
 );
 

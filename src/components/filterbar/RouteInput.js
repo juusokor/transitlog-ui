@@ -4,11 +4,9 @@ import {app} from "mobx-app";
 import {get} from "lodash";
 import {text} from "../../helpers/text";
 import Dropdown from "../Dropdown";
-import {createRouteKey} from "../../helpers/keys";
-import withRoute from "../../hoc/withRoute";
+import {createRouteId} from "../../helpers/keys";
 
 @inject(app("Filters"))
-@withRoute()
 @observer
 class RouteInput extends Component {
   onChange = (e) => {
@@ -16,12 +14,10 @@ class RouteInput extends Component {
     const selectedValue = get(e, "target.value", false);
 
     if (!selectedValue) {
-      return Filters.setRoute({routeId: "", direction: "", id: "", originStopId: ""});
+      return Filters.setRoute({routeId: "", direction: "", originStopId: ""});
     }
 
-    const route = routes.find((r) => createRouteKey(r) === selectedValue);
-
-    console.log(route);
+    const route = routes.find((r) => createRouteId(r) === selectedValue);
 
     if (route) {
       Filters.setRoute(route);
@@ -39,13 +35,13 @@ class RouteInput extends Component {
 
       return {
         key: id,
-        value: id,
+        value: createRouteId(routeOption),
         label: `${routeId} - suunta ${direction}, ${origin} - ${destination}`,
       };
     });
 
     options.unshift({value: "", label: text("filterpanel.select_route")});
-    const currentValue = route.id;
+    const currentValue = createRouteId(route);
 
     return (
       <Dropdown helpText="Select route" value={currentValue} onChange={this.onChange}>

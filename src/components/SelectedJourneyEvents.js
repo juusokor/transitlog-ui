@@ -5,13 +5,11 @@ import {createHfpItem} from "../helpers/createHfpItem";
 import SelectedJourneyQuery from "../queries/SelectedJourneyQuery";
 import getJourneyId from "../helpers/getJourneyId";
 import get from "lodash/get";
-import withRoute from "../hoc/withRoute";
 import EnsureJourneySelection from "../helpers/EnsureJourneySelection";
 import moment from "moment-timezone";
 import {TIMEZONE} from "../constants";
 
 @inject(app("state"))
-@withRoute()
 @observer
 class SelectedJourneyEvents extends Component {
   renderChildren = (children, events = [], loading = false, error = null) => (

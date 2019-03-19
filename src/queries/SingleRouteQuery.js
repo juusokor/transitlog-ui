@@ -4,25 +4,9 @@ import {Query} from "react-apollo";
 import get from "lodash/get";
 import pick from "lodash/pick";
 import compact from "lodash/compact";
-import omitBy from "lodash/omitBy";
 import {RouteFieldsFragment, ExtensiveRouteFieldsFragment} from "./RouteFieldsFragment";
 import {observer} from "mobx-react";
-import orderBy from "lodash/orderBy";
 import {getDayTypeFromDate} from "../helpers/getDayTypeFromDate";
-import {getValidItemsByDateChains} from "../helpers/filterJoreCollections";
-import {getServerClient} from "../api";
-
-export const singleRouteQuery = gql`
-  query singleRouteQuery($routeId: String!, $direction: Direction!, $date: Date!) {
-    routes(filter: {routeId: $routeId, direction: $direction}, date: $date) {
-      id
-      routeId
-      direction
-      originStopId
-    }
-  }
-  ${RouteFieldsFragment}
-`;
 
 const extensiveSingleRouteQuery = gql`
   query extensiveSingleRouteQuery(
@@ -48,38 +32,6 @@ const extensiveSingleRouteQuery = gql`
   ${RouteFieldsFragment}
   ${ExtensiveRouteFieldsFragment}
 `;
-
-function getRoute(data = {}, date) {
-  let routes = get(data, "allRoutes.nodes", []);
-  routes = getValidItemsByDateChains([routes], date);
-  return orderBy(routes, "dateBegin", "desc")[0];
-}
-
-const client = getServerClient();
-
-export const SimpleRouteQuery = ({route, date, onCompleted, skip, children}) => {
-  const {direction} = route;
-  // Omit empty values
-  const routeData = omitBy(route, (value) => !value);
-
-  return (
-    <Query
-      client={client}
-      skip={skip || Object.keys(routeData).length < 2} // It needs at least the routeId and the direction
-      query={singleRouteQuery}
-      variables={{...routeData, direction: direction + ""}}
-      onCompleted={(data) => onCompleted(getRoute(data, date))}>
-      {({data, loading}) => {
-        if (!data || loading) {
-          return children({route: null, loading: loading});
-        }
-
-        const route = getRoute(data, date);
-        return children({route, loading});
-      }}
-    </Query>
-  );
-};
 
 const ExtensiveRouteQuery = observer(
   ({

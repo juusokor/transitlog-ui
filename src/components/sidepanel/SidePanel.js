@@ -9,7 +9,7 @@ import {text} from "../../helpers/text";
 import AreaJourneyList from "./AreaJourneyList";
 import JourneyDetails from "./journeyDetails/JourneyDetails";
 import Info from "../../icons/Info";
-import {createRouteKey} from "../../helpers/keys";
+import {createRouteId} from "../../helpers/keys";
 import Timetable from "../../icons/Timetable";
 import ControlBar from "./ControlBar";
 import {UsageInstructions} from "./UsageInstructions";
@@ -157,7 +157,7 @@ const SidePanel = decorate((props) => {
             {hasRoute && (
               <Journeys
                 helpText="Journeys tab"
-                key={`route_journeys_${createRouteKey(route, true)}_${date}`}
+                key={`route_journeys_${createRouteId(route, true)}_${date}`}
                 route={route}
                 loading={journeyEventsLoading}
                 name="journeys"

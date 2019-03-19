@@ -2,46 +2,27 @@ import React, {Component} from "react";
 import get from "lodash/get";
 import {Query} from "react-apollo";
 import gql from "graphql-tag";
-import {createRouteKey} from "../helpers/keys";
-import {getValidItemsByDateChains} from "../helpers/filterJoreCollections";
+import {createRouteId} from "../helpers/keys";
+import {getServerClient} from "../api";
 
 const routeQuery = gql`
-  query routeQuery(
-    $routeId: String!
-    $direction: String!
-    $dateBegin: Date!
-    $dateEnd: Date!
-  ) {
-    route: routeByRouteIdAndDirectionAndDateBeginAndDateEnd(
-      routeId: $routeId
-      direction: $direction
-      dateBegin: $dateBegin
-      dateEnd: $dateEnd
-    ) {
-      nodeId
-      originstopId
-      dateBegin
-      dateEnd
-      routeId
-      direction
-      geometries {
-        nodes {
-          geometry
-          dateBegin
-          dateEnd
-        }
+  query routeQuery($routeId: String!, $direction: Direction!, $date: Date!) {
+    routeGeometry(routeId: $routeId, direction: $direction, date: $date) {
+      coordinates {
+        lat
+        lng
       }
     }
   }
 `;
 
-// TODO: Migrate this query to use transitlog-server.
+const client = getServerClient();
 
 // No @observer here, as it doesn't like shouldComponentUpdate
 class RouteGeometryQuery extends Component {
   shouldComponentUpdate({route: nextRoute}) {
     const {route} = this.props;
-    return !!route.routeId && createRouteKey(route) !== createRouteKey(nextRoute); // Stop the map from flashing and thrashing
+    return !!route.routeId && createRouteId(route) !== createRouteId(nextRoute); // Stop the map from flashing and thrashing
   }
 
   render() {
@@ -50,24 +31,20 @@ class RouteGeometryQuery extends Component {
 
     return (
       <Query
+        client={client}
         skip={!routeId}
         query={routeQuery}
         variables={{
           routeId,
           direction,
+          date,
         }}>
         {({loading, error, data}) => {
           if (loading || error) {
             return null;
           }
 
-          const geometries = get(data, "route.geometries.nodes", []);
-          let geometry = getValidItemsByDateChains([geometries], date)[0];
-
-          const coordinates = get(geometry, "geometry.coordinates", []).map(
-            ([lon, lat]) => [lat, lon]
-          );
-
+          const coordinates = get(data, "routeGeometry.coordinates", []);
           return children({routeGeometry: coordinates});
         }}
       </Query>

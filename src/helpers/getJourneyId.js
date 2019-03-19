@@ -1,4 +1,4 @@
-import {pickJourneyProps} from "./pickJourneyProps";
+import {getJourneyObject} from "./getJourneyObject";
 
 const getJourneyId = (journey = null, matchInstance = true) => {
   if (!journey) {
@@ -10,11 +10,13 @@ const getJourneyId = (journey = null, matchInstance = true) => {
     return !matchInstance ? idStr.replace(/.$/, "0") : idStr;
   }
 
+  let journeyItem = journey;
+
   if (typeof journey.oday === "string") {
-    return getJourneyIdFromEvent(journey, matchInstance);
+    journeyItem = getJourneyObject(journey);
   }
 
-  return getJourneyIdFromJourney(journey, matchInstance);
+  return getJourneyIdFromJourney(journeyItem, matchInstance);
 };
 
 const getJourneyIdFromJourney = (journey = {}, matchInstance = true) => {
@@ -33,24 +35,6 @@ const getJourneyIdFromJourney = (journey = {}, matchInstance = true) => {
   }
 
   return `${departureDate}_${departureTime}_${routeId}_${direction}_${instance}`;
-};
-
-const getJourneyIdFromEvent = (event, matchInstance = true) => {
-  let {
-    oday = null,
-    journey_start_time = null,
-    route_id = null,
-    direction_id = null,
-    instance = 0,
-  } = pickJourneyProps(event || {});
-
-  if (!route_id || !oday || !journey_start_time) return "";
-
-  if (!matchInstance) {
-    instance = 0;
-  }
-
-  return `${oday}_${journey_start_time}_${route_id}_${direction_id}_${instance}`;
 };
 
 export default getJourneyId;

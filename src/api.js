@@ -33,7 +33,7 @@ function createErrorLink(UIStore) {
 
   return onError(({graphQLErrors, networkError}) => {
     if (graphQLErrors && process.env.NODE_ENV === "development") {
-      graphQLErrors.map(({message}) => console.warn(message));
+      graphQLErrors.map((err) => console.warn(err.message));
     }
 
     if (networkError) {

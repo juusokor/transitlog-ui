@@ -14,7 +14,7 @@ import AreaSelect from "./AreaSelect";
 import {expr} from "mobx-utils";
 import {areaEventsStyles} from "../../stores/UIStore";
 import SimpleHfpLayer from "./SimpleHfpLayer";
-import {createRouteKey} from "../../helpers/keys";
+import {createRouteId} from "../../helpers/keys";
 import {inject} from "../../helpers/inject";
 import WeatherDisplay from "./WeatherDisplay";
 
@@ -76,17 +76,17 @@ const MapContent = decorate(
         {hasRoute && (
           <>
             <RouteGeometryQuery
-              key={`route_query_${createRouteKey(route, true)}`}
+              key={`route_query_${createRouteId(route, true)}`}
               route={route}
               date={date}>
               {({routeGeometry}) =>
                 routeGeometry.length !== 0 ? (
                   <RouteLayer
-                    routeId={routeGeometry.length !== 0 ? createRouteKey(route) : null}
+                    routeId={routeGeometry.length !== 0 ? createRouteId(route) : null}
                     routeGeometry={routeGeometry}
                     canCenterOnRoute={centerOnRoute}
                     setMapView={setMapView}
-                    key={`route_line_${createRouteKey(route, true)}`}
+                    key={`route_line_${createRouteId(route, true)}`}
                   />
                 ) : null
               }

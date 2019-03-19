@@ -10,14 +10,14 @@ import {ColoredBackgroundSlot} from "../TagButton";
 import getDelayType from "../../helpers/getDelayType";
 import {getTimelinessColor} from "../../helpers/timelinessColor";
 import {expr} from "mobx-utils";
-import {getNormalTime, timeToSeconds, secondsToTime} from "../../helpers/time";
+import {getNormalTime, timeToSeconds, secondsToTimeObject} from "../../helpers/time";
 import Tooltip from "../Tooltip";
 import {applyTooltip} from "../../hooks/useTooltip";
 import flow from "lodash/flow";
-import withRoute from "../../hoc/withRoute";
 import {inject} from "../../helpers/inject";
-import JourneysByDateQuery from "../../queries/RouteJourneysQuery";
+import JourneysByDateQuery from "../../queries/JourneysByDateQuery";
 import {createCompositeJourney} from "../../stores/journeyActions";
+import doubleDigit from "../../helpers/doubleDigit";
 
 const JourneyListRow = styled.button`
   display: flex;
@@ -79,20 +79,10 @@ const decorate = flow(
 );
 
 const Journeys = decorate(({state, Time, Journey}) => {
-  const selectJourney = useCallback((journeyOrTime, instance = 0) => {
+  const selectJourney = useCallback((journey, instance = 0) => {
     let journeyToSelect = null;
 
-    if (journeyOrTime) {
-      const journey =
-        typeof journeyOrTime === "string"
-          ? Journey.createCompositeJourney(
-              state.date,
-              state.route,
-              journeyOrTime,
-              instance
-            )
-          : journeyOrTime;
-
+    if (journey) {
       const journeyId = getJourneyId(journey);
 
       // Only set these if the journey is truthy and was not already selected
@@ -106,7 +96,6 @@ const Journeys = decorate(({state, Time, Journey}) => {
   }, []);
 
   const {date, route} = state;
-
   const selectedJourneyId = getJourneyId(state.selectedJourney);
 
   let focusedJourney = expr(() => {
@@ -156,7 +145,17 @@ const Journeys = decorate(({state, Time, Journey}) => {
                 }
               }
 
-              return closestDeparture ? get(closestDeparture, "id", null) : null;
+              if (closestDeparture) {
+                const compositeJourney = createCompositeJourney(
+                  closestDeparture.plannedDepartureTime.departureDate,
+                  closestDeparture,
+                  closestDeparture.plannedDepartureTime.departureTime
+                );
+
+                return getJourneyId(compositeJourney, false);
+              }
+
+              return null;
             });
 
             return (
@@ -185,23 +184,23 @@ const Journeys = decorate(({state, Time, Journey}) => {
                         departureTime
                       );
 
-                      const journeyId = getJourneyId(compositeJourney);
+                      const journeyId = getJourneyId(compositeJourney, false);
 
                       const journeyIsSelected = expr(
                         () =>
                           state.selectedJourney &&
-                          selectedJourneyId.slice(0, -1) === journeyId
+                          selectedJourneyId.replace(/.$/, "0") === journeyId
                       );
 
                       const journeyIsFocused =
-                        focusedJourney && focusedJourney.slice(0, -1) === journeyId;
+                        focusedJourney && focusedJourney.replace(/.$/, "0") === journeyId;
 
                       return (
                         <JourneyListRow
                           ref={journeyIsFocused ? scrollRef : null}
                           key={`planned_journey_row_${journeyId}`}
                           selected={journeyIsSelected}
-                          onClick={selectJourney(departureTime)}>
+                          onClick={() => selectJourney(compositeJourney)}>
                           <Tooltip helpText="Planned journey time">
                             <JourneyRowLeft>
                               {getNormalTime(departureTime)}
@@ -226,7 +225,7 @@ const Journeys = decorate(({state, Time, Journey}) => {
                     const observedTimeString =
                       departure.observedDepartureTime.departureTime;
 
-                    const diffTime = secondsToTime(plannedObservedDiff);
+                    const diffTime = secondsToTimeObject(plannedObservedDiff);
                     const delayType = getDelayType(plannedObservedDiff);
                     const instance = departure.journey.instance;
 
@@ -241,7 +240,9 @@ const Journeys = decorate(({state, Time, Journey}) => {
                               "var(--light-green)"
                             )}>
                             {plannedObservedDiff < 0 ? "-" : ""}
-                            {diffTime}
+                            {diffTime.hours ? doubleDigit(diffTime.hours) + ":" : ""}
+                            {doubleDigit(diffTime.minutes)}:
+                            {doubleDigit(diffTime.seconds)}
                           </DelaySlot>
                         </Tooltip>
                         <Tooltip helpText="Journey list observed">
@@ -263,7 +264,7 @@ const Journeys = decorate(({state, Time, Journey}) => {
                         ref={journeyIsFocused ? scrollRef : null}
                         selected={journeyIsSelected}
                         key={`journey_row_${journeyId}_${instance}`}
-                        onClick={selectJourney(departure.journey, instance)}>
+                        onClick={() => selectJourney(departure.journey, instance)}>
                         <JourneyRowLeft
                           {...applyTooltip("Planned journey time with data")}>
                           {getNormalTime(observedTimeString)}

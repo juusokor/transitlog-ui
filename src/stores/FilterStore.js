@@ -29,7 +29,6 @@ export default (state, initialState = {}) => {
     vehicle: "",
     line: "",
     route: {
-      id: "",
       routeId: "",
       direction: "",
       originStopId: "",

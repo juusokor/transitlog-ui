@@ -1,9 +1,9 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useCallback, useEffect} from "react";
 import get from "lodash/get";
 import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import {observer} from "mobx-react-lite";
-import {setUpdateListener} from "../stores/UpdateManager";
+import {setUpdateListener, removeUpdateListener} from "../stores/UpdateManager";
 import {getServerClient} from "../api";
 
 export const routeJourneysQuery = gql`
@@ -40,6 +40,7 @@ export const routeJourneysQuery = gql`
         direction
         instance
         routeId
+        originStopId
         uniqueVehicleId
       }
       plannedArrivalTime {
@@ -76,22 +77,23 @@ const updateListenerName = "journey list query";
 const client = getServerClient();
 
 const JourneysByDateQuery = observer(({children, route, date, skip}) => {
-  const [refetchRef, setRefetchRef] = useState(null);
+  const createRefetcher = useCallback(
+    (refetch) => () => {
+      const {routeId, direction, originStopId} = route;
 
-  const refetcher = useCallback(() => {
-    const {routeId, direction, originStopId} = route;
+      if (refetch && route && route.routeId && !skip) {
+        refetch({
+          routeId,
+          direction: parseInt(direction, 10),
+          stopId: originStopId,
+          date,
+        });
+      }
+    },
+    [route, date]
+  );
 
-    if (refetchRef && route && route.routeId && !skip) {
-      refetchRef({
-        routeId,
-        direction: parseInt(direction, 10),
-        stopId: originStopId,
-        date,
-      });
-    }
-  }, [route, date, refetchRef]);
-
-  useEffect(() => setUpdateListener(updateListenerName, refetcher, false), [refetcher]);
+  useEffect(() => () => removeUpdateListener(updateListenerName), []);
 
   const {routeId, direction, originStopId} = route;
 
@@ -112,10 +114,7 @@ const JourneysByDateQuery = observer(({children, route, date, skip}) => {
 
         const departures = get(data, "departures", []);
 
-        if (refetchRef !== refetch) {
-          setRefetchRef(refetch);
-        }
-
+        setUpdateListener(updateListenerName, createRefetcher(refetch), false);
         return children({departures, loading, error});
       }}
     </Query>

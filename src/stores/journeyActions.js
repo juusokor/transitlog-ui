@@ -1,10 +1,11 @@
 import {action} from "mobx";
 import getJourneyId from "../helpers/getJourneyId";
-import {pickJourneyProps} from "../helpers/pickJourneyProps";
+import {getJourneyObject} from "../helpers/getJourneyObject";
 import filterActions from "./filterActions";
 import {setPathName} from "./UrlManager";
 import get from "lodash/get";
 import timeActions from "./timeActions";
+import {intval} from "../helpers/isWithinRange";
 
 export function createJourneyPath(journey) {
   const dateStr = journey.departureDate.replace(/-/g, "");
@@ -22,10 +23,11 @@ export function createCompositeJourney(date, route, time, instance = 0) {
   }
 
   const journey = {
-    oday: date,
-    journey_start_time: time,
-    route_id: route.routeId,
-    direction_id: route.direction,
+    departureDate: date,
+    departureTime: time,
+    routeId: route.routeId,
+    direction: intval(route.direction),
+    originStopId: get(route, "originStopId", get(route, "stopId", "")),
     instance: instance || 0,
   };
 
@@ -48,15 +50,17 @@ export default (state) => {
         filters.setVehicle(null);
         setPathName("/");
       } else if (journeyItem) {
-        state.selectedJourney = pickJourneyProps({...journeyItem, instance});
+        const useInstance = journeyItem.instance || instance;
+        state.selectedJourney = getJourneyObject({...journeyItem, useInstance});
 
         filters.setRoute({
           routeId: journeyItem.routeId,
-          direction: journeyItem.directionId + "",
+          direction: journeyItem.direction,
+          originStopId: journeyItem.originStopId,
         });
 
-        if (journeyItem.unique_vehicle_id) {
-          filters.setVehicle(journeyItem.unique_vehicle_id);
+        if (journeyItem.uniqueVehicleId) {
+          filters.setVehicle(journeyItem.uniqueVehicleId);
         }
 
         time.toggleLive(false);

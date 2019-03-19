@@ -6,11 +6,9 @@ import {inject, observer} from "mobx-react";
 import {app} from "mobx-app";
 import AllStopsQuery from "../../queries/AllStopsQuery";
 import StopInput from "./StopInput";
-import withRoute from "../../hoc/withRoute";
 import Tooltip from "../Tooltip";
 
 @inject(app("Filters"))
-@withRoute()
 @observer
 class StopSettings extends React.Component {
   render() {
