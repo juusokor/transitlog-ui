@@ -61,7 +61,6 @@ const StopMarker = decorate(
 
     const selectRoute = useCallback(
       (route) => () => {
-        console.log(route);
         if (route) {
           Filters.setRoute(route);
         }
