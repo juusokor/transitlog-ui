@@ -8,7 +8,29 @@ export function inflate(obj) {
   const entries = Object.entries(obj);
 
   for (const [path, val] of entries) {
-    set(inflatedObj, path, val);
+    let useVal = val;
+
+    if (val.length === 1) {
+      const numVal = parseInt(useVal, 10);
+
+      if (!isNaN(numVal)) {
+        useVal = numVal;
+      }
+    }
+
+    if (useVal === "true") {
+      useVal = true;
+    }
+
+    if (useVal === "false") {
+      useVal = false;
+    }
+
+    if (useVal === "null") {
+      useVal = null;
+    }
+
+    set(inflatedObj, path, useVal);
   }
 
   return inflatedObj;

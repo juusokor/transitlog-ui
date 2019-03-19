@@ -4,23 +4,20 @@ import get from "lodash/get";
 import getJourneyId from "../../helpers/getJourneyId";
 import styled from "styled-components";
 import {Text, text} from "../../helpers/text";
-import doubleDigit from "../../helpers/doubleDigit";
-import Loading from "../Loading";
 import SidepanelList from "./SidepanelList";
 import {createRouteId} from "../../helpers/keys";
 import {ColoredBackgroundSlot} from "../TagButton";
-import {diffDepartureJourney} from "../../helpers/diffDepartureJourney";
 import getDelayType from "../../helpers/getDelayType";
 import {getTimelinessColor} from "../../helpers/timelinessColor";
 import {expr} from "mobx-utils";
-import {journeyHfpStates} from "../RouteJourneys";
-import {getNormalTime, timeToSeconds} from "../../helpers/time";
+import {getNormalTime, timeToSeconds, secondsToTime} from "../../helpers/time";
 import Tooltip from "../Tooltip";
 import {applyTooltip} from "../../hooks/useTooltip";
 import flow from "lodash/flow";
 import withRoute from "../../hoc/withRoute";
 import {inject} from "../../helpers/inject";
 import JourneysByDateQuery from "../../queries/RouteJourneysQuery";
+import {createCompositeJourney} from "../../stores/journeyActions";
 
 const JourneyListRow = styled.button`
   display: flex;
@@ -78,8 +75,7 @@ const JourneyInstanceDisplay = styled.span`
 
 const decorate = flow(
   observer,
-  withRoute({alwaysFetch: true}),
-  inject("Journey", "Filters")
+  inject("Journey", "Filters", "Time")
 );
 
 const Journeys = decorate(({state, Time, Journey}) => {
@@ -165,7 +161,7 @@ const Journeys = decorate(({state, Time, Journey}) => {
 
             return (
               <SidepanelList
-                reset={!focusedJourney || journeys.length === 0}
+                reset={!focusedJourney || departures.length === 0}
                 loading={loading}
                 header={
                   <>
@@ -178,13 +174,18 @@ const Journeys = decorate(({state, Time, Journey}) => {
                   </>
                 }>
                 {(scrollRef) =>
-                  journeys.map((journey) => {
-                    if (
-                      !journey.events ||
-                      journey.events.length === 0 ||
-                      typeof journey.events === "string"
-                    ) {
-                      const journeyId = journey.journeyId.slice(0, -1);
+                  departures.map((departure) => {
+                    const departureDate = departure.plannedDepartureTime.departureDate;
+                    const departureTime = departure.plannedDepartureTime.departureTime;
+
+                    if (!departure.journey) {
+                      const compositeJourney = createCompositeJourney(
+                        departureDate,
+                        departure,
+                        departureTime
+                      );
+
+                      const journeyId = getJourneyId(compositeJourney);
 
                       const journeyIsSelected = expr(
                         () =>
@@ -195,117 +196,85 @@ const Journeys = decorate(({state, Time, Journey}) => {
                       const journeyIsFocused =
                         focusedJourney && focusedJourney.slice(0, -1) === journeyId;
 
-                      let fetchStatus = journey.events;
-
                       return (
                         <JourneyListRow
                           ref={journeyIsFocused ? scrollRef : null}
                           key={`planned_journey_row_${journeyId}`}
                           selected={journeyIsSelected}
-                          onClick={this.selectJourney(journey.time)}>
+                          onClick={selectJourney(departureTime)}>
                           <Tooltip helpText="Planned journey time">
-                            <JourneyRowLeft>{getNormalTime(journey.time)}</JourneyRowLeft>
+                            <JourneyRowLeft>
+                              {getNormalTime(departureTime)}
+                            </JourneyRowLeft>
                           </Tooltip>
-                          {fetchStatus === journeyHfpStates.NOT_FOUND ? (
-                            <Tooltip helpText="Journey no data">
-                              <span>{text("filterpanel.journey.no_data")}</span>
-                            </Tooltip>
-                          ) : fetchStatus === journeyHfpStates.LOADING ? (
-                            <Loading inline />
-                          ) : (
-                            <span>{text("filterpanel.journey.click_to_fetch")}</span>
-                          )}
+                          <Tooltip helpText="Journey no data">
+                            <span>{text("filterpanel.journey.no_data")}</span>
+                          </Tooltip>
                         </JourneyListRow>
                       );
                     }
 
-                    const journeyEvents = get(journey, "events", []);
+                    const journeyId = getJourneyId(departure.journey);
 
-                    return journeyEvents.map(
-                      (journeyEvent, eventIndex, {length: eventsLength}) => {
-                        const journeyId = getJourneyId({
-                          ...journeyEvent,
-                          instance: eventIndex,
-                        });
+                    const journeyIsSelected = expr(
+                      () => selectedJourneyId && selectedJourneyId === journeyId
+                    );
 
-                        let observedJourney = (
-                          <Text>filterpanel.journey.incomplete_data</Text>
-                        );
+                    const plannedObservedDiff =
+                      departure.observedDepartureTime.departureTimeDifference;
 
-                        const journeyIsSelected = expr(
-                          () => selectedJourneyId && selectedJourneyId === journeyId
-                        );
+                    const observedTimeString =
+                      departure.observedDepartureTime.departureTime;
 
-                        if (journeyEvents.length !== 0) {
-                          const plannedObservedDiff = diffDepartureJourney(
-                            journeyEvent,
-                            journey.departure,
-                            date
-                          );
+                    const diffTime = secondsToTime(plannedObservedDiff);
+                    const delayType = getDelayType(plannedObservedDiff);
+                    const instance = departure.journey.instance;
 
-                          const observedTimeString = plannedObservedDiff
-                            ? plannedObservedDiff.observedMoment.format("HH:mm:ss")
-                            : "";
+                    const observedJourney = (
+                      <>
+                        <Tooltip helpText="Journey list diff">
+                          <DelaySlot
+                            adjustLeft={instance > 0} // Adjust the layout slightly if we have an instance indicator.
+                            color={delayType === "late" ? "var(--dark-grey)" : "white"}
+                            backgroundColor={getTimelinessColor(
+                              delayType,
+                              "var(--light-green)"
+                            )}>
+                            {plannedObservedDiff < 0 ? "-" : ""}
+                            {diffTime}
+                          </DelaySlot>
+                        </Tooltip>
+                        <Tooltip helpText="Journey list observed">
+                          <TimeSlot>{observedTimeString}</TimeSlot>
+                        </Tooltip>
+                      </>
+                    );
 
-                          const delayType = plannedObservedDiff
-                            ? getDelayType(plannedObservedDiff.diff)
-                            : "none";
+                    // The focused journey is used for scrolling and comparing
+                    // instances is problematic, so strip the instance char
+                    // from both sides of the comparison.
+                    const journeyIsFocused =
+                      focusedJourney &&
+                      focusedJourney.slice(0, -1) === journeyId.slice(0, -1);
 
-                          observedJourney = (
-                            <>
-                              <Tooltip helpText="Journey list diff">
-                                <DelaySlot
-                                  adjustLeft={eventsLength > 1}
-                                  color={
-                                    delayType === "late" ? "var(--dark-grey)" : "white"
-                                  }
-                                  backgroundColor={getTimelinessColor(
-                                    delayType,
-                                    "var(--light-green)"
-                                  )}>
-                                  {plannedObservedDiff.sign === "-" ? "-" : ""}
-                                  {plannedObservedDiff.hours
-                                    ? doubleDigit(plannedObservedDiff.hours) + ":"
-                                    : ""}
-                                  {doubleDigit(plannedObservedDiff.minutes)}:
-                                  {doubleDigit(plannedObservedDiff.seconds)}
-                                </DelaySlot>
-                              </Tooltip>
-                              <Tooltip helpText="Journey list observed">
-                                <TimeSlot>{observedTimeString}</TimeSlot>
-                              </Tooltip>
-                            </>
-                          );
-                        }
-
-                        // The focused journey is used for scrolling and comparing
-                        // instances is problematic, so strip the instance char
-                        // from both sides of the comparison.
-                        const journeyIsFocused =
-                          focusedJourney &&
-                          focusedJourney.slice(0, -1) === journeyId.slice(0, -1);
-
-                        return (
-                          <JourneyListRow
-                            {...applyTooltip("Journey list row")}
-                            ref={journeyIsFocused ? scrollRef : null}
-                            selected={journeyIsSelected}
-                            key={`journey_row_${journeyId}_${eventIndex}`}
-                            onClick={this.selectJourney(journeyEvent, eventIndex)}>
-                            <JourneyRowLeft
-                              {...applyTooltip("Planned journey time with data")}>
-                              {getNormalTime(get(journeyEvent, "journey_start_time", ""))}
-                              {eventsLength > 1 && (
-                                <JourneyInstanceDisplay
-                                  {...applyTooltip("Journey instance")}>
-                                  {eventIndex + 1}
-                                </JourneyInstanceDisplay>
-                              )}
-                            </JourneyRowLeft>
-                            {observedJourney}
-                          </JourneyListRow>
-                        );
-                      }
+                    return (
+                      <JourneyListRow
+                        {...applyTooltip("Journey list row")}
+                        ref={journeyIsFocused ? scrollRef : null}
+                        selected={journeyIsSelected}
+                        key={`journey_row_${journeyId}_${instance}`}
+                        onClick={selectJourney(departure.journey, instance)}>
+                        <JourneyRowLeft
+                          {...applyTooltip("Planned journey time with data")}>
+                          {getNormalTime(observedTimeString)}
+                          {instance > 0 && (
+                            <JourneyInstanceDisplay {...applyTooltip("Journey instance")}>
+                              {instance + 1}
+                            </JourneyInstanceDisplay>
+                          )}
+                        </JourneyRowLeft>
+                        {observedJourney}
+                      </JourneyListRow>
                     );
                   })
                 }

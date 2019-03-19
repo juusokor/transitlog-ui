@@ -7,12 +7,12 @@ import get from "lodash/get";
 import timeActions from "./timeActions";
 
 export function createJourneyPath(journey) {
-  const dateStr = journey.oday.replace(/-/g, "");
-  const timeStr = journey.journey_start_time.replace(/:/g, "");
+  const dateStr = journey.departureDate.replace(/-/g, "");
+  const timeStr = journey.departureTime.replace(/:/g, "");
   const instance = get(journey, "instance", 0);
 
-  return `/journey/${dateStr}/${timeStr}/${journey.route_id}/${
-    journey.direction_id
+  return `/journey/${dateStr}/${timeStr}/${journey.routeId}/${
+    journey.direction
   }/${instance}`;
 }
 
@@ -38,29 +38,29 @@ export default (state) => {
 
   const setSelectedJourney = action(
     "Set selected journey",
-    (hfpItem = null, instance = 0) => {
+    (journeyItem = null, instance = 0) => {
       if (
-        !hfpItem ||
+        !journeyItem ||
         (state.selectedJourney &&
-          getJourneyId(state.selectedJourney) === getJourneyId(hfpItem))
+          getJourneyId(state.selectedJourney) === getJourneyId(journeyItem))
       ) {
         state.selectedJourney = null;
         filters.setVehicle(null);
         setPathName("/");
-      } else if (hfpItem) {
-        state.selectedJourney = pickJourneyProps({...hfpItem, instance});
+      } else if (journeyItem) {
+        state.selectedJourney = pickJourneyProps({...journeyItem, instance});
 
         filters.setRoute({
-          routeId: hfpItem.route_id,
-          direction: hfpItem.direction_id + "",
+          routeId: journeyItem.routeId,
+          direction: journeyItem.directionId + "",
         });
 
-        if (hfpItem.unique_vehicle_id) {
-          filters.setVehicle(hfpItem.unique_vehicle_id);
+        if (journeyItem.unique_vehicle_id) {
+          filters.setVehicle(journeyItem.unique_vehicle_id);
         }
 
         time.toggleLive(false);
-        setPathName(createJourneyPath(hfpItem));
+        setPathName(createJourneyPath(journeyItem));
       }
     }
   );

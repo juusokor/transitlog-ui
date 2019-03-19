@@ -17,7 +17,7 @@ function shouldFetch(route) {
     get(route, "direction", ""),
     get(route, "dateBegin", ""),
     get(route, "dateEnd", ""),
-    get(route, "originstopId", ""),
+    get(route, "originStopId", ""),
   ];
 
   const presentParts = compact(requiredParts).length;

@@ -5,7 +5,8 @@ import getTransportType from "../../helpers/getTransportType";
 import {observer} from "mobx-react-lite";
 import sortBy from "lodash/sortBy";
 
-const parseLineNumber = (lineId) => {
+const parseLineNumber = (lineId = "") => {
+  console.log(lineId);
   // Special case for train lines, they should only show a letter.
   if (/^300[12]/.test(lineId)) {
     return lineId.replace(/\d+/, "");

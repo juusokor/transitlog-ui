@@ -1,11 +1,9 @@
-import React, {useCallback, useRef, useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import get from "lodash/get";
 import gql from "graphql-tag";
 import {Query} from "react-apollo";
-import {createHfpItem} from "../helpers/createHfpItem";
-import {observer} from "mobx-react";
-import getJourneyId from "../helpers/getJourneyId";
-import {removeUpdateListener, setUpdateListener} from "../stores/UpdateManager";
+import {observer} from "mobx-react-lite";
+import {setUpdateListener} from "../stores/UpdateManager";
 import {getServerClient} from "../api";
 
 export const routeJourneysQuery = gql`
@@ -35,6 +33,15 @@ export const routeJourneysQuery = gql`
       routeId
       direction
       stopId
+      journey {
+        id
+        departureDate
+        departureTime
+        direction
+        instance
+        routeId
+        uniqueVehicleId
+      }
       plannedArrivalTime {
         arrivalDate
         arrivalDateTime
@@ -86,7 +93,7 @@ const JourneysByDateQuery = observer(({children, route, date, skip}) => {
 
   useEffect(() => setUpdateListener(updateListenerName, refetcher, false), [refetcher]);
 
-  const {routeId, direction, originstopId} = route;
+  const {routeId, direction, originStopId} = route;
 
   return (
     <Query
@@ -95,11 +102,10 @@ const JourneysByDateQuery = observer(({children, route, date, skip}) => {
       variables={{
         routeId: routeId,
         direction: parseInt(direction, 10),
-        stopId: originstopId,
+        stopId: originStopId,
         date,
       }}>
       {({data, error, loading, refetch}) => {
-        console.log(loading);
         if (!data || loading) {
           return children({departures: [], loading, error});
         }

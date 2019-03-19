@@ -44,6 +44,7 @@ const filterActions = (state) => {
     setUrlValue("route.id", state.route.id);
     setUrlValue("route.routeId", state.route.routeId);
     setUrlValue("route.direction", state.route.direction);
+    setUrlValue("route.originStopId", state.route.originStopId);
 
     const routeLine = get(route, "lineId", "");
 

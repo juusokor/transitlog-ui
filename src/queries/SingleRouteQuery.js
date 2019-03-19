@@ -10,13 +10,15 @@ import {observer} from "mobx-react";
 import orderBy from "lodash/orderBy";
 import {getDayTypeFromDate} from "../helpers/getDayTypeFromDate";
 import {getValidItemsByDateChains} from "../helpers/filterJoreCollections";
+import {getServerClient} from "../api";
 
 export const singleRouteQuery = gql`
-  query singleRouteQuery($routeId: String!, $direction: String!) {
-    allRoutes(condition: {routeId: $routeId, direction: $direction}) {
-      nodes {
-        ...RouteFieldsFragment
-      }
+  query singleRouteQuery($routeId: String!, $direction: Direction!, $date: Date!) {
+    routes(filter: {routeId: $routeId, direction: $direction}, date: $date) {
+      id
+      routeId
+      direction
+      originStopId
     }
   }
   ${RouteFieldsFragment}
@@ -53,6 +55,8 @@ function getRoute(data = {}, date) {
   return orderBy(routes, "dateBegin", "desc")[0];
 }
 
+const client = getServerClient();
+
 export const SimpleRouteQuery = ({route, date, onCompleted, skip, children}) => {
   const {direction} = route;
   // Omit empty values
@@ -60,6 +64,7 @@ export const SimpleRouteQuery = ({route, date, onCompleted, skip, children}) => 
 
   return (
     <Query
+      client={client}
       skip={skip || Object.keys(routeData).length < 2} // It needs at least the routeId and the direction
       query={singleRouteQuery}
       variables={{...routeData, direction: direction + ""}}
