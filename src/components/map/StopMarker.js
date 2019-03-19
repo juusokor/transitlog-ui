@@ -10,6 +10,7 @@ import {StopRadius} from "./StopRadius";
 import {Text} from "../../helpers/text";
 import {flow} from "lodash";
 import {inject} from "../../helpers/inject";
+import timingStopIcon from "../../icon-time1.svg";
 
 const StopOptionButton = styled.button`
   text-decoration: none;
@@ -25,6 +26,14 @@ const StopOptionButton = styled.button`
   &:hover {
     background-color: var(--lighter-grey);
   }
+`;
+
+const TimingIcon = styled.img`
+  width: 0.95rem;
+  height: 0.95rem;
+  display: block;
+  margin-left: auto;
+  margin-bottom: 0;
 `;
 
 function cleanRouteId(routeId) {
@@ -50,11 +59,14 @@ const StopMarker = decorate(
       }
     }, [popupOpen]);
 
-    const selectRoute = (route) => () => {
-      if (route) {
-        Filters.setRoute(route);
-      }
-    };
+    const selectRoute = useCallback(
+      (route) => () => {
+        if (route) {
+          Filters.setRoute(route);
+        }
+      },
+      []
+    );
 
     const selectStop = useCallback(() => {
       if (stop) {
@@ -62,14 +74,16 @@ const StopMarker = decorate(
       }
     }, [stop]);
 
+    const {lat, lng} = stop;
+
     const onShowStreetView = useCallback(() => {
-      onViewLocation(latLng({lat: stop.lat, lng: stop.lon}));
+      onViewLocation(latLng({lat, lng}));
     }, [onViewLocation, stop]);
 
     const {stop: selectedStop} = state;
 
     const isSelected = selectedStop === stop.stopId;
-    const mode = getPriorityMode(get(stop, "modes.nodes", []));
+    const mode = getPriorityMode(get(stop, "modes", []));
     const stopColor = getModeColor(mode);
     const {stopRadius} = stop;
 
@@ -83,16 +97,15 @@ const StopMarker = decorate(
         maxHeight={750}
         maxWidth={550}>
         <Heading level={4}>
-          {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
+          {stop.name}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
         </Heading>
-        {get(stop, "routeSegmentsForDate.nodes", []).map((routeSegment) => (
+        {get(stop, "routes", []).map((route) => (
           <StopOptionButton
             color={stopColor}
-            key={`route_${cleanRouteId(routeSegment.routeId)}_${routeSegment.direction}_${
-              routeSegment.dateBegin
-            }_${routeSegment.dateEnd}`}
-            onClick={selectRoute(get(routeSegment, "route.nodes[0]", null))}>
-            {cleanRouteId(routeSegment.routeId)}
+            key={`route_${cleanRouteId(route.routeId)}_${route.direction}`}
+            onClick={selectRoute(route)}>
+            {cleanRouteId(route.routeId)}
+            {route.isTimingStop && <TimingIcon src={timingStopIcon} />}
           </StopOptionButton>
         ))}
         <button onClick={onShowStreetView}>
@@ -101,7 +114,7 @@ const StopMarker = decorate(
       </Popup>
     );
 
-    const markerPosition = latLng(stop.lat, stop.lon);
+    const markerPosition = latLng({lat, lng});
 
     const markerElement = (
       <CircleMarker

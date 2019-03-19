@@ -2,49 +2,42 @@ import React from "react";
 import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import get from "lodash/get";
-import {StopFieldsWithRouteSegmentsFragment} from "./StopFieldsFragment";
-import {observer} from "mobx-react";
-import {RouteFieldsFragment} from "./RouteFieldsFragment";
+import {getServerClient} from "../api";
+import {StopFieldsFragment} from "./StopFieldsFragment";
 
 export const singleStopQuery = gql`
-  query singleStopQuery($stop: String!, $date: Date) {
-    allStops(condition: {stopId: $stop}, first: 1) {
-      nodes {
-        ...StopFieldsWithRouteSegmentsFragment
-      }
+  query singleStopQuery($stopId: String!, $date: Date) {
+    stops(date: $date, filter: {stopId: $stopId}) {
+      ...StopFieldsFragment
     }
   }
-  ${StopFieldsWithRouteSegmentsFragment}
-  ${RouteFieldsFragment}
+  ${StopFieldsFragment}
 `;
 
-@observer
-class SingleStopQuery extends React.Component {
-  render() {
-    const {children, stop, date, skip} = this.props;
+const client = getServerClient();
 
-    return (
-      <Query skip={skip} query={singleStopQuery} variables={{stop, date}}>
-        {({loading, error, data}) => {
-          if (!data) {
-            return children({
-              loading,
-              error,
-              stop: null,
-            });
-          }
-
-          const stop = get(data, "allStops.nodes[0]", null);
-
+const SingleStopQuery = ({children, stopId, date, skip}) => {
+  return (
+    <Query skip={skip} query={singleStopQuery} client={client} variables={{stopId, date}}>
+      {({loading, error, data}) => {
+        if (!data) {
           return children({
-            loading: false,
-            error: null,
-            stop,
+            loading,
+            error,
+            stop: null,
           });
-        }}
-      </Query>
-    );
-  }
-}
+        }
+
+        const stop = get(data, "stops[0]", null);
+
+        return children({
+          loading: false,
+          error: null,
+          stop,
+        });
+      }}
+    </Query>
+  );
+};
 
 export default SingleStopQuery;

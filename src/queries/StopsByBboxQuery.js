@@ -3,65 +3,40 @@ import {observer} from "mobx-react";
 import get from "lodash/get";
 import {Query} from "react-apollo";
 import gql from "graphql-tag";
-import RouteFieldsFragment from "./RouteFieldsFragment";
+import {getServerClient} from "../api";
 import {StopFieldsFragment} from "./StopFieldsFragment";
 
 export const stopsByBboxQuery = gql`
-  query stopsByBboxQuery(
-    $minLat: Float!
-    $minLon: Float!
-    $maxLat: Float!
-    $maxLon: Float!
-    $date: Date!
-  ) {
-    stopsByBbox(minLat: $minLat, minLon: $minLon, maxLat: $maxLat, maxLon: $maxLon) {
-      nodes {
-        ...StopFieldsFragment
-        routeSegmentsForDate(date: $date) {
-          nodes {
-            line {
-              nodes {
-                lineId
-                dateBegin
-                dateEnd
-              }
-            }
-            dateBegin
-            dateEnd
-            routeId
-            direction
-            timingStopType
-            route {
-              nodes {
-                ...RouteFieldsFragment
-              }
-            }
-          }
-        }
-      }
+  query stopsByBboxQuery($bbox: BBox!, $date: Date) {
+    stops(filter: {bbox: $bbox}, date: $date) {
+      ...StopFieldsFragment
     }
   }
   ${StopFieldsFragment}
-  ${RouteFieldsFragment}
 `;
+
+const client = getServerClient();
 
 @observer
 class StopsByBboxQuery extends Component {
   prevQueryResult = [];
 
   render() {
-    const {children, variables, skip} = this.props;
+    const {children, bbox, date, skip} = this.props;
 
     return (
-      <Query skip={skip} query={stopsByBboxQuery} variables={variables}>
+      <Query
+        client={client}
+        skip={skip}
+        query={stopsByBboxQuery}
+        variables={{bbox, date}}>
         {({loading, data, error}) => {
           if (loading) return children({stops: this.prevQueryResult, loading: true});
           if (error) return children({stops: this.prevQueryResult, loading: false});
 
-          const stops = get(data, "stopsByBbox.nodes", []);
+          const stops = get(data, "stops", []);
           // Stop the stops from disappearing while loading
           this.prevQueryResult = stops;
-
           return children({stops, loading: false});
         }}
       </Query>

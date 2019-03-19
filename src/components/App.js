@@ -83,7 +83,7 @@ function App({state, UI}) {
                 <AppGrid>
                   <FilterBar currentPositions={allCurrentPositions} />
                   <SidepanelAndMapWrapper>
-                    <SingleStopQuery date={date} stop={selectedStopId}>
+                    <SingleStopQuery date={date} stopId={selectedStopId}>
                       {({stop}) => (
                         <JourneyStopTimes selectedJourneyEvents={selectedJourneyEvents}>
                           {({journeyStops = [], loading: stopTimesLoading}) => (
@@ -115,7 +115,7 @@ function App({state, UI}) {
 
                                             if (!live) {
                                               const stopPosition = stop
-                                                ? latLng([stop.lat, stop.lon])
+                                                ? latLng([stop.lat, stop.lng])
                                                 : false;
 
                                               const selectedJourneyPosition =

@@ -2,15 +2,19 @@ import gql from "graphql-tag";
 
 export const StopFieldsFragment = gql`
   fragment StopFieldsFragment on Stop {
-    nodeId
+    id
     stopId
-    lat
-    lon
     shortId
-    nameFi
-    stopRadius
-    modes {
-      nodes
+    lat
+    lng
+    name
+    radius
+    modes
+    routes {
+      direction
+      isTimingStop
+      originStopId
+      routeId
     }
   }
 `;

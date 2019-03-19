@@ -14,21 +14,13 @@ const decorate = flow(
 
 const StopLayer = decorate(({bounds, date, onViewLocation, showRadius, state}) => {
   const {stop: selectedStop} = state;
-
-  const bbox = bounds
-    ? {
-        minLat: bounds.getSouth(),
-        minLon: bounds.getWest(),
-        maxLat: bounds.getNorth(),
-        maxLon: bounds.getEast(),
-      }
-    : {};
+  const bbox = bounds ? bounds.toBBoxString() : "";
 
   return (
-    <StopsByBboxQuery skip={!bounds} variables={{...bbox, date}}>
+    <StopsByBboxQuery skip={!bbox} bbox={bbox} date={date}>
       {({stops}) => {
         const stopAreas = stops.reduce((groups, stop) => {
-          const pos = latLng(stop.lat, stop.lon);
+          const pos = latLng(stop.lat, stop.lng);
           let groupBounds;
 
           if (groups.size !== 0) {

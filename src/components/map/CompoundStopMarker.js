@@ -78,11 +78,14 @@ const CompoundStopMarker = decorate(
       }
     }, [popupOpen]);
 
-    const selectRoute = (route) => () => {
-      if (route) {
-        Filters.setRoute(route);
-      }
-    };
+    const selectRoute = useCallback(
+      (route) => () => {
+        if (route) {
+          Filters.setRoute(route);
+        }
+      },
+      []
+    );
 
     const selectStop = useCallback((stopId) => {
       if (stopId) {
@@ -98,7 +101,7 @@ const CompoundStopMarker = decorate(
         : null;
 
     const modesInCluster = uniq(
-      compact(stops.map((stop) => getPriorityMode(get(stop, "modes.nodes", ["BUS"]))))
+      compact(stops.map((stop) => getPriorityMode(get(stop, "modes", ["BUS"]))))
     );
 
     let mode =
@@ -111,12 +114,12 @@ const CompoundStopMarker = decorate(
     let stopColor = getModeColor(mode);
 
     if (selectedStopObj) {
-      mode = getPriorityMode(get(selectedStopObj, "modes.nodes", ["BUS"]));
+      mode = getPriorityMode(get(selectedStopObj, "modes", ["BUS"]));
       stopColor = getModeColor(mode);
     }
 
     const markerPosition = selectedStopObj
-      ? latLng(selectedStopObj.lat, selectedStopObj.lon)
+      ? latLng(selectedStopObj.lat, selectedStopObj.lng)
       : bounds.getCenter();
 
     const markerIcon = divIcon({
@@ -152,26 +155,24 @@ style="border-color: ${stopColor}; background-color: ${
                 color={stopColor}
                 onClick={() => selectStop(stopInGroup.stopId)}
                 key={`stop_select_${stopInGroup.stopId}`}>
-                {stopInGroup.stopId} - {stopInGroup.nameFi}
+                {stopInGroup.stopId} - {stopInGroup.name}
               </StopOptionButton>
             );
           })}
           {selectedStopObj && (
             <>
               <Heading level={4}>
-                {selectedStopObj.nameFi}, {selectedStopObj.shortId.replace(/ /g, "")} (
+                {selectedStopObj.name}, {selectedStopObj.shortId.replace(/ /g, "")} (
                 {selectedStopObj.stopId})
               </Heading>
-              {get(selectedStopObj, "routeSegmentsForDate.nodes", []).map(
-                (routeSegment) => (
-                  <StopOptionButton
-                    color={stopColor}
-                    key={`route_${routeSegment.routeId}_${routeSegment.direction}`}
-                    onClick={selectRoute(get(routeSegment, "route.nodes[0]", null))}>
-                    {routeSegment.routeId.substring(1).replace(/^0+/, "")}
-                  </StopOptionButton>
-                )
-              )}
+              {get(selectedStopObj, "routes", []).map((route) => (
+                <StopOptionButton
+                  color={stopColor}
+                  key={`route_${route.routeId}_${route.direction}`}
+                  onClick={selectRoute(route)}>
+                  {route.routeId.substring(1).replace(/^0+/, "")}
+                </StopOptionButton>
+              ))}
             </>
           )}
           <button onClick={() => onViewLocation(markerPosition)}>
