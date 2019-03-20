@@ -4,15 +4,20 @@ import get from "lodash/get";
 import {Query} from "react-apollo";
 import gql from "graphql-tag";
 import {getServerClient} from "../api";
-import {StopFieldsFragment} from "./StopFieldsFragment";
 
 export const stopsByBboxQuery = gql`
-  query stopsByBboxQuery($bbox: BBox!, $date: Date) {
-    stops(filter: {bbox: $bbox}, date: $date) {
-      ...StopFieldsFragment
+  query stopsByBboxQuery($bbox: BBox!) {
+    stopsByBbox(bbox: $bbox) {
+      id
+      stopId
+      shortId
+      lat
+      lng
+      name
+      radius
+      modes
     }
   }
-  ${StopFieldsFragment}
 `;
 
 const client = getServerClient();
@@ -22,19 +27,15 @@ class StopsByBboxQuery extends Component {
   prevQueryResult = [];
 
   render() {
-    const {children, bbox, date, skip} = this.props;
+    const {children, bbox, skip} = this.props;
 
     return (
-      <Query
-        client={client}
-        skip={skip}
-        query={stopsByBboxQuery}
-        variables={{bbox, date}}>
+      <Query client={client} skip={skip} query={stopsByBboxQuery} variables={{bbox}}>
         {({loading, data, error}) => {
           if (loading) return children({stops: this.prevQueryResult, loading: true});
           if (error) return children({stops: this.prevQueryResult, loading: false});
 
-          const stops = get(data, "stops", []);
+          const stops = get(data, "stopsByBbox", []);
           // Stop the stops from disappearing while loading
           this.prevQueryResult = stops;
           return children({stops, loading: false});

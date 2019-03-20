@@ -6,8 +6,8 @@ import {getServerClient} from "../api";
 import {StopFieldsFragment} from "./StopFieldsFragment";
 
 export const singleStopQuery = gql`
-  query singleStopQuery($stopId: String!, $date: Date) {
-    stops(date: $date, filter: {stopId: $stopId}) {
+  query singleStopQuery($stopId: String!, $date: Date!) {
+    stop(date: $date, stopId: $stopId) {
       ...StopFieldsFragment
     }
   }

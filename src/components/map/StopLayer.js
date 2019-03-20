@@ -17,7 +17,7 @@ const StopLayer = decorate(({bounds, date, onViewLocation, showRadius, state}) =
   const bbox = bounds ? bounds.toBBoxString() : "";
 
   return (
-    <StopsByBboxQuery skip={!bbox} bbox={bbox} date={date}>
+    <StopsByBboxQuery skip={!bbox} bbox={bbox}>
       {({stops}) => {
         const stopAreas = stops.reduce((groups, stop) => {
           const pos = latLng(stop.lat, stop.lng);
