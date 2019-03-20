@@ -4,7 +4,6 @@ import get from "lodash/get";
 import doubleDigit from "../../helpers/doubleDigit";
 import getDelayType from "../../helpers/getDelayType";
 import timingStopIcon from "../../icon-time1.svg";
-import {diffDepartureJourney} from "../../helpers/diffDepartureJourney";
 import {transportColor} from "../transportModes";
 import {
   ColoredBackgroundSlot,
@@ -16,7 +15,7 @@ import {
 import {getTimelinessColor} from "../../helpers/timelinessColor";
 import styled from "styled-components";
 import getJourneyId from "../../helpers/getJourneyId";
-import {createCompositeJourney} from "../../stores/journeyActions";
+import {secondsToTimeObject} from "../../helpers/time";
 
 const parseLineNumber = (lineId) =>
   // Remove 1st number, which represents the city
@@ -69,7 +68,7 @@ class TimetableDeparture extends Component {
           {parseLineNumber(departure.routeId)}/{departure.direction}
         </LineSlot>
         <PlannedTimeSlot>
-          {doubleDigit(departure.hours)}:{doubleDigit(departure.minutes)}
+          {departure.plannedDepartureTime.departureTime.slice(0, -3)}
           {isTimingStop && <TimingIcon src={timingStopIcon} />}
         </PlannedTimeSlot>
         {children}
@@ -78,30 +77,18 @@ class TimetableDeparture extends Component {
   );
 
   render() {
-    const {departure, date, stop, onClick, selectedJourney} = this.props;
+    const {stop, departure, onClick, selectedJourney} = this.props;
     const {modes = []} = stop;
 
     const stopMode = modes[0];
     const currentTransportColor = get(transportColor, stopMode, "var(--light-grey)");
     const selectedJourneyId = getJourneyId(selectedJourney);
-    const isTimingStop = !!get(stop, "routeSegmentsForDate.nodes", []).find(
-      (segment) =>
-        segment.timingStopType !== 0 &&
-        segment.routeId === departure.routeId &&
-        segment.direction === departure.direction
-    );
-
-    const originDeparture = get(departure, "originDeparture", null);
-    const originDepartureTime = originDeparture
-      ? `${doubleDigit(get(originDeparture, "hours"))}:${doubleDigit(
-          get(originDeparture, "minutes")
-        )}:00`
-      : "";
+    const isTimingStop = departure.isTimingStop;
 
     const journeyIsSelected =
       !!selectedJourneyId &&
-      selectedJourneyId ===
-        getJourneyId(createCompositeJourney(date, departure, originDepartureTime, 0));
+      departure.journey &&
+      selectedJourneyId === getJourneyId(departure.journey);
 
     const renderListRow = this.renderListRow(
       journeyIsSelected,
@@ -111,36 +98,30 @@ class TimetableDeparture extends Component {
       isTimingStop
     );
 
-    const event = get(departure, "observed", null);
+    const observedTime = get(departure, "observedDepartureTime", null);
+    let observed = null;
 
-    let plannedObservedDiff = null;
-    let observedTimeString = "";
-    let delayType = "none";
-
-    if (event) {
+    if (observedTime) {
       // Diff planned and observed times
-      plannedObservedDiff = diffDepartureJourney(event, departure, date);
-      observedTimeString = plannedObservedDiff
-        ? plannedObservedDiff.observedMoment.format("HH:mm:ss")
-        : "";
+      const observedTimeString = observedTime.departureTime;
+      const diff = observedTime.departureTimeDifference;
+      const delayType = getDelayType(diff);
+      const {hours, minutes, seconds} = secondsToTimeObject(diff);
 
-      delayType = plannedObservedDiff ? getDelayType(plannedObservedDiff.diff) : "none";
+      observed = (
+        <>
+          <ColoredBackgroundSlot
+            color={delayType === "late" ? "var(--dark-grey)" : "white"}
+            backgroundColor={getTimelinessColor(delayType, "var(--light-green)")}>
+            {diff < 0 === "-" ? "-" : ""}
+            {hours ? doubleDigit(hours) + ":" : ""}
+            {doubleDigit(minutes)}:{doubleDigit(seconds)}
+          </ColoredBackgroundSlot>
+          <ObservedTimeDisplay>{observedTimeString}</ObservedTimeDisplay>
+        </>
+      );
     }
-
-    const hfpChildren = plannedObservedDiff ? (
-      <>
-        <ColoredBackgroundSlot
-          color={delayType === "late" ? "var(--dark-grey)" : "white"}
-          backgroundColor={getTimelinessColor(delayType, "var(--light-green)")}>
-          {plannedObservedDiff.sign === "-" ? "-" : ""}
-          {doubleDigit(plannedObservedDiff.minutes)}:
-          {doubleDigit(plannedObservedDiff.seconds)}
-        </ColoredBackgroundSlot>
-        <ObservedTimeDisplay>{observedTimeString}</ObservedTimeDisplay>
-      </>
-    ) : null;
-
-    return renderListRow(hfpChildren, onClick(departure));
+    return renderListRow(observed, onClick(departure));
   }
 }
 

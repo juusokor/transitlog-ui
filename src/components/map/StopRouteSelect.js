@@ -1,9 +1,10 @@
 import React from "react";
-import SingleStopQuery from "../../queries/SingleStopQuery";
 import {observer} from "mobx-react-lite";
 import get from "lodash/get";
+import flow from "lodash/flow";
 import styled from "styled-components";
 import timingStopIcon from "../../icon-time1.svg";
+import {withStop} from "../../hoc/withStop";
 
 const StopOptionButton = styled.button`
   text-decoration: none;
@@ -33,26 +34,25 @@ function cleanRouteId(routeId) {
   return routeId.substring(1).replace(/^0+/, "");
 }
 
-export const StopRouteSelect = observer(({stopId, date, color, onSelectRoute}) => {
-  return (
-    <SingleStopQuery stopId={stopId} date={date}>
-      {({stop, loading}) => (
-        <>
-          {loading
-            ? "loading"
-            : get(stop, "routes", []).map((route) => (
-                <StopOptionButton
-                  color={color}
-                  key={`route_${route.routeId}_${route.direction}`}
-                  onClick={onSelectRoute}>
-                  {cleanRouteId(route.routeId)}
-                  {route.isTimingStop && <TimingIcon src={timingStopIcon} />}
-                </StopOptionButton>
-              ))}
-        </>
-      )}
-    </SingleStopQuery>
-  );
-});
+const decorate = flow(
+  observer,
+  withStop
+);
+
+export const StopRouteSelect = decorate(
+  ({stop, stopLoading, date, color, onSelectRoute}) => {
+    return stopLoading
+      ? "loading"
+      : get(stop, "routes", []).map((route) => (
+          <StopOptionButton
+            color={color}
+            key={`route_${route.routeId}_${route.direction}`}
+            onClick={onSelectRoute}>
+            {cleanRouteId(route.routeId)}
+            {route.isTimingStop && <TimingIcon src={timingStopIcon} />}
+          </StopOptionButton>
+        ));
+  }
+);
 
 export default StopRouteSelect;
