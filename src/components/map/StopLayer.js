@@ -43,33 +43,30 @@ const StopLayer = decorate(({bounds, date, onViewLocation, showRadius, state}) =
           return groups.set(groupBounds, stopGroup);
         }, new Map());
 
-        const stopComponents = Array.from(stopAreas.entries()).map(
-          ([bounds, stopCluster]) => {
-            const clusterIsSelected = stopCluster.some(
-              ({stopId}) => stopId === selectedStop
-            );
+        return Array.from(stopAreas.entries()).map(([bounds, stopCluster]) => {
+          const clusterIsSelected = stopCluster.some(
+            ({stopId}) => stopId === selectedStop
+          );
 
-            return stopCluster.length === 1 ? (
-              <StopMarker
-                popupOpen={clusterIsSelected}
-                showRadius={showRadius}
-                onViewLocation={onViewLocation}
-                key={`stops_${stopCluster[0].stopId}`}
-                stop={stopCluster[0]}
-              />
-            ) : (
-              <CompoundStopMarker
-                popupOpen={clusterIsSelected}
-                bounds={bounds}
-                showRadius={showRadius}
-                onViewLocation={onViewLocation}
-                key={`stopcluster_${bounds.toBBoxString()}`}
-                stops={stopCluster}
-              />
-            );
-          }
-        );
-        return stopComponents;
+          return stopCluster.length === 1 ? (
+            <StopMarker
+              popupOpen={clusterIsSelected}
+              showRadius={showRadius}
+              onViewLocation={onViewLocation}
+              key={`stops_${stopCluster[0].stopId}`}
+              stop={stopCluster[0]}
+            />
+          ) : (
+            <CompoundStopMarker
+              popupOpen={clusterIsSelected}
+              bounds={bounds}
+              showRadius={showRadius}
+              onViewLocation={onViewLocation}
+              key={`stopcluster_${bounds.toBBoxString()}`}
+              stops={stopCluster}
+            />
+          );
+        });
       }}
     </StopsByBboxQuery>
   );

@@ -4,41 +4,12 @@ import {Popup, CircleMarker} from "react-leaflet";
 import {latLng} from "leaflet";
 import {Heading} from "../Typography";
 import get from "lodash/get";
-import styled from "styled-components";
 import {getPriorityMode, getModeColor} from "../../helpers/vehicleColor";
 import {StopRadius} from "./StopRadius";
 import {Text} from "../../helpers/text";
 import {flow} from "lodash";
 import {inject} from "../../helpers/inject";
-import timingStopIcon from "../../icon-time1.svg";
-
-const StopOptionButton = styled.button`
-  text-decoration: none;
-  padding: 0.25rem 0.5rem;
-  border-radius: 5px;
-  background: var(--lightest-grey);
-  margin: 0 0 0.5rem 0;
-  display: block;
-  border: ${({color = "var(--lightest-grey)"}) =>
-    color ? `3px solid ${color}` : "3px solid var(--lightest-grey)"};
-  cursor: pointer;
-
-  &:hover {
-    background-color: var(--lighter-grey);
-  }
-`;
-
-const TimingIcon = styled.img`
-  width: 0.95rem;
-  height: 0.95rem;
-  display: block;
-  margin-left: auto;
-  margin-bottom: 0;
-`;
-
-function cleanRouteId(routeId) {
-  return routeId.substring(1).replace(/^0+/, "");
-}
+import StopRouteSelect from "./StopRouteSelect";
 
 const decorate = flow(
   observer,
@@ -99,15 +70,12 @@ const StopMarker = decorate(
         <Heading level={4}>
           {stop.name}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
         </Heading>
-        {get(stop, "routes", []).map((route) => (
-          <StopOptionButton
-            color={stopColor}
-            key={`route_${cleanRouteId(route.routeId)}_${route.direction}`}
-            onClick={selectRoute(route)}>
-            {cleanRouteId(route.routeId)}
-            {route.isTimingStop && <TimingIcon src={timingStopIcon} />}
-          </StopOptionButton>
-        ))}
+        <StopRouteSelect
+          color={stopColor}
+          onSelectRoute={selectRoute}
+          stopId={stop.stopId}
+          date={state.date}
+        />
         <button onClick={onShowStreetView}>
           <Text>map.stops.show_in_streetview</Text>
         </button>

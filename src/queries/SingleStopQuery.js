@@ -32,7 +32,7 @@ const SingleStopQuery = ({children, stopId, date, skip}) => {
           });
         }
 
-        const stop = get(data, "stops[0]", null);
+        const stop = get(data, "stop", null);
 
         return children({
           loading: false,

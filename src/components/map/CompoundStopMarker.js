@@ -11,6 +11,7 @@ import {divIcon, latLng} from "leaflet";
 import {getPriorityMode, getModeColor} from "../../helpers/vehicleColor";
 import {flow} from "lodash";
 import {inject} from "../../helpers/inject";
+import StopRouteSelect from "./StopRouteSelect";
 
 const StopOptionButton = styled.button`
   text-decoration: none;
@@ -65,7 +66,15 @@ const decorate = flow(
 );
 
 const CompoundStopMarker = decorate(
-  ({popupOpen, stops, state, showRadius = true, bounds, onViewLocation, Filters}) => {
+  ({
+    popupOpen,
+    stops = [],
+    state,
+    showRadius = true,
+    bounds,
+    onViewLocation,
+    Filters,
+  }) => {
     const didAutoOpen = useRef(false);
     const markerRef = useRef(null);
 
@@ -165,14 +174,12 @@ style="border-color: ${stopColor}; background-color: ${
                 {selectedStopObj.name}, {selectedStopObj.shortId.replace(/ /g, "")} (
                 {selectedStopObj.stopId})
               </Heading>
-              {get(selectedStopObj, "routes", []).map((route) => (
-                <StopOptionButton
-                  color={stopColor}
-                  key={`route_${route.routeId}_${route.direction}`}
-                  onClick={selectRoute(route)}>
-                  {route.routeId.substring(1).replace(/^0+/, "")}
-                </StopOptionButton>
-              ))}
+              <StopRouteSelect
+                color={stopColor}
+                onSelectRoute={selectRoute}
+                stopId={selectedStopObj.stopId}
+                date={state.date}
+              />
             </>
           )}
           <button onClick={() => onViewLocation(markerPosition)}>
