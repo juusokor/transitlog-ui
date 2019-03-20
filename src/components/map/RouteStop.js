@@ -79,7 +79,7 @@ class RouteStop extends React.Component {
     let stopTooltip = (
       <Tooltip key={`stop${stop.stopId}_tooltip`}>
         <StopHeading>
-          <strong>{get(stop, "nameFi", "")}</strong> {get(stop, "stopId", "")} (
+          <strong>{get(stop, "name", "")}</strong> {get(stop, "stopId", "")} (
           {get(stop, "shortId", "").replace(/ /g, "")})
         </StopHeading>
       </Tooltip>
@@ -93,8 +93,7 @@ class RouteStop extends React.Component {
         key={`stop_${stop.stopId}_popup`}>
         <PopupStopContent>
           <StopHeading>
-            <strong>{stop.nameFi}</strong> {stop.stopId} ({stop.shortId.replace(/ /g, "")}
-            )
+            <strong>{stop.name}</strong> {stop.stopId} ({stop.shortId.replace(/ /g, "")})
           </StopHeading>
         </PopupStopContent>
         <button onClick={this.onShowStreetView}>Show in street view</button>
@@ -103,7 +102,7 @@ class RouteStop extends React.Component {
 
     let markerChildren = [stopTooltip, stopStreetViewPopup];
 
-    const mode = getPriorityMode(get(stop, "modes.nodes", []));
+    const mode = getPriorityMode(get(stop, "modes", []));
     let color = getModeColor(mode);
     let delayType = "none";
 
@@ -270,8 +269,7 @@ class RouteStop extends React.Component {
         key={`stop${stop.stopId}_popup`}>
         <PopupStopContent>
           <StopHeading>
-            <strong>{stop.nameFi}</strong> {stop.stopId} ({stop.shortId.replace(/ /g, "")}
-            )
+            <strong>{stop.name}</strong> {stop.stopId} ({stop.shortId.replace(/ /g, "")})
           </StopHeading>
 
           {(isTerminal || doorDidOpen) && arrivalEvent ? (
@@ -325,7 +323,7 @@ class RouteStop extends React.Component {
     stopTooltip = (
       <Tooltip key={`stop${stop.stopId}_tooltip`}>
         <StopHeading>
-          <strong>{stop.nameFi}</strong> {stop.stopId} ({stop.shortId.replace(/ /g, "")})
+          <strong>{stop.name}</strong> {stop.stopId} ({stop.shortId.replace(/ /g, "")})
         </StopHeading>
         {!doorDidOpen && (
           <TooltipParagraph>

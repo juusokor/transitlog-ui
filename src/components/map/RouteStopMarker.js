@@ -51,10 +51,10 @@ const RouteStopMarker = decorate(
       }`,
     });
 
-    const mode = getPriorityMode(get(stop, "modes.nodes", []));
+    const mode = getPriorityMode(get(stop, "modes", []));
     const stopColor = getModeColor(mode);
 
-    const markerPosition = [stop.lat, stop.lon];
+    const markerPosition = [stop.lat, stop.lng];
 
     const markerElement = React.createElement(
       stop.timingStopType ? Marker : CircleMarker,

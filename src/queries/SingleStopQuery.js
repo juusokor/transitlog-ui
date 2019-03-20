@@ -18,7 +18,11 @@ const client = getServerClient();
 
 const SingleStopQuery = ({children, stopId, date, skip}) => {
   return (
-    <Query skip={skip} query={singleStopQuery} client={client} variables={{stopId, date}}>
+    <Query
+      skip={skip || !stopId}
+      query={singleStopQuery}
+      client={client}
+      variables={{stopId, date}}>
       {({loading, error, data}) => {
         if (!data) {
           return children({

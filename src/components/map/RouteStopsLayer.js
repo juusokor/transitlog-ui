@@ -22,7 +22,7 @@ const RouteStopsLayer = decorate(
       <StopsByRouteQuery
         date={date}
         route={route}
-        skip={!route || !route.routeId || !route.dateBegin || journeyStops.length !== 0}>
+        skip={!route || journeyStops.length !== 0}>
         {({stops}) => {
           const stopsList = journeyStops.length !== 0 ? journeyStops : stops;
 
