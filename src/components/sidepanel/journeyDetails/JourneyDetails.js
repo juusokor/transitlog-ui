@@ -74,7 +74,7 @@ class JourneyDetails extends React.Component {
   render() {
     const {
       state: {date, time},
-      journey,
+      journey = null,
       loading = false,
     } = this.props;
 

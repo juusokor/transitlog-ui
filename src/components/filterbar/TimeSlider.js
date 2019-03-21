@@ -5,7 +5,6 @@ import {getTimeRangeFromEvents} from "../../helpers/getTimeRangeFromEvents";
 import get from "lodash/get";
 import flow from "lodash/flow";
 import {timeToSeconds} from "../../helpers/time";
-import flatten from "lodash/flatten";
 import Tooltip from "../Tooltip";
 import {inject} from "../../helpers/inject";
 
@@ -36,8 +35,7 @@ const TimeSlider = decorate(({className, Time, state, events}) => {
 
   const timeRange = useMemo(() => {
     if (events.length !== 0) {
-      const allEvents = flatten(events.map(({events}) => events));
-      const eventsTimeRange = getTimeRangeFromEvents(allEvents);
+      const eventsTimeRange = getTimeRangeFromEvents(events);
 
       if (eventsTimeRange) {
         return eventsTimeRange;
@@ -48,14 +46,16 @@ const TimeSlider = decorate(({className, Time, state, events}) => {
   }, [events]);
 
   const {min = TIME_SLIDER_MIN, max = TIME_SLIDER_MAX} = timeRange;
+  const rangeMin = Math.min(numericTime, min);
+  const rangeMax = Math.max(numericTime, max);
 
   return (
     <div className={className}>
       <Tooltip helpText="Time slider">
         <RangeInput
-          value={numericTime}
-          min={Math.min(numericTime, min)}
-          max={Math.max(numericTime, max)}
+          value={Math.min(Math.max(numericTime, rangeMin), rangeMax)}
+          min={rangeMin}
+          max={rangeMax}
           onChange={onChange}
         />
       </Tooltip>

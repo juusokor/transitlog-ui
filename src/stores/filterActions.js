@@ -39,18 +39,12 @@ const filterActions = (state) => {
   const setRoute = action("Set route", (route) => {
     const {routeId = "", direction = "", originStopId = ""} = route || {};
 
-    if (routeId && !originStopId) {
-      console.warn("Tried to set route without origin stop.");
-      return;
-    }
-
     state.route.routeId = routeId;
     state.route.direction = intval(direction);
     state.route.originStopId = originStopId;
 
     setUrlValue("route.routeId", state.route.routeId);
     setUrlValue("route.direction", state.route.direction);
-    setUrlValue("route.originStopId", state.route.originStopId);
 
     const routeLine = get(route, "lineId", "");
 

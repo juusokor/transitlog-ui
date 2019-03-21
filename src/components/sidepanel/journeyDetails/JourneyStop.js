@@ -18,16 +18,11 @@ import {
   ColoredBackgroundSlot,
   PlainSlotSmall,
 } from "../../TagButton";
-import {transportColor} from "../../transportModes";
 import {getTimelinessColor} from "../../../helpers/timelinessColor";
 import doubleDigit from "../../../helpers/doubleDigit";
 import ArrowRightLong from "../../../icons/ArrowRightLong";
 import {Text} from "../../../helpers/text";
-import {
-  getNormalTime,
-  journeyEventTime,
-  secondsToTimeObject,
-} from "../../../helpers/time";
+import {getNormalTime, secondsToTimeObject} from "../../../helpers/time";
 import getDelayType from "../../../helpers/getDelayType";
 
 const StopWrapper = styled(DefaultStopWrapper)`

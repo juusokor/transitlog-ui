@@ -1,64 +1,39 @@
-import React from "react";
+import React, {useMemo} from "react";
 import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import get from "lodash/get";
-import pick from "lodash/pick";
-import compact from "lodash/compact";
-import {RouteFieldsFragment, ExtensiveRouteFieldsFragment} from "./RouteFieldsFragment";
-import {observer} from "mobx-react";
-import {getDayTypeFromDate} from "../helpers/getDayTypeFromDate";
+import {RouteFieldsFragment} from "./RouteFieldsFragment";
+import {observer} from "mobx-react-lite";
+import {getServerClient} from "../api";
 
-const extensiveSingleRouteQuery = gql`
-  query extensiveSingleRouteQuery(
-    $routeId: String!
-    $direction: String!
-    $dateBegin: Date!
-    $dateEnd: Date!
-    $departureHours: Int
-    $departureMinutes: Int
-    $isNextDay: Boolean
-    $dayType: String
-  ) {
-    route: routeByRouteIdAndDirectionAndDateBeginAndDateEnd(
-      routeId: $routeId
-      direction: $direction
-      dateBegin: $dateBegin
-      dateEnd: $dateEnd
-    ) {
+const singleRouteQuery = gql`
+  query singleRouteQuery($routeId: String!, $direction: Direction!, $date: Date!) {
+    route(routeId: $routeId, direction: $direction, date: $date) {
       ...RouteFieldsFragment
-      ...ExtensiveRouteFieldsFragment
     }
   }
   ${RouteFieldsFragment}
-  ${ExtensiveRouteFieldsFragment}
 `;
 
-const ExtensiveRouteQuery = observer(
-  ({
-    children,
-    route,
-    date,
-    departureHours,
-    departureMinutes,
-    skip,
-    onCompleted = () => {},
-  }) => {
-    const variables = {
-      ...pick(route, "routeId", "dateBegin", "dateEnd"),
-      dayType: getDayTypeFromDate(date),
-      direction: route.direction + "",
-      departureHours,
-      departureMinutes,
-    };
+const client = getServerClient();
 
-    // If some variable are missing the query may block the UI, so make sure everything's here.
-    const hasAllVariables = compact(Object.values(variables)).length >= 5;
+const SingleRouteQuery = observer(
+  ({children, routeId, direction, date, skip, onCompleted}) => {
+    const variables = useMemo(
+      () => ({
+        routeId,
+        direction,
+        date,
+      }),
+      [routeId, direction, date]
+    );
 
     return (
       <Query
+        client={client}
         onCompleted={onCompleted}
-        skip={skip || !hasAllVariables}
-        query={extensiveSingleRouteQuery}
+        skip={skip || !routeId || !date}
+        query={singleRouteQuery}
         variables={variables}>
         {({loading, error, data}) => {
           if (loading || error || !data) {
@@ -82,4 +57,4 @@ const ExtensiveRouteQuery = observer(
   }
 );
 
-export default ExtensiveRouteQuery;
+export default SingleRouteQuery;

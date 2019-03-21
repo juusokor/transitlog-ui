@@ -1,6 +1,6 @@
 import get from "lodash/get";
 import last from "lodash/last";
-import {sortBy} from "lodash";
+import orderBy from "lodash/orderBy";
 import {timeToSeconds} from "./time";
 
 /*
@@ -13,7 +13,7 @@ export function getTimeRangeFromEvents(events) {
     return null;
   }
 
-  const sortedPositions = sortBy(events, "recordedAtUnix");
+  const sortedPositions = orderBy(events, "recordedAtUnix", "asc");
 
   // Min and max moments for the position range
   const minTime = get(sortedPositions, "[0].recordedTime");

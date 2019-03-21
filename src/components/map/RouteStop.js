@@ -128,7 +128,6 @@ class RouteStop extends React.Component {
     const departureDiffTime = secondsToTimeObject(departureDiff);
 
     const arrivalDiff = departure.observedArrivalTime.arrivalTimeDifference;
-    const arrivalDelayType = getDelayType(arrivalDiff);
     const arrivalDiffTime = secondsToTimeObject(arrivalDiff);
 
     color = getTimelinessColor(departureDelayType, "var(--light-green)");

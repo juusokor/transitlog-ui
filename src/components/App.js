@@ -17,6 +17,7 @@ import flow from "lodash/flow";
 import get from "lodash/get";
 import compact from "lodash/compact";
 import {mergeJourneys} from "../helpers/mergeJourneys";
+import {withRoute} from "../hoc/withRoute";
 
 const AppFrame = styled.main`
   width: 100%;
@@ -48,6 +49,7 @@ const MapPanel = styled(Map)`
 
 const decorate = flow(
   observer,
+  withRoute,
   inject("UI")
 );
 
