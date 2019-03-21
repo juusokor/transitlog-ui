@@ -173,6 +173,7 @@ const JourneyQuery = (props) => {
 
   return (
     <Query
+      partialRefetch={true}
       client={client}
       skip={skip || !journey}
       query={journeyQuery}
