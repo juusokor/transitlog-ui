@@ -12,14 +12,14 @@ import {
   StopWrapper,
 } from "../../StopElements";
 import {PlainSlot, ColoredBackgroundSlot, PlainSlotSmall} from "../../TagButton";
-import {transportColor} from "../../transportModes";
 import {getTimelinessColor} from "../../../helpers/timelinessColor";
 import doubleDigit from "../../../helpers/doubleDigit";
 import CalculateTerminalTime from "./CalculateTerminalTime";
 import {Text} from "../../../helpers/text";
-import {getNormalTime, journeyEventTime} from "../../../helpers/time";
+import {getNormalTime, secondsToTimeObject} from "../../../helpers/time";
 import styled from "styled-components";
 import {observer} from "mobx-react-lite";
+import getDelayType from "../../../helpers/getDelayType";
 
 const OriginStopContent = styled(StopContent)`
   padding-bottom: ${({stopsExpanded = false}) => (!stopsExpanded ? "1.5rem" : "2.75rem")};
@@ -27,19 +27,19 @@ const OriginStopContent = styled(StopContent)`
 
 const OriginStop = observer(
   ({
-    stop = null,
+    departure = null,
+    color,
     date,
     onClickTime,
     onSelectStop = () => {},
     onHoverStop = () => {},
     stopsExpanded,
   }) => {
-    const stopMode = get(stop, "modes.nodes[0]", "BUS");
-    const stopColor = get(transportColor, stopMode, "var(--light-grey)");
-
-    if (!stop) {
+    if (!departure) {
       return null;
     }
+
+    const stop = departure.stop;
 
     const selectWithStopId = onSelectStop(stop.stopId);
     let onStopClick = selectWithStopId;
@@ -49,35 +49,25 @@ const OriginStop = observer(
       onMouseLeave: onHoverStop(""),
     };
 
-    // Bail here if we don't have data about stop arrival and departure times.
-    if (!stop.departureEvent) {
+    // Bail here if we don't have data about departure arrival and departure times.
+    if (!departure.observedDepartureTime) {
       return (
         <StopWrapper>
-          <StopElementsWrapper color={stopColor} terminus={"origin"}>
-            <StopMarker color={stopColor} onClick={onStopClick} {...hoverProps} />
+          <StopElementsWrapper color={color} terminus={"origin"}>
+            <StopMarker color={color} onClick={onStopClick} {...hoverProps} />
           </StopElementsWrapper>
           <OriginStopContent stopsExpanded={stopsExpanded}>
             <StopHeading onClick={onStopClick} {...hoverProps}>
-              <strong>{stop.nameFi}</strong> {stop.stopId} (
-              {stop.shortId.replace(/ /g, "")})
+              <strong>{stop.name}</strong> {stop.stopId} ({stop.shortId.replace(/ /g, "")}
+              )
             </StopHeading>
           </OriginStopContent>
         </StopWrapper>
       );
     }
 
-    const {
-      departure,
-      plannedDepartureMoment,
-      departureMoment,
-      departureDelayType,
-      departureDiff,
-      departureEvent,
-      arrivalEvent,
-    } = stop;
-
-    const stopArrivalTime = journeyEventTime(arrivalEvent);
-    const stopDepartureTime = journeyEventTime(departureEvent);
+    const stopArrivalTime = departure.observedArrivalTime.arrivalTime;
+    const stopDepartureTime = departure.observedDepartureTime.departureTime;
 
     const selectDepartureTime = onClickTime(stopDepartureTime);
 
@@ -86,17 +76,23 @@ const OriginStop = observer(
       selectDepartureTime();
     };
 
+    const departureDiff = departure.observedDepartureTime.departureTimeDifference;
+    const departureDelayType = getDelayType(departureDiff);
+    const departureDiffTime = secondsToTimeObject(departureDiff);
+
     return (
       <StopWrapper>
-        <StopElementsWrapper color={stopColor} terminus="origin">
-          <StopMarker color={stopColor} onClick={onStopClick} {...hoverProps} />
+        <StopElementsWrapper color={color} terminus="origin">
+          <StopMarker color={color} onClick={onStopClick} {...hoverProps} />
         </StopElementsWrapper>
         <OriginStopContent terminus="origin" stopsExpanded={stopsExpanded}>
           <StopHeading onClick={onStopClick} {...hoverProps}>
-            <strong>{stop.nameFi}</strong> {stop.stopId} ({stop.shortId.replace(/ /g, "")}
-            )
+            <strong>{stop.name}</strong> {stop.stopId} ({stop.shortId.replace(/ /g, "")})
           </StopHeading>
-          <CalculateTerminalTime date={date} departure={departure} event={arrivalEvent}>
+          <CalculateTerminalTime
+            date={date}
+            departure={departure}
+            event={departure.observedArrivalTime.arrivalEvent}>
             {({offsetTime, wasLate, diffMinutes, diffSeconds, sign}) => (
               <>
                 <TimeHeading>
@@ -129,18 +125,25 @@ const OriginStop = observer(
             <Text>journey.departure</Text>
           </TimeHeading>
           <StopDepartureTime onClick={selectDepartureTime}>
-            <PlainSlot>{plannedDepartureMoment.format("HH:mm:ss")}</PlainSlot>
+            <PlainSlot>
+              {getNormalTime(departure.plannedDepartureTime.departureTime)}
+            </PlainSlot>
             <ColoredBackgroundSlot
               color={departureDelayType === "late" ? "var(--dark-grey)" : "white"}
               backgroundColor={getTimelinessColor(
                 departureDelayType,
                 "var(--light-green)"
               )}>
-              {departureDiff.sign === "-" ? "-" : ""}
-              {doubleDigit(get(departureDiff, "minutes", 0))}:
-              {doubleDigit(get(departureDiff, "seconds", 0))}
+              {departureDiff < 0 ? "-" : ""}
+              {departureDiffTime.hours > 0
+                ? doubleDigit(departureDiffTime.hours) + ":"
+                : ""}
+              {doubleDigit(get(departureDiffTime, "minutes", 0))}:
+              {doubleDigit(get(departureDiffTime, "seconds", 0))}
             </ColoredBackgroundSlot>
-            <PlainSlotSmall>{departureMoment.format("HH:mm:ss")}</PlainSlotSmall>
+            <PlainSlotSmall>
+              {getNormalTime(departure.observedDepartureTime.departureTime)}
+            </PlainSlotSmall>
           </StopDepartureTime>
         </OriginStopContent>
       </StopWrapper>

@@ -114,7 +114,7 @@ export const getClient = async (UIStore) => {
         "none"
       );
 
-      if (operation.operationName === "hfpQuery" || queryName === "vehicles") {
+      if ( operation.operationName === "journeyQuery" || queryName === "vehicles") {
         return false;
       }
 

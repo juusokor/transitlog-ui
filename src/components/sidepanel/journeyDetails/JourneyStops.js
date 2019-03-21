@@ -48,7 +48,7 @@ const JourneyExpandToggle = styled.button`
 class JourneyStops extends React.Component {
   render() {
     const {
-      journeyStops,
+      departures = [],
       date,
       onClickTime,
       stopsExpanded,
@@ -66,18 +66,18 @@ class JourneyStops extends React.Component {
             <HiddenStopsMessage>Hide stops</HiddenStopsMessage>
           ) : (
             <HiddenStopsMessage>
-              {journeyStops.length - 2} <Text>journey.stops_hidden</Text>
+              {departures.length - 2} <Text>journey.stops_hidden</Text>
             </HiddenStopsMessage>
           )}
         </JourneyExpandToggle>
         <StopsList>
           {stopsExpanded &&
-            journeyStops.map((journeyStop) => (
+            departures.map((departure) => (
               <JourneyStop
+                key={`journey_stop_${departure.stopId}_${departure.stopIndex}`}
                 onHoverStop={onHoverStop}
                 onSelectStop={onSelectStop}
-                key={`journey_stop_${journeyStop.stopId}_${journeyStop.stopIndex}`}
-                stop={journeyStop}
+                departure={departure}
                 date={date}
                 onClickTime={onClickTime}
               />

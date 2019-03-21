@@ -63,9 +63,6 @@ export default (state) => {
 
       // Validate the data from the url
       if (dateStr && timeStr && routeId && direction) {
-        // The pick is a bit redundant here, but I want to make sure
-        // that everything assigned to selectedJourney always looks
-        // the same. What the pick returns may change in the future.
         const journey = getJourneyObject({
           departureDate: dateStr,
           routeId,

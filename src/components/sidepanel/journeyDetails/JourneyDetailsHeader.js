@@ -81,10 +81,12 @@ const WeatherDisplay = styled(WeatherWidget)`
 
 const DateTimeHeading = styled.div``;
 
-export default observer(({mode, routeId, date, name, journey, events, currentTime}) => {
-  const [currentJourneyWeather] = useJourneyWeather(events, getJourneyId(journey));
+export default observer(({date, journey, currentTime}) => {
+  const [currentJourneyWeather] = useJourneyWeather(journey.events, getJourneyId(journey));
   const debouncedTime = useDebouncedValue(currentTime.valueOf(), 1000);
   const journeyWeather = useWeatherData(currentJourneyWeather, debouncedTime);
+  
+  const { mode, routeId, uniqueVehicleId, departureTime, name } = journey
 
   return (
     <JourneyPanelHeader>
@@ -97,7 +99,7 @@ export default observer(({mode, routeId, date, name, journey, events, currentTim
         </HeaderText>
         <HeaderText>
           <TransportIcon mode={mode} width={17} height={17} />
-          {get(journey, "unique_vehicle_id", "")}
+          {uniqueVehicleId}
         </HeaderText>
         <WeatherDisplay {...journeyWeather || {}} />
       </MainHeaderRow>
@@ -108,7 +110,7 @@ export default observer(({mode, routeId, date, name, journey, events, currentTim
         </HeaderText>
         <HeaderText>
           <Time2 fill="var(--blue)" width="1rem" height="1rem" />
-          {get(journey, "journey_start_time", "")}
+          {departureTime}
         </HeaderText>
       </DateTimeHeading>
       <LineNameHeading>{name}</LineNameHeading>

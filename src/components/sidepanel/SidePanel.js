@@ -98,11 +98,9 @@ const SidePanel = decorate((props) => {
   const {
     UI: {toggleSidePanel, toggleJourneyDetails},
     areaEvents = [],
-    selectedJourneyEvents = [],
-    journeyStops,
-    journeyEventsLoading = false,
+    journey = null,
+    journeyLoading = false,
     areaEventsLoading = false,
-    stopTimesLoading = false,
     stop,
     state: {
       language,
@@ -118,7 +116,7 @@ const SidePanel = decorate((props) => {
   } = props;
 
   const hasRoute = !!route && !!route.routeId;
-  const hasEvents = !journeyEventsLoading && selectedJourneyEvents.length !== 0;
+  const hasJourney = !journeyLoading && journey !== 0;
 
   // Figure out which tab is suggested. It will not be outright selected, but
   // if it appears and nothing else is selected then it will be.
@@ -159,7 +157,7 @@ const SidePanel = decorate((props) => {
                 helpText="Journeys tab"
                 key={`route_journeys_${createRouteId(route, true)}_${date}`}
                 route={route}
-                loading={journeyEventsLoading}
+                loading={journeyLoading}
                 name="journeys"
                 label={text("sidepanel.tabs.journeys")}
               />
@@ -167,7 +165,7 @@ const SidePanel = decorate((props) => {
             {vehicle && (
               <VehicleJourneys
                 helpText="Vehicle journeys tab"
-                loading={journeyEventsLoading}
+                loading={journeyLoading}
                 name="vehicle-journeys"
                 label={text("sidepanel.tabs.vehicle_journeys")}
               />
@@ -176,7 +174,7 @@ const SidePanel = decorate((props) => {
               <TimetablePanel
                 helpText="Timetable tab"
                 stop={stop}
-                loading={journeyEventsLoading}
+                loading={journeyLoading}
                 name="timetables"
                 label={text("sidepanel.tabs.timetables")}
               />
@@ -188,12 +186,11 @@ const SidePanel = decorate((props) => {
         {/* The content of the sidebar is independent from the sidebar wrapper so that we can animate it. */}
         {journeyDetailsAreOpen && (
           <JourneyDetails
-            loading={stopTimesLoading || journeyEventsLoading}
-            journeyStops={journeyStops}
-            selectedJourneyEvents={selectedJourneyEvents}
+            loading={journeyLoading}
+            journey={journey}
           />
         )}
-        {hasEvents && journeyDetailsCanOpen && (
+        {hasJourney && journeyDetailsCanOpen && (
           <Tooltip helpText="Toggle journey details button">
             <ToggleJourneyDetailsButton
               isVisible={journeyDetailsAreOpen}

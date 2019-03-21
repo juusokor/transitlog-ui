@@ -11,6 +11,7 @@ import DestinationStop from "./DestinationStop";
 import OriginStop from "./OriginStop";
 import {observable, action} from "mobx";
 import {getMomentFromDateTime} from "../../../helpers/time";
+import {transportColor} from "../../transportModes";
 
 const JourneyPanelWrapper = styled.div`
   height: 100%;
@@ -73,41 +74,30 @@ class JourneyDetails extends React.Component {
   render() {
     const {
       state: {date, time},
-      route,
-      selectedJourneyEvents,
-      journeyStops,
+      journey,
       loading = false,
     } = this.props;
-    // Select the first event to define the journey
-    const events = get(selectedJourneyEvents, "[0].events", []);
-    const journey = get(events, "[0]", {});
+
+    const stopMode = get(journey, "mode", "BUS");
+    const stopColor = get(transportColor, stopMode, "var(--light-grey)");
 
     return (
       <JourneyPanelWrapper>
         <JourneyDetailsHeader
           currentTime={getMomentFromDateTime(date, time)}
-          events={events}
           journey={journey}
           date={date}
-          mode={get(route, "mode", "BUS")}
-          routeId={get(route, "routeId", "")}
-          name={get(route, "nameFi")}
         />
         <ScrollContainer>
           <JourneyPanelContent>
-            <JourneyInfo
-              date={date}
-              journey={journey}
-              journeyHfp={events}
-              originStop={journeyStops[0]}
-              destinationStop={journeyStops.slice(-1)[0]}
-            />
-            {journeyStops.length !== 0 ? (
+            <JourneyInfo date={date} journey={journey} />
+            {journey.departures.length !== 0 ? (
               <StopsListWrapper>
                 <OriginStop
                   onHoverStop={this.onHoverStop}
                   onSelectStop={this.onSelectStop}
-                  stop={journeyStops[0]}
+                  departure={journey.departures[0]}
+                  color={stopColor}
                   date={date}
                   onClickTime={this.onClickTime}
                   stopsExpanded={this.stopsExpanded}
@@ -115,9 +105,9 @@ class JourneyDetails extends React.Component {
                 <JourneyStops
                   onHoverStop={this.onHoverStop}
                   onSelectStop={this.onSelectStop}
-                  journeyStops={journeyStops.slice(1, -1)}
+                  departures={journey.departures.slice(1, -1)}
                   date={date}
-                  route={route}
+                  color={stopColor}
                   onClickTime={this.onClickTime}
                   stopsExpanded={this.stopsExpanded}
                   toggleStopsExpanded={this.toggleStopsExpanded}
@@ -125,8 +115,9 @@ class JourneyDetails extends React.Component {
                 <DestinationStop
                   onHoverStop={this.onHoverStop}
                   onSelectStop={this.onSelectStop}
-                  stop={journeyStops.slice(-1)[0]}
+                  departure={journey.departures[journey.departures.length - 1]}
                   date={date}
+                  color={stopColor}
                   onClickTime={this.onClickTime}
                 />
               </StopsListWrapper>

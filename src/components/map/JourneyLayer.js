@@ -12,36 +12,36 @@ import {getTimelinessColor} from "../../helpers/timelinessColor";
 import {observable, action} from "mobx";
 import HfpTooltip from "./HfpTooltip";
 
-export function getLineChunksByDelay(positions, journeyId) {
-  // Get only the positions from the same journey and create latLng items for Leaflet.
+export function getLineChunksByDelay(events, journeyId) {
+  // Get only the events from the same journey and create latLng items for Leaflet.
   // Additional data can be passed as the third array element which Leaflet won't touch.
-  return positions
-    .filter((pos) => getJourneyId(pos) === journeyId && !!pos.lat && !!pos.long)
-    .reduce((allChunks, position) => {
-      const positionDelay = get(position, "dl", 0);
-      const delayType = getDelayType(-positionDelay); // "early", "late" or "on-time"
+  return events
+    .filter((pos) => getJourneyId(pos) === journeyId && !!pos.lat && !!pos.lng)
+    .reduce((allChunks, event) => {
+      const eventDelay = get(event, "delay", 0);
+      const delayType = getDelayType(-eventDelay); // "early", "late" or "on-time"
 
-      // If this is the first position, allChunks will be empty.
+      // If this is the first event, allChunks will be empty.
       // Add it as a new chunk to kick things off.
       if (allChunks.length === 0) {
-        allChunks.push({delayType, positions: [position]});
+        allChunks.push({delayType, events: [event]});
         return allChunks;
       }
 
       // Check the previous chunk to determine if we want to push
-      // `position` onto the previous chunk or start a new chunk for it.
+      // `event` onto the previous chunk or start a new chunk for it.
       const previousChunk = last(allChunks);
       const previousDelayType = get(previousChunk, "delayType", "on-time");
 
-      // If the delay types are the same, add the position to the last chunk.
+      // If the delay types are the same, add the event to the last chunk.
       if (delayType === previousDelayType) {
-        previousChunk.positions.push(position);
+        previousChunk.events.push(event);
       } else {
         // Otherwise start a new chunk. Include the last element from the
         // previous chunk to eliminate gaps in the line.
         allChunks.push({
           delayType,
-          positions: [last(previousChunk.positions), position],
+          events: [last(previousChunk.events), event],
         });
       }
 
@@ -51,24 +51,24 @@ export function getLineChunksByDelay(positions, journeyId) {
 
 @inject(app("state"))
 @observer
-class HfpLayer extends Component {
+class JourneyLayer extends Component {
   @observable.ref
-  hoverPosition = null;
+  hoverEvent = null;
 
   mouseOver = false;
 
-  setHoverPosition = action((position) => {
-    this.hoverPosition = position;
+  setHoverEvent = action((event) => {
+    this.hoverEvent = event;
   });
 
-  findHfpItem = (positions = [], latlng) => {
-    const hfpItem = orderBy(
-      positions,
-      (hfp) => latlng.distanceTo(latLng(hfp.lat, hfp.long)),
+  findHfpItem = (events = [], latlng) => {
+    const eventItem = orderBy(
+      events,
+      (event) => latlng.distanceTo(latLng(event.lat, event.lng)),
       "ASC"
     )[0];
 
-    return hfpItem || null;
+    return eventItem || null;
   };
 
   onMouseout = (event) => {
@@ -83,43 +83,42 @@ class HfpLayer extends Component {
     line.setStyle({weight: 10});
   };
 
-  onMousemove = (positions) => (event) => {
+  onMousemove = (events) => (event) => {
     if (!this.mouseOver) {
-      this.setHoverPosition(null);
+      this.setHoverEvent(null);
       return;
     }
 
-    const hfpItem = this.findHfpItem(positions, event.latlng);
+    const eventItem = this.findHfpItem(events, event.latlng);
 
-    if (hfpItem) {
-      this.setHoverPosition(hfpItem);
+    if (eventItem) {
+      this.setHoverEvent(eventItem);
     }
   };
 
   render() {
-    const {name, selectedJourney, positions: hfpPositions} = this.props;
-
-    const positions = getLineChunksByDelay(hfpPositions, getJourneyId(selectedJourney));
+    const {name, selectedJourney, events: journeyEvents} = this.props;
+    const eventLines = getLineChunksByDelay(journeyEvents, getJourneyId(selectedJourney));
 
     return (
       <React.Fragment>
-        {positions.map((delayChunk, index) => {
+        {eventLines.map((delayChunk, index) => {
           const chunkDelayType = get(delayChunk, "delayType", "on-time");
-          const chunkPositions = get(delayChunk, "positions", []);
-          const points = chunkPositions.map((pos) => [pos.lat, pos.long]);
+          const chunkEvents = get(delayChunk, "events", []);
+          const points = chunkEvents.map((pos) => [pos.lat, pos.lng]);
 
           return (
-            <Observer key={`hfp_polyline_${name}_chunk_${index}`}>
+            <Observer key={`event_polyline_${name}_chunk_${index}`}>
               {() => (
                 <Polyline
-                  onMousemove={this.onMousemove(chunkPositions)}
+                  onMousemove={this.onMousemove(chunkEvents)}
                   onMouseover={this.onHover}
                   onMouseout={this.onMouseout}
-                  pane="hfp-lines"
+                  pane="event-lines"
                   weight={3}
                   color={getTimelinessColor(chunkDelayType, "var(--light-green)")}
                   positions={points}>
-                  <HfpTooltip position={this.hoverPosition} />
+                  <HfpTooltip event={this.hoverEvent} />
                 </Polyline>
               )}
             </Observer>
@@ -130,4 +129,4 @@ class HfpLayer extends Component {
   }
 }
 
-export default HfpLayer;
+export default JourneyLayer;

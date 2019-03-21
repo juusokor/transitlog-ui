@@ -1,0 +1,26 @@
+import get from "lodash/get";
+import last from "lodash/last";
+import {sortBy} from "lodash";
+import {timeToSeconds} from "./time";
+
+/*
+  Returns a range in seconds, relative to the operation day, for the provided array of hfp events.
+  The min and max values are seconds passed since the start of the operation day.
+ */
+
+export function getTimeRangeFromEvents(events) {
+  if (events.length === 0) {
+    return null;
+  }
+
+  const sortedPositions = sortBy(events, "recordedAtUnix");
+
+  // Min and max moments for the position range
+  const minTime = get(sortedPositions, "[0].recordedTime");
+  const maxTime = get(last(sortedPositions), "recordedTime");
+
+  return {
+    min: timeToSeconds(minTime),
+    max: timeToSeconds(maxTime),
+  };
+}

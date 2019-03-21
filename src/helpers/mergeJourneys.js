@@ -1,0 +1,22 @@
+import groupBy from "lodash/groupBy";
+import reduce from "lodash/reduce";
+
+export function mergeJourneys(journeys) {
+  return reduce(
+    groupBy(journeys, "id"),
+    (mergedJourneys, journeyGroup) => {
+      let selectedJourney = null;
+
+      // Select the journey with the most events
+      for (const journey of journeyGroup) {
+        if (!selectedJourney || journey.events.length > selectedJourney.events.length) {
+          selectedJourney = journey;
+        }
+      }
+
+      mergedJourneys.push(selectedJourney);
+      return mergedJourneys;
+    },
+    []
+  );
+}

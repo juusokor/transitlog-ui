@@ -1,4 +1,5 @@
 import get from "lodash/get";
+import map from "lodash/map";
 
 const equipment = {
   "0": "C",
@@ -25,8 +26,8 @@ export function getEquipmentType(code) {
   return get(equipment, code + "", false);
 }
 
-export function checkRequirements(departure, equipment) {
-  const {trunkColorRequired, equipmentRequired, equipmentType} = departure;
+export function validateEquipment(departure, equipment) {
+  const {equipmentColor, equipmentIsRequired, equipmentType} = departure;
   const {type, exteriorColor, emissionDesc, emissionClass} = equipment;
 
   const plannedEquipmentType = getEquipmentType(equipmentType);
@@ -40,11 +41,11 @@ export function checkRequirements(departure, equipment) {
   const observedEquipment = {
     type: {
       observed: type,
-      required: equipmentRequired !== 0 ? plannedEquipmentType : false,
+      required: equipmentIsRequired !== 0 ? plannedEquipmentType : false,
     },
     exteriorColor: {
       observed: exteriorColor,
-      required: trunkColorRequired ? "HSL-orans" : false,
+      required: equipmentColor || false,
     },
     emissionClass: {
       observed: `${emissionDesc} (${emissionClass})`,
@@ -52,5 +53,20 @@ export function checkRequirements(departure, equipment) {
     },
   };
 
-  return observedEquipment;
+  return map(observedEquipment, ({observed, required}, prop) => {
+    const isRequired = required !== false;
+
+    const color = isRequired
+      ? observed === required
+        ? "var(--light-green)"
+        : "var(--red)"
+      : "var(--lighter-grey)";
+
+    return {
+      name: prop,
+      observed,
+      required,
+      color,
+    };
+  });
 }

@@ -1,7 +1,7 @@
 import React from "react";
 import EquipmentQuery from "../../../queries/EquipmentQuery";
 import map from "lodash/map";
-import {checkRequirements} from "./equipmentType";
+import {validateEquipment} from "./equipmentType";
 
 export default ({journey, departure, children}) => {
   if (!journey || !departure) {
@@ -20,7 +20,7 @@ export default ({journey, departure, children}) => {
           return children({equipment: [], loading});
         }
 
-        const equipmentRequirements = checkRequirements(departure, vehicle);
+        const equipmentRequirements = validateEquipment(departure, vehicle);
 
         const equipment = map(equipmentRequirements, ({observed, required}, prop) => {
           const isRequired = required !== false;

@@ -7,7 +7,7 @@ import RouteLayer from "./RouteLayer";
 import get from "lodash/get";
 import flow from "lodash/flow";
 import getJourneyId from "../../helpers/getJourneyId";
-import HfpLayer from "./HfpLayer";
+import JourneyLayer from "./JourneyLayer";
 import HfpMarkerLayer from "./HfpMarkerLayer";
 import RouteStopsLayer from "./RouteStopsLayer";
 import AreaSelect from "./AreaSelect";
@@ -26,7 +26,6 @@ const decorate = flow(
 const MapContent = decorate(
   ({
     journeys = [],
-    journeyStops,
     timePositions,
     route,
     zoom,
@@ -101,41 +100,40 @@ const MapContent = decorate(
             )}
 
             {journeys.length !== 0 &&
-              journeys.map(({events: journeyPositions, journeyId}) => {
+              journeys.map((journey) => {
                 if (
                   selectedJourney &&
-                  selectedJourney.unique_vehicle_id &&
-                  get(journeyPositions, "[0].unique_vehicle_id", "") !==
-                    selectedJourney.unique_vehicle_id
+                  selectedJourney.uniqueVehicleId &&
+                  get(journey, "uniqueVehicleId", "") !== selectedJourney.uniqueVehicleId
                 ) {
                   return null;
                 }
 
-                const isSelectedJourney = selectedJourneyId === journeyId;
-                const currentPosition = timePositions.get(journeyId);
+                const isSelectedJourney = selectedJourneyId === journey.id;
+                const currentPosition = timePositions.get(journey.id);
 
                 return [
                   isSelectedJourney ? (
-                    <HfpLayer
-                      key={`hfp_line_${journeyId}`}
+                    <JourneyLayer
+                      key={`journey_line_${journey.id}`}
                       selectedJourney={selectedJourney}
-                      positions={journeyPositions}
-                      name={journeyId}
+                      events={journey.events}
+                      name={journey.id}
                     />
                   ) : null,
                   isSelectedJourney ? (
                     <RouteStopsLayer
                       showRadius={showStopRadius}
                       onViewLocation={viewLocation}
-                      key={`journey_stops_${journeyId}`}
+                      key={`journey_stops_${journey.id}`}
                       route={route}
-                      journeyStops={journeyStops}
+                      journey={journey}
                     />
                   ) : null,
                   <HfpMarkerLayer
-                    key={`hfp_markers_${journeyId}`}
+                    key={`hfp_markers_${journey.id}`}
                     currentPosition={currentPosition}
-                    journeyId={journeyId}
+                    journeyId={journey.id}
                     isSelectedJourney={isSelectedJourney}
                   />,
                 ];
@@ -144,10 +142,10 @@ const MapContent = decorate(
         )}
         {journeys.length !== 0 &&
           journeys
-            .filter(({journeyId}) => journeyId !== selectedJourneyId)
-            .map(({journeyId, events}) => {
+            .filter(({id}) => id !== selectedJourneyId)
+            .map((journey) => {
               if (areaEventsStyle === areaEventsStyles.MARKERS) {
-                const event = timePositions.get(journeyId);
+                const event = timePositions.get(journey.id);
 
                 if (!event) {
                   return null;
@@ -155,9 +153,9 @@ const MapContent = decorate(
 
                 return (
                   <HfpMarkerLayer
-                    key={`hfp_markers_${journeyId}`}
+                    key={`hfp_markers_${journey.id}`}
                     currentPosition={event}
-                    journeyId={journeyId}
+                    journeyId={journey.id}
                     isSelectedJourney={false}
                   />
                 );
@@ -166,9 +164,9 @@ const MapContent = decorate(
               return (
                 <SimpleHfpLayer
                   zoom={zoom}
-                  name={journeyId}
-                  key={`hfp_polyline_${journeyId}`}
-                  positions={events}
+                  name={journey.id}
+                  key={`hfp_polyline_${journey.id}`}
+                  positions={journey.events}
                 />
               );
             })}
