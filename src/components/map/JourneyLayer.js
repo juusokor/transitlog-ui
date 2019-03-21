@@ -5,18 +5,17 @@ import get from "lodash/get";
 import last from "lodash/last";
 import orderBy from "lodash/orderBy";
 import getDelayType from "../../helpers/getDelayType";
-import {observer, inject, Observer} from "mobx-react";
+import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
-import getJourneyId from "../../helpers/getJourneyId";
 import {getTimelinessColor} from "../../helpers/timelinessColor";
 import {observable, action} from "mobx";
 import HfpTooltip from "./HfpTooltip";
 
-export function getLineChunksByDelay(events, journeyId) {
+export function getLineChunksByDelay(events) {
   // Get only the events from the same journey and create latLng items for Leaflet.
   // Additional data can be passed as the third array element which Leaflet won't touch.
   return events
-    .filter((pos) => getJourneyId(pos) === journeyId && !!pos.lat && !!pos.lng)
+    .filter((pos) => !!pos.lat && !!pos.lng)
     .reduce((allChunks, event) => {
       const eventDelay = get(event, "delay", 0);
       const delayType = getDelayType(-eventDelay); // "early", "late" or "on-time"
@@ -97,31 +96,30 @@ class JourneyLayer extends Component {
   };
 
   render() {
-    const {name, selectedJourney, events: journeyEvents} = this.props;
-    const eventLines = getLineChunksByDelay(journeyEvents, getJourneyId(selectedJourney));
+    const {name, events: journeyEvents} = this.props;
+    const eventLines = getLineChunksByDelay(journeyEvents);
+
+    // TODO: Figure out why this suddenly stopped working
 
     return (
       <React.Fragment>
         {eventLines.map((delayChunk, index) => {
           const chunkDelayType = get(delayChunk, "delayType", "on-time");
           const chunkEvents = get(delayChunk, "events", []);
-          const points = chunkEvents.map((pos) => [pos.lat, pos.lng]);
+          const points = chunkEvents.map((pos) => latLng([pos.lat, pos.lng]));
 
           return (
-            <Observer key={`event_polyline_${name}_chunk_${index}`}>
-              {() => (
-                <Polyline
-                  onMousemove={this.onMousemove(chunkEvents)}
-                  onMouseover={this.onHover}
-                  onMouseout={this.onMouseout}
-                  pane="event-lines"
-                  weight={3}
-                  color={getTimelinessColor(chunkDelayType, "var(--light-green)")}
-                  positions={points}>
-                  <HfpTooltip event={this.hoverEvent} />
-                </Polyline>
-              )}
-            </Observer>
+            <Polyline
+              key={`event_polyline_${name}_chunk_${index}`}
+              onMousemove={this.onMousemove(chunkEvents)}
+              onMouseover={this.onHover}
+              onMouseout={this.onMouseout}
+              pane="event-lines"
+              weight={3}
+              color={getTimelinessColor(chunkDelayType, "var(--light-green)")}
+              positions={points}>
+              <HfpTooltip event={this.hoverEvent} />
+            </Polyline>
           );
         })}
       </React.Fragment>

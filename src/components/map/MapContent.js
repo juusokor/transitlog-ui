@@ -116,7 +116,6 @@ const MapContent = decorate(
                   isSelectedJourney ? (
                     <JourneyLayer
                       key={`journey_line_${journey.id}`}
-                      selectedJourney={selectedJourney}
                       events={journey.events}
                       name={journey.id}
                     />
