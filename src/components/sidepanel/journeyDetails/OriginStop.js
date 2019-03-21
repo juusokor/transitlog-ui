@@ -50,7 +50,7 @@ const OriginStop = observer(
     };
 
     // Bail here if we don't have data about departure arrival and departure times.
-    if (!departure.observedDepartureTime) {
+    if (!departure.observedDepartureTime || !departure.observedArrivalTime) {
       return (
         <StopWrapper>
           <StopElementsWrapper color={color} terminus={"origin"}>

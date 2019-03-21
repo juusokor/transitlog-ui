@@ -181,7 +181,7 @@ const SidePanel = decorate((props) => {
           </Tabs>
         )}
       </MainSidePanel>
-      <JourneyPanel visible={journeyDetailsOpen}>
+      <JourneyPanel visible={hasJourney && journeyDetailsOpen}>
         {/* The content of the sidebar is independent from the sidebar wrapper so that we can animate it. */}
         {journeyDetailsOpen && hasJourney && (
           <JourneyDetails loading={journeyLoading} journey={journey} />
