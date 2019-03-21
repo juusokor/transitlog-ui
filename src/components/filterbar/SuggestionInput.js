@@ -90,10 +90,10 @@ class SuggestionInput extends Component {
   };
 
   componentDidUpdate({value: prevValue}) {
-    const {value, getValue} = this.props;
+    const {value} = this.props;
 
     if (value !== prevValue) {
-      const nextValue = getValue(value);
+      const nextValue = this.getValue(value);
       this.setValue(nextValue);
     }
   }

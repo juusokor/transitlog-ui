@@ -53,11 +53,7 @@ export default (state) => {
         const useInstance = journeyItem.instance || instance;
         state.selectedJourney = getJourneyObject({...journeyItem, useInstance});
 
-        filters.setRoute({
-          routeId: journeyItem.routeId,
-          direction: journeyItem.direction,
-          originStopId: journeyItem.originStopId,
-        });
+        filters.setRoute(journeyItem);
 
         if (journeyItem.uniqueVehicleId) {
           filters.setVehicle(journeyItem.uniqueVehicleId);
