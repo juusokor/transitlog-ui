@@ -87,7 +87,7 @@ const Journeys = decorate(({state, Time, Journey}) => {
 
       // Only set these if the journey is truthy and was not already selected
       if (journeyId && getJourneyId(state.selectedJourney) !== journeyId) {
-        Time.setTime(journey.journey_start_time);
+        Time.setTime(journey.departureTime);
         journeyToSelect = journey;
       }
     }
@@ -267,7 +267,7 @@ const Journeys = decorate(({state, Time, Journey}) => {
                         onClick={() => selectJourney(departure.journey, instance)}>
                         <JourneyRowLeft
                           {...applyTooltip("Planned journey time with data")}>
-                          {getNormalTime(observedTimeString)}
+                          {getNormalTime(departureTime).slice(0, -3)}
                           {instance > 0 && (
                             <JourneyInstanceDisplay {...applyTooltip("Journey instance")}>
                               {instance + 1}

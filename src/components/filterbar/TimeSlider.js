@@ -54,8 +54,8 @@ const TimeSlider = decorate(({className, Time, state, events}) => {
       <Tooltip helpText="Time slider">
         <RangeInput
           value={Math.min(Math.max(numericTime, rangeMin), rangeMax)}
-          min={rangeMin}
-          max={rangeMax}
+          min={isNaN(rangeMin) ? TIME_SLIDER_MIN : rangeMin}
+          max={isNaN(rangeMax) ? TIME_SLIDER_MAX : rangeMax}
           onChange={onChange}
         />
       </Tooltip>

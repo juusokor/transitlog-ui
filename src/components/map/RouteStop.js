@@ -107,7 +107,12 @@ class RouteStop extends React.Component {
     let color = getModeColor(mode);
     let delayType = "none";
 
-    if (!selectedJourney || !departure || !departure.observedDepartureEvent) {
+    if (
+      !selectedJourney ||
+      !departure ||
+      !departure.observedDepartureTime ||
+      !departure.observedArrivalTime
+    ) {
       return (
         <RouteStopMarker
           delayType={delayType}
