@@ -67,7 +67,8 @@ const JourneyInstanceDisplay = styled.span`
   padding: 2px 4px;
   border-radius: 2px;
   background: var(--lighter-grey);
-  min-width: 1.5rem;
+  min-width: 1.1rem;
+  font-size: 0.75rem;
   text-align: center;
   display: inline-block;
   color: var(--dark-grey);
@@ -203,7 +204,7 @@ const Journeys = decorate(({state, Time, Journey}) => {
                           onClick={() => selectJourney(compositeJourney)}>
                           <Tooltip helpText="Planned journey time">
                             <JourneyRowLeft>
-                              {getNormalTime(departureTime)}
+                              {getNormalTime(departureTime).slice(0, -3)}
                             </JourneyRowLeft>
                           </Tooltip>
                           <Tooltip helpText="Journey no data">
@@ -228,12 +229,12 @@ const Journeys = decorate(({state, Time, Journey}) => {
                     const diffTime = secondsToTimeObject(plannedObservedDiff);
                     const delayType = getDelayType(plannedObservedDiff);
                     const instance = departure.journey.instance;
+                    const multipleInstances = departure.journey._multipleInstances;
 
                     const observedJourney = (
                       <>
                         <Tooltip helpText="Journey list diff">
                           <DelaySlot
-                            adjustLeft={instance > 0} // Adjust the layout slightly if we have an instance indicator.
                             color={delayType === "late" ? "var(--dark-grey)" : "white"}
                             backgroundColor={getTimelinessColor(
                               delayType,
@@ -268,7 +269,7 @@ const Journeys = decorate(({state, Time, Journey}) => {
                         <JourneyRowLeft
                           {...applyTooltip("Planned journey time with data")}>
                           {getNormalTime(departureTime).slice(0, -3)}
-                          {instance > 0 && (
+                          {multipleInstances && (
                             <JourneyInstanceDisplay {...applyTooltip("Journey instance")}>
                               {instance + 1}
                             </JourneyInstanceDisplay>
