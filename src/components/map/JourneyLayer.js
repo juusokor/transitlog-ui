@@ -52,12 +52,12 @@ export function getLineChunksByDelay(events) {
 @observer
 class JourneyLayer extends Component {
   @observable.ref
-  hoverEvent = null;
+  eventAtHover = null;
 
   mouseOver = false;
 
-  setHoverEvent = action((event) => {
-    this.hoverEvent = event;
+  setEventAtHover = action((event) => {
+    this.eventAtHover = event;
   });
 
   findHfpItem = (events = [], latlng) => {
@@ -84,25 +84,23 @@ class JourneyLayer extends Component {
 
   onMousemove = (events) => (event) => {
     if (!this.mouseOver) {
-      this.setHoverEvent(null);
+      this.setEventAtHover(null);
       return;
     }
 
     const eventItem = this.findHfpItem(events, event.latlng);
 
     if (eventItem) {
-      this.setHoverEvent(eventItem);
+      this.setEventAtHover(eventItem);
     }
   };
 
   render() {
-    const {name, events: journeyEvents} = this.props;
-    const eventLines = getLineChunksByDelay(journeyEvents);
-
-    // TODO: Figure out why this suddenly stopped working
+    const {name, journey} = this.props;
+    const eventLines = getLineChunksByDelay(journey.events);
 
     return (
-      <React.Fragment>
+      <>
         {eventLines.map((delayChunk, index) => {
           const chunkDelayType = get(delayChunk, "delayType", "on-time");
           const chunkEvents = get(delayChunk, "events", []);
@@ -118,11 +116,11 @@ class JourneyLayer extends Component {
               weight={3}
               color={getTimelinessColor(chunkDelayType, "var(--light-green)")}
               positions={points}>
-              <HfpTooltip event={this.hoverEvent} />
+              <HfpTooltip journey={journey} event={this.eventAtHover} />
             </Polyline>
           );
         })}
-      </React.Fragment>
+      </>
     );
   }
 }

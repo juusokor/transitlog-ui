@@ -116,7 +116,7 @@ const MapContent = decorate(
                   isSelectedJourney ? (
                     <JourneyLayer
                       key={`journey_line_${journey.id}`}
-                      events={journey.events}
+                      journey={journey}
                       name={journey.id}
                     />
                   ) : null,
