@@ -31,7 +31,6 @@ export default (state) => {
       departureTime,
       routeId,
       direction,
-      instance = 0,
     ] = pathname.split("/");
 
     direction = intval(direction);
@@ -68,7 +67,6 @@ export default (state) => {
           routeId,
           direction,
           departureTime: timeStr,
-          instance: instance ? parseInt(instance, 10) : 0,
           uniqueVehicleId: vehicleId,
         });
 

@@ -18,14 +18,14 @@ export default function CalculateTerminalTime({
     () => moment.tz(departure.plannedArrivalTime.arrivalDateTime, TIMEZONE),
     [departure]
   );
-  
+
   const bufferTime = get(departure, recovery ? "recoveryTime" : "terminalTime", 0);
 
   const diff = useMemo(() => observedTime.diff(plannedTime, "seconds"), [
     observedTime,
     plannedTime,
   ]);
-  
+
   const sign = diff < 0 ? "-" : diff > 0 ? "+" : "";
 
   const {

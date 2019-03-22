@@ -42,7 +42,7 @@ const departuresQuery = gql`
         departureDate
         departureTime
         uniqueVehicleId
-        instance
+        _numInstance
       }
       observedDepartureTime {
         departureDate

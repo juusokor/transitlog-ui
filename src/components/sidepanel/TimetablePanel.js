@@ -145,6 +145,7 @@ class TimetablePanel extends Component {
 
   renderRow = (props) => (list) => ({key, index, style, isScrolling, isVisible}) => {
     const departure = list[index];
+    // TODO: Fix the instance things
     const instance = get(departure, "journey.instance", 0);
     const departureTime = get(departure, "plannedDepartureTime.departureDateTime", "");
 

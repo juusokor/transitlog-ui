@@ -80,7 +80,7 @@ const decorate = flow(
 );
 
 const Journeys = decorate(({state, Time, Journey}) => {
-  const selectJourney = useCallback((journey, instance = 0) => {
+  const selectJourney = useCallback((journey) => {
     let journeyToSelect = null;
 
     if (journey) {
@@ -93,7 +93,7 @@ const Journeys = decorate(({state, Time, Journey}) => {
       }
     }
 
-    Journey.setSelectedJourney(journeyToSelect, instance);
+    Journey.setSelectedJourney(journeyToSelect);
   }, []);
 
   const {date, route} = state;
@@ -190,11 +190,12 @@ const Journeys = decorate(({state, Time, Journey}) => {
                       const journeyIsSelected = expr(
                         () =>
                           state.selectedJourney &&
-                          selectedJourneyId.replace(/.$/, "0") === journeyId
+                          getJourneyId(selectedJourneyId, false) === journeyId
                       );
 
                       const journeyIsFocused =
-                        focusedJourney && focusedJourney.replace(/.$/, "0") === journeyId;
+                        focusedJourney &&
+                        getJourneyId(focusedJourney, false) === journeyId;
 
                       return (
                         <JourneyListRow
@@ -228,8 +229,7 @@ const Journeys = decorate(({state, Time, Journey}) => {
 
                     const diffTime = secondsToTimeObject(plannedObservedDiff);
                     const delayType = getDelayType(plannedObservedDiff);
-                    const instance = departure.journey.instance;
-                    const multipleInstances = departure.journey._multipleInstances;
+                    const multipleInstances = departure.journey._numInstance !== 0;
 
                     const observedJourney = (
                       <>
@@ -264,14 +264,14 @@ const Journeys = decorate(({state, Time, Journey}) => {
                         {...applyTooltip("Journey list row")}
                         ref={journeyIsFocused ? scrollRef : null}
                         selected={journeyIsSelected}
-                        key={`journey_row_${journeyId}_${instance}`}
-                        onClick={() => selectJourney(departure.journey, instance)}>
+                        key={`journey_row_${journeyId}_${departure.id}`}
+                        onClick={() => selectJourney(departure.journey)}>
                         <JourneyRowLeft
                           {...applyTooltip("Planned journey time with data")}>
                           {getNormalTime(departureTime).slice(0, -3)}
                           {multipleInstances && (
                             <JourneyInstanceDisplay {...applyTooltip("Journey instance")}>
-                              {instance + 1}
+                              {departure.journey._numInstance}
                             </JourneyInstanceDisplay>
                           )}
                         </JourneyRowLeft>

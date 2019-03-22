@@ -18,6 +18,7 @@ export function getJourneyObject(journeyItem) {
 
   if (typeof journeyItem.oday === "string") {
     const hfpJourney = pickPropsFromEvent(journeyItem);
+
     journey = mapKeys(hfpJourney, (value, key) =>
       key in renameKeys ? renameKeys[key] : key
     );
@@ -35,24 +36,22 @@ export function getJourneyObject(journeyItem) {
 
 function pickPropsFromJourney(journey) {
   return pick(
-    {instance: 0, uniqueVehicleId: "unknown-vehicle", ...journey},
+    {uniqueVehicleId: "unknown-vehicle", ...journey},
     "departureDate",
     "departureTime",
     "direction",
     "routeId",
-    "instance",
     "uniqueVehicleId"
   );
 }
 
 function pickPropsFromEvent(event) {
   return pick(
-    {instance: 0, unique_vehicle_id: "unknown-vehicle", ...event},
+    {unique_vehicle_id: "unknown-vehicle", ...event},
     "oday",
     "journey_start_time",
     "direction_id",
     "route_id",
-    "instance",
     "unique_vehicle_id"
   );
 }

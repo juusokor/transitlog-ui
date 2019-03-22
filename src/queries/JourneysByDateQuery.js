@@ -38,11 +38,10 @@ export const routeJourneysQuery = gql`
         departureDate
         departureTime
         direction
-        instance
         routeId
         originStopId
         uniqueVehicleId
-        _multipleInstances
+        _numInstance
       }
       plannedArrivalTime {
         arrivalDate

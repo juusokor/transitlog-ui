@@ -10,60 +10,47 @@ import {intval} from "../helpers/isWithinRange";
 export function createJourneyPath(journey) {
   const dateStr = journey.departureDate.replace(/-/g, "");
   const timeStr = journey.departureTime.replace(/:/g, "");
-  const instance = get(journey, "instance", 0);
-
-  return `/journey/${dateStr}/${timeStr}/${journey.routeId}/${
-    journey.direction
-  }/${instance}`;
+  return `/journey/${dateStr}/${timeStr}/${journey.routeId}/${journey.direction}`;
 }
 
-export function createCompositeJourney(date, route, time, instance = 0) {
+export function createCompositeJourney(date, route, time, uniqueVehicleId = "") {
   if (!route || !route.routeId || !date || !time) {
     return false;
   }
 
-  const journey = {
+  return {
     departureDate: date,
     departureTime: time,
     routeId: route.routeId,
     direction: intval(route.direction),
     originStopId: get(route, "originStopId", get(route, "stopId", "")),
-    instance: instance || 0,
+    uniqueVehicleId,
   };
-
-  return journey;
 }
 
 export default (state) => {
   const filters = filterActions(state);
   const time = timeActions(state);
 
-  const setSelectedJourney = action(
-    "Set selected journey",
-    (journeyItem = null, instance = 0) => {
-      if (
-        !journeyItem ||
-        (state.selectedJourney &&
-          getJourneyId(state.selectedJourney) === getJourneyId(journeyItem))
-      ) {
-        state.selectedJourney = null;
-        filters.setVehicle(null);
-        setPathName("/");
-      } else if (journeyItem) {
-        const useInstance = journeyItem.instance || instance;
-        state.selectedJourney = getJourneyObject({...journeyItem, useInstance});
+  const setSelectedJourney = action("Set selected journey", (journeyItem = null) => {
+    if (
+      !journeyItem ||
+      (state.selectedJourney &&
+        getJourneyId(state.selectedJourney) === getJourneyId(journeyItem))
+    ) {
+      state.selectedJourney = null;
+      filters.setVehicle(null);
+      setPathName("/");
+    } else if (journeyItem) {
+      state.selectedJourney = getJourneyObject(journeyItem);
 
-        filters.setRoute(journeyItem);
+      filters.setRoute(journeyItem);
+      filters.setVehicle(journeyItem.uniqueVehicleId);
 
-        if (journeyItem.uniqueVehicleId) {
-          filters.setVehicle(journeyItem.uniqueVehicleId);
-        }
-
-        time.toggleLive(false);
-        setPathName(createJourneyPath(journeyItem));
-      }
+      time.toggleLive(false);
+      setPathName(createJourneyPath(journeyItem));
     }
-  );
+  });
 
   const setJourneyVehicle = action((vehicleId) => {
     const {selectedJourney} = state;

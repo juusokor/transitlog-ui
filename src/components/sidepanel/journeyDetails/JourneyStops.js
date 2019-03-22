@@ -50,6 +50,7 @@ class JourneyStops extends React.Component {
     const {
       departures = [],
       date,
+      color,
       onClickTime,
       stopsExpanded,
       toggleStopsExpanded,
@@ -79,6 +80,7 @@ class JourneyStops extends React.Component {
                 onSelectStop={onSelectStop}
                 departure={departure}
                 date={date}
+                color={color}
                 onClickTime={onClickTime}
               />
             ))}

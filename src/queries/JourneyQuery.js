@@ -12,14 +12,14 @@ export const journeyQuery = gql`
     $routeId: String!
     $departureTime: Time!
     $direction: Direction!
-    $instance: Int = 0
+    $uniqueVehicleId: VehicleId!
   ) {
     journey(
       routeId: $routeId
       direction: $direction
       departureTime: $departureTime
       departureDate: $departureDate
-      instance: $instance
+      uniqueVehicleId: $uniqueVehicleId
     ) {
       id
       lineId
@@ -31,7 +31,6 @@ export const journeyQuery = gql`
       uniqueVehicleId
       operatorId
       vehicleId
-      instance
       name
       mode
       headsign
@@ -151,7 +150,7 @@ const JourneyQuery = (props) => {
         "direction",
         "departureDate",
         "departureTime",
-        "instance"
+        "uniqueVehicleId"
       ),
     [props.journey]
   );
