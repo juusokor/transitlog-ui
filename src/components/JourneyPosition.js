@@ -87,7 +87,8 @@ class JourneyPosition extends Component {
     this.journeyEvents.clear();
 
     this.events = journeys.reduce((journeyIndex, {id = "", events = []}) => {
-      journeyIndex.set(id, this.indexPositions(events));
+      const indexedEvents = this.indexPositions(events);
+      journeyIndex.set(id, indexedEvents);
       return journeyIndex;
     }, new Map());
   };

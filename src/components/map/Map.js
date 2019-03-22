@@ -121,7 +121,8 @@ class Map extends Component {
       useCenter = center.getCenter();
       bounds = center;
     } else {
-      useCenter = null;
+      useCenter = center;
+      bounds = null;
     }
 
     // We don't want to set invalid centers or centers that were set previously.

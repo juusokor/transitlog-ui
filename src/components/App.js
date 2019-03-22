@@ -92,7 +92,7 @@ function App({state, UI}) {
                 <SingleStopQuery date={date} stopId={selectedStopId}>
                   {({stop}) => (
                     <JourneyPosition date={date} journeys={currentJourneys}>
-                      {(currentTimePositions) => (
+                      {(currentJourneyPositions) => (
                         <>
                           <SidePanel
                             areaEventsLoading={false}
@@ -114,14 +114,15 @@ function App({state, UI}) {
                                         : false;
 
                                       const selectedJourneyPosition =
-                                        selectedJourney && currentTimePositions.size === 1
-                                          ? currentTimePositions.get(selectedJourneyId)
+                                        selectedJourney &&
+                                        currentJourneyPositions.size === 1
+                                          ? currentJourneyPositions.get(selectedJourneyId)
                                           : false;
 
-                                      const {lat, long} = selectedJourneyPosition || {};
+                                      const {lat, lng} = selectedJourneyPosition || {};
 
                                       const centerPosition =
-                                        lat && long ? latLng([lat, long]) : stopPosition;
+                                        lat && lng ? latLng([lat, lng]) : stopPosition;
 
                                       if (centerPosition) {
                                         setMapView(centerPosition);
@@ -137,7 +138,7 @@ function App({state, UI}) {
                                   actualQueryBounds={actualQueryBounds}
                                   setMapView={setMapView}
                                   journeys={currentJourneys}
-                                  timePositions={currentTimePositions}
+                                  journeyPositions={currentJourneyPositions}
                                   route={route}
                                   stop={stop}
                                   zoom={zoom}

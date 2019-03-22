@@ -26,7 +26,7 @@ const decorate = flow(
 const MapContent = decorate(
   ({
     journeys = [],
-    timePositions,
+    journeyPositions,
     route,
     zoom,
     mapBounds, // The current map view
@@ -110,7 +110,9 @@ const MapContent = decorate(
                 }
 
                 const isSelectedJourney = selectedJourneyId === journey.id;
-                const currentPosition = timePositions.get(journey.id);
+                const currentPosition = journeyPositions
+                  ? journeyPositions.get(journey.id)
+                  : null;
 
                 return [
                   isSelectedJourney ? (
@@ -129,12 +131,14 @@ const MapContent = decorate(
                       journey={journey}
                     />
                   ) : null,
-                  <HfpMarkerLayer
-                    key={`hfp_markers_${journey.id}`}
-                    currentPosition={currentPosition}
-                    journeyId={journey.id}
-                    isSelectedJourney={isSelectedJourney}
-                  />,
+                  currentPosition ? (
+                    <HfpMarkerLayer
+                      key={`hfp_markers_${journey.id}`}
+                      currentEvent={currentPosition}
+                      journey={journey}
+                      isSelectedJourney={isSelectedJourney}
+                    />
+                  ) : null,
                 ];
               })}
           </>
@@ -144,7 +148,7 @@ const MapContent = decorate(
             .filter(({id}) => id !== selectedJourneyId)
             .map((journey) => {
               if (areaEventsStyle === areaEventsStyles.MARKERS) {
-                const event = timePositions.get(journey.id);
+                const event = journeyPositions.get(journey.id);
 
                 if (!event) {
                   return null;
