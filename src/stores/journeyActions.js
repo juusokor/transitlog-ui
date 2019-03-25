@@ -42,10 +42,14 @@ export default (state) => {
       filters.setVehicle(null);
       setPathName("/");
     } else if (journeyItem) {
+      const oldVehicle = get(state, "vehicle", "");
       state.selectedJourney = getJourneyObject(journeyItem);
 
       filters.setRoute(journeyItem);
-      filters.setVehicle(journeyItem.uniqueVehicleId);
+
+      if (journeyItem.uniqueVehicleId !== oldVehicle) {
+        filters.setVehicle(journeyItem.uniqueVehicleId);
+      }
 
       time.toggleLive(false);
       setPathName(createJourneyPath(journeyItem));

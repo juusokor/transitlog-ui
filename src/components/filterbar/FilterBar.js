@@ -60,7 +60,7 @@ class FilterBar extends Component {
   calendarRootRef = React.createRef();
 
   render() {
-    const {state, events = []} = this.props;
+    const {state, journeys = []} = this.props;
     const {sidePanelVisible: visible} = state;
 
     return (
@@ -87,7 +87,7 @@ class FilterBar extends Component {
             <StopSettings />
           </FilterSection>
         </FilterBarGrid>
-        <BottomSlider events={events} />
+        <BottomSlider journeys={journeys} />
       </FilterBarWrapper>
     );
   }

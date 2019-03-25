@@ -6,7 +6,7 @@ import trim from "lodash/trim";
 import get from "lodash/get";
 import debounce from "lodash/debounce";
 import {setUrlValue, getUrlValue} from "../../stores/UrlManager";
-import {reaction, observable, action} from "mobx";
+import {observable, action} from "mobx";
 import {runInAction} from "mobx";
 
 const MAP_BOUNDS_URL_KEY = "mapView";

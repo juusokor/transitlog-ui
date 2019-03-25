@@ -5,6 +5,11 @@ export function mergeJourneys(journeys) {
   return reduce(
     groupBy(journeys, "id"),
     (mergedJourneys, journeyGroup) => {
+      if (journeyGroup.length === 1) {
+        mergedJourneys.push(journeyGroup[0]);
+        return mergedJourneys;
+      }
+
       let selectedJourney = null;
 
       // Select the journey with the most events

@@ -13,7 +13,6 @@ import {
   ColoredBackgroundSlot,
   PlainSlotSmall,
 } from "../TagButton";
-import {diffDepartureJourney} from "../../helpers/diffDepartureJourney";
 import getDelayType from "../../helpers/getDelayType";
 import doubleDigit from "../../helpers/doubleDigit";
 import PlusMinusInput from "../PlusMinusInput";

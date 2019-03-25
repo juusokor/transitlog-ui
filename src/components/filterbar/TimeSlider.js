@@ -4,6 +4,7 @@ import RangeInput from "../RangeInput";
 import {getTimeRangeFromEvents} from "../../helpers/getTimeRangeFromEvents";
 import get from "lodash/get";
 import flow from "lodash/flow";
+import flatten from "lodash/flatten";
 import {timeToSeconds} from "../../helpers/time";
 import Tooltip from "../Tooltip";
 import {inject} from "../../helpers/inject";
@@ -16,7 +17,7 @@ const decorate = flow(
   inject("Time", "UI")
 );
 
-const TimeSlider = decorate(({className, Time, state, events}) => {
+const TimeSlider = decorate(({className, Time, state, journeys}) => {
   const numericTime = useMemo(() => timeToSeconds(state.time), [state.time]);
 
   const onChange = useCallback(
@@ -34,8 +35,14 @@ const TimeSlider = decorate(({className, Time, state, events}) => {
   );
 
   const timeRange = useMemo(() => {
-    if (events.length !== 0) {
-      const eventsTimeRange = getTimeRangeFromEvents(events);
+    if (journeys.length !== 0) {
+      // Get the first and last event from each journey. This is used
+      // to get the min and max time for the range slider.
+      const eventsRange = flatten(
+        journeys.map(({events = []}) => [events[0], events[events.length - 1]])
+      );
+
+      const eventsTimeRange = getTimeRangeFromEvents(eventsRange);
 
       if (eventsTimeRange) {
         return eventsTimeRange;
@@ -43,7 +50,7 @@ const TimeSlider = decorate(({className, Time, state, events}) => {
     }
 
     return {min: TIME_SLIDER_MIN, max: TIME_SLIDER_MAX};
-  }, [events]);
+  }, [journeys]);
 
   const {min = TIME_SLIDER_MIN, max = TIME_SLIDER_MAX} = timeRange;
   const rangeMin = Math.min(numericTime, min);

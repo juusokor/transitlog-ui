@@ -18,7 +18,7 @@ const RouteStopsLayer = decorate(
     showRadius,
     journey = null,
   }) => {
-    if (journey) {
+    if (journey && journey.departures) {
       return journey.departures.map((departure, index, arr) => {
         const isFirst = index === 0;
         const isLast = index === arr.length - 1;
@@ -28,7 +28,7 @@ const RouteStopsLayer = decorate(
 
         return (
           <RouteStop
-            key={`stop_marker_${departure.stopId}_${departure.index}`}
+            key={`stop_marker_${departure.stopId}_${departure.index}_${departure.id}`}
             selected={isSelected}
             highlighted={isHighlighted}
             firstTerminal={isFirst}

@@ -100,7 +100,7 @@ const SidePanel = decorate((props) => {
     areaEvents = [],
     journey = null,
     journeyLoading = false,
-    areaEventsLoading = false,
+    areaJourneysLoading = false,
     stop,
     detailsOpen,
     sidePanelOpen,
@@ -122,7 +122,7 @@ const SidePanel = decorate((props) => {
   // if it appears and nothing else is selected then it will be.
   let suggestedTab = "";
 
-  if ((!hasRoute && !vehicle) || (areaEvents.length !== 0 || areaEventsLoading))
+  if ((!hasRoute && !vehicle) || (areaEvents.length !== 0 || areaJourneysLoading))
     suggestedTab = "area-journeys";
   if (hasRoute) suggestedTab = "journeys";
   if (vehicle) suggestedTab = "vehicle-journeys";
@@ -131,7 +131,7 @@ const SidePanel = decorate((props) => {
 
   const allTabsHidden =
     !hasRoute &&
-    (areaEvents.length === 0 && !areaEventsLoading) &&
+    (areaEvents.length === 0 && !areaJourneysLoading) &&
     !vehicle &&
     !stateStop;
 
@@ -143,10 +143,10 @@ const SidePanel = decorate((props) => {
           <UsageInstructions language={language} />
         ) : (
           <Tabs suggestedTab={suggestedTab}>
-            {(areaEvents.length !== 0 || areaEventsLoading) && (
+            {(areaEvents.length !== 0 || areaJourneysLoading) && (
               <AreaJourneyList
                 helpText="Area search tab"
-                loading={areaEventsLoading}
+                loading={areaJourneysLoading}
                 journeys={areaEvents}
                 name="area-journeys"
                 label={text("sidepanel.tabs.area_events")}

@@ -4,7 +4,6 @@ import StopLayer from "./StopLayer";
 import StopMarker from "./StopMarker";
 import RouteGeometryQuery from "../../queries/RouteGeometryQuery";
 import RouteLayer from "./RouteLayer";
-import get from "lodash/get";
 import flow from "lodash/flow";
 import getJourneyId from "../../helpers/getJourneyId";
 import JourneyLayer from "./JourneyLayer";
@@ -101,14 +100,6 @@ const MapContent = decorate(
 
             {journeys.length !== 0 &&
               journeys.map((journey) => {
-                if (
-                  selectedJourney &&
-                  selectedJourney.uniqueVehicleId &&
-                  get(journey, "uniqueVehicleId", "") !== selectedJourney.uniqueVehicleId
-                ) {
-                  return null;
-                }
-
                 const isSelectedJourney = selectedJourneyId === journey.id;
                 const currentPosition = journeyPositions
                   ? journeyPositions.get(journey.id)
@@ -169,7 +160,7 @@ const MapContent = decorate(
                   zoom={zoom}
                   name={journey.id}
                   key={`hfp_polyline_${journey.id}`}
-                  positions={journey.events}
+                  events={journey.events}
                 />
               );
             })}

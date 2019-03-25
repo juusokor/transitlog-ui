@@ -1,5 +1,5 @@
-import React, {Component} from "react";
-import {observer} from "mobx-react";
+import React, {useRef} from "react";
+import {observer} from "mobx-react-lite";
 import get from "lodash/get";
 import {Query} from "react-apollo";
 import gql from "graphql-tag";
@@ -22,27 +22,23 @@ export const stopsByBboxQuery = gql`
 
 const client = getServerClient();
 
-@observer
-class StopsByBboxQuery extends Component {
-  prevQueryResult = [];
+const StopsByBboxQuery = observer((props) => {
+  const {children, bbox, skip} = props;
+  const prevResult = useRef([]);
 
-  render() {
-    const {children, bbox, skip} = this.props;
+  return (
+    <Query client={client} skip={skip} query={stopsByBboxQuery} variables={{bbox}}>
+      {({loading, data, error}) => {
+        if (loading) return children({stops: prevResult.current, loading: true});
+        if (error) return children({stops: prevResult.current, loading: false});
 
-    return (
-      <Query client={client} skip={skip} query={stopsByBboxQuery} variables={{bbox}}>
-        {({loading, data, error}) => {
-          if (loading) return children({stops: this.prevQueryResult, loading: true});
-          if (error) return children({stops: this.prevQueryResult, loading: false});
-
-          const stops = get(data, "stopsByBbox", []);
-          // Stop the stops from disappearing while loading
-          this.prevQueryResult = stops;
-          return children({stops, loading: false});
-        }}
-      </Query>
-    );
-  }
-}
+        const stops = get(data, "stopsByBbox", []);
+        // Stop the stops from disappearing while loading
+        prevResult.current = stops;
+        return children({stops, loading: false});
+      }}
+    </Query>
+  );
+});
 
 export default StopsByBboxQuery;

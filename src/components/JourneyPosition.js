@@ -2,6 +2,7 @@ import {Component} from "react";
 import {observer, inject} from "mobx-react";
 import {reaction, observable, action} from "mobx";
 import findLast from "lodash/findLast";
+import last from "lodash/last";
 
 @inject("state")
 @observer
@@ -18,14 +19,14 @@ class JourneyPosition extends Component {
       return;
     }
 
-    this.events.forEach((indexedEvents, journeyId) => {
+    this.events.forEach((indexedEvents, journeyId, {length}) => {
       // Attempt to find the correct hfp item from the indexed events
       let nextEvent = indexedEvents.get(time);
 
       if (!nextEvent) {
         // If no events matched the current time exactly, look backwards and forwards
         // 10 seconds respectively to find a matching hfp event.
-        nextEvent = this.matchEventToTime(time, indexedEvents);
+        nextEvent = this.matchEventToTime(time, indexedEvents, length === 1);
       }
 
       this.setMatchedEventForJourney(journeyId, nextEvent);
@@ -44,14 +45,14 @@ class JourneyPosition extends Component {
     });
   };
 
-  matchEventToTime = (time, indexedEvents) => {
+  matchEventToTime = (time, indexedEvents, defaultToEnds = true) => {
     let i = 0;
     let checkSeconds = time;
     let nextEvent = null;
 
-    // Max iterations is 60, which means events can be at most 30 seconds before
+    // Max iterations is 30, which means events can be at most 30 seconds before
     // or after i to be displayed.
-    while (!nextEvent && i <= 60) {
+    while (!nextEvent && i <= 30) {
       // Alternately check after (even i) and before (odd i) `time`
       if (i % 2 === 0) {
         checkSeconds = time + Math.round(i / 2);
@@ -61,6 +62,23 @@ class JourneyPosition extends Component {
 
       nextEvent = indexedEvents.get(checkSeconds);
       i++;
+    }
+
+    // If we didn't find anything and the events start after the given time,
+    // just go with the first event. Similarly, if the last event is before
+    // the given time, select the last event. Can be disabled by setting
+    // defaultToEnd to false.
+    if (!nextEvent && defaultToEnds) {
+      const eventKeys = Array.from(indexedEvents.keys());
+
+      const firstIndexedTime = eventKeys[0];
+      const lastIndexedTime = last(eventKeys);
+
+      if (firstIndexedTime > time) {
+        nextEvent = indexedEvents.values().next().value;
+      } else if (lastIndexedTime < time) {
+        nextEvent = last(Array.from(indexedEvents.values()));
+      }
     }
 
     return nextEvent;
