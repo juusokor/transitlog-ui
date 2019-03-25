@@ -102,6 +102,8 @@ const SidePanel = decorate((props) => {
     journeyLoading = false,
     areaEventsLoading = false,
     stop,
+    detailsOpen,
+    sidePanelOpen,
     state: {
       language,
       route,
@@ -110,7 +112,6 @@ const SidePanel = decorate((props) => {
       stop: stateStop,
       selectedJourney,
       sidePanelVisible,
-      journeyDetailsOpen,
     },
   } = props;
 
@@ -135,7 +136,7 @@ const SidePanel = decorate((props) => {
     !stateStop;
 
   return (
-    <SidePanelContainer visible={sidePanelVisible}>
+    <SidePanelContainer visible={sidePanelOpen}>
       <MainSidePanel>
         <ControlBar />
         {allTabsHidden ? (
@@ -181,11 +182,9 @@ const SidePanel = decorate((props) => {
           </Tabs>
         )}
       </MainSidePanel>
-      <JourneyPanel visible={hasJourney && journeyDetailsOpen}>
+      <JourneyPanel visible={detailsOpen}>
         {/* The content of the sidebar is independent from the sidebar wrapper so that we can animate it. */}
-        {journeyDetailsOpen && hasJourney && (
-          <JourneyDetails loading={journeyLoading} journey={journey} />
-        )}
+        {detailsOpen && <JourneyDetails loading={journeyLoading} journey={journey} />}
         {hasJourney && (
           <Tooltip helpText="Toggle journey details button">
             <ToggleJourneyDetailsButton onClick={() => toggleJourneyDetails()}>

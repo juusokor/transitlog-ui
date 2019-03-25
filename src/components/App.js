@@ -60,6 +60,8 @@ function App({state, UI}) {
     route,
     shareModalOpen,
     selectedJourney,
+    journeyDetailsOpen,
+    sidePanelVisible,
     live,
   } = state;
   const selectedJourneyId = getJourneyId(selectedJourney);
@@ -85,6 +87,9 @@ function App({state, UI}) {
             compact([selectedJourney, ...areaJourneys])
           );
 
+          const detailsAreOpen = selectedJourney && journeyDetailsOpen;
+          const sidePanelIsOpen = sidePanelVisible;
+
           return (
             <AppGrid>
               <FilterBar events={journeyEvents} />
@@ -100,8 +105,12 @@ function App({state, UI}) {
                             areaEvents={areaJourneys}
                             journey={selectedJourney}
                             stop={stop}
+                            detailsOpen={detailsAreOpen}
+                            sidePanelOpen={sidePanelIsOpen}
                           />
-                          <MapPanel>
+                          <MapPanel
+                            detailsOpen={detailsAreOpen}
+                            sidePanelOpen={sidePanelIsOpen}>
                             {({zoom, setMapView, getMapView, setViewerLocation}) => (
                               <>
                                 <Observer>
