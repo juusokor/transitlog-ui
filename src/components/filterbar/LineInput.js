@@ -4,18 +4,7 @@ import SuggestionInput, {SuggestionContent, SuggestionText} from "./SuggestionIn
 import getTransportType from "../../helpers/getTransportType";
 import {observer} from "mobx-react-lite";
 import sortBy from "lodash/sortBy";
-
-const parseLineNumber = (lineId = "") => {
-  const lineStr = lineId + "";
-  // Special case for train lines, they should only show a letter.
-  if (/^300[12]/.test(lineStr)) {
-    return lineStr.replace(/\d+/, "");
-  }
-
-  // Remove 1st number, which represents the city
-  // Remove all zeros from the beginning
-  return lineStr.substring(1).replace(/^0+/, "");
-};
+import {parseLineNumber} from "../../helpers/parseLineNumber";
 
 const getSuggestionValue = (suggestion) => get(suggestion, "lineId", suggestion);
 
@@ -43,7 +32,7 @@ const getFilteredSuggestions = (lines, {value = ""}) => {
           return line.lineId.toLowerCase().includes(inputValue.slice(0, inputLength));
         });
 
-  const sortedLines = sortBy(filteredLines, ({lineId}) => {
+  return sortBy(filteredLines, ({lineId}) => {
     const parsedLineId = parseLineNumber(lineId);
     const numericLineId = parsedLineId.replace(/[^0-9]*/g, "");
 
@@ -54,8 +43,6 @@ const getFilteredSuggestions = (lines, {value = ""}) => {
     const lineNum = parseInt(numericLineId, 10);
     return getTransportType(lineId, true) + lineNum;
   });
-
-  return sortedLines;
 };
 
 const LineInput = observer(({line, lines, onSelect}) => {

@@ -16,11 +16,7 @@ import {getTimelinessColor} from "../../helpers/timelinessColor";
 import styled from "styled-components";
 import getJourneyId from "../../helpers/getJourneyId";
 import {secondsToTimeObject} from "../../helpers/time";
-
-const parseLineNumber = (lineId) =>
-  // Remove 1st number, which represents the city
-  // Remove all zeros from the beginning
-  lineId.substring(1).replace(/^0+/, "");
+import {parseLineNumber} from "../../helpers/parseLineNumber";
 
 const ListRow = styled.div`
   padding: 0.25rem 0.5rem 0.25rem 0.75rem;

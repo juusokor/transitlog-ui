@@ -2,7 +2,6 @@ import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
 import SidepanelList from "./SidepanelList";
 import styled from "styled-components";
-import sortBy from "lodash/sortBy";
 import get from "lodash/get";
 import {app} from "mobx-app";
 import getJourneyId from "../../helpers/getJourneyId";
@@ -19,9 +18,10 @@ import getDelayType from "../../helpers/getDelayType";
 import doubleDigit from "../../helpers/doubleDigit";
 import PlusMinusInput from "../PlusMinusInput";
 import {observable, action, reaction} from "mobx";
-import withVehicleJourneys from "../../hoc/withVehicleJourneys";
 import {getTimelinessColor} from "../../helpers/timelinessColor";
-import {timeToSeconds} from "../../helpers/time";
+import VehicleJourneysQuery from "../../queries/VehicleJourneysQuery";
+import {secondsToTimeObject} from "../../helpers/time";
+import {parseLineNumber} from "../../helpers/parseLineNumber";
 
 const JourneyListRow = styled.div`
   padding: ${({selected = false}) =>
@@ -61,8 +61,7 @@ const NextPrevLabel = styled.div`
   justify-content: center;
 `;
 
-@inject(app("Filters", "Journey", "Time"))
-@withVehicleJourneys
+@inject(app("Journey", "Time"))
 @observer
 class VehicleJourneys extends Component {
   // We are modifying this in the render function so it cannot be reactive
@@ -72,19 +71,20 @@ class VehicleJourneys extends Component {
   nextJourneyIndex = 0;
 
   selectJourney = (journey) => {
-    const {Time, Filters, Journey, state} = this.props;
+    const {Time, Journey, state} = this.props;
+    let journeyToSelect = null;
 
     if (journey) {
       const journeyId = getJourneyId(journey);
 
       // Only set these if the journey is truthy and was not already selected
       if (journeyId && getJourneyId(state.selectedJourney) !== journeyId) {
-        Time.setTime(journey.journey_start_time);
-        Filters.setVehicle(journey.unique_vehicle_id);
+        Time.setTime(journey.departureTime);
+        journeyToSelect = journey;
       }
     }
 
-    Journey.setSelectedJourney(journey);
+    Journey.setSelectedJourney(journeyToSelect);
   };
 
   onSelectJourney = (journey) => (e) => {
@@ -149,8 +149,6 @@ class VehicleJourneys extends Component {
 
   render() {
     const {
-      positions = [],
-      loading,
       state: {selectedJourney, date, vehicle},
     } = this.props;
 
@@ -158,91 +156,87 @@ class VehicleJourneys extends Component {
     // Keep track of the journey index independent of vehicle groups
     let journeyIndex = -1;
 
-    const sortedPositions = sortBy(positions, (pos) =>
-      timeToSeconds(pos.journey_start_time)
-    );
-
     return (
-      <SidepanelList
-        loading={loading}
-        header={
-          <>
-            <HeaderRowLeft>
-              <PlusMinusInput
-                plusLabel={<>&raquo;</>}
-                minusLabel={<>&laquo;</>}
-                onDecrease={this.selectPreviousVehicleJourney}
-                onIncrease={this.selectNextVehicleJourney}>
-                <NextPrevLabel>
-                  {selectedJourney ? (
-                    <>
-                      {vehicle}, {selectedJourney.journey_start_time.slice(0, -3)}
-                    </>
-                  ) : (
-                    vehicle
-                  )}
-                </NextPrevLabel>
-              </PlusMinusInput>
-            </HeaderRowLeft>
-          </>
-        }>
-        {(scrollRef) =>
-          sortedPositions.map((journey) => {
-            journeyIndex++;
-            const journeyId = getJourneyId(journey, false);
+      <VehicleJourneysQuery vehicleId={vehicle} date={date}>
+        {({journeys = [], loading}) => {
+          return (
+            <SidepanelList
+              loading={loading}
+              header={
+                <>
+                  <HeaderRowLeft>
+                    <PlusMinusInput
+                      plusLabel={<>&raquo;</>}
+                      minusLabel={<>&laquo;</>}
+                      onDecrease={this.selectPreviousVehicleJourney}
+                      onIncrease={this.selectNextVehicleJourney}>
+                      <NextPrevLabel>
+                        {selectedJourney ? (
+                          <>
+                            {vehicle}, {selectedJourney.departureTime.slice(0, -3)}
+                          </>
+                        ) : (
+                          vehicle
+                        )}
+                      </NextPrevLabel>
+                    </PlusMinusInput>
+                  </HeaderRowLeft>
+                </>
+              }>
+              {(scrollRef) =>
+                journeys.map((journey) => {
+                  journeyIndex++;
+                  const journeyId = getJourneyId(journey, false);
 
-            const mode = get(journey, "mode", "").toUpperCase();
-            const journeyTime = get(journey, "journey_start_time", "");
-            const lineNumber = get(journey, "desi", "");
+                  const mode = get(journey, "mode", "").toUpperCase();
+                  const journeyTime = get(journey, "departureTime", "");
+                  const lineNumber = parseLineNumber(get(journey, "routeId", ""));
 
-            const [hours, minutes] = journeyTime.split(":");
+                  const plannedObservedDiff = journey.timeDifference;
+                  const observedTimeString = journey.recordedTime;
+                  const diffTime = secondsToTimeObject(plannedObservedDiff);
+                  const delayType = getDelayType(plannedObservedDiff);
 
-            const departure = {
-              hours: parseInt(hours, 10),
-              minutes: parseInt(minutes, 10),
-            };
+                  const journeyIsSelected =
+                    selectedJourney && selectedJourneyId === journeyId;
 
-            const plannedObservedDiff = diffDepartureJourney(journey, departure, date);
-            const observedTimeString = plannedObservedDiff
-              ? plannedObservedDiff.observedMoment.format("HH:mm:ss")
-              : "";
+                  if (journeyIsSelected) {
+                    this.selectedJourneyIndex = journeyIndex;
+                  }
 
-            const delayType = plannedObservedDiff
-              ? getDelayType(plannedObservedDiff.diff)
-              : "none";
-
-            const journeyIsSelected = selectedJourney && selectedJourneyId === journeyId;
-
-            if (journeyIsSelected) {
-              this.selectedJourneyIndex = journeyIndex;
-            }
-
-            return (
-              <JourneyListRow
-                selected={journeyIsSelected}
-                key={`vehicle_journey_row_${journeyId}`}
-                ref={journeyIsSelected ? scrollRef : null}>
-                <TagButton
-                  selected={journeyIsSelected}
-                  onClick={this.onSelectJourney(journey)}>
-                  <HeadsignSlot color={get(transportColor, mode, "var(--light-grey)")}>
-                    {lineNumber} / {journey.direction_id}
-                  </HeadsignSlot>
-                  <TimeSlot>{journeyTime.slice(0, -3)}</TimeSlot>
-                  <ColoredBackgroundSlot
-                    color={delayType === "late" ? "var(--dark-grey)" : "white"}
-                    backgroundColor={getTimelinessColor(delayType, "var(--light-green)")}>
-                    {plannedObservedDiff.sign === "-" ? "-" : ""}
-                    {doubleDigit(plannedObservedDiff.minutes)}:
-                    {doubleDigit(plannedObservedDiff.seconds)}
-                  </ColoredBackgroundSlot>
-                  <PlainSlotSmall>{observedTimeString}</PlainSlotSmall>
-                </TagButton>
-              </JourneyListRow>
-            );
-          })
-        }
-      </SidepanelList>
+                  return (
+                    <JourneyListRow
+                      selected={journeyIsSelected}
+                      key={`vehicle_journey_row_${journeyId}`}
+                      ref={journeyIsSelected ? scrollRef : null}>
+                      <TagButton
+                        selected={journeyIsSelected}
+                        onClick={this.onSelectJourney(journey)}>
+                        <HeadsignSlot
+                          color={get(transportColor, mode, "var(--light-grey)")}>
+                          {lineNumber} / {journey.direction}
+                        </HeadsignSlot>
+                        <TimeSlot>{journeyTime.slice(0, -3)}</TimeSlot>
+                        <ColoredBackgroundSlot
+                          color={delayType === "late" ? "var(--dark-grey)" : "white"}
+                          backgroundColor={getTimelinessColor(
+                            delayType,
+                            "var(--light-green)"
+                          )}>
+                          {plannedObservedDiff < 0 ? "-" : ""}
+                          {diffTime.hours ? doubleDigit(diffTime.hours) + ":" : ""}
+                          {doubleDigit(diffTime.minutes)}:{doubleDigit(diffTime.seconds)}
+                        </ColoredBackgroundSlot>
+                        <PlainSlotSmall>{observedTimeString}</PlainSlotSmall>
+                      </TagButton>
+                    </JourneyListRow>
+                  );
+                })
+              }
+            </SidepanelList>
+          );
+        }}
+      </VehicleJourneysQuery>
     );
   }
 }
