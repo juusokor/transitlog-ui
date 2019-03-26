@@ -84,8 +84,8 @@ const AreaJourneysQuery = observer((props) => {
 
         prevResults.current = journeys;
         refetcher.current = refetch;
-        setUpdateListener(updateListenerName, createRefetcher(refetch));
 
+        setUpdateListener(updateListenerName, createRefetcher(refetch));
         return children({journeys, loading, error, ...rest});
       }}
     </Query>

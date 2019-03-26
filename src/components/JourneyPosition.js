@@ -1,50 +1,39 @@
 import {Component} from "react";
 import {observer, inject} from "mobx-react";
-import {reaction, observable, action} from "mobx";
+import {computed} from "mobx";
 import last from "lodash/last";
+import get from "lodash/last";
 import findLast from "lodash/findLast";
-import get from "lodash/get";
+
+function timeRangeFromEvents(events) {
+  const firstEvent = events[0];
+  const lastEvent = last(events);
+
+  const firstTime = get(firstEvent, "recordedAtUnix", 0);
+  const lastTime = get(lastEvent, "recordedAtUnix", 0);
+
+  return [{time: firstTime, event: firstEvent}, {time: lastTime, event: lastEvent}];
+}
 
 @inject("state")
 @observer
 class JourneyPosition extends Component {
-  eventReaction = () => {};
-  events = new Map();
+  @computed
+  get journeyEvents() {
+    const {
+      state: {unixTime, isLiveAndCurrent},
+      journeys,
+    } = this.props;
 
-  @observable
-  journeyEvents = new Map();
+    return this.matchJourneyEvents(unixTime, journeys, isLiveAndCurrent);
+  }
 
-  // Matches the current time setting with an event from this journey.
-  matchJourneyEvents = (time) => {
-    if (this.events.size === 0) {
-      return;
-    }
+  @computed get journeys() {
+    const {journeys} = this.props;
+    console.log(journeys);
 
-    this.events.forEach((indexedEvents, journeyId, {length}) => {
-      // Attempt to find the correct hfp item from the indexed events
-      let nextEvent = indexedEvents.get(time);
-
-      if (!nextEvent) {
-        // If no events matched the current time exactly, look backwards and forwards
-        // 10 seconds respectively to find a matching hfp event.
-        nextEvent = this.matchEventToTime(time, indexedEvents, length === 1);
-      }
-
-      this.setMatchedEventForJourney(journeyId, nextEvent);
-    });
-  };
-
-  getLivePositions = (journeys, time) => {
-    journeys.forEach(({id, events = []}) => {
-      if (events.length !== 0) {
-        const event = this.matchEventLive(time, events);
-
-        if (event) {
-          this.setMatchedEventForJourney(id, event);
-        }
-      }
-    });
-  };
+    return [];
+  }
 
   matchEventLive(time, events) {
     const candidate = findLast(events, (event) => {
@@ -56,26 +45,40 @@ class JourneyPosition extends Component {
       return Math.abs(time - eventTime) < 10;
     });
 
+    console.log(candidate);
     return candidate;
   }
 
-  matchEventToTime = (time, indexedEvents, defaultToEnds = true) => {
+  matchEventToTime = (time, events, defaultToEnds = true) => {
     let i = 0;
     let checkSeconds = time;
     let nextEvent = null;
+    let alternate = last(events).recordedAtTime > time;
 
-    // Max iterations is 30, which means events can be at most 30 seconds before
+    // Max iterations is 60, which means events can be at most 30 seconds before
     // or after i to be displayed.
-    while (!nextEvent && i <= 30) {
-      // Alternately check after (even i) and before (odd i) `time`
-      if (i % 2 === 0) {
-        checkSeconds = time + Math.round(i / 2);
-      } else {
-        checkSeconds = time - Math.round(i / 2);
+    while (!nextEvent && i <= 60) {
+      nextEvent = findLast(
+        events,
+        ({recordedAtUnix = 0}) => Math.abs(checkSeconds - recordedAtUnix) <= 5
+      );
+
+      if (nextEvent) {
+        break;
       }
 
-      nextEvent = indexedEvents.get(checkSeconds);
       i++;
+
+      if (alternate) {
+        // Alternately check after (even i) and before (odd i) `time`
+        if (i % 2 === 0) {
+          checkSeconds = time + Math.round(i / 2);
+        } else {
+          checkSeconds = time - Math.round(i / 2);
+        }
+      } else {
+        checkSeconds = time - 1;
+      }
     }
 
     // If we didn't find anything and the events start after the given time,
@@ -83,96 +86,55 @@ class JourneyPosition extends Component {
     // the given time, select the last event. Can be disabled by setting
     // defaultToEnd to false.
     if (!nextEvent && defaultToEnds) {
-      const eventKeys = Array.from(indexedEvents.keys());
+      const [
+        {time: firstTime, event: firstEvent},
+        {time: lastTime, event: lastEvent},
+      ] = timeRangeFromEvents(events);
 
-      const firstIndexedTime = eventKeys[0];
-      const lastIndexedTime = last(eventKeys);
-
-      if (firstIndexedTime > time) {
-        nextEvent = indexedEvents.values().next().value;
-      } else if (lastIndexedTime < time) {
-        nextEvent = last(Array.from(indexedEvents.values()));
+      if (firstTime > time) {
+        nextEvent = firstEvent;
+      } else if (lastTime < time) {
+        nextEvent = lastEvent;
       }
     }
 
     return nextEvent;
   };
 
-  setMatchedEventForJourney = action((journeyId, nextEvent) => {
-    this.journeyEvents.set(journeyId, nextEvent);
-  });
+  // Matches the current time setting with an event from this journey.
+  matchJourneyEvents = (time, journeys, isLive) => {
+    const journeyEvents = new Map();
 
-  // Index the journey events under their timestamp to make it easy to find them on the fly.
-  // This is a performance optimization.
-  indexPositions = (events) => {
-    return events.reduce((eventIndex, event) => {
-      if (event.lat && event.lng) {
-        const key = event.recordedAtUnix;
-        eventIndex.set(key, event);
+    if (journeys.length === 0) {
+      return;
+    }
+
+    journeys.forEach(({id, events}) => {
+      if (events.length === 0) {
+        return;
       }
 
-      return eventIndex;
-    }, new Map());
-  };
+      if (journeys.length > 1) {
+        const [{time: firstTime}, {time: lastTime}] = timeRangeFromEvents(events);
 
-  indexJourneys = (journeys) => {
-    this.journeyEvents.clear();
-
-    this.events = journeys.reduce((journeyIndex, {id = "", events = []}) => {
-      const indexedEvents = this.indexPositions(events);
-      journeyIndex.set(id, indexedEvents);
-      return journeyIndex;
-    }, new Map());
-  };
-
-  componentDidMount() {
-    const {state, journeys} = this.props;
-
-    if (!state.isLiveAndCurrent && journeys.length !== 0) {
-      // Index once when mounted if not live-updating
-      this.indexJourneys(journeys);
-    } else if (state.isLiveAndCurrent && journeys.length !== 0) {
-      this.getLivePositions(journeys, state.unixTime);
-    }
-
-    // A reaction to set the hfp event that matches the currently selected time
-    this.eventReaction = reaction(
-      () => [state.unixTime, state.isLiveAndCurrent],
-      ([time, live]) => {
-        if (!live && time) {
-          this.matchJourneyEvents(time);
+        if (firstTime > time || lastTime < time) {
+          return;
         }
-      },
-      {fireImmediately: true}
-    );
-  }
+      }
 
-  componentDidUpdate({events: prevPositions}) {
-    const {
-      journeys = [],
-      state: {unixTime, isLiveAndCurrent},
-    } = this.props;
+      let nextEvent;
 
-    // If the journeys changed we need to index again.
-    if (
-      !isLiveAndCurrent &&
-      (journeys !== prevPositions || journeys.length !== prevPositions.length)
-    ) {
-      this.indexJourneys(journeys);
-      this.matchJourneyEvents(unixTime);
-    }
+      if (isLive) {
+        nextEvent = this.matchEventLive(time, events);
+      } else {
+        nextEvent = this.matchEventToTime(time, events, journeys.length === 1);
+      }
 
-    if (isLiveAndCurrent && journeys.length !== 0) {
-      this.getLivePositions(journeys, unixTime);
-    }
-  }
+      journeyEvents.set(id, nextEvent);
+    });
 
-  componentWillUnmount() {
-    if (typeof this.eventReaction === "function") {
-      // Dispose the reaction
-      this.eventReaction();
-    }
-  }
+    return journeyEvents;
+  };
 
   render() {
     const {children} = this.props;
