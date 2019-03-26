@@ -148,8 +148,8 @@ const MapContent = decorate(
                 return (
                   <HfpMarkerLayer
                     key={`hfp_markers_${journey.id}`}
-                    currentPosition={event}
-                    journeyId={journey.id}
+                    currentEvent={event}
+                    journey={journey}
                     isSelectedJourney={false}
                   />
                 );

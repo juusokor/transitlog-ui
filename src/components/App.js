@@ -1,6 +1,7 @@
 import React from "react";
 import FilterBar from "./filterbar/FilterBar";
 import {Observer, observer} from "mobx-react-lite";
+import {toJS} from "mobx";
 import Map from "./map/Map";
 import styled from "styled-components";
 import SidePanel from "./sidepanel/SidePanel";
@@ -14,7 +15,6 @@ import SelectedJourneyEvents from "./SelectedJourneyEvents";
 import getJourneyId from "../helpers/getJourneyId";
 import {inject} from "../helpers/inject";
 import flow from "lodash/flow";
-import get from "lodash/get";
 import compact from "lodash/compact";
 import {mergeJourneys} from "../helpers/mergeJourneys";
 import {withRoute} from "../hoc/withRoute";
@@ -95,7 +95,7 @@ function App({state, UI}) {
                           {(currentJourneyPositions) => (
                             <>
                               <SidePanel
-                                areaJourneysLoading={areaJourneysLoading}
+                                areaJourneysLoading={!live && areaJourneysLoading}
                                 journeyLoading={journeyLoading}
                                 areaEvents={areaJourneys}
                                 journey={selectedJourney}

@@ -1,8 +1,9 @@
 import {Component} from "react";
 import {observer, inject} from "mobx-react";
 import {reaction, observable, action} from "mobx";
-import findLast from "lodash/findLast";
 import last from "lodash/last";
+import findLast from "lodash/findLast";
+import get from "lodash/get";
 
 @inject("state")
 @observer
@@ -33,10 +34,10 @@ class JourneyPosition extends Component {
     });
   };
 
-  getLivePositions = (journeys) => {
+  getLivePositions = (journeys, time) => {
     journeys.forEach(({id, events = []}) => {
       if (events.length !== 0) {
-        const event = findLast(events, (pos) => !!pos.lat && !!pos.long);
+        const event = this.matchEventLive(time, events);
 
         if (event) {
           this.setMatchedEventForJourney(id, event);
@@ -44,6 +45,19 @@ class JourneyPosition extends Component {
       }
     });
   };
+
+  matchEventLive(time, events) {
+    const candidate = findLast(events, (event) => {
+      if (!event.lat || !event.lng) {
+        return false;
+      }
+
+      const eventTime = event.recordedAtUnix;
+      return Math.abs(time - eventTime) < 10;
+    });
+
+    return candidate;
+  }
 
   matchEventToTime = (time, indexedEvents, defaultToEnds = true) => {
     let i = 0;
@@ -118,7 +132,7 @@ class JourneyPosition extends Component {
       // Index once when mounted if not live-updating
       this.indexJourneys(journeys);
     } else if (state.isLiveAndCurrent && journeys.length !== 0) {
-      this.getLivePositions(journeys);
+      this.getLivePositions(journeys, state.unixTime);
     }
 
     // A reaction to set the hfp event that matches the currently selected time
@@ -149,7 +163,7 @@ class JourneyPosition extends Component {
     }
 
     if (isLiveAndCurrent && journeys.length !== 0) {
-      this.getLivePositions(journeys);
+      this.getLivePositions(journeys, unixTime);
     }
   }
 

@@ -12,7 +12,6 @@ const areaJourneysQuery = gql`
       id
       routeId
       direction
-      nextStopId
       departureDate
       departureTime
       uniqueVehicleId
@@ -44,6 +43,7 @@ const client = getServerClient();
 const AreaJourneysQuery = observer((props) => {
   const {minTime, maxTime, bbox, skip, children} = props;
   const prevResults = useRef([]);
+  const refetcher = useRef(null);
 
   const queryVars = useMemo(
     () => ({
@@ -57,18 +57,13 @@ const AreaJourneysQuery = observer((props) => {
   const queryParamsValid = queryVars.minTime && queryVars.maxTime && queryVars.bbox;
   const shouldSkip = skip || !queryParamsValid;
 
+  const createRefetcher = (refetch) => () => {
+    if (!shouldSkip) {
+      refetch(queryVars);
+    }
+  };
+
   useEffect(() => () => removeUpdateListener(updateListenerName), []);
-
-  const createRefetcher = useCallback(
-    (refetch) => () => {
-      const {skip, journey} = props;
-
-      if (journey && !skip) {
-        refetch(queryVars);
-      }
-    },
-    [skip, queryVars]
-  );
 
   if (shouldSkip) {
     prevResults.current = [];
@@ -80,7 +75,7 @@ const AreaJourneysQuery = observer((props) => {
       skip={shouldSkip}
       variables={queryVars}
       query={areaJourneysQuery}>
-      {({loading, data, error, refetch, ...rest}) => {
+      {({loading, data, error, refetch, variables, ...rest}) => {
         if (!data || loading) {
           return children({journeys: prevResults.current, loading, error, ...rest});
         }
@@ -88,6 +83,7 @@ const AreaJourneysQuery = observer((props) => {
         const journeys = get(data, "eventsByBbox", []);
 
         prevResults.current = journeys;
+        refetcher.current = refetch;
         setUpdateListener(updateListenerName, createRefetcher(refetch));
 
         return children({journeys, loading, error, ...rest});

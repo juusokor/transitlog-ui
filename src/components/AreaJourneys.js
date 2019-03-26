@@ -34,28 +34,35 @@ const AreaJourneys = decorate((props) => {
     [queryBounds]
   );
 
-  const searchTime = useMemo(
+  const queryTime = useMemo(
     () => getMomentFromDateTime(state.date, state.time, TIMEZONE),
-    [state.date, queryBounds]
+    [state.date, state.time]
   );
 
   const timeIsInRange = !timeRange.current
     ? false
-    : searchTime.isBetween(timeRange.current.min, timeRange.current.max, "second");
+    : queryTime.isBetween(timeRange.current.min, timeRange.current.max, "second");
+
+  const {isLiveAndCurrent, areaSearchRangeMinutes} = state;
 
   const queryTimeRange = useMemo(() => {
-    const {areaSearchRangeMinutes, isLiveAndCurrent} = state;
     // Constrain search time span to 1 minute when auto-polling.
     const timespan = isLiveAndCurrent ? 1 : areaSearchRangeMinutes;
 
-    const min = searchTime.clone().subtract(Math.round(timespan / 2), "minutes");
-    const max = searchTime.clone().add(Math.round(timespan / 2), "minutes");
+    const min = queryTime
+      .clone()
+      .subtract(Math.round(timespan / 2), "minutes")
+      .startOf("minute");
+    const max = queryTime
+      .clone()
+      .add(Math.round(timespan / 2), "minutes")
+      .endOf("minute");
 
     const range = {min, max};
     timeRange.current = range;
 
     return range;
-  }, [timeIsInRange]);
+  }, [timeIsInRange, isLiveAndCurrent, areaSearchRangeMinutes]);
 
   const queryVars = useMemo(() => {
     if (
@@ -71,7 +78,7 @@ const AreaJourneys = decorate((props) => {
       maxTime: queryTimeRange.max.toISOString(),
       bbox: queryBounds.toBBoxString(),
     };
-  }, [queryBounds, queryTimeRange.current]);
+  }, [queryBounds, queryTimeRange.current, isLiveAndCurrent, areaSearchRangeMinutes]);
 
   useEffect(() => setResetListener(() => setQueryBounds(null)), []);
 
