@@ -12,6 +12,9 @@ import withRoute from "../../../hoc/withRoute";
 import OriginStop from "./OriginStop";
 import {observable, action} from "mobx";
 import {getMomentFromDateTime} from "../../../helpers/time";
+import {getJourneyAverageSpeeds} from "../../../helpers/getJourneyAverageSpeeds";
+import {getJourneyStopDiffs} from "../../../helpers/getJourneyStopDiffs";
+import Graph from "./Graph";
 
 const JourneyPanelWrapper = styled.div`
   height: 100%;
@@ -51,9 +54,15 @@ const Loading = styled(LoadingDisplay)`
 class JourneyDetails extends React.Component {
   @observable
   stopsExpanded = false;
+  @observable
+  graphExpanded = false;
 
   toggleStopsExpanded = action((setTo = !this.stopsExpanded) => {
     this.stopsExpanded = setTo;
+  });
+
+  toggleGraphExpanded = action((setTo = !this.graphExpanded) => {
+    this.graphExpanded = setTo;
   });
 
   onClickTime = (time) => () => {
@@ -83,7 +92,8 @@ class JourneyDetails extends React.Component {
     // Select the first event to define the journey
     const events = get(selectedJourneyEvents, "[0].events", []);
     const journey = get(events, "[0]", {});
-
+    const diffs = getJourneyStopDiffs(journeyStops);
+    const speedAverages = getJourneyAverageSpeeds(selectedJourneyEvents[0]);
     return (
       <JourneyPanelWrapper>
         <JourneyDetailsHeader
@@ -130,6 +140,12 @@ class JourneyDetails extends React.Component {
                   stop={journeyStops.slice(-1)[0]}
                   date={date}
                   onClickTime={this.onClickTime}
+                />
+                <Graph
+                  diffs={diffs}
+                  speedAverages={speedAverages}
+                  toggleGraphExpanded={this.toggleGraphExpanded}
+                  graphExpanded={this.graphExpanded}
                 />
               </StopsListWrapper>
             ) : loading ? (

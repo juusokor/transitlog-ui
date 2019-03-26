@@ -11,11 +11,12 @@ import {flow} from "lodash";
 
 const decorate = flow(
   observer,
-  inject("Filters")
+  inject("Filters", "state")
 );
 
 const RouteStopMarker = decorate(
   ({
+    state: {graphHoverHighlight},
     stop,
     showRadius,
     selected,
@@ -56,6 +57,7 @@ const RouteStopMarker = decorate(
 
     const markerPosition = [stop.lat, stop.lon];
 
+    const graphHoverHighlighted = graphHoverHighlight === stop.stopId;
     const markerElement = React.createElement(
       stop.timingStopType ? Marker : CircleMarker,
       {
@@ -72,7 +74,7 @@ const RouteStopMarker = decorate(
         fillColor: highlighted ? "var(--purple)" : selected ? stopColor : "white",
         fillOpacity: 1,
         strokeWeight: isTerminal ? 5 : 3,
-        radius: isTerminal || selected ? 13 : 9,
+        radius: isTerminal || selected || graphHoverHighlighted ? 13 : 9,
         onClick: onClickMarker,
       },
       children

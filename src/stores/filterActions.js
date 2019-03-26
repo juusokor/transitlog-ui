@@ -24,6 +24,10 @@ const filterActions = (state) => {
     setUrlValue("stop", state.stop);
   });
 
+  const setGraphHoverHighlight = action("Set stop", (stop = "") => {
+    state.graphHoverHighlight = stop;
+  });
+
   // The unique_vehicle_id we're interested in.
   const setVehicle = action("Set vehicle", (vehicleId) => {
     state.vehicle = vehicleId || "";
@@ -61,6 +65,7 @@ const filterActions = (state) => {
   return {
     setDate,
     setStop,
+    setGraphHoverHighlight,
     setVehicle,
     setLine,
     setRoute,
