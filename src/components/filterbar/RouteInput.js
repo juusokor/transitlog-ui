@@ -4,11 +4,9 @@ import {app} from "mobx-app";
 import {get} from "lodash";
 import {text} from "../../helpers/text";
 import Dropdown from "../Dropdown";
-import {createRouteKey} from "../../helpers/keys";
-import withRoute from "../../hoc/withRoute";
+import {createRouteId} from "../../helpers/keys";
 
 @inject(app("Filters"))
-@withRoute()
 @observer
 class RouteInput extends Component {
   onChange = (e) => {
@@ -16,10 +14,10 @@ class RouteInput extends Component {
     const selectedValue = get(e, "target.value", false);
 
     if (!selectedValue) {
-      return Filters.setRoute({routeId: "", direction: ""});
+      return Filters.setRoute({routeId: "", direction: "", originStopId: ""});
     }
 
-    const route = routes.find((r) => createRouteKey(r) === selectedValue);
+    const route = routes.find((r) => createRouteId(r) === selectedValue);
 
     if (route) {
       Filters.setRoute(route);
@@ -33,31 +31,20 @@ class RouteInput extends Component {
     } = this.props;
 
     const options = routes.map((routeOption) => {
-      const {
-        nodeId,
-        routeId,
-        direction,
-        originFi,
-        destinationFi,
-        dateBegin,
-        dateEnd,
-      } = routeOption;
+      const {id, routeId, direction, origin, destination} = routeOption;
 
       return {
-        key: nodeId,
-        value: createRouteKey(routeOption),
-        label: `${routeId} - suunta ${direction}, ${originFi} - ${destinationFi} (${dateBegin} - ${dateEnd})`,
+        key: id,
+        value: createRouteId(routeOption),
+        label: `${routeId} - suunta ${direction}, ${origin} - ${destination}`,
       };
     });
 
     options.unshift({value: "", label: text("filterpanel.select_route")});
-    const currentValue = createRouteKey(route);
+    const currentValue = createRouteId(route);
 
     return (
-      <Dropdown
-        helpText="Select route"
-        value={currentValue}
-        onChange={this.onChange}>
+      <Dropdown helpText="Select route" value={currentValue} onChange={this.onChange}>
         {options.map(({key, value, label}) => (
           <option key={`route_select_${key}`} value={value}>
             {label}

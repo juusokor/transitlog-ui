@@ -3,11 +3,11 @@ import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import SidepanelList from "./SidepanelList";
 import styled from "styled-components";
-import map from "lodash/map";
 import getJourneyId from "../../helpers/getJourneyId";
 import ToggleButton from "../ToggleButton";
 import {areaEventsStyles} from "../../stores/UIStore";
 import {text} from "../../helpers/text";
+import {getNormalTime} from "../../helpers/time";
 
 const JourneyListRow = styled.button`
   display: flex;
@@ -82,11 +82,6 @@ class AreaJourneyList extends Component {
       state: {selectedJourney, areaEventsStyle},
     } = this.props;
 
-    const journeyHfpEvents = map(journeys, ({journeyId, events}) => ({
-      journeyId,
-      position: events[0],
-    }));
-
     const selectedJourneyId = getJourneyId(selectedJourney);
 
     return (
@@ -105,22 +100,21 @@ class AreaJourneyList extends Component {
           />
         }>
         {(scrollRef) =>
-          journeyHfpEvents.map(({journeyId, position}) => {
-            const {route_id, direction_id, journey_start_time} = position;
+          journeys.map((journey) => {
+            const {routeId, direction, departureTime, id: journeyId} = journey;
 
-            const journeyIsSelected =
-              selectedJourney && selectedJourneyId === journeyId;
+            const journeyIsSelected = selectedJourney && selectedJourneyId === journeyId;
 
             return (
               <JourneyListRow
                 ref={journeyIsSelected ? scrollRef : null}
                 key={`area_event_row_${journeyId}`}
                 selected={journeyIsSelected}
-                onClick={this.selectJourney(position)}>
+                onClick={this.selectJourney(journey)}>
                 <JourneyRowLeft>
-                  {route_id} / {direction_id}
+                  {routeId} / {direction}
                 </JourneyRowLeft>
-                <TimeSlot>{journey_start_time}</TimeSlot>
+                <TimeSlot>{getNormalTime(departureTime)}</TimeSlot>
               </JourneyListRow>
             );
           })

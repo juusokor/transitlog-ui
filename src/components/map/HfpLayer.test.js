@@ -1,4 +1,4 @@
-import {getLineChunksByDelay} from "./HfpLayer";
+import {getLineChunksByDelay} from "./JourneyLayer";
 import getJourneyId from "../../helpers/getJourneyId";
 
 describe("SimpleHfpLayer", () => {

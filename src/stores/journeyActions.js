@@ -1,69 +1,60 @@
 import {action} from "mobx";
 import getJourneyId from "../helpers/getJourneyId";
-import {pickJourneyProps} from "../helpers/pickJourneyProps";
+import {getJourneyObject} from "../helpers/getJourneyObject";
 import filterActions from "./filterActions";
 import {setPathName} from "./UrlManager";
 import get from "lodash/get";
 import timeActions from "./timeActions";
+import {intval} from "../helpers/isWithinRange";
 
 export function createJourneyPath(journey) {
-  const dateStr = journey.oday.replace(/-/g, "");
-  const timeStr = journey.journey_start_time.replace(/:/g, "");
-  const instance = get(journey, "instance", 0);
-
-  return `/journey/${dateStr}/${timeStr}/${journey.route_id}/${
-    journey.direction_id
-  }/${instance}`;
+  const dateStr = journey.departureDate.replace(/-/g, "");
+  const timeStr = journey.departureTime.replace(/:/g, "");
+  return `/journey/${dateStr}/${timeStr}/${journey.routeId}/${journey.direction}`;
 }
 
-export function createCompositeJourney(date, route, time, instance = 0) {
+export function createCompositeJourney(date, route, time, uniqueVehicleId = "") {
   if (!route || !route.routeId || !date || !time) {
     return false;
   }
 
-  const journey = {
-    oday: date,
-    journey_start_time: time,
-    route_id: route.routeId,
-    direction_id: route.direction,
-    instance: instance || 0,
+  return {
+    departureDate: date,
+    departureTime: time,
+    routeId: route.routeId,
+    direction: intval(route.direction),
+    originStopId: get(route, "originStopId", get(route, "stopId", "")),
+    uniqueVehicleId,
   };
-
-  return journey;
 }
 
 export default (state) => {
   const filters = filterActions(state);
   const time = timeActions(state);
 
-  const setSelectedJourney = action(
-    "Set selected journey",
-    (hfpItem = null, instance = 0) => {
-      if (
-        !hfpItem ||
-        (state.selectedJourney &&
-          getJourneyId(state.selectedJourney) === getJourneyId(hfpItem))
-      ) {
-        state.selectedJourney = null;
-        filters.setVehicle(null);
-        setPathName("/");
-      } else if (hfpItem) {
-        state.selectedJourney = pickJourneyProps({...hfpItem, instance});
+  const setSelectedJourney = action("Set selected journey", (journeyItem = null) => {
+    if (
+      !journeyItem ||
+      (state.selectedJourney &&
+        getJourneyId(state.selectedJourney) === getJourneyId(journeyItem))
+    ) {
+      state.selectedJourney = null;
+      filters.setVehicle(null);
+      setPathName("/");
+    } else if (journeyItem) {
+      const oldVehicle = get(state, "vehicle", "");
+      state.selectedJourney = getJourneyObject(journeyItem);
 
-        filters.setRoute({
-          routeId: hfpItem.route_id,
-          direction: hfpItem.direction_id + "",
-        });
+      filters.setRoute(journeyItem);
 
-        if (hfpItem.unique_vehicle_id) {
-          filters.setVehicle(hfpItem.unique_vehicle_id);
-        }
-
-        time.toggleLive(false);
-        setPathName(createJourneyPath(hfpItem));
+      if (journeyItem.uniqueVehicleId !== oldVehicle) {
+        filters.setVehicle(journeyItem.uniqueVehicleId);
       }
+
+      time.toggleLive(false);
+      setPathName(createJourneyPath(journeyItem));
     }
-  );
+  });
 
   const setJourneyVehicle = action((vehicleId) => {
     const {selectedJourney} = state;

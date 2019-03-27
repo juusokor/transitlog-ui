@@ -26,7 +26,7 @@ class TimeSettings extends Component {
   resetListener = () => {};
 
   @observable
-  timeInput = "";
+  timeInput = "0";
 
   // It is necessary to have a separate "dirty" state. If we would consider the input
   // dirty when the timeInput string is empty, the input value would just switch back
@@ -124,9 +124,7 @@ class TimeSettings extends Component {
     }
 
     // Make it into a valid time string
-    const nextTimeVal = `${doubleDigit(hours)}:${padStart(minutes)}:${padStart(
-      seconds
-    )}`;
+    const nextTimeVal = `${doubleDigit(hours)}:${padStart(minutes)}:${padStart(seconds)}`;
 
     // Assign it to the state for stuff to happen
     Time.setTime(nextTimeVal);
@@ -146,6 +144,7 @@ class TimeSettings extends Component {
           onIncrease={this.onTimeButtonClick(timeIncrement)}
           onDecrease={this.onTimeButtonClick(-timeIncrement)}>
           <TimeInput
+            type="text"
             helpText="Select time"
             value={this.displayTime}
             onBlur={this.onBlur}

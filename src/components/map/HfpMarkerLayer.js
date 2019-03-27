@@ -22,17 +22,17 @@ class HfpMarkerLayer extends Component {
 
   onMarkerClick = () => {
     this.toggleTooltip();
-    const {Journey, state, currentPosition: journey} = this.props;
+    const {Journey, state, journey} = this.props;
 
-    if (journey && getJourneyId(state.selectedJourney) !== getJourneyId(journey)) {
+    if (journey && getJourneyId(state.selectedJourney) !== journey.id) {
       Journey.setSelectedJourney(journey);
     }
   };
 
   render() {
-    const {currentPosition: position, isSelectedJourney = false} = this.props;
+    const {journey, currentEvent: event, isSelectedJourney = false} = this.props;
 
-    if (!position || !(position.lat && position.long)) {
+    if (!journey || !event || !(event.lat && event.lng)) {
       return null;
     }
 
@@ -40,15 +40,20 @@ class HfpMarkerLayer extends Component {
       <DivIcon
         ref={this.markerRef} // Needs ref for testing
         onClick={this.onMarkerClick}
-        position={[position.lat, position.long]}
+        position={[event.lat, event.lng]}
         iconSize={isSelectedJourney ? [36, 36] : [20, 20]}
         icon={
-          <VehicleMarker isSelectedJourney={isSelectedJourney} position={position} />
+          <VehicleMarker
+            mode={journey.mode}
+            isSelectedJourney={isSelectedJourney}
+            event={event}
+          />
         }
         pane={isSelectedJourney ? "hfp-markers-primary" : "hfp-markers"}>
         <HfpTooltip
           key={`permanent=${this.tooltipOpen}`}
-          position={position}
+          journey={journey}
+          event={event}
           permanent={this.tooltipOpen}
           sticky={false}
         />

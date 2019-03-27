@@ -29,8 +29,7 @@ const WeatherContainer = styled.div`
 const Temperature = styled.div`
   font-size: 1.4em;
   font-weight: 700;
-  color: ${({uncertain = false}) =>
-    uncertain ? "var(--light-grey)" : "var(--blue)"};
+  color: ${({uncertain = false}) => (uncertain ? "var(--light-grey)" : "var(--blue)")};
 `;
 
 const TooltipText = styled.div`
@@ -42,8 +41,7 @@ const TooltipText = styled.div`
 
 const RoadStatus = styled.div`
   font-size: 1em;
-  color: ${({uncertain = false}) =>
-    uncertain ? "var(--light-grey)" : "var(--blue)"};
+  color: ${({uncertain = false}) => (uncertain ? "var(--light-grey)" : "var(--blue)")};
 `;
 
 const decorate = flow(
@@ -61,9 +59,7 @@ export const WeatherWidget = ({
   (temperature !== false || roadCondition) && (
     <WeatherContainer className={className}>
       {temperature !== false && (
-        <Temperature uncertain={temperatureIsUncertain}>
-          {temperature} &deg;C
-        </Temperature>
+        <Temperature uncertain={temperatureIsUncertain}>{temperature} &deg;C</Temperature>
       )}
       {roadCondition.length !== 0 && (
         <RoadStatus uncertain={roadConditionIsUncertain}>

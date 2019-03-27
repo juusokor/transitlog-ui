@@ -1,8 +1,8 @@
 import React from "react";
 import SuggestionInput, {SuggestionContent, SuggestionText} from "./SuggestionInput";
-import orderBy from "lodash/orderBy";
 import get from "lodash/get";
 import {observer} from "mobx-react-lite";
+import {useSearchOptions} from "../../hooks/useSearchOptions";
 
 const getSuggestionValue = (suggestion) => {
   if (typeof suggestion === "string") {
@@ -19,46 +19,14 @@ const renderSuggestion = (suggestion, {query, isHighlighted}) => (
         {suggestion.stopId} ({suggestion.shortId.replace(/ /g, "")})
       </strong>
       <br />
-      {suggestion.nameFi}
+      {suggestion.name}
     </SuggestionText>
   </SuggestionContent>
 );
 
-const suggestionFitness = (inputValue) => (stop) => {
-  if (stop.shortId.slice(2).startsWith(inputValue)) return 3;
-  if (stop.shortId.toLowerCase().startsWith(inputValue)) return 2;
-  if (
-    stop.stopId.startsWith(inputValue) ||
-    stop.nameFi.toLowerCase().startsWith(inputValue)
-  )
-    return 1;
+export default observer(({stops, onSelect, stop, search}) => {
+  const [getSuggestions] = useSearchOptions(search);
 
-  return 0;
-};
-
-const getSuggestions = (stops = []) => (value = "") => {
-  const inputValue = value.trim().toLowerCase();
-  const inputLength = inputValue.length;
-
-  function getSearchValue(item) {
-    const {stopId = "", shortId = "", nameFi = ""} = item;
-    const val = stopId ? `${stopId} (${shortId.replace(/ /g, "")}) ${nameFi}` : item;
-    return val.trim().toLowerCase();
-  }
-
-  const suggestionStops =
-    inputLength === 0 || stops.length === 0
-      ? stops
-      : stops.filter((item) => getSearchValue(item).includes(inputValue));
-
-  return orderBy(
-    suggestionStops,
-    [inputLength ? suggestionFitness(inputValue) : () => 0, "stopId"],
-    ["desc", "asc"]
-  ).slice(0, 100);
-};
-
-export default observer(({stops, onSelect, stop}) => {
   return (
     <SuggestionInput
       helpText="Select stop"
@@ -68,7 +36,8 @@ export default observer(({stops, onSelect, stop}) => {
       getValue={getSuggestionValue}
       highlightFirstSuggestion={true}
       renderSuggestion={renderSuggestion}
-      getSuggestions={getSuggestions(stops)}
+      suggestions={stops.slice(0, 100)}
+      onSuggestionsFetchRequested={getSuggestions}
     />
   );
 });

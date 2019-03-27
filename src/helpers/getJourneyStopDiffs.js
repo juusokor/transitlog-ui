@@ -1,13 +1,25 @@
-export const getJourneyStopDiffs = (journeyStops) => {
-  return journeyStops.map((journey, index) => {
+import getDelayType from "./getDelayType";
+import {getTimelinessColor} from "./timelinessColor";
+import get from "lodash/get";
+
+export const getJourneyStopDiffs = (journeyDepartures) => {
+  return journeyDepartures.map((departure, index) => {
     let departureColor = "var(--light-grey)";
     let y = 0;
     let stopId = null;
-    if (journey.departureDiff) {
-      departureColor = journey.departureColor;
-      y = journey.departureDiff.diff;
-      stopId = journey.stopId;
+    const departureDiff = get(
+      departure,
+      "observedDepartureTime.departureTimeDifference",
+      false
+    );
+
+    if (departureDiff) {
+      const departureDelayType = getDelayType(departureDiff);
+      departureColor = getTimelinessColor(departureDelayType, "var(--light-green)");
+      y = departureDiff;
+      stopId = departure.stopId;
     }
+
     return {
       x: index,
       y: y,

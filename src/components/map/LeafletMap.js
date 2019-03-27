@@ -163,7 +163,7 @@ class LeafletMap extends Component {
           <Pane name="mapillary-lines" style={{zIndex: 390}} />
           <Pane name="mapillary-location" style={{zIndex: 400}} />
           <Pane name="route-lines" style={{zIndex: 410}} />
-          <Pane name="hfp-lines" style={{zIndex: 420}} />
+          <Pane name="event-lines" style={{zIndex: 420}} />
           <Pane name="stop-radius" style={{zIndex: 440}} />
           <Pane name="selected-stop-radius" style={{zIndex: 445}} />
           <Pane name="stops" style={{zIndex: 450}} />

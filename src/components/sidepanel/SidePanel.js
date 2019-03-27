@@ -10,7 +10,7 @@ import AreaJourneyList from "./AreaJourneyList";
 import JourneyDetails from "./journeyDetails/JourneyDetails";
 import Info from "../../icons/Info";
 import Chart from "../../icons/Chart";
-import {createRouteKey} from "../../helpers/keys";
+import {createRouteId} from "../../helpers/keys";
 import Timetable from "../../icons/Timetable";
 import ControlBar from "./ControlBar";
 import {UsageInstructions} from "./UsageInstructions";
@@ -112,12 +112,12 @@ const SidePanel = decorate((props) => {
   const {
     UI: {toggleSidePanel, toggleJourneyDetails, toggleJourneyGraph},
     areaEvents = [],
-    selectedJourneyEvents = [],
-    journeyStops,
-    journeyEventsLoading = false,
-    areaEventsLoading = false,
-    stopTimesLoading = false,
+    journey = null,
+    journeyLoading = false,
+    areaJourneysLoading = false,
     stop,
+    detailsOpen,
+    sidePanelOpen,
     state: {
       language,
       route,
@@ -126,18 +126,16 @@ const SidePanel = decorate((props) => {
       stop: stateStop,
       selectedJourney,
       sidePanelVisible,
-      journeyDetailsAreOpen,
-      journeyDetailsCanOpen,
     },
   } = props;
 
   const hasRoute = !!route && !!route.routeId;
-  const hasEvents = !journeyEventsLoading && selectedJourneyEvents.length !== 0;
+  const hasJourney = !!journey;
   // Figure out which tab is suggested. It will not be outright selected, but
   // if it appears and nothing else is selected then it will be.
   let suggestedTab = "";
 
-  if ((!hasRoute && !vehicle) || (areaEvents.length !== 0 || areaEventsLoading))
+  if ((!hasRoute && !vehicle) || (areaEvents.length !== 0 || areaJourneysLoading))
     suggestedTab = "area-journeys";
   if (hasRoute) suggestedTab = "journeys";
   if (vehicle) suggestedTab = "vehicle-journeys";
@@ -146,22 +144,22 @@ const SidePanel = decorate((props) => {
 
   const allTabsHidden =
     !hasRoute &&
-    (areaEvents.length === 0 && !areaEventsLoading) &&
+    (areaEvents.length === 0 && !areaJourneysLoading) &&
     !vehicle &&
     !stateStop;
 
   return (
-    <SidePanelContainer visible={sidePanelVisible}>
+    <SidePanelContainer visible={sidePanelOpen}>
       <MainSidePanel>
         <ControlBar />
         {allTabsHidden ? (
           <UsageInstructions language={language} />
         ) : (
           <Tabs suggestedTab={suggestedTab}>
-            {(areaEvents.length !== 0 || areaEventsLoading) && (
+            {(areaEvents.length !== 0 || areaJourneysLoading) && (
               <AreaJourneyList
                 helpText="Area search tab"
-                loading={areaEventsLoading}
+                loading={areaJourneysLoading}
                 journeys={areaEvents}
                 name="area-journeys"
                 label={text("sidepanel.tabs.area_events")}
@@ -170,9 +168,9 @@ const SidePanel = decorate((props) => {
             {hasRoute && (
               <Journeys
                 helpText="Journeys tab"
-                key={`route_journeys_${createRouteKey(route, true)}_${date}`}
+                key={`route_journeys_${createRouteId(route, true)}_${date}`}
                 route={route}
-                loading={journeyEventsLoading}
+                loading={journeyLoading}
                 name="journeys"
                 label={text("sidepanel.tabs.journeys")}
               />
@@ -180,7 +178,7 @@ const SidePanel = decorate((props) => {
             {vehicle && (
               <VehicleJourneys
                 helpText="Vehicle journeys tab"
-                loading={journeyEventsLoading}
+                loading={journeyLoading}
                 name="vehicle-journeys"
                 label={text("sidepanel.tabs.vehicle_journeys")}
               />
@@ -189,7 +187,7 @@ const SidePanel = decorate((props) => {
               <TimetablePanel
                 helpText="Timetable tab"
                 stop={stop}
-                loading={journeyEventsLoading}
+                loading={journeyLoading}
                 name="timetables"
                 label={text("sidepanel.tabs.timetables")}
               />
@@ -197,27 +195,19 @@ const SidePanel = decorate((props) => {
           </Tabs>
         )}
       </MainSidePanel>
-      <JourneyPanel visible={journeyDetailsAreOpen}>
+      <JourneyPanel visible={detailsOpen}>
         {/* The content of the sidebar is independent from the sidebar wrapper so that we can animate it. */}
-        {journeyDetailsAreOpen && (
-          <JourneyDetails
-            loading={stopTimesLoading || journeyEventsLoading}
-            journeyStops={journeyStops}
-            selectedJourneyEvents={selectedJourneyEvents}
-          />
-        )}
-        {hasEvents && journeyDetailsCanOpen && (
+        {detailsOpen && <JourneyDetails loading={journeyLoading} journey={journey} />}
+        {hasJourney && (
           <div>
             <Tooltip helpText="Toggle journey details button">
-              <ToggleJourneyDetailsButton
-                isVisible={journeyDetailsAreOpen}
-                onClick={() => toggleJourneyDetails()}>
+              <ToggleJourneyDetailsButton onClick={() => toggleJourneyDetails()}>
                 <Info fill="white" height="1rem" width="1rem" />
               </ToggleJourneyDetailsButton>
             </Tooltip>
             <Tooltip>
               <ToggleGraphButton
-                isVisible={journeyDetailsAreOpen}
+                isVisible={detailsOpen}
                 onClick={() => toggleJourneyGraph()}>
                 <Chart fill="white" height="1rem" width="1rem" />
               </ToggleGraphButton>

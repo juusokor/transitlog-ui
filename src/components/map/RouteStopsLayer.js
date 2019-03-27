@@ -16,22 +16,40 @@ const RouteStopsLayer = decorate(
     route,
     onViewLocation,
     showRadius,
-    journeyStops = [],
+    journey = null,
   }) => {
-    return (
-      <StopsByRouteQuery
-        date={date}
-        route={route}
-        skip={
-          !route || !route.routeId || !route.dateBegin || journeyStops.length !== 0
-        }>
-        {({stops}) => {
-          const stopsList = journeyStops.length !== 0 ? journeyStops : stops;
+    if (journey && journey.departures) {
+      return journey.departures.map((departure, index, arr) => {
+        const isFirst = index === 0;
+        const isLast = index === arr.length - 1;
 
-          return stopsList.map((stop, index, arr) => {
-            // Funnily enough, the first stop is last in the array.
+        const isSelected = departure.stopId === selectedStop;
+        const isHighlighted = departure.stopId === highlightedStop;
+
+        return (
+          <RouteStop
+            key={`stop_marker_${departure.stopId}_${departure.index}_${departure.id}`}
+            selected={isSelected}
+            highlighted={isHighlighted}
+            firstTerminal={isFirst}
+            lastTerminal={isLast}
+            selectedJourney={selectedJourney}
+            firstStop={arr[0]}
+            stop={departure.stop}
+            departure={departure}
+            date={date}
+            onViewLocation={onViewLocation}
+            showRadius={showRadius}
+          />
+        );
+      });
+    }
+
+    return (
+      <StopsByRouteQuery date={date} route={route} skip={!route}>
+        {({stops}) => {
+          return stops.map((stop, index, arr) => {
             const isFirst = index === 0;
-            // ...and the last stop is first.
             const isLast = index === arr.length - 1;
 
             const isSelected = stop.stopId === selectedStop;

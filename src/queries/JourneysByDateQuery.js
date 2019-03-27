@@ -1,117 +1,124 @@
-import React from "react";
+import React, {useCallback, useEffect} from "react";
 import get from "lodash/get";
 import gql from "graphql-tag";
 import {Query} from "react-apollo";
-import {createHfpItem} from "../helpers/createHfpItem";
-import {observer} from "mobx-react";
-import getJourneyId from "../helpers/getJourneyId";
-import {removeUpdateListener, setUpdateListener} from "../stores/UpdateManager";
+import {observer} from "mobx-react-lite";
+import {setUpdateListener, removeUpdateListener} from "../stores/UpdateManager";
 
-export const journeysByDateQuery = gql`
-  query journeysByDateQuery(
-    $route_id: String
-    $direction: smallint
-    $date: date
-    $stopId: String
+export const routeJourneysQuery = gql`
+  query routeJourneysQuery(
+    $routeId: String!
+    $direction: Direction!
+    $date: Date!
+    $stopId: String!
   ) {
-    vehicles(
-      distinct_on: [journey_start_time, unique_vehicle_id]
-      order_by: [{journey_start_time: asc}, {unique_vehicle_id: asc}, {tst: desc}]
-      where: {
-        oday: {_eq: $date}
-        route_id: {_eq: $route_id}
-        direction_id: {_eq: $direction}
-        next_stop_id: {_eq: $stopId}
-      }
+    departures(
+      filter: {routeId: $routeId, direction: $direction}
+      date: $date
+      stopId: $stopId
     ) {
-      next_stop_id
-      oday
-      route_id
-      direction_id
-      journey_start_time
-      lat
-      long
-      drst
-      owner_operator_id
-      vehicle_number
-      is_ongoing
-      headsign
-      unique_vehicle_id
-      mode
-      desi
-      tst
-      tsi
-      __typename
+      id
+      index
+      isNextDay
+      isTimingStop
+      dayType
+      departureId
+      equipmentColor
+      equipmentType
+      extraDeparture
+      operatorId
+      terminalTime
+      recoveryTime
+      routeId
+      direction
+      stopId
+      journey {
+        id
+        departureDate
+        departureTime
+        direction
+        routeId
+        originStopId
+        uniqueVehicleId
+        _numInstance
+      }
+      plannedArrivalTime {
+        id
+        arrivalDate
+        arrivalDateTime
+        arrivalTime
+        isNextDay
+      }
+      observedArrivalTime {
+        id
+        arrivalDate
+        arrivalDateTime
+        arrivalTime
+        arrivalTimeDifference
+        doorDidOpen
+      }
+      plannedDepartureTime {
+        id
+        departureDate
+        departureDateTime
+        departureTime
+        isNextDay
+      }
+      observedDepartureTime {
+        id
+        departureDate
+        departureDateTime
+        departureTime
+        departureTimeDifference
+      }
     }
   }
 `;
 
 const updateListenerName = "journey list query";
 
-@observer
-class JourneysByDateQuery extends React.Component {
-  componentWillUnmount() {
-    removeUpdateListener(updateListenerName);
-  }
+const JourneysByDateQuery = observer(({children, route, date, skip}) => {
+  const createRefetcher = useCallback(
+    (refetch) => () => {
+      const {routeId, direction, originStopId} = route;
 
-  onUpdate = (refetch) => () => {
-    const {route, date, skip = false} = this.props;
-    const {routeId, direction, originstopId} = route;
-
-    if (route && route.routeId && !skip) {
-      refetch({
-        route_id: routeId,
-        direction: parseInt(direction, 10),
-        stopId: originstopId,
-        date,
-      });
-    }
-  };
-
-  render() {
-    const {children, route, date} = this.props;
-    const {routeId, direction, originstopId} = route;
-
-    return (
-      <Query
-        query={journeysByDateQuery}
-        variables={{
-          route_id: routeId,
+      if (refetch && route && route.routeId && !skip) {
+        refetch({
+          routeId,
           direction: parseInt(direction, 10),
-          stopId: originstopId,
+          stopId: originStopId,
           date,
-        }}>
-        {({data, error, loading, refetch}) => {
-          if (!data || loading) {
-            return children({journeys: {}, loading, error});
-          }
+        });
+      }
+    },
+    [route, date]
+  );
 
-          const vehicles = get(data, "vehicles", []);
+  useEffect(() => () => removeUpdateListener(updateListenerName), []);
 
-          const journeyItems = vehicles.reduce((journeys, rawEvent) => {
-            const event = createHfpItem(rawEvent);
-            const journeyId = getJourneyId(event);
-            const journeyEvents = journeys[journeyId];
+  const {routeId, direction, originStopId} = route;
 
-            if (
-              typeof journeyEvents !== "undefined" &&
-              Array.isArray(journeyEvents)
-            ) {
-              event.instance = 1;
-              journeyEvents.push(event);
-            } else {
-              journeys[journeyId] = [event];
-            }
+  return (
+    <Query
+      query={routeJourneysQuery}
+      variables={{
+        routeId: routeId,
+        direction: parseInt(direction, 10),
+        stopId: originStopId,
+        date,
+      }}>
+      {({data, error, loading, refetch}) => {
+        if (!data || loading) {
+          return children({departures: [], loading, error});
+        }
 
-            return journeys;
-          }, {});
+        const departures = get(data, "departures", []);
 
-          setUpdateListener(updateListenerName, this.onUpdate(refetch), false);
-          return children({journeys: journeyItems, loading, error});
-        }}
-      </Query>
-    );
-  }
-}
+        setUpdateListener(updateListenerName, createRefetcher(refetch), false);
+        return children({departures, loading, error});
+      }}
+    </Query>
+  );
+});
 
 export default JourneysByDateQuery;

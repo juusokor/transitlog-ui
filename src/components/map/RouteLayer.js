@@ -25,11 +25,7 @@ class RouteLayer extends Component {
   };
 
   setBounds() {
-    const {
-      canCenterOnRoute = true,
-      routeGeometry,
-      setMapView = () => {},
-    } = this.props;
+    const {canCenterOnRoute = true, routeGeometry, setMapView = () => {}} = this.props;
 
     if (!canCenterOnRoute || routeGeometry.length === 0) {
       return;

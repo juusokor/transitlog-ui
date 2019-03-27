@@ -1,20 +1,23 @@
-export const getJourneyAverageSpeeds = (selectedJourneyEvents) => {
-  if (!selectedJourneyEvents) return;
-  let stopId = selectedJourneyEvents.events[0].next_stop_id;
+export const getJourneyAverageSpeeds = (selectedJourneyEvents = []) => {
+  if (!selectedJourneyEvents || selectedJourneyEvents.length === 0) {
+    return;
+  }
+
+  let stopId = selectedJourneyEvents.nextStopId;
   let sectionSpeeds = [];
   const speedAverages = [];
 
-  selectedJourneyEvents.events.forEach((event, index) => {
-    const nextStopId = event.next_stop_id;
-    if (stopId !== nextStopId || selectedJourneyEvents.events.length - 1 === index) {
+  selectedJourneyEvents.forEach((event, index) => {
+    const nextStopId = event.nextStopId;
+    if (stopId !== nextStopId || selectedJourneyEvents.length - 1 === index) {
       speedAverages.push({
         x: speedAverages.length,
         y: averageKilometersPerHour(sectionSpeeds),
       });
-      sectionSpeeds = [event.spd];
+      sectionSpeeds = [event.velocity];
       stopId = nextStopId;
     } else {
-      sectionSpeeds.push(event.spd);
+      sectionSpeeds.push(event.velocity);
     }
   });
 

@@ -1,68 +1,73 @@
-import React, {Component} from "react";
-import {observer, inject} from "mobx-react";
-import {app} from "mobx-app";
+import React, {useMemo, useCallback} from "react";
+import {observer} from "mobx-react-lite";
 import RangeInput from "../RangeInput";
-import {getTimeRangeFromPositions} from "../../helpers/getTimeRangeFromPositions";
+import {getTimeRangeFromEvents} from "../../helpers/getTimeRangeFromEvents";
 import get from "lodash/get";
-import {timeToSeconds} from "../../helpers/time";
+import flow from "lodash/flow";
 import flatten from "lodash/flatten";
+import {timeToSeconds} from "../../helpers/time";
 import Tooltip from "../Tooltip";
+import {inject} from "../../helpers/inject";
 
 export const TIME_SLIDER_MAX = 86400;
 export const TIME_SLIDER_MIN = 0;
 
-@inject(app("Time", "UI"))
-@observer
-class TimeSlider extends Component {
-  getNumericValueFromTime = (time = "") => {
-    return timeToSeconds(time);
-  };
+const decorate = flow(
+  observer,
+  inject("Time", "UI")
+);
 
-  onChange = (e) => {
-    const {Time, state} = this.props;
-    const {live} = state;
+const TimeSlider = decorate(({className, Time, state, journeys}) => {
+  const numericTime = useMemo(() => timeToSeconds(state.time), [state.time]);
 
-    const value = parseInt(get(e, "target.value", 0), 10);
+  const onChange = useCallback(
+    (e) => {
+      const {live} = state;
+      const value = parseInt(get(e, "target.value", 0), 10);
 
-    if (live) {
-      Time.toggleLive(false);
-    }
+      if (live) {
+        Time.toggleLive(false);
+      }
 
-    Time.setSeconds(value);
-  };
+      Time.setSeconds(value);
+    },
+    [state.live, Time]
+  );
 
-  getRange = (positions) => {
-    if (positions.length !== 0) {
-      const allPositions = flatten(positions.map(({events}) => events));
-      const positionsTimeRange = getTimeRangeFromPositions(allPositions);
+  const timeRange = useMemo(() => {
+    if (journeys.length !== 0) {
+      // Get the first and last event from each journey. This is used
+      // to get the min and max time for the range slider.
+      const eventsRange = flatten(
+        journeys.map(({events = []}) => [events[0], events[events.length - 1]])
+      );
 
-      if (positionsTimeRange) {
-        return positionsTimeRange;
+      const eventsTimeRange = getTimeRangeFromEvents(eventsRange);
+
+      if (eventsTimeRange) {
+        return eventsTimeRange;
       }
     }
 
     return {min: TIME_SLIDER_MIN, max: TIME_SLIDER_MAX};
-  };
+  }, [journeys]);
 
-  render() {
-    const {className, state, positions} = this.props;
-    const {min = TIME_SLIDER_MIN, max = TIME_SLIDER_MAX} = this.getRange(positions);
+  const {min = TIME_SLIDER_MIN, max = TIME_SLIDER_MAX} = timeRange;
+  const rangeMin = Math.min(numericTime, min);
+  const rangeMax = Math.max(numericTime, max);
 
-    const sliderValue = this.getNumericValueFromTime(state.time);
-
-    return (
-      <div className={className}>
-        <Tooltip helpText="Time slider">
-          <RangeInput
-            value={sliderValue}
-            min={Math.min(sliderValue, min)}
-            max={Math.max(sliderValue, max)}
-            onChange={this.onChange}
-          />
-        </Tooltip>
-      </div>
-    );
-  }
-}
+  return (
+    <div className={className}>
+      <Tooltip helpText="Time slider">
+        <RangeInput
+          value={Math.min(Math.max(numericTime, rangeMin), rangeMax)}
+          min={isNaN(rangeMin) ? TIME_SLIDER_MIN : rangeMin}
+          max={isNaN(rangeMax) ? TIME_SLIDER_MAX : rangeMax}
+          onChange={onChange}
+        />
+      </Tooltip>
+    </div>
+  );
+});
 
 export default TimeSlider;

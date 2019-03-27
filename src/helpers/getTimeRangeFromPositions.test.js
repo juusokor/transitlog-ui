@@ -1,7 +1,7 @@
-import {getTimeRangeFromPositions} from "./getTimeRangeFromPositions";
+import {getTimeRangeFromEvents} from "./getTimeRangeFromEvents";
 
-describe("getTimeRangeFromPositions", () => {
-  test("getTimeRangeFromPositions returns a range of seconds for a collection of HFP events", () => {
+describe("getTimeRangeFromEvents", () => {
+  test("getTimeRangeFromEvents returns a range of seconds for a collection of HFP events", () => {
     // A range of one minute during the start of 01-28
     const events = [
       {
@@ -16,7 +16,7 @@ describe("getTimeRangeFromPositions", () => {
       },
     ];
 
-    const eventsRange = getTimeRangeFromPositions(events);
+    const eventsRange = getTimeRangeFromEvents(events);
     const expectMin = 0;
     const expectMax = 60;
 
@@ -24,7 +24,7 @@ describe("getTimeRangeFromPositions", () => {
     expect(eventsRange.max).toBe(expectMax);
   });
 
-  test("getTimeRangeFromPositions handles 24h+ ranges over multiple days", () => {
+  test("getTimeRangeFromEvents handles 24h+ ranges over multiple days", () => {
     // A range of one minute during the start of 01-28
     const events = [
       {
@@ -39,7 +39,7 @@ describe("getTimeRangeFromPositions", () => {
       },
     ];
 
-    const eventsRange = getTimeRangeFromPositions(events);
+    const eventsRange = getTimeRangeFromEvents(events);
     const expectMin = 0;
     const expectMax = 172800;
 

@@ -5,23 +5,13 @@ import {inject, observer} from "mobx-react";
 import {app} from "mobx-app";
 import VehicleInput from "./VehicleInput";
 import Input from "../Input";
-import sortBy from "lodash/sortBy";
-import groupBy from "lodash/groupBy";
-import map from "lodash/map";
 import VehicleOptionsQuery from "../../queries/VehicleOptionsQuery";
-import {getOperatorName} from "../../helpers/getOperatorNameById";
-import Loading from "../Loading";
-import styled from "styled-components";
 import Tooltip from "../Tooltip";
-
-const LoadingSpinner = styled(Loading)`
-  margin: 0.5rem 0.5rem 0.5rem 1rem;
-`;
 
 @inject(app("Filters"))
 @observer
 class VehicleSettings extends React.Component {
-  onChangeQueryVehicle = (value) => {
+  onSelectVehicle = (value) => {
     this.props.Filters.setVehicle(value);
   };
 
@@ -41,7 +31,7 @@ class VehicleSettings extends React.Component {
   }
 
   render() {
-    const {state} = this.props;
+    const {state, Filters} = this.props;
     const {vehicle = "", date, selectedJourney} = state;
 
     const isDisabled = !!selectedJourney;
@@ -53,45 +43,21 @@ class VehicleSettings extends React.Component {
     return (
       <>
         <VehicleOptionsQuery date={date}>
-          {({vehicles, loading}) => {
-            if (loading) {
-              return this.renderInput(
-                <LoadingSpinner inline={true} />,
-                vehicle,
-                false
-              );
-            }
-
-            const groupedVehicles = sortBy(
-              map(
-                groupBy(vehicles, ({operatorId}) => parseInt(operatorId, 10) + ""),
-                (vehicles, operatorId) => {
-                  return {
-                    operatorName: getOperatorName(operatorId),
-                    operatorId: operatorId,
-                    vehicles: sortBy(vehicles, "vehicleId"),
-                  };
-                }
-              ),
-              "operatorId"
-            );
-
-            return this.renderInput(
+          {({vehicles, search}) =>
+            this.renderInput(
               <VehicleInput
-                options={groupedVehicles}
+                search={search}
+                options={vehicles}
                 value={vehicle}
-                onSelect={this.onChangeQueryVehicle}
+                onSelect={this.onSelectVehicle}
               />,
               vehicle
-            );
-          }}
+            )
+          }
         </VehicleOptionsQuery>
         {!!vehicle && (
           <Tooltip helpText="Clear vehicle">
-            <Button
-              primary={false}
-              small={true}
-              onClick={() => this.onChangeQueryVehicle("")}>
+            <Button primary={false} small={true} onClick={() => Filters.setVehicle("")}>
               <Text>filterpanel.clear.vehicle</Text>
             </Button>
           </Tooltip>

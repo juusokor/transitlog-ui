@@ -1,72 +1,41 @@
-import React, {Component} from "react";
-import {observer} from "mobx-react";
+import React, {useRef} from "react";
+import {observer} from "mobx-react-lite";
 import get from "lodash/get";
 import {Query} from "react-apollo";
 import gql from "graphql-tag";
-import RouteFieldsFragment from "./RouteFieldsFragment";
-import {StopFieldsFragment} from "./StopFieldsFragment";
 
 export const stopsByBboxQuery = gql`
-  query stopsByBboxQuery(
-    $minLat: Float!
-    $minLon: Float!
-    $maxLat: Float!
-    $maxLon: Float!
-    $date: Date!
-  ) {
-    stopsByBbox(minLat: $minLat, minLon: $minLon, maxLat: $maxLat, maxLon: $maxLon) {
-      nodes {
-        ...StopFieldsFragment
-        routeSegmentsForDate(date: $date) {
-          nodes {
-            line {
-              nodes {
-                lineId
-                dateBegin
-                dateEnd
-              }
-            }
-            dateBegin
-            dateEnd
-            routeId
-            direction
-            timingStopType
-            route {
-              nodes {
-                ...RouteFieldsFragment
-              }
-            }
-          }
-        }
-      }
+  query stopsByBboxQuery($bbox: BBox!) {
+    stopsByBbox(bbox: $bbox) {
+      id
+      stopId
+      shortId
+      lat
+      lng
+      name
+      radius
+      modes
     }
   }
-  ${StopFieldsFragment}
-  ${RouteFieldsFragment}
 `;
 
-@observer
-class StopsByBboxQuery extends Component {
-  prevQueryResult = [];
+const StopsByBboxQuery = observer((props) => {
+  const {children, bbox, skip} = props;
+  const prevResult = useRef([]);
 
-  render() {
-    const {children, variables, skip} = this.props;
+  return (
+    <Query skip={skip} query={stopsByBboxQuery} variables={{bbox}}>
+      {({loading, data, error}) => {
+        if (loading) return children({stops: prevResult.current, loading: true});
+        if (error) return children({stops: prevResult.current, loading: false});
 
-    return (
-      <Query skip={skip} query={stopsByBboxQuery} variables={variables}>
-        {({loading, data, error}) => {
-          if (loading) return children({stops: this.prevQueryResult, loading: true});
-          if (error) return children({stops: this.prevQueryResult, loading: false});
-
-          const stops = get(data, "stopsByBbox.nodes", []);
-          // Stop the stops from disappearing while loading
-          this.prevQueryResult = stops;
-
-          return children({stops, loading: false});
-        }}
-      </Query>
-    );
-  }
-}
+        const stops = get(data, "stopsByBbox", []);
+        // Stop the stops from disappearing while loading
+        prevResult.current = stops;
+        return children({stops, loading: false});
+      }}
+    </Query>
+  );
+});
 
 export default StopsByBboxQuery;

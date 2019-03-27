@@ -4,12 +4,13 @@ import FilterActions from "./filterActions";
 import TimeActions from "./timeActions";
 import moment from "moment-timezone";
 import journeyActions from "./journeyActions";
-import {pickJourneyProps} from "../helpers/pickJourneyProps";
+import {getJourneyObject} from "../helpers/getJourneyObject";
 import {getPathName, getUrlValue} from "./UrlManager";
 import get from "lodash/get";
 import {setResetListener} from "./FilterStore";
 import {getTimeString} from "../helpers/time";
 import {TIMEZONE} from "../constants";
+import {intval} from "../helpers/isWithinRange";
 
 export default (state) => {
   extendObservable(state, {
@@ -21,20 +22,21 @@ export default (state) => {
   const actions = journeyActions(state);
 
   const selectJourneyFromUrl = action((pathname) => {
-    const [
+    let [
       // The first two array elements are an empty string and the word "journey".
       // eslint-disable-next-line no-unused-vars
       _,
       basePath,
-      oday,
-      journey_start_time,
-      route_id,
-      direction_id,
-      instance = 0,
+      departureDate,
+      departureTime,
+      routeId,
+      direction,
     ] = pathname.split("/");
 
+    direction = intval(direction);
+
     if (basePath === "journey") {
-      const date = moment.tz(oday, "YYYYMMDD", TIMEZONE);
+      const date = moment.tz(departureDate, "YYYYMMDD", TIMEZONE);
 
       let dateStr = "";
       let timeStr = "";
@@ -45,31 +47,27 @@ export default (state) => {
         filterActions.setDate(dateStr);
       }
 
-      if (journey_start_time) {
+      if (departureTime) {
         // Split the time into hours/minutes/seconds and create a valid time string.
-        timeStr = getTimeString(...journey_start_time.match(/.{1,2}/g));
+        timeStr = getTimeString(...departureTime.match(/.{1,2}/g));
 
         if (timeStr && !getUrlValue("time", null)) {
           timeActions.setTime(timeStr);
         }
       }
 
-      if (route_id && direction_id) {
-        filterActions.setRoute({routeId: route_id, direction: direction_id});
+      if (routeId && direction) {
+        filterActions.setRoute({routeId: routeId, direction: direction});
       }
 
       // Validate the data from the url
-      if (dateStr && timeStr && route_id && direction_id) {
-        // The pick is a bit redundant here, but I want to make sure
-        // that everything assigned to selectedJourney always looks
-        // the same. What the pick returns may change in the future.
-        const journey = pickJourneyProps({
-          oday: dateStr,
-          route_id,
-          direction_id,
-          journey_start_time: timeStr,
-          instance: instance ? parseInt(instance, 10) : 0,
-          unique_vehicle_id: vehicleId,
+      if (dateStr && timeStr && routeId && direction) {
+        const journey = getJourneyObject({
+          departureDate: dateStr,
+          routeId,
+          direction,
+          departureTime: timeStr,
+          uniqueVehicleId: vehicleId,
         });
 
         if (getJourneyId(state.selectedJourney) !== getJourneyId(journey)) {
@@ -93,11 +91,11 @@ export default (state) => {
         return;
       }
 
-      const journeyDate = get(currentlySelectedJourney, "oday", "");
+      const journeyDate = get(currentlySelectedJourney, "departureDate", "");
 
       if (journeyDate !== currentDate) {
         runInAction(() => {
-          state.selectedJourney.oday = currentDate;
+          state.selectedJourney.departureDate = currentDate;
         });
       }
     }

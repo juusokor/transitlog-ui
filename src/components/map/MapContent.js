@@ -4,17 +4,16 @@ import StopLayer from "./StopLayer";
 import StopMarker from "./StopMarker";
 import RouteGeometryQuery from "../../queries/RouteGeometryQuery";
 import RouteLayer from "./RouteLayer";
-import get from "lodash/get";
 import flow from "lodash/flow";
 import getJourneyId from "../../helpers/getJourneyId";
-import HfpLayer from "./HfpLayer";
+import JourneyLayer from "./JourneyLayer";
 import HfpMarkerLayer from "./HfpMarkerLayer";
 import RouteStopsLayer from "./RouteStopsLayer";
 import AreaSelect from "./AreaSelect";
 import {expr} from "mobx-utils";
 import {areaEventsStyles} from "../../stores/UIStore";
 import SimpleHfpLayer from "./SimpleHfpLayer";
-import {createRouteKey} from "../../helpers/keys";
+import {createRouteId} from "../../helpers/keys";
 import {inject} from "../../helpers/inject";
 import WeatherDisplay from "./WeatherDisplay";
 
@@ -26,8 +25,7 @@ const decorate = flow(
 const MapContent = decorate(
   ({
     journeys = [],
-    journeyStops,
-    timePositions,
+    journeyPositions,
     route,
     zoom,
     mapBounds, // The current map view
@@ -76,26 +74,23 @@ const MapContent = decorate(
         {hasRoute && (
           <>
             <RouteGeometryQuery
-              key={`route_query_${createRouteKey(route, true)}`}
+              key={`route_query_${createRouteId(route, true)}`}
               route={route}
               date={date}>
               {({routeGeometry}) =>
                 routeGeometry.length !== 0 ? (
                   <RouteLayer
-                    routeId={
-                      routeGeometry.length !== 0 ? createRouteKey(route) : null
-                    }
+                    routeId={routeGeometry.length !== 0 ? createRouteId(route) : null}
                     routeGeometry={routeGeometry}
                     canCenterOnRoute={centerOnRoute}
                     setMapView={setMapView}
-                    key={`route_line_${createRouteKey(route, true)}`}
+                    key={`route_line_${createRouteId(route, true)}`}
                   />
                 ) : null
               }
             </RouteGeometryQuery>
             {(!selectedJourney ||
-              (selectedJourney.route_id !== route.routeId ||
-                journeys.length === 0)) && (
+              (selectedJourney.route_id !== route.routeId || journeys.length === 0)) && (
               <RouteStopsLayer
                 showRadius={showStopRadius}
                 onViewLocation={viewLocation}
@@ -104,53 +99,47 @@ const MapContent = decorate(
             )}
 
             {journeys.length !== 0 &&
-              journeys.map(({events: journeyPositions, journeyId}) => {
-                if (
-                  selectedJourney &&
-                  selectedJourney.unique_vehicle_id &&
-                  get(journeyPositions, "[0].unique_vehicle_id", "") !==
-                    selectedJourney.unique_vehicle_id
-                ) {
-                  return null;
-                }
-
-                const isSelectedJourney = selectedJourneyId === journeyId;
-                const currentPosition = timePositions.get(journeyId);
+              journeys.map((journey) => {
+                const isSelectedJourney = selectedJourneyId === journey.id;
+                const currentPosition = journeyPositions
+                  ? journeyPositions.get(journey.id)
+                  : null;
 
                 return [
                   isSelectedJourney ? (
-                    <HfpLayer
-                      key={`hfp_line_${journeyId}`}
-                      selectedJourney={selectedJourney}
-                      positions={journeyPositions}
-                      name={journeyId}
+                    <JourneyLayer
+                      key={`journey_line_${journey.id}`}
+                      journey={journey}
+                      name={journey.id}
                     />
                   ) : null,
                   isSelectedJourney ? (
                     <RouteStopsLayer
                       showRadius={showStopRadius}
                       onViewLocation={viewLocation}
-                      key={`journey_stops_${journeyId}`}
+                      key={`journey_stops_${journey.id}`}
                       route={route}
-                      journeyStops={journeyStops}
+                      journey={journey}
                     />
                   ) : null,
-                  <HfpMarkerLayer
-                    key={`hfp_markers_${journeyId}`}
-                    currentPosition={currentPosition}
-                    journeyId={journeyId}
-                    isSelectedJourney={isSelectedJourney}
-                  />,
+                  currentPosition ? (
+                    <HfpMarkerLayer
+                      key={`hfp_markers_${journey.id}`}
+                      currentEvent={currentPosition}
+                      journey={journey}
+                      isSelectedJourney={isSelectedJourney}
+                    />
+                  ) : null,
                 ];
               })}
           </>
         )}
         {journeys.length !== 0 &&
           journeys
-            .filter(({journeyId}) => journeyId !== selectedJourneyId)
-            .map(({journeyId, events}) => {
+            .filter(({id}) => id !== selectedJourneyId)
+            .map((journey) => {
               if (areaEventsStyle === areaEventsStyles.MARKERS) {
-                const event = timePositions.get(journeyId);
+                const event = journeyPositions.get(journey.id);
 
                 if (!event) {
                   return null;
@@ -158,9 +147,9 @@ const MapContent = decorate(
 
                 return (
                   <HfpMarkerLayer
-                    key={`hfp_markers_${journeyId}`}
-                    currentPosition={event}
-                    journeyId={journeyId}
+                    key={`hfp_markers_${journey.id}`}
+                    currentEvent={event}
+                    journey={journey}
                     isSelectedJourney={false}
                   />
                 );
@@ -169,9 +158,9 @@ const MapContent = decorate(
               return (
                 <SimpleHfpLayer
                   zoom={zoom}
-                  name={journeyId}
-                  key={`hfp_polyline_${journeyId}`}
-                  positions={events}
+                  name={journey.id}
+                  key={`hfp_polyline_${journey.id}`}
+                  events={journey.events}
                 />
               );
             })}

@@ -6,7 +6,7 @@ import trim from "lodash/trim";
 import get from "lodash/get";
 import debounce from "lodash/debounce";
 import {setUrlValue, getUrlValue} from "../../stores/UrlManager";
-import {reaction, observable, action} from "mobx";
+import {observable, action} from "mobx";
 import {runInAction} from "mobx";
 
 const MAP_BOUNDS_URL_KEY = "mapView";
@@ -52,26 +52,7 @@ class Map extends Component {
   };
 
   componentDidMount() {
-    const {state} = this.props;
     const map = this.getLeaflet();
-
-    // Leaflet has some itnernal calculations about which area of the map is rendered.
-    // If the map's viewport changes, we need to tell Leaflet to recalculate by calling
-    // invalidateSize. This is done with this reaction when the side panels are toggled.
-    // TODO: Fix this, it doesn't work properly.
-    this.disposeSidePanelReaction = reaction(
-      () =>
-        (state.sidePanelVisible ? "visible" : "not visible") +
-        (state.journeyDetailsAreOpen ? " details open" : " details closed"),
-      () => {
-        const leafletMap = this.getLeaflet();
-
-        if (leafletMap) {
-          leafletMap.invalidateSize(true);
-        }
-      },
-      {delay: 500}
-    );
 
     // Center the map on the enter position provided through the URL.
     let urlCenter = "";
@@ -96,11 +77,26 @@ class Map extends Component {
     setTimeout(() => (this.canSetView = true), urlCenter ? 3000 : 0);
   }
 
+  componentDidUpdate({sidePanelOpen: prevSidePanelOpen, detailsOpen: prevDetailsOpen}) {
+    const {sidePanelOpen, detailsOpen} = this.props;
+
+    if (sidePanelOpen !== prevSidePanelOpen || detailsOpen !== prevDetailsOpen) {
+      setTimeout(() => {
+        const leafletMap = this.getLeaflet();
+
+        if (leafletMap) {
+          leafletMap.invalidateSize(true);
+        }
+      }, 300);
+    }
+  }
+
   /**
    * This method focuses the Leaflet map on the provided location. Center is either
    * LatLng compatible data or a latLngBounds. Sets the center directly on the Leaflet
    * map, bypassing both state and React-Leaflet. This yields the best performance.
-   * @param center LatLng or LatLngBounds representing the location that the map should center on.
+   * @param center LatLng or LatLngBounds representing the location that the map should
+   *   center on.
    */
   setMapView = (center) => {
     const map = this.getLeaflet();
@@ -121,7 +117,8 @@ class Map extends Component {
       useCenter = center.getCenter();
       bounds = center;
     } else {
-      useCenter = null;
+      useCenter = center;
+      bounds = null;
     }
 
     // We don't want to set invalid centers or centers that were set previously.

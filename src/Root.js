@@ -6,7 +6,6 @@ import {ApolloProvider} from "react-apollo";
 import {observer, inject} from "mobx-react";
 import {GlobalFormStyle} from "./components/Forms";
 import {app} from "mobx-app";
-import {observable, runInAction} from "mobx";
 import Loading from "./components/Loading";
 import {ModalProvider, BaseModalBackground} from "styled-react-modal";
 import styled from "styled-components";
@@ -19,15 +18,7 @@ const SpecialModalBackground = styled(BaseModalBackground)`
 @inject(app("UI"))
 @observer
 class Root extends React.Component {
-  @observable.ref
-  client = null;
-
-  async componentDidMount() {
-    const {UI} = this.props;
-    const client = await getClient(UI);
-
-    runInAction(() => (this.client = client));
-  }
+  client = getClient(this.props.UI);
 
   render() {
     if (!this.client) {

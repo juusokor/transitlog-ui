@@ -90,8 +90,6 @@ class Graph extends React.Component {
     const max = Math.max.apply(Math, mapDiffs);
     const min = Math.min.apply(Math, mapDiffs);
 
-    console.log(width);
-
     return (
       <div>
         {graphExpanded && width && (

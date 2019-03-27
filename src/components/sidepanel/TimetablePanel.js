@@ -1,14 +1,11 @@
 import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
-import withAllStopDepartures from "../../hoc/withAllStopDepartures";
 import {toJS, reaction} from "mobx";
 import styled from "styled-components";
 import Input from "../Input";
 import {text} from "../../helpers/text";
 import get from "lodash/get";
-import doubleDigit from "../../helpers/doubleDigit";
-import sortBy from "lodash/sortBy";
 import {createDebouncedObservable} from "../../helpers/createDebouncedObservable";
 import {getUrlValue, setUrlValue} from "../../stores/UrlManager";
 import {Button} from "../Forms";
@@ -17,9 +14,8 @@ import VirtualizedSidepanelList from "./VirtualizedSidepanelList";
 import TimetableDeparture from "./TimetableDeparture";
 import {getDepartureByTime} from "../../helpers/getDepartureByTime";
 import getJourneyId from "../../helpers/getJourneyId";
-import {createCompositeJourney} from "../../stores/journeyActions";
-import {timeToSeconds, departureTime, journeyStartTime} from "../../helpers/time";
-import DepartureHfpQuery from "../../queries/DepartureHfpQuery";
+import DeparturesQuery from "../../queries/DeparturesQuery";
+import {withStop} from "../../hoc/withStop";
 
 const TimetableFilters = styled.div`
   display: flex;
@@ -55,7 +51,7 @@ const ClearButton = styled(Button).attrs({small: true, primary: true})`
 `;
 
 @inject(app("Filters", "Journey", "Time"))
-@withAllStopDepartures
+@withStop
 @observer
 class TimetablePanel extends Component {
   removeResetListener = () => {};
@@ -66,8 +62,8 @@ class TimetablePanel extends Component {
   routeFilter = createDebouncedObservable(getUrlValue("timetableRoute"), 500);
   timeRangeFilter = createDebouncedObservable(
     {
-      min: getUrlValue("timetableTimeRange.min"),
-      max: getUrlValue("timetableTimeRange.max"),
+      min: getUrlValue("timetableTimeRange.min", undefined),
+      max: getUrlValue("timetableTimeRange.max", undefined),
     },
     500
   );
@@ -130,42 +126,35 @@ class TimetablePanel extends Component {
 
   selectAsJourney = (departure) => (e) => {
     e.preventDefault();
-    const {Filters, Journey, Time} = this.props;
+    const {Journey, Time} = this.props;
 
-    // Set the selected time from the departure time
-    const currentTime = `${doubleDigit(departure.hours)}:${doubleDigit(
-      departure.minutes
-    )}:00`;
+    const currentTime = get(
+      departure,
+      "observedDepartureTime.departureTime",
+      get(departure, "plannedDepartureTime.departureTime", "")
+    );
 
-    const route = {
-      direction: departure.direction,
-      routeId: departure.routeId,
-    };
+    if (currentTime) {
+      Time.setTime(currentTime);
+    }
 
-    Time.setTime(currentTime);
-    Filters.setRoute(route);
-
-    if (departure.observed) {
-      const {observed} = departure;
-      Journey.setSelectedJourney(observed);
+    if (departure.journey) {
+      Journey.setSelectedJourney(departure.journey);
     }
   };
 
-  sortDepartures(departures) {
-    return sortBy(departures, (departure) =>
-      timeToSeconds(departureTime(departure))
-    );
-  }
-
   renderRow = (props) => (list) => ({key, index, style, isScrolling, isVisible}) => {
     const departure = list[index];
+    // TODO: Fix the instance things
+    const instance = get(departure, "journey.instance", 0);
+    const departureTime = get(departure, "plannedDepartureTime.departureDateTime", "");
 
     return (
       <div style={style} key={key}>
         <TimetableDeparture
           key={`departure_${departure.departureId}_${departure.routeId}_${
             departure.direction
-          }_${departure.hours}_${departure.minutes}`}
+          }_${departureTime}_${instance}`}
           isScrolling={isScrolling}
           isVisible={isVisible}
           departure={departure}
@@ -225,10 +214,9 @@ class TimetablePanel extends Component {
 
   render() {
     const {
-      state: {date, selectedJourney, stop: stopId},
       stop,
-      loading: timetableLoading,
-      departures,
+      stopLoading,
+      state: {date, selectedJourney, stop: stopId},
     } = this.props;
 
     // Collect values. The filter values are read as debounced values.
@@ -237,110 +225,42 @@ class TimetablePanel extends Component {
 
     const {min, max} = timeRangeFilter;
 
-    const sortedDepartures = this.sortDepartures(
-      // Apply hour and route filters to the departures array
-      departures.filter(({routeId, hours}) => {
-        // If there is a timerange filter set, ignore routes
-        // from departures that fall outside the filter.
-        if ((min && hours < parseInt(min)) || (max && hours > parseInt(max))) {
-          return false;
-        }
-
-        // Clean up the routeId to be compatible with what
-        // the user would enter into the filter field.
-        const routeIdFilterTerm = routeId
-          .substring(1)
-          .replace(/^0+/, "")
-          .toLowerCase();
-
-        // If there is a route filter set, we don't want
-        // to query for routes that do not match.
-        if (
-          routeFilter &&
-          !routeIdFilterTerm.startsWith(routeFilter.toLowerCase())
-        ) {
-          return false;
-        }
-
-        return true;
-      })
-    );
-
-    const selectedJourneyId = getJourneyId(selectedJourney);
-
-    const focusedDeparture = selectedJourneyId
-      ? sortedDepartures.find((departure) => {
-          const originDeparture = get(departure, "originDeparture", {});
-          const originDepartureTime = `${originDeparture.hours}:${
-            originDeparture.minutes
-          }:00`;
-
-          return (
-            selectedJourneyId ===
-            getJourneyId(
-              createCompositeJourney(date, departure, originDepartureTime, 0)
-            )
-          );
-        })
-      : getDepartureByTime(sortedDepartures, this.reactionlessTime);
-
-    const focusedIndex = focusedDeparture
-      ? sortedDepartures.findIndex((departure) => departure === focusedDeparture)
-      : -1;
+    // TODO: Make selecting a journey work
 
     return (
-      <DepartureHfpQuery stopId={stopId} date={date}>
-        {({events: stopEvents = [], loading: eventsLoading}) => {
+      <DeparturesQuery
+        stopId={stopId}
+        date={date}
+        routeId={routeFilter || undefined}
+        minHour={min || undefined}
+        maxHour={max || undefined}>
+        {({departures, loading}) => {
+          const selectedJourneyId = getJourneyId(selectedJourney);
+
+          const focusedDeparture = selectedJourneyId
+            ? departures.find(({journey}) =>
+                journey ? selectedJourneyId === getJourneyId(journey) : false
+              )
+            : getDepartureByTime(departures, this.reactionlessTime);
+
+          const focusedIndex = focusedDeparture
+            ? departures.findIndex((departure) => departure === focusedDeparture)
+            : -1;
           const rowRenderer = this.renderRow({
             selectedJourney,
             onClick: this.selectAsJourney,
-            stop,
             date,
-          });
-
-          if (stopEvents.length === 0) {
-            return this.renderList(
-              sortedDepartures,
-              rowRenderer,
-              timetableLoading || eventsLoading,
-              focusedIndex
-            );
-          }
-
-          const departuresWithEvents = sortedDepartures.map((departure) => {
-            const originDeparture = get(departure, "originDeparture", null);
-            const originDepartureTime = originDeparture
-              ? departureTime(originDeparture)
-              : "";
-
-            if (!originDepartureTime) {
-              return departure;
-            }
-
-            const routeId = get(departure, "routeId", "");
-            const direction = parseInt(get(departure, "direction", "0"), 10);
-
-            const departureEvent = stopEvents.find(
-              (event) =>
-                event.route_id === routeId &&
-                event.direction_id === direction &&
-                journeyStartTime(event) === originDepartureTime
-            );
-
-            return {
-              ...departure,
-              observed: departureEvent,
-            };
+            stop,
           });
 
           return this.renderList(
-            departuresWithEvents,
+            departures,
             rowRenderer,
-            timetableLoading,
+            loading || stopLoading,
             focusedIndex
           );
         }}
-      </DepartureHfpQuery>
+      </DeparturesQuery>
     );
   }
 }

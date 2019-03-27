@@ -80,7 +80,6 @@ export function getValidItemsByDateChains(groups, date, log = false) {
         let i = 0;
         const maxIterations = 100;
 
-        // Until the chain ends with the minDate, run the loop.
         // Extra precautions for runaway loops.
         while (get(last(chain), "dateBegin") !== minDate && i < maxIterations) {
           if (chain.length === 0) {
@@ -132,9 +131,7 @@ export function getValidItemsByDateChains(groups, date, log = false) {
 
       // There may be multiple chains with the same length. They all share the first
       // prize, but we still need to declare an actual winner.
-      let winningChains = lengthOrdered.filter(
-        (chain) => chain.length === longestLength
-      );
+      let winningChains = lengthOrdered.filter((chain) => chain.length === longestLength);
 
       // Default to the first one. If there is only one longest chain, it will be used.
       let winningChain = winningChains[0];

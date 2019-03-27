@@ -1,5 +1,3 @@
-import moment from "moment-timezone";
-import {TIMEZONE} from "../constants";
 import {useWeather} from "./useWeather";
 import {latLngBounds, latLng} from "leaflet";
 import {useMemo} from "react";
@@ -14,38 +12,18 @@ export const useJourneyWeather = (events, journeyId) => {
   );
 
   const minPosition =
-    minEvent && minEvent.lat ? latLng(minEvent.lat, minEvent.long) : null;
+    minEvent && minEvent.lat ? latLng(minEvent.lat, minEvent.lng) : null;
 
   const maxPosition =
-    maxEvent && maxEvent.lat ? latLng(maxEvent.lat, maxEvent.long) : null;
+    maxEvent && maxEvent.lat ? latLng(maxEvent.lat, maxEvent.lng) : null;
 
   const bounds = useMemo(
-    () =>
-      minPosition && maxPosition ? latLngBounds(minPosition, maxPosition) : null,
+    () => (minPosition && maxPosition ? latLngBounds(minPosition, maxPosition) : null),
     [minPosition, maxPosition]
   );
 
-  const startDate = useMemo(
-    () =>
-      minEvent
-        ? moment
-            .tz(minEvent.tst, TIMEZONE)
-            .startOf("hour")
-            .toISOString(true)
-        : null,
-    [minEvent]
-  );
-
-  const endDate = useMemo(
-    () =>
-      maxEvent
-        ? moment
-            .tz(maxEvent.tst, TIMEZONE)
-            .endOf("hour")
-            .toISOString(true)
-        : null,
-    [maxEvent]
-  );
+  const startDate = useMemo(() => (minEvent ? minEvent.recordedAt : null), [minEvent]);
+  const endDate = useMemo(() => (maxEvent ? maxEvent.recordedAt : null), [maxEvent]);
 
   // Routes can be quite one-dimensional (straight-ish line horizontally or vertically),
   // so first create a new bbox from the center of the route and extend it over the

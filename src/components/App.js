@@ -8,16 +8,15 @@ import JourneyPosition from "./JourneyPosition";
 import MapContent from "./map/MapContent";
 import {latLng} from "leaflet";
 import SingleStopQuery from "../queries/SingleStopQuery";
-import AreaHfpEvents from "./AreaHfpEvents";
 import ErrorMessages from "./ErrorMessages";
 import SharingModal from "./SharingModal";
 import SelectedJourneyEvents from "./SelectedJourneyEvents";
 import getJourneyId from "../helpers/getJourneyId";
-import JourneyStopTimes from "./JourneyStopTimes";
 import {inject} from "../helpers/inject";
 import flow from "lodash/flow";
-import withRoute from "../hoc/withRoute";
-import {mergeJourneyEvents} from "../helpers/mergeJourneyEvents";
+import {withRoute} from "../hoc/withRoute";
+import AreaJourneys from "./AreaJourneys";
+import MergedJourneys from "./MergedJourneys";
 import {getJourneyAverageSpeeds} from "../helpers/getJourneyAverageSpeeds";
 import {getJourneyStopDiffs} from "../helpers/getJourneyStopDiffs";
 import Graph from "./map/Graph";
@@ -68,7 +67,7 @@ const GraphContainer = styled.div`
 
 const decorate = flow(
   observer,
-  withRoute(),
+  withRoute,
   inject("UI")
 );
 
@@ -79,57 +78,56 @@ function App({state, UI}) {
     route,
     shareModalOpen,
     selectedJourney,
+    journeyDetailsOpen,
+    sidePanelVisible,
     live,
     journeyGraphOpen,
   } = state;
+
   const selectedJourneyId = getJourneyId(selectedJourney);
 
   return (
     <AppFrame>
-      <AreaHfpEvents selectedJourney={selectedJourney} date={date}>
+      <AreaJourneys selectedJourney={selectedJourney}>
         {({
           setQueryBounds,
           actualQueryBounds,
-          events: areaEvents = [],
-          loading: areaEventsLoading,
+          journeys: areaJourneys = [],
+          loading: areaJourneysLoading,
         }) => (
           <SelectedJourneyEvents>
-            {({
-              events: selectedJourneyEvents = [],
-              loading: journeyEventsLoading,
-            }) => {
-              // The currently fetched positions, either area hfp or selected journey hfp.
-              const allCurrentPositions = mergeJourneyEvents(
-                selectedJourneyEvents,
-                areaEvents
-              );
+            {({journey: selectedJourney = null, loading: journeyLoading}) => (
+              <MergedJourneys
+                areaJourneys={areaJourneys}
+                selectedJourney={selectedJourney}>
+                {({currentJourneys}) => {
+                  const detailsAreOpen = selectedJourney && journeyDetailsOpen;
+                  const sidePanelIsOpen = sidePanelVisible;
+                  const selectedJourneyData = currentJourneys.find(
+                    ({id}) => id === selectedJourneyId
+                  );
 
-              return (
-                <AppGrid>
-                  <FilterBar currentPositions={allCurrentPositions} />
-                  <SidepanelAndMapWrapper>
-                    <SingleStopQuery date={date} stop={selectedStopId}>
-                      {({stop}) => (
-                        <JourneyStopTimes
-                          selectedJourneyEvents={selectedJourneyEvents}>
-                          {({journeyStops = [], loading: stopTimesLoading}) => (
-                            <JourneyPosition
-                              date={date}
-                              positions={allCurrentPositions}>
-                              {(currentTimePositions) => (
+                  return (
+                    <AppGrid>
+                      <FilterBar journeys={currentJourneys} />
+                      <SidepanelAndMapWrapper>
+                        <SingleStopQuery date={date} stopId={selectedStopId}>
+                          {({stop}) => (
+                            <JourneyPosition date={date} journeys={currentJourneys}>
+                              {(currentJourneyPositions) => (
                                 <>
                                   <SidePanel
-                                    areaEventsLoading={areaEventsLoading}
-                                    journeyEventsLoading={journeyEventsLoading}
-                                    stopTimesLoading={stopTimesLoading}
-                                    areaEvents={areaEvents}
-                                    selectedJourneyEvents={selectedJourneyEvents}
-                                    journeyStops={journeyStops}
-                                    journeyPositions={currentTimePositions}
-                                    route={route}
+                                    areaJourneysLoading={!live && areaJourneysLoading}
+                                    journeyLoading={journeyLoading}
+                                    areaEvents={areaJourneys}
+                                    journey={selectedJourney}
                                     stop={stop}
+                                    detailsOpen={detailsAreOpen}
+                                    sidePanelOpen={sidePanelIsOpen}
                                   />
-                                  <MapPanel>
+                                  <MapPanel
+                                    detailsOpen={detailsAreOpen}
+                                    sidePanelOpen={sidePanelIsOpen}>
                                     {({
                                       zoom,
                                       setMapView,
@@ -139,27 +137,26 @@ function App({state, UI}) {
                                       <>
                                         <Observer>
                                           {() => {
-                                            // Set the map center from a selected stop position or selected journey position.
-
+                                            // Set the map center from a selected stop position or selected selectedJourney position.
                                             if (!live) {
                                               const stopPosition = stop
-                                                ? latLng([stop.lat, stop.lon])
+                                                ? latLng([stop.lat, stop.lng])
                                                 : false;
 
                                               const selectedJourneyPosition =
                                                 selectedJourney &&
-                                                currentTimePositions.size === 1
-                                                  ? currentTimePositions.get(
+                                                currentJourneyPositions.size === 1
+                                                  ? currentJourneyPositions.get(
                                                       selectedJourneyId
-                                                    )
+                                                    ) || false
                                                   : false;
 
-                                              const {lat, long} =
+                                              const {lat, lng} =
                                                 selectedJourneyPosition || {};
 
                                               const centerPosition =
-                                                lat && long
-                                                  ? latLng([lat, long])
+                                                lat && lng
+                                                  ? latLng([lat, lng])
                                                   : stopPosition;
 
                                               if (centerPosition) {
@@ -171,36 +168,35 @@ function App({state, UI}) {
                                           }}
                                         </Observer>
                                         <MapContent
-                                          centerOnRoute={areaEvents.length === 0}
+                                          centerOnRoute={areaJourneys.length === 0}
                                           setQueryBounds={setQueryBounds}
                                           actualQueryBounds={actualQueryBounds}
                                           setMapView={setMapView}
-                                          journeys={allCurrentPositions}
-                                          journeyStops={journeyStops}
-                                          timePositions={currentTimePositions}
+                                          journeys={currentJourneys}
+                                          journeyPositions={currentJourneyPositions}
                                           route={route}
                                           stop={stop}
                                           zoom={zoom}
                                           viewLocation={setViewerLocation}
                                           mapBounds={getMapView()}
                                         />
-                                        {journeyStops && (
+                                        {selectedJourneyData && (
                                           <GraphContainer
                                             journeyGraphOpen={
-                                              journeyStops.length > 0 &&
-                                              journeyGraphOpen
+                                              selectedJourneyData.departures.length !==
+                                                0 && journeyGraphOpen
                                             }>
                                             <Graph
                                               width={500}
                                               diffs={getJourneyStopDiffs(
-                                                journeyStops
+                                                selectedJourneyData.departures
                                               )}
                                               speedAverages={getJourneyAverageSpeeds(
-                                                selectedJourneyEvents[0]
+                                                selectedJourneyData.events
                                               )}
                                               graphExpanded={
-                                                journeyStops.length > 0 &&
-                                                journeyGraphOpen
+                                                selectedJourneyData.departures.length !==
+                                                  0 && journeyGraphOpen
                                               }
                                             />
                                           </GraphContainer>
@@ -212,21 +208,18 @@ function App({state, UI}) {
                               )}
                             </JourneyPosition>
                           )}
-                        </JourneyStopTimes>
-                      )}
-                    </SingleStopQuery>
-                  </SidepanelAndMapWrapper>
-                </AppGrid>
-              );
-            }}
+                        </SingleStopQuery>
+                      </SidepanelAndMapWrapper>
+                    </AppGrid>
+                  );
+                }}
+              </MergedJourneys>
+            )}
           </SelectedJourneyEvents>
         )}
-      </AreaHfpEvents>
+      </AreaJourneys>
       <ErrorMessages />
-      <SharingModal
-        isOpen={shareModalOpen}
-        onClose={() => UI.toggleShareModal(false)}
-      />
+      <SharingModal isOpen={shareModalOpen} onClose={() => UI.toggleShareModal(false)} />
     </AppFrame>
   );
 }

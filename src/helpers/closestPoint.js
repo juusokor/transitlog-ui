@@ -22,8 +22,7 @@ export function closestPointCompareReducer(collection, getCandidate, latlng) {
 
     if (
       !current ||
-      (!!pointCandidate &&
-        latlng.distanceTo(pointCandidate) < latlng.distanceTo(current))
+      (!!pointCandidate && latlng.distanceTo(pointCandidate) < latlng.distanceTo(current))
     ) {
       return pointCandidate;
     }

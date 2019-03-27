@@ -51,6 +51,7 @@ export const useWeather = (point, date, startDate = null) => {
       return onCancel;
     }
 
+    let isCancelled = false;
     // If we got to here, a new weather request will be made.
     setWeatherLoading(true);
 
@@ -93,11 +94,8 @@ export const useWeather = (point, date, startDate = null) => {
 
     // Start the requests. Each promise returns an object containing
     // the data and request namespace.
-    const weatherPromise = getWeatherForArea(
-      bbox,
-      weatherStart,
-      weatherEnd,
-      (cancelCb) => cancelCallbacks.current.push(cancelCb)
+    const weatherPromise = getWeatherForArea(bbox, weatherStart, weatherEnd, (cancelCb) =>
+      cancelCallbacks.current.push(cancelCb)
     ).then((data) => ({weather: data})); // namespace under "weather"
 
     const roadConditionPromise = getRoadConditionsForArea(
@@ -110,12 +108,17 @@ export const useWeather = (point, date, startDate = null) => {
     // Await all promises, merge the results and replace the weather data state.
     Promise.all([weatherPromise, roadConditionPromise])
       .then((allData) => {
-        setWeatherData(merge(...allData));
-        setWeatherLoading(false);
+        if (!isCancelled) {
+          setWeatherData(merge(...allData));
+          setWeatherLoading(false);
+        }
       })
       .catch((err) => console.error(err));
 
-    return onCancel; // The effect will cancel the connections if refreshed (or unmounted).
+    return () => {
+      isCancelled = true;
+      onCancel();
+    }; // The effect will cancel the connections if refreshed (or unmounted).
   }, [date, startDate, bbox]); // Only refresh the effect if these props change.
 
   return [weatherData, weatherLoading];
