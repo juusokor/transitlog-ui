@@ -2,7 +2,7 @@ import React from "react";
 import {app} from "mobx-app";
 import {observer, inject} from "mobx-react";
 import styled from "styled-components";
-import doubleDigit from "../../../helpers/doubleDigit";
+import doubleDigit from "../../helpers/doubleDigit";
 import "react-vis/dist/style.css";
 import {
   XYPlot,

@@ -20,7 +20,7 @@ import withRoute from "../hoc/withRoute";
 import {mergeJourneyEvents} from "../helpers/mergeJourneyEvents";
 import {getJourneyAverageSpeeds} from "../helpers/getJourneyAverageSpeeds";
 import {getJourneyStopDiffs} from "../helpers/getJourneyStopDiffs";
-import Graph from "./sidepanel/journeyDetails/Graph";
+import Graph from "./map/Graph";
 
 const AppFrame = styled.main`
   width: 100%;
