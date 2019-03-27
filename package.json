@@ -110,7 +110,7 @@
     "build": "node scripts/build.js",
     "test": "node scripts/test.js",
     "test:ci": "CI=true node scripts/test.js",
-    "test:staged": "node scripts/test.js CI=true --bail --findRelatedTests",
+    "test:staged": "CI=true node scripts/test.js --bail --findRelatedTests",
     "codestyle": "prettier \"src/**/*.{css,js}\" --write",
     "lint": "eslint \"src/**/*.js\" --fix",
     "production": "forever start -c \"yarn run serve -s -l 3000\" build && forever logs -f 0",
