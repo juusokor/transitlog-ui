@@ -4,7 +4,6 @@ import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import {observer} from "mobx-react-lite";
 import {setUpdateListener, removeUpdateListener} from "../stores/UpdateManager";
-import {getServerClient} from "../api";
 
 export const routeJourneysQuery = gql`
   query routeJourneysQuery(
@@ -78,8 +77,6 @@ export const routeJourneysQuery = gql`
 
 const updateListenerName = "journey list query";
 
-const client = getServerClient();
-
 const JourneysByDateQuery = observer(({children, route, date, skip}) => {
   const createRefetcher = useCallback(
     (refetch) => () => {
@@ -103,7 +100,6 @@ const JourneysByDateQuery = observer(({children, route, date, skip}) => {
 
   return (
     <Query
-      client={client}
       query={routeJourneysQuery}
       variables={{
         routeId: routeId,

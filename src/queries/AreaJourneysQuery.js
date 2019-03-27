@@ -2,7 +2,6 @@ import React, {useRef} from "react";
 import {Query} from "react-apollo";
 import get from "lodash/get";
 import gql from "graphql-tag";
-import {getServerClient} from "../api";
 import {observer} from "mobx-react-lite";
 
 const areaJourneysQuery = gql`
@@ -41,8 +40,6 @@ const areaJourneysQuery = gql`
   }
 `;
 
-const client = getServerClient();
-
 const AreaJourneysQuery = observer((props) => {
   const {minTime, maxTime, bbox, date, skip, children} = props;
 
@@ -57,7 +54,6 @@ const AreaJourneysQuery = observer((props) => {
 
   return (
     <Query
-      client={client}
       skip={shouldSkip}
       variables={{
         minTime,

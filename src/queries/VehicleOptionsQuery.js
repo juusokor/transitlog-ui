@@ -3,7 +3,6 @@ import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import get from "lodash/get";
 import {observer} from "mobx-react-lite";
-import {getServerClient} from "../api";
 
 const vehiclesQuery = gql`
   query vehicleOptionsQuery($date: Date, $search: String) {
@@ -24,8 +23,6 @@ const vehiclesQuery = gql`
   }
 `;
 
-const client = getServerClient();
-
 export default observer(({children, date, skip}) => {
   const prevResults = useRef([]);
 
@@ -35,7 +32,7 @@ export default observer(({children, date, skip}) => {
   );
 
   return (
-    <Query query={vehiclesQuery} variables={{date}} skip={skip} client={client}>
+    <Query query={vehiclesQuery} variables={{date}} skip={skip}>
       {({loading, error, data, refetch}) => {
         if (loading || !data) {
           return children({

@@ -4,7 +4,6 @@ import {Query} from "react-apollo";
 import get from "lodash/get";
 import {RouteFieldsFragment} from "./RouteFieldsFragment";
 import {observer} from "mobx-react-lite";
-import {getServerClient} from "../api";
 
 const singleRouteQuery = gql`
   query singleRouteQuery($routeId: String!, $direction: Direction!, $date: Date!) {
@@ -14,8 +13,6 @@ const singleRouteQuery = gql`
   }
   ${RouteFieldsFragment}
 `;
-
-const client = getServerClient();
 
 const SingleRouteQuery = observer(
   ({children, routeId, direction, date, skip, onCompleted}) => {
@@ -30,7 +27,6 @@ const SingleRouteQuery = observer(
 
     return (
       <Query
-        client={client}
         onCompleted={onCompleted}
         skip={skip || !routeId || !date}
         query={singleRouteQuery}

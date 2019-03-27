@@ -3,7 +3,6 @@ import get from "lodash/get";
 import {Query} from "react-apollo";
 import gql from "graphql-tag";
 import {createRouteId} from "../helpers/keys";
-import {getServerClient} from "../api";
 
 const routeQuery = gql`
   query routeQuery($routeId: String!, $direction: Direction!, $date: Date!) {
@@ -16,8 +15,6 @@ const routeQuery = gql`
     }
   }
 `;
-
-const client = getServerClient();
 
 // No @observer here, as it doesn't like shouldComponentUpdate
 class RouteGeometryQuery extends Component {
@@ -32,7 +29,6 @@ class RouteGeometryQuery extends Component {
 
     return (
       <Query
-        client={client}
         skip={!routeId}
         query={routeQuery}
         variables={{

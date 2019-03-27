@@ -4,7 +4,6 @@ import pick from "lodash/pick";
 import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import {setUpdateListener, removeUpdateListener} from "../stores/UpdateManager";
-import {getServerClient} from "../api";
 
 export const journeyQuery = gql`
   query journeyQuery(
@@ -146,8 +145,6 @@ export const journeyQuery = gql`
 
 const updateListenerName = "selected journey";
 
-const client = getServerClient();
-
 const JourneyQuery = (props) => {
   const queryVars = useMemo(
     () =>
@@ -180,7 +177,6 @@ const JourneyQuery = (props) => {
   return (
     <Query
       partialRefetch={true}
-      client={client}
       skip={skip || !journey}
       query={journeyQuery}
       variables={queryVars}>

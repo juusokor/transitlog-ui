@@ -4,7 +4,6 @@ import {Query} from "react-apollo";
 import get from "lodash/get";
 import orderBy from "lodash/orderBy";
 import {observer} from "mobx-react";
-import {getServerClient} from "../api";
 
 const linesQuery = gql`
   query LinesQuery($date: Date) {
@@ -20,11 +19,9 @@ const linesQuery = gql`
 
 const removeFerryFilter = (line) => line.lineId.substring(0, 4) !== "1019";
 
-const client = getServerClient();
-
 export default observer(({children, date}) => {
   return (
-    <Query query={linesQuery} variables={{date}} client={client}>
+    <Query query={linesQuery} variables={{date}}>
       {({loading, error, data}) => {
         let lines = orderBy(get(data, "lines", []).filter(removeFerryFilter), "lineId");
 

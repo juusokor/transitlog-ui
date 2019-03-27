@@ -4,7 +4,6 @@ import {Query} from "react-apollo";
 import get from "lodash/get";
 import {observer} from "mobx-react";
 import orderBy from "lodash/orderBy";
-import {getServerClient} from "../api";
 
 const routesQuery = gql`
   query routeOptionsQuery($line: String!, $date: Date!) {
@@ -23,11 +22,9 @@ const routesQuery = gql`
   }
 `;
 
-const client = getServerClient();
-
 export default observer(({line, date, children}) => {
   return (
-    <Query query={routesQuery} variables={{line, date}} client={client}>
+    <Query query={routesQuery} variables={{line, date}}>
       {({loading, error, data}) => {
         const routes = get(data, "routes", []);
         const filteredRoutes = orderBy(routes, ["routeId", "direction"]);

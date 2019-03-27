@@ -3,7 +3,6 @@ import {observer} from "mobx-react";
 import {Query} from "react-apollo";
 import gql from "graphql-tag";
 import get from "lodash/get";
-import {getServerClient} from "../api";
 
 const departuresQuery = gql`
   query departures(
@@ -61,13 +60,10 @@ const departuresQuery = gql`
   }
 `;
 
-const client = getServerClient();
-
 const DeparturesQuery = observer(
   ({stopId, date, routeId, minHour, maxHour, skip = false, children}) => {
     return (
       <Query
-        client={client}
         query={departuresQuery}
         variables={{
           stopId,

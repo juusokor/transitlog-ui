@@ -4,7 +4,6 @@ import gql from "graphql-tag";
 import {observer} from "mobx-react-lite";
 import {Query} from "react-apollo";
 import {removeUpdateListener, setUpdateListener} from "../stores/UpdateManager";
-import {getServerClient} from "../api";
 
 export const hfpQuery = gql`
   query vehicleJourneysQuery($date: Date!, $uniqueVehicleId: VehicleId!) {
@@ -33,8 +32,6 @@ export const hfpQuery = gql`
 
 const updateListenerName = "vehicle hfp query";
 
-const client = getServerClient();
-
 const VehicleJourneysQuery = observer((props) => {
   const {date, vehicleId, skip, children} = props;
   let [operatorId, vehicleNumber] = vehicleId.split("/");
@@ -60,7 +57,6 @@ const VehicleJourneysQuery = observer((props) => {
 
   return (
     <Query
-      client={client}
       query={hfpQuery}
       variables={{
         date,

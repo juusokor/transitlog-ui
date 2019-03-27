@@ -2,7 +2,6 @@ import React, {useCallback, useRef} from "react";
 import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import get from "lodash/get";
-import {getServerClient} from "../api";
 
 const allStopsQuery = gql`
   query allStopsQuery($search: String) {
@@ -20,8 +19,6 @@ const allStopsQuery = gql`
   }
 `;
 
-const client = getServerClient();
-
 export default ({children}) => {
   const prevResults = useRef([]);
 
@@ -31,7 +28,7 @@ export default ({children}) => {
   );
 
   return (
-    <Query query={allStopsQuery} client={client}>
+    <Query query={allStopsQuery}>
       {({loading, error, data, refetch}) => {
         const search = createSearchFetcher(refetch);
 

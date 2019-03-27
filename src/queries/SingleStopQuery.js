@@ -2,7 +2,6 @@ import React from "react";
 import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import get from "lodash/get";
-import {getServerClient} from "../api";
 import {StopFieldsFragment} from "./StopFieldsFragment";
 
 export const singleStopQuery = gql`
@@ -14,15 +13,9 @@ export const singleStopQuery = gql`
   ${StopFieldsFragment}
 `;
 
-const client = getServerClient();
-
 const SingleStopQuery = ({children, stopId, date, skip}) => {
   return (
-    <Query
-      skip={skip || !stopId}
-      query={singleStopQuery}
-      client={client}
-      variables={{stopId, date}}>
+    <Query skip={skip || !stopId} query={singleStopQuery} variables={{stopId, date}}>
       {({loading, error, data}) => {
         if (!data) {
           return children({
