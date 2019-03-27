@@ -23,6 +23,7 @@ export default (state) => {
   extendObservable(state, {
     sidePanelVisible: getUrlValue("sidePanelVisible", true),
     journeyDetailsOpen: getUrlValue("journeyDetailsOpen", true),
+    journeyGraphOpen: getUrlValue("journeyGraphOpen", false),
     mapOverlays: getUrlValue("mapOverlays", "").split(","),
     areaEventsStyle: getUrlValue("areaEventsStyle", areaEventsStyles.MARKERS),
     highlightedStop: "",

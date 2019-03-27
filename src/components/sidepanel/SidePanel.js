@@ -9,6 +9,7 @@ import {text} from "../../helpers/text";
 import AreaJourneyList from "./AreaJourneyList";
 import JourneyDetails from "./journeyDetails/JourneyDetails";
 import Info from "../../icons/Info";
+import Chart from "../../icons/Chart";
 import {createRouteId} from "../../helpers/keys";
 import Timetable from "../../icons/Timetable";
 import ControlBar from "./ControlBar";
@@ -68,6 +69,19 @@ const ToggleJourneyDetailsButton = styled(ToggleSidePanelButton)`
   }
 `;
 
+const ToggleGraphButton = styled(ToggleSidePanelButton)`
+  transform: translateY(3.5rem);
+  padding: 0 0.1rem 0 0;
+
+  svg {
+    transform: none;
+  }
+
+  &:hover {
+    transform: scale(1.075) translateY(3.3rem);
+  }
+`;
+
 const MainSidePanel = styled.div`
   height: 100%;
   border-right: 1px solid var(--alt-grey);
@@ -96,7 +110,7 @@ const decorate = flow(
 
 const SidePanel = decorate((props) => {
   const {
-    UI: {toggleSidePanel, toggleJourneyDetails},
+    UI: {toggleSidePanel, toggleJourneyDetails, toggleJourneyGraph},
     areaEvents = [],
     journey = null,
     journeyLoading = false,
@@ -117,7 +131,6 @@ const SidePanel = decorate((props) => {
 
   const hasRoute = !!route && !!route.routeId;
   const hasJourney = !!journey;
-
   // Figure out which tab is suggested. It will not be outright selected, but
   // if it appears and nothing else is selected then it will be.
   let suggestedTab = "";
@@ -186,11 +199,20 @@ const SidePanel = decorate((props) => {
         {/* The content of the sidebar is independent from the sidebar wrapper so that we can animate it. */}
         {detailsOpen && <JourneyDetails loading={journeyLoading} journey={journey} />}
         {hasJourney && (
-          <Tooltip helpText="Toggle journey details button">
-            <ToggleJourneyDetailsButton onClick={() => toggleJourneyDetails()}>
-              <Info fill="white" height="1rem" width="1rem" />
-            </ToggleJourneyDetailsButton>
-          </Tooltip>
+          <div>
+            <Tooltip helpText="Toggle journey details button">
+              <ToggleJourneyDetailsButton onClick={() => toggleJourneyDetails()}>
+                <Info fill="white" height="1rem" width="1rem" />
+              </ToggleJourneyDetailsButton>
+            </Tooltip>
+            <Tooltip>
+              <ToggleGraphButton
+                isVisible={detailsOpen}
+                onClick={() => toggleJourneyGraph()}>
+                <Chart fill="white" height="1rem" width="1rem" />
+              </ToggleGraphButton>
+            </Tooltip>
+          </div>
         )}
       </JourneyPanel>
       <Tooltip helpText="Toggle sidebar button">

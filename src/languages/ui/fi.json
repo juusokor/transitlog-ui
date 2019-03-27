@@ -56,6 +56,8 @@
   "journey.departure": "Lähtö",
   "journey.end_of_stream": "Tietovirran loppu käytetty pysäkin lähtöajankohtana.",
   "journey.duration": "Matkan kesto",
+  "journey.hide_graph": "Piilota viiveet ja keskinopeudet",
+  "journey.show_graph": "Näytä viiveet ja keskinopeudet",
 
   "domain.line": "Linja",
   "domain.route": "Reitti",
