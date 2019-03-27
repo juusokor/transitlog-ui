@@ -82,11 +82,14 @@ const WeatherDisplay = styled(WeatherWidget)`
 const DateTimeHeading = styled.div``;
 
 export default observer(({date, journey, currentTime}) => {
-  const [currentJourneyWeather] = useJourneyWeather(journey.events, getJourneyId(journey));
+  const [currentJourneyWeather] = useJourneyWeather(
+    journey.events,
+    getJourneyId(journey)
+  );
   const debouncedTime = useDebouncedValue(currentTime.valueOf(), 1000);
   const journeyWeather = useWeatherData(currentJourneyWeather, debouncedTime);
-  
-  const { mode, routeId, uniqueVehicleId, departureTime, name } = journey
+
+  const {mode, routeId, uniqueVehicleId, departureTime, name} = journey;
 
   return (
     <JourneyPanelHeader>
