@@ -83,7 +83,6 @@ class JourneyDetails extends React.Component {
     // Select the first event to define the journey
     const events = get(selectedJourneyEvents, "[0].events", []);
     const journey = get(events, "[0]", {});
-
     return (
       <JourneyPanelWrapper>
         <JourneyDetailsHeader
