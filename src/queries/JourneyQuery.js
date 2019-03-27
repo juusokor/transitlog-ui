@@ -179,7 +179,7 @@ const JourneyQuery = (props) => {
 
   return (
     <Query
-      fetchPolicy="cache-and-network"
+      partialRefetch={true}
       client={client}
       skip={skip || !journey}
       query={journeyQuery}

@@ -5,8 +5,8 @@ const getJourneyId = (journey = null, matchVehicle = true) => {
     return "";
   }
 
-  if (typeof journey === "string" || journey.id) {
-    const idStr = journey.id || journey;
+  if (typeof journey === "string") {
+    const idStr = journey;
     // If we don't want to match the vehicle, strip the vehicle id part from the ID if it exists.
     // The regex removes the part of the ID after the last _ if it contains a /.
     return !matchVehicle ? idStr.replace(/_(?=.*\/.*)([^_]*)$/g, "") : idStr;

@@ -1,8 +1,7 @@
-import React, {useEffect, useRef, useCallback, useMemo} from "react";
+import React, {useRef} from "react";
 import {Query} from "react-apollo";
 import get from "lodash/get";
 import gql from "graphql-tag";
-import {setUpdateListener, removeUpdateListener} from "../stores/UpdateManager";
 import {getServerClient} from "../api";
 import {observer} from "mobx-react-lite";
 
