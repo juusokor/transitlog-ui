@@ -18,6 +18,9 @@ import {inject} from "../helpers/inject";
 import flow from "lodash/flow";
 import withRoute from "../hoc/withRoute";
 import {mergeJourneyEvents} from "../helpers/mergeJourneyEvents";
+import {getJourneyAverageSpeeds} from "../helpers/getJourneyAverageSpeeds";
+import {getJourneyStopDiffs} from "../helpers/getJourneyStopDiffs";
+import Graph from "./sidepanel/journeyDetails/Graph";
 
 const AppFrame = styled.main`
   width: 100%;
@@ -47,6 +50,20 @@ const MapPanel = styled(Map)`
   height: 100%;
 `;
 
+const GraphContainer = styled.div`
+  background-color: white;
+  border: 1px solid var(--alt-grey);
+  height: ${({journeyGraphOpen}) => (journeyGraphOpen ? "170px;" : "0px;")};
+  border: ${({journeyGraphOpen}) =>
+    journeyGraphOpen ? "1px solid var(--alt-grey);" : "none;"};
+  border-radius: 5px;
+  position: absolute;
+  left: 25%;
+  right: 25%;
+  bottom: 5%;
+  z-index: 500;
+`;
+
 const decorate = flow(
   observer,
   withRoute(),
@@ -61,6 +78,7 @@ function App({state, UI}) {
     shareModalOpen,
     selectedJourney,
     live,
+    journeyGraphOpen,
   } = state;
   const selectedJourneyId = getJourneyId(selectedJourney);
 
@@ -164,6 +182,27 @@ function App({state, UI}) {
                                           viewLocation={setViewerLocation}
                                           mapBounds={getMapView()}
                                         />
+                                        {journeyStops && (
+                                          <GraphContainer
+                                            journeyGraphOpen={
+                                              journeyStops.length > 0 &&
+                                              journeyGraphOpen
+                                            }
+                                            id="GraphContainer">
+                                            <Graph
+                                              diffs={getJourneyStopDiffs(
+                                                journeyStops
+                                              )}
+                                              speedAverages={getJourneyAverageSpeeds(
+                                                selectedJourneyEvents[0]
+                                              )}
+                                              graphExpanded={
+                                                journeyStops.length > 0 &&
+                                                journeyGraphOpen
+                                              }
+                                            />
+                                          </GraphContainer>
+                                        )}
                                       </>
                                     )}
                                   </MapPanel>

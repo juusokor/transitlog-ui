@@ -17,6 +17,14 @@ export default (state) => {
     setUrlValue("journeyDetailsOpen", state.journeyDetailsOpen);
   });
 
+  const toggleJourneyGraph = action((setTo = !state.journeyGraphOpen) => {
+    state.journeyGraphOpen = !!setTo;
+  });
+
+  const hideJourneyGraph = action(() => {
+    state.journeyGraphOpen = false;
+  });
+
   const setLanguage = action((language) => {
     if (Object.values(LANGUAGES).includes(language)) {
       languageState.language = language;
@@ -90,6 +98,8 @@ export default (state) => {
   return {
     toggleSidePanel,
     toggleJourneyDetails,
+    toggleJourneyGraph,
+    hideJourneyGraph,
     setLanguage,
     changeOverlay,
     addError,

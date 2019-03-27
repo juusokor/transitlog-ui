@@ -3,7 +3,6 @@ import {app} from "mobx-app";
 import {observer, inject} from "mobx-react";
 import styled from "styled-components";
 import doubleDigit from "../../../helpers/doubleDigit";
-import {Text} from "../../../helpers/text";
 import "../../../../node_modules/react-vis/dist/style.css";
 import {
   XYPlot,
@@ -16,11 +15,6 @@ import {
   Crosshair,
   LineSeries,
 } from "react-vis";
-
-const GraphWrapper = styled.div`
-  margin-top: 15px;
-  overflow-x: hidden;
-`;
 
 const GraphTooltip = styled.div`
   font-weight: 500;
@@ -41,18 +35,6 @@ const ColoredBackgroundSlot = styled.div`
   color: white;
   font-size: 0.875rem;
   padding: 4px;
-`;
-
-const GraphToggle = styled.div`
-  color: #007ac9;
-  cursor: pointer;
-  text-decoration: underline dashed;
-  font: 400 13.3333px Arial;
-  transition: transform 0.1s ease-out;
-  padding-left: 1.5rem;
-  &:hover {
-    transform: scale(1.025);
-  }
 `;
 
 const FlexColumn = styled.div`
@@ -98,7 +80,7 @@ class Graph extends React.Component {
   }
 
   render() {
-    const {diffs, speedAverages, toggleGraphExpanded, graphExpanded} = this.props;
+    const {diffs, speedAverages, graphExpanded} = this.props;
     const highlight = this.state.highlight;
     const avgSpeed = this.state.avgSpeed;
     const mapDiffs = diffs.map(function(o) {
@@ -106,19 +88,17 @@ class Graph extends React.Component {
     });
     const max = Math.max.apply(Math, mapDiffs);
     const min = Math.min.apply(Math, mapDiffs);
+    const GraphContainerElement = document.getElementById("GraphContainer");
+    let width = 0;
+    if (GraphContainerElement) {
+      width = GraphContainerElement.offsetWidth;
+    }
     return (
-      <GraphWrapper>
-        <GraphToggle onClick={() => toggleGraphExpanded()}>
-          {graphExpanded ? (
-            <Text>journey.hide_graph</Text>
-          ) : (
-            <Text>journey.show_graph</Text>
-          )}
-        </GraphToggle>
+      <div>
         {graphExpanded && (
           <XYPlot
-            height={300}
-            width={380}
+            height={200}
+            width={width}
             onClick={(d) => {
               this.props.Filters.setStop(highlight.stopId);
             }}
@@ -171,7 +151,7 @@ class Graph extends React.Component {
             <MarkSeries data={[avgSpeed]} />
           </XYPlot>
         )}
-      </GraphWrapper>
+      </div>
     );
   }
 }

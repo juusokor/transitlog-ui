@@ -25,10 +25,13 @@ const PollToggle = styled(ToggleButton)`
   flex: 0;
 `;
 
-@inject(app("Filters", "Update", "Time"))
+@inject(app("Filters", "Update", "Time", "UI"))
 @observer
 class ControlBar extends Component {
-  onClickReset = () => this.props.Filters.reset();
+  onClickReset = () => {
+    this.props.Filters.reset();
+    this.props.UI.hideJourneyGraph();
+  };
   onClickUpdate = () => this.props.Update.update();
   onToggleLive = () => this.props.Time.toggleLive();
 
