@@ -31,6 +31,7 @@ const AppFrame = styled.main`
 
 const AppGrid = styled.div`
   width: 100%;
+  min-width: 1400px; // No, we are not mobile friendly
   height: 100vh;
   display: grid;
   grid-template-rows: 9rem 1fr;
@@ -58,9 +59,10 @@ const GraphContainer = styled.div`
     journeyGraphOpen ? "1px solid var(--alt-grey);" : "none;"};
   border-radius: 5px;
   position: absolute;
-  left: 25%;
-  right: 25%;
+  width: 500px;
+  left: 50%;
   bottom: 5%;
+  transform: translateX(-50%);
   z-index: 500;
 `;
 
@@ -187,9 +189,9 @@ function App({state, UI}) {
                                             journeyGraphOpen={
                                               journeyStops.length > 0 &&
                                               journeyGraphOpen
-                                            }
-                                            id="GraphContainer">
+                                            }>
                                             <Graph
+                                              width={500}
                                               diffs={getJourneyStopDiffs(
                                                 journeyStops
                                               )}

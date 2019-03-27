@@ -51,7 +51,7 @@ const Title = styled.div`
   padding: 5px;
 `;
 
-@inject(app("Filters"))
+@inject(app("Filters", "UI"))
 @observer
 class Graph extends React.Component {
   constructor(props) {
@@ -80,7 +80,8 @@ class Graph extends React.Component {
   }
 
   render() {
-    const {diffs, speedAverages, graphExpanded} = this.props;
+    const {diffs, speedAverages, graphExpanded, UI, width} = this.props;
+
     const highlight = this.state.highlight;
     const avgSpeed = this.state.avgSpeed;
     const mapDiffs = diffs.map(function(o) {
@@ -88,14 +89,12 @@ class Graph extends React.Component {
     });
     const max = Math.max.apply(Math, mapDiffs);
     const min = Math.min.apply(Math, mapDiffs);
-    const GraphContainerElement = document.getElementById("GraphContainer");
-    let width = 0;
-    if (GraphContainerElement) {
-      width = GraphContainerElement.offsetWidth;
-    }
+
+    console.log(width);
+
     return (
       <div>
-        {graphExpanded && (
+        {graphExpanded && width && (
           <XYPlot
             height={200}
             width={width}
@@ -125,7 +124,7 @@ class Graph extends React.Component {
               data={diffs}
               curve="curveNatural"
               onNearestX={(d) => {
-                this.props.Filters.setGraphHoverHighlight(d.stopId);
+                UI.highlightStop(d.stopId);
                 this.setState({
                   highlight: d,
                 });

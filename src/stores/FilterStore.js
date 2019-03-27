@@ -26,7 +26,6 @@ export default (state, initialState = {}) => {
   const emptyState = {
     date: moment.tz(new Date(), TIMEZONE).format("YYYY-MM-DD"),
     stop: "",
-    graphHoverHighlight: "",
     vehicle: "",
     line: {
       lineId: "",
