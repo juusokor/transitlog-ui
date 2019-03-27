@@ -8,6 +8,7 @@ import {getServerClient} from "../api";
 const routeQuery = gql`
   query routeQuery($routeId: String!, $direction: Direction!, $date: Date!) {
     routeGeometry(routeId: $routeId, direction: $direction, date: $date) {
+      id
       coordinates {
         lat
         lng

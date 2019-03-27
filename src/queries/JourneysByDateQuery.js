@@ -44,12 +44,14 @@ export const routeJourneysQuery = gql`
         _numInstance
       }
       plannedArrivalTime {
+        id
         arrivalDate
         arrivalDateTime
         arrivalTime
         isNextDay
       }
       observedArrivalTime {
+        id
         arrivalDate
         arrivalDateTime
         arrivalTime
@@ -57,12 +59,14 @@ export const routeJourneysQuery = gql`
         doorDidOpen
       }
       plannedDepartureTime {
+        id
         departureDate
         departureDateTime
         departureTime
         isNextDay
       }
       observedDepartureTime {
+        id
         departureDate
         departureDateTime
         departureTime

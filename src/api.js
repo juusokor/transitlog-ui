@@ -10,14 +10,6 @@ const joreUrl = process.env.REACT_APP_JORE_GRAPHQL_URL;
 const hfpUrl = process.env.REACT_APP_HFP_GRAPHQL_URL;
 const serverUrl = process.env.REACT_APP_TRANSITLOG_SERVER;
 
-if (!joreUrl) {
-  console.error("JORE GraphQL URL not set!");
-}
-
-if (!hfpUrl) {
-  console.error("HFP GraphQL URL not set!");
-}
-
 if (!serverUrl) {
   console.error("Tansitlog server URL not set!");
 }
@@ -114,7 +106,7 @@ export const getClient = async (UIStore) => {
         "none"
       );
 
-      if ( operation.operationName === "journeyQuery" || queryName === "vehicles") {
+      if (operation.operationName === "journeyQuery" || queryName === "vehicles") {
         return false;
       }
 

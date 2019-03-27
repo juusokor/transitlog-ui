@@ -45,12 +45,14 @@ const departuresQuery = gql`
         _numInstance
       }
       observedDepartureTime {
+        id
         departureDate
         departureTime
         departureDateTime
         departureTimeDifference
       }
       plannedDepartureTime {
+        id
         departureDate
         departureTime
         departureDateTime

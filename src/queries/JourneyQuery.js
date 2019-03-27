@@ -47,6 +47,7 @@ export const journeyQuery = gql`
         vehicleId
       }
       events {
+        id
         delay
         doorStatus
         heading
@@ -94,18 +95,21 @@ export const journeyQuery = gql`
           stopIndex
         }
         plannedArrivalTime {
+          id
           arrivalDate
           arrivalDateTime
           arrivalTime
           isNextDay
         }
         observedArrivalTime {
+          id
           arrivalDate
           arrivalDateTime
           arrivalTime
           arrivalTimeDifference
           doorDidOpen
           arrivalEvent {
+            id
             nextStopId
             receivedAt
             recordedAt
@@ -114,11 +118,13 @@ export const journeyQuery = gql`
           }
         }
         observedDepartureTime {
+          id
           departureDate
           departureTime
           departureDateTime
           departureTimeDifference
           departureEvent {
+            id
             nextStopId
             receivedAt
             recordedAt
@@ -127,6 +133,7 @@ export const journeyQuery = gql`
           }
         }
         plannedDepartureTime {
+          id
           departureDate
           departureTime
           departureDateTime

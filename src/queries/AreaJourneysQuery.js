@@ -7,8 +7,13 @@ import {getServerClient} from "../api";
 import {observer} from "mobx-react-lite";
 
 const areaJourneysQuery = gql`
-  query areaJourneysQuery($minTime: DateTime!, $maxTime: DateTime!, $bbox: PreciseBBox!) {
-    eventsByBbox(minTime: $minTime, maxTime: $maxTime, bbox: $bbox) {
+  query areaJourneysQuery(
+    $minTime: DateTime!
+    $maxTime: DateTime!
+    $bbox: PreciseBBox!
+    $date: Date!
+  ) {
+    eventsByBbox(minTime: $minTime, maxTime: $maxTime, bbox: $bbox, date: $date) {
       id
       routeId
       direction
@@ -20,6 +25,7 @@ const areaJourneysQuery = gql`
       headsign
       mode
       events {
+        id
         receivedAt
         recordedAt
         recordedAtUnix
@@ -36,34 +42,15 @@ const areaJourneysQuery = gql`
   }
 `;
 
-const updateListenerName = "area hfp query";
-
 const client = getServerClient();
 
 const AreaJourneysQuery = observer((props) => {
-  const {minTime, maxTime, bbox, skip, children} = props;
+  const {minTime, maxTime, bbox, date, skip, children} = props;
+
   const prevResults = useRef([]);
-  const refetcher = useRef(null);
 
-  const queryVars = useMemo(
-    () => ({
-      minTime: minTime,
-      maxTime: maxTime,
-      bbox,
-    }),
-    [minTime, maxTime, bbox]
-  );
-
-  const queryParamsValid = queryVars.minTime && queryVars.maxTime && queryVars.bbox;
+  const queryParamsValid = minTime && maxTime && bbox && date;
   const shouldSkip = skip || !queryParamsValid;
-
-  const createRefetcher = (refetch) => () => {
-    if (!shouldSkip) {
-      refetch(queryVars);
-    }
-  };
-
-  useEffect(() => () => removeUpdateListener(updateListenerName), []);
 
   if (shouldSkip) {
     prevResults.current = [];
@@ -73,20 +60,23 @@ const AreaJourneysQuery = observer((props) => {
     <Query
       client={client}
       skip={shouldSkip}
-      variables={queryVars}
+      variables={{
+        minTime,
+        maxTime,
+        bbox,
+        date,
+      }}
+      notifyOnNetworkStatusChange={true}
       query={areaJourneysQuery}>
-      {({loading, data, error, refetch, variables, ...rest}) => {
+      {({loading, data, error}) => {
         if (!data || loading) {
-          return children({journeys: prevResults.current, loading, error, ...rest});
+          return children({journeys: prevResults.current, loading, error});
         }
 
         const journeys = get(data, "eventsByBbox", []);
-
         prevResults.current = journeys;
-        refetcher.current = refetch;
 
-        setUpdateListener(updateListenerName, createRefetcher(refetch));
-        return children({journeys, loading, error, ...rest});
+        return children({journeys, loading, error});
       }}
     </Query>
   );

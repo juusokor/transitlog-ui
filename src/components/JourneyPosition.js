@@ -28,40 +28,30 @@ class JourneyPosition extends Component {
     return this.matchJourneyEvents(unixTime, journeys, isLiveAndCurrent);
   }
 
-  @computed get journeys() {
-    const {journeys} = this.props;
-    console.log(journeys);
-
-    return [];
-  }
-
   matchEventLive(time, events) {
-    const candidate = findLast(events, (event) => {
+    return findLast(events, (event) => {
       if (!event.lat || !event.lng) {
         return false;
       }
 
       const eventTime = event.recordedAtUnix;
-      return Math.abs(time - eventTime) < 10;
+      return Math.abs(time - eventTime) <= 5 * 60;
     });
-
-    console.log(candidate);
-    return candidate;
   }
 
   matchEventToTime = (time, events, defaultToEnds = true) => {
     let i = 0;
     let checkSeconds = time;
     let nextEvent = null;
-    let alternate = last(events).recordedAtTime > time;
+    let alternate = last(events).recordedAtUnix > time;
+
+    const findEvent = ({recordedAtUnix = 0}) =>
+      Math.abs(checkSeconds - recordedAtUnix) <= 3;
 
     // Max iterations is 60, which means events can be at most 30 seconds before
     // or after i to be displayed.
-    while (!nextEvent && i <= 60) {
-      nextEvent = findLast(
-        events,
-        ({recordedAtUnix = 0}) => Math.abs(checkSeconds - recordedAtUnix) <= 5
-      );
+    while (!nextEvent && i <= 120) {
+      nextEvent = findLast(events, findEvent);
 
       if (nextEvent) {
         break;
@@ -70,14 +60,14 @@ class JourneyPosition extends Component {
       i++;
 
       if (alternate) {
-        // Alternately check after (even i) and before (odd i) `time`
+        // Alternately check after (even i) and before (odd i) time
         if (i % 2 === 0) {
           checkSeconds = time + Math.round(i / 2);
         } else {
           checkSeconds = time - Math.round(i / 2);
         }
       } else {
-        checkSeconds = time - 1;
+        checkSeconds = time - i;
       }
     }
 
@@ -123,13 +113,11 @@ class JourneyPosition extends Component {
       }
 
       let nextEvent;
-
-      if (isLive) {
-        nextEvent = this.matchEventLive(time, events);
-      } else {
+      if (!isLive) {
         nextEvent = this.matchEventToTime(time, events, journeys.length === 1);
+      } else {
+        nextEvent = this.matchEventLive(time, events);
       }
-
       journeyEvents.set(id, nextEvent);
     });
 

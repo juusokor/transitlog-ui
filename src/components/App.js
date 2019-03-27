@@ -14,8 +14,6 @@ import SelectedJourneyEvents from "./SelectedJourneyEvents";
 import getJourneyId from "../helpers/getJourneyId";
 import {inject} from "../helpers/inject";
 import flow from "lodash/flow";
-import compact from "lodash/compact";
-import {mergeJourneys} from "../helpers/mergeJourneys";
 import {withRoute} from "../hoc/withRoute";
 import AreaJourneys from "./AreaJourneys";
 import MergedJourneys from "./MergedJourneys";
@@ -117,7 +115,6 @@ function App({state, UI}) {
                                         <Observer>
                                           {() => {
                                             // Set the map center from a selected stop position or selected selectedJourney position.
-
                                             if (!live) {
                                               const stopPosition = stop
                                                 ? latLng([stop.lat, stop.lng])

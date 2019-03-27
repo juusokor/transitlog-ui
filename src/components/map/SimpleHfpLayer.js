@@ -14,7 +14,7 @@ const SimpleHfpLayer = observer((props) => {
   return (
     <Polyline
       key={`hfp_polyline_${name}`}
-      pane="hfp-lines"
+      pane="event-lines"
       weight={weight}
       color="var(--red)"
       opacity={opacity}

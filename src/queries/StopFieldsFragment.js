@@ -11,6 +11,7 @@ export const StopFieldsFragment = gql`
     radius
     modes
     routes {
+      id
       direction
       isTimingStop
       originStopId
