@@ -34,8 +34,11 @@ export default (state, initialState) => {
       const {live, timeIsCurrent} = state;
       return live && timeIsCurrent;
     },
-    timeIncrement: get(initialState, "time_increment", 5),
-    areaSearchRangeMinutes: get(initialState, "area_search_minutes", 60),
+    timeIncrement: parseInt(get(initialState, "time_increment", "5"), 10),
+    areaSearchRangeMinutes: parseInt(
+      get(initialState, "area_search_minutes", 60),
+      10
+    ),
   });
 
   const actions = timeActions(state);

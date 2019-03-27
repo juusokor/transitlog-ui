@@ -1,25 +1,17 @@
-import {latLngBounds} from "leaflet";
-import get from "lodash/get";
+import {latLngBounds, latLng} from "leaflet";
 
-function calculateBoundsFromPositions(positions = []) {
-  let latMin = 0;
-  let lngMin = 0;
-  let latMax = latMin;
-  let lngMax = lngMin;
+function calculateBoundsFromPositions(points = []) {
+  const minPoint = points[0];
+  const maxPoint = points[points.length - 1];
 
-  let posIndex = 0;
-  const totalPositions = positions.length;
-
-  for (; posIndex < totalPositions; posIndex++) {
-    const pos = positions[posIndex];
-
-    latMin = latMin ? Math.min(latMin, get(pos, "[0]", 0)) : get(pos, "[0]", 0);
-    lngMin = lngMin ? Math.min(lngMin, get(pos, "[1]", 0)) : get(pos, "[0]", 0);
-    latMax = Math.max(latMax, get(pos, "[0]", 0));
-    lngMax = Math.max(lngMax, get(pos, "[1]", 0));
+  if (!minPoint || !maxPoint) {
+    return null;
   }
 
-  return latLngBounds([[latMin, lngMin], [latMax, lngMax]]);
+  const minPosition = latLng(minPoint);
+  const maxPosition = latLng(maxPoint);
+
+  return latLngBounds(minPosition, maxPosition);
 }
 
 export default calculateBoundsFromPositions;

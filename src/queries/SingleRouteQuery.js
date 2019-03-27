@@ -12,7 +12,7 @@ import {
 import {observer} from "mobx-react";
 import orderBy from "lodash/orderBy";
 import {getDayTypeFromDate} from "../helpers/getDayTypeFromDate";
-import {filterRoutes} from "../helpers/filterJoreCollections";
+import {getValidItemsByDateChains} from "../helpers/filterJoreCollections";
 
 export const singleRouteQuery = gql`
   query singleRouteQuery($routeId: String!, $direction: String!) {
@@ -52,7 +52,8 @@ const extensiveSingleRouteQuery = gql`
 
 function getRoute(data = {}, date) {
   let routes = get(data, "allRoutes.nodes", []);
-  return orderBy(filterRoutes(routes, date), "dateBegin", "desc")[0];
+  routes = getValidItemsByDateChains([routes], date);
+  return orderBy(routes, "dateBegin", "desc")[0];
 }
 
 export const SimpleRouteQuery = ({route, date, onCompleted, skip, children}) => {

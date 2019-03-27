@@ -3,6 +3,8 @@ import PropTypes from "prop-types";
 import get from "lodash/get";
 import {Query} from "react-apollo";
 import gql from "graphql-tag";
+import {createRouteKey} from "../helpers/keys";
+import {getValidItemsByDateChains} from "../helpers/filterJoreCollections";
 
 const routeQuery = gql`
   query routeQuery(
@@ -44,7 +46,7 @@ class RouteGeometryQuery extends Component {
       dateBegin: PropTypes.string.isRequired,
       dateEnd: PropTypes.string.isRequired,
     }).isRequired,
-    date: PropTypes.string,
+    date: PropTypes.string.isRequired,
     children: PropTypes.func.isRequired,
   };
 
@@ -52,12 +54,13 @@ class RouteGeometryQuery extends Component {
     route: {},
   };
 
-  shouldComponentUpdate({route}) {
-    return !!route.routeId; // Stop the map from flashing and thrashing
+  shouldComponentUpdate({route: nextRoute}) {
+    const {route} = this.props;
+    return !!route.routeId && createRouteKey(route) !== createRouteKey(nextRoute); // Stop the map from flashing and thrashing
   }
 
   render() {
-    const {route = {}, children} = this.props;
+    const {route = {}, children, date} = this.props;
     const {routeId = "", direction, dateBegin = "", dateEnd = ""} = route;
 
     return (
@@ -76,10 +79,7 @@ class RouteGeometryQuery extends Component {
           }
 
           const geometries = get(data, "route.geometries.nodes", []);
-          const geometry = geometries.find(
-            ({dateBegin: geomDateBegin, dateEnd: geomDateEnd}) =>
-              geomDateBegin === dateBegin && geomDateEnd === dateEnd
-          );
+          let geometry = getValidItemsByDateChains([geometries], date)[0];
 
           const coordinates = get(geometry, "geometry.coordinates", []).map(
             ([lon, lat]) => [lat, lon]
