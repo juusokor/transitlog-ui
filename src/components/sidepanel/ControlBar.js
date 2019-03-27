@@ -30,7 +30,6 @@ const PollToggle = styled(ToggleButton)`
 class ControlBar extends Component {
   onClickReset = () => {
     this.props.Filters.reset();
-    this.props.UI.hideJourneyGraph();
   };
   onClickUpdate = () => this.props.Update.update();
   onToggleLive = () => this.props.Time.toggleLive();

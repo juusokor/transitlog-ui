@@ -3,7 +3,7 @@ import {app} from "mobx-app";
 import {observer, inject} from "mobx-react";
 import styled from "styled-components";
 import doubleDigit from "../../../helpers/doubleDigit";
-import "../../../../node_modules/react-vis/dist/style.css";
+import "react-vis/dist/style.css";
 import {
   XYPlot,
   VerticalGridLines,

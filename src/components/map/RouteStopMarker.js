@@ -11,7 +11,7 @@ import {flow} from "lodash";
 
 const decorate = flow(
   observer,
-  inject("Filters", "state")
+  inject("Filters")
 );
 
 const RouteStopMarker = decorate(
