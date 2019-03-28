@@ -1,8 +1,6 @@
-import React from "react";
-import {app} from "mobx-app";
-import {observer, inject} from "mobx-react";
+import React, {useMemo, useState, useEffect} from "react";
+import {observer} from "mobx-react-lite";
 import styled from "styled-components";
-import doubleDigit from "../../helpers/doubleDigit";
 import "react-vis/dist/style.css";
 import {
   XYPlot,
@@ -15,6 +13,11 @@ import {
   Crosshair,
   LineSeries,
 } from "react-vis";
+import {inject} from "../../helpers/inject";
+import flow from "lodash/flow";
+import {secondsToTime} from "../../helpers/time";
+import {getJourneyStopDiffs} from "../../helpers/getJourneyStopDiffs";
+import {getJourneyAverageSpeeds} from "../../helpers/getJourneyAverageSpeeds";
 
 const GraphTooltip = styled.div`
   font-weight: 500;
@@ -51,106 +54,103 @@ const Title = styled.div`
   padding: 5px;
 `;
 
-@inject(app("Filters", "UI"))
-@observer
-class Graph extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      highlight: {x: 0, y: 0},
-      avgSpeed: {x: 0, y: 0},
-    };
-  }
+const decorate = flow(
+  observer,
+  inject("Filters", "UI")
+);
 
-  secondsToTime() {
-    let diff = this.state.highlight.y;
-    const departureDiffSign = diff < 0 ? "-" : "";
-    diff = Math.abs(diff);
-    let minutes = Math.floor(diff / 60);
-    let seconds = diff - minutes * 60;
-    minutes = doubleDigit(minutes);
-    seconds = doubleDigit(seconds);
-    return departureDiffSign + minutes + ":" + seconds;
-  }
+const Graph = decorate((props) => {
+  const {departures, events, graphExpanded, UI, Filters, width} = props;
 
-  coloredBackgroundSlotColor() {
-    return this.state.highlight.departureColor
-      ? this.state.highlight.departureColor
-      : "var(--light-grey)";
-  }
+  const diffs = useMemo(() => getJourneyStopDiffs(departures), [departures]);
+  const speedAverages = useMemo(() => getJourneyAverageSpeeds(events), [events]);
 
-  render() {
-    const {diffs, speedAverages, graphExpanded, UI, width} = this.props;
+  const [highlight, setHighlight] = useState({x: 0, y: 0});
+  const [avgSpeed, setAvgSpeed] = useState({x: 0, y: 0});
 
-    const highlight = this.state.highlight;
-    const avgSpeed = this.state.avgSpeed;
-    const mapDiffs = diffs.map(function(o) {
-      return o.y;
-    });
+  const mapDiffs = useMemo(
+    () =>
+      diffs.map((o) => {
+        return o.y;
+      }),
+    [diffs]
+  );
+
+  const {max, min} = useMemo(() => {
     const max = Math.max.apply(Math, mapDiffs);
     const min = Math.min.apply(Math, mapDiffs);
+    return {max, min};
+  }, [mapDiffs]);
 
-    return (
-      <div>
-        {graphExpanded && width && (
-          <XYPlot
-            height={200}
-            width={width}
-            onClick={(d) => {
-              this.props.Filters.setStop(highlight.stopId);
+  const coloredBackgroundSlotColor = useMemo(() => {
+    return highlight.departureColor ? highlight.departureColor : "var(--light-grey)";
+  }, [highlight]);
+
+  const time = useMemo(() => secondsToTime(highlight.y), [highlight]);
+
+  useEffect(() => {
+    if (diffs.length !== 0 && highlight.x === 0 && highlight.y === 0) {
+      setHighlight(diffs[0]);
+    }
+
+    if (speedAverages.length !== 0 && avgSpeed.x === 0 && avgSpeed.y === 0) {
+      const data = speedAverages[0];
+      const graphPoint = {x: data.x, y: data.y};
+      setAvgSpeed(graphPoint);
+    }
+  }, [diffs, speedAverages]);
+
+  return (
+    <div>
+      {graphExpanded && width && (
+        <XYPlot
+          height={200}
+          width={width}
+          onClick={() => Filters.setStop(highlight.stopId)}
+          yDomain={[min < -200 ? min : -200, max > 200 ? max : 200]}>
+          <VerticalGridLines />
+          <HorizontalGridLines />
+          <YAxis title="sec, km/h" />
+          <XAxis hideTicks />
+          <Crosshair values={[highlight]}>
+            <GraphTooltip>
+              <FlexColumn>
+                <FlexRow>
+                  <Title>Pysäkki: {highlight.stopId}</Title>
+                  <ColoredBackgroundSlot backgroundColor={coloredBackgroundSlotColor}>
+                    {time}
+                  </ColoredBackgroundSlot>
+                </FlexRow>
+                <Title>Keskinopeus: {avgSpeed.y} km/h</Title>
+              </FlexColumn>
+            </GraphTooltip>
+          </Crosshair>
+          <AreaSeries
+            data={diffs}
+            curve="curveNatural"
+            onNearestX={(d) => {
+              UI.highlightStop(d.stopId);
+              setHighlight(d);
             }}
-            yDomain={[min < -200 ? min : -200, max > 200 ? max : 200]}>
-            <VerticalGridLines />
-            <HorizontalGridLines />
-            <YAxis title="sec, km/h" />
-            <XAxis hideTicks />
-            <Crosshair values={[highlight]}>
-              <GraphTooltip>
-                <FlexColumn>
-                  <FlexRow>
-                    <Title>Pysäkki: {highlight.stopId}</Title>
-                    <ColoredBackgroundSlot
-                      backgroundColor={this.coloredBackgroundSlotColor()}>
-                      {this.secondsToTime()}
-                    </ColoredBackgroundSlot>
-                  </FlexRow>
-                  <Title>Keskinopeus: {avgSpeed.y} km/h</Title>
-                </FlexColumn>
-              </GraphTooltip>
-            </Crosshair>
-            <AreaSeries
-              data={diffs}
-              curve="curveNatural"
-              onNearestX={(d) => {
-                UI.highlightStop(d.stopId);
-                this.setState({
-                  highlight: d,
-                });
-              }}
-            />
-            <LineSeries
-              data={speedAverages}
-              color={"red"}
-              onNearestX={(d) => {
-                const graphPoint = {x: d.x, y: d.y};
-                this.setState({
-                  avgSpeed: graphPoint,
-                });
-              }}
-            />
-            <MarkSeries
-              colorType="literal"
-              getColor={(d) => {
-                return d.departureColor;
-              }}
-              data={[highlight]}
-            />
-            <MarkSeries data={[avgSpeed]} />
-          </XYPlot>
-        )}
-      </div>
-    );
-  }
-}
+          />
+          <LineSeries
+            data={speedAverages}
+            color={"red"}
+            onNearestX={(d) => {
+              const graphPoint = {x: d.x, y: d.y};
+              setAvgSpeed(graphPoint);
+            }}
+          />
+          <MarkSeries
+            colorType="literal"
+            getColor={(d) => d.departureColor}
+            data={[highlight]}
+          />
+          <MarkSeries data={[avgSpeed]} />
+        </XYPlot>
+      )}
+    </div>
+  );
+});
 
 export default Graph;

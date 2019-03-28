@@ -17,8 +17,6 @@ import flow from "lodash/flow";
 import {withRoute} from "../hoc/withRoute";
 import AreaJourneys from "./AreaJourneys";
 import MergedJourneys from "./MergedJourneys";
-import {getJourneyAverageSpeeds} from "../helpers/getJourneyAverageSpeeds";
-import {getJourneyStopDiffs} from "../helpers/getJourneyStopDiffs";
 import Graph from "./map/Graph";
 
 const AppFrame = styled.main`
@@ -188,12 +186,8 @@ function App({state, UI}) {
                                             }>
                                             <Graph
                                               width={500}
-                                              diffs={getJourneyStopDiffs(
-                                                selectedJourneyData.departures
-                                              )}
-                                              speedAverages={getJourneyAverageSpeeds(
-                                                selectedJourneyData.events
-                                              )}
+                                              departures={selectedJourneyData.departures}
+                                              events={selectedJourneyData.events}
                                               graphExpanded={
                                                 selectedJourneyData.departures.length !==
                                                   0 && journeyGraphOpen
