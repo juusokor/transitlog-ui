@@ -18,6 +18,7 @@ import flow from "lodash/flow";
 import {secondsToTime} from "../../helpers/time";
 import {getJourneyStopDiffs} from "../../helpers/getJourneyStopDiffs";
 import {getJourneyAverageSpeeds} from "../../helpers/getJourneyAverageSpeeds";
+import {Text} from "../../helpers/text";
 
 const GraphTooltip = styled.div`
   font-weight: 500;
@@ -29,6 +30,18 @@ const GraphTooltip = styled.div`
   padding: 3px;
   border-style: solid;
   border-width: 1px;
+  min-width: 240px;
+  transform: translateY(0);
+  transition: transform 0.2s ease-out;
+  pointer-events: none;
+`;
+
+const GraphPlot = styled(XYPlot)`
+  &:hover {
+    ${GraphTooltip} {
+      transform: translateY(calc(-100% - 0.25rem));
+    }
+  }
 `;
 
 const ColoredBackgroundSlot = styled.div`
@@ -52,6 +65,9 @@ const FlexRow = styled.div`
 
 const Title = styled.div`
   padding: 5px;
+`;
+const Tick = styled.span`
+  width: 3rem;
 `;
 
 const decorate = flow(
@@ -103,24 +119,45 @@ const Graph = decorate((props) => {
   return (
     <div>
       {graphExpanded && width && (
-        <XYPlot
+        <GraphPlot
           height={200}
           width={width}
           onClick={() => Filters.setStop(highlight.stopId)}
           yDomain={[min < -200 ? min : -200, max > 200 ? max : 200]}>
           <VerticalGridLines />
           <HorizontalGridLines />
-          <YAxis title="sec, km/h" />
+          <YAxis
+            title="sec, km/h"
+            tickSize={0}
+            style={{
+              text: {
+                fill: "#6b6b76",
+                fontWeight: 600,
+                transform: "translateX(-7px)",
+                width: "4rem",
+              },
+            }}
+            tickFormat={(value) => secondsToTime(value).slice(3)}
+          />
           <XAxis hideTicks />
           <Crosshair values={[highlight]}>
             <GraphTooltip>
               <FlexColumn>
-                <FlexRow>
-                  <Title>Pysäkki: {highlight.stopId}</Title>
-                  <ColoredBackgroundSlot backgroundColor={coloredBackgroundSlotColor}>
-                    {time}
-                  </ColoredBackgroundSlot>
-                </FlexRow>
+                <FlexColumn>
+                  <FlexRow>
+                    <Title>
+                      Pysäkki: {highlight.stopId} {highlight.stopName}
+                    </Title>
+                  </FlexRow>
+                  <FlexRow>
+                    <Title>
+                      <Text>map.stops.depart</Text>
+                    </Title>
+                    <ColoredBackgroundSlot backgroundColor={coloredBackgroundSlotColor}>
+                      {time}
+                    </ColoredBackgroundSlot>
+                  </FlexRow>
+                </FlexColumn>
                 <Title>Keskinopeus: {avgSpeed.y} km/h</Title>
               </FlexColumn>
             </GraphTooltip>
@@ -147,7 +184,7 @@ const Graph = decorate((props) => {
             data={[highlight]}
           />
           <MarkSeries data={[avgSpeed]} />
-        </XYPlot>
+        </GraphPlot>
       )}
     </div>
   );
