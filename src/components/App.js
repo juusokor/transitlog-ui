@@ -62,7 +62,7 @@ const GraphContainer = styled.div`
   bottom: 1.5rem;
   transform: translateX(-50%);
   z-index: 500;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem;
 `;
 
 const decorate = flow(

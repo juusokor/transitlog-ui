@@ -128,12 +128,12 @@ const Graph = decorate((props) => {
           <HorizontalGridLines />
           <YAxis
             title="sec, km/h"
-            tickSize={0}
+            tickSize={5}
             style={{
               text: {
                 fill: "#6b6b76",
                 fontWeight: 600,
-                transform: "translateX(-7px)",
+                transform: "translateX(-10px)",
                 width: "4rem",
               },
             }}
