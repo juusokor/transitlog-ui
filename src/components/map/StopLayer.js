@@ -14,7 +14,13 @@ const decorate = flow(
 
 const StopLayer = decorate(({bounds, date, onViewLocation, showRadius, state}) => {
   const {stop: selectedStop} = state;
-  const bbox = bounds ? bounds.toBBoxString() : "";
+
+  const bbox =
+    bounds && typeof bounds.toBBoxString === "function"
+      ? bounds.toBBoxString()
+      : typeof bounds === "string"
+      ? bounds
+      : "";
 
   return (
     <StopsByBboxQuery skip={!bbox} bbox={bbox}>

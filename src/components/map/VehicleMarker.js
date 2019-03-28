@@ -80,8 +80,6 @@ const VehicleMarker = observer(({event, mode = "BUS", isSelectedJourney = false}
   // The velocity value can be a bit flaky, so I decided that under 2 m/s is stopped enough.
   const isStopped = event.velocity < 2;
 
-  // TODO: Highlight non-selected journeys
-
   return (
     <IconWrapper
       translucent={!isSelectedJourney}

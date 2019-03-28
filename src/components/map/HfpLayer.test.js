@@ -2,43 +2,37 @@ import {getLineChunksByDelay} from "./JourneyLayer";
 import getJourneyId from "../../helpers/getJourneyId";
 
 describe("SimpleHfpLayer", () => {
-  const defaultPosition = {
-    oday: "date",
-    journey_start_time: "starttime",
-    route_id: "routeid",
-    direction_id: "direction",
-    dl: 0,
+  const baseEvent = {
+    delay: 0,
     lat: 1,
-    long: 1,
+    lng: 1,
   };
 
-  function createPositions() {
-    const positions = [];
+  function createEvents() {
+    const events = [];
 
-    while (positions.length < 10) {
-      const i = positions.length;
+    while (events.length < 10) {
+      const i = events.length;
 
-      positions.push({
-        ...defaultPosition,
-        dl: i > 6 ? 40 : i > 3 ? 0 : -300, // Create three chunks
+      events.push({
+        ...baseEvent,
+        delay: i > 6 ? 40 : i > 3 ? 0 : -300, // Create three chunks
       });
     }
 
-    return positions;
+    return events;
   }
 
-  test("Cut the hfp positions array into chunks by delayType", () => {
-    const positions = createPositions();
-    // The function matches the journey to a journeyId
-    const matchJourney = getJourneyId(defaultPosition);
-    const positionChunks = getLineChunksByDelay(positions, matchJourney);
+  test("Cut the hfp events array into chunks by delayType", () => {
+    const events = createEvents();
+    const eventChunks = getLineChunksByDelay(events);
 
-    expect(positionChunks).toHaveLength(3);
-    expect(positionChunks[0].delayType).toBe("late");
-    expect(positionChunks[0].positions.length).toBeGreaterThanOrEqual(3);
-    expect(positionChunks[1].delayType).toBe("on-time");
-    expect(positionChunks[1].positions.length).toBeGreaterThanOrEqual(3);
-    expect(positionChunks[2].delayType).toBe("early");
-    expect(positionChunks[2].positions.length).toBeGreaterThanOrEqual(3);
+    expect(eventChunks).toHaveLength(3);
+    expect(eventChunks[0].delayType).toBe("late");
+    expect(eventChunks[0].events.length).toBeGreaterThanOrEqual(3);
+    expect(eventChunks[1].delayType).toBe("on-time");
+    expect(eventChunks[1].events.length).toBeGreaterThanOrEqual(3);
+    expect(eventChunks[2].delayType).toBe("early");
+    expect(eventChunks[2].events.length).toBeGreaterThanOrEqual(3);
   });
 });

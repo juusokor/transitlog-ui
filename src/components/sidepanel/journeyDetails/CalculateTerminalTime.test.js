@@ -1,5 +1,7 @@
 import {getMomentFromDateTime} from "../../../helpers/time";
 import CalculateTerminalTime from "./CalculateTerminalTime";
+import {render, cleanup} from "react-testing-library";
+import React from "react";
 
 describe("CalculateTerminalTime", () => {
   /*
@@ -8,18 +10,21 @@ describe("CalculateTerminalTime", () => {
     [departure time] - [terminal time].
    */
 
+  afterEach(cleanup);
+
   test("Calculates the terminal time difference", () => {
     const date = "2019-01-30";
 
     const departure = {
-      hours: 16,
-      minutes: 10,
-      isNextDay: false,
+      plannedArrivalTime: {
+        arrivalDateTime: "2019-01-30T16:10:00.000Z",
+      },
       terminalTime: 2,
+      recoveryTime: 2,
     };
 
     const event = {
-      tst: "2019-01-30T16:07:00.000Z", // 3 minutes before departure, 1 minute before terminal time
+      recordedAt: "2019-01-30T16:07:00.000Z", // 3 minutes before departure, 1 minute before terminal time
     };
 
     function assert({offsetTime, wasLate, diffMinutes, diffSeconds, sign}) {
@@ -31,28 +36,29 @@ describe("CalculateTerminalTime", () => {
       expect(sign).toBe("-");
       expect(diffMinutes).toBe(3);
       expect(diffSeconds).toBe(0);
+      return null;
     }
 
-    CalculateTerminalTime({
-      children: assert,
-      departure,
-      event,
-      date,
-    });
+    render(
+      <CalculateTerminalTime departure={departure} event={event}>
+        {assert}
+      </CalculateTerminalTime>
+    );
   });
 
   test("wasLate is true when the vehicle was late for the terminal time", () => {
     const date = "2019-01-30";
 
     const departure = {
-      hours: 16,
-      minutes: 10,
-      isNextDay: false,
+      plannedArrivalTime: {
+        arrivalDateTime: "2019-01-30T16:10:00.000Z",
+      },
       terminalTime: 2,
+      recoveryTime: 2,
     };
 
     const event = {
-      tst: "2019-01-30T16:10:00.000Z", // Right on departure time, 2 minutes after terminal time
+      recordedAt: "2019-01-30T16:10:00.000Z", // right on time, but late for the terminal time
     };
 
     function assert({offsetTime, wasLate, diffMinutes, diffSeconds, sign}) {
@@ -60,14 +66,14 @@ describe("CalculateTerminalTime", () => {
       expect(sign).toBe("");
       expect(diffMinutes).toBe(0);
       expect(diffSeconds).toBe(0);
+      return null;
     }
 
-    CalculateTerminalTime({
-      children: assert,
-      departure,
-      event,
-      date,
-    });
+    render(
+      <CalculateTerminalTime departure={departure} event={event}>
+        {assert}
+      </CalculateTerminalTime>
+    );
   });
 
   /*
@@ -79,14 +85,15 @@ describe("CalculateTerminalTime", () => {
     const date = "2019-01-30";
 
     const departure = {
-      arrivalHours: 16,
-      arrivalMinutes: 10,
-      isNextDay: false,
+      plannedArrivalTime: {
+        arrivalDateTime: "2019-01-30T16:10:00.000Z",
+      },
+      terminalTime: 2,
       recoveryTime: 2,
     };
 
     const event = {
-      tst: "2019-01-30T16:11:00.000Z", // 1 minute after arrival time, within the recovery time.
+      recordedAt: "2019-01-30T16:11:00.000Z", // 1 minute after arrival time, within the recovery time.
     };
 
     function assert({offsetTime, wasLate, diffMinutes, diffSeconds, sign}) {
@@ -94,29 +101,29 @@ describe("CalculateTerminalTime", () => {
       expect(sign).toBe("+");
       expect(diffMinutes).toBe(1);
       expect(diffSeconds).toBe(0);
+      return null;
     }
 
-    CalculateTerminalTime({
-      children: assert,
-      departure,
-      event,
-      date,
-      recovery: true,
-    });
+    render(
+      <CalculateTerminalTime departure={departure} event={event} recovery={true}>
+        {assert}
+      </CalculateTerminalTime>
+    );
   });
 
   test("wasLate is true when vehicle was late for the recovery time", () => {
     const date = "2019-01-30";
 
     const departure = {
-      arrivalHours: 16,
-      arrivalMinutes: 10,
-      isNextDay: false,
+      plannedArrivalTime: {
+        arrivalDateTime: "2019-01-30T16:10:00.000Z",
+      },
+      terminalTime: 2,
       recoveryTime: 2,
     };
 
     const event = {
-      tst: "2019-01-30T16:13:00.000Z", // 3 minute after arrival time, 1 minute after recovery time
+      recordedAt: "2019-01-30T16:13:00.000Z", // 1 minute after arrival time, 1 minute after the recovery time.
     };
 
     function assert({offsetTime, wasLate, diffMinutes, diffSeconds, sign}) {
@@ -124,14 +131,13 @@ describe("CalculateTerminalTime", () => {
       expect(sign).toBe("+");
       expect(diffMinutes).toBe(3);
       expect(diffSeconds).toBe(0);
+      return null;
     }
 
-    CalculateTerminalTime({
-      children: assert,
-      departure,
-      event,
-      date,
-      recovery: true,
-    });
+    render(
+      <CalculateTerminalTime departure={departure} event={event} recovery={true}>
+        {assert}
+      </CalculateTerminalTime>
+    );
   });
 });

@@ -10,27 +10,23 @@ describe("HfpMarkerLayer", () => {
   afterEach(cleanup);
 
   test("Renders a marker for a journey", async () => {
-    const position = {
+    const event = {
       lat: 60,
-      long: 30,
-      received_at: "2019-01-31T12:14:30.000Z",
-      tst: "2019-01-31T12:14:30.000Z",
-      unique_vehicle_id: "01/1111",
-      spd: 10,
-      next_stop_id: "1234567",
-      route_id: "1001",
-      direction_id: 1,
+      lng: 30,
+    };
+
+    const journey = {
       mode: "BUS",
     };
 
-    const {lat, long} = position;
+    const {lat, lng} = event;
     const markerRef = React.createRef();
 
     render(
-      <Map center={[lat, long]} zoom={13}>
+      <Map center={[lat, lng]} zoom={13}>
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <Pane name="hfp-markers" style={{zIndex: 430}} />
-        <HfpMarkerLayer ref={markerRef} currentPosition={position} />
+        <HfpMarkerLayer ref={markerRef} journey={journey} currentEvent={event} />
       </Map>
     );
 
@@ -39,26 +35,19 @@ describe("HfpMarkerLayer", () => {
       markerRef.current.wrappedInstance.markerRef.current.leafletElement._latlng
     ).toEqual({
       lat,
-      lng: long,
+      lng,
     });
   });
 
   test("The icon gets the correct color and vehicle icon", () => {
-    const position = {
-      lat: 60,
-      long: 30,
-      received_at: "2019-01-31T12:14:30.000Z",
-      tst: "2019-01-31T12:14:30.000Z",
-      unique_vehicle_id: "01/1111",
-      spd: 10,
-      hdg: 45,
-      next_stop_id: "1234567",
-      route_id: "1001",
-      direction_id: 1,
-      mode: "bus",
+    const event = {
+      velocity: 10,
+      heading: 45,
     };
 
-    const {getByTestId} = render(<VehicleMarker position={position} />);
+    const {getByTestId} = render(
+      <VehicleMarker mode="BUS" isSelectedJourney={true} event={event} />
+    );
 
     expect(getByTestId("hfp-marker-icon")).toHaveStyleRule(
       "background-color",
