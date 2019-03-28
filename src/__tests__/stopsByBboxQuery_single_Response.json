@@ -2,12 +2,12 @@
   "stopsByBbox": {
     "nodes": [
       {
-        "nodeId": "WyJzdG9wcyIsIjEyMDM0MTUiXQ==",
+        "id": "WyJzdG9wcyIsIjEyMDM0MTUiXQ==",
         "stopId": "1203415",
         "lat": "60.155970",
-        "lon": "24.914960",
+        "lng": "24.914960",
         "shortId": "H 0277",
-        "nameFi": "Välimerenkatu",
+        "name": "Välimerenkatu",
         "stopRadius": 40,
         "modes": {"nodes": ["TRAM"], "__typename": "StopModesConnection"},
         "__typename": "Stop",
@@ -33,7 +33,7 @@
               "route": {
                 "nodes": [
                   {
-                    "nodeId": "WyJyb3V0ZXMiLCIxMDA5IDkiLCIyIiwiMjAxOC0wNC0wMyIsIjIwMTktMDYtMTYiXQ==",
+                    "id": "WyJyb3V0ZXMiLCIxMDA5IDkiLCIyIiwiMjAxOC0wNC0wMyIsIjIwMTktMDYtMTYiXQ==",
                     "line": {
                       "nodes": [
                         {
@@ -51,7 +51,7 @@
                     "dateEnd": "2019-06-16",
                     "destinationFi": "Jätkäsaari",
                     "originFi": "Kallio",
-                    "nameFi": "Kallio - Rautatieasema - Jätkäsaari",
+                    "name": "Kallio - Rautatieasema - Jätkäsaari",
                     "destinationstopId": "1203403",
                     "originstopId": "1121406",
                     "__typename": "Route"
@@ -81,7 +81,7 @@
               "route": {
                 "nodes": [
                   {
-                    "nodeId": "WyJyb3V0ZXMiLCIxMDA5IDgiLCIyIiwiMjAxOC0wNi0xOCIsIjIwMTktMDYtMTYiXQ==",
+                    "id": "WyJyb3V0ZXMiLCIxMDA5IDgiLCIyIiwiMjAxOC0wNi0xOCIsIjIwMTktMDYtMTYiXQ==",
                     "line": {
                       "nodes": [
                         {
@@ -99,7 +99,7 @@
                     "dateEnd": "2019-06-16",
                     "destinationFi": "Jätkäsaari",
                     "originFi": "Pasila as.",
-                    "nameFi": "Jätkäsaari - Rautatieasema - Kallio - Pasilan asema",
+                    "name": "Jätkäsaari - Rautatieasema - Kallio - Pasilan asema",
                     "destinationstopId": "1203403",
                     "originstopId": "1220434",
                     "__typename": "Route"
@@ -129,7 +129,7 @@
               "route": {
                 "nodes": [
                   {
-                    "nodeId": "WyJyb3V0ZXMiLCIxMDA5IDMiLCIyIiwiMjAxOS0wMi0wMSIsIjIwMTktMDYtMTYiXQ==",
+                    "id": "WyJyb3V0ZXMiLCIxMDA5IDMiLCIyIiwiMjAxOS0wMi0wMSIsIjIwMTktMDYtMTYiXQ==",
                     "line": {
                       "nodes": [
                         {
@@ -147,7 +147,7 @@
                     "dateEnd": "2019-06-16",
                     "destinationFi": "Jätkäsaari",
                     "originFi": "Kallio",
-                    "nameFi": "Kallio - Rautatieasema - Jätkäsaari",
+                    "name": "Kallio - Rautatieasema - Jätkäsaari",
                     "destinationstopId": "1203403",
                     "originstopId": "1112436",
                     "__typename": "Route"
@@ -177,7 +177,7 @@
               "route": {
                 "nodes": [
                   {
-                    "nodeId": "WyJyb3V0ZXMiLCIxMDA5IiwiMiIsIjIwMTgtMDMtMDYiLCIyMDUwLTEyLTMxIl0=",
+                    "id": "WyJyb3V0ZXMiLCIxMDA5IiwiMiIsIjIwMTgtMDMtMDYiLCIyMDUwLTEyLTMxIl0=",
                     "line": {
                       "nodes": [
                         {
@@ -195,7 +195,7 @@
                     "dateEnd": "2050-12-31",
                     "destinationFi": "Jätkäsaari",
                     "originFi": "Pasila as.",
-                    "nameFi": "Jätkäsaari - Rautatieasema - Kallio - Pasilan asema",
+                    "name": "Jätkäsaari - Rautatieasema - Kallio - Pasilan asema",
                     "destinationstopId": "1203403",
                     "originstopId": "1220434",
                     "__typename": "Route"
@@ -210,12 +210,12 @@
         }
       },
       {
-        "nodeId": "WyJzdG9wcyIsIjEyMDM0MjAiXQ==",
+        "id": "WyJzdG9wcyIsIjEyMDM0MjAiXQ==",
         "stopId": "1203420",
         "lat": "60.158850",
-        "lon": "24.915200",
+        "lng": "24.915200",
         "shortId": "H 0288",
-        "nameFi": "Välimerenkatu",
+        "name": "Välimerenkatu",
         "stopRadius": 40,
         "modes": {"nodes": ["TRAM"], "__typename": "StopModesConnection"},
         "__typename": "Stop",
@@ -241,7 +241,7 @@
               "route": {
                 "nodes": [
                   {
-                    "nodeId": "WyJyb3V0ZXMiLCIxMDA5SDkiLCIxIiwiMjAxOC0wNC0wMyIsIjIwMTktMDYtMTYiXQ==",
+                    "id": "WyJyb3V0ZXMiLCIxMDA5SDkiLCIxIiwiMjAxOC0wNC0wMyIsIjIwMTktMDYtMTYiXQ==",
                     "line": {
                       "nodes": [
                         {
@@ -259,7 +259,7 @@
                     "dateEnd": "2019-06-16",
                     "destinationFi": "Kallio",
                     "originFi": "Jätkäsaari",
-                    "nameFi": "Jätkäsaari - Rautatieasema - Kallio",
+                    "name": "Jätkäsaari - Rautatieasema - Kallio",
                     "destinationstopId": "1121450",
                     "originstopId": "1203414",
                     "__typename": "Route"
@@ -289,7 +289,7 @@
               "route": {
                 "nodes": [
                   {
-                    "nodeId": "WyJyb3V0ZXMiLCIxMDA5SDMiLCIxIiwiMjAxOS0wMi0wMSIsIjIwMTktMDYtMTYiXQ==",
+                    "id": "WyJyb3V0ZXMiLCIxMDA5SDMiLCIxIiwiMjAxOS0wMi0wMSIsIjIwMTktMDYtMTYiXQ==",
                     "line": {
                       "nodes": [
                         {
@@ -307,7 +307,7 @@
                     "dateEnd": "2019-06-16",
                     "destinationFi": "Kallio",
                     "originFi": "Jätkäsaari",
-                    "nameFi": "Jätkäsaari - Rautatieasema - Kallio",
+                    "name": "Jätkäsaari - Rautatieasema - Kallio",
                     "destinationstopId": "1113480",
                     "originstopId": "1203414",
                     "__typename": "Route"
@@ -337,7 +337,7 @@
               "route": {
                 "nodes": [
                   {
-                    "nodeId": "WyJyb3V0ZXMiLCIxMDA5IDgiLCIxIiwiMjAxOC0wNi0xOCIsIjIwMTktMDYtMTYiXQ==",
+                    "id": "WyJyb3V0ZXMiLCIxMDA5IDgiLCIxIiwiMjAxOC0wNi0xOCIsIjIwMTktMDYtMTYiXQ==",
                     "line": {
                       "nodes": [
                         {
@@ -355,7 +355,7 @@
                     "dateEnd": "2019-06-16",
                     "destinationFi": "Pasila as.",
                     "originFi": "Jätkäsaari",
-                    "nameFi": "Jätkäsaari - Rautatieasema - Kallio - Pasilan asema",
+                    "name": "Jätkäsaari - Rautatieasema - Kallio - Pasilan asema",
                     "destinationstopId": "1220434",
                     "originstopId": "1203414",
                     "__typename": "Route"
@@ -385,7 +385,7 @@
               "route": {
                 "nodes": [
                   {
-                    "nodeId": "WyJyb3V0ZXMiLCIxMDA5IiwiMSIsIjIwMTgtMDMtMDYiLCIyMDUwLTEyLTMxIl0=",
+                    "id": "WyJyb3V0ZXMiLCIxMDA5IiwiMSIsIjIwMTgtMDMtMDYiLCIyMDUwLTEyLTMxIl0=",
                     "line": {
                       "nodes": [
                         {
@@ -403,7 +403,7 @@
                     "dateEnd": "2050-12-31",
                     "destinationFi": "Pasila as.",
                     "originFi": "Jätkäsaari",
-                    "nameFi": "Jätkäsaari - Rautatieasema - Kallio - Pasilan asema",
+                    "name": "Jätkäsaari - Rautatieasema - Kallio - Pasilan asema",
                     "destinationstopId": "1220434",
                     "originstopId": "1203414",
                     "__typename": "Route"
