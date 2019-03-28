@@ -66,9 +66,6 @@ const FlexRow = styled.div`
 const Title = styled.div`
   padding: 5px;
 `;
-const Tick = styled.span`
-  width: 3rem;
-`;
 
 const decorate = flow(
   observer,

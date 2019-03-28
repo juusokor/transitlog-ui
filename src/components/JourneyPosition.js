@@ -1,6 +1,6 @@
 import {Component} from "react";
 import {inject, Observer} from "mobx-react";
-import {computed, trace, observable, runInAction} from "mobx";
+import {computed, observable, runInAction} from "mobx";
 import last from "lodash/last";
 import get from "lodash/last";
 import findLast from "lodash/findLast";

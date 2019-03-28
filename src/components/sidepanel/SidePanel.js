@@ -198,7 +198,7 @@ const SidePanel = decorate((props) => {
         {(detailsOpen || journeyLoading) && (
           <JourneyDetails loading={journeyLoading} journey={journey} />
         )}
-        {hasJourney && (
+        {(hasJourney || journeyLoading) && (
           <div>
             <Tooltip helpText="Toggle journey details button">
               <ToggleJourneyDetailsButton onClick={() => toggleJourneyDetails()}>
