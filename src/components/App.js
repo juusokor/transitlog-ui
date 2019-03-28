@@ -57,10 +57,12 @@ const GraphContainer = styled.div`
   border-radius: 5px;
   position: absolute;
   width: 530px;
+  box-sizing: content-box;
   left: 50%;
-  bottom: 5%;
+  bottom: 1.5rem;
   transform: translateX(-50%);
   z-index: 500;
+  padding: 0.5rem 1rem;
 `;
 
 const decorate = flow(
