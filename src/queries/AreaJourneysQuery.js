@@ -48,12 +48,13 @@ const AreaJourneysQuery = observer((props) => {
   const queryParamsValid = minTime && maxTime && bbox && date;
   const shouldSkip = skip || !queryParamsValid;
 
-  if (shouldSkip) {
+  if (shouldSkip && prevResults.current.length !== 0) {
     prevResults.current = [];
   }
 
   return (
     <Query
+      partialRefetch={true}
       skip={shouldSkip}
       variables={{
         minTime,

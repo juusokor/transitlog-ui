@@ -1,9 +1,10 @@
 import {Component} from "react";
-import {observer, inject} from "mobx-react";
-import {computed} from "mobx";
+import {inject, Observer} from "mobx-react";
+import {computed, trace, observable, runInAction} from "mobx";
 import last from "lodash/last";
 import get from "lodash/last";
 import findLast from "lodash/findLast";
+import React from "react";
 
 function timeRangeFromEvents(events) {
   const firstEvent = events[0];
@@ -15,17 +16,32 @@ function timeRangeFromEvents(events) {
   return [{time: firstTime, event: firstEvent}, {time: lastTime, event: lastEvent}];
 }
 
+const MAX_TIME_DIFF = 60;
+
 @inject("state")
-@observer
+// No @observer since the computed function would run twice on each time update.
 class JourneyPosition extends Component {
+  // Observable journeys so that the events are recomputed when the journeys change.
+  @observable.ref
+  journeys = this.props.journeys;
+
   @computed
   get journeyEvents() {
     const {
       state: {unixTime, isLiveAndCurrent},
-      journeys,
     } = this.props;
 
-    return this.matchJourneyEvents(unixTime, journeys, isLiveAndCurrent);
+    return this.matchJourneyEvents(unixTime, this.journeys, isLiveAndCurrent);
+  }
+
+  componentDidUpdate() {
+    const {journeys} = this.props;
+
+    // Update the observable journeys value if the journeys change. The journey array
+    // can be compared with equality which is nice.
+    if (journeys && journeys.length && journeys !== this.ourneys) {
+      runInAction(() => (this.journeys = journeys));
+    }
   }
 
   matchEventLive(time, events) {
@@ -35,30 +51,35 @@ class JourneyPosition extends Component {
       }
 
       const eventTime = event.recordedAtUnix;
-      return Math.abs(time - eventTime) <= 5 * 60;
+      return Math.abs(time - eventTime) <= MAX_TIME_DIFF;
     });
   }
 
+  // Precisely match the current time to an event. If defaultToEnds is true, the first or last
+  // event will be picked when the time is out of range.
   matchEventToTime = (time, events, defaultToEnds = true) => {
     let i = 0;
     let checkSeconds = time;
-    let nextEvent = null;
+
+    if (defaultToEnds) {
+      const [
+        {time: firstTime, event: firstEvent},
+        {time: lastTime, event: lastEvent},
+      ] = timeRangeFromEvents(events);
+
+      if (firstTime > time) {
+        // Return the first event if it it is later than the current time.
+        return firstEvent;
+      } else if (lastTime < time) {
+        // Return the last event if it is before the current time.
+        return lastEvent;
+      }
+    }
+
     let alternate = last(events).recordedAtUnix > time;
 
-    const findEvent = ({recordedAtUnix = 0}) =>
-      Math.abs(checkSeconds - recordedAtUnix) <= 3;
-
-    // Max iterations is 60, which means events can be at most 30 seconds before
-    // or after i to be displayed.
-    while (!nextEvent && i <= 120) {
-      nextEvent = findLast(events, findEvent);
-
-      if (nextEvent) {
-        break;
-      }
-
-      i++;
-
+    // Max iterations is the maximum amount of seconds an event can differ from the current time.
+    while (i <= MAX_TIME_DIFF) {
       if (alternate) {
         // Alternately check after (even i) and before (odd i) time
         if (i % 2 === 0) {
@@ -69,34 +90,33 @@ class JourneyPosition extends Component {
       } else {
         checkSeconds = time - i;
       }
-    }
 
-    // If we didn't find anything and the events start after the given time,
-    // just go with the first event. Similarly, if the last event is before
-    // the given time, select the last event. Can be disabled by setting
-    // defaultToEnd to false.
-    if (!nextEvent && defaultToEnds) {
-      const [
-        {time: firstTime, event: firstEvent},
-        {time: lastTime, event: lastEvent},
-      ] = timeRangeFromEvents(events);
+      for (let e = events.length; e > 0; e--) {
+        const event = events[e];
 
-      if (firstTime > time) {
-        nextEvent = firstEvent;
-      } else if (lastTime < time) {
-        nextEvent = lastEvent;
+        if (
+          event &&
+          event.lat &&
+          event.lng &&
+          Math.abs(checkSeconds - event.recordedAtUnix) <= 1
+        ) {
+          return event;
+        }
       }
+
+      i++;
     }
 
-    return nextEvent;
+    return null;
   };
 
-  // Matches the current time setting with an event from this journey.
+  // Matches the current time with an event for each journey. If live mode is activated,
+  // he matching can be done slightly less expensive.
   matchJourneyEvents = (time, journeys, isLive) => {
     const journeyEvents = new Map();
 
     if (journeys.length === 0) {
-      return;
+      return journeyEvents;
     }
 
     journeys.forEach(({id, events}) => {
@@ -104,6 +124,8 @@ class JourneyPosition extends Component {
         return;
       }
 
+      // Prevent events from staying active if the time is before the first event or past the last event.
+      // Only active when there are many journeys on the map (ie area search)
       if (journeys.length > 1) {
         const [{time: firstTime}, {time: lastTime}] = timeRangeFromEvents(events);
 
@@ -113,11 +135,15 @@ class JourneyPosition extends Component {
       }
 
       let nextEvent;
+
       if (!isLive) {
+        // Precise matching when not live
         nextEvent = this.matchEventToTime(time, events, journeys.length === 1);
       } else {
+        // Take the last event of the journey when live
         nextEvent = this.matchEventLive(time, events);
       }
+
       journeyEvents.set(id, nextEvent);
     });
 
@@ -126,7 +152,7 @@ class JourneyPosition extends Component {
 
   render() {
     const {children} = this.props;
-    return children(this.journeyEvents);
+    return <Observer>{() => children(this.journeyEvents)}</Observer>;
   }
 }
 
