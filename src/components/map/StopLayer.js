@@ -16,8 +16,6 @@ const StopLayer = decorate(({bounds, date, onViewLocation, showRadius, state}) =
   const {stop: selectedStop} = state;
   const bbox = bounds ? bounds.toBBoxString() : "";
 
-  console.log(bbox);
-
   return (
     <StopsByBboxQuery skip={!bbox} bbox={bbox}>
       {({stops}) => {
