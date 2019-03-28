@@ -106,7 +106,7 @@ const Journeys = decorate(({state, Time, Journey}) => {
       state.selectedJourney &&
       createRouteId(state.selectedJourney) === createRouteId(route)
     ) {
-      return selectedJourneyId;
+      return getJourneyId(selectedJourneyId, false);
     }
 
     return null;
@@ -161,7 +161,7 @@ const Journeys = decorate(({state, Time, Journey}) => {
 
             return (
               <SidepanelList
-                reset={!focusedJourney || departures.length === 0}
+                focusKey={focusedJourney}
                 loading={loading}
                 header={
                   <>
@@ -221,6 +221,14 @@ const Journeys = decorate(({state, Time, Journey}) => {
                       () => selectedJourneyId && selectedJourneyId === journeyId
                     );
 
+                    // The focused journey is used for scrolling and comparing
+                    // instances is problematic, so strip the instance char
+                    // from both sides of the comparison.
+                    const journeyIsFocused =
+                      focusedJourney &&
+                      getJourneyId(focusedJourney, false) ===
+                        getJourneyId(journeyId, false);
+
                     const plannedObservedDiff =
                       departure.observedDepartureTime.departureTimeDifference;
 
@@ -251,13 +259,6 @@ const Journeys = decorate(({state, Time, Journey}) => {
                         </Tooltip>
                       </>
                     );
-
-                    // The focused journey is used for scrolling and comparing
-                    // instances is problematic, so strip the instance char
-                    // from both sides of the comparison.
-                    const journeyIsFocused =
-                      focusedJourney &&
-                      focusedJourney.slice(0, -1) === journeyId.slice(0, -1);
 
                     return (
                       <JourneyListRow
