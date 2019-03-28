@@ -75,8 +75,8 @@ class SidepanelList extends Component {
     this.disposeScrollOffsetReaction();
   }
 
-  async componentDidUpdate() {
-    let {reset, loading} = this.props;
+  async componentDidUpdate({focusKey: prevFocusKey}) {
+    let {focusKey, loading} = this.props;
 
     if (!loading) {
       if (this.updateScrollOffsetTimer) {
@@ -87,7 +87,7 @@ class SidepanelList extends Component {
       // There must be a timer here otherwise the list may not be rendered
       // before the scroll offset is read.
       this.updateScrollOffsetTimer = setTimeout(
-        () => this.updateScrollOffset(reset),
+        () => this.updateScrollOffset(focusKey !== prevFocusKey),
         300
       );
     }

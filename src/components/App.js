@@ -17,8 +17,6 @@ import flow from "lodash/flow";
 import {withRoute} from "../hoc/withRoute";
 import AreaJourneys from "./AreaJourneys";
 import MergedJourneys from "./MergedJourneys";
-import {getJourneyAverageSpeeds} from "../helpers/getJourneyAverageSpeeds";
-import {getJourneyStopDiffs} from "../helpers/getJourneyStopDiffs";
 import Graph from "./map/Graph";
 
 const AppFrame = styled.main`
@@ -58,11 +56,13 @@ const GraphContainer = styled.div`
     journeyGraphOpen ? "1px solid var(--alt-grey);" : "none;"};
   border-radius: 5px;
   position: absolute;
-  width: 500px;
+  width: 530px;
+  box-sizing: content-box;
   left: 50%;
-  bottom: 5%;
+  bottom: 1.5rem;
   transform: translateX(-50%);
   z-index: 500;
+  padding: 0.5rem;
 `;
 
 const decorate = flow(
@@ -187,13 +187,9 @@ function App({state, UI}) {
                                                 0 && journeyGraphOpen
                                             }>
                                             <Graph
-                                              width={500}
-                                              diffs={getJourneyStopDiffs(
-                                                selectedJourneyData.departures
-                                              )}
-                                              speedAverages={getJourneyAverageSpeeds(
-                                                selectedJourneyData.events
-                                              )}
+                                              width={530}
+                                              departures={selectedJourneyData.departures}
+                                              events={selectedJourneyData.events}
                                               graphExpanded={
                                                 selectedJourneyData.departures.length !==
                                                   0 && journeyGraphOpen

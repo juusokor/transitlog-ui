@@ -86,6 +86,7 @@ class AreaJourneyList extends Component {
 
     return (
       <SidepanelList
+        focusKey={selectedJourneyId}
         loading={loading}
         header={
           <ToggleButton
@@ -102,7 +103,6 @@ class AreaJourneyList extends Component {
         {(scrollRef) =>
           journeys.map((journey) => {
             const {routeId, direction, departureTime, id: journeyId} = journey;
-
             const journeyIsSelected = selectedJourney && selectedJourneyId === journeyId;
 
             return (
