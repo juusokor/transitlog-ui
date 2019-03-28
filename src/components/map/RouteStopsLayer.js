@@ -43,6 +43,8 @@ const RouteStopsLayer = decorate(
           />
         );
       });
+    } else if (journey) {
+      return null;
     }
 
     return (

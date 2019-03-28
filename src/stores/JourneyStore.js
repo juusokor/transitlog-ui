@@ -1,4 +1,4 @@
-import {extendObservable, action, reaction, runInAction} from "mobx";
+import {extendObservable, action, reaction, runInAction, toJS} from "mobx";
 import getJourneyId from "../helpers/getJourneyId";
 import FilterActions from "./filterActions";
 import TimeActions from "./timeActions";
@@ -95,7 +95,10 @@ export default (state) => {
 
       if (journeyDate !== currentDate) {
         runInAction(() => {
-          state.selectedJourney.departureDate = currentDate;
+          const nextJourney = toJS(state.selectedJourney);
+          nextJourney.departureDate = currentDate;
+
+          state.selectedJourney = nextJourney;
         });
       }
     }
