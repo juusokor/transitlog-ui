@@ -56,7 +56,7 @@ const GraphContainer = styled.div`
     journeyGraphOpen ? "1px solid var(--alt-grey)" : "none"};
   border-radius: 5px;
   position: absolute;
-  width: 530px;
+  width: 520px;
   box-sizing: content-box;
   left: 50%;
   bottom: 1.5rem;
