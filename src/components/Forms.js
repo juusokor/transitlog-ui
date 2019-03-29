@@ -1,8 +1,6 @@
 import styled, {css, createGlobalStyle} from "styled-components";
 import React from "react";
-import Tooltip from "./Tooltip";
 import {useTooltip} from "../hooks/useTooltip";
-import {observer} from "mobx-react-lite";
 
 export const GlobalFormStyle = createGlobalStyle`
   select,
@@ -52,6 +50,11 @@ export const InputStyles = css`
   &:focus {
     border-color: var(--blue);
   }
+
+  &:disabled {
+    background: var(--lighter-grey);
+    color: var(--dark-grey);
+  }
 `;
 
 export const StyledInputBase = styled.input`
@@ -69,8 +72,7 @@ export const StyledButton = styled.button`
   appearance: none;
   outline: none;
   border-radius: 2.5rem;
-  border: 1px solid
-    ${({transparent = false}) => (!transparent ? "var(--blue)" : "white")};
+  border: 1px solid ${({transparent = false}) => (!transparent ? "var(--blue)" : "white")};
   background: ${({primary = false, transparent = false}) =>
     primary ? "var(--blue)" : transparent ? "transparent" : "white"};
   letter-spacing: -0.6px;

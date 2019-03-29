@@ -1,7 +1,7 @@
 import get from "lodash/get";
 import invoke from "lodash/invoke";
 import fromPairs from "lodash/fromPairs";
-import createHistory from "history/createBrowserHistory";
+import {createBrowserHistory as createHistory} from "history";
 
 /**
  * Make sure that all history operations happen through the specific history object created here:

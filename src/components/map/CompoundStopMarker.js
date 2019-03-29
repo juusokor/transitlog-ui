@@ -11,6 +11,7 @@ import {divIcon, latLng} from "leaflet";
 import {getPriorityMode, getModeColor} from "../../helpers/vehicleColor";
 import {flow} from "lodash";
 import {inject} from "../../helpers/inject";
+import StopRouteSelect from "./StopRouteSelect";
 
 const StopOptionButton = styled.button`
   text-decoration: none;
@@ -67,7 +68,7 @@ const decorate = flow(
 const CompoundStopMarker = decorate(
   ({
     popupOpen,
-    stops,
+    stops = [],
     state,
     showRadius = true,
     bounds,
@@ -86,11 +87,14 @@ const CompoundStopMarker = decorate(
       }
     }, [popupOpen]);
 
-    const selectRoute = (route) => () => {
-      if (route) {
-        Filters.setRoute(route);
-      }
-    };
+    const selectRoute = useCallback(
+      (route) => () => {
+        if (route) {
+          Filters.setRoute(route);
+        }
+      },
+      []
+    );
 
     const selectStop = useCallback((stopId) => {
       if (stopId) {
@@ -106,9 +110,7 @@ const CompoundStopMarker = decorate(
         : null;
 
     const modesInCluster = uniq(
-      compact(
-        stops.map((stop) => getPriorityMode(get(stop, "modes.nodes", ["BUS"])))
-      )
+      compact(stops.map((stop) => getPriorityMode(get(stop, "modes", ["BUS"]))))
     );
 
     let mode =
@@ -121,12 +123,12 @@ const CompoundStopMarker = decorate(
     let stopColor = getModeColor(mode);
 
     if (selectedStopObj) {
-      mode = getPriorityMode(get(selectedStopObj, "modes.nodes", ["BUS"]));
+      mode = getPriorityMode(get(selectedStopObj, "modes", ["BUS"]));
       stopColor = getModeColor(mode);
     }
 
     const markerPosition = selectedStopObj
-      ? latLng(selectedStopObj.lat, selectedStopObj.lon)
+      ? latLng(selectedStopObj.lat, selectedStopObj.lng)
       : bounds.getCenter();
 
     const markerIcon = divIcon({
@@ -143,11 +145,7 @@ style="border-color: ${stopColor}; background-color: ${
     });
 
     const markerElement = (
-      <Marker
-        ref={markerRef}
-        icon={markerIcon}
-        pane="stops"
-        position={markerPosition}>
+      <Marker ref={markerRef} icon={markerIcon} pane="stops" position={markerPosition}>
         <Popup
           autoClose={false}
           autoPan={false}
@@ -166,26 +164,22 @@ style="border-color: ${stopColor}; background-color: ${
                 color={stopColor}
                 onClick={() => selectStop(stopInGroup.stopId)}
                 key={`stop_select_${stopInGroup.stopId}`}>
-                {stopInGroup.stopId} - {stopInGroup.nameFi}
+                {stopInGroup.stopId} - {stopInGroup.name}
               </StopOptionButton>
             );
           })}
           {selectedStopObj && (
             <>
               <Heading level={4}>
-                {selectedStopObj.nameFi}, {selectedStopObj.shortId.replace(/ /g, "")}{" "}
-                ({selectedStopObj.stopId})
+                {selectedStopObj.name}, {selectedStopObj.shortId.replace(/ /g, "")} (
+                {selectedStopObj.stopId})
               </Heading>
-              {get(selectedStopObj, "routeSegmentsForDate.nodes", []).map(
-                (routeSegment) => (
-                  <StopOptionButton
-                    color={stopColor}
-                    key={`route_${routeSegment.routeId}_${routeSegment.direction}`}
-                    onClick={selectRoute(get(routeSegment, "route.nodes[0]", null))}>
-                    {routeSegment.routeId.substring(1).replace(/^0+/, "")}
-                  </StopOptionButton>
-                )
-              )}
+              <StopRouteSelect
+                color={stopColor}
+                onSelectRoute={selectRoute}
+                stopId={selectedStopObj.stopId}
+                date={state.date}
+              />
             </>
           )}
           <button onClick={() => onViewLocation(markerPosition)}>

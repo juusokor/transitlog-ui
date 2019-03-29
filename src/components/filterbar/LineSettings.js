@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
 import {ControlGroup} from "../Forms";
 import Input from "../Input";
-import AllLinesQuery from "../../queries/AllLinesQuery";
+import AllLinesQuery from "../../queries/LinesQuery";
 import LineInput from "./LineInput";
 import RoutesByLineQuery from "../../queries/RoutesByLineQuery";
 import RouteInput from "./RouteInput";
@@ -31,24 +31,17 @@ class LineSettings extends Component {
             <AllLinesQuery date={date}>
               {({lines}) => {
                 if (!lines) {
-                  return (
-                    <LineInput line={line} onSelect={Filters.setLine} lines={[]} />
-                  );
+                  return <LineInput line={line} onSelect={Filters.setLine} lines={[]} />;
                 }
 
-                return (
-                  <LineInput line={line} onSelect={Filters.setLine} lines={lines} />
-                );
+                return <LineInput line={line} onSelect={Filters.setLine} lines={lines} />;
               }}
             </AllLinesQuery>
           </Input>
         </ControlGroup>
-        {line.lineId && line.dateBegin && (
+        {line && (
           <ControlGroup>
-            <RoutesByLineQuery
-              key={`line_route_${Object.values(line).join("_")}`}
-              date={date}
-              line={line}>
+            <RoutesByLineQuery date={date} line={line}>
               {({routes, loading}) => {
                 if (!routes && !loading) {
                   return <RouteInput route={route} routes={[]} />;

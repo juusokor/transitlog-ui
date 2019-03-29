@@ -1,48 +1,42 @@
-import React, {Component} from "react";
-import {observer, inject} from "mobx-react";
+import React from "react";
+import {observer} from "mobx-react-lite";
 import StopLayer from "./StopLayer";
 import StopMarker from "./StopMarker";
 import RouteGeometryQuery from "../../queries/RouteGeometryQuery";
 import RouteLayer from "./RouteLayer";
-import get from "lodash/get";
+import flow from "lodash/flow";
 import getJourneyId from "../../helpers/getJourneyId";
-import HfpLayer from "./HfpLayer";
+import JourneyLayer from "./JourneyLayer";
 import HfpMarkerLayer from "./HfpMarkerLayer";
-import {app} from "mobx-app";
 import RouteStopsLayer from "./RouteStopsLayer";
 import AreaSelect from "./AreaSelect";
 import {expr} from "mobx-utils";
 import {areaEventsStyles} from "../../stores/UIStore";
 import SimpleHfpLayer from "./SimpleHfpLayer";
-import {createRouteKey} from "../../helpers/keys";
+import {createRouteId} from "../../helpers/keys";
+import {inject} from "../../helpers/inject";
+import WeatherDisplay from "./WeatherDisplay";
 
-@inject(app("Journey", "Filters"))
-@observer
-class MapContent extends Component {
-  onClickVehicleMarker = (journey) => {
-    const {Journey, Filters, state} = this.props;
+const decorate = flow(
+  observer,
+  inject("state")
+);
 
-    if (journey && getJourneyId(state.selectedJourney) !== getJourneyId(journey)) {
-      Filters.setVehicle(journey.unique_vehicle_id);
-      Journey.setSelectedJourney(journey);
-    }
-  };
-
-  render() {
-    const {
-      journeys = [],
-      journeyStops,
-      timePositions,
-      route,
-      zoom,
-      stopsBbox,
-      stop,
-      setMapBounds,
-      viewLocation,
-      queryBounds,
-      state: {selectedJourney, date, mapOverlays, areaEventsStyle},
-    } = this.props;
-
+const MapContent = decorate(
+  ({
+    journeys = [],
+    journeyPositions,
+    route,
+    zoom,
+    mapBounds, // The current map view
+    stop,
+    setMapView,
+    viewLocation,
+    setQueryBounds,
+    actualQueryBounds,
+    centerOnRoute = true,
+    state: {selectedJourney, time, date, mapOverlays, areaEventsStyle},
+  }) => {
     const hasRoute = !!route && !!route.routeId;
     const showStopRadius = expr(() => mapOverlays.indexOf("Stop radius") !== -1);
 
@@ -50,7 +44,11 @@ class MapContent extends Component {
 
     return (
       <>
-        <AreaSelect enabled={zoom > 12} onSelectArea={queryBounds} />
+        <AreaSelect
+          enabled={zoom > 12}
+          usingBounds={actualQueryBounds}
+          onSelectArea={setQueryBounds}
+        />
         {/* When a route is NOT selected... */}
         {!hasRoute && (
           <>
@@ -59,7 +57,7 @@ class MapContent extends Component {
                 showRadius={showStopRadius}
                 onViewLocation={viewLocation}
                 date={date}
-                bounds={stopsBbox}
+                bounds={mapBounds}
               />
             ) : stop ? (
               <StopMarker
@@ -76,24 +74,23 @@ class MapContent extends Component {
         {hasRoute && (
           <>
             <RouteGeometryQuery
-              key={`route_query_${createRouteKey(route, true)}`}
-              route={route}>
+              key={`route_query_${createRouteId(route, true)}`}
+              route={route}
+              date={date}>
               {({routeGeometry}) =>
                 routeGeometry.length !== 0 ? (
                   <RouteLayer
-                    routeId={
-                      routeGeometry.length !== 0 ? createRouteKey(route) : null
-                    }
+                    routeId={routeGeometry.length !== 0 ? createRouteId(route) : null}
                     routeGeometry={routeGeometry}
-                    setMapBounds={setMapBounds}
-                    key={`route_line_${createRouteKey(route, true)}`}
+                    canCenterOnRoute={centerOnRoute}
+                    setMapView={setMapView}
+                    key={`route_line_${createRouteId(route, true)}`}
                   />
                 ) : null
               }
             </RouteGeometryQuery>
             {(!selectedJourney ||
-              (selectedJourney.route_id !== route.routeId ||
-                journeys.length === 0)) && (
+              (selectedJourney.route_id !== route.routeId || journeys.length === 0)) && (
               <RouteStopsLayer
                 showRadius={showStopRadius}
                 onViewLocation={viewLocation}
@@ -102,54 +99,47 @@ class MapContent extends Component {
             )}
 
             {journeys.length !== 0 &&
-              journeys.map(({events: journeyPositions, journeyId}) => {
-                if (
-                  selectedJourney &&
-                  selectedJourney.unique_vehicle_id &&
-                  get(journeyPositions, "[0].unique_vehicle_id", "") !==
-                    selectedJourney.unique_vehicle_id
-                ) {
-                  return null;
-                }
-
-                const isSelectedJourney = selectedJourneyId === journeyId;
-
-                const currentPosition = timePositions.get(journeyId);
+              journeys.map((journey) => {
+                const isSelectedJourney = selectedJourneyId === journey.id;
+                const currentPosition = journeyPositions
+                  ? journeyPositions.get(journey.id)
+                  : null;
 
                 return [
                   isSelectedJourney ? (
-                    <HfpLayer
-                      key={`hfp_line_${journeyId}`}
-                      selectedJourney={selectedJourney}
-                      positions={journeyPositions}
-                      name={journeyId}
+                    <JourneyLayer
+                      key={`journey_line_${journey.id}`}
+                      journey={journey}
+                      name={journey.id}
                     />
                   ) : null,
                   isSelectedJourney ? (
                     <RouteStopsLayer
                       showRadius={showStopRadius}
                       onViewLocation={viewLocation}
-                      key={`journey_stops_${journeyId}`}
+                      key={`journey_stops_${journey.id}`}
                       route={route}
-                      journeyStops={journeyStops}
+                      journey={journey}
                     />
                   ) : null,
-                  <HfpMarkerLayer
-                    key={`hfp_markers_${journeyId}`}
-                    onMarkerClick={this.onClickVehicleMarker}
-                    currentPosition={currentPosition}
-                    journeyId={journeyId}
-                  />,
+                  currentPosition ? (
+                    <HfpMarkerLayer
+                      key={`hfp_markers_${journey.id}`}
+                      currentEvent={currentPosition}
+                      journey={journey}
+                      isSelectedJourney={isSelectedJourney}
+                    />
+                  ) : null,
                 ];
               })}
           </>
         )}
         {journeys.length !== 0 &&
           journeys
-            .filter(({journeyId}) => journeyId !== selectedJourneyId)
-            .map(({journeyId, events}) => {
+            .filter(({id}) => id !== selectedJourneyId)
+            .map((journey) => {
               if (areaEventsStyle === areaEventsStyles.MARKERS) {
-                const event = timePositions.get(journeyId);
+                const event = journeyPositions.get(journey.id);
 
                 if (!event) {
                   return null;
@@ -157,10 +147,10 @@ class MapContent extends Component {
 
                 return (
                   <HfpMarkerLayer
-                    key={`hfp_markers_${journeyId}`}
-                    onMarkerClick={this.onClickVehicleMarker}
-                    currentPosition={event}
-                    journeyId={journeyId}
+                    key={`hfp_markers_${journey.id}`}
+                    currentEvent={event}
+                    journey={journey}
+                    isSelectedJourney={false}
                   />
                 );
               }
@@ -168,15 +158,16 @@ class MapContent extends Component {
               return (
                 <SimpleHfpLayer
                   zoom={zoom}
-                  name={journeyId}
-                  key={`hfp_polyline_${journeyId}`}
-                  positions={events}
+                  name={journey.id}
+                  key={`hfp_polyline_${journey.id}`}
+                  events={journey.events}
                 />
               );
             })}
+        {mapOverlays.includes("Weather") && <WeatherDisplay position={mapBounds} />}
       </>
     );
   }
-}
+);
 
 export default MapContent;

@@ -177,10 +177,7 @@ class Tabs extends Component {
     }
 
     // The selected tab might not be available, so pick the first tab in that case.
-    if (
-      tabs.length !== 0 &&
-      tabs.findIndex((tab) => tab.name === selectedTab) === -1
-    ) {
+    if (tabs.length !== 0 && tabs.findIndex((tab) => tab.name === selectedTab) === -1) {
       const {name, content} = tabs[0];
       selectedTab = name;
       selectedTabContent = content;
@@ -195,9 +192,7 @@ class Tabs extends Component {
       <TabsWrapper className={className}>
         <TabButtonsWrapper>
           {tabs.map((tabOption, index) => (
-            <Tooltip
-              helpText={tabOption.helpText}
-              key={`tab_${tabOption.name}_${index}`}>
+            <Tooltip helpText={tabOption.helpText} key={`tab_${tabOption.name}_${index}`}>
               <TabButton
                 fontSizeMultiplier={tabLabelFontSizeMultiplier}
                 selected={selectedTab === tabOption.name}

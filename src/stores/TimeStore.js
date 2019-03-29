@@ -10,11 +10,7 @@ import {TIMEZONE} from "../constants";
 export default (state, initialState) => {
   extendObservable(state, {
     live: getUrlValue("live", false),
-    time: get(
-      initialState,
-      "time",
-      moment.tz(new Date(), TIMEZONE).format("HH:mm:ss")
-    ),
+    time: get(initialState, "time", moment.tz(new Date(), TIMEZONE).format("HH:mm:ss")),
     get unixTime() {
       const {date, time} = state;
       const unixTime = moment.tz(date, TIMEZONE).unix();
@@ -30,8 +26,12 @@ export default (state, initialState) => {
 
       return moment.tz(new Date(), TIMEZONE).isBetween(minTime, maxTime);
     },
-    timeIncrement: get(initialState, "time_increment", 5),
-    areaSearchRangeMinutes: get(initialState, "area_search_minutes", 60),
+    get isLiveAndCurrent() {
+      const {live, timeIsCurrent} = state;
+      return live && timeIsCurrent;
+    },
+    timeIncrement: parseInt(get(initialState, "time_increment", "5"), 10),
+    areaSearchRangeMinutes: parseInt(get(initialState, "area_search_minutes", 60), 10),
   });
 
   const actions = timeActions(state);

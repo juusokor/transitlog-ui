@@ -6,14 +6,17 @@ import SuggestionInput, {
 } from "./SuggestionInput";
 import flow from "lodash/flow";
 import get from "lodash/get";
-import words from "lodash/words";
 import {observer} from "mobx-react-lite";
 import styled from "styled-components";
 import {inject} from "../../helpers/inject";
+import orderBy from "lodash/orderBy";
+import map from "lodash/map";
+import groupBy from "lodash/groupBy";
+import {useSearchOptions} from "../../hooks/useSearchOptions";
 
 const VehicleSuggestion = styled(SuggestionContent)`
-  background: ${({inService = true, isHighlighted = false}) =>
-    isHighlighted ? "var(--blue)" : inService ? "white" : "var(--light-pink)"};
+  color: ${({inService = true, isHighlighted = false}) =>
+    isHighlighted ? "white" : inService ? "var(--dark-grey)" : "var(--light-grey)"};
 `;
 
 const getSuggestionValue = (suggestion) => {
@@ -21,9 +24,7 @@ const getSuggestionValue = (suggestion) => {
     return suggestion;
   }
 
-  const vehicleId = get(suggestion, "vehicleId", "");
-  const operatorId = parseInt(get(suggestion, "operatorId", ""), 10);
-  return !vehicleId ? "" : `${operatorId}/${vehicleId}`;
+  return get(suggestion, "id", "");
 };
 
 const renderSuggestion = (suggestion, {query, isHighlighted}) => {
@@ -38,8 +39,7 @@ const renderSuggestion = (suggestion, {query, isHighlighted}) => {
     <VehicleSuggestion
       isHighlighted={isHighlighted}
       inService={
-        typeof suggestion.inServiceOnDate === "undefined" ||
-        suggestion.inServiceOnDate === true
+        typeof suggestion.inService === "undefined" || suggestion.inService === true
       }>
       <SuggestionText>{uniqueVehicleId}</SuggestionText>
     </VehicleSuggestion>
@@ -47,56 +47,49 @@ const renderSuggestion = (suggestion, {query, isHighlighted}) => {
 };
 
 const renderSectionTitle = (section) => (
-  <SuggestionSectionTitle>
-    {section.operatorName} ({section.operatorId})
-  </SuggestionSectionTitle>
+  <SuggestionSectionTitle>{section.operator}</SuggestionSectionTitle>
 );
 
 const getSectionSuggestions = (section) => section.vehicles;
 
-function escapeRegexCharacters(str) {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
+const getVehicleGroups = (vehicles = [], sortByMatchScore = false) => {
+  const sortVehiclesBy = sortByMatchScore ? "_matchScore" : "vehicleId";
+  const sortGroupsBy = sortByMatchScore
+    ? "combinedMatchScore"
+    : ({operator}) => /\(([^)]+)\)/.exec(operator);
 
-const matchSuggestions = (operators, value = "") => {
-  const inputValue = escapeRegexCharacters(value.trim().toLowerCase());
-  const inputWords = words(inputValue, /[^\s]+/g).filter((w) => !!w);
+  const sortDirection = sortByMatchScore ? "desc" : "asc";
 
-  if (inputWords.length === 0) {
-    return operators;
-  }
-
-  return operators.length === 0
-    ? operators
-    : operators
-        .map(({operatorName, operatorId, vehicles}) => {
-          return {
-            operatorName,
-            operatorId,
-            vehicles: vehicles.filter(({registryNr, vehicleId}) => {
-              const testStr = `${operatorName} ${operatorId} ${vehicleId} ${registryNr} ${operatorId}/${vehicleId}`
-                .trim()
-                .toLowerCase();
-
-              return inputWords.every((inputWord) => {
-                const regex = new RegExp(inputWord, "gi");
-                return regex.test(testStr);
-              });
-            }),
-          };
-        })
-        .filter((operator) => operator.vehicles.length > 0);
+  return orderBy(
+    map(
+      groupBy(
+        vehicles,
+        ({operatorName, operatorId}) => `${operatorName} (${operatorId})`
+      ),
+      (vehicles, groupLabel) => ({
+        operator: groupLabel,
+        combinedMatchScore: sortByMatchScore
+          ? vehicles.reduce((score, {_matchScore = 0}) => score + _matchScore, 0)
+          : 0,
+        vehicles: orderBy(vehicles, sortVehiclesBy, sortDirection).slice(0, 50),
+      })
+    ),
+    sortGroupsBy,
+    sortDirection
+  ).slice(0, 5);
 };
-
-const getSuggestions = (operators) => (value) => matchSuggestions(operators, value);
 
 const enhance = flow(
   observer,
   inject("state")
 );
 
-export default enhance(({value = "", onSelect, options = []}) => {
-  const suggestions = useMemo(() => getSuggestions(options), [options]);
+export default enhance(({value = "", onSelect, search, options = []}) => {
+  const [getSuggestions, searchActive] = useSearchOptions(search);
+
+  const vehicleOptions = useMemo(() => getVehicleGroups(options, searchActive), [
+    options,
+  ]);
 
   return (
     <SuggestionInput
@@ -109,7 +102,8 @@ export default enhance(({value = "", onSelect, options = []}) => {
       getSectionSuggestions={getSectionSuggestions}
       getValue={getSuggestionValue}
       renderSuggestion={renderSuggestion}
-      getSuggestions={suggestions}
+      suggestions={vehicleOptions}
+      onSuggestionsFetchRequested={getSuggestions}
     />
   );
 });

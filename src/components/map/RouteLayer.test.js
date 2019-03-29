@@ -32,15 +32,15 @@ describe("RouteLayer", () => {
 
   test("Calls setMapBounds with the bounds containing the route polyline.", () => {
     const coordinates = [[60.0, 24.0], [60.1, 24.0], [60.1, 24.1], [60.0, 24.1]];
-    const expectBboxString = "24,60,24.1,60.1";
-    const setMapBounds = jest.fn();
+    const expectBboxString = "24,60,24.1,60";
+    const setMapView = jest.fn();
 
     render({
       routeGeometry: coordinates,
-      setMapBounds,
+      setMapView,
     });
 
-    expect(setMapBounds).toHaveBeenCalled();
-    expect(setMapBounds.mock.calls[0][0].toBBoxString()).toBe(expectBboxString);
+    expect(setMapView).toHaveBeenCalled();
+    expect(setMapView.mock.calls[0][0].toBBoxString()).toBe(expectBboxString);
   });
 });

@@ -39,8 +39,7 @@ class MapillaryGeoJSONLayer extends React.PureComponent {
 
     this.highlightedLocation = featurePoint;
 
-    featurePoint =
-      featurePoint && !featurePoint.equals(latlng) ? featurePoint : false;
+    featurePoint = featurePoint && !featurePoint.equals(latlng) ? featurePoint : false;
     this.highlightMapillaryPoint(featurePoint);
   };
 

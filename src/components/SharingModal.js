@@ -39,8 +39,7 @@ const ModalContent = styled.div`
 `;
 
 const CopyButton = styled(Button)`
-  background: ${({copied = false}) =>
-    copied ? "var(--light-green)" : "var(--blue)"};
+  background: ${({copied = false}) => (copied ? "var(--light-green)" : "var(--blue)")};
   border: 0;
 
   svg {
@@ -99,10 +98,7 @@ class SharingModal extends React.Component {
     const {shareUrl} = this;
 
     return (
-      <ShareModal
-        isOpen={isOpen}
-        onBackgroundClick={onClose}
-        onEscapeKeydown={onClose}>
+      <ShareModal isOpen={isOpen} onBackgroundClick={onClose} onEscapeKeydown={onClose}>
         <ModalContent>
           <UrlDisplay resizeable={false} rows={4} value={shareUrl} disabled={true} />
           <ButtonRow>

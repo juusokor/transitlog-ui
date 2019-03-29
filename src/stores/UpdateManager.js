@@ -5,7 +5,7 @@ import unset from "lodash/unset";
 import timer from "../helpers/timer";
 import TimeActions from "./timeActions";
 import FilterActions from "./filterActions";
-import {getMomentFromDateTime} from "../helpers/time";
+import {timeToSeconds, secondsToTime} from "../helpers/time";
 import {TIMEZONE} from "../constants";
 
 const updateListeners = {};
@@ -30,20 +30,23 @@ export default (state) => {
   const filterActions = FilterActions(state);
 
   const updateTime = (forceCurrent = false) => {
-    const {time, timeIncrement, date, timeIsCurrent} = state;
-    const selectedMoment = getMomentFromDateTime(date, time, TIMEZONE);
-    const nowMoment = moment.tz(new Date(), TIMEZONE);
+    const {time, date, timeIncrement, timeIsCurrent} = state;
 
     if (!timeIsCurrent && !forceCurrent) {
-      const nextTimeValue = selectedMoment
-        .clone()
-        .add(timeIncrement, "seconds")
-        .format("HH:mm:ss");
-
-      timeActions.setTime(nextTimeValue);
+      const currentTime = timeToSeconds(time);
+      const nextTime = currentTime + timeIncrement;
+      timeActions.setTime(secondsToTime(Math.max(0, nextTime)));
     } else {
+      // Live-updating is impossible for 24h+ journeys, as the date will
+      // just be the current, real date.
+      const nowMoment = moment.tz(new Date(), TIMEZONE);
+
       timeActions.setTime(nowMoment.format("HH:mm:ss"));
-      filterActions.setDate(nowMoment.format("YYYY-MM-DD"));
+      const currentDate = nowMoment.format("YYYY-MM-DD");
+
+      if (currentDate !== date) {
+        filterActions.setDate(currentDate);
+      }
     }
   };
 
@@ -70,8 +73,8 @@ export default (state) => {
   }
 
   reaction(
-    () => state.live,
-    (isPolling) => {
+    () => [state.live, state.isLiveAndCurrent],
+    ([isPolling, isCurrent]) => {
       if (updateTimerHandle) {
         cancelTimer();
       }
@@ -80,13 +83,16 @@ export default (state) => {
         pollingStart = Date.now();
         // timer() is a setInterval alternative that uses requestAnimationFrame.
         // This makes it more performant and can "pause" when the tab is not focused.
-        updateTimerHandle = timer(() => {
-          if (Date.now() - pollingStart > 5000 * 60) {
-            timeActions.toggleLive(false);
-          }
+        updateTimerHandle = timer(
+          () => {
+            if (Date.now() - pollingStart > 5000 * 60) {
+              timeActions.toggleLive(false);
+            }
 
-          update(true);
-        }, 1500);
+            update(true);
+          },
+          isCurrent ? 2000 : 1000
+        );
       }
     },
     {fireImmediately: true, delay: 100}

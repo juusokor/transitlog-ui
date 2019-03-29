@@ -1,111 +1,74 @@
-import React from "react";
+import React, {useState, useCallback} from "react";
 import get from "lodash/get";
 import SuggestionInput, {SuggestionContent, SuggestionText} from "./SuggestionInput";
 import getTransportType from "../../helpers/getTransportType";
-import {observer} from "mobx-react";
-import {sortBy} from "lodash";
+import {observer} from "mobx-react-lite";
+import sortBy from "lodash/sortBy";
+import {parseLineNumber} from "../../helpers/parseLineNumber";
 
-const parseLineNumber = (lineId) => {
-  // Special case for train lines, they should only show a letter.
-  if (/^300[12]/.test(lineId)) {
-    return lineId.replace(/\d+/, "");
-  }
+const getSuggestionValue = (suggestion) => get(suggestion, "lineId", suggestion);
 
-  // Remove 1st number, which represents the city
-  // Remove all zeros from the beginning
-  return lineId.substring(1).replace(/^0+/, "");
+const renderSuggestion = (suggestion, {query, isHighlighted}) => {
+  const lineId = get(suggestion, "lineId", suggestion);
+
+  return (
+    <SuggestionContent
+      isHighlighted={isHighlighted}
+      withIcon={true}
+      className={getTransportType(lineId)}>
+      <SuggestionText withIcon={true}>{parseLineNumber(lineId)}</SuggestionText>
+    </SuggestionContent>
+  );
 };
 
-const getSuggestionValue = (suggestion) =>
-  typeof suggestion === "string"
-    ? suggestion
-    : parseLineNumber(get(suggestion, "lineId", ""));
-
-const renderSuggestion = (suggestion, {query, isHighlighted}) => (
-  <SuggestionContent
-    isHighlighted={isHighlighted}
-    withIcon={true}
-    className={getTransportType(suggestion.lineId)}>
-    <SuggestionText withIcon={true}>
-      {parseLineNumber(suggestion.lineId)}
-    </SuggestionText>
-  </SuggestionContent>
-);
-
-const getSuggestions = (lines) => (value = "") => {
+const getFilteredSuggestions = (lines, {value = ""}) => {
   const inputValue = value.trim().toLowerCase();
   const inputLength = inputValue.length;
 
-  const sortedLines = sortBy(lines, ({lineId}) => {
-    const parsedLine = parseLineNumber(lineId);
-    // Convert a letter line id to a number, so that a => 1, b => 2 etc.
-    const lineNum = isNaN(parseInt(parsedLine, 10))
-      ? parsedLine.charCodeAt(0) - 97
-      : parsedLine;
+  const filteredLines =
+    inputLength === 0
+      ? lines
+      : lines.filter((line) => {
+          return line.lineId.toLowerCase().includes(inputValue.slice(0, inputLength));
+        });
 
+  return sortBy(filteredLines, ({lineId}) => {
+    const parsedLineId = parseLineNumber(lineId);
+    const numericLineId = parsedLineId.replace(/[^0-9]*/g, "");
+
+    if (!numericLineId) {
+      return getTransportType(lineId, true);
+    }
+
+    const lineNum = parseInt(numericLineId, 10);
     return getTransportType(lineId, true) + lineNum;
   });
-
-  return inputLength === 0
-    ? sortedLines
-    : sortedLines.filter((line) => {
-        return parseLineNumber(line.lineId.toLowerCase()).includes(
-          inputValue.slice(0, inputLength)
-        );
-      });
 };
 
-@observer
-class LineInput extends React.Component {
-  componentDidMount() {
-    this.ensureLine();
-  }
+const LineInput = observer(({line, lines, onSelect}) => {
+  const [options, setOptions] = useState([]);
 
-  componentDidUpdate() {
-    this.ensureLine();
-  }
+  const getSuggestions = useCallback(
+    (value) => {
+      const nextOptions = getFilteredSuggestions(lines, value);
+      setOptions(nextOptions);
+    },
+    [lines, setOptions]
+  );
 
-  onSelectLine = (lineId) => {
-    const {lines, onSelect} = this.props;
-
-    // If there is a preset lineId, find the rest of the line data from lines.
-    if (lines.length !== 0 && lineId) {
-      const lineData = lines.find((l) => parseLineNumber(l.lineId) === lineId);
-
-      if (lineData) {
-        onSelect(lineData);
-      }
-    }
-  };
-
-  ensureLine = () => {
-    const {line, lines, onSelect} = this.props;
-
-    // If there is a preset lineId, find the rest of the line data from lines.
-    if (line.lineId && !line.dateBegin) {
-      const lineData = lines.find((l) => l.lineId === line.lineId);
-
-      if (lineData) {
-        onSelect(lineData);
-      }
-    }
-  };
-
-  render() {
-    const {line, lines} = this.props;
-
-    return (
-      <SuggestionInput
-        helpText="Select line"
-        minimumInput={1}
-        value={parseLineNumber(get(line, "lineId", ""))}
-        onSelect={this.onSelectLine}
-        getValue={getSuggestionValue}
-        renderSuggestion={renderSuggestion}
-        getSuggestions={getSuggestions(lines)}
-      />
-    );
-  }
-}
+  return (
+    <SuggestionInput
+      helpText="Select line"
+      minimumInput={1}
+      value={line}
+      onSelect={onSelect}
+      getValue={getSuggestionValue}
+      getDisplayValue={parseLineNumber}
+      renderSuggestion={renderSuggestion}
+      suggestions={options}
+      onSuggestionsFetchRequested={getSuggestions}
+    />
+  );
+});
 
 export default LineInput;

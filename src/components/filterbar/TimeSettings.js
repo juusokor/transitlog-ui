@@ -1,14 +1,13 @@
 import React, {Component} from "react";
 import {app} from "mobx-app";
 import {inject, observer} from "mobx-react";
-import {getMomentFromDateTime} from "../../helpers/time";
+import {timeToSeconds, secondsToTime} from "../../helpers/time";
 import {InputBase, ControlGroup} from "../Forms";
 import PlusMinusInput from "../PlusMinusInput";
 import styled from "styled-components";
 import doubleDigit from "../../helpers/doubleDigit";
 import {observable, action, computed} from "mobx";
 import {setResetListener} from "../../stores/FilterStore";
-import {TIMEZONE} from "../../constants";
 
 const TimeControlGroup = styled(ControlGroup)`
   margin-bottom: 1.25rem;
@@ -27,7 +26,7 @@ class TimeSettings extends Component {
   resetListener = () => {};
 
   @observable
-  timeInput = "";
+  timeInput = "0";
 
   // It is necessary to have a separate "dirty" state. If we would consider the input
   // dirty when the timeInput string is empty, the input value would just switch back
@@ -56,15 +55,17 @@ class TimeSettings extends Component {
 
   onTimeButtonClick = (modifier) => () => {
     const {
-      state: {date, time},
+      state: {time},
       Time,
     } = this.props;
 
-    const currentTime = getMomentFromDateTime(date, time, TIMEZONE);
-    const nextTime = currentTime.add(modifier, "seconds").format("HH:mm:ss");
+    const currentTime = timeToSeconds(time);
+    const nextTime = currentTime + modifier;
 
-    Time.toggleLive(false);
-    Time.setTime(nextTime);
+    if (nextTime >= 0) {
+      Time.toggleLive(false);
+      Time.setTime(secondsToTime(nextTime));
+    }
   };
 
   setTimeValue = action((value, dirtyVal = true) => {
@@ -123,9 +124,7 @@ class TimeSettings extends Component {
     }
 
     // Make it into a valid time string
-    const nextTimeVal = `${doubleDigit(hours)}:${padStart(minutes)}:${padStart(
-      seconds
-    )}`;
+    const nextTimeVal = `${doubleDigit(hours)}:${padStart(minutes)}:${padStart(seconds)}`;
 
     // Assign it to the state for stuff to happen
     Time.setTime(nextTimeVal);
@@ -145,6 +144,7 @@ class TimeSettings extends Component {
           onIncrease={this.onTimeButtonClick(timeIncrement)}
           onDecrease={this.onTimeButtonClick(-timeIncrement)}>
           <TimeInput
+            type="text"
             helpText="Select time"
             value={this.displayTime}
             onBlur={this.onBlur}

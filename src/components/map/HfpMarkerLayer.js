@@ -1,18 +1,16 @@
 import React, {Component} from "react";
-import PropTypes from "prop-types";
-import {observer} from "mobx-react";
+import {observer, inject} from "mobx-react";
 import "./Map.css";
 import VehicleMarker from "./VehicleMarker";
 import DivIcon from "../../helpers/DivIcon";
 import HfpTooltip from "./HfpTooltip";
 import {observable, action} from "mobx";
+import {app} from "mobx-app";
+import getJourneyId from "../../helpers/getJourneyId";
 
+@inject(app("Journey"))
 @observer
 class HfpMarkerLayer extends Component {
-  static propTypes = {
-    onMarkerClick: PropTypes.func.isRequired,
-  };
-
   markerRef = React.createRef();
 
   @observable
@@ -22,30 +20,40 @@ class HfpMarkerLayer extends Component {
     this.tooltipOpen = setTo;
   });
 
-  onMarkerClick = (positionWhenClicked) => () => {
-    const {onMarkerClick} = this.props;
+  onMarkerClick = () => {
     this.toggleTooltip();
-    onMarkerClick(positionWhenClicked);
+    const {Journey, state, journey} = this.props;
+
+    if (journey && getJourneyId(state.selectedJourney) !== journey.id) {
+      Journey.setSelectedJourney(journey);
+    }
   };
 
   render() {
-    const {currentPosition: position} = this.props;
+    const {journey, currentEvent: event, isSelectedJourney = false} = this.props;
 
-    if (!position) {
+    if (!journey || !event || !(event.lat && event.lng)) {
       return null;
     }
 
     return (
       <DivIcon
         ref={this.markerRef} // Needs ref for testing
-        onClick={this.onMarkerClick(position)}
-        position={[position.lat, position.long]}
-        iconSize={[36, 36]}
-        icon={<VehicleMarker position={position} />}
-        pane="hfp-markers">
+        onClick={this.onMarkerClick}
+        position={[event.lat, event.lng]}
+        iconSize={isSelectedJourney ? [36, 36] : [20, 20]}
+        icon={
+          <VehicleMarker
+            mode={journey.mode}
+            isSelectedJourney={isSelectedJourney}
+            event={event}
+          />
+        }
+        pane={isSelectedJourney ? "hfp-markers-primary" : "hfp-markers"}>
         <HfpTooltip
           key={`permanent=${this.tooltipOpen}`}
-          position={position}
+          journey={journey}
+          event={event}
           permanent={this.tooltipOpen}
           sticky={false}
         />

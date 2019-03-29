@@ -2,46 +2,39 @@ import React from "react";
 import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import get from "lodash/get";
-import RouteFieldsFragment from "./RouteFieldsFragment";
 import {observer} from "mobx-react";
 import orderBy from "lodash/orderBy";
-import {filterRoutes} from "../helpers/filterJoreCollections";
 
-const routesByLineQuery = gql`
-  query routesByLineQuery($lineId: String!, $dateBegin: Date!, $dateEnd: Date!) {
-    line: lineByLineIdAndDateBeginAndDateEnd(
-      lineId: $lineId
-      dateBegin: $dateBegin
-      dateEnd: $dateEnd
-    ) {
-      __typename
+const routesQuery = gql`
+  query routeOptionsQuery($line: String!, $date: Date!) {
+    routes(date: $date, line: $line) {
+      id
       lineId
-      dateBegin
-      dateEnd
-      routes {
-        nodes {
-          ...RouteFieldsFragment
-        }
-      }
+      routeId
+      direction
+      name
+      destination
+      destinationStopId
+      originStopId
+      origin
+      _matchScore
     }
   }
-  ${RouteFieldsFragment}
 `;
 
-export default observer(({line, date, children}) => (
-  <Query query={routesByLineQuery} variables={line}>
-    {({loading, error, data}) => {
-      const routes = get(data, "line.routes.nodes", []);
-      const filteredRoutes = orderBy(filterRoutes(routes, date), [
-        "routeId",
-        "direction",
-      ]);
+export default observer(({line, date, children}) => {
+  return (
+    <Query query={routesQuery} variables={{line, date}}>
+      {({loading, error, data}) => {
+        const routes = get(data, "routes", []);
+        const filteredRoutes = orderBy(routes, ["routeId", "direction"]);
 
-      return children({
-        loading,
-        error,
-        routes: filteredRoutes.length !== 0 ? filteredRoutes : routes,
-      });
-    }}
-  </Query>
-));
+        return children({
+          loading,
+          error,
+          routes: filteredRoutes.length !== 0 ? filteredRoutes : routes,
+        });
+      }}
+    </Query>
+  );
+});

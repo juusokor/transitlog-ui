@@ -3,16 +3,16 @@ import {getDepartureByTime} from "./getDepartureByTime";
 describe("getDepartureByTime", () => {
   test("returns a departure that matches the provided time", () => {
     const departures = [
-      {hours: 13, minutes: 5},
-      {hours: 13, minutes: 45},
-      {hours: 8, minutes: 18},
-      {hours: 8, minutes: 55},
-      {hours: 23, minutes: 42},
-      {hours: 23, minutes: 9},
-      {hours: 2, minutes: 1, isNextDay: true},
-      {hours: 2, minutes: 42, isNextDay: true},
-      {hours: 0, minutes: 20, isNextDay: true},
-      {hours: 0, minutes: 36, isNextDay: true},
+      {plannedDepartureTime: {departureTime: "13:05"}},
+      {plannedDepartureTime: {departureTime: "13:45"}},
+      {plannedDepartureTime: {departureTime: "08:18"}},
+      {plannedDepartureTime: {departureTime: "08:55"}},
+      {plannedDepartureTime: {departureTime: "23:42"}},
+      {plannedDepartureTime: {departureTime: "23:09"}},
+      {plannedDepartureTime: {departureTime: "26:01"}},
+      {plannedDepartureTime: {departureTime: "26:42"}},
+      {plannedDepartureTime: {departureTime: "24:20"}},
+      {plannedDepartureTime: {departureTime: "24:36"}},
     ];
 
     const time1 = "13:10:00";

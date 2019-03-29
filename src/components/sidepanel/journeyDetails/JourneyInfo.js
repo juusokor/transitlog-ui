@@ -1,12 +1,12 @@
 import React from "react";
 import styled from "styled-components";
 import get from "lodash/get";
-import Equipment from "./Equipment";
 import CalculateTerminalTime from "./CalculateTerminalTime";
 import doubleDigit from "../../../helpers/doubleDigit";
-import {getEquipmentType} from "./equipmentType";
+import {getEquipmentType, validateEquipment} from "./equipmentType";
 import {Text, text} from "../../../helpers/text";
 import {getOperatorName} from "../../../helpers/getOperatorNameById";
+import {observer} from "mobx-react-lite";
 
 const JourneyInfo = styled.div`
   flex: none;
@@ -76,17 +76,31 @@ const ObservedValue = styled.span`
   font-family: "Courier New", Courier, monospace;
 `;
 
-export default ({journey, date, originStop = {}, destinationStop = {}}) => {
-  const {departure} = originStop;
+export default observer(({journey, date}) => {
+  const departure = get(journey, "departures[0]", null);
 
-  if (!departure || !journey) {
+  if (!departure) {
     return null;
   }
 
   const equipmentCode = get(departure, "equipmentType", "");
   const equipmentType = getEquipmentType(equipmentCode);
   const operatorName = getOperatorName(departure.operatorId);
-  const observedOperatorName = getOperatorName(journey.owner_operator_id);
+  const observedOperatorName = getOperatorName(journey.operatorId);
+
+  const originDeparture = departure;
+  const originArrivalEvent = get(
+    originDeparture,
+    "observedArrivalTime.arrivalEvent",
+    null
+  );
+
+  const destinationDeparture = journey.departures[journey.departures.length - 1];
+  const destinationArrivalEvent = get(
+    destinationDeparture,
+    "observedArrivalTime.arrivalEvent",
+    null
+  );
 
   return (
     <JourneyInfo>
@@ -97,11 +111,11 @@ export default ({journey, date, originStop = {}, destinationStop = {}}) => {
           </LineHeading>
           <Values>
             <span>{get(departure, "terminalTime", 0)} min</span>
-            {originStop.arrivalEvent && (
+            {originArrivalEvent && (
               <CalculateTerminalTime
                 date={date}
                 departure={departure}
-                event={originStop.arrivalEvent}>
+                event={originArrivalEvent}>
                 {({diffMinutes, diffSeconds, sign, wasLate}) => (
                   <ObservedValue
                     color={wasLate ? "white" : "var(--dark-grey)"}
@@ -122,12 +136,12 @@ export default ({journey, date, originStop = {}, destinationStop = {}}) => {
           </LineHeading>
           <Values>
             <span>{get(departure, "recoveryTime", 0)} min</span>
-            {destinationStop.arrivalEvent && (
+            {destinationArrivalEvent && (
               <CalculateTerminalTime
                 recovery={true}
                 date={date}
-                departure={destinationStop.departure}
-                event={destinationStop.arrivalEvent}>
+                departure={destinationDeparture}
+                event={destinationArrivalEvent}>
                 {({diffMinutes, diffSeconds, wasLate, sign}) => (
                   <ObservedValue
                     color={wasLate ? "white" : "var(--dark-grey)"}
@@ -147,7 +161,7 @@ export default ({journey, date, originStop = {}, destinationStop = {}}) => {
             <Text>vehicle.identifier</Text>
           </LineHeading>
           <Values>
-            <span>{journey.unique_vehicle_id}</span>
+            <span>{journey.uniqueVehicleId}</span>
           </Values>
         </Line>
       </JourneyInfoRow>
@@ -171,74 +185,66 @@ export default ({journey, date, originStop = {}, destinationStop = {}}) => {
           </Line>
         )}
       </JourneyInfoRow>
-      <Equipment journey={journey} departure={departure}>
-        {({equipment = [], vehicle = null}) => (
-          <>
-            {!!vehicle && (
-              <>
-                <JourneyInfoRow>
-                  <Line>
-                    <LineHeading>
-                      <Text>vehicle.registry_nr</Text>
-                    </LineHeading>
-                    <Values>
-                      <span>{vehicle.registryNr}</span>
-                    </Values>
-                  </Line>
-                </JourneyInfoRow>
-                <JourneyInfoRow>
-                  <Line>
-                    <LineHeading>
-                      <Text>vehicle.age</Text>
-                    </LineHeading>
-                    <Values>
-                      <span>{vehicle.age}</span>
-                      &nbsp;
-                      <Text>
-                        {vehicle.age < 2 ? "general.year" : "general.year.plural"}
-                      </Text>
-                    </Values>
-                  </Line>
-                </JourneyInfoRow>
-              </>
-            )}
-            {equipment.length && (
-              <JourneyInfoRow>
-                <Line>
-                  <LineHeading>
-                    <Text>journey.requested_equipment</Text>
-                  </LineHeading>
-                  <Values>
-                    <span>
-                      {equipmentType
-                        ? equipmentType
-                        : equipmentCode
-                        ? equipmentCode
-                        : text("general.no_type")}
-                      {get(departure, "trunkColorRequired", 0) === 1 &&
-                        ", HSL-orans"}
-                    </span>
-                  </Values>
-                </Line>
-                <Line right>
-                  <Values>
-                    {equipment.map((prop) => (
+      {journey.equipment && (
+        <>
+          <JourneyInfoRow>
+            <Line>
+              <LineHeading>
+                <Text>vehicle.registry_nr</Text>
+              </LineHeading>
+              <Values>
+                <span>{journey.equipment.registryNr}</span>
+              </Values>
+            </Line>
+          </JourneyInfoRow>
+          <JourneyInfoRow>
+            <Line>
+              <LineHeading>
+                <Text>vehicle.age</Text>
+              </LineHeading>
+              <Values>
+                <span>{journey.equipment.age}</span>
+                &nbsp;
+                <Text>
+                  {journey.equipment.age < 2 ? "general.year" : "general.year.plural"}
+                </Text>
+              </Values>
+            </Line>
+          </JourneyInfoRow>
+          <JourneyInfoRow>
+            <Line>
+              <LineHeading>
+                <Text>journey.requested_equipment</Text>
+              </LineHeading>
+              <Values>
+                <span>
+                  {equipmentType
+                    ? equipmentType
+                    : equipmentCode
+                    ? equipmentCode
+                    : text("general.no_type")}
+                  {get(originDeparture, "equipmentColor", "")}
+                </span>
+              </Values>
+            </Line>
+            <Line right>
+              <Values>
+                {validateEquipment(departure, journey.equipment).map(
+                  (prop) =>
+                    prop.observed && (
                       <ObservedValue
                         key={`equipment_prop_${prop.name}`}
                         backgroundColor={prop.color}
-                        color={
-                          prop.required !== false ? "white" : "var(--dark-grey)"
-                        }>
+                        color={prop.required !== false ? "white" : "var(--dark-grey)"}>
                         {prop.observed}
                       </ObservedValue>
-                    ))}
-                  </Values>
-                </Line>
-              </JourneyInfoRow>
-            )}
-          </>
-        )}
-      </Equipment>
+                    )
+                )}
+              </Values>
+            </Line>
+          </JourneyInfoRow>
+        </>
+      )}
     </JourneyInfo>
   );
-};
+});

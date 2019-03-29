@@ -4,32 +4,12 @@ import {Popup, CircleMarker} from "react-leaflet";
 import {latLng} from "leaflet";
 import {Heading} from "../Typography";
 import get from "lodash/get";
-import styled from "styled-components";
 import {getPriorityMode, getModeColor} from "../../helpers/vehicleColor";
 import {StopRadius} from "./StopRadius";
 import {Text} from "../../helpers/text";
 import {flow} from "lodash";
 import {inject} from "../../helpers/inject";
-
-const StopOptionButton = styled.button`
-  text-decoration: none;
-  padding: 0.25rem 0.5rem;
-  border-radius: 5px;
-  background: var(--lightest-grey);
-  margin: 0 0 0.5rem 0;
-  display: block;
-  border: ${({color = "var(--lightest-grey)"}) =>
-    color ? `3px solid ${color}` : "3px solid var(--lightest-grey)"};
-  cursor: pointer;
-
-  &:hover {
-    background-color: var(--lighter-grey);
-  }
-`;
-
-function cleanRouteId(routeId) {
-  return routeId.substring(1).replace(/^0+/, "");
-}
+import StopRouteSelect from "./StopRouteSelect";
 
 const decorate = flow(
   observer,
@@ -50,11 +30,14 @@ const StopMarker = decorate(
       }
     }, [popupOpen]);
 
-    const selectRoute = (route) => () => {
-      if (route) {
-        Filters.setRoute(route);
-      }
-    };
+    const selectRoute = useCallback(
+      (route) => () => {
+        if (route) {
+          Filters.setRoute(route);
+        }
+      },
+      []
+    );
 
     const selectStop = useCallback(() => {
       if (stop) {
@@ -62,14 +45,16 @@ const StopMarker = decorate(
       }
     }, [stop]);
 
+    const {lat, lng} = stop;
+
     const onShowStreetView = useCallback(() => {
-      onViewLocation(latLng({lat: stop.lat, lng: stop.lon}));
+      onViewLocation(latLng({lat, lng}));
     }, [onViewLocation, stop]);
 
     const {stop: selectedStop} = state;
 
     const isSelected = selectedStop === stop.stopId;
-    const mode = getPriorityMode(get(stop, "modes.nodes", []));
+    const mode = getPriorityMode(get(stop, "modes", []));
     const stopColor = getModeColor(mode);
     const {stopRadius} = stop;
 
@@ -83,25 +68,21 @@ const StopMarker = decorate(
         maxHeight={750}
         maxWidth={550}>
         <Heading level={4}>
-          {stop.nameFi}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
+          {stop.name}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
         </Heading>
-        {get(stop, "routeSegmentsForDate.nodes", []).map((routeSegment) => (
-          <StopOptionButton
-            color={stopColor}
-            key={`route_${cleanRouteId(routeSegment.routeId)}_${
-              routeSegment.direction
-            }_${routeSegment.dateBegin}_${routeSegment.dateEnd}`}
-            onClick={selectRoute(get(routeSegment, "route.nodes[0]", null))}>
-            {cleanRouteId(routeSegment.routeId)}
-          </StopOptionButton>
-        ))}
+        <StopRouteSelect
+          color={stopColor}
+          onSelectRoute={selectRoute}
+          stopId={stop.stopId}
+          date={state.date}
+        />
         <button onClick={onShowStreetView}>
           <Text>map.stops.show_in_streetview</Text>
         </button>
       </Popup>
     );
 
-    const markerPosition = latLng(stop.lat, stop.lon);
+    const markerPosition = latLng({lat, lng});
 
     const markerElement = (
       <CircleMarker

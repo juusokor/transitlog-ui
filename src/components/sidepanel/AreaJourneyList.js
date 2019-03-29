@@ -3,11 +3,11 @@ import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import SidepanelList from "./SidepanelList";
 import styled from "styled-components";
-import map from "lodash/map";
 import getJourneyId from "../../helpers/getJourneyId";
 import ToggleButton from "../ToggleButton";
 import {areaEventsStyles} from "../../stores/UIStore";
 import {text} from "../../helpers/text";
+import {getNormalTime} from "../../helpers/time";
 
 const JourneyListRow = styled.button`
   display: flex;
@@ -45,24 +45,18 @@ const TimeSlot = styled.span`
   text-align: right;
 `;
 
-@inject(app("Journey", "Time", "Filters", "UI"))
+@inject(app("Journey", "Time", "UI"))
 @observer
 class AreaJourneyList extends Component {
   selectJourney = (journey) => (e) => {
     e.preventDefault();
-    const {Filters, Journey, state} = this.props;
+    const {Journey, state} = this.props;
 
     if (journey) {
       const journeyId = getJourneyId(journey);
 
       // Only set these if the journey is truthy and was not already selected
       if (journeyId && getJourneyId(state.selectedJourney) !== journeyId) {
-        const route = {
-          routeId: journey.route_id,
-          direction: parseInt(journey.direction_id, 10),
-        };
-
-        Filters.setRoute(route);
         Journey.setSelectedJourney(journey);
       } else {
         Journey.setSelectedJourney(null);
@@ -88,15 +82,11 @@ class AreaJourneyList extends Component {
       state: {selectedJourney, areaEventsStyle},
     } = this.props;
 
-    const journeyHfpEvents = map(journeys, ({journeyId, events}) => ({
-      journeyId,
-      position: events[0],
-    }));
-
     const selectedJourneyId = getJourneyId(selectedJourney);
 
     return (
       <SidepanelList
+        focusKey={selectedJourneyId}
         loading={loading}
         header={
           <ToggleButton
@@ -111,22 +101,20 @@ class AreaJourneyList extends Component {
           />
         }>
         {(scrollRef) =>
-          journeyHfpEvents.map(({journeyId, position}) => {
-            const {route_id, direction_id, journey_start_time} = position;
-
-            const journeyIsSelected =
-              selectedJourney && selectedJourneyId === journeyId;
+          journeys.map((journey) => {
+            const {routeId, direction, departureTime, id: journeyId} = journey;
+            const journeyIsSelected = selectedJourney && selectedJourneyId === journeyId;
 
             return (
               <JourneyListRow
                 ref={journeyIsSelected ? scrollRef : null}
                 key={`area_event_row_${journeyId}`}
                 selected={journeyIsSelected}
-                onClick={this.selectJourney(position)}>
+                onClick={this.selectJourney(journey)}>
                 <JourneyRowLeft>
-                  {route_id} / {direction_id}
+                  {routeId} / {direction}
                 </JourneyRowLeft>
-                <TimeSlot>{journey_start_time}</TimeSlot>
+                <TimeSlot>{getNormalTime(departureTime)}</TimeSlot>
               </JourneyListRow>
             );
           })

@@ -2,12 +2,12 @@ import React, {Component} from "react";
 import {inject, observer} from "mobx-react";
 import LeafletMap from "./LeafletMap";
 import {app} from "mobx-app";
-import invoke from "lodash/invoke";
 import trim from "lodash/trim";
 import get from "lodash/get";
 import debounce from "lodash/debounce";
 import {setUrlValue, getUrlValue} from "../../stores/UrlManager";
-import {reaction, observable, action, runInAction} from "mobx";
+import {observable, action} from "mobx";
+import {runInAction} from "mobx";
 
 const MAP_BOUNDS_URL_KEY = "mapView";
 
@@ -20,9 +20,7 @@ const MAP_BOUNDS_URL_KEY = "mapView";
 @observer
 class Map extends Component {
   static defaultProps = {
-    onMapChanged: () => {},
-    onMapChange: () => {},
-    bounds: null,
+    onViewChanged: () => {},
   };
 
   canSetView = false;
@@ -34,8 +32,10 @@ class Map extends Component {
 
   @observable
   zoom = 13;
+
   @observable.ref
   mapView = null;
+
   @observable
   currentMapillaryViewerLocation = false;
 
@@ -52,47 +52,24 @@ class Map extends Component {
   };
 
   componentDidMount() {
-    const {state} = this.props;
     const map = this.getLeaflet();
 
-    this.disposeSidePanelReaction = reaction(
-      () =>
-        (state.sidePanelVisible ? "visible" : "not visible") +
-        (state.journeyDetailsAreOpen ? " details open" : " details closed"),
-      () => {
-        const leafletMap = this.getLeaflet();
-
-        if (leafletMap) {
-          leafletMap.invalidateSize(true);
-        }
-      },
-      {
-        delay: 500,
-      }
-    );
-
+    // Center the map on the enter position provided through the URL.
     let urlCenter = "";
 
     if (map) {
       urlCenter = getUrlValue(MAP_BOUNDS_URL_KEY);
-
       let [lat = "", lng = "", zoom = this.zoom] = urlCenter.split(",");
 
+      // Use default coordinates if parsing or validation fails.
       if (!lat || !trim(lat) || !parseInt(lat)) {
         lat = 60.170988;
       }
-
       if (!lng || !trim(lng) || !parseInt(lng)) {
         lng = 24.940842;
       }
 
-      map.setView(
-        {
-          lat,
-          lng,
-        },
-        zoom
-      );
+      map.setView({lat, lng}, zoom);
     }
 
     // To prevent the map from moving away from the view shared in the URL, allow
@@ -100,22 +77,63 @@ class Map extends Component {
     setTimeout(() => (this.canSetView = true), urlCenter ? 3000 : 0);
   }
 
-  setMapCenter = (center) => {
+  componentDidUpdate({sidePanelOpen: prevSidePanelOpen, detailsOpen: prevDetailsOpen}) {
+    const {sidePanelOpen, detailsOpen} = this.props;
+
+    if (sidePanelOpen !== prevSidePanelOpen || detailsOpen !== prevDetailsOpen) {
+      setTimeout(() => {
+        const leafletMap = this.getLeaflet();
+
+        if (leafletMap) {
+          leafletMap.invalidateSize(true);
+        }
+      }, 300);
+    }
+  }
+
+  /**
+   * This method focuses the Leaflet map on the provided location. Center is either
+   * LatLng compatible data or a latLngBounds. Sets the center directly on the Leaflet
+   * map, bypassing both state and React-Leaflet. This yields the best performance.
+   * @param center LatLng or LatLngBounds representing the location that the map should
+   *   center on.
+   */
+  setMapView = (center) => {
     const map = this.getLeaflet();
 
+    // Bail if we're not allowed to set the view yet (after mount when the position
+    // is set from the url) or if there are other problems.
     if (!this.canSetView || !center || !map) {
       return;
     }
 
     const prevCenter = this.prevCenter;
+    let useCenter = center;
+    let bounds = null;
 
-    if (prevCenter && !center.equals(prevCenter)) {
-      this.prevCenter = center;
-      map.setView(center);
+    // If we got passed a bounds, get the center from it for validating against
+    // prevCenter, but also save the bounds.
+    if (typeof useCenter.toBBoxString === "function") {
+      useCenter = center.getCenter();
+      bounds = center;
+    } else {
+      useCenter = center;
+      bounds = null;
     }
 
-    if (!prevCenter) {
-      this.prevCenter = center;
+    // We don't want to set invalid centers or centers that were set previously.
+    if (
+      (!prevCenter && useCenter) ||
+      (prevCenter && useCenter && !useCenter.equals(prevCenter))
+    ) {
+      this.prevCenter = useCenter;
+
+      // If we have a bounds we might as well use it.
+      if (bounds) {
+        map.fitBounds(bounds);
+      } else {
+        map.setView(useCenter);
+      }
     }
   };
 
@@ -123,47 +141,8 @@ class Map extends Component {
     this.disposeSidePanelReaction();
   }
 
-  setMapBounds = (bounds = null) => {
-    if (this.canSetView && bounds && invoke(bounds, "isValid")) {
-      const map = this.getLeaflet();
-
-      if (map) {
-        map.fitBounds(bounds);
-      }
-    }
-  };
-
-  setMapView = (map) => {
-    if (!map) {
-      return;
-    }
-
-    const {route} = this.props.state;
-
-    if (route && route.routeId) {
-      return;
-    }
-
-    const bounds = map.getBounds();
-    const {mapView} = this;
-
-    if (
-      !bounds ||
-      !invoke(bounds, "isValid") ||
-      (mapView && bounds.equals(mapView))
-    ) {
-      return;
-    }
-
-    runInAction(() => (this.mapView = bounds));
-  };
-
-  onMapChanged = () => {
-    const map = this.getLeaflet();
-    this.setMapView(map);
-    this.setMapUrlState(map.getCenter(), map.getZoom());
-  };
-
+  // Debounced method that sets the current map position into the URL state when
+  // it changes.
   setMapUrlState = debounce(
     (center, zoom) =>
       center.lat &&
@@ -173,10 +152,39 @@ class Map extends Component {
     500
   );
 
+  onMapChanged = () => {
+    const map = this.getLeaflet();
+    this.setMapUrlState(map.getCenter(), map.getZoom());
+    this.setMapViewState(map);
+  };
+
+  // This method sets the observable map view props of this component. This method is
+  // called AFTER the view has been changed and it will NOT center the map or change
+  // the view, the state is just passed on to children.
+  setMapViewState = (map) => {
+    if (!map) {
+      return;
+    }
+
+    const bounds = map.getBounds();
+    const {mapView} = this;
+
+    if (mapView && bounds.equals(mapView)) {
+      return;
+    }
+
+    setTimeout(() => {
+      runInAction(() => (this.mapView = bounds));
+    }, 1);
+  };
+
   onZoom = (event) => {
     const zoom = event.target.getZoom();
     this.setMapZoom(zoom);
   };
+
+  // The state is provided through a function to not trigger unwanted re-renders in consumers.
+  getMapView = () => this.mapView;
 
   render() {
     const {children, className} = this.props;
@@ -186,16 +194,14 @@ class Map extends Component {
         setMapillaryViewerLocation={this.setMapillaryViewerLocation}
         currentMapillaryViewerLocation={this.currentMapillaryViewerLocation}
         mapRef={this.mapRef}
-        mapView={this.mapView}
         className={className}
         onMapChanged={this.onMapChanged}
         onZoom={this.onZoom}>
         {children({
           setViewerLocation: this.setMapillaryViewerLocation,
           zoom: this.zoom,
-          mapView: this.mapView,
-          setMapBounds: this.setMapBounds,
-          setMapCenter: this.setMapCenter,
+          getMapView: this.getMapView,
+          setMapView: this.setMapView,
         })}
       </LeafletMap>
     );

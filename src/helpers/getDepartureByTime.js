@@ -10,10 +10,13 @@ export function getDepartureByTime(departures = [], time = "") {
   const timeMinute = parseInt(time.split(":")[1], 10);
 
   // Get all departures that match by the hour
-  const selectedHourDepartures = departures.filter(({hours, isNextDay = false}) => {
-    const hourVal = isNextDay ? hours + 24 : hours;
-    return timeHour === hourVal;
-  });
+  const selectedHourDepartures = departures.filter(
+    ({plannedDepartureTime, isNextDay = false}) => {
+      const hours = parseInt(plannedDepartureTime.departureTime.split(":")[0], 10);
+      const hourVal = isNextDay ? hours + 24 : hours;
+      return timeHour === hourVal;
+    }
+  );
 
   if (selectedHourDepartures && selectedHourDepartures.length !== 0) {
     /*
@@ -22,8 +25,10 @@ export function getDepartureByTime(departures = [], time = "") {
      minutes. So if the minute value is 30, and the departure minute value is also
      30, the sort value is 0 and the departure is first in the list.
     */
-    return orderBy(selectedHourDepartures, (departure) =>
-      Math.abs(departure.minutes - timeMinute)
+    return orderBy(selectedHourDepartures, ({plannedDepartureTime}) =>
+      Math.abs(
+        parseInt(plannedDepartureTime.departureTime.split(":")[1], 10) - timeMinute
+      )
     )[0]; // Return the first element
   }
 

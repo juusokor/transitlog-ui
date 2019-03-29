@@ -4,10 +4,8 @@ import App from "./components/App";
 import {getClient} from "./api";
 import {ApolloProvider} from "react-apollo";
 import {observer, inject} from "mobx-react";
-import DevTools, {configureDevtool} from "mobx-react-devtools";
 import {GlobalFormStyle} from "./components/Forms";
 import {app} from "mobx-app";
-import {observable, runInAction} from "mobx";
 import Loading from "./components/Loading";
 import {ModalProvider, BaseModalBackground} from "styled-react-modal";
 import styled from "styled-components";
@@ -17,26 +15,10 @@ const SpecialModalBackground = styled(BaseModalBackground)`
   background: rgba(0, 0, 0, 0.1);
 `;
 
-configureDevtool({
-  logEnabled: false,
-  updatesEnabled: false,
-  // Log only changes of type `reaction`
-  // (only affects top-level messages in console, not inside groups)
-  logFilter: (change) => change.type === "action",
-});
-
 @inject(app("UI"))
 @observer
 class Root extends React.Component {
-  @observable.ref
-  client = null;
-
-  async componentDidMount() {
-    const {UI} = this.props;
-    const client = await getClient(UI);
-
-    runInAction(() => (this.client = client));
-  }
+  client = getClient(this.props.UI);
 
   render() {
     if (!this.client) {
@@ -49,7 +31,6 @@ class Root extends React.Component {
           <>
             <GlobalFormStyle />
             <App />
-            <DevTools />
           </>
         </ModalProvider>
       </ApolloProvider>

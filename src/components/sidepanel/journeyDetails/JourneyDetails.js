@@ -5,18 +5,20 @@ import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import get from "lodash/get";
 import JourneyStops from "./JourneyStops";
-import Loading from "../../Loading";
+import {LoadingDisplay} from "../../Loading";
 import JourneyInfo from "./JourneyInfo";
 import DestinationStop from "./DestinationStop";
-import withRoute from "../../../hoc/withRoute";
 import OriginStop from "./OriginStop";
 import {observable, action} from "mobx";
+import {getMomentFromDateTime} from "../../../helpers/time";
+import {transportColor} from "../../transportModes";
 
 const JourneyPanelWrapper = styled.div`
   height: 100%;
   display: grid;
   grid-template-rows: auto 1fr;
   align-items: stretch;
+  position: relative;
 `;
 
 const ScrollContainer = styled.div`
@@ -37,7 +39,7 @@ const StopsListWrapper = styled.div`
   padding: 2rem 0 1rem;
 `;
 
-const LoadingContainer = styled.div`
+const Loading = styled(LoadingDisplay)`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -45,7 +47,6 @@ const LoadingContainer = styled.div`
 `;
 
 @inject(app("UI", "Time", "Filters"))
-@withRoute({alwaysFetch: true})
 @observer
 class JourneyDetails extends React.Component {
   @observable
@@ -73,69 +74,61 @@ class JourneyDetails extends React.Component {
 
   render() {
     const {
-      state: {date},
-      route,
-      selectedJourneyEvents,
-      journeyStops,
+      state: {date, time},
+      journey = null,
       loading = false,
     } = this.props;
-    // Select the first event to define the journey
-    const events = get(selectedJourneyEvents, "[0].events", []);
-    const journey = get(events, "[0]", {});
+
+    const stopMode = get(journey, "mode", "BUS");
+    const stopColor = get(transportColor, stopMode, "var(--light-grey)");
 
     return (
       <JourneyPanelWrapper>
-        <JourneyDetailsHeader
-          journey={journey}
-          date={date}
-          mode={get(route, "mode", "BUS")}
-          routeId={get(route, "routeId", "")}
-          name={get(route, "nameFi")}
-        />
-        <ScrollContainer>
-          <JourneyPanelContent>
-            <JourneyInfo
-              date={date}
+        {journey && journey.departures.length !== 0 ? (
+          <>
+            <JourneyDetailsHeader
+              currentTime={getMomentFromDateTime(date, time)}
               journey={journey}
-              journeyHfp={events}
-              originStop={journeyStops[0]}
-              destinationStop={journeyStops.slice(-1)[0]}
+              date={date}
             />
-            {journeyStops.length !== 0 ? (
-              <StopsListWrapper>
-                <OriginStop
-                  onHoverStop={this.onHoverStop}
-                  onSelectStop={this.onSelectStop}
-                  stop={journeyStops[0]}
-                  date={date}
-                  onClickTime={this.onClickTime}
-                  stopsExpanded={this.stopsExpanded}
-                />
-                <JourneyStops
-                  onHoverStop={this.onHoverStop}
-                  onSelectStop={this.onSelectStop}
-                  journeyStops={journeyStops.slice(1, -1)}
-                  date={date}
-                  route={route}
-                  onClickTime={this.onClickTime}
-                  stopsExpanded={this.stopsExpanded}
-                  toggleStopsExpanded={this.toggleStopsExpanded}
-                />
-                <DestinationStop
-                  onHoverStop={this.onHoverStop}
-                  onSelectStop={this.onSelectStop}
-                  stop={journeyStops.slice(-1)[0]}
-                  date={date}
-                  onClickTime={this.onClickTime}
-                />
-              </StopsListWrapper>
-            ) : loading ? (
-              <LoadingContainer>
-                <Loading />
-              </LoadingContainer>
-            ) : null}
-          </JourneyPanelContent>
-        </ScrollContainer>
+            <ScrollContainer>
+              <JourneyPanelContent>
+                <JourneyInfo date={date} journey={journey} />
+                <StopsListWrapper>
+                  <OriginStop
+                    onHoverStop={this.onHoverStop}
+                    onSelectStop={this.onSelectStop}
+                    departure={journey.departures[0]}
+                    color={stopColor}
+                    date={date}
+                    onClickTime={this.onClickTime}
+                    stopsExpanded={this.stopsExpanded}
+                  />
+                  <JourneyStops
+                    onHoverStop={this.onHoverStop}
+                    onSelectStop={this.onSelectStop}
+                    departures={journey.departures.slice(1, -1)}
+                    date={date}
+                    color={stopColor}
+                    onClickTime={this.onClickTime}
+                    stopsExpanded={this.stopsExpanded}
+                    toggleStopsExpanded={this.toggleStopsExpanded}
+                  />
+                  <DestinationStop
+                    onHoverStop={this.onHoverStop}
+                    onSelectStop={this.onSelectStop}
+                    departure={journey.departures[journey.departures.length - 1]}
+                    date={date}
+                    color={stopColor}
+                    onClickTime={this.onClickTime}
+                  />
+                </StopsListWrapper>
+              </JourneyPanelContent>
+            </ScrollContainer>
+          </>
+        ) : loading ? (
+          <Loading loading={true} />
+        ) : null}
       </JourneyPanelWrapper>
     );
   }

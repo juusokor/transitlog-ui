@@ -1,30 +1,28 @@
-import React, {Component} from "react";
+import React, {useRef} from "react";
 import {Tooltip} from "react-leaflet";
 import moment from "moment-timezone";
-import {observer} from "mobx-react";
+import {observer} from "mobx-react-lite";
 import {Text} from "../../helpers/text";
 import {TIMEZONE} from "../../constants";
 
-@observer
-class HfpTooltip extends Component {
-  prevPosition = null;
+const HfpTooltip = observer(
+  ({
+    journey = null,
+    event = null,
+    permanent = false,
+    sticky = true,
+    direction = "left",
+    offset = [-25, 0],
+  }) => {
+    const prevEvent = useRef(null);
+    let usingEvent = event || prevEvent.current;
 
-  render() {
-    const {
-      position,
-      permanent = false,
-      sticky = true,
-      direction = "left",
-      offset = [-25, 0],
-    } = this.props;
-    let usePosition = position || this.prevPosition;
-
-    if (!usePosition) {
+    if (!usingEvent) {
       return null;
     }
 
-    if (position) {
-      this.prevPosition = position;
+    if (event) {
+      prevEvent.current = event;
     }
 
     return (
@@ -34,21 +32,21 @@ class HfpTooltip extends Component {
         offset={offset}
         direction={direction}>
         <strong>
-          {usePosition.route_id} / {usePosition.direction_id}
+          {journey.routeId} / {journey.direction}
         </strong>
         <br />
-        {moment.tz(usePosition.tst, TIMEZONE).format("YYYY-MM-DD HH:mm:ss")}
+        {moment.tz(usingEvent.recordedAt, TIMEZONE).format("YYYY-MM-DD, HH:mm:ss")}
         <br />
-        {usePosition.unique_vehicle_id}
+        {journey.uniqueVehicleId}
         <br />
-        <Text>vehicle.next_stop</Text>: {usePosition.next_stop_id}
+        <Text>vehicle.next_stop</Text>: {usingEvent.nextStopId}
         <br />
-        <Text>vehicle.speed</Text>: {Math.round((usePosition.spd * 18) / 5)} km/h
+        <Text>vehicle.speed</Text>: {Math.round((usingEvent.velocity * 18) / 5)} km/h
         <br />
-        DL: {usePosition.dl}
+        DL: {usingEvent.delay}
       </Tooltip>
     );
   }
-}
+);
 
 export default HfpTooltip;

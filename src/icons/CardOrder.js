@@ -20,11 +20,7 @@ export default function Icon({fill, height, width, ...rest}) {
             fill={fill.inner ? fill.inner : fill}
           />
           <G id="icon_tilaa_kortti" {...svgTranslate(1.0, 0.0)}>
-            <G
-              id="Oval"
-              {...svgTranslate(32.0, 12.0)}
-              stroke="#FFFFFF"
-              strokeWidth="2">
+            <G id="Oval" {...svgTranslate(32.0, 12.0)} stroke="#FFFFFF" strokeWidth="2">
               <G id="path-1-link">
                 <Circle
                   id="path-1"

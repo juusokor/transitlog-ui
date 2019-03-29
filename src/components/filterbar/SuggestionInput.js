@@ -22,8 +22,7 @@ export const SuggestionContent = styled.div`
   background: ${({isHighlighted = false}) =>
       isHighlighted ? "var(--light-blue)" : "transparent"}
     no-repeat;
-  color: ${({isHighlighted = false}) =>
-    isHighlighted ? "white" : "var(--dark-grey)"};
+  color: ${({isHighlighted = false}) => (isHighlighted ? "white" : "var(--dark-grey)")};
   padding: 0.25rem 0.5rem;
 
   ${({withIcon = false}) =>
@@ -52,46 +51,38 @@ export const SuggestionSectionTitle = styled.div`
 
 @observer
 class SuggestionInput extends Component {
-  @observable
-  inputValue = this.props.getValue(this.props.value);
+  static defaultProps = {
+    onSuggestionsClearRequested: () => [],
+    onSuggestionsFetchRequested: () => {},
+    suggestions: [],
+  };
 
   @observable
-  suggestions = [];
+  inputValue = this.getValue(this.props.value);
 
   @action
   setValue(value) {
     this.inputValue = value;
   }
 
-  @action
-  setSuggestions(suggestions) {
-    this.suggestions = suggestions;
+  getValue(val) {
+    const {getValue, getDisplayValue = getValue} = this.props;
+    return getDisplayValue(getValue(val));
   }
 
   onChange = (event, {newValue}) => {
     const value = newValue;
-    const {getValue} = this.props;
 
     if (!value) {
       this.props.onSelect("");
     }
 
-    this.setValue(getValue(value));
+    this.setValue(value);
   };
 
   onSuggestionSelected = (event, {suggestion}) => {
-    const selectedValue = this.props.getValue(suggestion);
-    this.props.onSelect(selectedValue);
-    this.setValue(selectedValue);
-  };
-
-  onSuggestionsFetchRequested = ({value}) => {
-    const {getSuggestions} = this.props;
-    this.setSuggestions(getSuggestions(value) || []);
-  };
-
-  onSuggestionsClearRequested = () => {
-    this.setSuggestions([]);
+    this.props.onSelect(this.props.getValue(suggestion));
+    this.setValue(this.getValue(suggestion));
   };
 
   shouldRenderSuggestions = (limit) => (value) => {
@@ -99,10 +90,10 @@ class SuggestionInput extends Component {
   };
 
   componentDidUpdate({value: prevValue}) {
-    const {value, getValue} = this.props;
+    const {value} = this.props;
 
     if (value !== prevValue) {
-      const nextValue = getValue(value);
+      const nextValue = this.getValue(value);
       this.setValue(nextValue);
     }
   }
@@ -118,6 +109,7 @@ class SuggestionInput extends Component {
       renderSectionTitle,
       getSectionSuggestions,
       helpText = "",
+      ...autosuggestProps
     } = this.props;
 
     const inputProps = {
@@ -130,11 +122,9 @@ class SuggestionInput extends Component {
       <Tooltip helpText={helpText}>
         <AutosuggestWrapper className={className}>
           <Autosuggest
-            suggestions={this.suggestions}
+            focusInputOnSuggestionClick={false}
             shouldRenderSuggestions={this.shouldRenderSuggestions(minimumInput)}
             onSuggestionSelected={this.onSuggestionSelected}
-            onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
-            onSuggestionsClearRequested={this.onSuggestionsClearRequested}
             getSuggestionValue={getValue}
             highlightFirstSuggestion={true}
             multiSection={multiSection}
@@ -142,6 +132,7 @@ class SuggestionInput extends Component {
             getSectionSuggestions={getSectionSuggestions}
             renderSuggestion={renderSuggestion}
             inputProps={inputProps}
+            {...autosuggestProps}
           />
         </AutosuggestWrapper>
       </Tooltip>

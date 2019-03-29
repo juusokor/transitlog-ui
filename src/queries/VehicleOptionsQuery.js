@@ -1,91 +1,58 @@
-import React from "react";
+import React, {useRef, useCallback} from "react";
 import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import get from "lodash/get";
 import {observer} from "mobx-react-lite";
-import {setUpdateListener} from "../stores/UpdateManager";
 
 const vehiclesQuery = gql`
-  query vehicleOptionsQuery {
-    allEquipment {
-      nodes {
-        operatorId
-        registryNr
-        vehicleId
-      }
+  query vehicleOptionsQuery($date: Date, $search: String) {
+    equipment(date: $date, filter: {search: $search}) {
+      _matchScore
+      age
+      id
+      inService
+      vehicleId
+      operatorId
+      operatorName
+      registryNr
+      exteriorColor
+      emissionClass
+      emissionDesc
+      type
     }
   }
 `;
 
-const availableVehiclesQuery = gql`
-  query availableVehicleOptionsQuery($date: date) {
-    vehicles(
-      distinct_on: [unique_vehicle_id]
-      order_by: [{unique_vehicle_id: asc}]
-      where: {oday: {_eq: $date}, geohash_level: {_eq: 0}}
-    ) {
-      unique_vehicle_id
-      vehicle_number
-      owner_operator_id
-    }
-  }
-`;
+export default observer(({children, date, skip}) => {
+  const prevResults = useRef([]);
 
-const updateListenerName = "vehicle options query";
+  const createSearchFetcher = useCallback(
+    (refetch) => (searchTerm) => refetch({search: searchTerm, date}),
+    [date]
+  );
 
-export default observer(({children, date, skip}) => (
-  <Query query={vehiclesQuery} skip={skip}>
-    {({loading, error, data}) => {
-      if (loading || !data) {
-        return children({loading, error, vehicles: []});
-      }
+  return (
+    <Query query={vehiclesQuery} variables={{date}} skip={skip}>
+      {({loading, error, data, refetch}) => {
+        if (loading || !data) {
+          return children({
+            loading,
+            error,
+            search: createSearchFetcher(refetch),
+            vehicles: prevResults.current,
+          });
+        }
 
-      const joreVehicles = get(data, "allEquipment.nodes", []);
+        const vehicles = [...get(data, "equipment", [])];
+        prevResults.current = vehicles;
 
-      return (
-        <Query query={availableVehiclesQuery} skip={skip} variables={{date}}>
-          {({data: hfpData = [], loading: hfpLoading, refetch}) => {
-            setUpdateListener(updateListenerName, refetch, false);
-
-            const hfpVehicles = get(hfpData, "vehicles", []);
-
-            if (hfpVehicles.length === 0) {
-              return children({
-                loading: loading || hfpLoading,
-                error,
-                vehicles: joreVehicles,
-              });
-            }
-
-            const vehicles = joreVehicles.map((vehicle) => {
-              const joreVehicleId = `${vehicle.operatorId}/${vehicle.vehicleId}`;
-
-              const hfpVehicle = hfpVehicles.reduce(
-                (foundVehicleId, {owner_operator_id, vehicle_number}) => {
-                  const ownerId = (owner_operator_id + "").padStart(4, "0");
-                  const hfpVehicleId = `${ownerId}/${vehicle_number}`;
-
-                  return hfpVehicleId === joreVehicleId
-                    ? hfpVehicleId
-                    : foundVehicleId;
-                },
-                ""
-              );
-
-              return {
-                ...vehicle,
-                inServiceOnDate: !!hfpVehicle,
-              };
-            });
-
-            return children({
-              loading: loading || hfpLoading,
-              error,
-              vehicles,
-            });
-          }}
-        </Query>
-      );
-    }}
-  </Query>
-));
+        return children({
+          loading: loading,
+          error,
+          search: createSearchFetcher(refetch),
+          vehicles,
+        });
+      }}
+    </Query>
+  );
+});

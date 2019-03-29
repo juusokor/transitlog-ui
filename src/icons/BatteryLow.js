@@ -8,15 +8,7 @@ export default function Icon({fill, stroke, height, width, ...rest}) {
   return (
     <Svg {...rest} {...svgSize(height, width)} viewBox="0 0 32 16" version="1.1">
       <G stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
-        <Rect
-          stroke={stroke}
-          strokeWidth="2"
-          x="1"
-          y="1"
-          width="27"
-          height="14"
-          rx="3"
-        />
+        <Rect stroke={stroke} strokeWidth="2" x="1" y="1" width="27" height="14" rx="3" />
         <Path
           d="M28,4 L31,4 L31,4 C31.5522847,4 32,4.44771525 32,5 L32,11 L32,11 C32,11.5522847 31.5522847,12 31,12 L28,12 L28,4 Z"
           fill={stroke}

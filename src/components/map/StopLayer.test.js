@@ -24,11 +24,7 @@ describe("StopLayer", () => {
       request: {
         query: stopsByBboxQuery,
         variables: {
-          minLat: 1.11,
-          maxLat: 1.11,
-          minLon: 1.11,
-          maxLon: 1.11,
-          date: "2019-01-01",
+          bbox: "1,1,2,2",
         },
       },
       result: {
@@ -39,11 +35,7 @@ describe("StopLayer", () => {
       request: {
         query: stopsByBboxQuery,
         variables: {
-          minLat: 1.11,
-          maxLat: 1.11,
-          minLon: 1.11,
-          maxLon: 1.11,
-          date: "2019-01-02",
+          bbox: "2,2,3,3",
         },
       },
       result: {
@@ -67,31 +59,27 @@ describe("StopLayer", () => {
   beforeEach(onBeforeEach);
   afterEach(cleanup);
 
-  const bounds = latLngBounds([[1.11, 1.11], [1.11, 1.11]]);
-
   test("Renders a grouped stop marker for stops that are very close", async () => {
     // This date will trigger the mock data that contains two stops with identical coordinates
-    const date = "2019-01-01";
 
-    const {getByTestId} = render({bounds, date});
+    const {getByTestId} = render({bounds: "1,1,2,2"});
 
     await waitForElement(
       () => getByTestId("compound-stop-marker-mock") // Added to the DOM by the stop marker mock
     );
 
-    return expect(compoundStopMarkerMock).toHaveBeenCalled();
+    expect(compoundStopMarkerMock).toHaveBeenCalled();
   });
 
   test("Renders separate stop markers for stops that are not in the same place", async () => {
     // This date will trigger the mock data that contains two stops with different coordinates
-    const date = "2019-01-02";
 
-    const {getByTestId} = render({bounds, date});
+    const {getByTestId} = render({bounds: "2,2,3,3"});
 
     await waitForElement(
       () => getByTestId("stop-marker-mock") // Added to the DOM by the stop marker mock
     );
 
-    return expect(stopMarkerMock).toHaveBeenCalled();
+    expect(stopMarkerMock).toHaveBeenCalled();
   });
 });
