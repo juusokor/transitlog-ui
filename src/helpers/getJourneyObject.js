@@ -10,7 +10,7 @@ export function getJourneyObject(journeyItem) {
 
 function pickPropsFromJourney(journey) {
   return pick(
-    {uniqueVehicleId: "unknown-vehicle", ...journey},
+    {uniqueVehicleId: "", ...journey},
     "departureDate",
     "departureTime",
     "direction",

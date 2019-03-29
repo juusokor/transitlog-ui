@@ -10,7 +10,9 @@ import {intval} from "../helpers/isWithinRange";
 export function createJourneyPath(journey) {
   const dateStr = journey.departureDate.replace(/-/g, "");
   const timeStr = journey.departureTime.replace(/:/g, "");
-  return `/journey/${dateStr}/${timeStr}/${journey.routeId}/${journey.direction}`;
+  return `/journey/${dateStr}/${timeStr}/${journey.routeId}/${
+    journey.direction
+  }/${journey.uniqueVehicleId.replace("/", "_")}`;
 }
 
 export function createCompositeJourney(date, route, time, uniqueVehicleId = "") {
@@ -44,7 +46,6 @@ export default (state) => {
     } else if (journeyItem) {
       const oldVehicle = get(state, "vehicle", "");
       state.selectedJourney = getJourneyObject(journeyItem);
-
       filters.setRoute(journeyItem);
 
       if (journeyItem.uniqueVehicleId !== oldVehicle) {
@@ -59,19 +60,14 @@ export default (state) => {
   const setJourneyVehicle = action((vehicleId) => {
     const {selectedJourney} = state;
 
-    if (
-      vehicleId &&
-      selectedJourney &&
-      (!selectedJourney.unique_vehicle_id ||
-        selectedJourney.unique_vehicle_id === "unknown-vehicle")
-    ) {
-      selectedJourney.unique_vehicle_id = vehicleId;
+    if (vehicleId && selectedJourney && !selectedJourney.uniqueVehicleId) {
+      selectedJourney.uniqueVehicleId = vehicleId;
+      setPathName(createJourneyPath(selectedJourney));
     }
   });
 
   return {
     setSelectedJourney,
     setJourneyVehicle,
-    createCompositeJourney,
   };
 };

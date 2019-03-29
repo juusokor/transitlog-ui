@@ -31,6 +31,7 @@ export default (state) => {
       departureTime,
       routeId,
       direction,
+      uniqueVehicleId,
     ] = pathname.split("/");
 
     direction = intval(direction);
@@ -40,7 +41,11 @@ export default (state) => {
 
       let dateStr = "";
       let timeStr = "";
-      const vehicleId = getUrlValue("vehicle", "");
+      let vehicleId = uniqueVehicleId || getUrlValue("vehicle", "") || "";
+
+      if (vehicleId) {
+        vehicleId = vehicleId.replace("_", "/");
+      }
 
       if (date.isValid()) {
         dateStr = date.format("YYYY-MM-DD");
@@ -67,11 +72,11 @@ export default (state) => {
           routeId,
           direction,
           departureTime: timeStr,
-          uniqueVehicleId: vehicleId,
+          uniqueVehicleId: vehicleId || "",
         });
 
-        if (getJourneyId(state.selectedJourney) !== getJourneyId(journey)) {
-          state.selectedJourney = journey;
+        if (getJourneyId(state.selectedJourney, false) !== getJourneyId(journey, false)) {
+          actions.setSelectedJourney(journey);
         }
       }
     }
