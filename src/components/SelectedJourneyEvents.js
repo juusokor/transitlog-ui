@@ -4,6 +4,7 @@ import JourneyQuery from "../queries/JourneyQuery";
 import flow from "lodash/flow";
 import {inject} from "../helpers/inject";
 import {createRouteId} from "../helpers/keys";
+import EnsureJourneySelection from "../helpers/EnsureJourneySelection";
 
 const decorate = flow(
   observer,
@@ -19,7 +20,11 @@ const SelectedJourneyEvents = decorate(({children, state}) => {
 
   return (
     <JourneyQuery skip={!selectedJourneyValid} journey={selectedJourney}>
-      {({journey = null, loading, error}) => children({journey, loading, error})}
+      {({journey = null, loading}) => (
+        <EnsureJourneySelection journey={journey} loading={loading}>
+          {children}
+        </EnsureJourneySelection>
+      )}
     </JourneyQuery>
   );
 });
