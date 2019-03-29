@@ -28,7 +28,7 @@ const AppFrame = styled.main`
 
 const AppGrid = styled.div`
   width: 100%;
-  min-width: 1400px; // No, we are not mobile friendly
+  min-width: 1366px; // No, we are not mobile friendly
   height: 100vh;
   display: grid;
   grid-template-rows: 9rem 1fr;
@@ -51,9 +51,9 @@ const MapPanel = styled(Map)`
 const GraphContainer = styled.div`
   background-color: white;
   border: 1px solid var(--alt-grey);
-  height: ${({journeyGraphOpen}) => (journeyGraphOpen ? "170px;" : "0px;")};
+  height: ${({journeyGraphOpen}) => (journeyGraphOpen ? "170px" : "0px")};
   border: ${({journeyGraphOpen}) =>
-    journeyGraphOpen ? "1px solid var(--alt-grey);" : "none;"};
+    journeyGraphOpen ? "1px solid var(--alt-grey)" : "none"};
   border-radius: 5px;
   position: absolute;
   width: 530px;
@@ -62,7 +62,7 @@ const GraphContainer = styled.div`
   bottom: 1.5rem;
   transform: translateX(-50%);
   z-index: 500;
-  padding: 0.5rem;
+  padding: ${({journeyGraphOpen}) => (journeyGraphOpen ? "0.5rem" : "0")};
 `;
 
 const decorate = flow(
