@@ -1,6 +1,6 @@
 import {extendObservable} from "mobx";
 import timeActions from "./timeActions";
-import {getMomentFromDateTime, timeToSeconds} from "../helpers/time";
+import {getMomentFromDateTime} from "../helpers/time";
 import get from "lodash/get";
 import moment from "moment-timezone";
 import {getUrlValue} from "./UrlManager";
@@ -13,8 +13,7 @@ export default (state, initialState) => {
     time: get(initialState, "time", moment.tz(new Date(), TIMEZONE).format("HH:mm:ss")),
     get unixTime() {
       const {date, time} = state;
-      const unixTime = moment.tz(date, TIMEZONE).unix();
-      return unixTime + timeToSeconds(time);
+      return getMomentFromDateTime(date, time).unix();
     },
     get timeIsCurrent() {
       const {date, time} = state;
@@ -24,7 +23,7 @@ export default (state, initialState) => {
       const minTime = selectedMoment.clone().subtract(5, "minutes");
       const maxTime = selectedMoment.clone().add(5, "minutes");
 
-      return moment.tz(new Date(), TIMEZONE).isBetween(minTime, maxTime);
+      return getMomentFromDateTime(date).isBetween(minTime, maxTime);
     },
     get isLiveAndCurrent() {
       const {live, timeIsCurrent} = state;
