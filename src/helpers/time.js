@@ -45,8 +45,22 @@ export function getTimeString(hours = 0, minutes = 0, seconds = 0) {
 export function getMomentFromDateTime(date, time = "00:00:00", timezone = TIMEZONE) {
   // Get the seconds elapsed during the date. The time can be a 24h+ time.
   const seconds = timeToSeconds(time);
-  // Create a moment from the date and add the seconds.
-  return moment.tz(date, timezone).add(seconds, "seconds");
+  // Create a base moment at the start of the day
+  const baseDate = moment.tz(date, timezone);
+  // Create a Date from the date and add the seconds.
+  const nextDate = baseDate.clone().add(seconds, "seconds");
+
+  // In Finland DST changes at 3am in the morning, so the baseDate will not be in DST but when we
+  // add the seconds, moment notices that it needs to add an hour and does so. This is actually
+  // not desired as then the time will be wrong as we are adding seconds. Adjust the moments back
+  // if their DST states differ.
+  if (nextDate.isDST() && !baseDate.isDST()) {
+    nextDate.subtract(1, "hour");
+  } else if (!nextDate.isDST() && baseDate.isDST()) {
+    nextDate.add(1, "hour");
+  }
+
+  return nextDate;
 }
 
 // Get the (potentially) 24h+ time of the journey.
