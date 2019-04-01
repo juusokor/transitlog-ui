@@ -12,6 +12,7 @@ import styled from "styled-components";
 import {TIMEZONE} from "../../constants";
 import {flow} from "lodash";
 import {inject} from "../../helpers/inject";
+import ExceptionDaysQuery from "../../queries/ExceptionDaysQuery";
 
 const DateControlGroup = styled(ControlGroup)`
   margin-bottom: 1.25rem;
@@ -76,72 +77,81 @@ const decorate = flow(
   inject("Filters", "Time")
 );
 
-const DateSettings = decorate(
-  ({calendarRootRef, Filters, Time, state: {date, live}}) => {
-    const setDate = useCallback(
-      (dateVal) => {
-        if (live) {
-          Time.toggleLive(false);
-        }
+const DateSettings = decorate(({calendarRootRef, Filters, Time, state: {date, live}}) => {
+  const setDate = useCallback(
+    (dateVal) => {
+      if (live) {
+        Time.toggleLive(false);
+      }
 
-        Filters.setDate(dateVal);
-      },
-      [Time, Filters, live]
-    );
+      Filters.setDate(dateVal);
+    },
+    [Time, Filters, live]
+  );
 
-    const onDateButtonClick = useCallback(
-      (modifier) => {
-        if (!date) {
-          Filters.setDate("");
+  const onDateButtonClick = useCallback(
+    (modifier) => {
+      if (!date) {
+        Filters.setDate("");
+      } else {
+        const nextDate = moment.tz(date, "YYYY-MM-DD", TIMEZONE);
+
+        if (modifier < 0) {
+          nextDate.subtract(Math.abs(modifier), "days");
         } else {
-          const nextDate = moment.tz(date, "YYYY-MM-DD", TIMEZONE);
-
-          if (modifier < 0) {
-            nextDate.subtract(Math.abs(modifier), "days");
-          } else {
-            nextDate.add(Math.abs(modifier), "days");
-          }
-
-          setDate(nextDate);
+          nextDate.add(Math.abs(modifier), "days");
         }
-      },
-      [Filters, date, setDate]
-    );
 
-    return (
-      <DateControlGroup>
-        <Input label={text("filterpanel.choose_date_time")} animatedLabel={false}>
-          <WeekInput
-            minusHelp="One week backward"
-            plusHelp="One week forward"
-            minusLabel={<>&laquo; 7</>}
-            plusLabel={<>7 &raquo;</>}
-            onDecrease={onDateButtonClick.bind(undefined, -7)}
-            onIncrease={onDateButtonClick.bind(undefined, 7)}>
-            <DateInput
-              minusHelp="One day backward"
-              plusHelp="One day forward"
-              minusLabel={<>&lsaquo; 1</>}
-              plusLabel={<>1 &rsaquo;</>}
-              onDecrease={onDateButtonClick.bind(undefined, -1)}
-              onIncrease={onDateButtonClick.bind(undefined, 1)}>
-              <DatePicker
-                dropdownMode="select"
-                customInput={<CalendarInput helpText="Select date field" />}
-                dateFormat="yyyy-MM-dd"
-                selected={moment.tz(date, TIMEZONE).toDate()}
-                onChange={setDate}
-                className="calendar"
-                // Z-indexing is tricky in the filterbar, so the calendarcontainer mounts
-                // a portal in a better place for the datepicker.
-                calendarContainer={CalendarContainer(calendarRootRef)}
-              />
-            </DateInput>
-          </WeekInput>
-        </Input>
-      </DateControlGroup>
-    );
-  }
-);
+        setDate(nextDate);
+      }
+    },
+    [Filters, date, setDate]
+  );
+
+  return (
+    <DateControlGroup>
+      <Input label={text("filterpanel.choose_date_time")} animatedLabel={false}>
+        <WeekInput
+          minusHelp="One week backward"
+          plusHelp="One week forward"
+          minusLabel={<>&laquo; 7</>}
+          plusLabel={<>7 &raquo;</>}
+          onDecrease={onDateButtonClick.bind(undefined, -7)}
+          onIncrease={onDateButtonClick.bind(undefined, 7)}>
+          <DateInput
+            minusHelp="One day backward"
+            plusHelp="One day forward"
+            minusLabel={<>&lsaquo; 1</>}
+            plusLabel={<>1 &rsaquo;</>}
+            onDecrease={onDateButtonClick.bind(undefined, -1)}
+            onIncrease={onDateButtonClick.bind(undefined, 1)}>
+            <ExceptionDaysQuery>
+              {({exceptionDays = []}) => {
+                const dates = exceptionDays.map(
+                  ({exceptionDate}) => new Date(exceptionDate)
+                );
+
+                return (
+                  <DatePicker
+                    dropdownMode="select"
+                    customInput={<CalendarInput helpText="Select date field" />}
+                    dateFormat="yyyy-MM-dd"
+                    selected={moment.tz(date, TIMEZONE).toDate()}
+                    onChange={setDate}
+                    className="calendar"
+                    highlightDates={dates}
+                    // Z-indexing is tricky in the filterbar, so the calendarcontainer mounts
+                    // a portal in a better place for the datepicker.
+                    calendarContainer={CalendarContainer(calendarRootRef)}
+                  />
+                );
+              }}
+            </ExceptionDaysQuery>
+          </DateInput>
+        </WeekInput>
+      </Input>
+    </DateControlGroup>
+  );
+});
 
 export default DateSettings;
