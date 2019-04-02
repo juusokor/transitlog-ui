@@ -15,6 +15,7 @@ const exceptionDaysQuery = gql`
       dayType
       modeScope
       description
+      type
       exclusive
       startTime
       endTime
