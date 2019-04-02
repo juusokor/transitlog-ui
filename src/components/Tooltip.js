@@ -1,7 +1,7 @@
 import React, {useMemo} from "react";
 import {useTooltip} from "../hooks/useTooltip";
 
-const Tooltip = ({children, rectRef = null, helpText = ""}) => {
+const Tooltip = ({children, helpText = ""}) => {
   const tooltipProps = useTooltip(helpText);
 
   const child = useMemo(() => {

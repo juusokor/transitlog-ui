@@ -3,16 +3,19 @@ import {createPortal} from "react-dom";
 import moment from "moment-timezone";
 import {observer} from "mobx-react-lite";
 import DatePicker from "react-datepicker";
+import {format} from "date-fns";
 import {text} from "../../helpers/text";
 import {InputBase, ControlGroup} from "../Forms";
 import "react-datepicker/dist/react-datepicker.css";
 import PlusMinusInput from "../PlusMinusInput";
 import Input from "../Input";
-import styled from "styled-components";
+import styled, {createGlobalStyle} from "styled-components";
 import {TIMEZONE} from "../../constants";
-import {flow} from "lodash";
+import flow from "lodash/flow";
+import get from "lodash/get";
 import {inject} from "../../helpers/inject";
 import ExceptionDaysQuery from "../../queries/ExceptionDaysQuery";
+import Tooltip from "../Tooltip";
 
 const DateControlGroup = styled(ControlGroup)`
   margin-bottom: 1.25rem;
@@ -26,17 +29,6 @@ const DateInput = styled(PlusMinusInput)`
   > button {
     height: calc(2rem + 4px);
     padding: 0 0.25rem;
-  }
-
-  > div,
-  .react-datepicker-wrapper,
-  .react-datepicker__input-container {
-    display: flex;
-    flex: 1 1 auto;
-  }
-
-  .react-datepicker-popper {
-    z-index: 100;
   }
 `;
 
@@ -65,6 +57,54 @@ const CalendarInput = styled(InputBase)`
   text-align: center;
   border-color: var(--blue);
 `;
+
+const Day = styled.div``;
+
+const CalendarStyles = createGlobalStyle`
+  .react-datepicker-wrapper,
+  .react-datepicker__input-container {
+    display: flex;
+    flex: 1 1 auto;
+  }
+  
+  .react-datepicker-popper {
+    z-index: 100;
+  }
+  
+  .react-datepicker__day {
+    &:hover {
+      background: var(--light-grey) !important;
+      color: white;
+    }
+  }
+  
+  .react-datepicker__day.react-datepicker__day--highlighted {
+    background: var(--light-orange);
+    color: var(--dark-grey);
+    
+    &:hover {
+      background: var(--light-grey);
+      color: white;
+    }
+  }
+`;
+
+const renderDay = (exceptionData) => (dayNumber, date) => {
+  const exception = get(exceptionData, format(date, "YYYY-MM-DD"));
+
+  if (!exception) {
+    return <Day>{dayNumber}</Day>;
+  }
+
+  return (
+    <Tooltip
+      helpText={`Exception: ${exception.newDayType}${
+        exception.description ? `, ${exception.description}` : ""
+      }${exception.modeScope ? `, ${exception.modeScope}` : ""}`}>
+      <Day>{dayNumber}</Day>
+    </Tooltip>
+  );
+};
 
 // A simple portal to render the calendar outside the FilterSection.
 const CalendarContainer = (root) => ({className, children}) =>
@@ -110,6 +150,7 @@ const DateSettings = decorate(({calendarRootRef, Filters, Time, state: {date, li
 
   return (
     <DateControlGroup>
+      <CalendarStyles />
       <Input label={text("filterpanel.choose_date_time")} animatedLabel={false}>
         <WeekInput
           minusHelp="One week backward"
@@ -127,9 +168,12 @@ const DateSettings = decorate(({calendarRootRef, Filters, Time, state: {date, li
             onIncrease={onDateButtonClick.bind(undefined, 1)}>
             <ExceptionDaysQuery>
               {({exceptionDays = []}) => {
-                const dates = exceptionDays.map(
-                  ({exceptionDate}) => new Date(exceptionDate)
-                );
+                const dates = exceptionDays.reduce((collection, exception) => {
+                  collection[format(exception.exceptionDate, "YYYY-MM-DD")] = exception;
+                  return collection;
+                }, {});
+
+                const highlightedDates = Object.keys(dates).map((date) => new Date(date));
 
                 return (
                   <DatePicker
@@ -139,10 +183,11 @@ const DateSettings = decorate(({calendarRootRef, Filters, Time, state: {date, li
                     selected={moment.tz(date, TIMEZONE).toDate()}
                     onChange={setDate}
                     className="calendar"
-                    highlightDates={dates}
+                    highlightDates={highlightedDates}
                     // Z-indexing is tricky in the filterbar, so the calendarcontainer mounts
                     // a portal in a better place for the datepicker.
                     calendarContainer={CalendarContainer(calendarRootRef)}
+                    renderDayContents={renderDay(dates)}
                   />
                 );
               }}

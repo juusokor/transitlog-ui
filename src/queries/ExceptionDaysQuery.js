@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useRef} from "react";
 import {observer} from "mobx-react-lite";
 import {inject} from "../helpers/inject";
 import flow from "lodash/flow";
@@ -29,7 +29,7 @@ const decorate = flow(
 
 const ExceptionDaysQuery = decorate(({state, children}) => {
   const year = state.date.slice(0, 4);
-  console.log(year);
+  const prevResults = useRef([]);
 
   return (
     <Query
@@ -38,7 +38,13 @@ const ExceptionDaysQuery = decorate(({state, children}) => {
         year,
       }}>
       {({data, loading}) => {
+        if (!data) {
+          return children({exceptionDays: prevResults.current, loading});
+        }
+
         const exceptionDays = get(data, "exceptionDays", []);
+
+        prevResults.current = exceptionDays;
         return children({exceptionDays, loading});
       }}
     </Query>
