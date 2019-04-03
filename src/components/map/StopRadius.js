@@ -1,6 +1,8 @@
 import {Circle} from "react-leaflet";
 import React from "react";
 
+let i = 0;
+
 export const StopRadius = ({center, radius, children, color, isHighlighted = false}) => {
   return (
     <Circle

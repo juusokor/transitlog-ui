@@ -26,6 +26,7 @@ const RouteStopMarker = decorate(
     children,
     doorDidOpen = true,
     Filters,
+    noJourney = false,
   }) => {
     const markerRef = useRef(null);
 
@@ -78,7 +79,9 @@ const RouteStopMarker = decorate(
 
     return showRadius ? (
       <StopRadius
-        key={`stop_radius_${stop.stopId}${selected ? "_selected" : ""}`}
+        key={`${!noJourney ? "journey_" : ""}stop_radius_${stop.stopId}${
+          selected ? "_selected" : ""
+        }`}
         isHighlighted={selected}
         center={markerPosition}
         radius={stop.radius}
