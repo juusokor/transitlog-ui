@@ -36,6 +36,10 @@ export default (state) => {
     }
   });
 
+  const toggleLoginModal = action((setTo = !state.loginModalOpen) => {
+    state.loginModalOpen = !!setTo;
+  });
+
   const addError = (type, message) => {
     if (!type || !message) {
       return;
@@ -96,6 +100,7 @@ export default (state) => {
     toggleSidePanel,
     toggleJourneyDetails,
     toggleJourneyGraph,
+    toggleLoginModal,
     setLanguage,
     changeOverlay,
     addError,

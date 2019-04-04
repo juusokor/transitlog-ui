@@ -8,6 +8,7 @@ import {observer} from "mobx-react-lite";
 import {Button} from "../Forms";
 import flow from "lodash/flow";
 import {inject} from "../../helpers/inject";
+import Login from "../../icons/Login";
 
 const Header = styled.header`
   width: 100%;
@@ -77,6 +78,7 @@ export default decorate(({UI, className}) => (
       <LangSelectContainer>
         <LanguageSelect />
       </LangSelectContainer>
+      <Login height={"1em"} fill={"white"} onClick={() => UI.toggleLoginModal()} />
     </BottomRow>
   </Header>
 ));

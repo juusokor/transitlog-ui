@@ -20,6 +20,7 @@ import MergedJourneys from "./MergedJourneys";
 import {getJourneyAverageSpeeds} from "../helpers/getJourneyAverageSpeeds";
 import {getJourneyStopDiffs} from "../helpers/getJourneyStopDiffs";
 import Graph from "./map/Graph";
+import LoginModal from "./LoginModal";
 
 const AppFrame = styled.main`
   width: 100%;
@@ -82,12 +83,13 @@ function App({state, UI}) {
     sidePanelVisible,
     live,
     journeyGraphOpen,
+    loginModalOpen,
   } = state;
 
   const selectedJourneyId = getJourneyId(selectedJourney);
-
   return (
     <AppFrame>
+      {loginModalOpen && <LoginModal>asdasdaxd</LoginModal>}
       <AreaJourneys selectedJourney={selectedJourney}>
         {({
           setQueryBounds,
