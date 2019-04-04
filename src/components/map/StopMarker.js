@@ -56,7 +56,6 @@ const StopMarker = decorate(
     const isSelected = selectedStop === stop.stopId;
     const mode = getPriorityMode(get(stop, "modes", []));
     const stopColor = getModeColor(mode);
-    const {stopRadius} = stop;
 
     const popupElement = (
       <Popup
@@ -107,7 +106,7 @@ const StopMarker = decorate(
         isHighlighted={isSelected}
         center={markerPosition}
         color={stopColor}
-        radius={stopRadius}>
+        radius={stop.radius}>
         {markerElement}
       </StopRadius>
     ) : (
