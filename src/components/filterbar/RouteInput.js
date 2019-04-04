@@ -44,7 +44,11 @@ class RouteInput extends Component {
     const currentValue = createRouteId(route);
 
     return (
-      <Dropdown helpText="Select route" value={currentValue} onChange={this.onChange}>
+      <Dropdown
+        helpText="Select route"
+        disabled={routes.length === 0}
+        value={currentValue}
+        onChange={this.onChange}>
         {options.map(({key, value, label}) => (
           <option key={`route_select_${key}`} value={value}>
             {label}
