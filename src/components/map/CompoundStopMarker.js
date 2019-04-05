@@ -156,7 +156,7 @@ style="border-color: ${stopColor}; background-color: ${
           maxWidth={550}>
           <ChooseStopHeading>Select stop:</ChooseStopHeading>
           {stops.map((stopInGroup) => {
-            const mode = getPriorityMode(get(stopInGroup, "modes.nodes", []));
+            const mode = getPriorityMode(get(stopInGroup, "modes", []));
             const stopColor = getModeColor(mode);
 
             return (
@@ -199,7 +199,7 @@ style="border-color: ${stopColor}; background-color: ${
           isHighlighted={true}
           center={markerPosition}
           color={stopColor}
-          radius={selectedStopObj.stopRadius}>
+          radius={selectedStopObj.radius}>
           {markerElement}
         </StopRadius>
       ) : (

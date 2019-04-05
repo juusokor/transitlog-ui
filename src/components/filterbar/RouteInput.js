@@ -40,11 +40,19 @@ class RouteInput extends Component {
       };
     });
 
-    options.unshift({value: "", label: text("filterpanel.select_route")});
+    const hasRoutes = routes.length > 0;
+    options.unshift({
+      value: "",
+      label: hasRoutes ? text("filterpanel.select_route") : text("filterpanel.no_routes"),
+    });
     const currentValue = createRouteId(route);
 
     return (
-      <Dropdown helpText="Select route" value={currentValue} onChange={this.onChange}>
+      <Dropdown
+        helpText="Select route"
+        disabled={!hasRoutes}
+        value={currentValue}
+        onChange={this.onChange}>
         {options.map(({key, value, label}) => (
           <option key={`route_select_${key}`} value={value}>
             {label}

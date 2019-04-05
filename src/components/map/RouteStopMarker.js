@@ -26,6 +26,7 @@ const RouteStopMarker = decorate(
     children,
     doorDidOpen = true,
     Filters,
+    noJourney = false,
   }) => {
     const markerRef = useRef(null);
 
@@ -57,12 +58,12 @@ const RouteStopMarker = decorate(
     const markerPosition = [stop.lat, stop.lng];
 
     const markerElement = React.createElement(
-      stop.timingStopType ? Marker : CircleMarker,
+      stop.isTimingStop ? Marker : CircleMarker,
       {
         key: `route_stop_marker_${stop.id}`,
         ref: markerRef,
         pane: "stops",
-        icon: stop.timingStopType ? timingStopIcon : null,
+        icon: stop.isTimingStop ? timingStopIcon : null,
         center: markerPosition, // One marker type uses center...
         position: markerPosition, // ...the other uses position.
         color: color,
@@ -78,10 +79,12 @@ const RouteStopMarker = decorate(
 
     return showRadius ? (
       <StopRadius
-        key={`stop_radius_${stop.stopId}${selected ? "_selected" : ""}`}
+        key={`${!noJourney ? "journey_" : ""}stop_radius_${stop.stopId}${
+          selected ? "_selected" : ""
+        }`}
         isHighlighted={selected}
         center={markerPosition}
-        radius={stop.stopRadius}
+        radius={stop.radius}
         color={stopColor}>
         {markerElement}
       </StopRadius>

@@ -115,6 +115,7 @@ class RouteStop extends React.Component {
     ) {
       return (
         <RouteStopMarker
+          key={`route_stop_marker_${stop.stopId}`}
           delayType={delayType}
           color={color}
           isTerminal={isTerminal}
@@ -358,6 +359,7 @@ class RouteStop extends React.Component {
 
     return (
       <RouteStopMarker
+        key={`journey_stop_marker_${stop.stopId}`}
         doorDidOpen={doorDidOpen}
         delayType={delayType}
         color={color}

@@ -16,6 +16,7 @@ import SimpleHfpLayer from "./SimpleHfpLayer";
 import {createRouteId} from "../../helpers/keys";
 import {inject} from "../../helpers/inject";
 import WeatherDisplay from "./WeatherDisplay";
+import JourneyStopsLayer from "./JourneyStopsLayer";
 
 const decorate = flow(
   observer,
@@ -35,7 +36,7 @@ const MapContent = decorate(
     setQueryBounds,
     actualQueryBounds,
     centerOnRoute = true,
-    state: {selectedJourney, time, date, mapOverlays, areaEventsStyle},
+    state: {selectedJourney, date, mapOverlays, areaEventsStyle},
   }) => {
     const hasRoute = !!route && !!route.routeId;
     const showStopRadius = expr(() => mapOverlays.indexOf("Stop radius") !== -1);
@@ -89,8 +90,7 @@ const MapContent = decorate(
                 ) : null
               }
             </RouteGeometryQuery>
-            {(!selectedJourney ||
-              (selectedJourney.route_id !== route.routeId || journeys.length === 0)) && (
+            {!selectedJourney && (
               <RouteStopsLayer
                 showRadius={showStopRadius}
                 onViewLocation={viewLocation}
@@ -114,11 +114,10 @@ const MapContent = decorate(
                     />
                   ) : null,
                   isSelectedJourney ? (
-                    <RouteStopsLayer
+                    <JourneyStopsLayer
                       showRadius={showStopRadius}
                       onViewLocation={viewLocation}
                       key={`journey_stops_${journey.id}`}
-                      route={route}
                       journey={journey}
                     />
                   ) : null,
