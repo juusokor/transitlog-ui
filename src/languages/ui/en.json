@@ -12,6 +12,7 @@
   "filterpanel.filter_by_line": "Search line",
   "filterpanel.find_line_route": "Search line and route",
   "filterpanel.select_route": "Choose route",
+  "filterpanel.no_routes": "No routes available",
   "filterpanel.planned_start_time": "Planned start time",
   "filterpanel.real_start_time": "Observed start time",
   "filterpanel.journey.unrealized": "Unrealized",
