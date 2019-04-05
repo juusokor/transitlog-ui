@@ -59,31 +59,8 @@ const LoginText = styled.div`
   margin-left: 10px;
 `;
 
-const LoginWrapper = styled.div`
-  width: 100%;
-  white-space: nowrap;
-  display: flex;
-`;
-
 const Title = styled.h2`
   margin-top: 10px 0px 10px 0px;
-`;
-
-const Logout = styled.div`
-  display:flex;
-  color: #0077c7;
-  cursor: pointer;
-  flex-direction: column;
-  flex-grow: 0;
-  text-align: right;
-  :hover {
-    color: rgb(51, 51, 51);
-`;
-
-const Username = styled.div`
-  display: flex;
-  flex-grow: 1;
-  flex-direction: column;
 `;
 
 @inject(app("Filters", "UI"))
@@ -98,11 +75,16 @@ class LoginModal extends React.Component {
   asd(e) {
     e.stopPropagation();
     const {state} = this.props;
-    console.log(state.loginModalOpen);
     if (e.currentTarget.className.includes("Root")) {
       this.props.UI.toggleLoginModal();
     }
   }
+
+  openLoginForm = () => {
+    window.location.replace(
+      `https://hslid-uat.cinfra.fi/openid/auth?client_id=1424368089733870&redirect_uri=http://localhost:3000&response_type=code&scope=email+https://oneportal.trivore.com/scope/groups.readonly`
+    );
+  };
 
   render() {
     return (
@@ -112,7 +94,7 @@ class LoginModal extends React.Component {
             <HSLLogoNoText fill={"white"} height={"80px"} />
             <Title>HSL Transitlog</Title>
           </Header>
-          <LoginButton>
+          <LoginButton onClick={this.openLoginForm}>
             <Login height={"1em"} fill={"#3e3e3e"} />
             <LoginText>Kirjaudu (HSL ID)</LoginText>
           </LoginButton>

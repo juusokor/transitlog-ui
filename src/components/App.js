@@ -21,6 +21,7 @@ import {getJourneyAverageSpeeds} from "../helpers/getJourneyAverageSpeeds";
 import {getJourneyStopDiffs} from "../helpers/getJourneyStopDiffs";
 import Graph from "./map/Graph";
 import LoginModal from "./LoginModal";
+import {authorizeUsingCode} from "../auth/authService";
 
 const AppFrame = styled.main`
   width: 100%;
@@ -87,9 +88,16 @@ function App({state, UI}) {
   } = state;
 
   const selectedJourneyId = getJourneyId(selectedJourney);
+
+  // TODO There's probably a better place and method for this
+  const url_string = window.location.href;
+  const code = new URL(url_string).searchParams.get("code");
+  console.log(code);
+  if (code) authorizeUsingCode(code);
+
   return (
     <AppFrame>
-      {loginModalOpen && <LoginModal>asdasdaxd</LoginModal>}
+      {loginModalOpen && <LoginModal />}
       <AreaJourneys selectedJourney={selectedJourney}>
         {({
           setQueryBounds,

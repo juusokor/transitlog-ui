@@ -53,12 +53,18 @@ const filterActions = (state) => {
     }
   });
 
+  const setUser = action("Set user", (user) => {
+    state.user = user;
+    console.log(user);
+  });
+
   return {
     setDate,
     setStop,
     setVehicle,
     setLine,
     setRoute,
+    setUser,
   };
 };
 
