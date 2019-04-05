@@ -11,11 +11,10 @@ const exceptionDaysQuery = gql`
     exceptionDays(year: $year) {
       id
       exceptionDate
-      newDayType
+      effectiveDayTypes
       dayType
       modeScope
       description
-      type
       exclusive
       startTime
       endTime

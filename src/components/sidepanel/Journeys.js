@@ -18,6 +18,7 @@ import {inject} from "../../helpers/inject";
 import JourneysByDateQuery from "../../queries/JourneysByDateQuery";
 import {createCompositeJourney} from "../../stores/journeyActions";
 import doubleDigit from "../../helpers/doubleDigit";
+import {dayTypes, getDayTypeFromDate} from "../../helpers/getDayTypeFromDate";
 
 const JourneyListRow = styled.button`
   display: flex;
@@ -72,6 +73,11 @@ const JourneyInstanceDisplay = styled.span`
   text-align: center;
   display: inline-block;
   color: var(--dark-grey);
+`;
+
+const SpecialDayDisplay = styled(JourneyInstanceDisplay)`
+  background: var(--lighter-blue);
+  margin-left: ${({largeMargin = false}) => (largeMargin ? "0.5rem" : "0.2rem")};
 `;
 
 const decorate = flow(
@@ -177,6 +183,9 @@ const Journeys = decorate(({state, Time, Journey}) => {
                   departures.map((departure) => {
                     const departureDate = departure.plannedDepartureTime.departureDate;
                     const departureTime = departure.plannedDepartureTime.departureTime;
+                    const isSpecialDayType =
+                      getDayTypeFromDate(departureDate) !== departure.dayType ||
+                      !dayTypes.includes(departure.dayType);
 
                     if (!departure.journey) {
                       const compositeJourney = createCompositeJourney(
@@ -206,6 +215,13 @@ const Journeys = decorate(({state, Time, Journey}) => {
                           <Tooltip helpText="Planned journey time">
                             <JourneyRowLeft>
                               {getNormalTime(departureTime).slice(0, -3)}
+                              {isSpecialDayType && (
+                                <SpecialDayDisplay
+                                  largeMargin={true}
+                                  {...applyTooltip("Journey day type")}>
+                                  {departure.dayType}
+                                </SpecialDayDisplay>
+                              )}
                             </JourneyRowLeft>
                           </Tooltip>
                           <Tooltip helpText="Journey no data">
@@ -274,6 +290,13 @@ const Journeys = decorate(({state, Time, Journey}) => {
                             <JourneyInstanceDisplay {...applyTooltip("Journey instance")}>
                               {departure.journey._numInstance}
                             </JourneyInstanceDisplay>
+                          )}
+                          {isSpecialDayType && (
+                            <SpecialDayDisplay
+                              largeMargin={!multipleInstances}
+                              {...applyTooltip("Journey day type")}>
+                              {departure.dayType}
+                            </SpecialDayDisplay>
                           )}
                         </JourneyRowLeft>
                         {observedJourney}

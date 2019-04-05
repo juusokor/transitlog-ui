@@ -98,7 +98,7 @@ const renderDay = (exceptionData) => (dayNumber, date) => {
 
   return (
     <Tooltip
-      helpText={`Exception: ${exception.newDayType}${
+      helpText={`Exceptions: ${exception.effectiveDayTypes.join(", ")}${
         exception.description ? `, ${exception.description}` : ""
       }${exception.modeScope ? `, ${exception.modeScope}` : ""}`}>
       <Day>{dayNumber}</Day>
