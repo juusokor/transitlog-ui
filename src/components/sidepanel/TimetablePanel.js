@@ -225,7 +225,7 @@ class TimetablePanel extends Component {
 
     const {min, max} = timeRangeFilter;
 
-    // TODO: Make selecting a journey work
+    // TODO: MAKE STOP WORK
 
     return (
       <DeparturesQuery
