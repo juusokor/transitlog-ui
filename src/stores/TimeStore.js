@@ -23,7 +23,7 @@ export default (state, initialState) => {
       const minTime = selectedMoment.clone().subtract(5, "minutes");
       const maxTime = selectedMoment.clone().add(5, "minutes");
 
-      return getMomentFromDateTime(date).isBetween(minTime, maxTime);
+      return selectedMoment.isBetween(minTime, maxTime);
     },
     get isLiveAndCurrent() {
       const {live, timeIsCurrent} = state;
