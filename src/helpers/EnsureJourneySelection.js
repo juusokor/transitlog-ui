@@ -1,40 +1,35 @@
-import {Component} from "react";
-import {observer, inject} from "mobx-react";
-import {app} from "mobx-app";
+import {useEffect} from "react";
+import {observer} from "mobx-react-lite";
 import get from "lodash/get";
+import flow from "lodash/flow";
+import {inject} from "./inject";
 
 /*
   A helper component to deselect a selected journey that does not exist
   if one such journey has somehow become selected.
  */
 
-@inject(app("Journey", "Filters"))
-@observer
-class EnsureJourneySelection extends Component {
-  componentDidUpdate() {
-    this.checkStatus();
-  }
+const decorate = flow(
+  observer,
+  inject("Journey", "Filters")
+);
 
-  checkStatus() {
-    const {events, eventsLoading, Journey, Filters} = this.props;
+const EnsureJourneySelection = decorate(
+  ({Filters, Journey, children, journey, loading}) => {
+    useEffect(() => {
+      if (!loading) {
+        if (!journey || journey.events.length === 0) {
+          Journey.setSelectedJourney(null);
+        } else if (journey) {
+          const vehicleId = get(journey, "uniqueVehicleId", "");
+          Filters.setVehicle(vehicleId);
+          Journey.setJourneyVehicle(vehicleId);
+        }
+      }
+    }, [journey, loading]);
 
-    if ((!events || events.length === 0) && !eventsLoading) {
-      Journey.setSelectedJourney(null);
-    } else if (events && !eventsLoading) {
-      const vehicleId = get(events, "[0].events[0].unique_vehicle_id", "");
-      Filters.setVehicle(vehicleId);
-      Journey.setJourneyVehicle(vehicleId);
-    }
+    return children({journey, loading});
   }
-
-  render() {
-    const {events, eventsLoading, error, children} = this.props;
-    return children({
-      events,
-      loading: eventsLoading,
-      error,
-    });
-  }
-}
+);
 
 export default EnsureJourneySelection;

@@ -17,8 +17,6 @@ import flow from "lodash/flow";
 import {withRoute} from "../hoc/withRoute";
 import AreaJourneys from "./AreaJourneys";
 import MergedJourneys from "./MergedJourneys";
-import {getJourneyAverageSpeeds} from "../helpers/getJourneyAverageSpeeds";
-import {getJourneyStopDiffs} from "../helpers/getJourneyStopDiffs";
 import Graph from "./map/Graph";
 import LoginModal from "./LoginModal";
 import {authorizeUsingCode, checkExistingSession} from "../auth/authService";
@@ -32,7 +30,7 @@ const AppFrame = styled.main`
 
 const AppGrid = styled.div`
   width: 100%;
-  min-width: 1400px; // No, we are not mobile friendly
+  min-width: 1366px; // No, we are not mobile friendly
   height: 100vh;
   display: grid;
   grid-template-rows: 9rem 1fr;
@@ -55,16 +53,18 @@ const MapPanel = styled(Map)`
 const GraphContainer = styled.div`
   background-color: white;
   border: 1px solid var(--alt-grey);
-  height: ${({journeyGraphOpen}) => (journeyGraphOpen ? "170px;" : "0px;")};
+  height: ${({journeyGraphOpen}) => (journeyGraphOpen ? "170px" : "0px")};
   border: ${({journeyGraphOpen}) =>
-    journeyGraphOpen ? "1px solid var(--alt-grey);" : "none;"};
+    journeyGraphOpen ? "1px solid var(--alt-grey)" : "none"};
   border-radius: 5px;
   position: absolute;
-  width: 500px;
+  width: 520px;
+  box-sizing: content-box;
   left: 50%;
-  bottom: 5%;
+  bottom: 1.5rem;
   transform: translateX(-50%);
   z-index: 500;
+  padding: ${({journeyGraphOpen}) => (journeyGraphOpen ? "0.5rem" : "0")};
 `;
 
 const decorate = flow(
@@ -210,13 +210,9 @@ function App({state, UI}) {
                                                 0 && journeyGraphOpen
                                             }>
                                             <Graph
-                                              width={500}
-                                              diffs={getJourneyStopDiffs(
-                                                selectedJourneyData.departures
-                                              )}
-                                              speedAverages={getJourneyAverageSpeeds(
-                                                selectedJourneyData.events
-                                              )}
+                                              width={530}
+                                              departures={selectedJourneyData.departures}
+                                              events={selectedJourneyData.events}
                                               graphExpanded={
                                                 selectedJourneyData.departures.length !==
                                                   0 && journeyGraphOpen

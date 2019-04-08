@@ -26,6 +26,7 @@ export const getJourneyStopDiffs = (journeyDepartures) => {
       y0: 0,
       departureColor: departureColor,
       stopId: stopId,
+      stopName: get(departure, "stop.name", ""),
     };
   });
 };

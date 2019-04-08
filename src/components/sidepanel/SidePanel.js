@@ -178,7 +178,6 @@ const SidePanel = decorate((props) => {
             {vehicle && (
               <VehicleJourneys
                 helpText="Vehicle journeys tab"
-                loading={journeyLoading}
                 name="vehicle-journeys"
                 label={text("sidepanel.tabs.vehicle_journeys")}
               />
@@ -187,7 +186,6 @@ const SidePanel = decorate((props) => {
               <TimetablePanel
                 helpText="Timetable tab"
                 stop={stop}
-                loading={journeyLoading}
                 name="timetables"
                 label={text("sidepanel.tabs.timetables")}
               />
@@ -195,10 +193,12 @@ const SidePanel = decorate((props) => {
           </Tabs>
         )}
       </MainSidePanel>
-      <JourneyPanel visible={detailsOpen}>
+      <JourneyPanel visible={detailsOpen || journeyLoading}>
         {/* The content of the sidebar is independent from the sidebar wrapper so that we can animate it. */}
-        {detailsOpen && <JourneyDetails loading={journeyLoading} journey={journey} />}
-        {hasJourney && (
+        {(detailsOpen || journeyLoading) && (
+          <JourneyDetails loading={journeyLoading} journey={journey} />
+        )}
+        {(hasJourney || journeyLoading) && (
           <div>
             <Tooltip helpText="Toggle journey details button">
               <ToggleJourneyDetailsButton onClick={() => toggleJourneyDetails()}>

@@ -160,6 +160,7 @@ class VehicleJourneys extends Component {
         {({journeys = [], loading}) => {
           return (
             <SidepanelList
+              focusKey={selectedJourneyId}
               loading={loading}
               header={
                 <>

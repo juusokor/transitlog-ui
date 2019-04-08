@@ -12,6 +12,7 @@ import {useWeatherData} from "../../../hooks/useWeatherData";
 import getJourneyId from "../../../helpers/getJourneyId";
 import {observer} from "mobx-react-lite";
 import {useDebouncedValue} from "../../../hooks/useDebouncedValue";
+import {parseLineNumber} from "../../../helpers/parseLineNumber";
 
 const JourneyPanelHeader = styled.div`
   flex: none;
@@ -38,8 +39,14 @@ const JourneyPanelHeader = styled.div`
   }
 `;
 
+const LineIdHeading = styled.span`
+  font-weight: bold;
+  margin: 0;
+`;
+
 const LineNameHeading = styled(Heading).attrs({level: 4})`
   font-weight: normal;
+  margin: 0;
 `;
 
 const MainHeaderRow = styled(Heading).attrs({level: 3})`
@@ -47,7 +54,7 @@ const MainHeaderRow = styled(Heading).attrs({level: 3})`
   align-items: flex-start;
   justify-content: flex-start;
   width: 100%;
-  margin-bottom: 1.3rem;
+  margin-bottom: 1rem;
 `;
 
 const HeaderText = styled.span`
@@ -79,7 +86,9 @@ const WeatherDisplay = styled(WeatherWidget)`
   max-height: 1.2rem;
 `;
 
-const DateTimeHeading = styled.div``;
+const DateTimeHeading = styled.div`
+  margin-bottom: 0.75rem;
+`;
 
 export default observer(({date, journey, currentTime}) => {
   const [currentJourneyWeather] = useJourneyWeather(
@@ -89,13 +98,20 @@ export default observer(({date, journey, currentTime}) => {
   const debouncedTime = useDebouncedValue(currentTime.valueOf(), 1000);
   const journeyWeather = useWeatherData(currentJourneyWeather, debouncedTime);
 
-  const {mode, routeId, uniqueVehicleId, departureTime, name} = journey;
+  const {mode, routeId, direction, uniqueVehicleId, departureTime, name} = journey;
+  const routeNameParts = name.split(" - ");
+
+  if (direction === 2) {
+    routeNameParts.reverse();
+  }
+
+  const routeName = routeNameParts.join(" - ");
 
   return (
     <JourneyPanelHeader>
       <MainHeaderRow>
         <TransportIcon width={23} height={23} mode={mode} />
-        {get(journey, "desi", "")}
+        <LineIdHeading>{parseLineNumber(get(journey, "lineId", ""))}</LineIdHeading>
         <HeaderText>
           <JourneyPlanner fill="var(--blue)" width="1rem" height="1rem" />
           {routeId}
@@ -116,7 +132,7 @@ export default observer(({date, journey, currentTime}) => {
           {departureTime}
         </HeaderText>
       </DateTimeHeading>
-      <LineNameHeading>{name}</LineNameHeading>
+      <LineNameHeading>{routeName}</LineNameHeading>
     </JourneyPanelHeader>
   );
 });

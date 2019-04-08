@@ -48,7 +48,7 @@ export function validateEquipment(departure, equipment) {
       required: equipmentColor || false,
     },
     emissionClass: {
-      observed: `${emissionDesc} (${emissionClass})`,
+      observed: emissionDesc || emissionClass ? `${emissionClass}, ${emissionDesc}` : "",
       required: false,
     },
   };

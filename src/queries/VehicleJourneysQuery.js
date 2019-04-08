@@ -1,9 +1,11 @@
 import React, {useEffect, useCallback} from "react";
 import get from "lodash/get";
+import orderBy from "lodash/orderBy";
 import gql from "graphql-tag";
 import {observer} from "mobx-react-lite";
 import {Query} from "react-apollo";
 import {removeUpdateListener, setUpdateListener} from "../stores/UpdateManager";
+import {timeToSeconds} from "../helpers/time";
 
 export const hfpQuery = gql`
   query vehicleJourneysQuery($date: Date!, $uniqueVehicleId: VehicleId!) {
@@ -67,7 +69,10 @@ const VehicleJourneysQuery = observer((props) => {
           setUpdateListener(updateListenerName, createRefetcher(refetch));
         }
 
-        const journeys = get(data, "vehicleJourneys", []);
+        const journeys = orderBy(get(data, "vehicleJourneys", []), ({departureTime}) =>
+          timeToSeconds(departureTime)
+        );
+
         return children({journeys, loading});
       }}
     </Query>
