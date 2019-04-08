@@ -1,16 +1,21 @@
-import React, {Component} from "react";
+import React, {useCallback} from "react";
 import {createPortal} from "react-dom";
 import moment from "moment-timezone";
-import {inject, observer} from "mobx-react";
-import {app} from "mobx-app";
+import {observer} from "mobx-react-lite";
 import DatePicker from "react-datepicker";
+import {format} from "date-fns";
 import {text} from "../../helpers/text";
 import {InputBase, ControlGroup} from "../Forms";
 import "react-datepicker/dist/react-datepicker.css";
 import PlusMinusInput from "../PlusMinusInput";
 import Input from "../Input";
-import styled from "styled-components";
+import styled, {createGlobalStyle} from "styled-components";
 import {TIMEZONE} from "../../constants";
+import flow from "lodash/flow";
+import get from "lodash/get";
+import {inject} from "../../helpers/inject";
+import ExceptionDaysQuery from "../../queries/ExceptionDaysQuery";
+import Tooltip from "../Tooltip";
 
 const DateControlGroup = styled(ControlGroup)`
   margin-bottom: 1.25rem;
@@ -24,17 +29,6 @@ const DateInput = styled(PlusMinusInput)`
   > button {
     height: calc(2rem + 4px);
     padding: 0 0.25rem;
-  }
-
-  > div,
-  .react-datepicker-wrapper,
-  .react-datepicker__input-container {
-    display: flex;
-    flex: 1 1 auto;
-  }
-
-  .react-datepicker-popper {
-    z-index: 100;
   }
 `;
 
@@ -64,87 +58,145 @@ const CalendarInput = styled(InputBase)`
   border-color: var(--blue);
 `;
 
+const Day = styled.div``;
+
+const CalendarStyles = createGlobalStyle`
+  .react-datepicker-wrapper,
+  .react-datepicker__input-container {
+    display: flex;
+    flex: 1 1 auto;
+  }
+  
+  .react-datepicker-popper {
+    z-index: 100;
+  }
+  
+  .react-datepicker__day {
+    &:hover {
+      background: var(--light-grey) !important;
+      color: white;
+    }
+  }
+  
+  .react-datepicker__day.react-datepicker__day--highlighted {
+    background: var(--light-orange);
+    color: var(--dark-grey);
+    
+    &:hover {
+      background: var(--light-grey);
+      color: white;
+    }
+  }
+`;
+
+const renderDay = (exceptionData) => (dayNumber, date) => {
+  const exception = get(exceptionData, format(date, "YYYY-MM-DD"));
+
+  if (!exception) {
+    return <Day>{dayNumber}</Day>;
+  }
+
+  return (
+    <Tooltip
+      helpText={`Exceptions: ${exception.effectiveDayTypes.join(", ")}${
+        exception.description ? `, ${exception.description}` : ""
+      }${exception.modeScope ? `, ${exception.modeScope}` : ""}`}>
+      <Day>{dayNumber}</Day>
+    </Tooltip>
+  );
+};
+
 // A simple portal to render the calendar outside the FilterSection.
 const CalendarContainer = (root) => ({className, children}) =>
   root.current
     ? createPortal(<div className={className}>{children}</div>, root.current)
     : null;
 
-@inject(app("Filters", "Time"))
-@observer
-class DateSettings extends Component {
-  onDateButtonClick = (modifier) => () => {
-    const {Filters, state} = this.props;
+const decorate = flow(
+  observer,
+  inject("Filters", "Time")
+);
 
-    if (!state.date) {
-      Filters.setDate("");
-    } else {
-      const nextDate = moment.tz(state.date, "YYYY-MM-DD", TIMEZONE);
-
-      if (modifier < 0) {
-        nextDate.subtract(Math.abs(modifier), "days");
-      } else {
-        nextDate.add(Math.abs(modifier), "days");
+const DateSettings = decorate(({calendarRootRef, Filters, Time, state: {date, live}}) => {
+  const setDate = useCallback(
+    (dateVal) => {
+      if (live) {
+        Time.toggleLive(false);
       }
 
-      this.setDate(nextDate);
-    }
-  };
+      Filters.setDate(dateVal);
+    },
+    [Time, Filters, live]
+  );
 
-  setDate = (dateVal) => {
-    const {
-      Filters,
-      Time,
-      state: {live},
-    } = this.props;
+  const onDateButtonClick = useCallback(
+    (modifier) => {
+      if (!date) {
+        Filters.setDate("");
+      } else {
+        const nextDate = moment.tz(date, "YYYY-MM-DD", TIMEZONE);
 
-    if (live) {
-      Time.toggleLive(false);
-    }
+        if (modifier < 0) {
+          nextDate.subtract(Math.abs(modifier), "days");
+        } else {
+          nextDate.add(Math.abs(modifier), "days");
+        }
 
-    Filters.setDate(dateVal);
-  };
+        setDate(nextDate);
+      }
+    },
+    [Filters, date, setDate]
+  );
 
-  render() {
-    const {
-      calendarRootRef,
-      state: {date},
-    } = this.props;
+  return (
+    <DateControlGroup>
+      <CalendarStyles />
+      <Input label={text("filterpanel.choose_date_time")} animatedLabel={false}>
+        <WeekInput
+          minusHelp="One week backward"
+          plusHelp="One week forward"
+          minusLabel={<>&laquo; 7</>}
+          plusLabel={<>7 &raquo;</>}
+          onDecrease={onDateButtonClick.bind(undefined, -7)}
+          onIncrease={onDateButtonClick.bind(undefined, 7)}>
+          <DateInput
+            minusHelp="One day backward"
+            plusHelp="One day forward"
+            minusLabel={<>&lsaquo; 1</>}
+            plusLabel={<>1 &rsaquo;</>}
+            onDecrease={onDateButtonClick.bind(undefined, -1)}
+            onIncrease={onDateButtonClick.bind(undefined, 1)}>
+            <ExceptionDaysQuery>
+              {({exceptionDays = []}) => {
+                const dates = exceptionDays.reduce((collection, exception) => {
+                  collection[format(exception.exceptionDate, "YYYY-MM-DD")] = exception;
+                  return collection;
+                }, {});
 
-    return (
-      <DateControlGroup>
-        <Input label={text("filterpanel.choose_date_time")} animatedLabel={false}>
-          <WeekInput
-            minusHelp="One week backward"
-            plusHelp="One week forward"
-            minusLabel={<>&laquo; 7</>}
-            plusLabel={<>7 &raquo;</>}
-            onDecrease={this.onDateButtonClick(-7)}
-            onIncrease={this.onDateButtonClick(7)}>
-            <DateInput
-              minusHelp="One day backward"
-              plusHelp="One day forward"
-              minusLabel={<>&lsaquo; 1</>}
-              plusLabel={<>1 &rsaquo;</>}
-              onDecrease={this.onDateButtonClick(-1)}
-              onIncrease={this.onDateButtonClick(1)}>
-              <DatePicker
-                dropdownMode="select"
-                customInput={<CalendarInput helpText="Select date field" />}
-                dateFormat="yyyy-MM-dd"
-                selected={moment.tz(date, TIMEZONE).toDate()}
-                onChange={this.setDate}
-                className="calendar"
-                // Z-indexing is tricky in the filterbar, so the calendarcontainer mounts
-                // a portal in a better place for the datepicker.
-                calendarContainer={CalendarContainer(calendarRootRef)}
-              />
-            </DateInput>
-          </WeekInput>
-        </Input>
-      </DateControlGroup>
-    );
-  }
-}
+                const highlightedDates = Object.keys(dates).map((date) => new Date(date));
+
+                return (
+                  <DatePicker
+                    dropdownMode="select"
+                    customInput={<CalendarInput helpText="Select date field" />}
+                    dateFormat="yyyy-MM-dd"
+                    selected={moment.tz(date, TIMEZONE).toDate()}
+                    onChange={setDate}
+                    className="calendar"
+                    highlightDates={highlightedDates}
+                    // Z-indexing is tricky in the filterbar, so the calendarcontainer mounts
+                    // a portal in a better place for the datepicker.
+                    calendarContainer={CalendarContainer(calendarRootRef)}
+                    renderDayContents={renderDay(dates)}
+                  />
+                );
+              }}
+            </ExceptionDaysQuery>
+          </DateInput>
+        </WeekInput>
+      </Input>
+    </DateControlGroup>
+  );
+});
 
 export default DateSettings;

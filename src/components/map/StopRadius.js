@@ -1,19 +1,19 @@
 import {Circle} from "react-leaflet";
 import React from "react";
 
-export function StopRadius({center, radius, children, color, isHighlighted = false}) {
+export const StopRadius = ({center, radius, children, color, isHighlighted = false}) => {
   return (
     <Circle
       interactive={false}
       pane={isHighlighted ? "selected-stop-radius" : "stop-radius"}
       center={center}
       weight={isHighlighted ? 2 : 1}
-      opacity={isHighlighted ? 0.875 : 0.33}
-      color={isHighlighted ? "white" : color}
+      opacity={isHighlighted ? 0.875 : 0.2}
+      color={color}
       fillColor={color}
-      fillOpacity={isHighlighted ? 0.25 : 0.133}
+      fillOpacity={isHighlighted ? 0.25 : 0.1}
       radius={radius}>
       {children}
     </Circle>
   );
-}
+};
