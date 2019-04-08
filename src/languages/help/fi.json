@@ -37,5 +37,7 @@
   "Journey no data": "Tämän matkan toteumasta ei ole tietoja. Se on vielä tulevaisuudessa, auton GPS ei toiminut oikein tai sitä jätettiin ajaamatta.",
   "Journey list diff": "Aikaero suunnittelun ja toteutuneen lähdön välillä. Punainen = lähtö etuajassa, keltainen = lähtö myöhässä, vihreä = lähtö ajalla. Jos toteutunut lähtö tapahtui ennen suunniteltua lähtöaikaa, numero on negatiivinen.",
   "Journey list observed": "Toteutuneen lähdön aika.",
-  "Journey list row": "Valitse tämä lähtö klikkaamalla."
+  "Journey list row": "Valitse tämä lähtö klikkaamalla.",
+  "Journey instance": "Jos vuoro ajetaan monella kulkuneuvolla, tämä on kulkuneuvon järjestysnumero.",
+  "Journey day type": "Lähdön päivätyyppi"
 }

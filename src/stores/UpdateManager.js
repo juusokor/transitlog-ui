@@ -91,7 +91,7 @@ export default (state) => {
 
             update(true);
           },
-          isCurrent ? 2000 : 1000
+          isCurrent ? 4000 : 1000
         );
       }
     },

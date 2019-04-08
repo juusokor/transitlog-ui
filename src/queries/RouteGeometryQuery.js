@@ -5,7 +5,7 @@ import gql from "graphql-tag";
 import {createRouteId} from "../helpers/keys";
 
 const routeQuery = gql`
-  query routeQuery($routeId: String!, $direction: Direction!, $date: Date!) {
+  query routeGeometryQuery($routeId: String!, $direction: Direction!, $date: Date!) {
     routeGeometry(routeId: $routeId, direction: $direction, date: $date) {
       id
       coordinates {
