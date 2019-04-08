@@ -40,6 +40,7 @@ export const routeJourneysQuery = gql`
         routeId
         originStopId
         uniqueVehicleId
+        mode
         _numInstance
       }
       plannedArrivalTime {
