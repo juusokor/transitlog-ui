@@ -71,8 +71,6 @@ const decorate = flow(
   inject("UI")
 );
 
-// TODO: Fix area journeys on map
-
 function App({state, UI}) {
   const {
     date,
