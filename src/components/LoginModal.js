@@ -4,6 +4,7 @@ import {app} from "mobx-app";
 import styled from "styled-components";
 import HSLLogoNoText from "../icons/HSLLogoNoText";
 import Login from "../icons/Login";
+import {logout} from "../auth/authService";
 
 const Root = styled.div`
   position: fixed;
@@ -63,22 +64,24 @@ const Title = styled.h2`
   margin-top: 10px 0px 10px 0px;
 `;
 
-@inject(app("Filters", "UI"))
+@inject(app("UI"))
 @observer
 class LoginModal extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.asd = this.asd.bind(this);
-  }
-
-  asd(e) {
+  onModalClick = (e) => {
     e.stopPropagation();
-    const {state} = this.props;
     if (e.currentTarget.className.includes("Root")) {
       this.props.UI.toggleLoginModal();
     }
-  }
+  };
+
+  onLogoutClick = () => {
+    logout().then((response) => {
+      if (response.status === 200) {
+        this.props.UI.clearUser();
+      }
+      this.props.UI.toggleLoginModal();
+    });
+  };
 
   openLoginForm = () => {
     window.location.replace(
@@ -87,17 +90,26 @@ class LoginModal extends React.Component {
   };
 
   render() {
+    const {state} = this.props;
+    const {user} = state;
     return (
-      <Root onClick={(e) => this.asd(e)}>
-        <Wrapper onClick={(e) => this.asd(e)}>
+      <Root onClick={(e) => this.onModalClick(e)}>
+        <Wrapper onClick={(e) => this.onModalClick(e)}>
           <Header>
             <HSLLogoNoText fill={"white"} height={"80px"} />
             <Title>HSL Transitlog</Title>
           </Header>
-          <LoginButton onClick={this.openLoginForm}>
-            <Login height={"1em"} fill={"#3e3e3e"} />
-            <LoginText>Kirjaudu (HSL ID)</LoginText>
-          </LoginButton>
+          {user ? (
+            <LoginButton onClick={this.onLogoutClick}>
+              <Login height={"1em"} fill={"#3e3e3e"} />
+              <LoginText>Kirjaudu ulos</LoginText>
+            </LoginButton>
+          ) : (
+            <LoginButton onClick={this.openLoginForm}>
+              <Login height={"1em"} fill={"#3e3e3e"} />
+              <LoginText>Kirjaudu (HSL ID)</LoginText>
+            </LoginButton>
+          )}
         </Wrapper>
       </Root>
     );

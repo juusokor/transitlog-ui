@@ -52,8 +52,31 @@ const BottomRow = styled.div`
   flex-direction: row;
   justify-content: space-between;
   width: 100%;
-  margin-top: 1.5rem;
+  margin-top: 1rem;
   flex: 1 0 100%;
+`;
+
+const LoginContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-right: 1.5rem;
+  -webkit-box-pack: end;
+  -webkit-justify-content: flex-end;
+  -ms-flex-pack: end;
+  justify-content: flex-end;
+`;
+
+const Username = styled.div`
+  color: white;
+  margin-right: 10px;
+`;
+
+const LoginIconContainer = styled.div`
+  cursor: pointer;
+  :hover {
+    transform: scale(1.1);
+  }
 `;
 
 const decorate = flow(
@@ -61,24 +84,34 @@ const decorate = flow(
   inject("UI")
 );
 
-export default decorate(({UI, className}) => (
-  <Header className={className}>
-    <Logo src={logo} alt="logo" />
-    <MainHeading>
-      <Text>filterpanel.heading</Text>
-    </MainHeading>
-    <BottomRow>
-      <Button
-        helpText="Share button"
-        small
-        transparent
-        onClick={() => UI.toggleShareModal(true)}>
-        <Text>general.share</Text>
-      </Button>
-      <LangSelectContainer>
-        <LanguageSelect />
-      </LangSelectContainer>
-      <Login height={"1em"} fill={"white"} onClick={() => UI.toggleLoginModal()} />
-    </BottomRow>
-  </Header>
-));
+function HeaderComponent({state, UI, className}) {
+  const {user} = state;
+  return (
+    <Header className={className}>
+      <Logo src={logo} alt="logo" />
+      <MainHeading>
+        <Text>filterpanel.heading</Text>
+      </MainHeading>
+      <BottomRow>
+        <Button
+          helpText="Share button"
+          small
+          transparent
+          onClick={() => UI.toggleShareModal(true)}>
+          <Text>general.share</Text>
+        </Button>
+        <LangSelectContainer>
+          <LanguageSelect />
+        </LangSelectContainer>
+      </BottomRow>
+      <LoginContainer>
+        {user && <Username>{user}</Username>}
+        <LoginIconContainer>
+          <Login height={"1em"} fill={"white"} onClick={() => UI.toggleLoginModal()} />
+        </LoginIconContainer>
+      </LoginContainer>
+    </Header>
+  );
+}
+
+export default decorate(HeaderComponent);

@@ -40,6 +40,14 @@ export default (state) => {
     state.loginModalOpen = !!setTo;
   });
 
+  const setUser = action("Set user", (user) => {
+    state.user = user;
+  });
+
+  const clearUser = action("Clear user", () => {
+    state.user = null;
+  });
+
   const addError = (type, message) => {
     if (!type || !message) {
       return;
@@ -108,5 +116,7 @@ export default (state) => {
     setAreaEventsStyle,
     toggleShareModal,
     highlightStop,
+    setUser,
+    clearUser,
   };
 };

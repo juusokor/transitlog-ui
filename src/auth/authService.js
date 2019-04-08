@@ -1,5 +1,3 @@
-import filterActions from "../stores/filterActions";
-
 const RequestMethod = {
   GET: "GET",
   POST: "POST",
@@ -7,7 +5,13 @@ const RequestMethod = {
   DELETE: "DELETE",
 };
 
-const BACKEND_AUTH_API_URL = "http://localhost:4000/auth";
+const Endpoint = {
+  LOGIN: "login",
+  SESSION: "existingSession",
+  LOGOUT: "logout",
+};
+
+const BACKEND_API_URL = process.env.REACT_APP_TRANSITLOG_SERVER;
 
 export const authorizeUsingCode = async (code) => {
   const requestBody = {code};
@@ -15,23 +19,47 @@ export const authorizeUsingCode = async (code) => {
 };
 
 const sendRequest = async (method, requestBody) => {
-  console.log(requestBody);
   try {
-    const response = await fetch(BACKEND_AUTH_API_URL, {
+    const response = await fetch(BACKEND_API_URL + Endpoint.LOGIN, {
       method,
+      credentials: "include",
       body: JSON.stringify(requestBody),
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
     });
-    response.json().then((response) => {
-      console.log(response);
-      if (response.isOk && response.email) {
-        // do something with username
-        window.history.replaceState({}, document.title, "/");
-      }
+    return response;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+export const checkExistingSession = async () => {
+  try {
+    const response = await fetch(BACKEND_API_URL + Endpoint.SESSION, {
+      credentials: "include",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
     });
+    return response;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+export const logout = async () => {
+  try {
+    const response = await fetch(BACKEND_API_URL + Endpoint.LOGOUT, {
+      credentials: "include",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    });
+    return response;
   } catch (e) {
     console.log(e);
   }
