@@ -40,6 +40,7 @@ const MapContent = decorate(
   }) => {
     const hasRoute = !!route && !!route.routeId;
     const showStopRadius = expr(() => mapOverlays.indexOf("Stop radius") !== -1);
+
     const selectedJourneyId = getJourneyId(selectedJourney);
 
     return (
@@ -68,18 +69,6 @@ const MapContent = decorate(
                 date={date}
               />
             ) : null}
-            {areaEventsStyle === areaEventsStyles.POLYLINES &&
-              journeys.length !== 0 &&
-              journeys
-                .filter(({id}) => id !== selectedJourneyId)
-                .map((journey) => (
-                  <SimpleHfpLayer
-                    zoom={zoom}
-                    name={journey.id}
-                    key={`hfp_polyline_${journey.id}`}
-                    events={journey.events}
-                  />
-                ))}
           </>
         )}
         {/* When a route IS selected... */}
@@ -108,39 +97,32 @@ const MapContent = decorate(
                 route={route}
               />
             )}
+
             {journeys.length !== 0 &&
               journeys.map((journey) => {
                 const isSelectedJourney = selectedJourneyId === journey.id;
+
+                if (!isSelectedJourney) {
+                  return null;
+                }
+
                 const currentPosition = journeyPositions
                   ? journeyPositions.get(journey.id)
                   : null;
 
                 return [
-                  isSelectedJourney ? (
-                    <JourneyLayer
-                      key={`journey_line_${journey.id}`}
-                      journey={journey}
-                      name={journey.id}
-                    />
-                  ) : null,
-                  isSelectedJourney ? (
-                    <JourneyStopsLayer
-                      showRadius={showStopRadius}
-                      onViewLocation={viewLocation}
-                      key={`journey_stops_${journey.id}`}
-                      journey={journey}
-                    />
-                  ) : null,
-                  actualQueryBounds &&
-                  !isSelectedJourney &&
-                  areaEventsStyle === areaEventsStyles.POLYLINES ? (
-                    <SimpleHfpLayer
-                      zoom={zoom}
-                      name={journey.id}
-                      key={`hfp_polyline_${journey.id}`}
-                      events={journey.events}
-                    />
-                  ) : currentPosition ? (
+                  <JourneyLayer
+                    key={`journey_line_${journey.id}`}
+                    journey={journey}
+                    name={journey.id}
+                  />,
+                  <JourneyStopsLayer
+                    showRadius={showStopRadius}
+                    onViewLocation={viewLocation}
+                    key={`journey_stops_${journey.id}`}
+                    journey={journey}
+                  />,
+                  currentPosition ? (
                     <HfpMarkerLayer
                       key={`hfp_markers_${journey.id}`}
                       currentEvent={currentPosition}
@@ -152,6 +134,36 @@ const MapContent = decorate(
               })}
           </>
         )}
+        {journeys.length !== 0 &&
+          journeys
+            .filter(({id}) => id !== selectedJourneyId)
+            .map((journey) => {
+              if (areaEventsStyle === areaEventsStyles.MARKERS) {
+                const event = journeyPositions.get(journey.id);
+
+                if (!event) {
+                  return null;
+                }
+
+                return (
+                  <HfpMarkerLayer
+                    key={`hfp_markers_${journey.id}`}
+                    currentEvent={event}
+                    journey={journey}
+                    isSelectedJourney={false}
+                  />
+                );
+              }
+
+              return (
+                <SimpleHfpLayer
+                  zoom={zoom}
+                  name={journey.id}
+                  key={`hfp_polyline_${journey.id}`}
+                  events={journey.events}
+                />
+              );
+            })}
         {mapOverlays.includes("Weather") && <WeatherDisplay position={mapBounds} />}
       </>
     );

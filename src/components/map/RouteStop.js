@@ -159,7 +159,11 @@ class RouteStop extends React.Component {
         timeToSeconds(firstDeparture.plannedDepartureTime.departureTime);
     }
 
-    const firstDepartureObservedTime = firstDeparture.observedDepartureTime.departureTime;
+    const firstDepartureObservedTime = get(
+      firstDeparture,
+      "observedDepartureTime.departureTime",
+      ""
+    );
 
     const firstDepartureObservedSeconds = timeToSeconds(firstDepartureObservedTime);
     const stopDepartureSeconds = timeToSeconds(stopDepartureTime);
