@@ -40,7 +40,6 @@ const MapContent = decorate(
   }) => {
     const hasRoute = !!route && !!route.routeId;
     const showStopRadius = expr(() => mapOverlays.indexOf("Stop radius") !== -1);
-
     const selectedJourneyId = getJourneyId(selectedJourney);
 
     return (
@@ -69,6 +68,18 @@ const MapContent = decorate(
                 date={date}
               />
             ) : null}
+            {areaEventsStyle === areaEventsStyles.POLYLINES &&
+              journeys.length !== 0 &&
+              journeys
+                .filter(({id}) => id !== selectedJourneyId)
+                .map((journey) => (
+                  <SimpleHfpLayer
+                    zoom={zoom}
+                    name={journey.id}
+                    key={`hfp_polyline_${journey.id}`}
+                    events={journey.events}
+                  />
+                ))}
           </>
         )}
         {/* When a route IS selected... */}
@@ -97,7 +108,6 @@ const MapContent = decorate(
                 route={route}
               />
             )}
-
             {journeys.length !== 0 &&
               journeys.map((journey) => {
                 const isSelectedJourney = selectedJourneyId === journey.id;
@@ -121,7 +131,16 @@ const MapContent = decorate(
                       journey={journey}
                     />
                   ) : null,
-                  currentPosition ? (
+                  actualQueryBounds &&
+                  !isSelectedJourney &&
+                  areaEventsStyle === areaEventsStyles.POLYLINES ? (
+                    <SimpleHfpLayer
+                      zoom={zoom}
+                      name={journey.id}
+                      key={`hfp_polyline_${journey.id}`}
+                      events={journey.events}
+                    />
+                  ) : currentPosition ? (
                     <HfpMarkerLayer
                       key={`hfp_markers_${journey.id}`}
                       currentEvent={currentPosition}
@@ -133,36 +152,6 @@ const MapContent = decorate(
               })}
           </>
         )}
-        {journeys.length !== 0 &&
-          journeys
-            .filter(({id}) => id !== selectedJourneyId)
-            .map((journey) => {
-              if (areaEventsStyle === areaEventsStyles.MARKERS) {
-                const event = journeyPositions.get(journey.id);
-
-                if (!event) {
-                  return null;
-                }
-
-                return (
-                  <HfpMarkerLayer
-                    key={`hfp_markers_${journey.id}`}
-                    currentEvent={event}
-                    journey={journey}
-                    isSelectedJourney={false}
-                  />
-                );
-              }
-
-              return (
-                <SimpleHfpLayer
-                  zoom={zoom}
-                  name={journey.id}
-                  key={`hfp_polyline_${journey.id}`}
-                  events={journey.events}
-                />
-              );
-            })}
         {mapOverlays.includes("Weather") && <WeatherDisplay position={mapBounds} />}
       </>
     );
