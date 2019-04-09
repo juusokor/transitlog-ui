@@ -4,10 +4,10 @@ import compact from "lodash/compact";
 
 // Use memoization to prevent the combined journeys from updating too often.
 
-const MergedJourneys = ({children, routeJourneys, areaJourneys, selectedJourney}) => {
+const MergedJourneys = ({children, areaJourneys = [], selectedJourney}) => {
   const currentJourneys = useMemo(() => {
-    return mergeJourneys(compact([selectedJourney, ...routeJourneys, ...areaJourneys]));
-  }, [areaJourneys, selectedJourney, routeJourneys]);
+    return mergeJourneys(compact([selectedJourney, ...areaJourneys]));
+  }, [areaJourneys, selectedJourney]);
 
   return children({currentJourneys});
 };

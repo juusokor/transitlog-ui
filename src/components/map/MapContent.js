@@ -26,6 +26,7 @@ const decorate = flow(
 const MapContent = decorate(
   ({
     journeys = [],
+    routeJourneys = [],
     journeyPositions,
     route,
     zoom,
@@ -132,6 +133,25 @@ const MapContent = decorate(
                   ) : null,
                 ];
               })}
+            {routeJourneys.length !== 0 &&
+              routeJourneys
+                .filter(({id}) => id !== selectedJourneyId)
+                .map((journey) => {
+                  const event = journeyPositions.get(journey.id);
+
+                  if (!event) {
+                    return null;
+                  }
+
+                  return (
+                    <HfpMarkerLayer
+                      key={`hfp_markers_${journey.id}`}
+                      currentEvent={event}
+                      journey={journey}
+                      isSelectedJourney={false}
+                    />
+                  );
+                })}
           </>
         )}
         {journeys.length !== 0 &&
