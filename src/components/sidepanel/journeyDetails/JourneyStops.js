@@ -67,7 +67,7 @@ class JourneyStops extends React.Component {
             <HiddenStopsMessage>Hide stops</HiddenStopsMessage>
           ) : (
             <HiddenStopsMessage>
-              {departures.length - 2} <Text>journey.stops_hidden</Text>
+              {departures.length} <Text>journey.stops_hidden</Text>
             </HiddenStopsMessage>
           )}
         </JourneyExpandToggle>

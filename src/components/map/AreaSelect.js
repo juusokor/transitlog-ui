@@ -104,7 +104,7 @@ class AreaSelect extends Component {
   }
 
   render() {
-    const {enabled = true, usingBounds} = this.props;
+    const {enabled = true} = this.props;
 
     return (
       <FeatureGroup ref={this.featureLayer}>
@@ -136,14 +136,6 @@ class AreaSelect extends Component {
         {this.initialRectangle && (
           // If there were bounds set in the URL, draw them on the map
           <Rectangle bounds={this.initialRectangle} {...rectangleStyle} />
-        )}
-        {usingBounds && (
-          <Rectangle
-            bounds={usingBounds}
-            {...rectangleStyle}
-            fillColor="var(--red)"
-            fillOpacity={0.075}
-          />
         )}
       </FeatureGroup>
     );

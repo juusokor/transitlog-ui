@@ -101,26 +101,27 @@ const MapContent = decorate(
             {journeys.length !== 0 &&
               journeys.map((journey) => {
                 const isSelectedJourney = selectedJourneyId === journey.id;
+
+                if (!isSelectedJourney) {
+                  return null;
+                }
+
                 const currentPosition = journeyPositions
                   ? journeyPositions.get(journey.id)
                   : null;
 
                 return [
-                  isSelectedJourney ? (
-                    <JourneyLayer
-                      key={`journey_line_${journey.id}`}
-                      journey={journey}
-                      name={journey.id}
-                    />
-                  ) : null,
-                  isSelectedJourney ? (
-                    <JourneyStopsLayer
-                      showRadius={showStopRadius}
-                      onViewLocation={viewLocation}
-                      key={`journey_stops_${journey.id}`}
-                      journey={journey}
-                    />
-                  ) : null,
+                  <JourneyLayer
+                    key={`journey_line_${journey.id}`}
+                    journey={journey}
+                    name={journey.id}
+                  />,
+                  <JourneyStopsLayer
+                    showRadius={showStopRadius}
+                    onViewLocation={viewLocation}
+                    key={`journey_stops_${journey.id}`}
+                    journey={journey}
+                  />,
                   currentPosition ? (
                     <HfpMarkerLayer
                       key={`hfp_markers_${journey.id}`}
