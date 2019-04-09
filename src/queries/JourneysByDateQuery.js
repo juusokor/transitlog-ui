@@ -6,7 +6,7 @@ import {observer} from "mobx-react-lite";
 import {setUpdateListener, removeUpdateListener} from "../stores/UpdateManager";
 
 export const routeJourneysQuery = gql`
-  query routeJourneysQuery(
+  query journeysByDateQuery(
     $routeId: String!
     $direction: Direction!
     $date: Date!
@@ -40,6 +40,7 @@ export const routeJourneysQuery = gql`
         routeId
         originStopId
         uniqueVehicleId
+        mode
         _numInstance
       }
       plannedArrivalTime {
