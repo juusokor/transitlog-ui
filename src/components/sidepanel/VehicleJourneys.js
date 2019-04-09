@@ -63,8 +63,9 @@ const NextPrevLabel = styled.div`
 @inject(app("Journey", "Time"))
 @observer
 class VehicleJourneys extends Component {
-  // We are modifying this in the render function so it cannot be reactive
+  // We are modifying these in the render function so they cannot be reactive
   selectedJourneyIndex = 0;
+  journeys = [];
 
   @observable
   nextJourneyIndex = 0;
@@ -117,17 +118,19 @@ class VehicleJourneys extends Component {
   updateVehicleAndJourneySelection = (nextJourneyIndex) => {
     const {
       state: {selectedJourney},
-      positions: journeys,
     } = this.props;
 
+    // TODO: Fix this
+
+    const journeys = this.journeys;
     let useIndex = nextJourneyIndex;
 
-    if (journeys.length === 0) {
+    if (!journeys || journeys.length === 0) {
       return;
     }
 
     // Select the last journey if we're out of bounds
-    if (useIndex > journeys.length - 1) {
+    if (useIndex > journeys.length) {
       useIndex = journeys.length - 1;
     }
 
@@ -137,10 +140,8 @@ class VehicleJourneys extends Component {
     // select it as the selected journey.
     if (
       nextSelectedJourney &&
-      ((selectedJourney &&
-        getJourneyId(nextSelectedJourney, false) !==
-          getJourneyId(selectedJourney, false)) ||
-        !selectedJourney)
+      (!selectedJourney ||
+        getJourneyId(nextSelectedJourney) !== getJourneyId(selectedJourney))
     ) {
       this.selectJourney(nextSelectedJourney);
     }
@@ -158,6 +159,8 @@ class VehicleJourneys extends Component {
     return (
       <VehicleJourneysQuery vehicleId={vehicle} date={date}>
         {({journeys = [], loading}) => {
+          this.journeys = journeys;
+
           return (
             <SidepanelList
               focusKey={selectedJourneyId}
