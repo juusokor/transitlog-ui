@@ -97,7 +97,7 @@ const AreaJourneys = decorate((props) => {
         children({
           setQueryBounds: requestArea,
           // Query bounds may be limited in some cases. If so, put the actual bounds here:
-          actualQueryBounds: false,
+          actualQueryBounds: queryBounds,
           journeys,
           loading,
           error,

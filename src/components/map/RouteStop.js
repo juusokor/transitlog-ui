@@ -105,7 +105,6 @@ class RouteStop extends React.Component {
 
     const mode = getPriorityMode(get(stop, "modes", []));
     let color = getModeColor(mode);
-    let delayType = "none";
 
     if (
       !selectedJourney ||
@@ -116,7 +115,7 @@ class RouteStop extends React.Component {
       return (
         <RouteStopMarker
           key={`route_stop_marker_${stop.stopId}`}
-          delayType={delayType}
+          delayType="none"
           color={color}
           isTerminal={isTerminal}
           stop={stop}
@@ -160,7 +159,11 @@ class RouteStop extends React.Component {
         timeToSeconds(firstDeparture.plannedDepartureTime.departureTime);
     }
 
-    const firstDepartureObservedTime = firstDeparture.observedDepartureTime.departureTime;
+    const firstDepartureObservedTime = get(
+      firstDeparture,
+      "observedDepartureTime.departureTime",
+      ""
+    );
 
     const firstDepartureObservedSeconds = timeToSeconds(firstDepartureObservedTime);
     const stopDepartureSeconds = timeToSeconds(stopDepartureTime);
@@ -361,7 +364,7 @@ class RouteStop extends React.Component {
       <RouteStopMarker
         key={`journey_stop_marker_${stop.stopId}`}
         doorDidOpen={doorDidOpen}
-        delayType={delayType}
+        delayType={departureDelayType}
         color={color}
         isTerminal={isTerminal}
         stop={stop}

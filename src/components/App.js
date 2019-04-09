@@ -14,6 +14,7 @@ import SelectedJourneyEvents from "./SelectedJourneyEvents";
 import getJourneyId from "../helpers/getJourneyId";
 import {inject} from "../helpers/inject";
 import flow from "lodash/flow";
+import get from "lodash/get";
 import {withRoute} from "../hoc/withRoute";
 import AreaJourneys from "./AreaJourneys";
 import MergedJourneys from "./MergedJourneys";
@@ -107,9 +108,6 @@ function App({state, UI}) {
                     {({currentJourneys}) => {
                       const detailsAreOpen = selectedJourney && journeyDetailsOpen;
                       const sidePanelIsOpen = sidePanelVisible;
-                      const selectedJourneyData = currentJourneys.find(
-                        ({id}) => id === selectedJourneyId
-                      );
 
                       return (
                         <AppGrid>
@@ -184,21 +182,30 @@ function App({state, UI}) {
                                               viewLocation={setViewerLocation}
                                               mapBounds={getMapView()}
                                             />
-                                            {selectedJourneyData && (
+                                            {selectedJourney && (
                                               <GraphContainer
                                                 journeyGraphOpen={
-                                                  selectedJourneyData.departures
+                                                  get(selectedJourney, "departures", [])
                                                     .length !== 0 && journeyGraphOpen
                                                 }>
                                                 <Graph
                                                   width={530}
-                                                  departures={
-                                                    selectedJourneyData.departures
-                                                  }
-                                                  events={selectedJourneyData.events}
+                                                  departures={get(
+                                                    selectedJourney,
+                                                    "departures",
+                                                    []
+                                                  )}
+                                                  events={get(
+                                                    selectedJourney,
+                                                    "events",
+                                                    []
+                                                  )}
                                                   graphExpanded={
-                                                    selectedJourneyData.departures
-                                                      .length !== 0 && journeyGraphOpen
+                                                    get(
+                                                      selectedJourney,
+                                                      "departures",
+                                                      []
+                                                    ) !== 0 && journeyGraphOpen
                                                   }
                                                 />
                                               </GraphContainer>
