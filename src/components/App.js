@@ -98,9 +98,7 @@ function App({state, UI}) {
         if (code) {
           authorizeUsingCode(code).then((response) => {
             response.json().then((json) => {
-              json.isOk && json.email
-                ? UI.setUser(json.email)
-                : console.log("Authentication failed");
+              if (json.isOk && json.email) UI.setUser(json.email);
             });
           });
         }
