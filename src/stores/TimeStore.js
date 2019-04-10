@@ -20,10 +20,9 @@ export default (state, initialState) => {
       const selectedMoment = getMomentFromDateTime(date, time, TIMEZONE);
 
       // If the selected time is within 10 minutes of the current time, it is considered current.
-      const minTime = selectedMoment.clone().subtract(5, "minutes");
-      const maxTime = selectedMoment.clone().add(5, "minutes");
-
-      return selectedMoment.isBetween(minTime, maxTime);
+      const minTime = selectedMoment.subtract(5, "minutes");
+      const maxTime = selectedMoment.add(5, "minutes");
+      return moment().isBetween(minTime, maxTime, "second", "[]");
     },
     get isLiveAndCurrent() {
       const {live, timeIsCurrent} = state;

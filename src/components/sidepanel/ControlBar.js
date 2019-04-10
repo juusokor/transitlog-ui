@@ -36,7 +36,7 @@ class ControlBar extends Component {
 
   render() {
     const {
-      state: {live},
+      state: {live, timeIsCurrent},
     } = this.props;
 
     return (
@@ -52,7 +52,7 @@ class ControlBar extends Component {
           type="checkbox"
           onChange={this.onToggleLive}
           name="query_polling"
-          label={text("general.live")}
+          label={timeIsCurrent ? text("general.live") : text("general.auto_update")}
           checked={live}
           value="enabled"
         />

@@ -76,7 +76,8 @@
   "general.error": "Error",
   "general.journey": "journey",
   "general.update": "Update",
-  "general.live": "Live",
+  "general.live": "Live update",
+  "general.auto_update": "Simulate time",
   "general.no_type": "No type",
   "general.no_data": "No data",
   "general.share": "Share view"

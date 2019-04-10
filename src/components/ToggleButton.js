@@ -60,13 +60,14 @@ const TextContainer = styled.div`
   font-family: var(--font-family);
   flex: 1 1 40%;
   flex-wrap: nowrap;
+  white-space: nowrap;
   justify-content: flex-start;
   align-items: flex-start;
   color: ${({disabled}) => (disabled ? "var(--light-grey)" : "var(--blue)")};
-  margin-left: ${({isPreLabel = false}) => (isPreLabel ? "0" : "1rem")};
-  margin-right: ${({isPreLabel = false}) => (isPreLabel ? "1rem" : "0")};
+  margin-left: ${({isPreLabel = false}) => (isPreLabel ? "0" : "0.5rem")};
+  margin-right: ${({isPreLabel = false}) => (isPreLabel ? "0.5rem" : "0")};
   text-align: ${({isPreLabel = false}) => (isPreLabel ? "right" : "left")};
-  font-size: 0.875rem;
+  font-size: 0.75rem;
 `;
 
 const ToggleButton = observer(

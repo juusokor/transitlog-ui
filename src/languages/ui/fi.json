@@ -76,7 +76,8 @@
   "general.error": "Virhe",
   "general.journey": "lähtö",
   "general.update": "Päivitä",
-  "general.live": "Live",
+  "general.live": "Live-päivitys",
+  "general.auto_update": "Aikasimulointi",
   "general.no_type": "Ei tyyppiä",
   "general.no_data": "Ei tietoja",
   "general.share": "Jaa näkymää"
