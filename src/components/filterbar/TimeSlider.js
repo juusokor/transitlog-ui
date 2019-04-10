@@ -22,11 +22,21 @@ const RangeDisplay = styled.div`
   font-size: 12px;
   background: white;
   padding: 3px 8px;
-  border: 2px solid var(--blue);
-  border-radius: 12px;
-  height: 24px;
+  border: 3px solid var(--blue);
+  border-left: 0;
+  border-top-right-radius: 13px;
+  border-bottom-right-radius: 13px;
+  height: 26px;
   user-select: none;
   pointer-events: none;
+  display: flex;
+  align-items: center;
+
+  &:last-child {
+    border-radius: 13px 0 0 13px;
+    border-left: 3px solid var(--blue);
+    border-right: 0;
+  }
 `;
 
 const SliderInput = styled(RangeInput)``;
@@ -37,9 +47,7 @@ const CurrentValue = styled(RangeDisplay)`
   left: 51px;
   background: var(--blue);
   color: white;
-  display: flex;
-  align-items: center;
-  border-radius: 12px;
+  border-radius: 13px;
 `;
 
 export const TIME_SLIDER_MAX = 102600; // 28:30:00

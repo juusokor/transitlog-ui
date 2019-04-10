@@ -43,7 +43,7 @@ const BottomSlider = styled(TimeSlider)`
   position: absolute;
   bottom: -1rem;
   right: 0;
-  width: calc((100% - 26rem) + 2px);
+  width: calc((100% - 26rem));
   z-index: 10;
 `;
 
