@@ -53,7 +53,7 @@ const decorate = flow(
 
 const TimeSlider = decorate(({className, Time, state, journeys}) => {
   const numericTime = useMemo(() => timeToSeconds(state.time), [state.time]);
-  const [ref, {x, y, width}] = useDimensions();
+  const [ref, {width}] = useDimensions();
 
   const onChange = useCallback(
     (e) => {
