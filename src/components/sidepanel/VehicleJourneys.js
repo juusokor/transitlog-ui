@@ -120,8 +120,6 @@ class VehicleJourneys extends Component {
       state: {selectedJourney},
     } = this.props;
 
-    // TODO: Fix this
-
     const journeys = this.journeys;
     let useIndex = nextJourneyIndex;
 
@@ -130,7 +128,7 @@ class VehicleJourneys extends Component {
     }
 
     // Select the last journey if we're out of bounds
-    if (useIndex > journeys.length) {
+    if (useIndex > journeys.length - 1) {
       useIndex = journeys.length - 1;
     }
 
@@ -154,7 +152,6 @@ class VehicleJourneys extends Component {
 
     const selectedJourneyId = getJourneyId(selectedJourney, false);
     // Keep track of the journey index independent of vehicle groups
-    let journeyIndex = -1;
 
     return (
       <VehicleJourneysQuery vehicleId={vehicle} date={date}>
@@ -187,8 +184,7 @@ class VehicleJourneys extends Component {
                 </>
               }>
               {(scrollRef) =>
-                journeys.map((journey) => {
-                  journeyIndex++;
+                journeys.map((journey, journeyIndex) => {
                   const journeyId = getJourneyId(journey, false);
 
                   const mode = get(journey, "mode", "").toUpperCase();
