@@ -5,12 +5,46 @@ import {getTimeRangeFromEvents} from "../../helpers/getTimeRangeFromEvents";
 import get from "lodash/get";
 import flow from "lodash/flow";
 import flatten from "lodash/flatten";
-import {timeToSeconds} from "../../helpers/time";
+import {timeToSeconds, secondsToTime} from "../../helpers/time";
 import Tooltip from "../Tooltip";
 import {inject} from "../../helpers/inject";
+import styled from "styled-components";
+import useDimensions from "../../hooks/useDimensions";
 
-export const TIME_SLIDER_MAX = 86400;
-export const TIME_SLIDER_MIN = 0;
+const SliderContainer = styled.div`
+  display: flex;
+  position: relative;
+  align-items: center;
+`;
+
+const RangeDisplay = styled.div`
+  font-family: monospace;
+  font-size: 12px;
+  background: white;
+  padding: 3px 8px;
+  border: 2px solid var(--blue);
+  border-radius: 12px;
+  height: 24px;
+  user-select: none;
+  pointer-events: none;
+`;
+
+const SliderInput = styled(RangeInput)``;
+
+const CurrentValue = styled(RangeDisplay)`
+  position: absolute;
+  z-index: 5;
+  left: 51px;
+  background: var(--blue);
+  color: white;
+  display: flex;
+  align-items: center;
+  border-radius: 12px;
+`;
+
+export const TIME_SLIDER_MAX = 102600; // 28:30:00
+export const TIME_SLIDER_MIN = 0; // 00:00:00
+const TIME_SLIDER_DEFAULT_MIN = 16200; // 04:30
 
 const decorate = flow(
   observer,
@@ -19,6 +53,7 @@ const decorate = flow(
 
 const TimeSlider = decorate(({className, Time, state, journeys}) => {
   const numericTime = useMemo(() => timeToSeconds(state.time), [state.time]);
+  const [ref, {x, y, width}] = useDimensions();
 
   const onChange = useCallback(
     (e) => {
@@ -49,24 +84,50 @@ const TimeSlider = decorate(({className, Time, state, journeys}) => {
       }
     }
 
-    return {min: TIME_SLIDER_MIN, max: TIME_SLIDER_MAX};
+    return {min: TIME_SLIDER_DEFAULT_MIN, max: TIME_SLIDER_MAX};
   }, [journeys]);
 
   const {min = TIME_SLIDER_MIN, max = TIME_SLIDER_MAX} = timeRange;
-  const rangeMin = Math.min(numericTime, min);
-  const rangeMax = Math.max(numericTime, max);
+  let rangeMin = min;
+  let rangeMax = max;
+
+  rangeMin = isNaN(rangeMin) ? TIME_SLIDER_MIN : rangeMin;
+  rangeMax = isNaN(rangeMax) ? TIME_SLIDER_MAX : rangeMax;
+  const currentValue = Math.max(numericTime, rangeMin);
+
+  const valuePosition = useMemo(() => {
+    let point = (currentValue - rangeMin) / (rangeMax - rangeMin);
+    let position = Math.max(point, 0);
+    let offset = point * 24;
+
+    if (position > 1) {
+      position = width - offset;
+    } else {
+      position = width * point - offset;
+    }
+    return position;
+  }, [currentValue, rangeMin, rangeMax, width]);
 
   return (
-    <div className={className}>
+    <SliderContainer className={className}>
+      <RangeDisplay>{secondsToTime(rangeMin)}</RangeDisplay>
       <Tooltip helpText="Time slider">
-        <RangeInput
-          value={Math.min(Math.max(numericTime, rangeMin), rangeMax)}
-          min={isNaN(rangeMin) ? TIME_SLIDER_MIN : rangeMin}
-          max={isNaN(rangeMax) ? TIME_SLIDER_MAX : rangeMax}
+        <SliderInput
+          innerRef={ref}
+          value={currentValue}
+          min={rangeMin}
+          max={rangeMax}
           onChange={onChange}
         />
       </Tooltip>
-    </div>
+      <CurrentValue
+        style={{
+          transform: `translateX(${valuePosition}px)`,
+        }}>
+        {secondsToTime(currentValue)}
+      </CurrentValue>
+      <RangeDisplay>{secondsToTime(rangeMax)}</RangeDisplay>
+    </SliderContainer>
   );
 });
 
