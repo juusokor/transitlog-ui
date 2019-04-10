@@ -31,7 +31,7 @@ const AdditionalTimeSettings = decorate(({state, Time}) => {
           helpText="Time increment field"
           label={text("filterpanel.time_increment")}
           type="number"
-          max={1000}
+          max={60 * 60}
           maxLength={4}
           value={timeIncrement}
           onChange={(e) => Time.setTimeIncrement(e.target.value)}

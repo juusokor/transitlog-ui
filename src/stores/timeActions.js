@@ -3,6 +3,7 @@ import {setUrlValue} from "./UrlManager";
 import debounce from "lodash/debounce";
 import doubleDigit from "../helpers/doubleDigit";
 import {secondsToTimeObject} from "../helpers/time";
+import {intval} from "../helpers/isWithinRange";
 
 const timeActions = (state) => {
   // Time might update frequently, so make sure that setting it
@@ -19,13 +20,16 @@ const timeActions = (state) => {
     setTime(`${doubleDigit(hours)}:${doubleDigit(minutes)}:${doubleDigit(seconds)}`);
   };
 
-  const setTimeIncrement = action((timeIncrementValue) => {
-    state.timeIncrement = parseInt(timeIncrementValue, 10);
+  const setTimeIncrement = action((timeIncrementValue = 0) => {
+    state.timeIncrement = Math.max(Math.min(intval(timeIncrementValue || 0), 60 * 60), 1);
     setUrlValue("time_increment", state.timeIncrement);
   });
 
-  const setAreaSearchMinutes = action((searchValue) => {
-    state.areaSearchRangeMinutes = parseInt(searchValue, 10);
+  const setAreaSearchMinutes = action((searchValue = 0) => {
+    state.areaSearchRangeMinutes = Math.max(
+      Math.min(intval(searchValue || 0), 60 * 12),
+      5
+    );
     setUrlValue("area_search_minutes", state.areaSearchRangeMinutes);
   });
 
