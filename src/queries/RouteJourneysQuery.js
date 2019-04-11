@@ -18,6 +18,7 @@ export const routeJourneysQuery = gql`
       departureDate
       departureTime
       uniqueVehicleId
+      mode
       events {
         id
         delay
