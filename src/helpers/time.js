@@ -4,9 +4,18 @@ import {TIMEZONE} from "../constants";
 
 const num = (val) => parseInt(val, 10);
 
-export function timeToSeconds(timeStr = "") {
+export function timeToTimeObject(timeStr = "") {
   const [hours = 0, minutes = 0, seconds = 0] = (timeStr || "").split(":");
-  return num(seconds) + num(minutes) * 60 + num(hours) * 60 * 60;
+  return {
+    hours: num(hours),
+    minutes: num(minutes),
+    seconds: num(seconds),
+  };
+}
+
+export function timeToSeconds(timeStr = "") {
+  const {hours = 0, minutes = 0, seconds = 0} = timeToTimeObject(timeStr);
+  return seconds + minutes * 60 + hours * 60 * 60;
 }
 
 export function secondsToTimeObject(seconds) {

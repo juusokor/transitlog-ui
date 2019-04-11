@@ -1,28 +1,36 @@
 import {extendObservable} from "mobx";
 import timeActions from "./timeActions";
-import {getMomentFromDateTime} from "../helpers/time";
+import {getMomentFromDateTime, timeToTimeObject} from "../helpers/time";
 import get from "lodash/get";
 import moment from "moment-timezone";
 import {getUrlValue} from "./UrlManager";
 import {setResetListener} from "./FilterStore";
 import {TIMEZONE} from "../constants";
+import {isWithinRange} from "../helpers/isWithinRange";
 
 export default (state, initialState) => {
   extendObservable(state, {
     live: getUrlValue("live", false),
     time: get(initialState, "time", moment.tz(new Date(), TIMEZONE).format("HH:mm:ss")),
+    get dateMoment() {
+      const {date} = state;
+      return getMomentFromDateTime(date);
+    },
+    get timeMoment() {
+      const {time, dateMoment} = state;
+      return dateMoment.clone().set(timeToTimeObject(time));
+    },
     get unixTime() {
-      const {date, time} = state;
-      return getMomentFromDateTime(date, time).unix();
+      const {timeMoment} = state;
+      return timeMoment.unix();
     },
     get timeIsCurrent() {
-      const {date, time} = state;
-      const selectedMoment = getMomentFromDateTime(date, time, TIMEZONE);
-
+      const {unixTime} = state;
+      const now = Math.floor(Date.now() / 1000);
       // If the selected time is within 10 minutes of the current time, it is considered current.
-      const minTime = selectedMoment.subtract(5, "minutes");
-      const maxTime = selectedMoment.add(5, "minutes");
-      return moment().isBetween(minTime, maxTime, "second", "[]");
+      const minTime = unixTime - 12 * 60 * 60;
+      const maxTime = unixTime + 5 * 60;
+      return isWithinRange(now, minTime, maxTime);
     },
     get isLiveAndCurrent() {
       const {live, timeIsCurrent} = state;
