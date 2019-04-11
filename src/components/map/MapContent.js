@@ -79,11 +79,14 @@ const MapContent = decorate(
               key={`route_query_${createRouteId(route, true)}`}
               route={route}
               date={date}>
-              {({routeGeometry}) =>
-                routeGeometry.length !== 0 ? (
+              {({routeGeometry = null}) =>
+                routeGeometry && routeGeometry.coordinates.length !== 0 ? (
                   <RouteLayer
-                    routeId={routeGeometry.length !== 0 ? createRouteId(route) : null}
-                    routeGeometry={routeGeometry}
+                    routeId={
+                      routeGeometry.coordinates.length !== 0 ? createRouteId(route) : null
+                    }
+                    mode={routeGeometry.mode || "BUS"}
+                    coordinates={routeGeometry.coordinates}
                     canCenterOnRoute={centerOnRoute}
                     setMapView={setMapView}
                     key={`route_line_${createRouteId(route, true)}`}

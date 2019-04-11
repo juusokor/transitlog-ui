@@ -8,6 +8,7 @@ const routeQuery = gql`
   query routeGeometryQuery($routeId: String!, $direction: Direction!, $date: Date!) {
     routeGeometry(routeId: $routeId, direction: $direction, date: $date) {
       id
+      mode
       coordinates {
         lat
         lng
@@ -41,8 +42,12 @@ class RouteGeometryQuery extends Component {
             return null;
           }
 
-          const coordinates = get(data, "routeGeometry.coordinates", []);
-          return children({routeGeometry: coordinates});
+          const geometry = get(data, "routeGeometry", {
+            id: "",
+            mode: "BUS",
+            coordinates: [],
+          });
+          return children({routeGeometry: geometry});
         }}
       </Query>
     );
