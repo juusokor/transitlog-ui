@@ -18,7 +18,7 @@ const updateListenerName = "area hfp query";
 
 const AreaJourneys = decorate((props) => {
   const {children, skip, state} = props;
-  const {isLiveAndCurrent, areaSearchRangeMinutes, unixTime} = state;
+  const {isLiveAndCurrent, areaSearchRangeMinutes, unixTime, date} = state;
   const [queryBounds, setQueryBounds] = useState(null);
   const [queryRange, setQueryRange] = useState(null);
 
@@ -87,6 +87,8 @@ const AreaJourneys = decorate((props) => {
   useEffect(() => setUpdateListener(updateListenerName, updateAreaQuery), [
     updateAreaQuery,
   ]);
+
+  useEffect(updateAreaQuery, [date]);
 
   return (
     <AreaJourneysQuery
