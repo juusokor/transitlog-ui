@@ -3,21 +3,15 @@ import {observer} from "mobx-react-lite";
 import styled, {css} from "styled-components";
 
 const SliderThumb = css`
-  border: 3px solid var(--blue);
-  height: 1.5rem;
-  width: 1.5rem;
-  margin-top: -0.7rem;
+  height: 24px;
+  width: 24px;
+  margin-top: -10px;
   border-radius: 50%;
-  background: white;
+  background: var(--blue);
   cursor: pointer;
   transition: background-color 0.15s ease-out, transform 0.2s ease-out;
   padding: 0;
   box-sizing: border-box;
-
-  &:hover {
-    background: var(--blue);
-    transform: scale(1.05);
-  }
 `;
 
 const SliderTrack = css`
@@ -38,11 +32,6 @@ const Slider = styled.input.attrs({type: "range", step: 1})`
   background: transparent;
   display: block;
   margin: 0;
-
-  &:focus {
-    position: relative;
-    z-index: 100;
-  }
 
   &::-webkit-slider-thumb {
     -webkit-appearance: none;
@@ -82,11 +71,12 @@ const Slider = styled.input.attrs({type: "range", step: 1})`
   }
 `;
 
-const RangeInput = observer(({title, value, onChange, min, max, className}) => {
+const RangeInput = observer(({innerRef, title, value, onChange, min, max, className}) => {
   const safeVal = !value || isNaN(value) ? 0 : value;
 
   return (
     <Slider
+      ref={innerRef}
       title={title}
       className={className}
       min={min}

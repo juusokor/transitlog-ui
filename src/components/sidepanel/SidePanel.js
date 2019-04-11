@@ -126,6 +126,7 @@ const SidePanel = decorate((props) => {
       stop: stateStop,
       selectedJourney,
       sidePanelVisible,
+      journeyDetailsOpen,
     },
   } = props;
 
@@ -193,9 +194,9 @@ const SidePanel = decorate((props) => {
           </Tabs>
         )}
       </MainSidePanel>
-      <JourneyPanel visible={detailsOpen || journeyLoading}>
+      <JourneyPanel visible={detailsOpen || (journeyDetailsOpen && journeyLoading)}>
         {/* The content of the sidebar is independent from the sidebar wrapper so that we can animate it. */}
-        {(detailsOpen || journeyLoading) && (
+        {(detailsOpen || (journeyDetailsOpen && journeyLoading)) && (
           <JourneyDetails loading={journeyLoading} journey={journey} />
         )}
         {(hasJourney || journeyLoading) && (

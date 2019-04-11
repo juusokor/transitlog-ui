@@ -3,6 +3,8 @@ const timer = function(fn, delay) {
   let start = new Date().getTime();
   const handle = {value: 0};
 
+  console.log(delay);
+
   function loop() {
     const current = new Date().getTime();
     const delta = current - start;

@@ -73,7 +73,7 @@ export default (state) => {
   }
 
   reaction(
-    () => [state.live, state.isLiveAndCurrent],
+    () => [state.live, state.timeIsCurrent],
     ([isPolling, isCurrent]) => {
       if (updateTimerHandle) {
         cancelTimer();
@@ -91,7 +91,7 @@ export default (state) => {
 
             update(true);
           },
-          isCurrent ? 4000 : 1000
+          isCurrent ? 2000 : 1000
         );
       }
     },

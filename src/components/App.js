@@ -102,9 +102,10 @@ function App({state, UI}) {
               <SelectedJourneyEvents>
                 {({journey: selectedJourney = null, loading: journeyLoading}) => (
                   <MergedJourneys
+                    routeJourneys={routeJourneys}
                     areaJourneys={areaJourneys}
                     selectedJourney={selectedJourney}>
-                    {({currentJourneys = []}) => {
+                    {({currentJourneys = [], withRouteJourneys = []}) => {
                       const detailsAreOpen = selectedJourney && journeyDetailsOpen;
                       const sidePanelIsOpen = sidePanelVisible;
 
@@ -114,9 +115,7 @@ function App({state, UI}) {
                           <SidepanelAndMapWrapper>
                             <SingleStopQuery date={date} stopId={selectedStopId}>
                               {({stop}) => (
-                                <JourneyPosition
-                                  date={date}
-                                  journeys={currentJourneys.concat(routeJourneys)}>
+                                <JourneyPosition date={date} journeys={withRouteJourneys}>
                                   {(currentJourneyPositions) => (
                                     <>
                                       <SidePanel
