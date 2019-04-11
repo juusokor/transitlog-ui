@@ -27,10 +27,8 @@ export default (state, initialState) => {
     get timeIsCurrent() {
       const {unixTime} = state;
       const now = Math.floor(Date.now() / 1000);
-      // If the selected time is within 10 minutes of the current time, it is considered current.
-      const minTime = unixTime - 12 * 60 * 60;
-      const maxTime = unixTime + 5 * 60;
-      return isWithinRange(now, minTime, maxTime);
+      const checkTime = unixTime + 5 * 60;
+      return now < checkTime;
     },
     get isLiveAndCurrent() {
       const {live, timeIsCurrent} = state;

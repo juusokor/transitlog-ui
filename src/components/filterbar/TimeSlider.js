@@ -44,10 +44,13 @@ const SliderInput = styled(RangeInput)``;
 const CurrentValue = styled(RangeDisplay)`
   position: absolute;
   z-index: 5;
-  left: 51px;
+  left: 48.5px;
   background: var(--blue);
   color: white;
   border-radius: 13px;
+  border: 3px solid var(--blue);
+  text-align: center;
+  padding: 3px 8px;
 `;
 
 export const TIME_SLIDER_MAX = 102600; // 28:30:00
