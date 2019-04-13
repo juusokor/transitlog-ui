@@ -77,7 +77,7 @@ class LoginModal extends React.Component {
   onLogoutClick = () => {
     logout().then((response) => {
       if (response.status === 200) {
-        this.props.UI.clearUser();
+        this.props.UI.setUser(null);
       }
       this.props.UI.toggleLoginModal();
     });

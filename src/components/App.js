@@ -20,6 +20,7 @@ import MergedJourneys from "./MergedJourneys";
 import Graph from "./map/Graph";
 import LoginModal from "./LoginModal";
 import {authorizeUsingCode, checkExistingSession} from "../auth/authService";
+import {removeAuthParams} from "../stores/UrlManager";
 
 const AppFrame = styled.main`
   width: 100%;
@@ -94,8 +95,9 @@ function App({state, UI}) {
       if (json.isOk && json.email) {
         UI.setUser(json.email);
       } else {
-        UI.clearUser();
+        UI.setUser(null);
         if (code) {
+          removeAuthParams();
           authorizeUsingCode(code).then((response) => {
             response.json().then((json) => {
               if (json.isOk && json.email) UI.setUser(json.email);

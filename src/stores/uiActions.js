@@ -44,10 +44,6 @@ export default (state) => {
     state.user = user;
   });
 
-  const clearUser = action("Clear user", () => {
-    state.user = null;
-  });
-
   const addError = (type, message) => {
     if (!type || !message) {
       return;
@@ -117,6 +113,5 @@ export default (state) => {
     toggleShareModal,
     highlightStop,
     setUser,
-    clearUser,
   };
 };
