@@ -23,6 +23,7 @@ import moment from "moment-timezone";
 import {dayTypes} from "../../helpers/getDayTypeFromDate";
 import Tooltip from "../Tooltip";
 import getDelayType from "../../helpers/getDelayType";
+import {createCompositeJourney} from "../../stores/journeyActions";
 
 const ListHeader = styled.div`
   display: flex;
@@ -35,6 +36,7 @@ const TableRow = styled.div`
   align-items: flex-start;
   border-bottom: 1px solid var(--alt-grey);
   flex-wrap: nowrap;
+  background-color: ${({isSelected = false}) => (isSelected ? "#ddeeff" : "white")};
 `;
 
 const TableHeader = styled(TableRow)`
@@ -52,6 +54,7 @@ const TableCell = styled.div`
   border: 0;
   border-right: 1px solid var(--alt-grey);
   font-size: 0.75rem;
+  font-weight: ${({strong = false}) => (strong ? "bold" : "normal")};
   background: ${({backgroundColor}) => backgroundColor};
   color: ${({color}) => color};
 
@@ -63,6 +66,9 @@ const TableCell = styled.div`
 const TableCellButton = styled(TableCell.withComponent("button"))`
   cursor: pointer;
   font-weight: bold;
+  display: block;
+  font-family: inherit;
+  outline: 0;
 `;
 
 const decorate = flow(
@@ -154,6 +160,7 @@ const JourneysByWeek = decorate(({state, Time, Journey}) => {
 
             return (
               <SidepanelList
+                focusKey={selectedJourneyId}
                 loading={loading}
                 header={
                   <ListHeader>
@@ -211,16 +218,41 @@ const JourneysByWeek = decorate(({state, Time, Journey}) => {
 
                         const weekDepartures = [];
 
+                        let rowIsSelected = false;
                         let depIndex = 0;
+
                         while (weekDepartures.length < selectedDayTypes.length) {
                           const dep = selectedDayDepartures[depIndex] || null;
+
+                          if (dep) {
+                            const compositeJourney = createCompositeJourney(
+                              dep.plannedDepartureTime.departureDate,
+                              dep,
+                              departureTime
+                            );
+
+                            const journeyId = getJourneyId(compositeJourney, false);
+
+                            if (
+                              selectedJourneyId &&
+                              getJourneyId(selectedJourneyId, false) === journeyId
+                            ) {
+                              rowIsSelected = true;
+                            }
+                          }
+
                           weekDepartures.push(dep);
                           depIndex++;
                         }
 
                         return (
-                          <TableRow key={`departure_row_${departureTime}`}>
-                            <TableCell>{departureTime.slice(0, -3)}</TableCell>
+                          <TableRow
+                            key={`departure_row_${departureTime}`}
+                            isSelected={rowIsSelected}
+                            ref={rowIsSelected ? scrollRef : null}>
+                            <TableCell strong={true}>
+                              {departureTime.slice(0, -3)}
+                            </TableCell>
                             {weekDepartures.map((departure) => {
                               const dayType = get(departure, "dayType", departure);
 
@@ -241,16 +273,18 @@ const JourneysByWeek = decorate(({state, Time, Journey}) => {
                               }
 
                               const journeyId = getJourneyId(departure.journey);
-
-                              const journeyIsSelected = expr(
-                                () => selectedJourneyId && selectedJourneyId === journeyId
-                              );
+                              const journeyIsSelected =
+                                selectedJourneyId && selectedJourneyId === journeyId;
 
                               const plannedObservedDiff =
                                 departure.observedDepartureTime.departureTimeDifference;
 
                               const diffTime = secondsToTimeObject(plannedObservedDiff);
                               const delayType = getDelayType(plannedObservedDiff);
+                              const color = getTimelinessColor(
+                                delayType,
+                                "var(--light-green)"
+                              );
 
                               return (
                                 <Tooltip
@@ -260,14 +294,14 @@ const JourneysByWeek = decorate(({state, Time, Journey}) => {
                                   }_${departureTime}`}>
                                   <TableCellButton
                                     onClick={() => selectJourney(departure.journey)}
-                                    ref={journeyIsSelected ? scrollRef : null}
-                                    color={getTimelinessColor(
-                                      delayType,
-                                      "var(--light-green)"
-                                    )}
-                                    backgroundColor={
-                                      journeyIsSelected ? "var(--blue)" : "white"
-                                    }>
+                                    color={
+                                      journeyIsSelected
+                                        ? delayType === "late"
+                                          ? "var(--dark-grey)"
+                                          : "white"
+                                        : color
+                                    }
+                                    backgroundColor={journeyIsSelected ? color : "white"}>
                                     {plannedObservedDiff < 0 ? "-" : ""}
                                     {doubleDigit(diffTime.minutes)}:
                                     {doubleDigit(diffTime.seconds)}

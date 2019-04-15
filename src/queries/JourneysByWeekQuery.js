@@ -44,21 +44,6 @@ export const routeJourneysByWeekQuery = gql`
         mode
         _numInstance
       }
-      plannedArrivalTime {
-        id
-        arrivalDate
-        arrivalDateTime
-        arrivalTime
-        isNextDay
-      }
-      observedArrivalTime {
-        id
-        arrivalDate
-        arrivalDateTime
-        arrivalTime
-        arrivalTimeDifference
-        doorDidOpen
-      }
       plannedDepartureTime {
         id
         departureDate
