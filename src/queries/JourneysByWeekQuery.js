@@ -5,14 +5,14 @@ import {Query} from "react-apollo";
 import {observer} from "mobx-react-lite";
 import {setUpdateListener, removeUpdateListener} from "../stores/UpdateManager";
 
-export const routeJourneysQuery = gql`
-  query journeysByDateQuery(
+export const routeJourneysByWeekQuery = gql`
+  query journeysByWeekQuery(
     $routeId: String!
     $direction: Direction!
     $date: Date!
     $stopId: String!
   ) {
-    routeDepartures(
+    weeklyDepartures(
       routeId: $routeId
       direction: $direction
       date: $date
@@ -77,7 +77,7 @@ export const routeJourneysQuery = gql`
   }
 `;
 
-const updateListenerName = "journey list query";
+const updateListenerName = "journey weel query";
 
 const JourneysByDateQuery = observer(({children, route, date, skip}) => {
   const createRefetcher = useCallback(
@@ -102,7 +102,7 @@ const JourneysByDateQuery = observer(({children, route, date, skip}) => {
 
   return (
     <Query
-      query={routeJourneysQuery}
+      query={routeJourneysByWeekQuery}
       variables={{
         routeId: routeId,
         direction: parseInt(direction, 10),
@@ -114,7 +114,7 @@ const JourneysByDateQuery = observer(({children, route, date, skip}) => {
           return children({departures: [], loading, error});
         }
 
-        const departures = get(data, "routeDepartures", []);
+        const departures = get(data, "weeklyDepartures", []);
 
         setUpdateListener(updateListenerName, createRefetcher(refetch), false);
         return children({departures, loading, error});
