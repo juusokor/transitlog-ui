@@ -183,7 +183,6 @@ const SidePanel = decorate((props) => {
                 helpText="Weekly journeys tab"
                 key={`route_journeys_week_${createRouteId(route, true)}_${getWeek(date)}`}
                 route={route}
-                loading={journeyLoading}
                 name="journeys_by_week"
                 label={text("sidepanel.tabs.week_journeys")}
               />
