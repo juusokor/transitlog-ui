@@ -102,6 +102,7 @@ export default (state) => {
         runInAction(() => {
           const nextJourney = toJS(state.selectedJourney);
           nextJourney.departureDate = currentDate;
+          nextJourney.uniqueVehicleId = "";
 
           state.selectedJourney = nextJourney;
         });
