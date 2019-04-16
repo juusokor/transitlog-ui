@@ -10,7 +10,6 @@ import groupBy from "lodash/groupBy";
 import orderBy from "lodash/orderBy";
 import get from "lodash/get";
 import map from "lodash/map";
-import compact from "lodash/compact";
 import {inject} from "../../helpers/inject";
 import doubleDigit from "../../helpers/doubleDigit";
 import {getDayTypeFromDate, dayTypes} from "../../helpers/getDayTypeFromDate";
@@ -27,6 +26,7 @@ import {TransportIcon} from "../transportModes";
 import Waiting from "../../icons/Waiting";
 import SomethingWrong from "../../icons/SomethingWrong";
 import Cross from "../../icons/Cross";
+import format from "date-fns/format";
 
 const ListHeader = styled.div`
   display: flex;
@@ -58,7 +58,7 @@ const TableRow = styled.div`
   align-items: stretch;
   border-bottom: 1px solid var(--lightest-grey);
   flex-wrap: nowrap;
-  background-color: ${({isSelected = false}) => (isSelected ? "#ddeeff" : "white")};
+  background-color: ${({isSelected = false}) => (isSelected ? "#f6fcff" : "white")};
 `;
 
 const TableBody = styled.div``;
@@ -72,7 +72,10 @@ const TableCell = styled.div`
   border-right: 1px solid var(--lightest-grey);
   font-size: 0.875rem;
   font-weight: ${({strong = false}) => (strong ? "bold" : "normal")};
-  background: ${({backgroundColor}) => backgroundColor};
+  background: ${({backgroundColor = "transparent", highlight = false}) =>
+    (!backgroundColor || backgroundColor === "transparent") && highlight
+      ? "#f6fcff"
+      : backgroundColor};
   color: ${({color}) => color};
 
   &:last-child {
@@ -131,6 +134,7 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey}) => {
   const currentDayType = getDayTypeFromDate(date);
 
   const [selectedDayTypes, setSelectedDayTypes] = useState([]);
+  const currentDayTypeIndex = selectedDayTypes.indexOf(currentDayType);
 
   const setWeekdays = useCallback(() => {
     setSelectedDayTypes(["Ma", "Ti", "Ke", "To", "Pe"]);
@@ -154,8 +158,17 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey}) => {
     }
   }, [currentDayType]);
 
+  const weekStartDate = useMemo(
+    () =>
+      moment
+        .tz(date, TIMEZONE)
+        .startOf("isoWeek")
+        .format("YYYY-MM-DD"),
+    [date]
+  );
+
   const selectedDates = useMemo(() => {
-    const weekStart = moment.tz(date, TIMEZONE).startOf("isoWeek");
+    const weekStart = moment.tz(weekStartDate, TIMEZONE);
     const weekEnd = weekStart.clone().endOf("isoWeek");
 
     if (selectedDayTypes.includes("Su")) {
@@ -174,10 +187,10 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey}) => {
     }
 
     return dates;
-  }, [weekNumber, selectedDayTypes]);
+  }, [weekStartDate, selectedDayTypes]);
 
   return (
-    <JourneysByWeekQuery route={route} date={date}>
+    <JourneysByWeekQuery route={route} date={weekStartDate}>
       {({departures, loading}) => (
         <Observer>
           {() => {
@@ -238,8 +251,12 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey}) => {
                   <>
                     <TableHeader>
                       <TableCell>Time</TableCell>
-                      {selectedDates.map((day) => (
-                        <TableCell key={`header_date_${day}`}>{day}</TableCell>
+                      {selectedDates.map((day, idx) => (
+                        <TableCell
+                          highlight={idx === currentDayTypeIndex}
+                          key={`header_date_${day}`}>
+                          {day}
+                        </TableCell>
                       ))}
                     </TableHeader>
                     <TableBody>
@@ -298,7 +315,7 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey}) => {
                             <TableCell strong={true}>
                               {departureTime.slice(0, -3)}
                             </TableCell>
-                            {weekDepartures.map((departure) => {
+                            {weekDepartures.map((departure, idx) => {
                               const dayType = get(departure, "dayType", "unknown");
 
                               const observedTime = get(
@@ -344,6 +361,7 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey}) => {
 
                                 return (
                                   <TableCell
+                                    highlight={idx === currentDayTypeIndex}
                                     key={`departure_day_${dayType ||
                                       "no_day"}_${departureTime}`}>
                                     <IconComponent width="1rem" fill="var(--grey)" />
@@ -379,6 +397,7 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey}) => {
                                     departure.dayType
                                   }_${departureTime}`}>
                                   <TableCellButton
+                                    highlight={idx === currentDayTypeIndex}
                                     onClick={() => selectJourney(departure.journey)}
                                     color={
                                       journeyIsSelected

@@ -87,6 +87,7 @@ const JourneysByDateQuery = observer(({children, route, date, skip}) => {
 
   return (
     <Query
+      fetchPolicy="cache-and-network"
       query={routeJourneysByWeekQuery}
       variables={{
         routeId: routeId,
