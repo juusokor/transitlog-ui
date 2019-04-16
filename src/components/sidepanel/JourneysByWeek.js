@@ -3,9 +3,7 @@ import {observer, Observer} from "mobx-react-lite";
 import getJourneyId from "../../helpers/getJourneyId";
 import styled from "styled-components";
 import SidepanelList from "./SidepanelList";
-import {ColoredBackgroundSlot} from "../TagButton";
 import {getTimelinessColor} from "../../helpers/timelinessColor";
-import {expr} from "mobx-utils";
 import {secondsToTimeObject} from "../../helpers/time";
 import flow from "lodash/flow";
 import groupBy from "lodash/groupBy";
@@ -281,7 +279,14 @@ const JourneysByWeek = decorate(({state, Time, Journey}) => {
 
                               const diffTime = secondsToTimeObject(plannedObservedDiff);
                               const delayType = getDelayType(plannedObservedDiff);
+
                               const color = getTimelinessColor(
+                                delayType,
+                                "var(--light-green)",
+                                true
+                              );
+
+                              const bgColor = getTimelinessColor(
                                 delayType,
                                 "var(--light-green)"
                               );
@@ -301,7 +306,9 @@ const JourneysByWeek = decorate(({state, Time, Journey}) => {
                                           : "white"
                                         : color
                                     }
-                                    backgroundColor={journeyIsSelected ? color : "white"}>
+                                    backgroundColor={
+                                      journeyIsSelected ? bgColor : "transparent"
+                                    }>
                                     {plannedObservedDiff < 0 ? "-" : ""}
                                     {doubleDigit(diffTime.minutes)}:
                                     {doubleDigit(diffTime.seconds)}
