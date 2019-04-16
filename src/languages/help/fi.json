@@ -27,6 +27,7 @@
   "Live toggle": "Jos aika-asetukset ovat asetettu nykyhetkeen, päivittää haettuja HFP-tietoja noin kerran sekunnissa. Jos aika-asetukset ovat asetettu menneisyyteen, lisää 5 sekuntia (tai \"aikamuutos\" asetuksen mukainen arvo) kelloon per sekunti jolloin aika-herkät tiedot päivittyy.",
   "Area search tab": "Aluehaun tulokset ryhmitetty matkoittain.",
   "Journeys tab": "Valitun reitin kaikki matkat valitun päivän aikana.",
+  "Weekly journeys tab": "Valitun reitin kaikki matkat viikon ajan.",
   "Vehicle journeys tab": "Valitun ajoneuvon koko lähtöketju valitun päivän aikana.",
   "Timetable tab": "Valitun pysäkin kaikki lähdöt valitun päivän aikana.",
   "Help tab": "Ohjeet alkuun pääsemiseksi.",

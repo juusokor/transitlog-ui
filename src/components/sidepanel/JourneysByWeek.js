@@ -10,18 +10,23 @@ import groupBy from "lodash/groupBy";
 import orderBy from "lodash/orderBy";
 import get from "lodash/get";
 import map from "lodash/map";
+import compact from "lodash/compact";
 import {inject} from "../../helpers/inject";
 import doubleDigit from "../../helpers/doubleDigit";
-import {getDayTypeFromDate} from "../../helpers/getDayTypeFromDate";
+import {getDayTypeFromDate, dayTypes} from "../../helpers/getDayTypeFromDate";
 import getWeek from "date-fns/get_iso_week";
 import JourneysByWeekQuery from "../../queries/JourneysByWeekQuery";
 import ButtonGroup from "../ButtonGroup";
 import {TIMEZONE} from "../../constants";
 import moment from "moment-timezone";
-import {dayTypes} from "../../helpers/getDayTypeFromDate";
 import Tooltip from "../Tooltip";
 import getDelayType from "../../helpers/getDelayType";
 import {createCompositeJourney} from "../../stores/journeyActions";
+import {text, Text} from "../../helpers/text";
+import {TransportIcon} from "../transportModes";
+import Waiting from "../../icons/Waiting";
+import SomethingWrong from "../../icons/SomethingWrong";
+import Cross from "../../icons/Cross";
 
 const ListHeader = styled.div`
   display: flex;
@@ -29,17 +34,31 @@ const ListHeader = styled.div`
   width: 100%;
 `;
 
-const TableRow = styled.div`
+const ListHeading = styled.div`
   display: flex;
-  align-items: flex-start;
-  border-bottom: 1px solid var(--alt-grey);
-  flex-wrap: nowrap;
-  background-color: ${({isSelected = false}) => (isSelected ? "#ddeeff" : "white")};
+  text-transform: capitalize;
+  justify-content: space-between;
+  padding: 0.25rem 0 0.75rem;
+
+  h4 {
+    margin: 0;
+  }
 `;
 
-const TableHeader = styled(TableRow)`
-  font-weight: bold;
-  border-bottom-width: 2px;
+const RouteHeading = styled.div`
+  display: flex;
+
+  svg {
+    margin-right: 0.5rem;
+  }
+`;
+
+const TableRow = styled.div`
+  display: flex;
+  align-items: stretch;
+  border-bottom: 1px solid var(--lightest-grey);
+  flex-wrap: nowrap;
+  background-color: ${({isSelected = false}) => (isSelected ? "#ddeeff" : "white")};
 `;
 
 const TableBody = styled.div``;
@@ -50,8 +69,8 @@ const TableCell = styled.div`
   flex: 1 1 auto;
   text-align: center;
   border: 0;
-  border-right: 1px solid var(--alt-grey);
-  font-size: 0.75rem;
+  border-right: 1px solid var(--lightest-grey);
+  font-size: 0.875rem;
   font-weight: ${({strong = false}) => (strong ? "bold" : "normal")};
   background: ${({backgroundColor}) => backgroundColor};
   color: ${({color}) => color};
@@ -67,6 +86,16 @@ const TableCellButton = styled(TableCell.withComponent("button"))`
   display: block;
   font-family: inherit;
   outline: 0;
+`;
+
+const TableHeader = styled(TableRow)`
+  font-weight: bold;
+  border-bottom-width: 1px;
+  border-color: var(--alt-grey);
+
+  ${TableCell} {
+    border-color: var(--alt-grey);
+  }
 `;
 
 const decorate = flow(
@@ -157,35 +186,45 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey}) => {
               "plannedDepartureTime.departureTime"
             );
 
+            const mode = get(departures, "[0].mode", "BUS");
+
             return (
               <SidepanelList
                 focusKey={selectedJourneyId}
                 loading={loading}
                 header={
                   <ListHeader>
-                    <div>
-                      {route.routeId}, {route.direction} / Week {weekNumber}
-                    </div>
+                    <ListHeading>
+                      <RouteHeading>
+                        <TransportIcon width={23} height={23} mode={mode} />
+                        <h4>
+                          {route.routeId} / {route.direction}{" "}
+                        </h4>
+                      </RouteHeading>
+                      <div>
+                        <Text>general.week</Text> {weekNumber}
+                      </div>
+                    </ListHeading>
                     <div>
                       <ButtonGroup
                         buttons={[
                           {
                             key: "MaPe",
-                            label: "Ma-Pe",
+                            label: text("general.weekdays"),
                             onClick: setWeekdays,
                             active: selectedDayTypes.includes("Ma"),
                             helpText: "Select weekdays",
                           },
                           {
                             key: "La",
-                            label: "La",
+                            label: text("general.saturday"),
                             onClick: setSaturday,
                             active: selectedDayTypes.includes("La"),
                             helpText: "Select saturday",
                           },
                           {
                             key: "Su",
-                            label: "Su",
+                            label: text("general.sunday"),
                             onClick: setSunday,
                             active: selectedDayTypes.includes("Su"),
                             helpText: "Select sunday",
@@ -221,8 +260,15 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey}) => {
                         let depIndex = 0;
 
                         while (weekDepartures.length < selectedDayTypes.length) {
-                          const dep = selectedDayDepartures[depIndex] || null;
+                          // The day type that we want to find a departure for
+                          const dayType = selectedDayTypes[depIndex];
 
+                          const dep =
+                            selectedDayDepartures.find(
+                              (dep) => dep.dayType === dayType
+                            ) || null;
+
+                          // Check if the row contains a selected departure
                           if (dep) {
                             const compositeJourney = createCompositeJourney(
                               dep.plannedDepartureTime.departureDate,
@@ -253,7 +299,7 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey}) => {
                               {departureTime.slice(0, -3)}
                             </TableCell>
                             {weekDepartures.map((departure) => {
-                              const dayType = get(departure, "dayType", departure);
+                              const dayType = get(departure, "dayType", "unknown");
 
                               const observedTime = get(
                                 departure,
@@ -261,12 +307,46 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey}) => {
                                 null
                               );
 
-                              if (!observedTime) {
+                              // The departure is unavailable for some reason
+                              let departureStatus = "notavailable";
+
+                              // Find out the status of the departure
+                              if (departure && observedTime) {
+                                // We have a planned departure and observed times
+                                departureStatus = "ok";
+                              } else if (departure && !observedTime) {
+                                // We have a departure but no observed time, yet.
+                                departureStatus = "notobserved";
+                              } else if (
+                                !departure &&
+                                weekDepartures.some((dep) => !!dep)
+                              ) {
+                                // We don't have a departure, but there are other departures this week for this time.
+                                departureStatus = "notforday";
+                              }
+
+                              // Show an icon if the departure is not ok
+                              if (departureStatus !== "ok") {
+                                let IconComponent = null;
+
+                                switch (departureStatus) {
+                                  case "notobserved":
+                                    IconComponent = Waiting;
+                                    break;
+                                  case "notforday":
+                                    IconComponent = Cross;
+                                    break;
+                                  case "notavailable":
+                                  default:
+                                    IconComponent = SomethingWrong;
+                                    break;
+                                }
+
                                 return (
                                   <TableCell
                                     key={`departure_day_${dayType ||
                                       "no_day"}_${departureTime}`}>
-                                    X
+                                    <IconComponent width="1rem" fill="var(--grey)" />
                                   </TableCell>
                                 );
                               }

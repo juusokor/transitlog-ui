@@ -8,11 +8,17 @@ const GroupButton = styled(Button)`
   color: ${({isActive = false}) => (isActive ? "white" : "var(--blue)")};
   border-radius: 0;
   border: 0;
+  border-left: 1px solid var(--blue);
   border-right: 1px solid var(--blue);
+  margin-left: -1px;
   flex: 1 1 auto;
   display: flex;
   align-items: center;
   justify-content: center;
+
+  &:first-child {
+    border-left: 0;
+  }
 
   &:last-child {
     border-right: 0;
@@ -20,7 +26,7 @@ const GroupButton = styled(Button)`
 
   &:hover {
     background: ${({isActive = false}) =>
-      isActive ? "var(--dark-blue)" : "var(--lightest-grey)"};
+      isActive ? "var(--blue)" : "var(--lightest-grey)"};
     color: ${({isActive = false}) => (isActive ? "white" : "var(--blue)")};
   }
 `;

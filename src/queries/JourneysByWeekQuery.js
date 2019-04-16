@@ -33,6 +33,7 @@ export const routeJourneysByWeekQuery = gql`
       routeId
       direction
       stopId
+      mode
       journey {
         id
         departureDate

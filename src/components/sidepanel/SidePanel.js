@@ -185,7 +185,7 @@ const SidePanel = decorate((props) => {
                 route={route}
                 loading={journeyLoading}
                 name="journeys_by_week"
-                label="Week journeys"
+                label={text("sidepanel.tabs.week_journeys")}
               />
             )}
             {vehicle && (

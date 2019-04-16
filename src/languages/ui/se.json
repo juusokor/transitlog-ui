@@ -23,6 +23,7 @@
   "filterpanel.clear.vehicle": "Återställ fordon",
 
   "sidepanel.tabs.journeys": "Resor",
+  "sidepanel.tabs.week_journeys": "Reseveckan",
   "sidepanel.tabs.timetables": "Tidtabeller",
   "sidepanel.tabs.vehicle_journeys": "Fordonsresor",
   "sidepanel.tabs.area_events": "Områdets resor",
@@ -67,6 +68,9 @@
   "general.year.plural": "år",
   "general.timerange.min": "min",
   "general.timerange.max": "max",
+  "general.weekdays": "Må-Ti",
+  "general.saturday": "Lö",
+  "general.sunday": "Sö",
   "general.day": "dag",
   "general.week": "vecka",
   "general.seconds.short": "sek.",

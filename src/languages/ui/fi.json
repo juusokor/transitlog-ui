@@ -23,6 +23,7 @@
   "filterpanel.clear.vehicle": "Tyhjennä ajoneuvovalinta",
 
   "sidepanel.tabs.journeys": "Lähdöt",
+  "sidepanel.tabs.week_journeys": "Lähtöviikko",
   "sidepanel.tabs.timetables": "Aikataulut",
   "sidepanel.tabs.vehicle_journeys": "Lähtöketju",
   "sidepanel.tabs.area_events": "Alueen matkat",
@@ -69,6 +70,9 @@
   "general.year.plural": "vuotta",
   "general.timerange.min": "min",
   "general.timerange.max": "maks",
+  "general.weekdays": "Ma-Pe",
+  "general.saturday": "La",
+  "general.sunday": "Su",
   "general.day": "päivä",
   "general.week": "viikko",
   "general.seconds.short": "sek.",
