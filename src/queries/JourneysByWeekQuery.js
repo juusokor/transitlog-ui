@@ -82,7 +82,6 @@ const JourneysByDateQuery = observer(({children, route, date, skip}) => {
   );
 
   useEffect(() => () => removeUpdateListener(updateListenerName), []);
-
   const {routeId, direction, originStopId} = route;
 
   return (

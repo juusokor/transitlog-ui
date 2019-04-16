@@ -77,7 +77,7 @@ const decorate = flow(
 const orderByDayType = (departures) =>
   orderBy(departures, ({dayType}) => dayTypes.indexOf(dayType));
 
-const JourneysByWeek = decorate(({state, Time, Journey}) => {
+const JourneysByWeek = decorate(({state, Time, Filters, Journey}) => {
   const selectJourney = useCallback((journey) => {
     let journeyToSelect = null;
 
@@ -87,6 +87,7 @@ const JourneysByWeek = decorate(({state, Time, Journey}) => {
       // Only set these if the journey is truthy and was not already selected
       if (journeyId && getJourneyId(state.selectedJourney) !== journeyId) {
         Time.setTime(journey.departureTime);
+        Filters.setDate(journey.departureDate);
         journeyToSelect = journey;
       }
     }
@@ -144,7 +145,7 @@ const JourneysByWeek = decorate(({state, Time, Journey}) => {
     }
 
     return dates;
-  }, [date, selectedDayTypes]);
+  }, [weekNumber, selectedDayTypes]);
 
   return (
     <JourneysByWeekQuery route={route} date={date}>
