@@ -23,6 +23,7 @@
   "filterpanel.clear.vehicle": "Clear vehicle",
 
   "sidepanel.tabs.journeys": "Journeys",
+  "sidepanel.tabs.week_journeys": "Week journeys",
   "sidepanel.tabs.timetables": "Timetables",
   "sidepanel.tabs.vehicle_journeys": "Vehicle Journeys",
   "sidepanel.tabs.area_events": "Area journeys",
@@ -69,6 +70,9 @@
   "general.year.plural": "years",
   "general.timerange.min": "min",
   "general.timerange.max": "max",
+  "general.weekdays": "Mon-Fri",
+  "general.saturday": "Sat",
+  "general.sunday": "Sun",
   "general.day": "day",
   "general.week": "week",
   "general.seconds.short": "sec.",

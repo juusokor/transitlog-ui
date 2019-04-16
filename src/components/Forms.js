@@ -87,12 +87,13 @@ export const StyledButton = styled.button`
   flex: 0 0 auto;
   height: ${({small = false}) => (small ? "2rem" : "2.5rem")};
   cursor: pointer;
-  transition: background-color 0.15s ease-out, transform 0.2s ease-out;
+  transform: scale(1) translateZ(0);
+  transition: background-color 0.2s ease-out, transform 0.1s ease-out;
 
   &:hover {
     background: ${({primary = false, transparent}) =>
       primary || transparent ? "var(--dark-blue)" : "#eeeeee"};
-    transform: scale(1.05);
+    transform: scale(1.05) translateZ(10px);
   }
 `;
 
