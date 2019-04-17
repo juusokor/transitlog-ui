@@ -58,3 +58,19 @@ input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;
 }
+
+/* Static and predictable width for all scrollbars. Can be used to negate their width. */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--blue);
+}
+
+::-webkit-scrollbar-track {
+  background: var(--lightest-grey);
+  border-left: 1px solid var(--lighter-grey);
+  border-top: 1px solid var(--lighter-grey);
+}

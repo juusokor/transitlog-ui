@@ -30,8 +30,8 @@
   "sidepanel.area_events.show_lines": "Visa som streck",
   "sidepanel.area_events.show_markers": "Visa som markörer",
 
-  "map.stops.arrive": "Anländningstid",
-  "map.stops.depart": "Avgångstid",
+  "map.stops.arrive": "Ankomst",
+  "map.stops.depart": "Avgång",
   "map.stops.planned_driveby": "Planerad körtid",
   "map.stops.observed_driveby": "Observerad körtid",
   "map.stops.show_in_streetview": "Visa i gatuvy",
