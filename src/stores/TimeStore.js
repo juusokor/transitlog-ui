@@ -6,7 +6,6 @@ import moment from "moment-timezone";
 import {getUrlValue} from "./UrlManager";
 import {setResetListener} from "./FilterStore";
 import {TIMEZONE} from "../constants";
-import {isWithinRange} from "../helpers/isWithinRange";
 
 export default (state, initialState) => {
   extendObservable(state, {
