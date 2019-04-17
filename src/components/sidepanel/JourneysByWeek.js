@@ -45,6 +45,8 @@ const ListHeading = styled.div`
   }
 `;
 
+const ListWrapper = styled.div``;
+
 const RouteHeading = styled.div`
   display: flex;
 
@@ -61,7 +63,9 @@ const TableRow = styled.div`
   background-color: ${({isSelected = false}) => (isSelected ? "#f6fcff" : "white")};
 `;
 
-const TableBody = styled.div``;
+const TableBody = styled.div`
+  padding-top: 2rem;
+`;
 
 const TableCell = styled.div`
   width: 4.125rem;
@@ -205,6 +209,18 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey}) => {
               <SidepanelList
                 focusKey={selectedJourneyId}
                 loading={loading}
+                floatingListHeader={
+                  <TableHeader>
+                    <TableCell>Time</TableCell>
+                    {selectedDates.map((day, idx) => (
+                      <TableCell
+                        highlight={idx === currentDayTypeIndex}
+                        key={`header_date_${day}`}>
+                        {day}
+                      </TableCell>
+                    ))}
+                  </TableHeader>
+                }
                 header={
                   <ListHeader>
                     <ListHeading>
@@ -248,17 +264,7 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey}) => {
                   </ListHeader>
                 }>
                 {(scrollRef) => (
-                  <>
-                    <TableHeader>
-                      <TableCell>Time</TableCell>
-                      {selectedDates.map((day, idx) => (
-                        <TableCell
-                          highlight={idx === currentDayTypeIndex}
-                          key={`header_date_${day}`}>
-                          {day}
-                        </TableCell>
-                      ))}
-                    </TableHeader>
+                  <ListWrapper>
                     <TableBody>
                       {map(departuresByTime, (departuresAtTime, departureTime) => {
                         const selectedDayDepartures = orderByDayType(
@@ -420,7 +426,7 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey}) => {
                         );
                       })}
                     </TableBody>
-                  </>
+                  </ListWrapper>
                 )}
               </SidepanelList>
             );

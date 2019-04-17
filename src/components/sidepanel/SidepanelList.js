@@ -17,9 +17,13 @@ const ListRows = styled.div`
   overflow-y: scroll;
 `;
 
+const ListContainer = styled.div`
+  position: relative;
+  height: 100%;
+`;
+
 const ListHeader = styled.header`
   display: flex;
-  align-items: center;
   justify-content: space-between;
   width: 100%;
   background: transparent;
@@ -33,6 +37,15 @@ const ListHeader = styled.header`
   align-items: start;
   padding: 0.75rem 1rem;
   color: var(--grey);
+`;
+
+const FloatingListHeader = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 10;
+  padding-right: 7px;
 `;
 
 // Needs an absolutely positioned container for scrollbars to work in Chrome...
@@ -124,6 +137,7 @@ class SidepanelList extends Component {
     const {
       state: {live},
       header,
+      floatingListHeader,
       children = () => {},
       loading = false,
     } = this.props;
@@ -133,12 +147,17 @@ class SidepanelList extends Component {
     return (
       <ListWrapper hasHeader={!!header}>
         {header && <ListHeader>{header}</ListHeader>}
-        <ListRows ref={this.scrollElementRef}>
-          <ScrollContainer>
-            {children(this.scrollPositionRef, this.updateScrollOffset)}
-          </ScrollContainer>
-          {!live && <LoadingDisplay loading={loading} />}
-        </ListRows>
+        <ListContainer>
+          {floatingListHeader && (
+            <FloatingListHeader>{floatingListHeader}</FloatingListHeader>
+          )}
+          <ListRows ref={this.scrollElementRef}>
+            <ScrollContainer>
+              {children(this.scrollPositionRef, this.updateScrollOffset)}
+            </ScrollContainer>
+            {!live && <LoadingDisplay loading={loading} />}
+          </ListRows>
+        </ListContainer>
       </ListWrapper>
     );
   }
