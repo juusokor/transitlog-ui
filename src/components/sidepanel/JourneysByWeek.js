@@ -26,7 +26,8 @@ import {TransportIcon} from "../transportModes";
 import Waiting from "../../icons/Waiting";
 import SomethingWrong from "../../icons/SomethingWrong";
 import Cross from "../../icons/Cross";
-import format from "date-fns/format";
+import {weeklyObservedTimeTypes} from "../../stores/UIStore";
+import ToggleButton from "../ToggleButton";
 
 const ListHeader = styled.div`
   display: flex;
@@ -105,15 +106,20 @@ const TableHeader = styled(TableRow)`
   }
 `;
 
+const TimeTypeButton = styled(ToggleButton)`
+  padding: 0 0.75rem 0;
+  margin-top: -0.25rem;
+`;
+
 const decorate = flow(
   observer,
-  inject("Journey", "Filters", "Time")
+  inject("UI", "Journey", "Filters", "Time")
 );
 
 const orderByDayType = (departures) =>
   orderBy(departures, ({dayType}) => dayTypes.indexOf(dayType));
 
-const JourneysByWeek = decorate(({state, Time, Filters, Journey}) => {
+const JourneysByWeek = decorate(({state, Time, Filters, Journey, UI}) => {
   const selectJourney = useCallback((journey) => {
     let journeyToSelect = null;
 
@@ -131,7 +137,17 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey}) => {
     Journey.setSelectedJourney(journeyToSelect);
   }, []);
 
-  const {date, route} = state;
+  const onChangeObservedTimeType = useCallback((e) => {
+    const value = e.target.value;
+
+    UI.setWeeklyObservedTimesType(
+      value === weeklyObservedTimeTypes.FIRST_STOP_DEPARTURE
+        ? weeklyObservedTimeTypes.LAST_STOP_ARRIVAL
+        : weeklyObservedTimeTypes.FIRST_STOP_DEPARTURE
+    );
+  }, []);
+
+  const {date, route, weeklyObservedTimes} = state;
   const selectedJourneyId = getJourneyId(state.selectedJourney);
 
   const weekNumber = getWeek(date);
@@ -230,6 +246,19 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey}) => {
                           {route.routeId} / {route.direction}{" "}
                         </h4>
                       </RouteHeading>
+                      <TimeTypeButton
+                        type="checkbox"
+                        onChange={onChangeObservedTimeType}
+                        name="observed_times_type"
+                        isSwitch={true}
+                        preLabel={text("map.stops.arrive")}
+                        label={text("map.stops.depart")}
+                        checked={
+                          weeklyObservedTimes ===
+                          weeklyObservedTimeTypes.LAST_STOP_ARRIVAL
+                        }
+                        value={weeklyObservedTimes}
+                      />
                       <div>
                         <Text>general.week</Text> {weekNumber}
                       </div>

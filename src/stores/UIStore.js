@@ -19,13 +19,22 @@ export const areaEventsStyles = {
   POLYLINES: "polylines",
 };
 
+export const weeklyObservedTimeTypes = {
+  LAST_STOP_ARRIVAL: "arrival",
+  FIRST_STOP_DEPARTURE: "departure",
+};
+
 export default (state) => {
   extendObservable(state, {
     sidePanelVisible: getUrlValue("sidePanelVisible", true),
-    journeyDetailsOpen: getUrlValue("journeyDetailsOpen", true),
+    journeyDetailsOpen: getUrlValue("journeysDetailsOpen", true),
     journeyGraphOpen: getUrlValue("journeyGraphOpen", false),
     mapOverlays: getUrlValue("mapOverlays", "").split(","),
     areaEventsStyle: getUrlValue("areaEventsStyle", areaEventsStyles.MARKERS),
+    weeklyObservedTimes: getUrlValue(
+      "weeklyObservedTimes",
+      weeklyObservedTimeTypes.FIRST_STOP_DEPARTURE
+    ),
     highlightedStop: "",
     language: languageState.language,
     errors: [],
