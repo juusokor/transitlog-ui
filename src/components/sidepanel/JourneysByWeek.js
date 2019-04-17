@@ -137,7 +137,9 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, UI}) => {
     Journey.setSelectedJourney(journeyToSelect);
   }, []);
 
-  const onChangeObservedTimeType = useCallback((e) => {
+  // TODO: Implement arrival / depart toggle when we have HFP 2 data
+
+  /*const onChangeObservedTimeType = useCallback((e) => {
     const value = e.target.value;
 
     UI.setWeeklyObservedTimesType(
@@ -145,9 +147,9 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, UI}) => {
         ? weeklyObservedTimeTypes.LAST_STOP_ARRIVAL
         : weeklyObservedTimeTypes.FIRST_STOP_DEPARTURE
     );
-  }, []);
+  }, []);*/
 
-  const {date, route, weeklyObservedTimes} = state;
+  const {date, route} = state;
   const selectedJourneyId = getJourneyId(state.selectedJourney);
 
   const weekNumber = getWeek(date);
@@ -246,7 +248,7 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, UI}) => {
                           {route.routeId} / {route.direction}{" "}
                         </h4>
                       </RouteHeading>
-                      <TimeTypeButton
+                      {/*<TimeTypeButton
                         type="checkbox"
                         onChange={onChangeObservedTimeType}
                         name="observed_times_type"
@@ -258,7 +260,7 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, UI}) => {
                           weeklyObservedTimeTypes.LAST_STOP_ARRIVAL
                         }
                         value={weeklyObservedTimes}
-                      />
+                      />*/}
                       <div>
                         <Text>general.week</Text> {weekNumber}
                       </div>
