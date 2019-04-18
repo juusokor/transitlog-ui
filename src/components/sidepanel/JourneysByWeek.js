@@ -26,8 +26,8 @@ import {TransportIcon} from "../transportModes";
 import Waiting from "../../icons/Waiting";
 import SomethingWrong from "../../icons/SomethingWrong";
 import Cross from "../../icons/Cross";
-import {weeklyObservedTimeTypes} from "../../stores/UIStore";
-import ToggleButton from "../ToggleButton";
+/*import {weeklyObservedTimeTypes} from "../../stores/UIStore";
+import ToggleButton from "../ToggleButton";*/
 
 const ListHeader = styled.div`
   display: flex;
@@ -106,10 +106,10 @@ const TableHeader = styled(TableRow)`
   }
 `;
 
-const TimeTypeButton = styled(ToggleButton)`
+/*const TimeTypeButton = styled(ToggleButton)`
   padding: 0 0.75rem 0;
   margin-top: -0.25rem;
-`;
+`;*/
 
 const decorate = flow(
   observer,
@@ -397,12 +397,18 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, UI}) => {
                                 }
 
                                 return (
-                                  <TableCell
-                                    highlight={idx === currentDayTypeIndex}
+                                  <Tooltip
+                                    helpText={`${departure.routeId} / ${
+                                      departure.direction
+                                    }, ${departure.plannedDepartureTime.departureDate} ${
+                                      departure.plannedDepartureTime.departureTime
+                                    }, ${departure.stopId}, ${departure.dayType}`}
                                     key={`departure_day_${dayType ||
                                       "no_day"}_${departureTime}`}>
-                                    <IconComponent width="1rem" fill="var(--grey)" />
-                                  </TableCell>
+                                    <TableCell highlight={idx === currentDayTypeIndex}>
+                                      <IconComponent width="1rem" fill="var(--grey)" />
+                                    </TableCell>
+                                  </Tooltip>
                                 );
                               }
 
