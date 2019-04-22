@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import FilterBar from "./filterbar/FilterBar";
 import {Observer, observer} from "mobx-react-lite";
 import Map from "./map/Map";
@@ -19,7 +19,7 @@ import AreaJourneys from "./AreaJourneys";
 import MergedJourneys from "./MergedJourneys";
 import Graph from "./map/Graph";
 import LoginModal from "./LoginModal";
-import {authorizeUsingCode, checkExistingSession} from "../auth/authService";
+import {authorize, checkExistingSession} from "../auth/authService";
 import {removeAuthParams} from "../stores/UrlManager";
 
 const AppFrame = styled.main`
@@ -90,22 +90,19 @@ function App({state, UI}) {
   const selectedJourneyId = getJourneyId(selectedJourney);
   const code = new URL(window.location.href).searchParams.get("code");
 
-  checkExistingSession().then((response) => {
-    response.json().then((json) => {
-      if (json.isOk && json.email) {
-        UI.setUser(json.email);
-      } else {
-        UI.setUser(null);
-        if (code) {
-          removeAuthParams();
-          authorizeUsingCode(code).then((response) => {
-            response.json().then((json) => {
-              if (json.isOk && json.email) UI.setUser(json.email);
-            });
-          });
-        }
+  useEffect(() => {
+    const auth = async () => {
+      const response = await checkExistingSession();
+      response && response.isOk && response.email
+        ? UI.setUser(response.email)
+        : UI.setUser(null);
+      if (code) {
+        removeAuthParams();
+        const response = await authorize(code);
+        if (response && response.isOk && response.email) UI.setUser(response.email);
       }
-    });
+    };
+    auth();
   });
 
   return (

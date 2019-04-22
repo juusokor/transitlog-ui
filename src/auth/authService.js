@@ -7,13 +7,13 @@ const RequestMethod = {
 
 const Endpoint = {
   LOGIN: "login",
-  SESSION: "existingSession",
+  SESSION: "session",
   LOGOUT: "logout",
 };
 
 const BACKEND_API_URL = process.env.REACT_APP_TRANSITLOG_SERVER;
 
-export const authorizeUsingCode = async (code) => {
+export const authorize = async (code) => {
   const requestBody = {code};
   return await sendRequest(RequestMethod.POST, requestBody);
 };
@@ -29,7 +29,7 @@ const sendRequest = async (method, requestBody) => {
         "Content-Type": "application/json",
       },
     });
-    return response;
+    return await response.json();
   } catch (e) {
     console.log(e);
   }
@@ -44,7 +44,7 @@ export const checkExistingSession = async () => {
         "Content-Type": "application/json",
       },
     });
-    return response;
+    return await response.json();
   } catch (e) {
     console.log(e);
   }
