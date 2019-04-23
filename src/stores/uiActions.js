@@ -41,6 +41,14 @@ export default (state) => {
     }
   });
 
+  const toggleLoginModal = action((setTo = !state.loginModalOpen) => {
+    state.loginModalOpen = !!setTo;
+  });
+
+  const setUser = action("Set user", (user) => {
+    state.user = user;
+  });
+
   const setWeeklyObservedTimesType = action(
     (type = weeklyObservedTimeTypes.FIRST_STOP_DEPARTURE) => {
       if (Object.values(weeklyObservedTimeTypes).indexOf(type) !== -1) {
@@ -110,6 +118,7 @@ export default (state) => {
     toggleSidePanel,
     toggleJourneyDetails,
     toggleJourneyGraph,
+    toggleLoginModal,
     setLanguage,
     changeOverlay,
     addError,
@@ -117,6 +126,7 @@ export default (state) => {
     setAreaEventsStyle,
     toggleShareModal,
     highlightStop,
+    setUser,
     setWeeklyObservedTimesType,
   };
 };

@@ -18,6 +18,10 @@ const JourneyStopsLayer = decorate(
   }) => {
     if (journey && journey.departures) {
       return journey.departures.map((departure, index, arr) => {
+        if (!departure || !departure.stop) {
+          return null;
+        }
+
         const isFirst = index === 0;
         const isLast = index === arr.length - 1;
 
