@@ -18,7 +18,7 @@ const updateListenerName = "area hfp query";
 
 const AreaJourneys = decorate((props) => {
   const {children, skip, state} = props;
-  const {isLiveAndCurrent, areaSearchRangeMinutes, unixTime} = state;
+  const {isLiveAndCurrent, areaSearchRangeMinutes, unixTime, date} = state;
   const [queryBounds, setQueryBounds] = useState(null);
   const [queryRange, setQueryRange] = useState(null);
 
@@ -88,6 +88,8 @@ const AreaJourneys = decorate((props) => {
     updateAreaQuery,
   ]);
 
+  useEffect(updateAreaQuery, [date]);
+
   return (
     <AreaJourneysQuery
       isLive={isLiveAndCurrent}
@@ -97,7 +99,7 @@ const AreaJourneys = decorate((props) => {
         children({
           setQueryBounds: requestArea,
           // Query bounds may be limited in some cases. If so, put the actual bounds here:
-          actualQueryBounds: false,
+          actualQueryBounds: queryBounds,
           journeys,
           loading,
           error,

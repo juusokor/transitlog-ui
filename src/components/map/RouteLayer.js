@@ -2,6 +2,7 @@ import React, {Component} from "react";
 import {Polyline} from "react-leaflet";
 import calculateBoundsFromPositions from "../../helpers/calculateBoundsFromPositions";
 import {observer} from "mobx-react";
+import {getModeColor} from "../../helpers/vehicleColor";
 
 @observer
 class RouteLayer extends Component {
@@ -25,13 +26,13 @@ class RouteLayer extends Component {
   };
 
   setBounds() {
-    const {canCenterOnRoute = true, routeGeometry, setMapView = () => {}} = this.props;
+    const {canCenterOnRoute = true, coordinates, setMapView = () => {}} = this.props;
 
-    if (!canCenterOnRoute || routeGeometry.length === 0) {
+    if (!canCenterOnRoute || coordinates.length === 0) {
       return;
     }
 
-    const bounds = calculateBoundsFromPositions(routeGeometry);
+    const bounds = calculateBoundsFromPositions(coordinates);
 
     if (bounds && bounds.isValid()) {
       setMapView(bounds);
@@ -39,15 +40,11 @@ class RouteLayer extends Component {
   }
 
   render() {
-    const {routeGeometry} = this.props;
+    const {coordinates, mode} = this.props;
+    const color = getModeColor(mode);
 
     return (
-      <Polyline
-        pane="route-lines"
-        weight={3}
-        positions={routeGeometry}
-        color="var(--blue)"
-      />
+      <Polyline pane="route-lines" weight={3} positions={coordinates} color={color} />
     );
   }
 }

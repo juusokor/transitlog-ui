@@ -1,6 +1,11 @@
 import {action} from "mobx";
 import {setUrlValue} from "./UrlManager";
-import {LANGUAGES, languageState, areaEventsStyles} from "./UIStore";
+import {
+  LANGUAGES,
+  languageState,
+  areaEventsStyles,
+  weeklyObservedTimeTypes,
+} from "./UIStore";
 
 export default (state) => {
   const toggleShareModal = action((setTo = !state.shareModalOpen) => {
@@ -43,6 +48,15 @@ export default (state) => {
   const setUser = action("Set user", (user) => {
     state.user = user;
   });
+
+  const setWeeklyObservedTimesType = action(
+    (type = weeklyObservedTimeTypes.FIRST_STOP_DEPARTURE) => {
+      if (Object.values(weeklyObservedTimeTypes).indexOf(type) !== -1) {
+        state.weeklyObservedTimes = type;
+        setUrlValue("weeklyObservedTimes", state.weeklyObservedTimes);
+      }
+    }
+  );
 
   const addError = (type, message) => {
     if (!type || !message) {
@@ -113,5 +127,6 @@ export default (state) => {
     toggleShareModal,
     highlightStop,
     setUser,
+    setWeeklyObservedTimesType,
   };
 };

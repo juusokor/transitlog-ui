@@ -24,7 +24,7 @@ describe("RouteLayer", () => {
     const coordinates = [[0, 0], [4, 0], [4, 4], [0, 4]];
 
     const {getByText} = render({
-      routeGeometry: coordinates,
+      coordinates: coordinates,
     });
 
     expect(getByText("0,0,4,0,4,4,0,4")).toBeInTheDocument();
@@ -36,7 +36,7 @@ describe("RouteLayer", () => {
     const setMapView = jest.fn();
 
     render({
-      routeGeometry: coordinates,
+      coordinates: coordinates,
       setMapView,
     });
 

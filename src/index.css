@@ -7,6 +7,7 @@
   --green: #00985f;
   --purple: #8c4799;
   --orange: #ff6319;
+  --light-orange: #ffedf0;
   --teal: #00b2a9;
   --light-blue: #00b9e4;
   --lighter-blue: #bee4f8;
@@ -16,9 +17,10 @@
   --lighter-green: #d0e6bd;
   --red: #dc0451;
   --yellow: #fed100;
+  --dark-yellow: #d9a900;
   --dark-grey: #333333;
   --grey: #616365;
-  --light-grey: #999999;
+  --light-grey: #999a9a;
   --lighter-grey: #dddddc;
   --lightest-grey: #eef1f3;
   --alt-grey: #ccccdf;
@@ -32,7 +34,7 @@
 
 html {
   height: 100%;
-  font-size: 100%;
+  font-size: 16px;
   font-family: var(--font-family);
 }
 
@@ -55,4 +57,20 @@ input[type="number"] {
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;
+}
+
+/* Static and predictable width for all scrollbars. Can be used to negate their width. */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--blue);
+}
+
+::-webkit-scrollbar-track {
+  background: var(--lightest-grey);
+  border-left: 1px solid var(--lighter-grey);
+  border-top: 1px solid var(--lighter-grey);
 }

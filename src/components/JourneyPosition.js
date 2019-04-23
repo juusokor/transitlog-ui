@@ -1,10 +1,11 @@
-import {Component} from "react";
-import {inject, Observer} from "mobx-react";
-import {computed, observable, runInAction} from "mobx";
+import {useMemo, useRef, useEffect} from "react";
 import last from "lodash/last";
-import get from "lodash/last";
+import get from "lodash/get";
+import flow from "lodash/flow";
 import findLast from "lodash/findLast";
-import React from "react";
+import differenceBy from "lodash/differenceBy";
+import {inject} from "../helpers/inject";
+import {observer} from "mobx-react-lite";
 
 function timeRangeFromEvents(events) {
   const firstEvent = events[0];
@@ -18,34 +19,9 @@ function timeRangeFromEvents(events) {
 
 const MAX_TIME_DIFF = 60;
 
-@inject("state")
-// No @observer since the computed function would run twice on each time update.
-class JourneyPosition extends Component {
-  // Observable journeys so that the events are recomputed when the journeys change.
-  @observable.ref
-  journeys = this.props.journeys;
-
-  @computed
-  get journeyEvents() {
-    const {
-      state: {unixTime, isLiveAndCurrent},
-    } = this.props;
-
-    return this.matchJourneyEvents(unixTime, this.journeys, isLiveAndCurrent);
-  }
-
-  componentDidUpdate() {
-    const {journeys} = this.props;
-
-    // Update the observable journeys value if the journeys change. The journey array
-    // can be compared with equality which is nice.
-    if (journeys && journeys.length && journeys !== this.ourneys) {
-      runInAction(() => (this.journeys = journeys));
-    }
-  }
-
-  matchEventLive(time, events) {
-    return findLast(events, (event) => {
+const matchLiveEvents = (time, journeys) => {
+  return journeys.reduce((journeysMap, journey) => {
+    const lastEvent = findLast(journey.events, (event) => {
       if (!event.lat || !event.lng) {
         return false;
       }
@@ -53,107 +29,140 @@ class JourneyPosition extends Component {
       const eventTime = event.recordedAtUnix;
       return Math.abs(time - eventTime) <= MAX_TIME_DIFF;
     });
+
+    journeysMap.set(journey.id, lastEvent);
+    return journeysMap;
+  }, new Map());
+};
+
+// Precisely match the current time to an event. If defaultToEnds is true, the first or last
+// event will be picked when the time is out of range.
+const matchEventToTime = (time, events, defaultToEnds = true) => {
+  let i = 0;
+  let checkSeconds = time;
+
+  if (defaultToEnds) {
+    const [
+      {time: firstTime, event: firstEvent},
+      {time: lastTime, event: lastEvent},
+    ] = timeRangeFromEvents(events);
+
+    if (firstTime > time) {
+      // Return the first event if it it is later than the current time.
+      return firstEvent;
+    } else if (lastTime < time) {
+      // Return the last event if it is before the current time.
+      return lastEvent;
+    }
   }
 
-  // Precisely match the current time to an event. If defaultToEnds is true, the first or last
-  // event will be picked when the time is out of range.
-  matchEventToTime = (time, events, defaultToEnds = true) => {
-    let i = 0;
-    let checkSeconds = time;
+  let alternate = last(events).recordedAtUnix > time;
 
-    if (defaultToEnds) {
-      const [
-        {time: firstTime, event: firstEvent},
-        {time: lastTime, event: lastEvent},
-      ] = timeRangeFromEvents(events);
-
-      if (firstTime > time) {
-        // Return the first event if it it is later than the current time.
-        return firstEvent;
-      } else if (lastTime < time) {
-        // Return the last event if it is before the current time.
-        return lastEvent;
-      }
-    }
-
-    let alternate = last(events).recordedAtUnix > time;
-
-    // Max iterations is the maximum amount of seconds an event can differ from the current time.
-    while (i <= MAX_TIME_DIFF) {
-      if (alternate) {
-        // Alternately check after (even i) and before (odd i) time
-        if (i % 2 === 0) {
-          checkSeconds = time + Math.round(i / 2);
-        } else {
-          checkSeconds = time - Math.round(i / 2);
-        }
+  // Max iterations is the maximum amount of seconds an event can differ from the current time.
+  while (i <= MAX_TIME_DIFF) {
+    if (alternate) {
+      // Alternately check after (even i) and before (odd i) time
+      if (i % 2 === 0) {
+        checkSeconds = time + Math.round(i / 2);
       } else {
-        checkSeconds = time - i;
+        checkSeconds = time - Math.round(i / 2);
       }
-
-      for (let e = events.length; e > 0; e--) {
-        const event = events[e];
-
-        if (
-          event &&
-          event.lat &&
-          event.lng &&
-          Math.abs(checkSeconds - event.recordedAtUnix) <= 1
-        ) {
-          return event;
-        }
-      }
-
-      i++;
+    } else {
+      checkSeconds = time - i;
     }
 
-    return null;
-  };
+    for (let e = events.length; e > 0; e--) {
+      const event = events[e];
+
+      if (
+        event &&
+        event.lat &&
+        event.lng &&
+        Math.abs(checkSeconds - event.recordedAtUnix) <= 1
+      ) {
+        return event;
+      }
+    }
+
+    i++;
+  }
+
+  return null;
+};
+
+const getIndexedEvents = (time, timeIndex, journeys) => {
+  if (journeys.length === 0) {
+    return new Map();
+  }
+
+  const journeysForTime = timeIndex.get(time) || new Map();
+  const indexedJourneys = Array.from(journeysForTime.keys());
+
+  const unindexedJourneys = differenceBy(journeys, indexedJourneys, (journeyOrId) =>
+    typeof journeyOrId.id === "string"
+      ? journeyOrId.id
+      : typeof journeyOrId === "string"
+      ? journeyOrId
+      : ""
+  );
+
+  if (unindexedJourneys.length !== 0) {
+    for (const journey of unindexedJourneys) {
+      const events = journey.events || [];
+
+      if (
+        get(events, "[0].recordedAtUnix", 0) > time ||
+        get(events, `[${events.length - 1}].recordedAtUnix`, 0) < time
+      ) {
+        continue;
+      }
+
+      const nextEvent = matchEventToTime(time, events, journeys.length === 1);
+      journeysForTime.set(journey.id, nextEvent);
+    }
+  }
+
+  return journeysForTime;
+};
+
+const decorate = flow(
+  observer,
+  inject("state")
+);
+
+const JourneyPosition = decorate(({journeys, state, children}) => {
+  const timeIndex = useRef(new Map());
+
+  useEffect(() => {
+    const nextTimeIndex = new Map();
+
+    for (const journey of journeys) {
+      const journeyId = journey.id;
+
+      for (const event of journey.events) {
+        const ts = event.recordedAtUnix;
+        const timeKeyEvents = nextTimeIndex.get(ts) || new Map();
+        timeKeyEvents.set(journeyId, event);
+        nextTimeIndex.set(ts, timeKeyEvents);
+      }
+    }
+
+    timeIndex.current = nextTimeIndex;
+  }, [journeys, state.date]);
 
   // Matches the current time with an event for each journey. If live mode is activated,
-  // he matching can be done slightly less expensive.
-  matchJourneyEvents = (time, journeys, isLive) => {
-    const journeyEvents = new Map();
+  // the matching can be made slightly less expensive.
+  const journeyEvents = useMemo(() => {
+    const {unixTime, isLiveAndCurrent} = state;
 
-    if (journeys.length === 0) {
-      return journeyEvents;
+    if (isLiveAndCurrent) {
+      return matchLiveEvents(unixTime, journeys);
+    } else {
+      return getIndexedEvents(unixTime, timeIndex.current, journeys);
     }
+  }, [timeIndex.current, state.unixTime, state.isLiveAndCurrent]);
 
-    journeys.forEach(({id, events}) => {
-      if (events.length === 0) {
-        return;
-      }
-
-      // Prevent events from staying active if the time is before the first event or past the last event.
-      // Only active when there are many journeys on the map (ie area search)
-      if (journeys.length > 1) {
-        const [{time: firstTime}, {time: lastTime}] = timeRangeFromEvents(events);
-
-        if (firstTime > time || lastTime < time) {
-          return;
-        }
-      }
-
-      let nextEvent;
-
-      if (!isLive) {
-        // Precise matching when not live
-        nextEvent = this.matchEventToTime(time, events, journeys.length === 1);
-      } else {
-        // Take the last event of the journey when live
-        nextEvent = this.matchEventLive(time, events);
-      }
-
-      journeyEvents.set(id, nextEvent);
-    });
-
-    return journeyEvents;
-  };
-
-  render() {
-    const {children} = this.props;
-    return <Observer>{() => children(this.journeyEvents)}</Observer>;
-  }
-}
+  return children(journeyEvents);
+});
 
 export default JourneyPosition;

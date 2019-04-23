@@ -26,6 +26,7 @@ const decorate = flow(
 const MapContent = decorate(
   ({
     journeys = [],
+    routeJourneys = [],
     journeyPositions,
     route,
     zoom,
@@ -78,11 +79,14 @@ const MapContent = decorate(
               key={`route_query_${createRouteId(route, true)}`}
               route={route}
               date={date}>
-              {({routeGeometry}) =>
-                routeGeometry.length !== 0 ? (
+              {({routeGeometry = null}) =>
+                routeGeometry && routeGeometry.coordinates.length !== 0 ? (
                   <RouteLayer
-                    routeId={routeGeometry.length !== 0 ? createRouteId(route) : null}
-                    routeGeometry={routeGeometry}
+                    routeId={
+                      routeGeometry.coordinates.length !== 0 ? createRouteId(route) : null
+                    }
+                    mode={routeGeometry.mode || "BUS"}
+                    coordinates={routeGeometry.coordinates}
                     canCenterOnRoute={centerOnRoute}
                     setMapView={setMapView}
                     key={`route_line_${createRouteId(route, true)}`}
@@ -90,7 +94,8 @@ const MapContent = decorate(
                 ) : null
               }
             </RouteGeometryQuery>
-            {!selectedJourney && (
+
+            {!journeys.find((journey) => selectedJourneyId === journey.id) && (
               <RouteStopsLayer
                 showRadius={showStopRadius}
                 onViewLocation={viewLocation}
@@ -101,26 +106,27 @@ const MapContent = decorate(
             {journeys.length !== 0 &&
               journeys.map((journey) => {
                 const isSelectedJourney = selectedJourneyId === journey.id;
+
+                if (!isSelectedJourney) {
+                  return null;
+                }
+
                 const currentPosition = journeyPositions
                   ? journeyPositions.get(journey.id)
                   : null;
 
                 return [
-                  isSelectedJourney ? (
-                    <JourneyLayer
-                      key={`journey_line_${journey.id}`}
-                      journey={journey}
-                      name={journey.id}
-                    />
-                  ) : null,
-                  isSelectedJourney ? (
-                    <JourneyStopsLayer
-                      showRadius={showStopRadius}
-                      onViewLocation={viewLocation}
-                      key={`journey_stops_${journey.id}`}
-                      journey={journey}
-                    />
-                  ) : null,
+                  <JourneyLayer
+                    key={`journey_line_${journey.id}`}
+                    journey={journey}
+                    name={journey.id}
+                  />,
+                  <JourneyStopsLayer
+                    showRadius={showStopRadius}
+                    onViewLocation={viewLocation}
+                    key={`journey_stops_${journey.id}`}
+                    journey={journey}
+                  />,
                   currentPosition ? (
                     <HfpMarkerLayer
                       key={`hfp_markers_${journey.id}`}
@@ -131,6 +137,25 @@ const MapContent = decorate(
                   ) : null,
                 ];
               })}
+            {routeJourneys.length !== 0 &&
+              routeJourneys
+                .filter(({id}) => id !== selectedJourneyId)
+                .map((journey) => {
+                  const event = journeyPositions.get(journey.id);
+
+                  if (!event) {
+                    return null;
+                  }
+
+                  return (
+                    <HfpMarkerLayer
+                      key={`hfp_markers_${journey.id}`}
+                      currentEvent={event}
+                      journey={journey}
+                      isSelectedJourney={false}
+                    />
+                  );
+                })}
           </>
         )}
         {journeys.length !== 0 &&

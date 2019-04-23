@@ -63,8 +63,9 @@ const NextPrevLabel = styled.div`
 @inject(app("Journey", "Time"))
 @observer
 class VehicleJourneys extends Component {
-  // We are modifying this in the render function so it cannot be reactive
+  // We are modifying these in the render function so they cannot be reactive
   selectedJourneyIndex = 0;
+  journeys = [];
 
   @observable
   nextJourneyIndex = 0;
@@ -117,12 +118,12 @@ class VehicleJourneys extends Component {
   updateVehicleAndJourneySelection = (nextJourneyIndex) => {
     const {
       state: {selectedJourney},
-      positions: journeys,
     } = this.props;
 
+    const journeys = this.journeys;
     let useIndex = nextJourneyIndex;
 
-    if (journeys.length === 0) {
+    if (!journeys || journeys.length === 0) {
       return;
     }
 
@@ -137,10 +138,8 @@ class VehicleJourneys extends Component {
     // select it as the selected journey.
     if (
       nextSelectedJourney &&
-      ((selectedJourney &&
-        getJourneyId(nextSelectedJourney, false) !==
-          getJourneyId(selectedJourney, false)) ||
-        !selectedJourney)
+      (!selectedJourney ||
+        getJourneyId(nextSelectedJourney) !== getJourneyId(selectedJourney))
     ) {
       this.selectJourney(nextSelectedJourney);
     }
@@ -153,11 +152,12 @@ class VehicleJourneys extends Component {
 
     const selectedJourneyId = getJourneyId(selectedJourney, false);
     // Keep track of the journey index independent of vehicle groups
-    let journeyIndex = -1;
 
     return (
       <VehicleJourneysQuery vehicleId={vehicle} date={date}>
         {({journeys = [], loading}) => {
+          this.journeys = journeys;
+
           return (
             <SidepanelList
               focusKey={selectedJourneyId}
@@ -184,8 +184,7 @@ class VehicleJourneys extends Component {
                 </>
               }>
               {(scrollRef) =>
-                journeys.map((journey) => {
-                  journeyIndex++;
+                journeys.map((journey, journeyIndex) => {
                   const journeyId = getJourneyId(journey, false);
 
                   const mode = get(journey, "mode", "").toUpperCase();
