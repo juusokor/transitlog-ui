@@ -17,7 +17,7 @@ import {inject} from "../../helpers/inject";
 import flow from "lodash/flow";
 import {secondsToTime} from "../../helpers/time";
 import {getJourneyStopDiffs} from "../../helpers/getJourneyStopDiffs";
-import {getJourneyAverageSpeeds} from "../../helpers/getJourneyAverageSpeeds";
+import {getJourneySpeeds} from "../../helpers/getJourneySpeeds";
 import {Text} from "../../helpers/text";
 
 const GraphTooltip = styled.div`
@@ -76,10 +76,10 @@ const Graph = decorate((props) => {
   const {departures, events, graphExpanded, UI, Filters, width} = props;
 
   const diffs = useMemo(() => getJourneyStopDiffs(departures), [departures]);
-  const speedAverages = useMemo(() => getJourneyAverageSpeeds(events), [events]);
+  const speeds = useMemo(() => getJourneySpeeds(events, diffs.length - 1), [events]);
 
   const [highlight, setHighlight] = useState({x: 0, y: 0});
-  const [avgSpeed, setAvgSpeed] = useState({x: 0, y: 0});
+  const [speed, setSpeed] = useState({x: 0, y: 0});
 
   const mapDiffs = useMemo(
     () =>
@@ -106,12 +106,12 @@ const Graph = decorate((props) => {
       setHighlight(diffs[0]);
     }
 
-    if (speedAverages.length !== 0 && avgSpeed.x === 0 && avgSpeed.y === 0) {
-      const data = speedAverages[0];
+    if (speeds.length !== 0 && speed.x === 0 && speed.y === 0) {
+      const data = speeds[0];
       const graphPoint = {x: data.x, y: data.y};
-      setAvgSpeed(graphPoint);
+      setSpeed(graphPoint);
     }
-  }, [diffs, speedAverages]);
+  }, [diffs, speeds]);
 
   return (
     <div>
@@ -155,7 +155,7 @@ const Graph = decorate((props) => {
                     </ColoredBackgroundSlot>
                   </FlexRow>
                 </FlexColumn>
-                <Title>Keskinopeus: {avgSpeed.y} km/h</Title>
+                <Title>Nopeus: {speed.y} km/h</Title>
               </FlexColumn>
             </GraphTooltip>
           </Crosshair>
@@ -168,11 +168,11 @@ const Graph = decorate((props) => {
             }}
           />
           <LineSeries
-            data={speedAverages}
+            data={speeds}
             color={"red"}
             onNearestX={(d) => {
               const graphPoint = {x: d.x, y: d.y};
-              setAvgSpeed(graphPoint);
+              setSpeed(graphPoint);
             }}
           />
           <MarkSeries
@@ -180,7 +180,7 @@ const Graph = decorate((props) => {
             getColor={(d) => d.departureColor}
             data={[highlight]}
           />
-          <MarkSeries data={[avgSpeed]} />
+          <MarkSeries data={[speed]} />
         </GraphPlot>
       )}
     </div>
