@@ -5,7 +5,7 @@ import {InMemoryCache} from "apollo-cache-inmemory";
 import {onError} from "apollo-link-error";
 import get from "lodash/get";
 
-const serverUrl = process.env.REACT_APP_TRANSITLOG_SERVER;
+const serverUrl = process.env.REACT_APP_TRANSITLOG_SERVER_GRAPHQL;
 
 if (!serverUrl) {
   console.error("Tansitlog server URL not set!");
@@ -50,6 +50,7 @@ export const getClient = (UIStore) => {
 
   const httpLink = new HttpLink({
     uri: serverUrl,
+    credentials: "include",
   });
 
   createdClient = new ApolloClient({

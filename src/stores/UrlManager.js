@@ -82,3 +82,11 @@ export const resetUrlState = (replace = false) => {
     history.push({pathname: "/", search: ""});
   }
 };
+
+export const removeAuthParams = (replace = false) => {
+  let shareUrl = window.location.href;
+  const url = new URL(shareUrl);
+  url.searchParams.delete("code");
+  url.searchParams.delete("scope");
+  history.replace({pathname: "/", search: url.search});
+};
