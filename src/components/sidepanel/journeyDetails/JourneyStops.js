@@ -73,17 +73,23 @@ class JourneyStops extends React.Component {
         </JourneyExpandToggle>
         <StopsList>
           {stopsExpanded &&
-            departures.map((departure) => (
-              <JourneyStop
-                key={`journey_stop_${departure.stopId}_${departure.stopIndex}`}
-                onHoverStop={onHoverStop}
-                onSelectStop={onSelectStop}
-                departure={departure}
-                date={date}
-                color={color}
-                onClickTime={onClickTime}
-              />
-            ))}
+            departures.map((departure) => {
+              if (!departure || !departure.stop) {
+                return null;
+              }
+
+              return (
+                <JourneyStop
+                  key={`journey_stop_${departure.stopId}_${departure.stopIndex}`}
+                  onHoverStop={onHoverStop}
+                  onSelectStop={onSelectStop}
+                  departure={departure}
+                  date={date}
+                  color={color}
+                  onClickTime={onClickTime}
+                />
+              );
+            })}
         </StopsList>
       </JourneyStopsWrapper>
     );
