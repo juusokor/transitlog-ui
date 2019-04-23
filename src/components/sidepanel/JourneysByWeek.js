@@ -398,13 +398,8 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, UI}) => {
 
                                 return (
                                   <Tooltip
-                                    helpText={`${departure.routeId} / ${
-                                      departure.direction
-                                    }, ${departure.plannedDepartureTime.departureDate} ${
-                                      departure.plannedDepartureTime.departureTime
-                                    }, ${departure.stopId}, ${departure.dayType}`}
-                                    key={`departure_day_${dayType ||
-                                      "no_day"}_${departureTime}`}>
+                                    helpText={`This departure is not available due to: ${departureStatus}`}
+                                    key={`departure_day_${dayType}_${departureStatus}_${departureTime}_${idx}`}>
                                     <TableCell highlight={idx === currentDayTypeIndex}>
                                       <IconComponent width="1rem" fill="var(--grey)" />
                                     </TableCell>
