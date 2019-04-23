@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useMemo, useEffect} from "react";
 import FilterBar from "./filterbar/FilterBar";
 import {Observer, observer} from "mobx-react-lite";
 import Map from "./map/Map";
@@ -19,7 +19,10 @@ import {withRoute} from "../hoc/withRoute";
 import AreaJourneys from "./AreaJourneys";
 import MergedJourneys from "./MergedJourneys";
 import Graph from "./map/Graph";
+import LoginModal from "./LoginModal";
 import RouteJourneys from "./RouteJourneys";
+import {checkExistingSession, authorize} from "../auth/authService";
+import {removeAuthParams} from "../stores/UrlManager";
 
 const AppFrame = styled.main`
   width: 100%;
@@ -84,12 +87,31 @@ function App({state, UI}) {
     sidePanelVisible,
     live,
     journeyGraphOpen,
+    loginModalOpen,
   } = state;
-
   const selectedJourneyId = getJourneyId(selectedJourney);
+  const code = useMemo(() => new URL(window.location.href).searchParams.get("code"), []);
+
+  useEffect(() => {
+    const auth = async () => {
+      const response = await checkExistingSession();
+      response && response.isOk && response.email
+        ? UI.setUser(response.email)
+        : UI.setUser(null);
+
+      if (code) {
+        removeAuthParams();
+        const response = await authorize(code);
+        if (response && response.isOk && response.email) UI.setUser(response.email);
+      }
+    };
+
+    auth();
+  }, [code]);
 
   return (
     <AppFrame>
+      {loginModalOpen && <LoginModal />}
       <AreaJourneys>
         {({
           setQueryBounds,

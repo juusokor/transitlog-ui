@@ -78,12 +78,19 @@ class SharingModal extends React.Component {
     }
   }
 
+  excludeAuthenticationParams(shareUrl) {
+    const url = new URL(shareUrl);
+    url.searchParams.delete("code");
+    url.searchParams.delete("scope");
+    return url.href;
+  }
+
   createShareUrl() {
     const prodOrigin = process.env.REACT_APP_PRODUCTION_URL;
     const currentOrigin = window.location.origin;
 
     let shareUrl = window.location.href;
-
+    shareUrl = this.excludeAuthenticationParams(shareUrl);
     if (prodOrigin !== currentOrigin) {
       shareUrl = shareUrl.replace(currentOrigin, prodOrigin);
     }
