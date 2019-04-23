@@ -35,7 +35,7 @@ const OriginStop = observer(
     onHoverStop = () => {},
     stopsExpanded,
   }) => {
-    if (!departure) {
+    if (!departure || !departure.stop) {
       return null;
     }
 
