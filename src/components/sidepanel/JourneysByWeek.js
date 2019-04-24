@@ -297,10 +297,12 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, UI}) => {
                 {(scrollRef) => (
                   <ListWrapper>
                     <TableBody>
+                      {/* TODO: Group and display departures by date */}
                       {map(departuresByTime, (departuresAtTime, departureTime) => {
                         const selectedDayDepartures = orderByDayType(
-                          departuresAtTime.filter(({dayType}) =>
-                            selectedDayTypes.includes(dayType)
+                          departuresAtTime.filter(
+                            ({plannedDepartureTime: {departureTime}}) =>
+                              selectedDates.includes(departureTime)
                           )
                         );
 
