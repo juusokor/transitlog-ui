@@ -52,7 +52,7 @@ export default ({
   onSelectStop = () => {},
   onHoverStop = () => {},
 }) => {
-  if (!departure) {
+  if (!departure || !departure.stop) {
     return null;
   }
 
@@ -82,8 +82,8 @@ export default ({
     );
   }
 
-  const stopArrivalTime = departure.observedArrivalTime.arrivalTime;
-  const stopDepartureTime = departure.observedDepartureTime.departureTime;
+  const stopArrivalTime = get(departure, "observedArrivalTime.arrivalTime", "");
+  const stopDepartureTime = get(departure, "observedDepartureTime.departureTime", "");
 
   const selectDepartureTime = onClickTime(stopDepartureTime);
 

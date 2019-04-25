@@ -22,7 +22,7 @@ export default ({
   onSelectStop = () => {},
   onHoverStop = () => {},
 }) => {
-  if (!departure) {
+  if (!departure || !departure.stop) {
     return null;
   }
 

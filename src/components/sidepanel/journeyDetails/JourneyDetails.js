@@ -81,6 +81,7 @@ class JourneyDetails extends React.Component {
 
     const stopMode = get(journey, "mode", "BUS");
     const stopColor = get(transportColor, stopMode, "var(--light-grey)");
+    const stopDepartures = get(journey, "departures", []);
 
     return (
       <JourneyPanelWrapper>
@@ -93,14 +94,14 @@ class JourneyDetails extends React.Component {
             />
             <ScrollContainer>
               <JourneyPanelContent>
-                {journey.departures.length !== 0 && (
+                {stopDepartures.length !== 0 && (
                   <>
                     <JourneyInfo date={date} journey={journey} />
                     <StopsListWrapper>
                       <OriginStop
                         onHoverStop={this.onHoverStop}
                         onSelectStop={this.onSelectStop}
-                        departure={journey.departures[0]}
+                        departure={stopDepartures[0]}
                         color={stopColor}
                         date={date}
                         onClickTime={this.onClickTime}
@@ -109,7 +110,7 @@ class JourneyDetails extends React.Component {
                       <JourneyStops
                         onHoverStop={this.onHoverStop}
                         onSelectStop={this.onSelectStop}
-                        departures={journey.departures.slice(1, -1)}
+                        departures={stopDepartures.slice(1, -1)}
                         date={date}
                         color={stopColor}
                         onClickTime={this.onClickTime}
@@ -119,7 +120,7 @@ class JourneyDetails extends React.Component {
                       <DestinationStop
                         onHoverStop={this.onHoverStop}
                         onSelectStop={this.onSelectStop}
-                        departure={journey.departures[journey.departures.length - 1]}
+                        departure={stopDepartures[stopDepartures.length - 1]}
                         date={date}
                         color={stopColor}
                         onClickTime={this.onClickTime}

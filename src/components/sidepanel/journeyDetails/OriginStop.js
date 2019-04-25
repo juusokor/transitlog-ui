@@ -66,8 +66,8 @@ const OriginStop = observer(
       );
     }
 
-    const stopArrivalTime = departure.observedArrivalTime.arrivalTime;
-    const stopDepartureTime = departure.observedDepartureTime.departureTime;
+    const stopArrivalTime = get(departure, "observedArrivalTime.arrivalTime", "");
+    const stopDepartureTime = get(departure, "observedDepartureTime.departureTime", "");
 
     const selectDepartureTime = onClickTime(stopDepartureTime);
 
