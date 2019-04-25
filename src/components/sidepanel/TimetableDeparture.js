@@ -17,6 +17,8 @@ import styled from "styled-components";
 import getJourneyId from "../../helpers/getJourneyId";
 import {secondsToTimeObject, getNormalTime} from "../../helpers/time";
 import {parseLineNumber} from "../../helpers/parseLineNumber";
+import {applyTooltip} from "../../hooks/useTooltip";
+import {getDayTypeFromDate, dayTypes} from "../../helpers/getDayTypeFromDate";
 
 const ListRow = styled.div`
   padding: 0.25rem 0.5rem 0.25rem 0.75rem;
@@ -49,12 +51,28 @@ const ObservedTimeDisplay = styled(PlainSlotSmall)`
   margin-left: auto;
 `;
 
+const SpecialDayDisplay = styled.span`
+  padding: 2px;
+  border-radius: 2px;
+  min-width: 1.1rem;
+  text-align: center;
+  display: inline-block;
+  color: var(--dark-grey);
+  background: var(--lighter-blue);
+  margin-left: auto;
+  font-size: 0.5rem;
+`;
+
 @observer
 class TimetableDeparture extends Component {
-  renderListRow = (journeyIsSelected, departure, color, mode, isTimingStop) => (
-    children = null,
-    onClick
-  ) => (
+  renderListRow = (
+    journeyIsSelected,
+    departure,
+    color,
+    mode,
+    isTimingStop,
+    isSpecialDayType
+  ) => (children = null, onClick) => (
     <ListRow selected={journeyIsSelected}>
       <TimetableButton
         hasData={!!children}
@@ -62,6 +80,11 @@ class TimetableDeparture extends Component {
         onClick={onClick}>
         <LineSlot color={color}>
           {parseLineNumber(departure.routeId)}/{departure.direction}
+          {isSpecialDayType && (
+            <SpecialDayDisplay largeMargin={true} {...applyTooltip("Journey day type")}>
+              {departure.dayType}
+            </SpecialDayDisplay>
+          )}
         </LineSlot>
         <PlannedTimeSlot>
           {getNormalTime(departure.plannedDepartureTime.departureTime).slice(0, -3)}
@@ -86,12 +109,17 @@ class TimetableDeparture extends Component {
       departure.journey &&
       selectedJourneyId === getJourneyId(departure.journey);
 
+    const isSpecialDayType =
+      getDayTypeFromDate(departure.plannedDepartureTime.departureDate) !==
+        departure.dayType || !dayTypes.includes(departure.dayType);
+
     const renderListRow = this.renderListRow(
       journeyIsSelected,
       departure,
       currentTransportColor,
       stopMode,
-      isTimingStop
+      isTimingStop,
+      isSpecialDayType
     );
 
     const observedTime = get(departure, "observedDepartureTime", null);
