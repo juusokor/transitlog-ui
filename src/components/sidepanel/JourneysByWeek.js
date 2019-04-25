@@ -14,6 +14,7 @@ import {inject} from "../../helpers/inject";
 import doubleDigit from "../../helpers/doubleDigit";
 import {getDayTypeFromDate, dayTypes} from "../../helpers/getDayTypeFromDate";
 import getWeek from "date-fns/get_iso_week";
+import format from "date-fns/format";
 import JourneysByWeekQuery from "../../queries/JourneysByWeekQuery";
 import ButtonGroup from "../ButtonGroup";
 import {TIMEZONE} from "../../constants";
@@ -116,9 +117,6 @@ const decorate = flow(
   inject("UI", "Journey", "Filters", "Time")
 );
 
-const orderByDayType = (departures) =>
-  orderBy(departures, ({dayType}) => dayTypes.indexOf(dayType));
-
 const JourneysByWeek = decorate(({state, Time, Filters, Journey, UI}) => {
   const selectJourney = useCallback((journey) => {
     let journeyToSelect = null;
@@ -194,17 +192,17 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, UI}) => {
     const weekEnd = weekStart.clone().endOf("isoWeek");
 
     if (selectedDayTypes.includes("Su")) {
-      return [weekEnd.format("D.M")];
+      return [weekEnd.format("YYYY-MM-DD")];
     }
 
     if (selectedDayTypes.includes("La")) {
-      return [weekEnd.subtract(1, "day").format("D.M")];
+      return [weekEnd.subtract(1, "day").format("YYYY-MM-DD")];
     }
 
     const dates = [];
 
     while (dates.length < 5) {
-      dates.push(weekStart.format("D.M"));
+      dates.push(weekStart.format("YYYY-MM-DD"));
       weekStart.add(1, "day");
     }
 
@@ -217,7 +215,9 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, UI}) => {
         <Observer>
           {() => {
             const departuresByTime = groupBy(
-              departures,
+              departures.filter(({plannedDepartureTime}) =>
+                selectedDates.includes(plannedDepartureTime.departureDate)
+              ),
               "plannedDepartureTime.departureTime"
             );
 
@@ -234,7 +234,7 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, UI}) => {
                       <TableCell
                         highlight={idx === currentDayTypeIndex}
                         key={`header_date_${day}`}>
-                        {day}
+                        {format(day, "D.M")}
                       </TableCell>
                     ))}
                   </TableHeader>
@@ -298,10 +298,9 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, UI}) => {
                   <ListWrapper>
                     <TableBody>
                       {map(departuresByTime, (departuresAtTime, departureTime) => {
-                        const selectedDayDepartures = orderByDayType(
-                          departuresAtTime.filter(({dayType}) =>
-                            selectedDayTypes.includes(dayType)
-                          )
+                        const selectedDayDepartures = orderBy(
+                          departuresAtTime,
+                          "plannedDepartureTime.departureDate"
                         );
 
                         if (selectedDayDepartures.length === 0) {
@@ -311,15 +310,15 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, UI}) => {
                         const weekDepartures = [];
 
                         let rowIsSelected = false;
-                        let depIndex = 0;
+                        let colIndex = 0;
 
-                        while (weekDepartures.length < selectedDayTypes.length) {
+                        while (weekDepartures.length < selectedDates.length) {
                           // The day type that we want to find a departure for
-                          const dayType = selectedDayTypes[depIndex];
+                          const date = selectedDates[colIndex];
 
                           const dep =
                             selectedDayDepartures.find(
-                              (dep) => dep.dayType === dayType
+                              (dep) => dep.plannedDepartureTime.departureDate === date
                             ) || null;
 
                           // Check if the row contains a selected departure
@@ -341,7 +340,7 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, UI}) => {
                           }
 
                           weekDepartures.push(dep);
-                          depIndex++;
+                          colIndex++;
                         }
 
                         return (
