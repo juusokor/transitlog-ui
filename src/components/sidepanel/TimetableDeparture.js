@@ -15,7 +15,7 @@ import {
 import {getTimelinessColor} from "../../helpers/timelinessColor";
 import styled from "styled-components";
 import getJourneyId from "../../helpers/getJourneyId";
-import {secondsToTimeObject} from "../../helpers/time";
+import {secondsToTimeObject, getNormalTime} from "../../helpers/time";
 import {parseLineNumber} from "../../helpers/parseLineNumber";
 
 const ListRow = styled.div`
@@ -64,7 +64,7 @@ class TimetableDeparture extends Component {
           {parseLineNumber(departure.routeId)}/{departure.direction}
         </LineSlot>
         <PlannedTimeSlot>
-          {departure.plannedDepartureTime.departureTime.slice(0, -3)}
+          {getNormalTime(departure.plannedDepartureTime.departureTime).slice(0, -3)}
           {isTimingStop && <TimingIcon src={timingStopIcon} />}
         </PlannedTimeSlot>
         {children}

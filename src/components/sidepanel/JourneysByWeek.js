@@ -397,7 +397,7 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, UI}) => {
 
                                 return (
                                   <Tooltip
-                                    helpText={`This departure is not available due to: ${departureStatus}`}
+                                    helpText={`This departure is not available due to: ${departureStatus}, ${dayType}`}
                                     key={`departure_day_${dayType}_${departureStatus}_${departureTime}_${idx}`}>
                                     <TableCell highlight={idx === currentDayTypeIndex}>
                                       <IconComponent width="1rem" fill="var(--grey)" />
