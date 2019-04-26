@@ -6,12 +6,7 @@ import Calendar from "../../../icons/Calendar";
 import JourneyPlanner from "../../../icons/JourneyPlanner";
 import Time2 from "../../../icons/Time2";
 import get from "lodash/get";
-import {WeatherWidget} from "../../map/WeatherDisplay";
-import {useJourneyWeather} from "../../../hooks/useJourneyWeather";
-import {useWeatherData} from "../../../hooks/useWeatherData";
-import getJourneyId from "../../../helpers/getJourneyId";
 import {observer} from "mobx-react-lite";
-import {useDebouncedValue} from "../../../hooks/useDebouncedValue";
 import {parseLineNumber} from "../../../helpers/parseLineNumber";
 
 const JourneyPanelHeader = styled.div`
@@ -75,29 +70,11 @@ const HeaderText = styled.span`
   }
 `;
 
-const WeatherDisplay = styled(WeatherWidget)`
-  position: static;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  margin-left: auto;
-  font-size: 0.75rem;
-  text-align: right;
-  max-height: 1.2rem;
-`;
-
 const DateTimeHeading = styled.div`
   margin-bottom: 0.75rem;
 `;
 
 export default observer(({date, journey, currentTime}) => {
-  const [currentJourneyWeather] = useJourneyWeather(
-    journey.events,
-    getJourneyId(journey)
-  );
-  const debouncedTime = useDebouncedValue(currentTime.valueOf(), 1000);
-  const journeyWeather = useWeatherData(currentJourneyWeather, debouncedTime);
-
   const {mode, routeId, direction, uniqueVehicleId, departureTime, name} = journey;
   const routeNameParts = name.split(" - ");
 
@@ -120,7 +97,6 @@ export default observer(({date, journey, currentTime}) => {
           <TransportIcon mode={mode} width={17} height={17} />
           {uniqueVehicleId}
         </HeaderText>
-        <WeatherDisplay {...journeyWeather || {}} />
       </MainHeaderRow>
       <DateTimeHeading>
         <HeaderText>

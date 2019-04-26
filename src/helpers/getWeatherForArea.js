@@ -20,7 +20,7 @@ export async function getWeatherForArea(
       setCancelCb(() => connection.disconnect());
 
       connection.getData({
-        requestParameter: "t2m,ws_10min,ri_10min,snow_aws,vis,n_man,wawa",
+        requestParameter: "t2m",
         begin: startDate,
         end: endDate,
         timestep: 10 * 60 * 1000,

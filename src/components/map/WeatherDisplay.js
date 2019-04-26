@@ -6,31 +6,11 @@ import get from "lodash/get";
 import meanBy from "lodash/meanBy";
 import {inject} from "../../helpers/inject";
 import {useWeather} from "../../hooks/useWeather";
-import {useDebouncedValue} from "../../hooks/useDebouncedValue";
-import {useWeatherData, getRoadStatus} from "../../hooks/useWeatherData";
+import {getRoadStatus} from "../../hooks/useWeatherData";
 import {CircleMarker, Tooltip} from "react-leaflet";
-import {latLng} from "leaflet";
+import {latLng, latLngBounds} from "leaflet";
 import {text, Text} from "../../helpers/text";
 import {getMomentFromDateTime} from "../../helpers/time";
-
-const WeatherContainer = styled.div`
-  position: absolute;
-  z-index: 500;
-  top: 1rem;
-  left: 1rem;
-  padding: 0.5rem 1rem;
-  background: rgba(255, 255, 255, 0.75);
-  border-radius: 5px;
-  border: 1px solid var(--alt-grey);
-  font-family: var(--font-family);
-  font-size: 1rem;
-`;
-
-const Temperature = styled.div`
-  font-size: 1.4em;
-  font-weight: 700;
-  color: ${({uncertain = false}) => (uncertain ? "var(--light-grey)" : "var(--blue)")};
-`;
 
 const TooltipText = styled.div`
   font-family: var(--font-family);
@@ -39,35 +19,10 @@ const TooltipText = styled.div`
   color: var(--blue);
 `;
 
-const RoadStatus = styled.div`
-  font-size: 1em;
-  color: ${({uncertain = false}) => (uncertain ? "var(--light-grey)" : "var(--blue)")};
-`;
-
 const decorate = flow(
   observer,
   inject("state")
 );
-
-export const WeatherWidget = ({
-  temperature = false,
-  temperatureIsUncertain = true,
-  roadCondition = false,
-  roadConditionIsUncertain = true,
-  className,
-}) =>
-  (temperature !== false || roadCondition) && (
-    <WeatherContainer className={className}>
-      {temperature !== false && (
-        <Temperature uncertain={temperatureIsUncertain}>{temperature} &deg;C</Temperature>
-      )}
-      {roadCondition.length !== 0 && (
-        <RoadStatus uncertain={roadConditionIsUncertain}>
-          <Text>map.road</Text>: {roadCondition}
-        </RoadStatus>
-      )}
-    </WeatherContainer>
-  );
 
 const WeatherMarker = ({children, location, color}) => (
   <CircleMarker
@@ -81,27 +36,23 @@ const WeatherMarker = ({children, location, color}) => (
   </CircleMarker>
 );
 
-const WeatherDisplay = decorate(({className, state, position}) => {
+const hslBBox = latLngBounds([[59.91326, 23.983637], [60.629925, 25.285678]]);
+
+const WeatherDisplay = decorate(({state}) => {
   const {date, time} = state;
-  const debouncedTime = useDebouncedValue(time, 1000);
 
   const startDate = useMemo(
-    () => getMomentFromDateTime(date, debouncedTime).toISOString(true),
-    [date, debouncedTime]
+    () =>
+      getMomentFromDateTime(date, time)
+        .startOf("hour")
+        .toISOString(true),
+    [date, time]
   );
 
-  const [weatherData] = useWeather(position, startDate);
-  const parsedWeatherData = useWeatherData(weatherData);
+  const [weatherData] = useWeather(hslBBox, startDate);
 
   return (
     <>
-      {/*<Rectangle
-        fill={false}
-        color="var(--light-grey)"
-        weight={1}
-        dashArray="8 8"
-        bounds={getWeatherSampleBounds(position)}
-      />*/}
       {weatherData && (
         <>
           {get(weatherData, "weather.locations", []).map((weatherLocation) => {
@@ -139,7 +90,6 @@ const WeatherDisplay = decorate(({className, state, position}) => {
           })}
         </>
       )}
-      <WeatherWidget {...parsedWeatherData} className={className} />
     </>
   );
 });

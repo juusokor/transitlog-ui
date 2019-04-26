@@ -17,6 +17,7 @@ import {createRouteId} from "../../helpers/keys";
 import {inject} from "../../helpers/inject";
 import WeatherDisplay from "./WeatherDisplay";
 import JourneyStopsLayer from "./JourneyStopsLayer";
+import {WeatherWidget, JourneyWeatherWidget} from "./WeatherWidget";
 
 const decorate = flow(
   observer,
@@ -135,6 +136,12 @@ const MapContent = decorate(
                       isSelectedJourney={isSelectedJourney}
                     />
                   ) : null,
+                  mapOverlays.includes("Weather") && currentPosition && (
+                    <JourneyWeatherWidget
+                      key={`journey_weather_${journey.id}`}
+                      position={currentPosition}
+                    />
+                  ),
                 ];
               })}
             {routeJourneys.length !== 0 &&
@@ -189,6 +196,9 @@ const MapContent = decorate(
               );
             })}
         {mapOverlays.includes("Weather") && <WeatherDisplay position={mapBounds} />}
+        {mapOverlays.includes("Weather") && !selectedJourneyId && (
+          <WeatherWidget position={mapBounds} />
+        )}
       </>
     );
   }
