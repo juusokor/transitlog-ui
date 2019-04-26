@@ -8,7 +8,6 @@ import {MockedProvider} from "react-apollo/test-utils";
 import {stopsByBboxQuery} from "../../queries/StopsByBboxQuery";
 import stopsByBboxQuery_grouped_Response from "../../__tests__/stopsByBboxQuery_grouped_Response.json";
 import stopsByBboxQuery_single_Response from "../../__tests__/stopsByBboxQuery_single_Response.json";
-import {latLngBounds} from "leaflet";
 import {Provider} from "mobx-react";
 import {Map, TileLayer, Pane} from "react-leaflet";
 
@@ -62,10 +61,10 @@ describe("StopLayer", () => {
   test("Renders a grouped stop marker for stops that are very close", async () => {
     // This date will trigger the mock data that contains two stops with identical coordinates
 
-    const {getByTestId} = render({bounds: "1,1,2,2"});
+    const {getAllByTestId} = render({bounds: "1,1,2,2"});
 
     await waitForElement(
-      () => getByTestId("compound-stop-marker-mock") // Added to the DOM by the stop marker mock
+      () => getAllByTestId("compound-stop-marker-mock") // Added to the DOM by the stop marker mock
     );
 
     expect(compoundStopMarkerMock).toHaveBeenCalled();
@@ -74,10 +73,10 @@ describe("StopLayer", () => {
   test("Renders separate stop markers for stops that are not in the same place", async () => {
     // This date will trigger the mock data that contains two stops with different coordinates
 
-    const {getByTestId} = render({bounds: "2,2,3,3"});
+    const {getAllByTestId} = render({bounds: "2,2,3,3"});
 
     await waitForElement(
-      () => getByTestId("stop-marker-mock") // Added to the DOM by the stop marker mock
+      () => getAllByTestId("stop-marker-mock") // Added to the DOM by the stop marker mock
     );
 
     expect(stopMarkerMock).toHaveBeenCalled();

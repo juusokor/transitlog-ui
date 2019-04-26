@@ -12,7 +12,7 @@ const decorate = flow(
   inject("state")
 );
 
-const StopLayer = decorate(({bounds, date, onViewLocation, showRadius, state}) => {
+const StopLayer = decorate(({bounds, onViewLocation, showRadius, state}) => {
   const {stop: selectedStop} = state;
 
   const bbox =
