@@ -1,12 +1,11 @@
 import React, {Component} from "react";
-import {observer, inject} from "mobx-react";
+import {observer, inject, Observer} from "mobx-react";
 import {app} from "mobx-app";
-import {toJS, reaction} from "mobx";
+import {toJS, reaction, observable, action} from "mobx";
 import styled from "styled-components";
 import Input from "../Input";
 import {text} from "../../helpers/text";
 import get from "lodash/get";
-import {createDebouncedObservable} from "../../helpers/createDebouncedObservable";
 import {getUrlValue, setUrlValue} from "../../stores/UrlManager";
 import {Button} from "../Forms";
 import {setResetListener} from "../../stores/FilterStore";
@@ -45,10 +44,14 @@ const TimeRangeFilterContainer = styled.div`
   }
 `;
 
-const ClearButton = styled(Button).attrs({small: true, primary: true})`
+const ApplyButton = styled(Button).attrs({small: true, primary: true})`
   margin-left: 0.5rem;
   margin-bottom: 1px;
 `;
+
+function intOrUndefined(val) {
+  return !val ? undefined : typeof val === "string" ? parseInt(val, 10) : val;
+}
 
 @inject(app("Filters", "Journey", "Time"))
 @withStop
@@ -57,28 +60,58 @@ class TimetablePanel extends Component {
   removeResetListener = () => {};
   disposeScrollResetReaction = () => {};
   updateScrollOffset = () => {};
+  disposeChangeListener = () => {};
 
-  // Create debounced observable values for the timetable filters.
-  routeFilter = createDebouncedObservable(getUrlValue("timetableRoute"), 500);
-  timeRangeFilter = createDebouncedObservable(
-    {
-      min: getUrlValue("timetableTimeRange.min", undefined),
-      max: getUrlValue("timetableTimeRange.max", undefined),
-    },
-    500
-  );
+  // Input value for the timerange filter. This will be copied to the filterValues
+  // prop when the apply button is clicked. It does not affect the search before that.
+  @observable
+  routeFilter = getUrlValue("timetableRoute", "");
+
+  // Input values for the timerange filter. These will be copied to the filterValues
+  // prop when the apply button is clicked. They do not affect the search before that.
+  @observable
+  timeRangeFilter = {
+    min: getUrlValue("timetableTimeRange.min", undefined),
+    max: getUrlValue("timetableTimeRange.max", undefined),
+  };
+
+  // These are the values that will actually be used in the query to filter the result.
+  // The apply button assigns the values from the props above which triggers a fetch.
+  @observable
+  filterValues = {
+    routeId: getUrlValue("timetableRoute", ""),
+    minHour: getUrlValue("timetableTimeRange.min", undefined),
+    maxHour: getUrlValue("timetableTimeRange.max", undefined),
+  };
+
+  // When this is true, the apply button will instead clear the inputs.
+  // Check the URL for url filters and set it to true if there are any.
+  @observable
+  filterButtonClears =
+    getUrlValue("timetableRoute", "") ||
+    getUrlValue("timetableTimeRange.min", "") ||
+    getUrlValue("timetableTimeRange.max", "");
 
   // We DON'T want this component to react to time changes,
   // as there is a lot to render and it would be too heavy.
   reactionlessTime = toJS(this.props.state.time);
 
   componentDidMount() {
+    const {state} = this.props;
     this.removeResetListener = setResetListener(this.onClearFilters);
 
     this.disposeScrollResetReaction = reaction(
-      () => [this.timeRangeFilter.debouncedValue, this.routeFilter.debouncedValue],
+      () => [this.timeRangeFilter, this.routeFilter],
       () => this.updateScrollOffset(true),
       {delay: 1}
+    );
+
+    // Clear the filters when some state changes.
+    this.disposeChangeListener = reaction(
+      () => [state.route.routeId, state.stop, state.date],
+      () => {
+        this.onClearFilters();
+      }
     );
   }
 
@@ -89,35 +122,79 @@ class TimetablePanel extends Component {
 
     // Dispose the reset listener
     this.removeResetListener();
+
+    this.disposeChangeListener();
   }
 
+  @action
   setRouteFilter = (e) => {
     const value = get(e, "target.value", e);
-    this.routeFilter.setValue(value);
+    this.routeFilter = value;
+
+    // When this value changes, set the apply button to apply
+    // mode if it wasn't so we can update the search.
+    if (this.filterButtonClears) {
+      this.filterButtonClears = false;
+    }
+
     setUrlValue("timetableRoute", value);
   };
 
+  @action
   setTimeRangeFilter = (which) => (e) => {
     const value = e.target.value;
-
+    // We need the reverse of the current field. Max is the
+    // reverse of min, and min is the reverse of max.
     const reverse = which === "min" ? "max" : "min";
 
-    // If the time is not a valid hour, make it empty.
-    const setValue = value > 23 || value < 0 ? "" : value;
+    // If the time is not a valid number, make it empty.
+    const setValue = value < 0 ? "" : value;
 
     // The time range value is set as an object.
-    const nextValue = {
-      [reverse]: this.timeRangeFilter.value[reverse],
+    this.timeRangeFilter = {
+      [reverse]: this.timeRangeFilter[reverse],
       [which]: setValue,
     };
 
-    this.timeRangeFilter.setValue(nextValue);
+    // When this value changes, set the apply button to apply
+    // mode if it wasn't so we can update the search.
+    if (this.filterButtonClears) {
+      this.filterButtonClears = false;
+    }
+
     setUrlValue(`timetableTimeRange.${which}`, setValue);
   };
 
+  // This action copies the input values for the filters to the
+  @action
+  onApplyFilters = () => {
+    const routeId = this.routeFilter;
+    const minHour = this.timeRangeFilter.min;
+    const maxHour = this.timeRangeFilter.max;
+
+    this.filterValues = {
+      routeId,
+      minHour: intOrUndefined(minHour),
+      maxHour: intOrUndefined(maxHour),
+    };
+
+    if (!this.filterButtonClears) {
+      this.filterButtonClears = true;
+    }
+  };
+
   onClearFilters = () => {
-    this.timeRangeFilter.setValue({min: "", max: ""});
-    this.routeFilter.setValue("");
+    this.timeRangeFilter = {min: "", max: ""};
+    this.routeFilter = "";
+    this.filterValues = {
+      minHour: "",
+      maxHour: "",
+      routeId: "",
+    };
+
+    if (this.filterButtonClears) {
+      this.filterButtonClears = false;
+    }
 
     setUrlValue(`timetableTimeRange.min`, null);
     setUrlValue(`timetableTimeRange.max`, null);
@@ -178,33 +255,42 @@ class TimetablePanel extends Component {
         rowHeight={35}
         loading={loading}
         header={
-          <TimetableFilters>
-            <RouteFilterContainer>
-              <Input
-                value={this.routeFilter.value} // The value is not debounced here
-                animatedLabel={false}
-                onChange={this.setRouteFilter}
-                label={text("domain.route")}
-              />
-            </RouteFilterContainer>
-            <TimeRangeFilterContainer>
-              <Input
-                type="number"
-                value={this.timeRangeFilter.value.min} // The value is not debounced here either
-                animatedLabel={false}
-                label={`${text("general.timerange.min")} ${text("general.hour")}`}
-                onChange={this.setTimeRangeFilter("min")}
-              />
-              <Input
-                type="number"
-                value={this.timeRangeFilter.value.max} // Nor is it debounced here :)
-                animatedLabel={false}
-                label={`${text("general.timerange.max")} ${text("general.hour")}`}
-                onChange={this.setTimeRangeFilter("max")}
-              />
-            </TimeRangeFilterContainer>
-            <ClearButton onClick={this.onClearFilters}>Clear</ClearButton>
-          </TimetableFilters>
+          <Observer>
+            {() => (
+              <TimetableFilters>
+                <RouteFilterContainer>
+                  <Input
+                    value={this.routeFilter}
+                    animatedLabel={false}
+                    onChange={this.setRouteFilter}
+                    label={text("domain.route")}
+                  />
+                </RouteFilterContainer>
+                <TimeRangeFilterContainer>
+                  <Input
+                    type="number"
+                    value={this.timeRangeFilter.min}
+                    animatedLabel={false}
+                    label={`${text("general.timerange.min")} ${text("general.hour")}`}
+                    onChange={this.setTimeRangeFilter("min")}
+                  />
+                  <Input
+                    type="number"
+                    value={this.timeRangeFilter.max}
+                    animatedLabel={false}
+                    label={`${text("general.timerange.max")} ${text("general.hour")}`}
+                    onChange={this.setTimeRangeFilter("max")}
+                  />
+                </TimeRangeFilterContainer>
+                <ApplyButton
+                  onClick={
+                    this.filterButtonClears ? this.onClearFilters : this.onApplyFilters
+                  }>
+                  {this.filterButtonClears ? "Clear" : "Apply"}
+                </ApplyButton>
+              </TimetableFilters>
+            )}
+          </Observer>
         }
       />
     ) : (
@@ -219,19 +305,15 @@ class TimetablePanel extends Component {
       state: {date, selectedJourney, stop: stopId},
     } = this.props;
 
-    // Collect values. The filter values are read as debounced values.
-    const routeFilter = this.routeFilter.debouncedValue;
-    const timeRangeFilter = this.timeRangeFilter.debouncedValue;
-
-    const {min, max} = timeRangeFilter;
+    const {minHour, maxHour, routeId} = this.filterValues;
 
     return (
       <DeparturesQuery
         stopId={stopId}
         date={date}
-        routeId={routeFilter || undefined}
-        minHour={min || undefined}
-        maxHour={max || undefined}>
+        routeId={routeId || undefined}
+        minHour={intOrUndefined(minHour, 10)}
+        maxHour={intOrUndefined(maxHour, 10)}>
         {({departures, loading}) => {
           const selectedJourneyId = getJourneyId(selectedJourney);
 
