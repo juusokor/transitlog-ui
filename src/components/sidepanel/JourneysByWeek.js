@@ -12,7 +12,7 @@ import get from "lodash/get";
 import map from "lodash/map";
 import {inject} from "../../helpers/inject";
 import doubleDigit from "../../helpers/doubleDigit";
-import {getDayTypeFromDate, dayTypes} from "../../helpers/getDayTypeFromDate";
+import {getDayTypeFromDate} from "../../helpers/getDayTypeFromDate";
 import getWeek from "date-fns/get_iso_week";
 import format from "date-fns/format";
 import JourneysByWeekQuery from "../../queries/JourneysByWeekQuery";

@@ -7,7 +7,6 @@ import Login from "../icons/Login";
 import {logout} from "../auth/authService";
 
 const ORIGIN = process.env.REACT_APP_TRANSITLOG;
-const CLIENT_ID = process.env.CLIENT_ID;
 
 const Root = styled.div`
   position: fixed;
