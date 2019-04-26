@@ -49,6 +49,10 @@ const ApplyButton = styled(Button).attrs({small: true, primary: true})`
   margin-bottom: 1px;
 `;
 
+function intOrUndefined(val) {
+  return !val ? undefined : typeof val === "string" ? parseInt(val, 10) : val;
+}
+
 @inject(app("Filters", "Journey", "Time"))
 @withStop
 @observer
@@ -56,6 +60,7 @@ class TimetablePanel extends Component {
   removeResetListener = () => {};
   disposeScrollResetReaction = () => {};
   updateScrollOffset = () => {};
+  disposeChangeListener = () => {};
 
   // Input value for the timerange filter. This will be copied to the filterValues
   // prop when the apply button is clicked. It does not affect the search before that.
@@ -75,8 +80,8 @@ class TimetablePanel extends Component {
   @observable
   filterValues = {
     routeId: getUrlValue("timetableRoute", ""),
-    minHour: getUrlValue("timetableTimeRange.min", ""),
-    maxHour: getUrlValue("timetableTimeRange.max", ""),
+    minHour: getUrlValue("timetableTimeRange.min", undefined),
+    maxHour: getUrlValue("timetableTimeRange.max", undefined),
   };
 
   // When this is true, the apply button will instead clear the inputs.
@@ -92,12 +97,21 @@ class TimetablePanel extends Component {
   reactionlessTime = toJS(this.props.state.time);
 
   componentDidMount() {
+    const {state} = this.props;
     this.removeResetListener = setResetListener(this.onClearFilters);
 
     this.disposeScrollResetReaction = reaction(
       () => [this.timeRangeFilter, this.routeFilter],
       () => this.updateScrollOffset(true),
       {delay: 1}
+    );
+
+    // Clear the filters when some state changes.
+    this.disposeChangeListener = reaction(
+      () => [state.route.routeId, state.stop, state.date],
+      () => {
+        this.onClearFilters();
+      }
     );
   }
 
@@ -108,6 +122,8 @@ class TimetablePanel extends Component {
 
     // Dispose the reset listener
     this.removeResetListener();
+
+    this.disposeChangeListener();
   }
 
   @action
@@ -158,8 +174,8 @@ class TimetablePanel extends Component {
 
     this.filterValues = {
       routeId,
-      minHour,
-      maxHour,
+      minHour: intOrUndefined(minHour),
+      maxHour: intOrUndefined(maxHour),
     };
 
     if (!this.filterButtonClears) {
@@ -170,6 +186,11 @@ class TimetablePanel extends Component {
   onClearFilters = () => {
     this.timeRangeFilter = {min: "", max: ""};
     this.routeFilter = "";
+    this.filterValues = {
+      minHour: "",
+      maxHour: "",
+      routeId: "",
+    };
 
     if (this.filterButtonClears) {
       this.filterButtonClears = false;
@@ -291,8 +312,8 @@ class TimetablePanel extends Component {
         stopId={stopId}
         date={date}
         routeId={routeId || undefined}
-        minHour={parseInt(minHour, 10) || undefined}
-        maxHour={parseInt(maxHour, 10) || undefined}>
+        minHour={intOrUndefined(minHour, 10)}
+        maxHour={intOrUndefined(maxHour, 10)}>
         {({departures, loading}) => {
           const selectedJourneyId = getJourneyId(selectedJourney);
 
