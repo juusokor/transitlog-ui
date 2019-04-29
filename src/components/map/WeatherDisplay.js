@@ -11,6 +11,8 @@ import {CircleMarker, Tooltip} from "react-leaflet";
 import {latLng, latLngBounds} from "leaflet";
 import {text, Text} from "../../helpers/text";
 import {getMomentFromDateTime} from "../../helpers/time";
+import {useDebouncedValue} from "../../hooks/useDebouncedValue";
+import {floorMoment} from "../../helpers/roundMoment";
 
 const TooltipText = styled.div`
   font-family: var(--font-family);
@@ -39,14 +41,12 @@ const WeatherMarker = ({children, location, color}) => (
 const hslBBox = latLngBounds([[59.91326, 23.983637], [60.629925, 25.285678]]);
 
 const WeatherDisplay = decorate(({state}) => {
-  const {date, time} = state;
+  const {timeMoment} = state;
+  const debouncedTime = useDebouncedValue(timeMoment, 1000);
 
   const startDate = useMemo(
-    () =>
-      getMomentFromDateTime(date, time)
-        .startOf("hour")
-        .toISOString(true),
-    [date, time]
+    () => floorMoment(debouncedTime.clone(), 10, "minutes").toISOString(true),
+    [debouncedTime]
   );
 
   const [weatherData] = useWeather(hslBBox, startDate);

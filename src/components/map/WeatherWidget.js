@@ -9,6 +9,7 @@ import flow from "lodash/flow";
 import {observer} from "mobx-react-lite";
 import {inject} from "../../helpers/inject";
 import {useJourneyWeather} from "../../hooks/useJourneyWeather";
+import {roundMoment, floorMoment} from "../../helpers/roundMoment";
 
 const WeatherContainer = styled.div`
   position: absolute;
@@ -60,12 +61,12 @@ const WeatherWidgetComponent = ({
   );
 
 export const WeatherWidget = decorate(({position, className, state}) => {
-  const {date, time} = state;
-  const debouncedTime = useDebouncedValue(time, 1000);
+  const {timeMoment} = state;
+  const debouncedTime = useDebouncedValue(timeMoment, 1000);
 
   const startDate = useMemo(
-    () => getMomentFromDateTime(date, debouncedTime).toISOString(true),
-    [date, debouncedTime]
+    () => floorMoment(debouncedTime.clone(), 10, "minutes").toISOString(true),
+    [debouncedTime]
   );
 
   const [weatherData] = useWeather(position, startDate);

@@ -39,20 +39,18 @@ const decorate = flow(
   withStop
 );
 
-export const StopRouteSelect = decorate(
-  ({stop, stopLoading, date, color, onSelectRoute}) => {
-    return stopLoading
-      ? "loading"
-      : get(stop, "routes", []).map((route) => (
-          <StopOptionButton
-            color={color}
-            key={`route_${route.routeId}_${route.direction}`}
-            onClick={onSelectRoute}>
-            {cleanRouteId(route.routeId)}
-            {route.isTimingStop && <TimingIcon src={timingStopIcon} />}
-          </StopOptionButton>
-        ));
-  }
-);
+export const StopRouteSelect = decorate(({stop, stopLoading, color, onSelectRoute}) => {
+  return stopLoading
+    ? "loading"
+    : get(stop, "routes", []).map((route) => (
+        <StopOptionButton
+          color={color}
+          key={`route_${route.routeId}_${route.direction}`}
+          onClick={onSelectRoute(route)}>
+          {cleanRouteId(route.routeId)}
+          {route.isTimingStop && <TimingIcon src={timingStopIcon} />}
+        </StopOptionButton>
+      ));
+});
 
 export default StopRouteSelect;
