@@ -64,6 +64,7 @@
     "moment-timezone": "^0.5.25",
     "optimize-css-assets-webpack-plugin": "^5.0.1",
     "p-all": "^2.1.0",
+    "p-cancelable": "^2.0.0",
     "p-each-series": "^2.1.0",
     "p-finally": "^1.0.0",
     "p-map": "^2.1.0",

@@ -20,7 +20,7 @@ function getClosestTimeValue(values, timestamp) {
 
   for (const value of values) {
     const {time} = value;
-    const diff = Math.abs(timestamp - time);
+    const diff = Math.abs(timestamp * 1000 - time);
 
     if (!prevClosest || diff < prevClosest) {
       selected = value;
@@ -107,5 +107,5 @@ export const useWeatherData = (weatherData, timestamp) => {
       temperatureIsUncertain: weatherLocations.length === 0,
       roadConditionIsUncertain: roadConditionLocations.length === 0,
     };
-  }, [weatherData, timestamp, prevData.current]);
+  }, [weatherData, timestamp]);
 };

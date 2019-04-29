@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useMemo} from "react";
 import {observer} from "mobx-react-lite";
 import StopLayer from "./StopLayer";
 import StopMarker from "./StopMarker";
@@ -18,6 +18,9 @@ import {inject} from "../../helpers/inject";
 import WeatherDisplay from "./WeatherDisplay";
 import JourneyStopsLayer from "./JourneyStopsLayer";
 import {WeatherWidget, JourneyWeatherWidget} from "./WeatherWidget";
+import get from "lodash/get";
+import moment from "moment-timezone";
+import {TIMEZONE} from "../../constants";
 
 const decorate = flow(
   observer,
@@ -38,12 +41,18 @@ const MapContent = decorate(
     setQueryBounds,
     actualQueryBounds,
     centerOnRoute = true,
-    state: {selectedJourney, date, mapOverlays, areaEventsStyle},
+    state: {selectedJourney, date, mapOverlays, areaEventsStyle, unixTime},
   }) => {
     const hasRoute = !!route && !!route.routeId;
     const showStopRadius = expr(() => mapOverlays.indexOf("Stop radius") !== -1);
 
     const selectedJourneyId = getJourneyId(selectedJourney);
+    const selectedJourneyEvents = useMemo(
+      () => get(journeys.find((j) => j.id === selectedJourneyId) || {}, "events", []),
+      [selectedJourneyId, journeys.length !== 0]
+    );
+
+    console.log(moment.tz(unixTime * 1000, TIMEZONE).toISOString(true));
 
     return (
       <>
@@ -136,12 +145,6 @@ const MapContent = decorate(
                       isSelectedJourney={isSelectedJourney}
                     />
                   ) : null,
-                  mapOverlays.includes("Weather") && currentPosition && (
-                    <JourneyWeatherWidget
-                      key={`journey_weather_${journey.id}`}
-                      position={currentPosition}
-                    />
-                  ),
                 ];
               })}
             {routeJourneys.length !== 0 &&
@@ -195,10 +198,19 @@ const MapContent = decorate(
                 />
               );
             })}
-        {mapOverlays.includes("Weather") && <WeatherDisplay position={mapBounds} />}
-        {mapOverlays.includes("Weather") && !selectedJourneyId && (
-          <WeatherWidget position={mapBounds} />
+        {mapOverlays.includes("Weather") && (
+          <WeatherDisplay key="weather_map" position={mapBounds} />
         )}
+        {mapOverlays.includes("Weather") &&
+          (!selectedJourneyId ? (
+            <WeatherWidget key="map_weather" position={mapBounds} />
+          ) : (
+            <JourneyWeatherWidget
+              time={unixTime}
+              key={`journey_weather_${selectedJourneyId}`}
+              events={selectedJourneyEvents}
+            />
+          ))}
       </>
     );
   }

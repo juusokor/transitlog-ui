@@ -1,15 +1,16 @@
 import {Text} from "../../helpers/text";
-import React, {useMemo} from "react";
+import React, {useMemo, memo} from "react";
 import styled from "styled-components";
 import {useDebouncedValue} from "../../hooks/useDebouncedValue";
-import {getMomentFromDateTime} from "../../helpers/time";
 import {useWeather} from "../../hooks/useWeather";
 import {useWeatherData} from "../../hooks/useWeatherData";
 import flow from "lodash/flow";
 import {observer} from "mobx-react-lite";
 import {inject} from "../../helpers/inject";
 import {useJourneyWeather} from "../../hooks/useJourneyWeather";
-import {roundMoment, floorMoment} from "../../helpers/roundMoment";
+import {floorMoment} from "../../helpers/roundMoment";
+import {useManuallyDebouncedValue} from "../../hooks/useManuallyDebouncedValue";
+import differenceInSeconds from "date-fns";
 
 const WeatherContainer = styled.div`
   position: absolute;
@@ -62,11 +63,14 @@ const WeatherWidgetComponent = ({
 
 export const WeatherWidget = decorate(({position, className, state}) => {
   const {timeMoment} = state;
-  const debouncedTime = useDebouncedValue(timeMoment, 1000);
+
+  const debouncedTime = useManuallyDebouncedValue(timeMoment, (val, prevVal) =>
+    prevVal ? Math.abs(val.diff(prevVal), "seconds") > 60 * 60 : false
+  );
 
   const startDate = useMemo(
-    () => floorMoment(debouncedTime.clone(), 10, "minutes").toISOString(true),
-    [debouncedTime]
+    () => floorMoment(timeMoment.clone(), 10, "minutes").toISOString(true),
+    [debouncedTime.valueOf()]
   );
 
   const [weatherData] = useWeather(position, startDate);
@@ -75,9 +79,9 @@ export const WeatherWidget = decorate(({position, className, state}) => {
   return <WeatherWidgetComponent {...parsedWeatherData} className={className} />;
 });
 
-export const JourneyWeatherWidget = ({position, className}) => {
-  const [weatherData] = useJourneyWeather(position);
-  const parsedWeatherData = useWeatherData(weatherData);
+export const JourneyWeatherWidget = memo(({events, time, className}) => {
+  const [weatherData] = useJourneyWeather(events);
+  const parsedWeatherData = useWeatherData(weatherData, time);
 
   return <WeatherWidgetComponent {...parsedWeatherData} className={className} />;
-};
+});
