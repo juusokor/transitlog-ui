@@ -47,7 +47,6 @@ const StopDepartureTime = styled(TagButton)``;
 export default ({
   departure,
   color,
-  date,
   onClickTime,
   onSelectStop = () => {},
   onHoverStop = () => {},
@@ -71,7 +70,11 @@ export default ({
     return (
       <StopWrapper>
         <StopElementsWrapper color={color}>
-          <StopMarker color={color} onClick={onStopClick} {...hoverProps} />
+          {departure.isTimingStop ? (
+            <TimingStopMarker color={color} onClick={onStopClick} {...hoverProps} />
+          ) : (
+            <StopMarker color={color} onClick={onStopClick} {...hoverProps} />
+          )}
         </StopElementsWrapper>
         <StopContent>
           <StopHeading onClick={onStopClick} {...hoverProps}>

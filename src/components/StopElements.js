@@ -24,8 +24,8 @@ export const StopMarker = styled.button`
 
 const TimingStopMarkerBackground = styled(StopMarker)`
   border: 0;
-  width: 2rem;
-  height: 2rem;
+  width: 1.75rem;
+  height: 1.75rem;
   margin-top: -0.3rem;
 `;
 
