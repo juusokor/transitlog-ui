@@ -3,18 +3,26 @@ import get from "lodash/get";
 import meanBy from "lodash/meanBy";
 import orderBy from "lodash/orderBy";
 import uniqBy from "lodash/uniqBy";
+import groupBy from "lodash/groupBy";
 
 function getValues(locations, value) {
-  return locations.reduce((values, {data}) => {
+  const timeValues = locations.reduce((values, {data}) => {
     const timeValuePairs = get(data, `${value}.timeValuePairs`, []).filter(
       ({value}) => !isNaN(value)
     );
 
     return [...values, ...timeValuePairs];
   }, []);
+
+  return orderBy(
+    Object.entries(groupBy(timeValues, "time")).map(([time, values]) => {
+      return {time, value: meanBy(values, "value")};
+    }),
+    "time"
+  );
 }
 
-function getClosestTimeValue(values, timestamp) {
+export function getClosestTimeValue(values, timestamp) {
   let prevClosest = 0;
   let selected = values[0];
 

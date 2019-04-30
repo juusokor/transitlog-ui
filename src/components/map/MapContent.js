@@ -52,8 +52,6 @@ const MapContent = decorate(
       [selectedJourneyId, journeys.length !== 0]
     );
 
-    console.log(moment.tz(unixTime * 1000, TIMEZONE).toISOString(true));
-
     return (
       <>
         <AreaSelect

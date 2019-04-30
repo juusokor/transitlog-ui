@@ -1,13 +1,15 @@
-import {useState, useEffect, useRef, useMemo} from "react";
+import {useState, useEffect, useRef, useMemo, useCallback} from "react";
 import moment from "moment-timezone";
 import {getWeatherForArea} from "../helpers/getWeatherForArea";
 import {getRoadConditionsForArea} from "../helpers/getRoadConditionsForArea";
 import {floorMoment, ceilMoment} from "../helpers/roundMoment";
 import {LatLngBounds, latLngBounds} from "leaflet";
 import uniq from "lodash/uniq";
+import difference from "lodash/difference";
 import {TIMEZONE} from "../constants";
 import {useDebouncedValue} from "./useDebouncedValue";
 import {getRoundedBbox} from "../helpers/getRoundedBbox";
+import isValid from "date-fns/is_valid";
 
 export function getWeatherSamplePoint(location) {
   let validPoint = location || null;
@@ -58,10 +60,28 @@ function getAllSites() {
       (allSites, site) => [...allSites, ...site.split(",")],
       []
     )
-  );
+  ).sort();
 }
 
-export const useWeather = (location, time, startTime = null) => {
+export const useWeather = (location, endTime, startTime = null, which = "display") => {
+  // Collect cancellation callbacks and use one function to run them all.
+  const cancelCallbacks = useRef([]);
+  const onCancel = useCallback(
+    (cancelType) => {
+      const called = [];
+
+      cancelCallbacks.current
+        .filter(({type}) => cancelType === type)
+        .forEach((cancelCallback) => {
+          cancelCallback.func();
+          called.push(cancelCallback);
+        });
+
+      cancelCallbacks.current = difference(cancelCallbacks.current, called);
+    },
+    [cancelCallbacks.current]
+  );
+
   // Record the fetched weather and road data
   const [weatherData, setWeatherData] = useState(null);
   const [roadData, setRoadData] = useState(null);
@@ -70,98 +90,119 @@ export const useWeather = (location, time, startTime = null) => {
 
   // Metolib cannot cache if we use a bbox, so map all locations, points or bboxes
   // supplied to this hook to sites that can be cached by metolib.
-  let sites = [];
-
-  if (Array.isArray(location)) {
-    sites = location;
-  } else if (location === "all" || !location) {
-    sites = getAllSites();
-  } else if (!!location) {
-    const point = getWeatherSamplePoint(location);
-    sites = getWeatherSampleSites(point);
-  }
+  let sites = useMemo(() => {
+    if (Array.isArray(location)) {
+      return location;
+    } else if (location === "all" || !location) {
+      return getAllSites();
+    } else if (!!location) {
+      const point = getWeatherSamplePoint(location);
+      return getWeatherSampleSites(point);
+    }
+    return [];
+  }, [location]);
 
   // Debounce the values to prevent too frequent fetches
-  const querySites = useDebouncedValue(sites, 5000);
-  const debouncedTime = useDebouncedValue(time, 1000);
-  const debouncedStartTime = useDebouncedValue(startTime, 1000);
+  const querySites = useDebouncedValue(sites, 1000);
+  const debouncedEndTime = useDebouncedValue(endTime, 100);
+  const debouncedStartTime = useDebouncedValue(startTime, 100);
 
   const [queryStartTime, queryEndTime] = useMemo(() => {
     // Get the base date that is used in the weather request. Also ensure the date
     // isn't further in the future from the real world time.
     const endDate = moment.min(
-      ceilMoment(moment.tz(debouncedTime, TIMEZONE), 10, "minutes"),
+      ceilMoment(moment.tz(debouncedEndTime, TIMEZONE), 10, "minutes"),
       floorMoment(moment.tz(), 10, "minutes")
     );
 
     // Get a nice startDate by flooring the time to the nearest 10 minute mark.
     const startDate = floorMoment(
-      queryStartTime
-        ? moment.tz(queryStartTime, TIMEZONE)
+      debouncedStartTime
+        ? moment.tz(debouncedStartTime, TIMEZONE)
         : endDate.clone().subtract(10, "minutes"),
       10,
       "minutes"
     );
 
     return [startDate.toDate(), endDate.toDate()];
-  }, [debouncedTime, debouncedStartTime]);
+  }, [debouncedEndTime, debouncedStartTime]);
 
   useEffect(() => {
     // Bail directly if it is loading or we don't have all the data we need yet.
-    if (weatherLoading.current || !querySites || !queryStartTime || !queryEndTime) {
+    if (
+      weatherLoading.current ||
+      !querySites ||
+      (!queryStartTime || !isValid(queryStartTime)) ||
+      (!queryEndTime || !isValid(queryEndTime))
+    ) {
       return () => {};
     }
+
+    let isCancelled = false;
 
     // If we got to here, a new weather request will be made.
     weatherLoading.current = true;
 
     // Start the requests. Each promise returns an object containing
     // the data and request namespace.
-    const weatherPromise = getWeatherForArea(querySites, queryStartTime, queryEndTime)
-      .then((data) => setWeatherData(data))
+    getWeatherForArea(querySites, queryStartTime, queryEndTime, (cancelCb) =>
+      cancelCallbacks.current.push({type: "weather", func: cancelCb})
+    )
+      .then((data) => {
+        if (!isCancelled) {
+          setWeatherData(data);
+        }
+      })
       .catch((err) => console.error(err))
       .finally(() => {
         weatherLoading.current = false;
       });
 
     return () => {
-      if (typeof weatherPromise.cancel === "function") {
-        weatherPromise.cancel();
-      }
+      isCancelled = true;
+      onCancel("weather");
     }; // The effect will cancel the connections if refreshed (or unmounted).
-  }, [queryStartTime, queryEndTime, querySites]); // Only refresh the effect if these props change.
+  }, [queryStartTime.valueOf(), queryEndTime.valueOf(), querySites]); // Only refresh the effect if these props change.
 
   useEffect(() => {
     // Bail directly if it is loading or we don't have all the data we need yet.
-    if (roadLoading.current || !queryStartTime || !queryEndTime) {
+    if (
+      roadLoading.current ||
+      (!queryStartTime || !isValid(queryStartTime)) ||
+      (!queryEndTime || !isValid(queryEndTime))
+    ) {
       return () => {};
     }
+
+    let isCancelled = false;
 
     // If we got to here, a new weather request will be made.
     roadLoading.current = true;
 
-    const roadConditionPromise = getRoadConditionsForArea(
-      hslBBox,
-      queryStartTime,
-      queryEndTime
+    getRoadConditionsForArea(hslBBox, queryStartTime, queryEndTime, (cancelCb) =>
+      cancelCallbacks.current.push({type: "road", func: cancelCb})
     )
-      .then((data) => setRoadData(data))
+      .then((data) => {
+        if (!isCancelled) {
+          setRoadData(data);
+        }
+      })
       .catch((err) => console.error(err))
-      .finally(() => {
-        roadLoading.current = false;
-      });
+      .finally(() => (roadLoading.current = false));
 
     return () => {
-      if (typeof roadConditionPromise.cancel === "function") {
-        roadConditionPromise.cancel();
-      }
-    }; // The effect will cancel the connections if refreshed (or unmounted).
-  }, [queryStartTime, queryEndTime]);
+      isCancelled = true;
+      onCancel("road");
+    };
+  }, [queryStartTime.valueOf(), queryEndTime.valueOf()]);
 
-  const combinedData = {
-    weather: weatherData,
-    roadCondition: roadData,
-  };
+  const combinedData = useMemo(
+    () => ({
+      weather: weatherData,
+      roadCondition: roadData,
+    }),
+    [weatherData, roadData]
+  );
 
   return [combinedData];
 };

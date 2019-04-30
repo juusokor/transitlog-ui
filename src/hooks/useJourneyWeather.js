@@ -31,5 +31,5 @@ export const useJourneyWeather = (events, journeyId) => {
   const startDate = useMemo(() => (minEvent ? minEvent.recordedAt : null), [minEvent]);
   const endDate = useMemo(() => (maxEvent ? maxEvent.recordedAt : null), [maxEvent]);
 
-  return useWeather(sites, endDate, startDate);
+  return useWeather(sites, endDate, startDate, "journey");
 };
