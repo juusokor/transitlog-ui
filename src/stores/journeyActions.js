@@ -41,7 +41,6 @@ export default (state) => {
         getJourneyId(state.selectedJourney) === getJourneyId(journeyItem))
     ) {
       state.selectedJourney = null;
-      filters.setVehicle(null);
       setPathName("/");
     } else if (journeyItem) {
       const oldVehicle = get(state, "vehicle", "");
