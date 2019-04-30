@@ -6,7 +6,10 @@ import HSLLogoNoText from "../icons/HSLLogoNoText";
 import Login from "../icons/Login";
 import {logout} from "../auth/authService";
 
-const ORIGIN = process.env.REACT_APP_TRANSITLOG;
+const AUTH_URI = process.env.REACT_APP_AUTH_URI;
+const REDIRECT_URI = process.env.REACT_APP_REDIRECT_URI;
+const CLIENT_ID = process.env.REACT_APP_CLIENT_ID;
+const SCOPE = process.env.REACT_APP_AUTH_SCOPE;
 
 const Root = styled.div`
   position: fixed;
@@ -87,7 +90,7 @@ class LoginModal extends React.Component {
 
   openLoginForm = () => {
     window.location.replace(
-      `https://hslid-uat.cinfra.fi/openid/auth?client_id=1424368089733870&redirect_uri=${ORIGIN}&response_type=code&scope=email+https://oneportal.trivore.com/scope/groups.readonly`
+      `${AUTH_URI}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=${SCOPE}`
     );
   };
 
