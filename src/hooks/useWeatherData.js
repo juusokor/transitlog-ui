@@ -3,24 +3,32 @@ import get from "lodash/get";
 import meanBy from "lodash/meanBy";
 import orderBy from "lodash/orderBy";
 import uniqBy from "lodash/uniqBy";
+import groupBy from "lodash/groupBy";
 
 function getValues(locations, value) {
-  return locations.reduce((values, {data}) => {
+  const timeValues = locations.reduce((values, {data}) => {
     const timeValuePairs = get(data, `${value}.timeValuePairs`, []).filter(
       ({value}) => !isNaN(value)
     );
 
     return [...values, ...timeValuePairs];
   }, []);
+
+  return orderBy(
+    Object.entries(groupBy(timeValues, "time")).map(([time, values]) => {
+      return {time, value: meanBy(values, "value")};
+    }),
+    "time"
+  );
 }
 
-function getClosestTimeValue(values, timestamp) {
+export function getClosestTimeValue(values, timestamp) {
   let prevClosest = 0;
   let selected = values[0];
 
   for (const value of values) {
     const {time} = value;
-    const diff = Math.abs(timestamp - time);
+    const diff = Math.abs(timestamp * 1000 - time);
 
     if (!prevClosest || diff < prevClosest) {
       selected = value;
@@ -107,5 +115,5 @@ export const useWeatherData = (weatherData, timestamp) => {
       temperatureIsUncertain: weatherLocations.length === 0,
       roadConditionIsUncertain: roadConditionLocations.length === 0,
     };
-  }, [weatherData, timestamp, prevData.current]);
+  }, [weatherData, timestamp]);
 };

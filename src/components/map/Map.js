@@ -4,7 +4,7 @@ import LeafletMap from "./LeafletMap";
 import {app} from "mobx-app";
 import trim from "lodash/trim";
 import get from "lodash/get";
-import debounce from "lodash/debounce";
+import throttle from "lodash/throttle";
 import {setUrlValue, getUrlValue} from "../../stores/UrlManager";
 import {observable, action} from "mobx";
 import {runInAction} from "mobx";
@@ -143,7 +143,7 @@ class Map extends Component {
 
   // Debounced method that sets the current map position into the URL state when
   // it changes.
-  setMapUrlState = debounce(
+  setMapUrlState = throttle(
     (center, zoom) =>
       center.lat &&
       center.lng &&
@@ -161,7 +161,7 @@ class Map extends Component {
   // This method sets the observable map view props of this component. This method is
   // called AFTER the view has been changed and it will NOT center the map or change
   // the view, the state is just passed on to children.
-  setMapViewState = (map) => {
+  setMapViewState = throttle((map) => {
     if (!map) {
       return;
     }
@@ -173,10 +173,10 @@ class Map extends Component {
       return;
     }
 
-    setTimeout(() => {
+    requestAnimationFrame(() => {
       runInAction(() => (this.mapView = bounds));
-    }, 1);
-  };
+    });
+  }, 100);
 
   onZoom = (event) => {
     const zoom = event.target.getZoom();

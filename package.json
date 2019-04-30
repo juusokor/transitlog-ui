@@ -67,6 +67,7 @@
     "p-each-series": "^2.1.0",
     "p-finally": "^1.0.0",
     "p-map": "^2.1.0",
+    "p-queue": "^5.0.0",
     "pnp-webpack-plugin": "^1.4.3",
     "polished": "^3.2.0",
     "postcss-flexbugs-fixes": "^4.1.0",

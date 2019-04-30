@@ -1,6 +1,8 @@
-import {useWeather} from "./useWeather";
-import {latLngBounds, latLng} from "leaflet";
+import {useWeather, getWeatherSampleSites} from "./useWeather";
+import {latLng} from "leaflet";
 import {useMemo} from "react";
+import flatten from "lodash/flatten";
+import uniq from "lodash/uniq";
 
 export const useJourneyWeather = (events, journeyId) => {
   const {minEvent, maxEvent} = useMemo(
@@ -11,35 +13,23 @@ export const useJourneyWeather = (events, journeyId) => {
     [typeof events[0] !== "undefined", journeyId]
   );
 
-  const minPosition =
-    minEvent && minEvent.lat ? latLng(minEvent.lat, minEvent.lng) : null;
+  const minPosition = useMemo(
+    () => (minEvent && minEvent.lat ? latLng(minEvent.lat, minEvent.lng) : null),
+    [typeof events[0] !== "undefined", journeyId]
+  );
 
-  const maxPosition =
-    maxEvent && maxEvent.lat ? latLng(maxEvent.lat, maxEvent.lng) : null;
+  const maxPosition = useMemo(
+    () => (maxEvent && maxEvent.lat ? latLng(maxEvent.lat, maxEvent.lng) : null),
+    [typeof events[0] !== "undefined", journeyId]
+  );
 
-  const bounds = useMemo(
-    () => (minPosition && maxPosition ? latLngBounds(minPosition, maxPosition) : null),
+  const sites = useMemo(
+    () => uniq(flatten([maxPosition, minPosition].map(getWeatherSampleSites))).sort(),
     [minPosition, maxPosition]
   );
 
   const startDate = useMemo(() => (minEvent ? minEvent.recordedAt : null), [minEvent]);
   const endDate = useMemo(() => (maxEvent ? maxEvent.recordedAt : null), [maxEvent]);
 
-  // Routes can be quite one-dimensional (straight-ish line horizontally or vertically),
-  // so first create a new bbox from the center of the route and extend it over the
-  // start and end points with 5 km^2 of padding at either end.
-  const routeBounds = useMemo(() => {
-    if (!bounds) {
-      return null;
-    }
-
-    const center = bounds.getCenter();
-    const squareBounds = center.toBounds(8000); // 8km^2 bbox from the center
-    squareBounds.extend(minPosition.toBounds(5000)); // Extend bounds to contain 5km^2 around the start position
-    squareBounds.extend(maxPosition.toBounds(5000)); // Extend bounds to contain 5km^2 around the end position
-
-    return squareBounds;
-  }, [bounds, minPosition, maxPosition]);
-
-  return useWeather(routeBounds, endDate, startDate);
+  return useWeather(sites, endDate, startDate, "journey");
 };
