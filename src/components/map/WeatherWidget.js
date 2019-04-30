@@ -11,6 +11,7 @@ import {useJourneyWeather} from "../../hooks/useJourneyWeather";
 import {floorMoment} from "../../helpers/roundMoment";
 import {useManuallyDebouncedValue} from "../../hooks/useManuallyDebouncedValue";
 import differenceInSeconds from "date-fns";
+import {getMomentFromDateTime} from "../../helpers/time";
 
 const WeatherContainer = styled.div`
   position: absolute;
@@ -62,19 +63,22 @@ const WeatherWidgetComponent = ({
   );
 
 export const WeatherWidget = decorate(({position, className, state}) => {
-  const {timeMoment} = state;
+  const {unixTime, date} = state;
 
-  const debouncedTime = useManuallyDebouncedValue(timeMoment, (val, prevVal) =>
-    prevVal ? Math.abs(val.diff(prevVal), "seconds") > 60 * 60 : false
+  const [startDate, endDate] = useMemo(
+    () => [
+      getMomentFromDateTime(date)
+        .startOf("day")
+        .toISOString(true),
+      getMomentFromDateTime(date)
+        .endOf("day")
+        .toISOString(true),
+    ],
+    [date]
   );
 
-  const startDate = useMemo(
-    () => floorMoment(timeMoment.clone(), 10, "minutes").toISOString(true),
-    [debouncedTime.valueOf()]
-  );
-
-  const [weatherData] = useWeather(position, startDate);
-  const parsedWeatherData = useWeatherData(weatherData);
+  const [weatherData] = useWeather(position, endDate, startDate);
+  const parsedWeatherData = useWeatherData(weatherData, unixTime);
 
   return <WeatherWidgetComponent {...parsedWeatherData} className={className} />;
 });
