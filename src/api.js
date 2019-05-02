@@ -12,15 +12,15 @@ if (!serverUrl) {
 }
 
 function createErrorLink(UIStore) {
-  function notifyError(type, message) {
+  function notifyError(type, message, target) {
     if (UIStore) {
-      return UIStore.addError(type, message);
+      return UIStore.addError(type, message, target);
     }
 
-    console.warn(`${type} error: ${message}`);
+    console.warn(`${type} error: ${message}, target: ${target}`);
   }
 
-  return onError(({graphQLErrors, networkError}) => {
+  return onError(({graphQLErrors, networkError, operation}) => {
     if (graphQLErrors && process.env.NODE_ENV === "development") {
       graphQLErrors.map((err) => console.warn(err.message));
     }
@@ -32,7 +32,8 @@ function createErrorLink(UIStore) {
           networkError,
           "message",
           JSON.stringify(get(networkError, "result", networkError))
-        )
+        ),
+        operation.operationName
       );
     }
   });

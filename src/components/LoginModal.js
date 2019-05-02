@@ -44,7 +44,7 @@ const Header = styled.div`
   user-select: none;
 `;
 
-const LoginButton = styled.div`
+const LoginButton = styled.button`
   display: flex;
   flex-basis: 50px;
   justify-content: center;
@@ -57,12 +57,14 @@ const LoginButton = styled.div`
   background-color: #ffffffe6;
   color: #3e3e3e;
   padding: 15px;
+  font-family: inherit;
+  
   :hover {
     background-color: #FFF;
     box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), 0 3px 14px rgba(0, 0, 0, 0.4);
 `;
 
-const LoginText = styled.div`
+const LoginText = styled.span`
   margin-left: 10px;
 `;
 
@@ -89,7 +91,7 @@ class LoginModal extends React.Component {
     });
   };
 
-  openLoginForm = () => {
+  openAuthForm = (type) => () => {
     const urlState = window.location.href
       .replace(window.location.origin, "")
       .replace(/^[^?]+/g, "");
@@ -98,9 +100,13 @@ class LoginModal extends React.Component {
       sessionStorage.setItem(AUTH_STATE_STORAGE_KEY, urlState);
     }
 
-    window.location.assign(
-      `${AUTH_URI}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=${SCOPE}`
-    );
+    let authUrl = `${AUTH_URI}?ns=hsl-transitlog&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=${SCOPE}&ui_locales=en`;
+
+    if (type === "register") {
+      authUrl += "&nur";
+    }
+
+    window.location.assign(authUrl);
   };
 
   render() {
@@ -120,10 +126,20 @@ class LoginModal extends React.Component {
               <LoginText>Kirjaudu ulos</LoginText>
             </LoginButton>
           ) : (
-            <LoginButton onClick={this.openLoginForm}>
-              <Login height={"1em"} fill={"#3e3e3e"} />
-              <LoginText>Kirjaudu (HSL ID)</LoginText>
-            </LoginButton>
+            <>
+              <p>
+                <LoginButton onClick={this.openAuthForm("login")}>
+                  <Login height={"1em"} fill={"#3e3e3e"} />
+                  <LoginText>Kirjaudu (HSL ID)</LoginText>
+                </LoginButton>
+              </p>
+              <p>
+                <LoginButton onClick={this.openAuthForm("register")}>
+                  <Login height={"1em"} fill={"#3e3e3e"} />
+                  <LoginText>Tee Transitlog-tunnus</LoginText>
+                </LoginButton>
+              </p>
+            </>
           )}
         </Wrapper>
       </Root>

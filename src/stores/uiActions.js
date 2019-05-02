@@ -58,7 +58,7 @@ export default (state) => {
     }
   );
 
-  const addError = (type, message) => {
+  const addError = (type, message, target) => {
     if (
       !type ||
       !message ||
@@ -70,6 +70,7 @@ export default (state) => {
     const error = {
       type,
       message,
+      target,
       id: `${type}_${Math.random()
         .toString(36)
         .substr(2, 9)}`,
