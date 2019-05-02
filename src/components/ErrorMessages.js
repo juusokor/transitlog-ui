@@ -57,11 +57,11 @@ export default decorate(function ErrorMessages({state, UI}) {
         }
 
         return (
-          <Error key={`error_${error.code}`}>
+          <Error key={`error_${error.id}`}>
             <span>
               {error.type} error: {msg}
             </span>
-            <DismissButton onClick={() => UI.removeError(get(error, "code", null))}>
+            <DismissButton onClick={() => UI.removeError(get(error, "id", null))}>
               Dismiss
             </DismissButton>
           </Error>

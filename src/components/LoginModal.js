@@ -5,6 +5,7 @@ import styled from "styled-components";
 import HSLLogoNoText from "../icons/HSLLogoNoText";
 import Login from "../icons/Login";
 import {logout} from "../auth/authService";
+import {AUTH_STATE_STORAGE_KEY} from "../constants";
 
 const AUTH_URI = process.env.REACT_APP_AUTH_URI;
 const REDIRECT_URI = process.env.REACT_APP_REDIRECT_URI;
@@ -89,7 +90,15 @@ class LoginModal extends React.Component {
   };
 
   openLoginForm = () => {
-    window.location.replace(
+    const urlState = window.location.href
+      .replace(window.location.origin, "")
+      .replace(/^[^?]+/g, "");
+
+    if (urlState && urlState.length > 1) {
+      sessionStorage.setItem(AUTH_STATE_STORAGE_KEY, urlState);
+    }
+
+    window.location.assign(
       `${AUTH_URI}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=${SCOPE}`
     );
   };

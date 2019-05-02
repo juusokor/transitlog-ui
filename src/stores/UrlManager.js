@@ -2,6 +2,7 @@ import get from "lodash/get";
 import invoke from "lodash/invoke";
 import fromPairs from "lodash/fromPairs";
 import {createBrowserHistory as createHistory} from "history";
+import {AUTH_STATE_STORAGE_KEY} from "../constants";
 
 /**
  * Make sure that all history operations happen through the specific history object created here:
@@ -83,10 +84,18 @@ export const resetUrlState = (replace = false) => {
   }
 };
 
-export const removeAuthParams = (replace = false) => {
+export const removeAuthParams = () => {
   let shareUrl = window.location.href;
   const url = new URL(shareUrl);
   url.searchParams.delete("code");
   url.searchParams.delete("scope");
-  history.replace({pathname: "/", search: url.search});
+
+  const preAuthState = sessionStorage.getItem(AUTH_STATE_STORAGE_KEY);
+
+  if (preAuthState) {
+    sessionStorage.removeItem(AUTH_STATE_STORAGE_KEY);
+    window.location.assign(window.location.origin + preAuthState);
+  } else {
+    history.replace({pathname: "/", search: url.search});
+  }
 };
