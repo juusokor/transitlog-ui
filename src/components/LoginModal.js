@@ -5,12 +5,7 @@ import styled from "styled-components";
 import HSLLogoNoText from "../icons/HSLLogoNoText";
 import Login from "../icons/Login";
 import {logout} from "../auth/authService";
-import {AUTH_STATE_STORAGE_KEY} from "../constants";
-
-const AUTH_URI = process.env.REACT_APP_AUTH_URI;
-const REDIRECT_URI = process.env.REACT_APP_REDIRECT_URI;
-const CLIENT_ID = process.env.REACT_APP_CLIENT_ID;
-const SCOPE = process.env.REACT_APP_AUTH_SCOPE;
+import {redirectToLogin} from "../stores/UrlManager";
 
 const Root = styled.div`
   position: fixed;
@@ -92,21 +87,7 @@ class LoginModal extends React.Component {
   };
 
   openAuthForm = (type) => () => {
-    const urlState = window.location.href
-      .replace(window.location.origin, "")
-      .replace(/^[^?]+/g, "");
-
-    if (urlState && urlState.length > 1) {
-      sessionStorage.setItem(AUTH_STATE_STORAGE_KEY, urlState);
-    }
-
-    let authUrl = `${AUTH_URI}?ns=hsl-transitlog&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=${SCOPE}&ui_locales=en`;
-
-    if (type === "register") {
-      authUrl += "&nur";
-    }
-
-    window.location.assign(authUrl);
+    redirectToLogin(type === "register");
   };
 
   render() {

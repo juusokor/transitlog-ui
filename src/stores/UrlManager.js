@@ -5,7 +5,8 @@ import {createBrowserHistory as createHistory} from "history";
 import {AUTH_STATE_STORAGE_KEY} from "../constants";
 
 /**
- * Make sure that all history operations happen through the specific history object created here:
+ * Make sure that all history operations happen through the specific history object
+ * created here:
  */
 
 let history = createHistory();
@@ -39,7 +40,7 @@ export const setUrlValue = (key, val, historyAction = "replace") => {
 
 export const getUrlState = () => {
   const query = new URLSearchParams(history.location.search);
-  const urlState = fromPairs(
+  return fromPairs(
     Array.from(query.entries()).map(([key, value]) => {
       let nextVal = value;
       if (value === "true") {
@@ -57,7 +58,6 @@ export const getUrlState = () => {
       return [key, nextVal];
     })
   );
-  return urlState;
 };
 
 export const getUrlValue = (key, defaultValue = "") => {
@@ -82,6 +82,28 @@ export const resetUrlState = (replace = false) => {
   } else {
     history.push({pathname: "/", search: ""});
   }
+};
+
+const AUTH_URI = process.env.REACT_APP_AUTH_URI;
+const REDIRECT_URI = process.env.REACT_APP_REDIRECT_URI;
+const CLIENT_ID = process.env.REACT_APP_CLIENT_ID;
+const SCOPE = process.env.REACT_APP_AUTH_SCOPE;
+
+export const redirectToLogin = (register = false) => {
+  // Save the current url state so that we can re-apply it after the login.
+  const urlState = window.location.href.replace(window.location.origin, "");
+
+  if (urlState && urlState.length > 1) {
+    sessionStorage.setItem(AUTH_STATE_STORAGE_KEY, urlState);
+  }
+
+  let authUrl = `${AUTH_URI}?ns=hsl-transitlog&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=${SCOPE}&ui_locales=en`;
+
+  if (register) {
+    authUrl += "&nur";
+  }
+
+  window.location.assign(authUrl);
 };
 
 export const removeAuthParams = () => {
