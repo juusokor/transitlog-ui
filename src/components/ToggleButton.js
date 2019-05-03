@@ -59,11 +59,9 @@ const ToggleContainer = styled.div`
 const TextContainer = styled.div`
   font-family: var(--font-family);
   flex: 1 1 40%;
-  flex-wrap: nowrap;
-  white-space: nowrap;
   justify-content: flex-start;
   align-items: flex-start;
-  color: ${({disabled}) => (disabled ? "var(--light-grey)" : "var(--blue)")};
+  color: ${({disabled}) => (disabled ? "var(--light-grey)" : "inherit")};
   margin-left: ${({isPreLabel = false}) => (isPreLabel ? "0" : "0.5rem")};
   margin-right: ${({isPreLabel = false}) => (isPreLabel ? "0.5rem" : "0")};
   text-align: ${({isPreLabel = false}) => (isPreLabel ? "right" : "left")};

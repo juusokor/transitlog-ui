@@ -91,7 +91,7 @@ const MainSidePanel = styled.div`
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: 1fr;
   flex-direction: column;
 `;
 
@@ -154,7 +154,6 @@ const SidePanel = decorate((props) => {
   return (
     <SidePanelContainer visible={sidePanelOpen}>
       <MainSidePanel>
-        <ControlBar />
         {allTabsHidden ? (
           <UsageInstructions language={language} />
         ) : (

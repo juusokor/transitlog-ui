@@ -18,7 +18,7 @@ export const ControlGroup = styled.div`
   justify-content: flex-start;
   align-items: flex-end;
   width: 100%;
-  margin: 0 0 1rem;
+  margin: 0 0 0.75rem;
 
   &:last-child {
     margin-bottom: 0;
@@ -85,7 +85,7 @@ export const StyledButton = styled.button`
   justify-content: center;
   width: auto;
   flex: 0 0 auto;
-  height: ${({small = false}) => (small ? "2rem" : "2.5rem")};
+  height: ${({small = false}) => (small ? "1.75rem" : "2.5rem")};
   cursor: pointer;
   transform: scale(1) translateZ(0);
   transition: background-color 0.2s ease-out, transform 0.1s ease-out;

@@ -37,23 +37,23 @@ const RangeDisplay = styled.div`
 `;
 
 const SliderInput = styled(RangeInput)`
-  height: 26px;
+  height: 20px;
 `;
 
 const CurrentValue = styled.div`
   font-family: monospace;
-  height: 22px;
+  height: 26px;
   font-size: 12px;
   position: absolute;
   z-index: 5;
   left: 0;
-  top: 2px;
+  top: -3px;
   background: var(--blue);
   color: white;
   border-radius: 13px;
   border: 3px solid var(--blue);
   text-align: center;
-  padding: 1px 8px;
+  padding: 3px 8px;
   pointer-events: none;
 `;
 

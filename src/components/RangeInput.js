@@ -3,7 +3,7 @@ import {observer} from "mobx-react-lite";
 import styled, {css} from "styled-components";
 
 const SliderThumb = css`
-  height: 22px;
+  height: 20px;
   width: 80px;
   margin-top: -10px;
   border-radius: 50%;

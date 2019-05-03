@@ -7,22 +7,25 @@ import ToggleButton from "../ToggleButton";
 import {app} from "mobx-app";
 
 const Bar = styled.div`
-  padding: 0.5rem 1rem;
-  background: var(--lightest-grey);
-  border-bottom: 1px solid var(--alt-grey);
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   flex: 1 0 auto;
 `;
 
-const ControlButton = styled(Button).attrs({small: true})`
+const ControlButton = styled(Button).attrs({small: true, transparent: true})`
   font-size: 0.75rem;
-  padding: 0.25rem 0.75rem;
+  padding: 0.2rem 0.75rem;
+  margin-right: 1rem;
+
+  &:last-child {
+    margin-right: 0;
+  }
 `;
 
 const PollToggle = styled(ToggleButton)`
   flex: 0;
+  color: white;
 `;
 
 @inject(app("Filters", "Update", "Time", "UI"))
@@ -36,11 +39,16 @@ class ControlBar extends Component {
 
   render() {
     const {
+      className,
+      UI,
       state: {live, timeIsCurrent},
     } = this.props;
 
     return (
-      <Bar>
+      <Bar className={className}>
+        <ControlButton helpText="Share button" onClick={() => UI.toggleShareModal(true)}>
+          <Text>general.share</Text>
+        </ControlButton>
         <ControlButton helpText="Reset button" onClick={this.onClickReset}>
           <Text>filterpanel.reset</Text>
         </ControlButton>

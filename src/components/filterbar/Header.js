@@ -5,10 +5,10 @@ import styled from "styled-components";
 import {Heading} from "../Typography";
 import LanguageSelect from "./LanguageSelect";
 import {observer} from "mobx-react-lite";
-import {Button} from "../Forms";
 import flow from "lodash/flow";
 import {inject} from "../../helpers/inject";
 import Login from "../../icons/Login";
+import ControlBar from "../sidepanel/ControlBar";
 
 const Header = styled.header`
   width: 100%;
@@ -21,7 +21,7 @@ const Header = styled.header`
 `;
 
 const Logo = styled.img`
-  width: 5rem;
+  width: 4.5rem;
   height: auto;
   flex: 0 0 auto;
 `;
@@ -34,15 +34,17 @@ const MainHeading = styled(Heading).attrs({level: 1})`
 
 const LogoAndHeading = styled.div`
   display: flex;
+  flex: 0;
   align-items: center;
   justify-content: flex-start;
 `;
 
 const LangSelectContainer = styled.div`
   display: flex;
-  align-items: flex-start;
-  justify-content: flex-end;
-  margin-left: auto;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: flex-start;
+  margin-right: 2rem;
 
   div {
     flex: 0 0 auto;
@@ -50,18 +52,17 @@ const LangSelectContainer = styled.div`
   }
 `;
 
-const HeaderFeatures = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  flex: 1 1 100%;
-  margin-left: 1rem;
+const HeaderFeatures = styled(ControlBar)`
+  align-items: center;
+  flex: 0 0 auto;
+  margin: 0 2rem;
 `;
 
 const LoginContainer = styled.div`
   display: flex;
-  width: 100%;
+  flex: 1;
   justify-content: flex-end;
+  margin-left: auto;
 `;
 
 const Username = styled.div`
@@ -91,18 +92,10 @@ function HeaderComponent({state, UI, className}) {
           <Text>filterpanel.heading</Text>
         </MainHeading>
       </LogoAndHeading>
-      <HeaderFeatures>
-        <Button
-          helpText="Share button"
-          small
-          transparent
-          onClick={() => UI.toggleShareModal(true)}>
-          <Text>general.share</Text>
-        </Button>
-        <LangSelectContainer>
-          <LanguageSelect />
-        </LangSelectContainer>
-      </HeaderFeatures>
+      <HeaderFeatures />
+      <LangSelectContainer>
+        <LanguageSelect />
+      </LangSelectContainer>
       <LoginContainer>
         {user && <Username>{user}</Username>}
         <LoginIconContainer>

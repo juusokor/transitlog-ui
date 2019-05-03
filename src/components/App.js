@@ -33,10 +33,10 @@ const AppFrame = styled.main`
 
 const AppGrid = styled.div`
   width: 100%;
-  min-width: 1366px; // No, we are not mobile friendly
+  min-width: 1024px; // No, we are not mobile friendly
   height: 100vh;
   display: grid;
-  grid-template-rows: 13.03rem 1fr;
+  grid-template-rows: 12.03rem 1fr;
   align-content: stretch;
   align-items: stretch;
 `;
