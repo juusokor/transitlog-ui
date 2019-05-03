@@ -12,7 +12,6 @@ import Info from "../../icons/Info";
 import Chart from "../../icons/Chart";
 import {createRouteId} from "../../helpers/keys";
 import Timetable from "../../icons/Timetable";
-import ControlBar from "./ControlBar";
 import {UsageInstructions} from "./UsageInstructions";
 import Tooltip from "../Tooltip";
 import flow from "lodash/flow";
