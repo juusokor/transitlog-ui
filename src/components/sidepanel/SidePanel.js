@@ -27,7 +27,7 @@ const SidePanelContainer = styled.div`
   z-index: 1;
   display: flex;
   margin-left: ${({visible}) =>
-    visible ? 0 : "-26rem"}; // Makes the map area larger when the sidebar is hidden
+    visible ? 0 : "-22rem"}; // Makes the map area larger when the sidebar is hidden
   transition: margin-left 0.2s ease-out;
 `;
 
@@ -86,7 +86,7 @@ const ToggleGraphButton = styled(ToggleSidePanelButton)`
 const MainSidePanel = styled.div`
   height: 100%;
   border-right: 1px solid var(--alt-grey);
-  width: 26rem;
+  width: 22rem;
   position: relative;
   z-index: 1;
   display: grid;
@@ -97,8 +97,8 @@ const MainSidePanel = styled.div`
 const JourneyPanel = styled.div`
   transition: margin-left 0.2s ease-out;
   margin-left: ${({visible}) =>
-    visible ? 0 : "-25rem"}; // Makes the map area larger when the sidebar is hidden
-  width: 25rem;
+    visible ? 0 : "-22rem"}; // Makes the map area larger when the sidebar is hidden
+  width: 22rem;
   height: 100%;
   background: white;
   border-right: 1px solid var(--alt-grey);

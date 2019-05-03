@@ -39,10 +39,12 @@ const HeaderRowLeft = styled.span`
   width: 100%;
 `;
 
-const HeadsignSlot = styled(ColoredSlot)``;
+const HeadsignSlot = styled(ColoredSlot)`
+  min-width: 4.75rem;
+`;
 
 const TimeSlot = styled(PlainSlot)`
-  min-width: 5rem;
+  min-width: 4.5rem;
   font-weight: normal;
   text-align: center;
 `;
@@ -213,7 +215,7 @@ class VehicleJourneys extends Component {
                         onClick={this.onSelectJourney(journey)}>
                         <HeadsignSlot
                           color={get(transportColor, mode, "var(--light-grey)")}>
-                          {lineNumber} / {journey.direction}
+                          {lineNumber}/{journey.direction}
                         </HeadsignSlot>
                         <TimeSlot>{journeyTime.slice(0, -3)}</TimeSlot>
                         <ColoredBackgroundSlot
