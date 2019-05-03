@@ -23,7 +23,7 @@ const ToggleInput = styled.input`
   pointer-events: none;
 `;
 
-const ToggleMarker = styled.div`
+export const ToggleMarker = styled.div`
   position: absolute;
   top: 1px;
   left: 0;
@@ -36,7 +36,7 @@ const ToggleMarker = styled.div`
   transform: translate(2px, 0);
 `;
 
-const ToggleContainer = styled.div`
+export const ToggleContainer = styled.div`
   position: relative;
   width: 35px;
   height: 20px;
