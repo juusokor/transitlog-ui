@@ -14,7 +14,14 @@ import useDimensions from "../../hooks/useDimensions";
 const SliderContainer = styled.div`
   display: flex;
   position: relative;
-  align-items: center;
+  align-items: stretch;
+  border-top: 1px solid var(--alt-grey);
+  background: white;
+`;
+
+const TrackContainer = styled.div`
+  position: relative;
+  width: 100%;
 `;
 
 const RangeDisplay = styled.div`
@@ -22,35 +29,32 @@ const RangeDisplay = styled.div`
   font-size: 12px;
   background: white;
   padding: 3px 8px;
-  border: 3px solid var(--blue);
-  border-left: 0;
-  border-top-right-radius: 13px;
-  border-bottom-right-radius: 13px;
-  height: 26px;
-  user-select: none;
-  pointer-events: none;
   display: flex;
   align-items: center;
-
-  &:last-child {
-    border-radius: 13px 0 0 13px;
-    border-left: 3px solid var(--blue);
-    border-right: 0;
-  }
+  border-left: ${({first = false}) => (first ? "0" : "3px solid var(--blue)")};
+  border-right: ${({last = false}) => (last ? "0" : "3px solid var(--blue)")};
+  pointer-events: none;
 `;
 
-const SliderInput = styled(RangeInput)``;
+const SliderInput = styled(RangeInput)`
+  height: 26px;
+`;
 
-const CurrentValue = styled(RangeDisplay)`
+const CurrentValue = styled.div`
+  font-family: monospace;
+  height: 22px;
+  font-size: 12px;
   position: absolute;
   z-index: 5;
-  left: 48.5px;
+  left: 0;
+  top: 2px;
   background: var(--blue);
   color: white;
   border-radius: 13px;
   border: 3px solid var(--blue);
   text-align: center;
-  padding: 3px 8px;
+  padding: 1px 8px;
+  pointer-events: none;
 `;
 
 export const TIME_SLIDER_MAX = 102600; // 28:30:00
@@ -109,7 +113,7 @@ const TimeSlider = decorate(({className, Time, state, journeys}) => {
   const valuePosition = useMemo(() => {
     let point = (currentValue - rangeMin) / (rangeMax - rangeMin);
     let position = Math.max(point, 0);
-    let offset = point * 24;
+    let offset = point * 80;
 
     if (position > 1) {
       position = width - offset;
@@ -121,23 +125,25 @@ const TimeSlider = decorate(({className, Time, state, journeys}) => {
 
   return (
     <SliderContainer className={className}>
-      <RangeDisplay>{secondsToTime(rangeMin)}</RangeDisplay>
-      <Tooltip helpText="Time slider">
-        <SliderInput
-          innerRef={ref}
-          value={currentValue}
-          min={rangeMin}
-          max={rangeMax}
-          onChange={onChange}
-        />
-      </Tooltip>
-      <CurrentValue
-        style={{
-          transform: `translateX(${valuePosition}px)`,
-        }}>
-        {secondsToTime(currentValue)}
-      </CurrentValue>
-      <RangeDisplay>{secondsToTime(rangeMax)}</RangeDisplay>
+      <RangeDisplay first>{secondsToTime(rangeMin)}</RangeDisplay>
+      <TrackContainer>
+        <Tooltip helpText="Time slider">
+          <SliderInput
+            innerRef={ref}
+            value={currentValue}
+            min={rangeMin}
+            max={rangeMax}
+            onChange={onChange}
+          />
+        </Tooltip>
+        <CurrentValue
+          style={{
+            transform: `translateX(${valuePosition}px)`,
+          }}>
+          {secondsToTime(currentValue)}
+        </CurrentValue>
+      </TrackContainer>
+      <RangeDisplay last>{secondsToTime(rangeMax)}</RangeDisplay>
     </SliderContainer>
   );
 });

@@ -13,26 +13,29 @@ import Login from "../../icons/Login";
 const Header = styled.header`
   width: 100%;
   background: var(--blue);
-  padding: 1rem;
+  padding: 0.5rem 0.875rem;
   display: flex;
   flex-direction: row;
-  flex-wrap: wrap;
-  align-items: flex-start;
+  align-items: center;
   justify-content: flex-start;
 `;
 
 const Logo = styled.img`
-  width: 8rem;
+  width: 5rem;
+  height: auto;
   flex: 0 0 auto;
 `;
 
 const MainHeading = styled(Heading).attrs({level: 1})`
   color: white;
-  flex: 1 1 auto;
-  margin: 0.5rem 1.25rem 0 1rem;
-  text-align: right;
-  font-size: 1.75rem;
-  justify-content: flex-end;
+  margin: 0 0 0 1rem;
+  font-size: 1.25rem;
+`;
+
+const LogoAndHeading = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
 `;
 
 const LangSelectContainer = styled.div`
@@ -47,23 +50,17 @@ const LangSelectContainer = styled.div`
   }
 `;
 
-const BottomRow = styled.div`
+const HeaderFeatures = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  width: 100%;
-  margin-top: 1rem;
-  flex: 1 0 100%;
+  flex: 1 1 100%;
+  margin-left: 1rem;
 `;
 
 const LoginContainer = styled.div`
   display: flex;
-  justify-content: space-between;
   width: 100%;
-  margin-right: 1.5rem;
-  -webkit-box-pack: end;
-  -webkit-justify-content: flex-end;
-  -ms-flex-pack: end;
   justify-content: flex-end;
 `;
 
@@ -88,11 +85,13 @@ function HeaderComponent({state, UI, className}) {
   const {user} = state;
   return (
     <Header className={className}>
-      <Logo src={logo} alt="logo" />
-      <MainHeading>
-        <Text>filterpanel.heading</Text>
-      </MainHeading>
-      <BottomRow>
+      <LogoAndHeading>
+        <Logo src={logo} alt="logo" />
+        <MainHeading>
+          <Text>filterpanel.heading</Text>
+        </MainHeading>
+      </LogoAndHeading>
+      <HeaderFeatures>
         <Button
           helpText="Share button"
           small
@@ -103,11 +102,11 @@ function HeaderComponent({state, UI, className}) {
         <LangSelectContainer>
           <LanguageSelect />
         </LangSelectContainer>
-      </BottomRow>
+      </HeaderFeatures>
       <LoginContainer>
         {user && <Username>{user}</Username>}
         <LoginIconContainer>
-          <Login height={"1em"} fill={"white"} onClick={() => UI.toggleLoginModal()} />
+          <Login height="1rem" fill="white" onClick={UI.toggleLoginModal} />
         </LoginIconContainer>
       </LoginContainer>
     </Header>
