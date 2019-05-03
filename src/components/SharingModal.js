@@ -91,6 +91,7 @@ class SharingModal extends React.Component {
 
     let shareUrl = window.location.href;
     shareUrl = this.excludeAuthenticationParams(shareUrl);
+
     if (prodOrigin !== currentOrigin) {
       shareUrl = shareUrl.replace(currentOrigin, prodOrigin);
     }

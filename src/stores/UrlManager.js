@@ -2,9 +2,11 @@ import get from "lodash/get";
 import invoke from "lodash/invoke";
 import fromPairs from "lodash/fromPairs";
 import {createBrowserHistory as createHistory} from "history";
+import {AUTH_STATE_STORAGE_KEY} from "../constants";
 
 /**
- * Make sure that all history operations happen through the specific history object created here:
+ * Make sure that all history operations happen through the specific history object
+ * created here:
  */
 
 let history = createHistory();
@@ -38,7 +40,7 @@ export const setUrlValue = (key, val, historyAction = "replace") => {
 
 export const getUrlState = () => {
   const query = new URLSearchParams(history.location.search);
-  const urlState = fromPairs(
+  return fromPairs(
     Array.from(query.entries()).map(([key, value]) => {
       let nextVal = value;
       if (value === "true") {
@@ -56,7 +58,6 @@ export const getUrlState = () => {
       return [key, nextVal];
     })
   );
-  return urlState;
 };
 
 export const getUrlValue = (key, defaultValue = "") => {
@@ -83,10 +84,40 @@ export const resetUrlState = (replace = false) => {
   }
 };
 
-export const removeAuthParams = (replace = false) => {
+const AUTH_URI = process.env.REACT_APP_AUTH_URI;
+const REDIRECT_URI = process.env.REACT_APP_REDIRECT_URI;
+const CLIENT_ID = process.env.REACT_APP_CLIENT_ID;
+const SCOPE = process.env.REACT_APP_AUTH_SCOPE;
+
+export const redirectToLogin = (register = false) => {
+  // Save the current url state so that we can re-apply it after the login.
+  const urlState = window.location.href.replace(window.location.origin, "");
+
+  if (urlState && urlState.length > 1) {
+    sessionStorage.setItem(AUTH_STATE_STORAGE_KEY, urlState);
+  }
+
+  let authUrl = `${AUTH_URI}?ns=hsl-transitlog&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=${SCOPE}&ui_locales=en`;
+
+  if (register) {
+    authUrl += "&nur";
+  }
+
+  window.location.assign(authUrl);
+};
+
+export const removeAuthParams = () => {
   let shareUrl = window.location.href;
   const url = new URL(shareUrl);
   url.searchParams.delete("code");
   url.searchParams.delete("scope");
-  history.replace({pathname: "/", search: url.search});
+
+  const preAuthState = sessionStorage.getItem(AUTH_STATE_STORAGE_KEY);
+
+  if (preAuthState) {
+    sessionStorage.removeItem(AUTH_STATE_STORAGE_KEY);
+    window.location.assign(window.location.origin + preAuthState);
+  } else {
+    history.replace({pathname: "/", search: url.search});
+  }
 };

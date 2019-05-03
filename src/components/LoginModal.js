@@ -5,8 +5,7 @@ import styled from "styled-components";
 import HSLLogoNoText from "../icons/HSLLogoNoText";
 import Login from "../icons/Login";
 import {logout} from "../auth/authService";
-
-const ORIGIN = process.env.REACT_APP_TRANSITLOG;
+import {redirectToLogin} from "../stores/UrlManager";
 
 const Root = styled.div`
   position: fixed;
@@ -40,7 +39,7 @@ const Header = styled.div`
   user-select: none;
 `;
 
-const LoginButton = styled.div`
+const LoginButton = styled.button`
   display: flex;
   flex-basis: 50px;
   justify-content: center;
@@ -53,12 +52,14 @@ const LoginButton = styled.div`
   background-color: #ffffffe6;
   color: #3e3e3e;
   padding: 15px;
+  font-family: inherit;
+  
   :hover {
     background-color: #FFF;
     box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), 0 3px 14px rgba(0, 0, 0, 0.4);
 `;
 
-const LoginText = styled.div`
+const LoginText = styled.span`
   margin-left: 10px;
 `;
 
@@ -85,10 +86,8 @@ class LoginModal extends React.Component {
     });
   };
 
-  openLoginForm = () => {
-    window.location.replace(
-      `https://hslid-uat.cinfra.fi/openid/auth?client_id=1424368089733870&redirect_uri=${ORIGIN}&response_type=code&scope=email+https://oneportal.trivore.com/scope/groups.readonly`
-    );
+  openAuthForm = (type) => () => {
+    redirectToLogin(type === "register");
   };
 
   render() {
@@ -108,10 +107,20 @@ class LoginModal extends React.Component {
               <LoginText>Kirjaudu ulos</LoginText>
             </LoginButton>
           ) : (
-            <LoginButton onClick={this.openLoginForm}>
-              <Login height={"1em"} fill={"#3e3e3e"} />
-              <LoginText>Kirjaudu (HSL ID)</LoginText>
-            </LoginButton>
+            <>
+              <p>
+                <LoginButton onClick={this.openAuthForm("login")}>
+                  <Login height={"1em"} fill={"#3e3e3e"} />
+                  <LoginText>Kirjaudu (HSL ID)</LoginText>
+                </LoginButton>
+              </p>
+              <p>
+                <LoginButton onClick={this.openAuthForm("register")}>
+                  <Login height={"1em"} fill={"#3e3e3e"} />
+                  <LoginText>Tee Transitlog-tunnus</LoginText>
+                </LoginButton>
+              </p>
+            </>
           )}
         </Wrapper>
       </Root>

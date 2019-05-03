@@ -27,26 +27,27 @@ type AreaJourney {
 
 type Departure {
   dayType: String!
-  departureId: Int
+  departureId: Int!
   direction: Direction!
   equipmentColor: String
   equipmentIsRequired: Boolean
   equipmentType: String
-  extraDeparture: String
+  extraDeparture: String!
   id: ID!
   index: Int
-  isNextDay: Boolean
-  isTimingStop: Boolean
+  isNextDay: Boolean!
+  isTimingStop: Boolean!
   journey: DepartureJourney
-  mode: String
+  mode: String!
   observedArrivalTime: ObservedArrival
   observedDepartureTime: ObservedDeparture
   operatorId: String
-  plannedArrivalTime: PlannedArrival
-  plannedDepartureTime: PlannedDeparture
+  originDepartureTime: PlannedDeparture
+  plannedArrivalTime: PlannedArrival!
+  plannedDepartureTime: PlannedDeparture!
   recoveryTime: Int
   routeId: String!
-  stop: RouteSegment
+  stop: RouteSegment!
   stopId: String!
   terminalTime: Int
 }

@@ -19,6 +19,7 @@ import JourneysByDateQuery from "../../queries/JourneysByDateQuery";
 import {createCompositeJourney} from "../../stores/journeyActions";
 import doubleDigit from "../../helpers/doubleDigit";
 import {dayTypes, getDayTypeFromDate} from "../../helpers/getDayTypeFromDate";
+import EmptyView from "../EmptyView";
 
 const JourneyListRow = styled.button`
   display: flex;
@@ -120,195 +121,204 @@ const Journeys = decorate(({state, Time, Journey}) => {
 
   return (
     <JourneysByDateQuery route={route} date={date}>
-      {({departures, loading}) => (
-        <Observer>
-          {() => {
-            focusedJourney = expr(() => {
-              if (focusedJourney) {
-                return focusedJourney;
-              }
-
-              const time = timeToSeconds(state.time);
-              let closestDeparture = null;
-              let prevDiff = -1;
-
-              for (const departure of departures) {
-                const departureTime = get(
-                  departure,
-                  "plannedDepartureTime.departureTime",
-                  ""
-                );
-
-                if (!departureTime) {
-                  continue;
+      {({departures, loading, error}) =>
+        error || (!loading && departures.length === 0) ? (
+          <EmptyView
+            error={
+              error ? error : {emptyDataError: {message: "No data returned from server."}}
+            }
+          />
+        ) : (
+          <Observer>
+            {() => {
+              focusedJourney = expr(() => {
+                if (focusedJourney) {
+                  return focusedJourney;
                 }
 
-                const departureTimeNum = timeToSeconds(departureTime);
-                const diff = Math.abs(departureTimeNum - time);
+                const time = timeToSeconds(state.time);
+                let closestDeparture = null;
+                let prevDiff = -1;
 
-                if (prevDiff === -1 || diff < prevDiff) {
-                  prevDiff = diff;
-                  closestDeparture = departure;
+                for (const departure of departures) {
+                  const departureTime = get(
+                    departure,
+                    "plannedDepartureTime.departureTime",
+                    ""
+                  );
+
+                  if (!departureTime) {
+                    continue;
+                  }
+
+                  const departureTimeNum = timeToSeconds(departureTime);
+                  const diff = Math.abs(departureTimeNum - time);
+
+                  if (prevDiff === -1 || diff < prevDiff) {
+                    prevDiff = diff;
+                    closestDeparture = departure;
+                  }
                 }
-              }
 
-              if (closestDeparture) {
-                const compositeJourney = createCompositeJourney(
-                  closestDeparture.plannedDepartureTime.departureDate,
-                  closestDeparture,
-                  closestDeparture.plannedDepartureTime.departureTime
-                );
+                if (closestDeparture) {
+                  const compositeJourney = createCompositeJourney(
+                    closestDeparture.plannedDepartureTime.departureDate,
+                    closestDeparture,
+                    closestDeparture.plannedDepartureTime.departureTime
+                  );
 
-                return getJourneyId(compositeJourney, false);
-              }
+                  return getJourneyId(compositeJourney, false);
+                }
 
-              return null;
-            });
+                return null;
+              });
 
-            return (
-              <SidepanelList
-                focusKey={focusedJourney}
-                loading={loading}
-                header={
-                  <>
-                    <JourneyRowLeft>
-                      <Text>filterpanel.planned_start_time</Text>
-                    </JourneyRowLeft>
-                    <span>
-                      <Text>filterpanel.real_start_time</Text>
-                    </span>
-                  </>
-                }>
-                {(scrollRef) =>
-                  departures.map((departure) => {
-                    const departureDate = departure.plannedDepartureTime.departureDate;
-                    const departureTime = departure.plannedDepartureTime.departureTime;
-                    const isSpecialDayType =
-                      getDayTypeFromDate(departureDate) !== departure.dayType ||
-                      !dayTypes.includes(departure.dayType);
+              return (
+                <SidepanelList
+                  focusKey={focusedJourney}
+                  loading={loading}
+                  header={
+                    <>
+                      <JourneyRowLeft>
+                        <Text>filterpanel.planned_start_time</Text>
+                      </JourneyRowLeft>
+                      <span>
+                        <Text>filterpanel.real_start_time</Text>
+                      </span>
+                    </>
+                  }>
+                  {(scrollRef) =>
+                    departures.map((departure) => {
+                      const departureDate = departure.plannedDepartureTime.departureDate;
+                      const departureTime = departure.plannedDepartureTime.departureTime;
+                      const isSpecialDayType =
+                        getDayTypeFromDate(departureDate) !== departure.dayType ||
+                        !dayTypes.includes(departure.dayType);
 
-                    if (!departure.journey) {
-                      const compositeJourney = createCompositeJourney(
-                        departureDate,
-                        departure,
-                        departureTime
-                      );
+                      if (!departure.journey) {
+                        const compositeJourney = createCompositeJourney(
+                          departureDate,
+                          departure,
+                          departureTime
+                        );
 
-                      const journeyId = getJourneyId(compositeJourney, false);
+                        const journeyId = getJourneyId(compositeJourney, false);
+
+                        const journeyIsSelected = expr(
+                          () =>
+                            state.selectedJourney &&
+                            getJourneyId(selectedJourneyId, false) === journeyId
+                        );
+
+                        const journeyIsFocused =
+                          focusedJourney &&
+                          getJourneyId(focusedJourney, false) === journeyId;
+
+                        return (
+                          <JourneyListRow
+                            ref={journeyIsFocused ? scrollRef : null}
+                            key={`planned_journey_row_${journeyId}`}
+                            selected={journeyIsSelected}
+                            onClick={() => selectJourney(compositeJourney)}>
+                            <Tooltip helpText="Planned journey time">
+                              <JourneyRowLeft>
+                                {getNormalTime(departureTime).slice(0, -3)}
+                                {isSpecialDayType && (
+                                  <SpecialDayDisplay
+                                    largeMargin={true}
+                                    {...applyTooltip("Journey day type")}>
+                                    {departure.dayType}
+                                  </SpecialDayDisplay>
+                                )}
+                              </JourneyRowLeft>
+                            </Tooltip>
+                            <Tooltip helpText="Journey no data">
+                              <span>{text("filterpanel.journey.no_data")}</span>
+                            </Tooltip>
+                          </JourneyListRow>
+                        );
+                      }
+
+                      const journeyId = getJourneyId(departure.journey);
 
                       const journeyIsSelected = expr(
-                        () =>
-                          state.selectedJourney &&
-                          getJourneyId(selectedJourneyId, false) === journeyId
+                        () => selectedJourneyId && selectedJourneyId === journeyId
                       );
 
+                      // The focused journey is used for scrolling and comparing
+                      // instances is problematic, so strip the instance char
+                      // from both sides of the comparison.
                       const journeyIsFocused =
                         focusedJourney &&
-                        getJourneyId(focusedJourney, false) === journeyId;
+                        getJourneyId(focusedJourney, false) ===
+                          getJourneyId(journeyId, false);
+
+                      const plannedObservedDiff =
+                        departure.observedDepartureTime.departureTimeDifference;
+
+                      const observedTimeString =
+                        departure.observedDepartureTime.departureTime;
+
+                      const diffTime = secondsToTimeObject(plannedObservedDiff);
+                      const delayType = getDelayType(plannedObservedDiff);
+                      const multipleInstances = departure.journey._numInstance !== 0;
+
+                      const observedJourney = (
+                        <>
+                          <Tooltip helpText="Journey list diff">
+                            <DelaySlot
+                              color={delayType === "late" ? "var(--dark-grey)" : "white"}
+                              backgroundColor={getTimelinessColor(
+                                delayType,
+                                "var(--light-green)"
+                              )}>
+                              {plannedObservedDiff < 0 ? "-" : ""}
+                              {diffTime.hours ? doubleDigit(diffTime.hours) + ":" : ""}
+                              {doubleDigit(diffTime.minutes)}:
+                              {doubleDigit(diffTime.seconds)}
+                            </DelaySlot>
+                          </Tooltip>
+                          <Tooltip helpText="Journey list observed">
+                            <TimeSlot>{observedTimeString}</TimeSlot>
+                          </Tooltip>
+                        </>
+                      );
 
                       return (
                         <JourneyListRow
+                          {...applyTooltip("Journey list row")}
                           ref={journeyIsFocused ? scrollRef : null}
-                          key={`planned_journey_row_${journeyId}`}
                           selected={journeyIsSelected}
-                          onClick={() => selectJourney(compositeJourney)}>
-                          <Tooltip helpText="Planned journey time">
-                            <JourneyRowLeft>
-                              {getNormalTime(departureTime).slice(0, -3)}
-                              {isSpecialDayType && (
-                                <SpecialDayDisplay
-                                  largeMargin={true}
-                                  {...applyTooltip("Journey day type")}>
-                                  {departure.dayType}
-                                </SpecialDayDisplay>
-                              )}
-                            </JourneyRowLeft>
-                          </Tooltip>
-                          <Tooltip helpText="Journey no data">
-                            <span>{text("filterpanel.journey.no_data")}</span>
-                          </Tooltip>
+                          key={`journey_row_${journeyId}_${departure.id}`}
+                          onClick={() => selectJourney(departure.journey)}>
+                          <JourneyRowLeft
+                            {...applyTooltip("Planned journey time with data")}>
+                            {getNormalTime(departureTime).slice(0, -3)}
+                            {multipleInstances && (
+                              <JourneyInstanceDisplay
+                                {...applyTooltip("Journey instance")}>
+                                {departure.journey._numInstance}
+                              </JourneyInstanceDisplay>
+                            )}
+                            {isSpecialDayType && (
+                              <SpecialDayDisplay
+                                largeMargin={!multipleInstances}
+                                {...applyTooltip("Journey day type")}>
+                                {departure.dayType}
+                              </SpecialDayDisplay>
+                            )}
+                          </JourneyRowLeft>
+                          {observedJourney}
                         </JourneyListRow>
                       );
-                    }
-
-                    const journeyId = getJourneyId(departure.journey);
-
-                    const journeyIsSelected = expr(
-                      () => selectedJourneyId && selectedJourneyId === journeyId
-                    );
-
-                    // The focused journey is used for scrolling and comparing
-                    // instances is problematic, so strip the instance char
-                    // from both sides of the comparison.
-                    const journeyIsFocused =
-                      focusedJourney &&
-                      getJourneyId(focusedJourney, false) ===
-                        getJourneyId(journeyId, false);
-
-                    const plannedObservedDiff =
-                      departure.observedDepartureTime.departureTimeDifference;
-
-                    const observedTimeString =
-                      departure.observedDepartureTime.departureTime;
-
-                    const diffTime = secondsToTimeObject(plannedObservedDiff);
-                    const delayType = getDelayType(plannedObservedDiff);
-                    const multipleInstances = departure.journey._numInstance !== 0;
-
-                    const observedJourney = (
-                      <>
-                        <Tooltip helpText="Journey list diff">
-                          <DelaySlot
-                            color={delayType === "late" ? "var(--dark-grey)" : "white"}
-                            backgroundColor={getTimelinessColor(
-                              delayType,
-                              "var(--light-green)"
-                            )}>
-                            {plannedObservedDiff < 0 ? "-" : ""}
-                            {diffTime.hours ? doubleDigit(diffTime.hours) + ":" : ""}
-                            {doubleDigit(diffTime.minutes)}:
-                            {doubleDigit(diffTime.seconds)}
-                          </DelaySlot>
-                        </Tooltip>
-                        <Tooltip helpText="Journey list observed">
-                          <TimeSlot>{observedTimeString}</TimeSlot>
-                        </Tooltip>
-                      </>
-                    );
-
-                    return (
-                      <JourneyListRow
-                        {...applyTooltip("Journey list row")}
-                        ref={journeyIsFocused ? scrollRef : null}
-                        selected={journeyIsSelected}
-                        key={`journey_row_${journeyId}_${departure.id}`}
-                        onClick={() => selectJourney(departure.journey)}>
-                        <JourneyRowLeft
-                          {...applyTooltip("Planned journey time with data")}>
-                          {getNormalTime(departureTime).slice(0, -3)}
-                          {multipleInstances && (
-                            <JourneyInstanceDisplay {...applyTooltip("Journey instance")}>
-                              {departure.journey._numInstance}
-                            </JourneyInstanceDisplay>
-                          )}
-                          {isSpecialDayType && (
-                            <SpecialDayDisplay
-                              largeMargin={!multipleInstances}
-                              {...applyTooltip("Journey day type")}>
-                              {departure.dayType}
-                            </SpecialDayDisplay>
-                          )}
-                        </JourneyRowLeft>
-                        {observedJourney}
-                      </JourneyListRow>
-                    );
-                  })
-                }
-              </SidepanelList>
-            );
-          }}
-        </Observer>
-      )}
+                    })
+                  }
+                </SidepanelList>
+              );
+            }}
+          </Observer>
+        )
+      }
     </JourneysByDateQuery>
   );
 });

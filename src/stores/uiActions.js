@@ -58,15 +58,20 @@ export default (state) => {
     }
   );
 
-  const addError = (type, message) => {
-    if (!type || !message) {
+  const addError = (type, message, target) => {
+    if (
+      !type ||
+      !message ||
+      state.errors.some((err) => err.type === type && err.message === message)
+    ) {
       return;
     }
 
     const error = {
       type,
       message,
-      code: `${type}_${Math.random()
+      target,
+      id: `${type}_${Math.random()
         .toString(36)
         .substr(2, 9)}`,
     };
@@ -75,7 +80,7 @@ export default (state) => {
   };
 
   const removeError = (errorCode) => {
-    const errorIdx = state.errors.findIndex((err) => err.code === errorCode);
+    const errorIdx = state.errors.findIndex((err) => err.id === errorCode);
 
     if (errorIdx !== -1) {
       state.errors.splice(errorIdx, 1);
