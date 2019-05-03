@@ -8,7 +8,7 @@ import {parseLineNumber} from "../../helpers/parseLineNumber";
 
 const getSuggestionValue = (suggestion) => get(suggestion, "lineId", suggestion);
 
-const renderSuggestion = (suggestion, {query, isHighlighted}) => {
+const renderSuggestion = (suggestion, {isHighlighted}) => {
   const lineId = get(suggestion, "lineId", suggestion);
 
   return (
@@ -53,7 +53,7 @@ const LineInput = observer(({line, lines, onSelect}) => {
       const nextOptions = getFilteredSuggestions(lines, value);
       setOptions(nextOptions);
     },
-    [lines, setOptions]
+    [lines]
   );
 
   return (

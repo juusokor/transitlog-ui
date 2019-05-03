@@ -1,5 +1,7 @@
+import trim from "lodash/trim";
+
 export const parseLineNumber = (lineId) => {
-  const lineStr = lineId + "";
+  const lineStr = trim(lineId + "").replace(/\s(.*|\s)/g, "");
   // Special case for train lines, they should only show a letter.
   if (/^300[12]/.test(lineStr)) {
     return lineStr.replace(/\d+/, "");

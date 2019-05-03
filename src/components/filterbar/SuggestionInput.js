@@ -4,7 +4,7 @@ import autosuggestStyles from "./SuggestionInput.css";
 import {observer} from "mobx-react";
 import styled from "styled-components";
 import {InputStyles} from "../Forms";
-import {observable, action} from "mobx";
+import {observable, action, computed} from "mobx";
 import Tooltip from "../Tooltip";
 
 const AutosuggestWrapper = styled.div`
@@ -58,16 +58,21 @@ class SuggestionInput extends Component {
   };
 
   @observable
-  inputValue = this.getValue(this.props.value);
+  inputValue = this.getScalarValue(this.props.value);
 
   @action
   setValue(value) {
     this.inputValue = value;
   }
 
-  getValue(val) {
-    const {getValue, getDisplayValue = getValue} = this.props;
-    return getDisplayValue(getValue(val));
+  getScalarValue(val) {
+    const {getValue, getScalarValue = getValue} = this.props;
+
+    if (typeof val === "string") {
+      return getScalarValue(getValue(val));
+    }
+
+    return getScalarValue(val);
   }
 
   onChange = (event, {newValue}) => {
@@ -81,19 +86,20 @@ class SuggestionInput extends Component {
   };
 
   onSuggestionSelected = (event, {suggestion}) => {
-    this.props.onSelect(this.props.getValue(suggestion));
-    this.setValue(this.getValue(suggestion));
+    const nextValue = this.getScalarValue(suggestion);
+    this.props.onSelect(nextValue);
+    this.setValue(nextValue);
   };
 
-  shouldRenderSuggestions = (limit) => (value) => {
-    return value.trim().length >= limit;
+  shouldRenderSuggestions = (limit) => (value = "") => {
+    return (value || "").trim().length >= limit;
   };
 
   componentDidUpdate({value: prevValue}) {
     const {value} = this.props;
 
     if (value !== prevValue) {
-      const nextValue = this.getValue(value);
+      const nextValue = this.getScalarValue(value);
       this.setValue(nextValue);
     }
   }
@@ -109,6 +115,7 @@ class SuggestionInput extends Component {
       renderSectionTitle,
       getSectionSuggestions,
       helpText = "",
+      value,
       ...autosuggestProps
     } = this.props;
 
@@ -116,6 +123,9 @@ class SuggestionInput extends Component {
       placeholder,
       value: this.inputValue,
       onChange: this.onChange,
+      onFocus: () => {
+        this.setValue(this.getScalarValue(value));
+      },
     };
 
     return (

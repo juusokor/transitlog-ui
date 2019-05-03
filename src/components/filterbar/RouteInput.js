@@ -1,66 +1,122 @@
-import React, {Component} from "react";
-import {observer, inject} from "mobx-react";
-import {app} from "mobx-app";
-import {get} from "lodash";
-import {text} from "../../helpers/text";
-import Dropdown from "../Dropdown";
+import React, {useCallback, useState} from "react";
 import {createRouteId} from "../../helpers/keys";
+import flow from "lodash/flow";
+import {observer} from "mobx-react-lite";
+import {inject} from "../../helpers/inject";
+import SuggestionInput, {SuggestionContent, SuggestionText} from "./SuggestionInput";
+import getTransportType from "../../helpers/getTransportType";
+import {parseLineNumber} from "../../helpers/parseLineNumber";
+import sortBy from "lodash/sortBy";
+import {text} from "../../helpers/text";
 
-@inject(app("Filters"))
-@observer
-class RouteInput extends Component {
-  onChange = (e) => {
-    const {Filters, routes} = this.props;
-    const selectedValue = get(e, "target.value", false);
+const decorate = flow(
+  observer,
+  inject("Filters")
+);
 
-    if (!selectedValue) {
-      return Filters.setRoute({routeId: "", direction: "", originStopId: ""});
+const renderSuggestion = (suggestion, {isHighlighted}) => {
+  const {routeId, direction, origin, destination} = suggestion;
+
+  return (
+    <SuggestionContent
+      isHighlighted={isHighlighted}
+      withIcon={true}
+      className={getTransportType(routeId)}>
+      <SuggestionText withIcon={true}>
+        <strong>{routeId}</strong> {text("domain.direction")} {direction}
+        <br />
+        {origin} - {destination}
+      </SuggestionText>
+    </SuggestionContent>
+  );
+};
+
+const getFilteredSuggestions = (routes, {value = ""}) => {
+  const inputValue = value.trim().toLowerCase();
+  const inputLength = inputValue.length;
+
+  let [searchRouteId, searchDirection = ""] = inputValue.split("/");
+  searchDirection = parseInt(searchDirection.replace(/[^0-9]*/g, "") || 0, 10);
+
+  console.log(searchDirection);
+
+  const filteredRoutes =
+    inputLength === 0
+      ? routes
+      : routes.filter(
+          ({routeId, direction}) =>
+            (searchDirection && direction === searchDirection) ||
+            routeId.includes(searchRouteId.slice(0, inputLength)) ||
+            parseLineNumber(routeId).includes(searchRouteId.slice(0, inputLength))
+        );
+
+  return sortBy(filteredRoutes, ({routeId}) => {
+    const parsedLineId = parseLineNumber(routeId);
+    const numericLineId = parsedLineId.replace(/[^0-9]*/g, "");
+
+    if (!numericLineId) {
+      return getTransportType(routeId, true);
     }
 
-    const route = routes.find((r) => createRouteId(r) === selectedValue);
+    const lineNum = parseInt(numericLineId, 10);
+    return getTransportType(routeId, true) + lineNum;
+  });
+};
 
-    if (route) {
-      Filters.setRoute(route);
-    }
-  };
+const RouteInput = decorate(({state: {route}, Filters, routes}) => {
+  const [options, setOptions] = useState([]);
 
-  render() {
-    const {
-      state: {route},
-      routes,
-    } = this.props;
+  const getValue = useCallback(
+    (routeIdentifier) => {
+      const routeId =
+        typeof routeIdentifier === "string"
+          ? routeIdentifier
+          : createRouteId(routeIdentifier);
 
-    const options = routes.map((routeOption) => {
-      const {id, routeId, direction, origin, destination} = routeOption;
+      return routes.find((r) => createRouteId(r) === routeId);
+    },
+    [routes]
+  );
 
-      return {
-        key: id,
-        value: createRouteId(routeOption),
-        label: `${routeId} - suunta ${direction}, ${origin} - ${destination}`,
-      };
-    });
+  const onSelect = useCallback(
+    (selectedValue) => {
+      if (!selectedValue) {
+        return Filters.setRoute({routeId: "", direction: "", originStopId: ""});
+      }
 
-    const hasRoutes = routes.length > 0;
-    options.unshift({
-      value: "",
-      label: hasRoutes ? text("filterpanel.select_route") : text("filterpanel.no_routes"),
-    });
-    const currentValue = createRouteId(route);
+      const selectedRoute = getValue(selectedValue);
 
-    return (
-      <Dropdown
-        helpText="Select route"
-        disabled={!hasRoutes}
-        value={currentValue}
-        onChange={this.onChange}>
-        {options.map(({key, value, label}) => (
-          <option key={`route_select_${key}`} value={value}>
-            {label}
-          </option>
-        ))}
-      </Dropdown>
-    );
-  }
-}
+      if (selectedRoute) {
+        Filters.setRoute(selectedRoute);
+      }
+    },
+    [Filters, options]
+  );
+
+  const getSuggestions = useCallback(
+    (value) => {
+      const nextOptions = getFilteredSuggestions(routes, value);
+      setOptions(nextOptions);
+    },
+    [routes]
+  );
+
+  const hasRoutes = routes.length > 0;
+
+  return (
+    <SuggestionInput
+      disabled={!hasRoutes}
+      helpText="Select route"
+      minimumInput={0}
+      value={getValue(route)}
+      onSelect={onSelect}
+      getValue={getValue}
+      getScalarValue={(val) => (typeof val === "string" ? val : createRouteId(val))}
+      renderSuggestion={renderSuggestion}
+      suggestions={options}
+      onSuggestionsFetchRequested={getSuggestions}
+    />
+  );
+});
 
 export default RouteInput;

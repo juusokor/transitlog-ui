@@ -10,7 +10,7 @@
   "filterpanel.filter_by_vehicle": "Filter by vehicle",
   "filterpanel.filter_by_stop": "Search stops",
   "filterpanel.filter_by_line": "Search line",
-  "filterpanel.find_line_route": "Search line and route",
+  "filterpanel.find_line_route": "Search route",
   "filterpanel.select_route": "Choose route",
   "filterpanel.no_routes": "No routes available",
   "filterpanel.planned_start_time": "Planned start time",
@@ -21,6 +21,7 @@
   "filterpanel.journey.click_to_fetch": "Fetch",
   "filterpanel.clear.stop": "Clear stop",
   "filterpanel.clear.vehicle": "Clear vehicle",
+  "filterpanel.clear.route": "Clear route",
 
   "sidepanel.tabs.journeys": "Journeys",
   "sidepanel.tabs.week_journeys": "Week journeys",
@@ -63,6 +64,7 @@
 
   "domain.line": "Line",
   "domain.route": "Route",
+  "domain.direction": "direction",
 
   "general.minutes": "minutes",
   "general.hour": "hour",

@@ -8,7 +8,7 @@ describe("Key helpers", () => {
     };
 
     const routeId = createRouteId(route);
-    const expected = "123_1";
+    const expected = "123/1";
 
     expect(routeId).toBe(expected);
   });

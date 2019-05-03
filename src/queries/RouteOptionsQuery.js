@@ -6,8 +6,8 @@ import {observer} from "mobx-react";
 import orderBy from "lodash/orderBy";
 
 const routesQuery = gql`
-  query routeOptionsQuery($line: String!, $date: Date!) {
-    routes(date: $date, line: $line) {
+  query routeOptionsQuery($date: Date!) {
+    routes(date: $date) {
       id
       lineId
       routeId
@@ -22,7 +22,7 @@ const routesQuery = gql`
   }
 `;
 
-export default observer(({line, date, children}) => {
+const RouteOptionsQuery = observer(({line, date, children}) => {
   return (
     <Query query={routesQuery} variables={{line, date}}>
       {({loading, error, data}) => {
@@ -38,3 +38,5 @@ export default observer(({line, date, children}) => {
     </Query>
   );
 });
+
+export default RouteOptionsQuery;

@@ -10,7 +10,7 @@
   "filterpanel.filter_by_vehicle": "Sök fordon",
   "filterpanel.filter_by_stop": "Sök hållplatser",
   "filterpanel.filter_by_line": "Sök linjer",
-  "filterpanel.find_line_route": "Sök linje och rutt",
+  "filterpanel.find_line_route": "Sök rutt",
   "filterpanel.select_route": "Välj rutt",
   "filterpanel.no_routes": "Inga rutter hittade",
   "filterpanel.planned_start_time": "Planerad starttid",
@@ -21,6 +21,7 @@
   "filterpanel.journey.click_to_fetch": "Hämta",
   "filterpanel.clear.stop": "Återställ hållplats",
   "filterpanel.clear.vehicle": "Återställ fordon",
+  "filterpanel.clear.route": "Återställ rutt",
 
   "sidepanel.tabs.journeys": "Resor",
   "sidepanel.tabs.week_journeys": "Reseveckan",
@@ -61,6 +62,7 @@
 
   "domain.line": "Linje",
   "domain.route": "Rutt",
+  "domain.direction": "riktning",
 
   "general.minutes": "minuter",
   "general.hour": "timme",
