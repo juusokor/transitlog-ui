@@ -1,18 +1,14 @@
 import React, {useCallback} from "react";
-import {text, Text} from "../../helpers/text";
-import {ControlGroup, Button, ClearButton} from "../Forms";
-import {observer} from "mobx-react-lite";
+import {text} from "../../helpers/text";
+import {ControlGroup, ClearButton} from "../Forms";
+import {observer, Observer} from "mobx-react-lite";
 import VehicleInput from "./VehicleInput";
 import Input from "../Input";
 import flow from "lodash/flow";
 import VehicleOptionsQuery from "../../queries/VehicleOptionsQuery";
 import Tooltip from "../Tooltip";
 import {inject} from "../../helpers/inject";
-import {
-  SuggestionContent,
-  SelectedOptionDisplay,
-  SuggestionText,
-} from "./SuggestionInput";
+import {SelectedOptionDisplay, SuggestionText} from "./SuggestionInput";
 
 const decorate = flow(
   observer,
@@ -28,47 +24,51 @@ const VehicleSettings = decorate(({Filters, state}) => {
 
   return (
     <VehicleOptionsQuery date={date}>
-      {({vehicles, search}) => {
-        const selectedVehicle = vehicles.find((v) => v.id === vehicle);
+      {({vehicles, search}) => (
+        <Observer>
+          {() => {
+            const selectedVehicle = vehicles.find((v) => v.id === vehicle);
 
-        return (
-          <>
-            <ControlGroup>
-              <Input
-                helpText="Select vehicle"
-                label={fieldLabel}
-                animatedLabel={false}
-                value={vehicle}
-                disabled={isDisabled}>
-                <VehicleInput
-                  search={search}
-                  options={vehicles}
-                  value={vehicle}
-                  onSelect={onSelectVehicle}
-                />
-              </Input>
-              {!!vehicle && (
-                <Tooltip helpText="Clear vehicle">
-                  <ClearButton
-                    primary={false}
-                    small={true}
-                    onClick={() => Filters.setVehicle("")}
-                  />
-                </Tooltip>
-              )}
-            </ControlGroup>
-            {selectedVehicle && (
-              <SelectedOptionDisplay withIcon={false}>
-                <SuggestionText withIcon={false}>
-                  <strong>{selectedVehicle.id}</strong> {selectedVehicle.registryNr}
-                  <br />
-                  {selectedVehicle.operatorName}
-                </SuggestionText>
-              </SelectedOptionDisplay>
-            )}
-          </>
-        );
-      }}
+            return (
+              <>
+                <ControlGroup>
+                  <Input
+                    helpText="Select vehicle"
+                    label={fieldLabel}
+                    animatedLabel={false}
+                    value={vehicle}
+                    disabled={isDisabled}>
+                    <VehicleInput
+                      search={search}
+                      options={vehicles}
+                      value={vehicle}
+                      onSelect={onSelectVehicle}
+                    />
+                  </Input>
+                  {!!vehicle && (
+                    <Tooltip helpText="Clear vehicle">
+                      <ClearButton
+                        primary={false}
+                        small={true}
+                        onClick={() => Filters.setVehicle("")}
+                      />
+                    </Tooltip>
+                  )}
+                </ControlGroup>
+                {selectedVehicle && (
+                  <SelectedOptionDisplay withIcon={false}>
+                    <SuggestionText withIcon={false}>
+                      <strong>{selectedVehicle.id}</strong> {selectedVehicle.registryNr}
+                      <br />
+                      {selectedVehicle.operatorName}
+                    </SuggestionText>
+                  </SelectedOptionDisplay>
+                )}
+              </>
+            );
+          }}
+        </Observer>
+      )}
     </VehicleOptionsQuery>
   );
 });

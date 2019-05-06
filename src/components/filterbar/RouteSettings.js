@@ -25,55 +25,53 @@ const decorate = flow(
 const RouteSettings = decorate(({Filters, state: {route, date}}) => {
   return (
     <RouteOptionsQuery date={date}>
-      {({routes = [], loading, search}) => {
-        const selectedRoute = getFullRoute(routes, route);
+      {({routes = [], loading, search}) => (
+        <Observer>
+          {() => {
+            const selectedRoute = getFullRoute(routes, route);
 
-        return (
-          <Observer>
-            {() =>
-              loading ? (
-                <LoadingSpinner inline={true} />
-              ) : (
-                <>
-                  <ControlGroup>
-                    <Input
-                      helpText="Select route"
-                      label={text("filterpanel.find_line_route")}
-                      animatedLabel={false}>
-                      <RouteInput search={search} route={route} routes={routes} />
-                    </Input>
-                    {route && route.routeId && (
-                      <Tooltip helpText="Clear route">
-                        <ClearButton
-                          onClick={() =>
-                            Filters.setRoute({
-                              routeId: "",
-                              direction: "",
-                              originStopId: "",
-                            })
-                          }
-                        />
-                      </Tooltip>
-                    )}
-                  </ControlGroup>
-                  {selectedRoute && (
-                    <SelectedOptionDisplay
-                      withIcon={true}
-                      className={getTransportType(selectedRoute.routeId)}>
-                      <SuggestionText withIcon={true}>
-                        <strong>{selectedRoute.routeId}</strong>{" "}
-                        <Text>domain.direction</Text> {selectedRoute.direction}
-                        <br />
-                        {selectedRoute.origin} - {selectedRoute.destination}
-                      </SuggestionText>
-                    </SelectedOptionDisplay>
+            return loading ? (
+              <LoadingSpinner inline={true} />
+            ) : (
+              <>
+                <ControlGroup>
+                  <Input
+                    helpText="Select route"
+                    label={text("filterpanel.find_line_route")}
+                    animatedLabel={false}>
+                    <RouteInput search={search} route={route} routes={routes} />
+                  </Input>
+                  {route && route.routeId && (
+                    <Tooltip helpText="Clear route">
+                      <ClearButton
+                        onClick={() =>
+                          Filters.setRoute({
+                            routeId: "",
+                            direction: "",
+                            originStopId: "",
+                          })
+                        }
+                      />
+                    </Tooltip>
                   )}
-                </>
-              )
-            }
-          </Observer>
-        );
-      }}
+                </ControlGroup>
+                {selectedRoute && (
+                  <SelectedOptionDisplay
+                    withIcon={true}
+                    className={getTransportType(selectedRoute.routeId)}>
+                    <SuggestionText withIcon={true}>
+                      <strong>{selectedRoute.routeId}</strong>{" "}
+                      <Text>domain.direction</Text> {selectedRoute.direction}
+                      <br />
+                      {selectedRoute.origin} - {selectedRoute.destination}
+                    </SuggestionText>
+                  </SelectedOptionDisplay>
+                )}
+              </>
+            );
+          }}
+        </Observer>
+      )}
     </RouteOptionsQuery>
   );
 });
