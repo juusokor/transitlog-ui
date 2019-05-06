@@ -28,6 +28,7 @@ const ListRow = styled.div`
 
 const LineSlot = styled(ColoredSlot)`
   white-space: nowrap;
+  min-width: 4.75rem;
 `;
 
 const PlannedTimeSlot = styled(PlainSlot)`

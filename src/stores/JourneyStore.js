@@ -5,7 +5,7 @@ import TimeActions from "./timeActions";
 import moment from "moment-timezone";
 import journeyActions from "./journeyActions";
 import {getJourneyObject} from "../helpers/getJourneyObject";
-import {getPathName, getUrlValue} from "./UrlManager";
+import {getPathName, getUrlValue, onHistoryChange} from "./UrlManager";
 import get from "lodash/get";
 import {setResetListener} from "./FilterStore";
 import {getTimeString} from "../helpers/time";
@@ -111,6 +111,10 @@ export default (state) => {
   );
 
   setResetListener(() => actions.setSelectedJourney(null));
+
+  onHistoryChange(() => {
+    selectJourneyFromUrl(getPathName());
+  });
 
   return {
     ...actions,

@@ -11,6 +11,29 @@ import {AUTH_STATE_STORAGE_KEY} from "../constants";
 
 let history = createHistory();
 
+const historyChangeListeners = [];
+
+export const onHistoryChange = (cb) => {
+  if (!historyChangeListeners.includes(cb)) {
+    historyChangeListeners.push(cb);
+  }
+
+  return () => {
+    const cbIndex = historyChangeListeners.indexOf(cb);
+
+    if (cbIndex !== -1) {
+      historyChangeListeners.splice(cbIndex, 1);
+    }
+  };
+};
+
+history.listen((location) => {
+  if (get(location, "state.allowReactions", false)) {
+    const urlState = getUrlState();
+    historyChangeListeners.forEach((cb) => cb(urlState));
+  }
+});
+
 // Only for testing
 export const __setHistoryForTesting = (historyObj) => {
   history = historyObj;
@@ -107,17 +130,23 @@ export const redirectToLogin = (register = false) => {
 };
 
 export const removeAuthParams = () => {
-  let shareUrl = window.location.href;
-  const url = new URL(shareUrl);
-  url.searchParams.delete("code");
-  url.searchParams.delete("scope");
-
   const preAuthState = sessionStorage.getItem(AUTH_STATE_STORAGE_KEY);
 
   if (preAuthState) {
-    sessionStorage.removeItem(AUTH_STATE_STORAGE_KEY);
-    window.location.assign(window.location.origin + preAuthState);
+    // sessionStorage.removeItem(AUTH_STATE_STORAGE_KEY);
+    const nextPathname =
+      window.location.origin +
+      (preAuthState.startsWith("/") ? preAuthState : "/" + preAuthState);
+
+    const url = new URL(nextPathname);
+    // Must do a refresh here to apply the state
+    history.replace({pathname: url.pathname, search: url.search}, {allowReactions: true});
   } else {
+    let shareUrl = window.location.href;
+    const url = new URL(shareUrl);
+    url.searchParams.delete("code");
+    url.searchParams.delete("scope");
+
     history.replace({pathname: "/", search: url.search});
   }
 };

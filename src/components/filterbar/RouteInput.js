@@ -38,8 +38,6 @@ const getFilteredSuggestions = (routes, {value = ""}) => {
   let [searchRouteId, searchDirection = ""] = inputValue.split("/");
   searchDirection = parseInt(searchDirection.replace(/[^0-9]*/g, "") || 0, 10);
 
-  console.log(searchDirection);
-
   const filteredRoutes =
     inputLength === 0
       ? routes

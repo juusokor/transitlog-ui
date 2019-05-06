@@ -129,8 +129,8 @@ const Journeys = decorate(({state, Time, Journey}) => {
 
   return (
     <JourneysByDateQuery route={route} date={date}>
-      {({departures, loading, error}) =>
-        error || (!loading && departures.length === 0) ? (
+      {({departures, loading, error, skipped}) =>
+        error || (!loading && !skipped && departures.length === 0) ? (
           <EmptyView
             error={
               error ? error : {emptyDataError: {message: "No data returned from server."}}

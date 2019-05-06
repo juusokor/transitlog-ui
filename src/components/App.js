@@ -100,9 +100,13 @@ function App({state, UI}) {
         : UI.setUser(null);
 
       if (code) {
-        removeAuthParams();
         const response = await authorize(code);
-        if (response && response.isOk && response.email) UI.setUser(response.email);
+
+        if (response && response.isOk && response.email) {
+          UI.setUser(response.email);
+        }
+
+        removeAuthParams();
       }
     };
 

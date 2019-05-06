@@ -45,6 +45,7 @@ const filterActions = (state) => {
 
     setUrlValue("route.routeId", state.route.routeId);
     setUrlValue("route.direction", state.route.direction);
+    setUrlValue("route.originStopId", state.route.originStopId);
   });
 
   return {

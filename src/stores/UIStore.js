@@ -1,6 +1,7 @@
-import {extendObservable, observable, reaction} from "mobx";
-import {getUrlValue} from "./UrlManager";
+import {extendObservable, observable, reaction, set} from "mobx";
+import {getUrlValue, onHistoryChange} from "./UrlManager";
 import uiActions from "./uiActions";
+import get from "lodash/get";
 
 export const LANGUAGES = {
   FINNISH: "fi",
@@ -39,6 +40,7 @@ export default (state) => {
     language: languageState.language,
     errors: [],
     shareModalOpen: false,
+    user: null,
   });
 
   const actions = uiActions(state);
@@ -50,6 +52,22 @@ export default (state) => {
       state.language = currentLanguage;
     }
   );
+
+  // Hydrate new state from url on history change
+  onHistoryChange((urlState) => {
+    set(state, {
+      sidePanelVisible: get(urlState, "sidePanelVisible", state.sidePanelVisible),
+      journeyDetailsOpen: get(urlState, "journeysDetailsOpen", state.journeyDetailsOpen),
+      journeyGraphOpen: get(urlState, "journeyGraphOpen", state.journeyGraphOpen),
+      mapOverlays: get(urlState, "mapOverlays", state.mapOverlays.join(",")).split(","),
+      areaEventsStyle: get(urlState, "areaEventsStyle", state.areaEventsStyle),
+      weeklyObservedTimes: get(
+        urlState,
+        "weeklyObservedTimes",
+        state.weeklyObservedTimes
+      ),
+    });
+  });
 
   return actions;
 };

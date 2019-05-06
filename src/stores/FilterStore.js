@@ -1,10 +1,10 @@
-import {extendObservable, action} from "mobx";
+import {extendObservable, action, set} from "mobx";
 import filterActions from "./filterActions";
 import {inflate} from "../helpers/inflate";
 import pick from "lodash/pick";
 import merge from "lodash/merge";
 import omit from "lodash/omit";
-import {resetUrlState} from "./UrlManager";
+import {resetUrlState, onHistoryChange} from "./UrlManager";
 import moment from "moment-timezone";
 import {TIMEZONE} from "../constants";
 
@@ -27,7 +27,6 @@ export default (state, initialState = {}) => {
     date: moment.tz(new Date(), TIMEZONE).format("YYYY-MM-DD"),
     stop: "",
     vehicle: "",
-    line: "",
     route: {
       routeId: "",
       direction: "",
@@ -56,18 +55,23 @@ export default (state, initialState = {}) => {
     resetUrlState(true);
   });
 
-  const hydrateFromUrl = () => {
+  const hydrateFromUrl = (initialStateOrUrlState = initialState, extend = false) => {
     // Allow any keys to be added to the state when testing. In all other cases
     // only pick props that are defined in the emptyState.
     const initialStateProps =
       process.env.NODE_ENV !== "test"
-        ? pick(inflate(initialState), ...Object.keys(emptyState))
-        : inflate(initialState);
+        ? pick(inflate(initialStateOrUrlState), ...Object.keys(emptyState))
+        : inflate(initialStateOrUrlState);
 
-    extendObservable(state, merge({}, emptyState, initialStateProps));
+    if (extend) {
+      extendObservable(state, merge({}, emptyState, initialStateProps));
+    } else {
+      set(state, initialStateProps);
+    }
   };
 
-  hydrateFromUrl();
+  hydrateFromUrl(initialState, true);
+  onHistoryChange(hydrateFromUrl);
 
   return {
     ...actions,

@@ -99,25 +99,27 @@ const JourneysByDateQuery = observer(({children, route, date, skip}) => {
   useEffect(() => () => removeUpdateListener(updateListenerName), []);
 
   const {routeId, direction, originStopId} = route;
+  const shouldSkip = skip || !route || !routeId || !direction || !originStopId;
 
   return (
     <Query
+      skip={shouldSkip}
       query={routeJourneysQuery}
       variables={{
         routeId: routeId,
         direction: parseInt(direction, 10),
-        stopId: originStopId,
+        stopId: originStopId || "",
         date,
       }}>
       {({data, error, loading, refetch}) => {
         if (!data || loading) {
-          return children({departures: [], loading, error});
+          return children({departures: [], loading, error, skipped: shouldSkip});
         }
 
         const departures = get(data, "routeDepartures", []);
 
         setUpdateListener(updateListenerName, createRefetcher(refetch), false);
-        return children({departures, loading, error});
+        return children({departures, loading, error, skipped: shouldSkip});
       }}
     </Query>
   );
