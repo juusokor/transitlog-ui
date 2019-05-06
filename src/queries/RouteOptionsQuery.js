@@ -22,9 +22,9 @@ const routesQuery = gql`
   }
 `;
 
-const RouteOptionsQuery = observer(({line, date, children}) => {
+const RouteOptionsQuery = observer(({date, children}) => {
   return (
-    <Query query={routesQuery} variables={{line, date}}>
+    <Query query={routesQuery} variables={{date}}>
       {({loading, error, data}) => {
         const routes = get(data, "routes", []);
         const filteredRoutes = orderBy(routes, ["routeId", "direction"]);
