@@ -5,7 +5,7 @@ import {observer, inject} from "mobx-react";
 import styled from "styled-components";
 import TimeSlider from "./TimeSlider";
 import AdditionalTimeSettings from "./AdditionalTimeSettings";
-import LineSettings from "./LineSettings";
+import RouteSettings from "./RouteSettings";
 import FilterSection from "./FilterSection";
 import Header from "./Header";
 import VehicleSettings from "./VehicleSettings";
@@ -75,7 +75,7 @@ class FilterBar extends Component {
            */}
           <CalendarRoot ref={this.calendarRootRef} />
           <FilterSection>
-            <LineSettings />
+            <RouteSettings />
           </FilterSection>
           <FilterSection>
             <VehicleSettings />

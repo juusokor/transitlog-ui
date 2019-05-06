@@ -1,6 +1,7 @@
 import styled, {css, createGlobalStyle} from "styled-components";
 import React from "react";
 import {useTooltip} from "../hooks/useTooltip";
+import CrossThick from "../icons/CrossThick";
 
 export const GlobalFormStyle = createGlobalStyle`
   select,
@@ -18,7 +19,7 @@ export const ControlGroup = styled.div`
   justify-content: flex-start;
   align-items: flex-end;
   width: 100%;
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.33rem;
 
   &:last-child {
     margin-bottom: 0;
@@ -100,3 +101,20 @@ export const StyledButton = styled.button`
 export const Button = React.forwardRef(({helpText, ...props}, ref) => (
   <StyledButton {...props} {...useTooltip(helpText)} ref={ref} />
 ));
+
+export const ClearButton = styled(Button).attrs({
+  primary: true,
+  children: <CrossThick fill="white" width="0.75rem" height="0.75rem" />,
+})`
+  padding: 0.25rem 0.7rem;
+  border-radius: 0.25rem;
+  outline: none;
+  font-size: 0.875rem;
+  height: ${INPUT_HEIGHT};
+  background-color: var(--light-grey);
+  border: 0;
+
+  &:hover {
+    background: var(--red);
+  }
+`;

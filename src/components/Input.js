@@ -11,7 +11,7 @@ const InputWrapper = styled.div`
   align-items: flex-start;
   width: 100%;
   position: relative;
-  margin-right: 1rem;
+  margin-right: 0.75rem;
 
   &:only-child {
     margin-right: 0;

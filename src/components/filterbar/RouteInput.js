@@ -43,8 +43,10 @@ const getFilteredSuggestions = (routes, {value = ""}) => {
       ? routes
       : routes.filter(
           ({routeId, direction}) =>
-            (searchDirection && direction === searchDirection) ||
-            routeId.includes(searchRouteId.slice(0, inputLength)) ||
+            (searchDirection &&
+              direction === searchDirection &&
+              routeId.includes(searchRouteId)) ||
+            (!searchDirection && routeId.includes(searchRouteId)) ||
             parseLineNumber(routeId).includes(searchRouteId.slice(0, inputLength))
         );
 
@@ -61,18 +63,17 @@ const getFilteredSuggestions = (routes, {value = ""}) => {
   });
 };
 
+export const getFullRoute = (routes, selectedRoute) => {
+  const routeId =
+    typeof selectedRoute === "string" ? selectedRoute : createRouteId(selectedRoute);
+  return routes.find((r) => createRouteId(r) === routeId);
+};
+
 const RouteInput = decorate(({state: {route}, Filters, routes}) => {
   const [options, setOptions] = useState([]);
 
   const getValue = useCallback(
-    (routeIdentifier) => {
-      const routeId =
-        typeof routeIdentifier === "string"
-          ? routeIdentifier
-          : createRouteId(routeIdentifier);
-
-      return routes.find((r) => createRouteId(r) === routeId);
-    },
+    (routeIdentifier) => getFullRoute(routes, routeIdentifier),
     [routes]
   );
 
@@ -111,7 +112,7 @@ const RouteInput = decorate(({state: {route}, Filters, routes}) => {
       getValue={getValue}
       getScalarValue={(val) => (typeof val === "string" ? val : createRouteId(val))}
       renderSuggestion={renderSuggestion}
-      suggestions={options}
+      suggestions={options.slice(0, 50)}
       onSuggestionsFetchRequested={getSuggestions}
     />
   );
