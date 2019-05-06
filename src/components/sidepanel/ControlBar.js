@@ -3,7 +3,7 @@ import styled from "styled-components";
 import {Text, text} from "../../helpers/text";
 import {Button} from "../Forms";
 import {observer, inject} from "mobx-react";
-import ToggleButton, {ToggleContainer, ToggleMarker} from "../ToggleButton";
+import ToggleButton from "../ToggleButton";
 import {app} from "mobx-app";
 
 const Bar = styled.div`
@@ -23,18 +23,9 @@ const ControlButton = styled(Button).attrs({small: true, transparent: true})`
   }
 `;
 
-const PollToggle = styled(ToggleButton)`
+const PollToggle = styled(ToggleButton).attrs({inverted: true})`
   flex: 0;
   color: white;
-
-  ${ToggleContainer} {
-    border-color: white !important;
-    background-color: transparent;
-  }
-
-  ${ToggleMarker} {
-    background-color: white;
-  }
 `;
 
 @inject(app("Filters", "Update", "Time", "UI"))
