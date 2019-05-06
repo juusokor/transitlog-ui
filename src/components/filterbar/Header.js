@@ -41,7 +41,7 @@ const LogoAndHeading = styled.div`
 
 const LangSelectContainer = styled.div`
   display: flex;
-  flex: 0 0 auto;
+  flex: 1 1 auto;
   align-items: center;
   justify-content: flex-start;
   margin-right: 2rem;
@@ -54,7 +54,7 @@ const LangSelectContainer = styled.div`
 
 const HeaderFeatures = styled(ControlBar)`
   align-items: center;
-  flex: 0 0 auto;
+  flex: 1 1 auto;
   margin: 0 2rem;
 `;
 

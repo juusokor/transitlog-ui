@@ -66,6 +66,7 @@ const TextContainer = styled.div`
   margin-right: ${({isPreLabel = false}) => (isPreLabel ? "0.5rem" : "0")};
   text-align: ${({isPreLabel = false}) => (isPreLabel ? "right" : "left")};
   font-size: 0.75rem;
+  white-space: nowrap;
 `;
 
 const ToggleButton = observer(
