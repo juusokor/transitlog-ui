@@ -132,7 +132,6 @@ function App({state, UI}) {
                     areaJourneys={areaJourneys}
                     selectedJourney={selectedJourney}>
                     {({currentJourneys = [], withRouteJourneys = []}) => {
-                      const detailsAreOpen = selectedJourney && journeyDetailsOpen;
                       const sidePanelIsOpen = sidePanelVisible;
 
                       return (
@@ -150,11 +149,10 @@ function App({state, UI}) {
                                         areaEvents={areaJourneys}
                                         journey={selectedJourney}
                                         stop={stop}
-                                        detailsOpen={detailsAreOpen}
                                         sidePanelOpen={sidePanelIsOpen}
                                       />
                                       <MapPanel
-                                        detailsOpen={detailsAreOpen}
+                                        detailsOpen={journeyDetailsOpen}
                                         sidePanelOpen={sidePanelIsOpen}>
                                         {({
                                           zoom,

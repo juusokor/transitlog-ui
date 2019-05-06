@@ -1,16 +1,12 @@
 import {Text} from "../../helpers/text";
 import React, {useMemo, memo} from "react";
 import styled from "styled-components";
-import {useDebouncedValue} from "../../hooks/useDebouncedValue";
 import {useWeather} from "../../hooks/useWeather";
 import {useWeatherData} from "../../hooks/useWeatherData";
 import flow from "lodash/flow";
 import {observer} from "mobx-react-lite";
 import {inject} from "../../helpers/inject";
 import {useJourneyWeather} from "../../hooks/useJourneyWeather";
-import {floorMoment} from "../../helpers/roundMoment";
-import {useManuallyDebouncedValue} from "../../hooks/useManuallyDebouncedValue";
-import differenceInSeconds from "date-fns";
 import {getMomentFromDateTime} from "../../helpers/time";
 
 const WeatherContainer = styled.div`

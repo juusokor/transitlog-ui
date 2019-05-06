@@ -117,7 +117,6 @@ const SidePanel = decorate((props) => {
     journeyLoading = false,
     areaJourneysLoading = false,
     stop,
-    detailsOpen,
     sidePanelOpen,
     state: {
       language,
@@ -132,7 +131,6 @@ const SidePanel = decorate((props) => {
   } = props;
 
   const hasRoute = !!route && !!route.routeId;
-  const hasJourney = !!journey;
   // Figure out which tab is suggested. It will not be outright selected, but
   // if it appears and nothing else is selected then it will be.
   let suggestedTab = "";
@@ -203,27 +201,27 @@ const SidePanel = decorate((props) => {
           </Tabs>
         )}
       </MainSidePanel>
-      <JourneyPanel visible={detailsOpen || (journeyDetailsOpen && journeyLoading)}>
+      <JourneyPanel visible={journeyDetailsOpen}>
         {/* The content of the sidebar is independent from the sidebar wrapper so that we can animate it. */}
-        {(detailsOpen || (journeyDetailsOpen && journeyLoading)) && (
+        {journeyDetailsOpen && (
           <JourneyDetails loading={journeyLoading} journey={journey} />
         )}
-        {(hasJourney || journeyLoading) && (
-          <div>
+        <div>
+          {hasRoute && (
             <Tooltip helpText="Toggle journey details button">
               <ToggleJourneyDetailsButton onClick={() => toggleJourneyDetails()}>
                 <Info fill="white" height="1rem" width="1rem" />
               </ToggleJourneyDetailsButton>
             </Tooltip>
+          )}
+          {!!journey && (
             <Tooltip>
-              <ToggleGraphButton
-                isVisible={detailsOpen}
-                onClick={() => toggleJourneyGraph()}>
+              <ToggleGraphButton onClick={() => toggleJourneyGraph()}>
                 <Chart fill="white" height="1rem" width="1rem" />
               </ToggleGraphButton>
             </Tooltip>
-          </div>
-        )}
+          )}
+        </div>
       </JourneyPanel>
       <Tooltip helpText="Toggle sidebar button">
         <ToggleSidePanelButton
