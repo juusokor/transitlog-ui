@@ -45,7 +45,8 @@ const getFilteredSuggestions = (routes, {value = ""}) => {
           ({routeId, direction}) =>
             (searchDirection &&
               direction === searchDirection &&
-              routeId.includes(searchRouteId.slice(0, inputLength))) ||
+              routeId.includes(searchRouteId)) ||
+            (!searchDirection && routeId.includes(searchRouteId)) ||
             parseLineNumber(routeId).includes(searchRouteId.slice(0, inputLength))
         );
 
