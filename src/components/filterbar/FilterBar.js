@@ -15,8 +15,7 @@ import {app} from "mobx-app";
 const SiteHeader = styled(Header)`
   flex: 0 0 auto;
   z-index: 1;
-  width: 26rem;
-  height: 100%;
+  width: 100%;
 `;
 
 const FilterBarWrapper = styled.div`
@@ -26,24 +25,22 @@ const FilterBarWrapper = styled.div`
   overflow: visible;
   height: 100%;
   display: flex;
-  flex: 1 1 calc(100% - 26rem);
-  flex-direction: row;
+  flex: 1 1 100%;
+  flex-direction: column;
   position: relative;
 `;
 
 const FilterBarGrid = styled.div`
   display: grid;
-  grid-template-columns: 21rem repeat(3, 1fr);
-  height: 100%;
+  grid-template-columns: 22rem repeat(3, 1fr);
+  height: auto;
   width: 100%;
-  align-items: stretch;
 `;
 
 const BottomSlider = styled(TimeSlider)`
-  position: absolute;
-  bottom: -1rem;
-  right: 0;
-  width: calc((100% - 26rem));
+  position: relative;
+  margin-top: 0;
+  width: 100%;
   z-index: 10;
 `;
 

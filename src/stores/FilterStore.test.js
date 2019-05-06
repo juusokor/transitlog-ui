@@ -26,7 +26,6 @@ describe("FilterStore", () => {
       date: "2018-04-13",
       stop: "1234567",
       vehicle: "04/13",
-      line: "1013",
       "route.routeId": "1013",
       "route.direction": 1,
       "route.originStopId": "1234567",
@@ -39,7 +38,6 @@ describe("FilterStore", () => {
     expect(state.date).toBe("2018-04-13");
     expect(state.stop).toBe("1234567");
     expect(state.vehicle).toBe("04/13");
-    expect(state.line).toBe("1013");
     expect(state.route).toMatchObject({
       routeId: "1013",
       direction: 1,
@@ -75,8 +73,6 @@ describe("FilterStore", () => {
   });
 
   test("setRoute sets the route props in the state", () => {
-    const line = "1013";
-
     const route = {
       routeId: "1013",
       direction: 1,
@@ -91,16 +87,6 @@ describe("FilterStore", () => {
     setRoute(route);
 
     expect(state.route).toMatchObject(route);
-    expect(state.line).toBe("");
-
-    // If the route object includes the line, like it would when coming from
-    // the JORE API, setRoute can also add the line data to the state.
-    const routeWithLine = {...route, lineId: line};
-
-    setRoute(routeWithLine);
-
-    expect(state.route).toMatchObject(route);
-    expect(state.line).toBe(line);
   });
 
   test("setDate sets the passed date in the store in the correct format", () => {

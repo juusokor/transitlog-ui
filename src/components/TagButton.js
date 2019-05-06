@@ -30,6 +30,7 @@ export const ColoredSlot = styled.span`
   justify-content: flex-start;
   margin-right: 0.25rem;
   min-width: 5.25rem;
+  font-size: 0.875rem;
 
   svg {
     width: 1rem;
@@ -40,7 +41,7 @@ export const ColoredSlot = styled.span`
 `;
 
 export const ColoredBackgroundSlot = styled.span`
-  font-size: 1rem;
+  font-size: 0.875rem;
   font-family: "Courier New", Courier, monospace;
   border-radius: 4px;
   line-height: 1rem;
@@ -68,6 +69,7 @@ export const PlainSlot = styled.span`
   display: flex;
   align-items: center;
   justify-content: left;
+  font-size: 0.875rem;
 `;
 
 export const PlainSlotSmall = styled.span`
@@ -78,6 +80,6 @@ export const PlainSlotSmall = styled.span`
   font-weight: normal;
   min-width: 6rem;
   padding: 3px 8px;
-  font-size: 1rem;
+  font-size: 0.875rem;
   font-family: "Courier New", Courier, monospace;
 `;

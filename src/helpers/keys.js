@@ -8,5 +8,5 @@ export function createRouteId(route) {
     get(route, "direction", get(route, "direction_id", "")),
   ];
 
-  return compact(keyParts).join("_");
+  return compact(keyParts).join("/");
 }

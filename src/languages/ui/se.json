@@ -10,7 +10,7 @@
   "filterpanel.filter_by_vehicle": "Sök fordon",
   "filterpanel.filter_by_stop": "Sök hållplatser",
   "filterpanel.filter_by_line": "Sök linjer",
-  "filterpanel.find_line_route": "Sök linje och rutt",
+  "filterpanel.find_line_route": "Sök rutt",
   "filterpanel.select_route": "Välj rutt",
   "filterpanel.no_routes": "Inga rutter hittade",
   "filterpanel.planned_start_time": "Planerad starttid",
@@ -21,6 +21,7 @@
   "filterpanel.journey.click_to_fetch": "Hämta",
   "filterpanel.clear.stop": "Återställ hållplats",
   "filterpanel.clear.vehicle": "Återställ fordon",
+  "filterpanel.clear.route": "Återställ rutt",
 
   "sidepanel.tabs.journeys": "Resor",
   "sidepanel.tabs.week_journeys": "Reseveckan",
@@ -61,6 +62,7 @@
 
   "domain.line": "Linje",
   "domain.route": "Rutt",
+  "domain.direction": "riktning",
 
   "general.minutes": "minuter",
   "general.hour": "timme",
@@ -82,5 +84,12 @@
   "general.auto_update": "Simulera tid",
   "general.no_type": "Ingen typ",
   "general.no_data": "Ingen data",
-  "general.share": "Dela vy"
+  "general.share": "Dela vy",
+  "general.error_messages": "Felmeddelanden",
+  "general.error_messages.server": "Felmeddelanden från servern",
+
+  "message.emptyview.network": "Denna vy är tom på grund av ett nätfel. Försökra dig om att du har en aktiv nätförbindelse och prova sedan igen.",
+  "message.emptyview.authentication": "Datan i denna vy kräver inloggning, eller så har ditt konto inte rättighet.",
+  "message.emptyview.nodata": "Servern gav inte någon data för denna vy.",
+  "message.emptyview.unknown": "Denna vy är inte tillgänglig på grund av ett okänt fel eller för att datan inte existerar."
 }

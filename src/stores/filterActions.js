@@ -45,12 +45,7 @@ const filterActions = (state) => {
 
     setUrlValue("route.routeId", state.route.routeId);
     setUrlValue("route.direction", state.route.direction);
-
-    const routeLine = get(route, "lineId", "");
-
-    if (routeLine) {
-      setLine(routeLine);
-    }
+    setUrlValue("route.originStopId", state.route.originStopId);
   });
 
   return {

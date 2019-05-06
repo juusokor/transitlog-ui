@@ -4,10 +4,10 @@ import {observer} from "mobx-react-lite";
 import {inject} from "../helpers/inject";
 import styled from "styled-components";
 import SomethingWrong from "../icons/SomethingWrong";
-import Privacy from "../icons/Privacy";
 import Alert from "../icons/Alert";
 import SignIn from "../icons/SignIn";
 import NoConnection from "../icons/NoConnection";
+import {Text} from "../helpers/text";
 
 const decorate = flow(
   observer,
@@ -86,32 +86,41 @@ const EmptyView = decorate(({error}) => {
         <>
           <NoConnection fill="var(--alt-grey)" height="5rem" width="5rem" />
           <p>
-            The data in this view is unavailable due to a network issue. Make sure you are
-            online and try again.
+            <Text>message.emptyview.network</Text>
           </p>
         </>
       ) : emptyReason === emptyReasons.AUTHENTICATION ? (
         <>
           <SignIn fill="var(--alt-grey)" height="5rem" width="5rem" />
-          <p>Your account does not have access to the data in this view.</p>
+          <p>
+            <Text>message.emptyview.authentication</Text>
+          </p>
         </>
       ) : emptyReason === emptyReasons.NODATA ? (
         <>
           <Alert fill="var(--alt-grey)" height="5rem" width="5rem" />
-          <p>The server did not return any data for this request.</p>
+          <p>
+            <Text>message.emptyview.nodata</Text>
+          </p>
         </>
       ) : (
         <>
           <SomethingWrong fill="var(--alt-grey)" height="5rem" width="5rem" />
-          <p>For some reason, the data in this view is unavailable or does not exist.</p>
+          <p>
+            <Text>message.emptyview.unknown</Text>
+          </p>
         </>
       )}
       {messages.length && (
         <>
           {emptyReason === emptyReasons.NETWORK ? (
-            <MessagesHeading>Error messages:</MessagesHeading>
+            <MessagesHeading>
+              <Text>general.error_messages</Text>:
+            </MessagesHeading>
           ) : (
-            <MessagesHeading>Messages from the server:</MessagesHeading>
+            <MessagesHeading>
+              <Text>general.error_messages.server</Text>:
+            </MessagesHeading>
           )}
           <ErrorList>
             {messages.map((msg, idx) => (

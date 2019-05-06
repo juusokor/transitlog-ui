@@ -45,7 +45,7 @@ const JourneyListRow = styled.button`
 const JourneyRowLeft = styled.span`
   display: block;
   font-weight: bold;
-  min-width: 9.25rem;
+  min-width: 7.5rem;
   text-align: left;
 `;
 
@@ -62,6 +62,14 @@ const TimeSlot = styled.span`
   font-family: "Courier New", Courier, monospace;
   min-width: 4.5rem;
   text-align: right;
+`;
+
+const JourneyListHeader = styled.div`
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 `;
 
 const JourneyInstanceDisplay = styled.span`
@@ -121,8 +129,8 @@ const Journeys = decorate(({state, Time, Journey}) => {
 
   return (
     <JourneysByDateQuery route={route} date={date}>
-      {({departures, loading, error}) =>
-        error || (!loading && departures.length === 0) ? (
+      {({departures, loading, error, skipped}) =>
+        error || (!loading && !skipped && departures.length === 0) ? (
           <EmptyView
             error={
               error ? error : {emptyDataError: {message: "No data returned from server."}}
@@ -178,14 +186,14 @@ const Journeys = decorate(({state, Time, Journey}) => {
                   focusKey={focusedJourney}
                   loading={loading}
                   header={
-                    <>
+                    <JourneyListHeader>
                       <JourneyRowLeft>
                         <Text>filterpanel.planned_start_time</Text>
                       </JourneyRowLeft>
                       <span>
                         <Text>filterpanel.real_start_time</Text>
                       </span>
-                    </>
+                    </JourneyListHeader>
                   }>
                   {(scrollRef) =>
                     departures.map((departure) => {

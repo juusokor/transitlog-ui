@@ -18,7 +18,7 @@ import ExceptionDaysQuery from "../../queries/ExceptionDaysQuery";
 import Tooltip from "../Tooltip";
 
 const DateControlGroup = styled(ControlGroup)`
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.6rem;
   position: relative;
 `;
 

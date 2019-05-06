@@ -10,7 +10,7 @@
   "filterpanel.filter_by_vehicle": "Hae ajoneuvoa",
   "filterpanel.filter_by_stop": "Hae pysäkkiä",
   "filterpanel.filter_by_line": "Hae linjaa",
-  "filterpanel.find_line_route": "Hae linja ja reitti",
+  "filterpanel.find_line_route": "Hae reitti",
   "filterpanel.select_route": "Valitse reitti",
   "filterpanel.no_routes": "Reittejä ei löydetty",
   "filterpanel.planned_start_time": "Suunniteltu lähtöaika",
@@ -21,6 +21,7 @@
   "filterpanel.journey.click_to_fetch": "Hae",
   "filterpanel.clear.stop": "Tyhjennä pysäkkivalinta",
   "filterpanel.clear.vehicle": "Tyhjennä ajoneuvovalinta",
+  "filterpanel.clear.route": "Tyhjennä reittivalinta",
 
   "sidepanel.tabs.journeys": "Lähdöt",
   "sidepanel.tabs.week_journeys": "Lähtöviikko",
@@ -63,6 +64,7 @@
 
   "domain.line": "Linja",
   "domain.route": "Reitti",
+  "domain.direction": "suunta",
 
   "general.minutes": "minuutteja",
   "general.hour": "tunti",
@@ -84,5 +86,12 @@
   "general.auto_update": "Aikasimulointi",
   "general.no_type": "Ei tyyppiä",
   "general.no_data": "Ei tietoja",
-  "general.share": "Jaa näkymää"
+  "general.share": "Jaa näkymä",
+  "general.error_messages": "Virheviestejä",
+  "general.error_messages.server": "Virheviestejä palvelimelta",
+
+  "message.emptyview.network": "Verkko-ongelman takia tämä näkymä ei ole saatavilla. Varmista että sinulla on yhteys verkkoon ja kokeile uudelleen.",
+  "message.emptyview.authentication": "Tämän näkymän tiedot vaatii kirjautumista, tai tililläsi ei ole vaadittu oikeustaso.",
+  "message.emptyview.nodata": "Palvelin ei palauttanut yhtään tietoja tälle näkymälle.",
+  "message.emptyview.unknown": "Jonkun ongelman takia tämän näkymän tiedot ei ole saatavilla tai se ei ole olemassa."
 }

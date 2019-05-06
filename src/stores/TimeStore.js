@@ -1,9 +1,9 @@
-import {extendObservable} from "mobx";
+import {extendObservable, set} from "mobx";
 import timeActions from "./timeActions";
 import {getMomentFromDateTime, timeToTimeObject} from "../helpers/time";
 import get from "lodash/get";
 import moment from "moment-timezone";
-import {getUrlValue} from "./UrlManager";
+import {getUrlValue, onHistoryChange} from "./UrlManager";
 import {setResetListener} from "./FilterStore";
 import {TIMEZONE} from "../constants";
 
@@ -40,6 +40,18 @@ export default (state, initialState) => {
   const actions = timeActions(state);
 
   setResetListener(() => actions.toggleLive(false));
+
+  onHistoryChange((urlState) => {
+    set(state, {
+      live: urlState.live || false,
+      time: get(urlState, "time", state.time),
+      timeIncrement: parseInt(get(urlState, "time_increment", state.timeIncrement), 10),
+      areaSearchRangeMinutes: parseInt(
+        get(urlState, "area_search_minutes", state.timeIncrement),
+        10
+      ),
+    });
+  });
 
   return actions;
 };

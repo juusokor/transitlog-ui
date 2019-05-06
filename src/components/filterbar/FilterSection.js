@@ -9,7 +9,7 @@ const SectionContent = styled.div`
 
 const FilterSectionWrapper = styled.div`
   width: 100%;
-  height: 9rem;
+  height: 7.75rem;
   border-right: 1px solid var(--lighter-grey);
   background: var(--lightest-grey);
   position: relative;

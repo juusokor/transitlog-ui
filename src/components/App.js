@@ -33,10 +33,10 @@ const AppFrame = styled.main`
 
 const AppGrid = styled.div`
   width: 100%;
-  min-width: 1366px; // No, we are not mobile friendly
+  min-width: 1024px; // No, we are not mobile friendly
   height: 100vh;
   display: grid;
-  grid-template-rows: 9rem 1fr;
+  grid-template-rows: 12.03rem 1fr;
   align-content: stretch;
   align-items: stretch;
 `;
@@ -54,7 +54,7 @@ const MapPanel = styled(Map)`
 `;
 
 const GraphContainer = styled.div`
-  background-color: white;
+  background-color: white
   border: 1px solid var(--alt-grey);
   height: ${({journeyGraphOpen}) => (journeyGraphOpen ? "170px" : "0px")};
   border: ${({journeyGraphOpen}) =>
@@ -100,9 +100,13 @@ function App({state, UI}) {
         : UI.setUser(null);
 
       if (code) {
-        removeAuthParams();
         const response = await authorize(code);
-        if (response && response.isOk && response.email) UI.setUser(response.email);
+
+        if (response && response.isOk && response.email) {
+          UI.setUser(response.email);
+        }
+
+        removeAuthParams();
       }
     };
 

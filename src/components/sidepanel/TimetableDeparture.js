@@ -27,12 +27,12 @@ const ListRow = styled.div`
 `;
 
 const LineSlot = styled(ColoredSlot)`
-  font-size: 0.9333rem;
   white-space: nowrap;
+  min-width: 4.75rem;
 `;
 
 const PlannedTimeSlot = styled(PlainSlot)`
-  min-width: 5.25rem;
+  min-width: 4.5rem;
 `;
 
 const TimingIcon = styled.img`
