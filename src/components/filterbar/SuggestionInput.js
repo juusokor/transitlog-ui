@@ -4,7 +4,7 @@ import autosuggestStyles from "./SuggestionInput.css";
 import {observer} from "mobx-react";
 import styled from "styled-components";
 import {InputStyles} from "../Forms";
-import {observable, action, computed} from "mobx";
+import {observable, action} from "mobx";
 import Tooltip from "../Tooltip";
 
 const AutosuggestWrapper = styled.div`
@@ -29,6 +29,7 @@ export const SuggestionContent = styled.div`
     withIcon
       ? `
 &:before {
+    margin-top: 0.15rem;
     content: "";
     width: 1.25rem;
     height: 1.25rem;
@@ -41,6 +42,12 @@ export const SuggestionText = styled.div`
   font-family: var(--font-family);
   line-height: 1.3;
   margin-left: ${({withIcon = false}) => (withIcon ? "0.5rem" : "0")};
+`;
+
+export const SelectedOptionDisplay = styled(SuggestionContent)`
+  font-size: 0.875rem;
+  padding-left: 0;
+  align-items: flex-start;
 `;
 
 export const SuggestionSectionTitle = styled.div`

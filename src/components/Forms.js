@@ -19,7 +19,7 @@ export const ControlGroup = styled.div`
   justify-content: flex-start;
   align-items: flex-end;
   width: 100%;
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.33rem;
 
   &:last-child {
     margin-bottom: 0;
@@ -111,7 +111,7 @@ export const ClearButton = styled(Button).attrs({
   outline: none;
   font-size: 0.875rem;
   height: ${INPUT_HEIGHT};
-  background-color: var(--red);
+  background-color: var(--light-grey);
   border: 0;
 
   &:hover {

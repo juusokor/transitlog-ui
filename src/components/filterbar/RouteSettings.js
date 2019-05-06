@@ -11,15 +11,10 @@ import flow from "lodash/flow";
 import {inject} from "../../helpers/inject";
 import Tooltip from "../Tooltip";
 import getTransportType from "../../helpers/getTransportType";
-import {SuggestionContent, SuggestionText} from "./SuggestionInput";
+import {SuggestionText, SelectedOptionDisplay} from "./SuggestionInput";
 
 const LoadingSpinner = styled(Loading)`
   margin: 0.5rem 0.5rem 0.5rem 1rem;
-`;
-
-const RouteDisplay = styled(SuggestionContent).attrs({withIcon: true})`
-  font-size: 0.875rem;
-  padding-left: 0;
 `;
 
 const decorate = flow(
@@ -32,7 +27,6 @@ const RouteSettings = decorate(({Filters, state: {route, date}}) => {
     <RouteOptionsQuery date={date}>
       {({routes = [], loading, search}) => {
         const selectedRoute = getFullRoute(routes, route);
-        console.log(selectedRoute);
 
         return (
           <Observer>
@@ -62,13 +56,18 @@ const RouteSettings = decorate(({Filters, state: {route, date}}) => {
                       </Tooltip>
                     )}
                   </ControlGroup>
-                  <RouteDisplay className={getTransportType(selectedRoute.routeId)}>
-                    <SuggestionText withIcon={true}>
-                      <strong>{selectedRoute.routeId}</strong>{" "}
-                      <Text>domain.direction</Text> {selectedRoute.direction},{" "}
-                      {selectedRoute.origin} - {selectedRoute.destination}
-                    </SuggestionText>
-                  </RouteDisplay>
+                  {selectedRoute && (
+                    <SelectedOptionDisplay
+                      withIcon={true}
+                      className={getTransportType(selectedRoute.routeId)}>
+                      <SuggestionText withIcon={true}>
+                        <strong>{selectedRoute.routeId}</strong>{" "}
+                        <Text>domain.direction</Text> {selectedRoute.direction}
+                        <br />
+                        {selectedRoute.origin} - {selectedRoute.destination}
+                      </SuggestionText>
+                    </SelectedOptionDisplay>
+                  )}
                 </>
               )
             }
