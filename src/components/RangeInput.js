@@ -4,10 +4,10 @@ import styled, {css} from "styled-components";
 
 const SliderThumb = css`
   height: 20px;
-  width: 80px;
+  width: 79px;
   margin-top: -10px;
   border-radius: 50%;
-  background: var(--blue);
+  background: transparent;
   cursor: pointer;
   transition: background-color 0.15s ease-out, transform 0.2s ease-out;
   padding: 0;
