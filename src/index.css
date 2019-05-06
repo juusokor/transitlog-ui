@@ -1,5 +1,3 @@
-@import url("https://cloud.typography.com/6364294/6653152/css/fonts.css");
-
 :root {
   --dark-blue: rgb(0, 98, 161);
   --blue: #007ac9;
@@ -25,7 +23,7 @@
   --lightest-grey: #eef1f3;
   --alt-grey: #ccccdf;
 
-  --font-family: "Gotham Rounded SSm A", "Gotham Rounded SSm B", sans-serif;
+  --font-family: "Nunito", sans-serif;
 }
 
 * {

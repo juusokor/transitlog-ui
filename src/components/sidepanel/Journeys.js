@@ -65,7 +65,7 @@ const TimeSlot = styled.span`
 `;
 
 const JourneyListHeader = styled.div`
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   display: flex;
   align-items: center;
   justify-content: space-between;

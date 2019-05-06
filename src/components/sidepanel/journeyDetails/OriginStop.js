@@ -99,12 +99,7 @@ const OriginStop = observer(
                   <Text>journey.arrival</Text>
                 </TimeHeading>
                 <StopArrivalTime onClick={onClickTime(stopArrivalTime)}>
-                  <PlainSlot
-                    style={{
-                      fontStyle: "italic",
-                      fontSize: "0.925rem",
-                      lineHeight: "1.2rem",
-                    }}>
+                  <PlainSlot style={{fontStyle: "italic"}}>
                     {offsetTime.format("HH:mm:ss")}*
                   </PlainSlot>
                   <ColoredBackgroundSlot
