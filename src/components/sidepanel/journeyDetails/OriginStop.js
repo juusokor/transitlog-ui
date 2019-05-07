@@ -30,7 +30,7 @@ const OriginStop = observer(
     departure = null,
     color,
     date,
-    onClickTime,
+    onClickTime = () => {},
     onSelectStop = () => {},
     onHoverStop = () => {},
     stopsExpanded,
@@ -72,7 +72,7 @@ const OriginStop = observer(
     const stopArrivalTime = get(departure, "observedArrivalTime.arrivalTime", "");
     const stopDepartureTime = get(departure, "observedDepartureTime.departureTime", "");
 
-    const selectDepartureTime = onClickTime(stopDepartureTime);
+    const selectDepartureTime = () => onClickTime(stopDepartureTime);
 
     onStopClick = () => {
       selectWithStopId();

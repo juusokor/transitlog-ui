@@ -12,6 +12,7 @@ const TabsWrapper = styled.div`
   grid-template-rows: auto 1fr;
   position: relative;
   z-index: 1;
+  max-width: 100%;
 `;
 
 const TabButtonsWrapper = styled.div`

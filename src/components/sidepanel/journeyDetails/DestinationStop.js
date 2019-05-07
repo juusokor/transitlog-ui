@@ -56,7 +56,7 @@ export default ({
   }
 
   const stopArrivalTime = departure.observedArrivalTime.arrivalTime;
-  const selectArrivalTime = onClickTime(stopArrivalTime);
+  const selectArrivalTime = () => onClickTime(stopArrivalTime);
 
   onStopClick = () => {
     selectWithStopId();

@@ -13,6 +13,7 @@ import AlertsList from "../../AlertsList";
 
 const JourneyPanelWrapper = styled.div`
   height: 100%;
+  width: 100%;
   display: grid;
   grid-template-rows: auto 1fr;
   align-items: stretch;
@@ -22,13 +23,15 @@ const JourneyPanelWrapper = styled.div`
 const ScrollContainer = styled.div`
   height: 100%;
   position: relative;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
 `;
 
 const JourneyPanelContent = styled.div`
   position: absolute;
   top: 0;
   left: 0;
+  right: 0;
   height: auto;
   width: 100%;
 `;

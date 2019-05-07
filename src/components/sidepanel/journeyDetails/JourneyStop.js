@@ -91,7 +91,7 @@ export default ({
   const stopArrivalTime = get(departure, "observedArrivalTime.arrivalTime", "");
   const stopDepartureTime = get(departure, "observedDepartureTime.departureTime", "");
 
-  const selectDepartureTime = onClickTime(stopDepartureTime);
+  const selectDepartureTime = () => onClickTime(stopDepartureTime);
 
   onStopClick = () => {
     selectWithStopId();
