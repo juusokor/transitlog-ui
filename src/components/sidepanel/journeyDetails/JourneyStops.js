@@ -1,14 +1,16 @@
-import React from "react";
-import {observer} from "mobx-react";
+import React, {useCallback} from "react";
+import {observer} from "mobx-react-lite";
 import styled from "styled-components";
 import JourneyStop from "./JourneyStop";
 import {Text} from "../../../helpers/text";
+import OriginStop from "./OriginStop";
+import DestinationStop from "./DestinationStop";
+import flow from "lodash/flow";
+import {inject} from "../../../helpers/inject";
+import ToggleView from "../../ToggleView";
 
-const JourneyStopsWrapper = styled.div`
-  margin-left: ${({expanded}) => (expanded ? "0" : "calc(1.5rem - 1px)")};
-  border-left: ${({expanded}) => (expanded ? "0" : "3px dotted var(--light-grey)")};
-  padding: ${({expanded}) => (expanded ? "0" : "1.5rem 0")};
-  position: relative;
+const StopsListWrapper = styled.div`
+  padding: 1rem 0 1rem;
 `;
 
 const StopsList = styled.div`
@@ -17,83 +19,98 @@ const StopsList = styled.div`
   color: var(--light-grey);
 `;
 
-const HiddenStopsMessage = styled.span`
-  padding-left: 1.5rem;
+const HiddenStopsMessage = styled.div`
+  padding: 0 0 1rem 1.5rem;
+  margin-left: calc(1.5rem - 1.5px);
+  border-left: ${({expanded, color = "var(--blue)"}) =>
+    expanded ? `3px solid ${color}` : "3px dotted var(--light-grey)"};
 `;
 
-const JourneyExpandToggle = styled.button`
-  position: absolute;
-  top: ${({expanded}) => (expanded ? "-1.75rem" : "0.875rem")};
-  left: 0;
-  padding: 0;
-  padding-left: ${({expanded}) => (expanded ? "1.5rem" : "0")};
-  background: transparent;
-  border: 0;
-  font-family: inherit;
-  color: white;
-  text-decoration: underline dashed;
-  color: var(--blue);
-  transition: transform 0.1s ease-out;
-  cursor: pointer;
-  outline: none;
-  text-align: left;
-  width: auto;
-
-  &:hover {
-    transform: scale(1.025);
-  }
+const ExpandingStops = styled(ToggleView)`
+  margin-left: 0;
+  border-left: 0;
 `;
 
-@observer
-class JourneyStops extends React.Component {
-  render() {
-    const {
-      departures = [],
-      date,
-      color,
-      onClickTime,
-      stopsExpanded,
-      toggleStopsExpanded,
-      onSelectStop,
-      onHoverStop,
-    } = this.props;
+const decorate = flow(
+  observer,
+  inject("Time", "Filters", "UI")
+);
 
-    return (
-      <JourneyStopsWrapper expanded={stopsExpanded}>
-        <JourneyExpandToggle
-          expanded={stopsExpanded}
-          onClick={() => toggleStopsExpanded()}>
-          {stopsExpanded ? (
-            <HiddenStopsMessage>Hide stops</HiddenStopsMessage>
-          ) : (
-            <HiddenStopsMessage>
-              {departures.length} <Text>journey.stops_hidden</Text>
-            </HiddenStopsMessage>
-          )}
-        </JourneyExpandToggle>
+const JourneyStops = decorate(({departures = [], date, color, Filters, UI, Time}) => {
+  const onClickTime = useCallback(
+    (time) => {
+      Time.setTime(time);
+    },
+    [Time]
+  );
+
+  const onSelectStop = useCallback(
+    (stopId) => {
+      if (stopId) {
+        Filters.setStop(stopId);
+      }
+    },
+    [Filters]
+  );
+
+  const onHoverStop = useCallback(
+    (stopId) => {
+      UI.highlightStop(stopId);
+    },
+    [UI]
+  );
+
+  return (
+    <StopsListWrapper>
+      <OriginStop
+        onHoverStop={onHoverStop}
+        onSelectStop={onSelectStop}
+        departure={departures[0]}
+        color={color}
+        date={date}
+        onClickTime={onClickTime}
+      />
+      <ExpandingStops
+        closedLabel={
+          <HiddenStopsMessage color={color} expanded={false}>
+            {departures.length} <Text>journey.stops_hidden</Text>
+          </HiddenStopsMessage>
+        }
+        openLabel={
+          <HiddenStopsMessage color={color} expanded={true}>
+            Hide stops
+          </HiddenStopsMessage>
+        }>
         <StopsList>
-          {stopsExpanded &&
-            departures.map((departure) => {
-              if (!departure || !departure.stop) {
-                return null;
-              }
+          {departures.slice(1, -1).map((departure) => {
+            if (!departure || !departure.stop) {
+              return null;
+            }
 
-              return (
-                <JourneyStop
-                  key={`journey_stop_${departure.stopId}_${departure.stopIndex}`}
-                  onHoverStop={onHoverStop}
-                  onSelectStop={onSelectStop}
-                  departure={departure}
-                  date={date}
-                  color={color}
-                  onClickTime={onClickTime}
-                />
-              );
-            })}
+            return (
+              <JourneyStop
+                key={`journey_stop_${departure.stopId}_${departure.stopIndex}`}
+                onHoverStop={onHoverStop}
+                onSelectStop={onSelectStop}
+                departure={departure}
+                date={date}
+                color={color}
+                onClickTime={onClickTime}
+              />
+            );
+          })}
         </StopsList>
-      </JourneyStopsWrapper>
-    );
-  }
-}
+      </ExpandingStops>
+      <DestinationStop
+        onHoverStop={onHoverStop}
+        onSelectStop={onSelectStop}
+        departure={departures[departures.length - 1]}
+        date={date}
+        color={color}
+        onClickTime={onClickTime}
+      />
+    </StopsListWrapper>
+  );
+});
 
 export default JourneyStops;

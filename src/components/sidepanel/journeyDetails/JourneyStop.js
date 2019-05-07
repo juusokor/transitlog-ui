@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useCallback} from "react";
 import get from "lodash/get";
 import styled from "styled-components";
 import {
@@ -57,12 +57,15 @@ export default ({
 
   const stop = departure.stop;
 
-  const selectWithStopId = onSelectStop(stop.stopId);
+  const selectWithStopId = useCallback(() => onSelectStop(stop.stopId), [stop.stopId]);
+  const hoverWithStopId = useCallback(() => onHoverStop(stop.stopId), [stop.stopId]);
+  const hoverReset = useCallback(() => onHoverStop(""), []);
+
   let onStopClick = selectWithStopId;
 
   const hoverProps = {
-    onMouseEnter: onHoverStop(stop.stopId),
-    onMouseLeave: onHoverStop(""),
+    onMouseEnter: hoverWithStopId,
+    onMouseLeave: hoverReset,
   };
 
   // Bail early if we don't have all the data yet.

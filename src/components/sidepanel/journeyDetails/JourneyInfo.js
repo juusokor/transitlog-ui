@@ -10,6 +10,7 @@ import {observer} from "mobx-react-lite";
 
 const JourneyInfo = styled.div`
   flex: none;
+  border-bottom: 1px solid var(--alt-grey);
 `;
 
 const JourneyInfoRow = styled.div`

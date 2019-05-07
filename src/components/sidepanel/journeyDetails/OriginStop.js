@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useCallback} from "react";
 import get from "lodash/get";
 import {
   StopElementsWrapper,
@@ -41,12 +41,15 @@ const OriginStop = observer(
 
     const stop = departure.stop;
 
-    const selectWithStopId = onSelectStop(stop.stopId);
+    const selectWithStopId = useCallback(() => onSelectStop(stop.stopId), [stop.stopId]);
+    const hoverWithStopId = useCallback(() => onHoverStop(stop.stopId), [stop.stopId]);
+    const hoverReset = useCallback(() => onHoverStop(""), []);
+
     let onStopClick = selectWithStopId;
 
     const hoverProps = {
-      onMouseEnter: onHoverStop(stop.stopId),
-      onMouseLeave: onHoverStop(""),
+      onMouseEnter: hoverWithStopId,
+      onMouseLeave: hoverReset,
     };
 
     // Bail here if we don't have data about departure arrival and departure times.

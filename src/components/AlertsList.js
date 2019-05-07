@@ -1,7 +1,9 @@
 import React from "react";
 import styled from "styled-components";
 
-const AlertsListWrapper = styled.div``;
+const AlertsListWrapper = styled.div`
+  padding: 1rem 0 1rem;
+`;
 
 const Alert = styled.div`
   padding: 0.5rem;
@@ -18,7 +20,7 @@ const AlertsList = ({alerts}) => {
   return (
     <AlertsListWrapper>
       {alerts.map((alert) => (
-        <Alert>
+        <Alert key={alert.id}>
           {alert.alertLevel}: {alert.description}
         </Alert>
       ))}

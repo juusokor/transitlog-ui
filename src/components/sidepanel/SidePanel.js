@@ -117,10 +117,10 @@ const SidePanel = decorate((props) => {
     journeyLoading = false,
     areaJourneysLoading = false,
     stop,
+    route,
     sidePanelOpen,
     state: {
       language,
-      route,
       date,
       vehicle,
       stop: stateStop,
@@ -204,7 +204,7 @@ const SidePanel = decorate((props) => {
       <JourneyPanel visible={journeyDetailsOpen}>
         {/* The content of the sidebar is independent from the sidebar wrapper so that we can animate it. */}
         {journeyDetailsOpen && (
-          <JourneyDetails loading={journeyLoading} journey={journey} />
+          <JourneyDetails loading={journeyLoading} journey={journey} route={route} />
         )}
         <div>
           {hasRoute && (

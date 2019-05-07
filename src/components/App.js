@@ -76,11 +76,10 @@ const decorate = flow(
   inject("UI")
 );
 
-function App({state, UI}) {
+function App({route, state, UI}) {
   const {
     date,
     stop: selectedStopId,
-    route,
     shareModalOpen,
     selectedJourney,
     journeyDetailsOpen,
@@ -149,6 +148,7 @@ function App({state, UI}) {
                                         areaEvents={areaJourneys}
                                         journey={selectedJourney}
                                         stop={stop}
+                                        route={route}
                                         sidePanelOpen={sidePanelIsOpen}
                                       />
                                       <MapPanel
