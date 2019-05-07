@@ -240,6 +240,7 @@ type RouteGeometryPoint implements Position {
 }
 
 type RouteSegment implements Position {
+  alerts: [Alert!]!
   destination: String!
   direction: Direction!
   distanceFromPrevious: Int
@@ -262,6 +263,7 @@ type RouteSegment implements Position {
 
 type SimpleStop implements Position {
   _matchScore: Float
+  alerts: [Alert!]!
   id: ID!
   lat: Float!
   lng: Float!
@@ -273,6 +275,7 @@ type SimpleStop implements Position {
 }
 
 type Stop implements Position {
+  alerts: [Alert!]!
   id: ID!
   lat: Float!
   lng: Float!
@@ -373,11 +376,11 @@ scalar Date
 "The direction of a route. An integer of either 1 or 2."
 scalar Direction
 
-"A string that defines a bounding box. The coordinates should be in the format `minLng,maxLat,maxLng,minLat` which is compatible with what Leaflet's LatLngBounds.toBBoxString() returns. Toe coordinates will be rounded, use PreciseBBox if this is not desired."
-scalar BBox
-
 "A DateTime string in ISO 8601 format (YYYY-MM-DDTHH:mm:ssZ). Timezone will be converted to Europe/Helsinki."
 scalar DateTime
+
+"A string that defines a bounding box. The coordinates should be in the format `minLng,maxLat,maxLng,minLat` which is compatible with what Leaflet's LatLngBounds.toBBoxString() returns. Toe coordinates will be rounded, use PreciseBBox if this is not desired."
+scalar BBox
 
 "Time is seconds from 00:00:00 in format HH:mm:ss. The hours value can be more than 23. The timezone is assumed to be Europe/Helsinki"
 scalar Time

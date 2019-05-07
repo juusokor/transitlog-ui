@@ -27,6 +27,8 @@ import {
 import CalculateTerminalTime from "../sidepanel/journeyDetails/CalculateTerminalTime";
 import RouteStopMarker from "./RouteStopMarker";
 import getDelayType from "../../helpers/getDelayType";
+import AlertsList from "../AlertsList";
+import StopPopupContent, {StopContentWrapper, StopAlerts} from "./StopPopupContent";
 
 const PopupParagraph = styled(P)`
   font-family: var(--font-family);
@@ -37,11 +39,6 @@ const TooltipParagraph = styled(P)`
   font-family: var(--font-family);
   font-size: 0.875rem;
   margin: 0.5rem 0 -0.5rem;
-`;
-
-const PopupStopContent = styled(StopContent)`
-  padding: 0 0 1rem;
-  font-size: 1rem;
 `;
 
 const DepartureTimeGroup = styled.div`
@@ -92,12 +89,7 @@ class RouteStop extends React.Component {
         maxWidth={800}
         autoPan={true}
         key={`stop_${stop.stopId}_popup`}>
-        <PopupStopContent>
-          <StopHeading>
-            <strong>{stop.name}</strong> {stop.stopId} ({stop.shortId.replace(/ /g, "")})
-          </StopHeading>
-        </PopupStopContent>
-        <button onClick={this.onShowStreetView}>Show in street view</button>
+        <StopPopupContent stop={stop} onShowStreetView={this.onShowStreetView} />
       </Popup>
     );
 
@@ -277,7 +269,7 @@ class RouteStop extends React.Component {
         maxWidth={500}
         autoPan={true}
         key={`stop${stop.stopId}_popup`}>
-        <PopupStopContent>
+        <StopContentWrapper>
           <StopHeading>
             <strong>{stop.name}</strong> {stop.stopId} ({stop.shortId.replace(/ /g, "")})
           </StopHeading>
@@ -323,10 +315,11 @@ class RouteStop extends React.Component {
               </TagButton>
             </>
           )}
-        </PopupStopContent>
+        </StopContentWrapper>
         <button onClick={this.onShowStreetView}>
           <Text>map.stops.show_in_streetview</Text>
         </button>
+        <StopAlerts alerts={stop.alerts} />
       </Popup>
     );
 

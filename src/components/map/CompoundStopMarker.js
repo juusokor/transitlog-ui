@@ -12,6 +12,8 @@ import {getPriorityMode, getModeColor} from "../../helpers/vehicleColor";
 import {flow} from "lodash";
 import {inject} from "../../helpers/inject";
 import StopRouteSelect from "./StopRouteSelect";
+import AlertsList from "../AlertsList";
+import StopPopupContent from "./StopPopupContent";
 
 const StopOptionButton = styled.button`
   text-decoration: none;
@@ -169,22 +171,14 @@ style="border-color: ${stopColor}; background-color: ${
             );
           })}
           {selectedStopObj && (
-            <>
-              <Heading level={4}>
-                {selectedStopObj.name}, {selectedStopObj.shortId.replace(/ /g, "")} (
-                {selectedStopObj.stopId})
-              </Heading>
-              <StopRouteSelect
-                color={stopColor}
-                onSelectRoute={selectRoute}
-                stopId={selectedStopObj.stopId}
-                date={state.date}
-              />
-            </>
+            <StopPopupContent
+              stop={selectedStopObj}
+              date={state.date}
+              color={stopColor}
+              onSelectRoute={selectRoute}
+              onShowStreetView={() => onViewLocation(markerPosition)}
+            />
           )}
-          <button onClick={() => onViewLocation(markerPosition)}>
-            Show in street view
-          </button>
         </Popup>
       </Marker>
     );

@@ -9,7 +9,7 @@ const AlertsListWrapper = styled.div`
   padding: 0.75rem 0 1rem;
 `;
 
-const Alert = styled.div`
+export const AlertItem = styled.div`
   padding: 0.75rem 1rem;
   display: grid;
   grid-template-columns: 1.5rem 1fr;
@@ -48,10 +48,12 @@ const AlertLink = styled.a`
   font-size: 0.75rem;
 `;
 
-const AlertsList = ({alerts}) => {
+const AlertsList = ({className, alerts = []}) => {
+  const validAlerts = !!alerts && Array.isArray(alerts) ? alerts : [];
+
   return (
-    <AlertsListWrapper>
-      {alerts.map((alert) => {
+    <AlertsListWrapper className={className}>
+      {validAlerts.map((alert) => {
         let Icon = alert.alertLevel === "NOTICE" ? Info : AlertIcon;
         let color = alert.alertLevel === "NOTICE" ? "var(--light-blue)" : "var(--red)";
 
@@ -63,7 +65,7 @@ const AlertsList = ({alerts}) => {
         const endTime = endMoment.format("HH:mm");
 
         return (
-          <Alert key={alert.id}>
+          <AlertItem key={alert.id}>
             <AlertIconWrapper>{<Icon width="1.25rem" fill={color} />}</AlertIconWrapper>
             <AlertContent>
               {startDate === endDate ? (
@@ -87,7 +89,7 @@ const AlertsList = ({alerts}) => {
                 </AlertLink>
               )}
             </AlertContent>
-          </Alert>
+          </AlertItem>
         );
       })}
     </AlertsListWrapper>

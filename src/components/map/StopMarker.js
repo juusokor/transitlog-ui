@@ -2,14 +2,12 @@ import React, {useCallback, useEffect, useRef} from "react";
 import {observer} from "mobx-react-lite";
 import {Popup, CircleMarker} from "react-leaflet";
 import {latLng} from "leaflet";
-import {Heading} from "../Typography";
 import get from "lodash/get";
 import {getPriorityMode, getModeColor} from "../../helpers/vehicleColor";
 import {StopRadius} from "./StopRadius";
-import {Text} from "../../helpers/text";
 import {flow} from "lodash";
 import {inject} from "../../helpers/inject";
-import StopRouteSelect from "./StopRouteSelect";
+import StopPopupContent from "./StopPopupContent";
 
 const decorate = flow(
   observer,
@@ -66,18 +64,13 @@ const StopMarker = decorate(
         minWidth={300}
         maxHeight={750}
         maxWidth={550}>
-        <Heading level={4}>
-          {stop.name}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
-        </Heading>
-        <StopRouteSelect
+        <StopPopupContent
+          date={state.date}
+          stop={stop}
           color={stopColor}
           onSelectRoute={selectRoute}
-          stopId={stop.stopId}
-          date={state.date}
+          onShowStreetView={onShowStreetView}
         />
-        <button onClick={onShowStreetView}>
-          <Text>map.stops.show_in_streetview</Text>
-        </button>
       </Popup>
     );
 
