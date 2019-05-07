@@ -3,7 +3,6 @@ import gql from "graphql-tag";
 export const RouteFieldsFragment = gql`
   fragment RouteFieldsFragment on Route {
     id
-    lineId
     routeId
     direction
     destination
@@ -12,5 +11,16 @@ export const RouteFieldsFragment = gql`
     name
     origin
     originStopId
+    alerts {
+      affectedId
+      alertLevel
+      description
+      distribution
+      id
+      startDateTime
+      endDateTime
+      title
+      url
+    }
   }
 `;

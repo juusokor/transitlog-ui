@@ -10,6 +10,18 @@ interface Position {
   lng: Float
 }
 
+type Alert {
+  affectedId: String!
+  alertLevel: AlertLevel!
+  description: String!
+  distribution: AlertDistribution!
+  endDateTime: DateTime!
+  id: ID!
+  startDateTime: DateTime!
+  title: String!
+  url: String
+}
+
 type AreaJourney {
   departureDate: Date!
   departureTime: Time!
@@ -23,6 +35,16 @@ type AreaJourney {
   routeId: String!
   uniqueVehicleId: VehicleId
   vehicleId: String
+}
+
+type Cancellation {
+  departureDate: Date!
+  direction: Direction!
+  id: ID!
+  isCancelled: Boolean
+  journeyStartTime: Time!
+  reason: String
+  routeId: String!
 }
 
 type Departure {
@@ -171,6 +193,7 @@ type PlannedDeparture {
 }
 
 type Query {
+  alerts(queryId: String, queryType: AlertDistribution, time: Time): [Alert]!
   departures(date: Date!, filter: DepartureFilterInput, stopId: String!): [Departure]!
   equipment(date: Date, filter: EquipmentFilterInput): [Equipment]!
   eventsByBbox(bbox: PreciseBBox!, date: Date!, filters: AreaEventsFilterInput, maxTime: DateTime!, minTime: DateTime!): [AreaJourney]!
@@ -192,6 +215,7 @@ type Query {
 
 type Route {
   _matchScore: Float
+  alerts: [Alert!]!
   destination: String
   destinationStopId: String
   direction: Direction!
@@ -291,6 +315,19 @@ type VehicleJourney {
   vehicleId: String
 }
 
+enum AlertDistribution {
+  DEPARTURE
+  NETWORK
+  ROUTE
+  STOP
+}
+
+enum AlertLevel {
+  CRISIS
+  DISRUPTION
+  NOTICE
+}
+
 enum CacheControlScope {
   PRIVATE
   PUBLIC
@@ -339,14 +376,14 @@ scalar Direction
 "A string that defines a bounding box. The coordinates should be in the format `minLng,maxLat,maxLng,minLat` which is compatible with what Leaflet's LatLngBounds.toBBoxString() returns. Toe coordinates will be rounded, use PreciseBBox if this is not desired."
 scalar BBox
 
+"A DateTime string in ISO 8601 format (YYYY-MM-DDTHH:mm:ssZ). Timezone will be converted to Europe/Helsinki."
+scalar DateTime
+
 "Time is seconds from 00:00:00 in format HH:mm:ss. The hours value can be more than 23. The timezone is assumed to be Europe/Helsinki"
 scalar Time
 
 "A string that uniquely identifies a vehicle. The format is [operator ID]/[vehicle ID]. The operator ID is padded to have a length of 4 characters."
 scalar VehicleId
-
-"A DateTime string in ISO 8601 format (YYYY-MM-DDTHH:mm:ssZ). Timezone will be converted to Europe/Helsinki."
-scalar DateTime
 
 "A string that defines a bounding box. The coordinates should be in the format `minLng,maxLat,maxLng,minLat` which is compatible with what Leaflet's LatLngBounds.toBBoxString() returns. The precise bbox is not rounded."
 scalar PreciseBBox
