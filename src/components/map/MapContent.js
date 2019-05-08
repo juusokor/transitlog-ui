@@ -101,7 +101,9 @@ const MapContent = decorate(
               }
             </RouteGeometryQuery>
 
-            {!journeys.find((journey) => selectedJourneyId === journey.id) && (
+            {(!selectedJourneyId ||
+              journeys.length === 0 ||
+              !journeys.find((journey) => selectedJourneyId === journey.id)) && (
               <RouteStopsLayer
                 showRadius={showStopRadius}
                 onViewLocation={viewLocation}

@@ -207,13 +207,11 @@ const SidePanel = decorate((props) => {
           <JourneyDetails loading={journeyLoading} journey={journey} route={route} />
         )}
         <div>
-          {hasRoute && (
-            <Tooltip helpText="Toggle journey details button">
-              <ToggleJourneyDetailsButton onClick={() => toggleJourneyDetails()}>
-                <Info fill="white" height="1rem" width="1rem" />
-              </ToggleJourneyDetailsButton>
-            </Tooltip>
-          )}
+          <Tooltip helpText="Toggle journey details button">
+            <ToggleJourneyDetailsButton onClick={() => toggleJourneyDetails()}>
+              <Info fill="white" height="1rem" width="1rem" />
+            </ToggleJourneyDetailsButton>
+          </Tooltip>
           {!!journey && (
             <Tooltip>
               <ToggleGraphButton onClick={() => toggleJourneyGraph()}>

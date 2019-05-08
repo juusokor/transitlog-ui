@@ -50,7 +50,7 @@ const DepartureTimeGroup = styled.div`
 class RouteStop extends React.Component {
   onClickTime = (time) => (e) => {
     e.preventDefault();
-    this.props.Time.setTime(time);
+    this.props.Time2.setTime(time);
   };
 
   onShowStreetView = () => {

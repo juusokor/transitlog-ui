@@ -14,11 +14,6 @@ export const StopAlerts = styled(AlertsList)`
 
   ${AlertItem} {
     font-family: inherit;
-    background: rgba(0, 0, 0, 0.05);
-
-    &:nth-child(even) {
-      background: rgba(0, 0, 0, 0.02);
-    }
   }
 `;
 
