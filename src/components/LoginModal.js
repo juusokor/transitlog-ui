@@ -5,7 +5,7 @@ import styled from "styled-components";
 import HSLLogoNoText from "../icons/HSLLogoNoText";
 import Login from "../icons/Login";
 import {logout, authorize} from "../auth/authService";
-import {redirectToLogin, removeAuthParams} from "../stores/UrlManager";
+import {redirectToLogin} from "../stores/UrlManager";
 
 const Root = styled.div`
   position: fixed;
@@ -69,7 +69,7 @@ const Title = styled.h2`
 
 const allowDevLogin = process.env.REACT_APP_ALLOW_DEV_LOGIN === "true";
 
-@inject(app("UI"))
+@inject(app("UI", "Update"))
 @observer
 class LoginModal extends React.Component {
   onModalClick = (e) => {
@@ -83,6 +83,7 @@ class LoginModal extends React.Component {
     logout().then((response) => {
       if (response.status === 200) {
         this.props.UI.setUser(null);
+        this.props.Update.update();
       }
       this.props.UI.toggleLoginModal();
     });
@@ -93,12 +94,12 @@ class LoginModal extends React.Component {
   };
 
   onDevLogin = async () => {
-    const {UI} = this.props;
+    const {UI, Update} = this.props;
     const response = await authorize("dev");
 
     if (response && response.isOk && response.email) {
       UI.setUser(response.email);
-      removeAuthParams();
+      Update.update();
     }
 
     UI.toggleLoginModal();

@@ -7,7 +7,6 @@ import TimeActions from "./timeActions";
 import FilterActions from "./filterActions";
 import {timeToSeconds, secondsToTime} from "../helpers/time";
 import {TIMEZONE} from "../constants";
-import {onHistoryChange} from "./UrlManager";
 
 const updateListeners = {};
 let pollingStart = 0;
@@ -98,10 +97,6 @@ export default (state) => {
     },
     {fireImmediately: true, delay: 100}
   );
-
-  onHistoryChange(() => {
-    update(false, true);
-  });
 
   return {
     update,
