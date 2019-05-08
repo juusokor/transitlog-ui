@@ -7,10 +7,9 @@ import moment from "moment-timezone";
 import ArrowRightLong from "../icons/ArrowRightLong";
 import {Heading} from "./Typography";
 import Website from "../icons/Website";
-import Time2 from "../icons/Time3";
 
 const AlertsListWrapper = styled.div`
-  padding: 0.5rem 0 1rem;
+  padding: 0 0 1rem;
 `;
 
 export const AlertItem = styled.div`

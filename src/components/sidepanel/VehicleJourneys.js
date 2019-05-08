@@ -21,8 +21,10 @@ import {getTimelinessColor} from "../../helpers/timelinessColor";
 import VehicleJourneysQuery from "../../queries/VehicleJourneysQuery";
 import {secondsToTimeObject} from "../../helpers/time";
 import {parseLineNumber} from "../../helpers/parseLineNumber";
+import AlertsIcon from "../AlertsIcon";
 
 const JourneyListRow = styled.div`
+  position: relative;
   padding: ${({selected = false}) =>
     selected ? "0.5rem 0.5rem 0.5rem 0.75rem" : "0 0.5rem 0 0.75rem"};
   margin: ${({selected = false}) => (selected ? "0" : "0.5rem 0")};
@@ -60,6 +62,12 @@ const NextPrevLabel = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+`;
+
+const RowIcons = styled.div`
+  position: absolute;
+  bottom: 3px;
+  left: 0.75rem;
 `;
 
 @inject(app("Journey", "Time"))
@@ -205,6 +213,8 @@ class VehicleJourneys extends Component {
                     this.selectedJourneyIndex = journeyIndex;
                   }
 
+                  const hasAlerts = journey.alerts && journey.alerts.length !== 0;
+
                   return (
                     <JourneyListRow
                       selected={journeyIsSelected}
@@ -230,6 +240,11 @@ class VehicleJourneys extends Component {
                         </ColoredBackgroundSlot>
                         <PlainSlotSmall>{observedTimeString}</PlainSlotSmall>
                       </TagButton>
+                      {hasAlerts && (
+                        <RowIcons>
+                          <AlertsIcon />
+                        </RowIcons>
+                      )}
                     </JourneyListRow>
                   );
                 })

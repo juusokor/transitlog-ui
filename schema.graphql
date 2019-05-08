@@ -302,6 +302,7 @@ type StopRoute {
 }
 
 type VehicleJourney {
+  alerts: [Alert!]!
   departureDate: Date!
   departureTime: Time!
   direction: Direction!
