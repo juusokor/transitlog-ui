@@ -32,6 +32,7 @@ class RouteGeometryQuery extends Component {
       <Query
         skip={!routeId}
         query={routeQuery}
+        partialRefetch={true}
         variables={{
           routeId,
           direction,

@@ -93,19 +93,21 @@ class TimeSettings extends Component {
     // Get the current input value and remove non-number characters.
     const timeValue = this.timeInput.replace(/([^0-9])+/g, "");
 
+    let hours = 0;
+    let minutes = 0;
+    let seconds = 0;
+
     // Get the time string pieces and trim (although that shouldn't be necessary after the regexp).
     // Default to "00".
-    let hours = timeValue.slice(0, 2).trim() || "00";
-    let minutes = timeValue.slice(2, 4).trim() || "00";
-    let seconds = timeValue.slice(4, 6).trim() || "00";
-
-    // Sanity check hours. Since we initially took two digits for the hours, it may
-    // be that the second digit is supposed to belong to the minutes. Just assign
-    // one digit to the hours in this case. Also re-parse the other time units.
-    if (parseInt(hours, 10) > 23) {
-      hours = timeValue.slice(0, 1).trim() || "0";
-      minutes = timeValue.slice(1, 3).trim() || "00";
-      seconds = timeValue.slice(3, 5).trim() || "00";
+    if (timeValue.length === 1) {
+      hours = Math.max(0, parseInt(timeValue, 10));
+    } else if (timeValue.length <= 3) {
+      hours = Math.min(30, Math.max(0, parseInt(timeValue.slice(0, 1) || "0", 10)));
+      minutes = Math.max(0, parseInt(timeValue.slice(1, 3) || "00", 10));
+    } else {
+      hours = Math.max(0, parseInt(timeValue.slice(0, 2) || "00", 10));
+      minutes = Math.max(0, parseInt(timeValue.slice(2, 4) || "00", 10));
+      seconds = Math.max(0, parseInt(timeValue.slice(4, 6) || "00", 10));
     }
 
     // Pad the string with a zero at the end IF the string is one character long.
@@ -113,18 +115,25 @@ class TimeSettings extends Component {
       return val.length < 2 ? doubleDigit(val, true) : val;
     }
 
+    // Get 24h+ times of the hours are under 4:30.
+    if (hours >= 0 && (hours < 4 || (hours === 4 && minutes < 30))) {
+      hours = Math.min(28, 24 + hours);
+    }
+
     // Sanity check minutes.
-    if (parseInt(padStart(minutes), 10) > 59) {
-      minutes = "59";
+    if (minutes > 59) {
+      minutes = 59;
     }
 
     // Sanity check seconds.
-    if (parseInt(padStart(seconds), 10) > 59) {
-      seconds = "59";
+    if (minutes > 59) {
+      seconds = 59;
     }
 
     // Make it into a valid time string
-    const nextTimeVal = `${doubleDigit(hours)}:${padStart(minutes)}:${padStart(seconds)}`;
+    const nextTimeVal = `${doubleDigit(padStart(hours))}:${doubleDigit(
+      padStart(minutes)
+    )}:${doubleDigit(padStart(seconds))}`;
 
     // Assign it to the state for stuff to happen
     Time.setTime(nextTimeVal);
