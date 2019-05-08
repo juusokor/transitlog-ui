@@ -1,17 +1,20 @@
 import Alert from "../icons/Alert";
 import React from "react";
 import styled from "styled-components";
+import Info from "../icons/Info";
 
-const AlertIcon = styled(Alert)`
-  position: absolute;
-  top: 100%;
-  left: 0;
-  transform: translate(-25%, -50%);
+const IconStyle = styled.div`
+  margin-right: 0.25rem;
 `;
 
-const AlertsIcon = ({className}) => {
+const AlertsIcon = ({className, type = "ALERT"}) => {
+  const Icon = type === "INFO" ? Info : Alert;
+  const color = type === "INFO" ? "var(--light-blue)" : "var(--red)";
+
+  const IconComponent = IconStyle.withComponent(Icon);
+
   return (
-    <AlertIcon className={className} fill="var(--red)" width="0.75rem" height="0.75rem" />
+    <IconComponent className={className} fill={color} width="0.75rem" height="0.75rem" />
   );
 };
 

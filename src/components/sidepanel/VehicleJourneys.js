@@ -66,8 +66,8 @@ const NextPrevLabel = styled.div`
 
 const RowIcons = styled.div`
   position: absolute;
-  bottom: 3px;
-  left: 0.75rem;
+  bottom: -0.6rem;
+  left: 0.5rem;
 `;
 
 @inject(app("Journey", "Time"))
@@ -213,7 +213,13 @@ class VehicleJourneys extends Component {
                     this.selectedJourneyIndex = journeyIndex;
                   }
 
-                  const hasAlerts = journey.alerts && journey.alerts.length !== 0;
+                  const hasAlerts = (journey.alerts || []).some(
+                    ({level}) => level !== "INFO"
+                  );
+
+                  const hasInfo = (journey.alerts || []).some(
+                    ({level}) => level === "INFO"
+                  );
 
                   return (
                     <JourneyListRow
@@ -240,9 +246,10 @@ class VehicleJourneys extends Component {
                         </ColoredBackgroundSlot>
                         <PlainSlotSmall>{observedTimeString}</PlainSlotSmall>
                       </TagButton>
-                      {hasAlerts && (
+                      {(hasAlerts || hasInfo) && (
                         <RowIcons>
-                          <AlertsIcon />
+                          {hasAlerts && <AlertsIcon type="ALERT" />}
+                          {hasInfo && <AlertsIcon type="INFO" />}
                         </RowIcons>
                       )}
                     </JourneyListRow>
