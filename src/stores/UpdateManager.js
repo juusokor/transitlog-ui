@@ -50,14 +50,14 @@ export default (state) => {
     }
   };
 
-  const update = (isAuto = false) => {
+  const update = (isAuto = false, runUpdateListeners = false) => {
     if (!isAuto) {
       timeActions.toggleLive(false);
     }
 
     updateTime(!isAuto);
 
-    if (state.timeIsCurrent) {
+    if (state.timeIsCurrent || runUpdateListeners) {
       Object.values(updateListeners).forEach(({auto, cb}) => {
         // Check that the cb should run when auto-updating if this is an auto-update.
         if (typeof cb === "function" && (!isAuto || (isAuto && auto))) {

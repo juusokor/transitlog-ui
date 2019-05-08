@@ -4,7 +4,7 @@ import {app} from "mobx-app";
 import styled from "styled-components";
 import HSLLogoNoText from "../icons/HSLLogoNoText";
 import Login from "../icons/Login";
-import {logout} from "../auth/authService";
+import {logout, authorize} from "../auth/authService";
 import {redirectToLogin} from "../stores/UrlManager";
 
 const Root = styled.div`
@@ -64,10 +64,12 @@ const LoginText = styled.span`
 `;
 
 const Title = styled.h2`
-  margin-top: 10px 0px 10px 0px;
+  margin: 10px 0px 10px 0px;
 `;
 
-@inject(app("UI"))
+const allowDevLogin = process.env.REACT_APP_ALLOW_DEV_LOGIN === "true";
+
+@inject(app("UI", "Update"))
 @observer
 class LoginModal extends React.Component {
   onModalClick = (e) => {
@@ -81,6 +83,7 @@ class LoginModal extends React.Component {
     logout().then((response) => {
       if (response.status === 200) {
         this.props.UI.setUser(null);
+        this.props.Update.update();
       }
       this.props.UI.toggleLoginModal();
     });
@@ -88,6 +91,18 @@ class LoginModal extends React.Component {
 
   openAuthForm = (type) => () => {
     redirectToLogin(type === "register");
+  };
+
+  onDevLogin = async () => {
+    const {UI, Update} = this.props;
+    const response = await authorize("dev");
+
+    if (response && response.isOk && response.email) {
+      UI.setUser(response.email);
+      Update.update();
+    }
+
+    UI.toggleLoginModal();
   };
 
   render() {
@@ -114,6 +129,14 @@ class LoginModal extends React.Component {
                   <LoginText>Kirjaudu (HSL ID)</LoginText>
                 </LoginButton>
               </p>
+              {allowDevLogin && (
+                <p>
+                  <LoginButton onClick={this.onDevLogin}>
+                    <Login height={"1em"} fill={"#3e3e3e"} />
+                    <LoginText>Dev login</LoginText>
+                  </LoginButton>
+                </p>
+              )}
               <p>
                 <LoginButton onClick={this.openAuthForm("register")}>
                   <Login height={"1em"} fill={"#3e3e3e"} />
