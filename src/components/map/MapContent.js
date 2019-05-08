@@ -19,8 +19,6 @@ import WeatherDisplay from "./WeatherDisplay";
 import JourneyStopsLayer from "./JourneyStopsLayer";
 import {WeatherWidget, JourneyWeatherWidget} from "./WeatherWidget";
 import get from "lodash/get";
-import moment from "moment-timezone";
-import {TIMEZONE} from "../../constants";
 
 const decorate = flow(
   observer,

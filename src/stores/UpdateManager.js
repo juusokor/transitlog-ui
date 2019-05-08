@@ -7,6 +7,7 @@ import TimeActions from "./timeActions";
 import FilterActions from "./filterActions";
 import {timeToSeconds, secondsToTime} from "../helpers/time";
 import {TIMEZONE} from "../constants";
+import {onHistoryChange} from "./UrlManager";
 
 const updateListeners = {};
 let pollingStart = 0;
@@ -50,14 +51,14 @@ export default (state) => {
     }
   };
 
-  const update = (isAuto = false) => {
+  const update = (isAuto = false, runUpdateListeners = false) => {
     if (!isAuto) {
       timeActions.toggleLive(false);
     }
 
     updateTime(!isAuto);
 
-    if (state.timeIsCurrent) {
+    if (state.timeIsCurrent || runUpdateListeners) {
       Object.values(updateListeners).forEach(({auto, cb}) => {
         // Check that the cb should run when auto-updating if this is an auto-update.
         if (typeof cb === "function" && (!isAuto || (isAuto && auto))) {
@@ -97,6 +98,10 @@ export default (state) => {
     },
     {fireImmediately: true, delay: 100}
   );
+
+  onHistoryChange(() => {
+    update(false, true);
+  });
 
   return {
     update,

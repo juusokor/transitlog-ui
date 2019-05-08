@@ -4,8 +4,8 @@ import {app} from "mobx-app";
 import styled from "styled-components";
 import HSLLogoNoText from "../icons/HSLLogoNoText";
 import Login from "../icons/Login";
-import {logout} from "../auth/authService";
-import {redirectToLogin} from "../stores/UrlManager";
+import {logout, authorize} from "../auth/authService";
+import {redirectToLogin, removeAuthParams} from "../stores/UrlManager";
 
 const Root = styled.div`
   position: fixed;
@@ -64,8 +64,10 @@ const LoginText = styled.span`
 `;
 
 const Title = styled.h2`
-  margin-top: 10px 0px 10px 0px;
+  margin: 10px 0px 10px 0px;
 `;
+
+const allowDevLogin = process.env.REACT_APP_ALLOW_DEV_LOGIN === "true";
 
 @inject(app("UI"))
 @observer
@@ -88,6 +90,18 @@ class LoginModal extends React.Component {
 
   openAuthForm = (type) => () => {
     redirectToLogin(type === "register");
+  };
+
+  onDevLogin = async () => {
+    const {UI} = this.props;
+    const response = await authorize("dev");
+
+    if (response && response.isOk && response.email) {
+      UI.setUser(response.email);
+      removeAuthParams();
+    }
+
+    UI.toggleLoginModal();
   };
 
   render() {
@@ -114,6 +128,14 @@ class LoginModal extends React.Component {
                   <LoginText>Kirjaudu (HSL ID)</LoginText>
                 </LoginButton>
               </p>
+              {allowDevLogin && (
+                <p>
+                  <LoginButton onClick={this.onDevLogin}>
+                    <Login height={"1em"} fill={"#3e3e3e"} />
+                    <LoginText>Dev login</LoginText>
+                  </LoginButton>
+                </p>
+              )}
               <p>
                 <LoginButton onClick={this.openAuthForm("register")}>
                   <Login height={"1em"} fill={"#3e3e3e"} />
