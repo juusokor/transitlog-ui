@@ -10,6 +10,7 @@ import JourneyInfo from "./JourneyInfo";
 import {transportColor} from "../../transportModes";
 import Tabs from "../Tabs";
 import AlertsList from "../../AlertsList";
+import {getAlertsInEffect} from "../../../helpers/getAlertsInEffect";
 
 const JourneyPanelWrapper = styled.div`
   height: 100%;
@@ -41,7 +42,7 @@ const JourneyPanelContent = styled.div`
 class JourneyDetails extends React.Component {
   render() {
     const {
-      state: {date},
+      state: {date, timeMoment},
       journey = null,
       route = null,
       loading = false,
@@ -50,6 +51,8 @@ class JourneyDetails extends React.Component {
     const journeyMode = get(route, "mode", "BUS");
     const journeyColor = get(transportColor, journeyMode, "var(--light-grey)");
     const stopDepartures = get(journey, "departures", []);
+
+    const journeyTime = stopDepartures.length ? stopDepartures[0].recordedAt : timeMoment;
 
     return (
       <JourneyPanelWrapper>
@@ -70,7 +73,14 @@ class JourneyDetails extends React.Component {
                 />
               )}
               {get(route, "alerts", []).length !== 0 && (
-                <AlertsList alerts={route.alerts} name="journey-alerts" label="Alerts" />
+                <AlertsList
+                  alerts={getAlertsInEffect(
+                    journey.alerts && journey.alerts.length !== 0 ? journey : route,
+                    journeyTime
+                  )}
+                  name="journey-alerts"
+                  label="Alerts"
+                />
               )}
             </Tabs>
           </JourneyPanelContent>

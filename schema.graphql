@@ -197,7 +197,7 @@ type PlannedDeparture {
 }
 
 type Query {
-  alerts(queryId: String, queryType: AlertDistribution, time: Time): [Alert]!
+  alerts(alertSearch: AlertSearchInput, time: DateTime): [Alert]!
   departures(date: Date!, filter: DepartureFilterInput, stopId: String!): [Departure]!
   equipment(date: Date, filter: EquipmentFilterInput): [Equipment]!
   eventsByBbox(bbox: PreciseBBox!, date: Date!, filters: AreaEventsFilterInput, maxTime: DateTime!, minTime: DateTime!): [AreaJourney]!
@@ -286,7 +286,7 @@ type Stop implements Position {
   modes: [String]!
   name: String
   radius: Float
-  routes: [StopRoute]!
+  routes: [StopRoute!]!
   shortId: String!
   stopId: String!
 }
@@ -397,6 +397,14 @@ enum AlertLevel {
 enum CacheControlScope {
   PRIVATE
   PUBLIC
+}
+
+input AlertSearchInput {
+  allRoutes: Boolean
+  allStops: Boolean
+  network: Boolean
+  route: String
+  stop: String
 }
 
 input AreaEventsFilterInput {

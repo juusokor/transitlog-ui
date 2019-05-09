@@ -35,16 +35,14 @@ const AppGrid = styled.div`
   width: 100%;
   min-width: 1024px; // No, we are not mobile friendly
   height: 100vh;
-  display: grid;
-  grid-template-rows: 12.03rem 1fr;
-  align-content: stretch;
-  align-items: stretch;
+  display: flex;
+  flex-direction: column;
 `;
 
 const SidepanelAndMapWrapper = styled.div`
   display: flex;
   width: 100%;
-  height: 100%;
+  flex: 1 1 100%;
 `;
 
 const MapPanel = styled(Map)`
@@ -54,7 +52,7 @@ const MapPanel = styled(Map)`
 `;
 
 const GraphContainer = styled.div`
-  background-color: white
+  background-color: white;
   border: 1px solid var(--alt-grey);
   height: ${({journeyGraphOpen}) => (journeyGraphOpen ? "170px" : "0px")};
   border: ${({journeyGraphOpen}) =>

@@ -101,24 +101,14 @@ const AlertPublishTime = styled.span`
 
 const AlertLink = styled.a``;
 
-const decorate = flow(
-  observer,
-  inject("state")
-);
+const decorate = flow(observer);
 
-const AlertsList = decorate(({className, alerts = [], state, time}) => {
+const AlertsList = decorate(({className, alerts = []}) => {
   const validAlerts = !!alerts && Array.isArray(alerts) ? alerts : [];
-  const currentMoment = !time ? state.timeMoment : moment.tz(time, TIMEZONE);
 
   return (
     <AlertsListWrapper className={className}>
       {validAlerts.map((alert) => {
-        if (
-          !currentMoment.isBetween(alert.startDateTime, alert.endDateTime, "minute", "[]")
-        ) {
-          return null;
-        }
-
         let Icon = alert.level === "INFO" ? Info : AlertIcon;
         let color = alert.level === "INFO" ? "var(--light-blue)" : "var(--red)";
 
