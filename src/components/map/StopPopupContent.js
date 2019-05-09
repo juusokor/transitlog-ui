@@ -37,7 +37,9 @@ const StopPopupContent = ({date, color, stop, onSelectRoute, onShowStreetView}) 
           date={date}
         />
       )}
-      <StopAlerts alerts={getAlertsInEffect(stop, getMomentFromDateTime(date))} />
+      {stop && (
+        <StopAlerts alerts={getAlertsInEffect(stop, getMomentFromDateTime(date))} />
+      )}
       <button onClick={onShowStreetView}>
         <Text>map.stops.show_in_streetview</Text>
       </button>
