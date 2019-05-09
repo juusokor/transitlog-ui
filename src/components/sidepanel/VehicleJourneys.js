@@ -21,7 +21,7 @@ import {getTimelinessColor} from "../../helpers/timelinessColor";
 import VehicleJourneysQuery from "../../queries/VehicleJourneysQuery";
 import {secondsToTimeObject} from "../../helpers/time";
 import {parseLineNumber} from "../../helpers/parseLineNumber";
-import AlertsIcon from "../AlertsIcon";
+import AlertIcons from "../AlertIcons";
 
 const JourneyListRow = styled.div`
   position: relative;
@@ -62,12 +62,6 @@ const NextPrevLabel = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-`;
-
-const RowIcons = styled.div`
-  position: absolute;
-  bottom: -0.6rem;
-  left: 0.5rem;
 `;
 
 @inject(app("Journey", "Time"))
@@ -247,10 +241,7 @@ class VehicleJourneys extends Component {
                         <PlainSlotSmall>{observedTimeString}</PlainSlotSmall>
                       </TagButton>
                       {(hasAlerts || hasInfo) && (
-                        <RowIcons>
-                          {hasAlerts && <AlertsIcon type="ALERT" />}
-                          {hasInfo && <AlertsIcon type="INFO" />}
-                        </RowIcons>
+                        <AlertIcons objectWithAlerts={journey} />
                       )}
                     </JourneyListRow>
                   );
