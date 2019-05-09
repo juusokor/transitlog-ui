@@ -7,6 +7,9 @@ import moment from "moment-timezone";
 import ArrowRightLong from "../icons/ArrowRightLong";
 import {Heading} from "./Typography";
 import Website from "../icons/Website";
+import flow from "lodash/flow";
+import {observer} from "mobx-react-lite";
+import {inject} from "../helpers/inject";
 
 const AlertsListWrapper = styled.div`
   padding: 0 0 1rem;
@@ -15,7 +18,7 @@ const AlertsListWrapper = styled.div`
 export const AlertItem = styled.div`
   padding: 0.75rem 1rem;
   display: grid;
-  grid-template-columns: 3rem 1fr;
+  grid-template-columns: 2.5rem 1fr;
   grid-gap: 1rem;
   align-items: start;
   justify-items: start;
@@ -50,10 +53,9 @@ const AlertTime = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 0.5rem;
+  padding: 0 0 0.5rem;
   margin: 0 0 1rem;
-  border: 1px solid var(--alt-grey);
-  border-radius: 10px;
+  border-bottom: 1px solid var(--alt-grey);
   max-width: 20rem;
 
   svg {
@@ -71,7 +73,7 @@ const TimeBox = styled.div`
   }
 
   strong {
-    font-size: 1.15rem;
+    font-size: 1rem;
     font-weight: normal;
     display: block;
   }
@@ -99,12 +101,24 @@ const AlertPublishTime = styled.span`
 
 const AlertLink = styled.a``;
 
-const AlertsList = ({className, alerts = []}) => {
+const decorate = flow(
+  observer,
+  inject("state")
+);
+
+const AlertsList = decorate(({className, alerts = [], state, time}) => {
   const validAlerts = !!alerts && Array.isArray(alerts) ? alerts : [];
+  const currentMoment = !time ? state.timeMoment : moment.tz(time, TIMEZONE);
 
   return (
     <AlertsListWrapper className={className}>
       {validAlerts.map((alert) => {
+        if (
+          !currentMoment.isBetween(alert.startDateTime, alert.endDateTime, "minute", "[]")
+        ) {
+          return null;
+        }
+
         let Icon = alert.level === "INFO" ? Info : AlertIcon;
         let color = alert.level === "INFO" ? "var(--light-blue)" : "var(--red)";
 
@@ -169,6 +183,6 @@ const AlertsList = ({className, alerts = []}) => {
       })}
     </AlertsListWrapper>
   );
-};
+});
 
 export default AlertsList;

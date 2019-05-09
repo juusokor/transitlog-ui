@@ -37,10 +37,10 @@ const StopPopupContent = ({date, color, stop, onSelectRoute, onShowStreetView}) 
           date={date}
         />
       )}
+      <StopAlerts alerts={stop.alerts} />
       <button onClick={onShowStreetView}>
         <Text>map.stops.show_in_streetview</Text>
       </button>
-      <StopAlerts alerts={stop.alerts} />
     </StopContentWrapper>
   );
 };
