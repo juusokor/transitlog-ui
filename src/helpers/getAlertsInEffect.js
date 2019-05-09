@@ -32,16 +32,15 @@ export const getAlertsInEffect = (
   includeNetworkAlerts = false
 ) => {
   const objectTimeProp = timeProps.find((tp) => get(objectWithAlerts, tp, false));
-  const alertTime = get(objectWithAlerts, objectTimeProp, time);
+  let alertTime = get(objectWithAlerts, objectTimeProp, time);
   // If the time is a shorter string, that means that it is a day without the time part.
   // In that case we should show all alerts for the day.
   const timeIsDate = typeof alertTime === "string" && alertTime.length < 11;
   const currentMoment = moment.tz(alertTime, TIMEZONE);
 
   return get(objectWithAlerts, "alerts", [])
-    .reduce((levels, alert) => {
+    .reduce((alerts, alert) => {
       if (
-        levels.includes(alert.level) ||
         !currentMoment.isBetween(
           alert.startDateTime,
           alert.endDateTime,
@@ -49,28 +48,28 @@ export const getAlertsInEffect = (
           "[]"
         )
       ) {
-        return levels;
+        return alerts;
       }
 
       if (includeNetworkAlerts && alert.distribution === AlertDistribution.Network) {
-        levels.push(alert.level);
+        alerts.push(alert);
       } else if (
         (alert.distribution === AlertDistribution.Route &&
           objectWithAlerts.routeId === alert.affectedId) ||
         (alert.distribution === AlertDistribution.AllRoutes &&
           typeof objectWithAlerts.routeId !== "undefined")
       ) {
-        levels.push(alert.level);
+        alerts.push(alert);
       } else if (
         (alert.distribution === AlertDistribution.Stop &&
           objectWithAlerts.stopId === alert.affectedId) ||
         (alert.distribution === AlertDistribution.AllStops &&
           typeof objectWithAlerts.stopId !== "undefined")
       ) {
-        levels.push(alert.level);
+        alerts.push(alert);
       }
 
-      return levels;
+      return alerts;
     }, [])
     .sort((a, b) => {
       const sortVal = {
@@ -79,6 +78,6 @@ export const getAlertsInEffect = (
         [AlertLevel.Info]: 0,
       };
 
-      return sortVal[a] >= sortVal[b] ? -1 : 1;
+      return sortVal[a.level] >= sortVal[b.level] ? -1 : 1;
     });
 };

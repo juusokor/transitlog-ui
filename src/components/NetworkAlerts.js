@@ -43,7 +43,7 @@ const NetworkAlerts = decorate(({state}) => {
             const IconComponent = IconStyle.withComponent(Icon);
 
             return (
-              <AlertItem color={color}>
+              <AlertItem color={color} key={alert.id}>
                 <IconComponent width="1rem" fill="white" />
                 {alert.title}
               </AlertItem>

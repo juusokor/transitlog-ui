@@ -20,6 +20,7 @@ import {createCompositeJourney} from "../../stores/journeyActions";
 import doubleDigit from "../../helpers/doubleDigit";
 import {dayTypes, getDayTypeFromDate} from "../../helpers/getDayTypeFromDate";
 import EmptyView from "../EmptyView";
+import AlertIcons from "../AlertIcons";
 
 const JourneyListRow = styled.button`
   display: flex;
@@ -35,6 +36,7 @@ const JourneyListRow = styled.button`
   cursor: pointer;
   color: ${({selected = false}) => (selected ? "white" : "var(--grey)")};
   outline: none;
+  position: relative;
 
   &:nth-child(odd) {
     background: ${({selected = false}) =>
@@ -87,6 +89,11 @@ const JourneyInstanceDisplay = styled.span`
 const SpecialDayDisplay = styled(JourneyInstanceDisplay)`
   background: var(--lighter-blue);
   margin-left: ${({largeMargin = false}) => (largeMargin ? "0.5rem" : "0.2rem")};
+`;
+
+const JourneyAlertIcons = styled(AlertIcons)`
+  bottom: -3px;
+  left: 0.875rem;
 `;
 
 const decorate = flow(
@@ -243,6 +250,7 @@ const Journeys = decorate(({state, Time, Journey}) => {
                             <Tooltip helpText="Journey no data">
                               <span>{text("filterpanel.journey.no_data")}</span>
                             </Tooltip>
+                            <JourneyAlertIcons objectWithAlerts={departure} />
                           </JourneyListRow>
                         );
                       }
@@ -317,6 +325,7 @@ const Journeys = decorate(({state, Time, Journey}) => {
                             )}
                           </JourneyRowLeft>
                           {observedJourney}
+                          <JourneyAlertIcons objectWithAlerts={departure.journey} />
                         </JourneyListRow>
                       );
                     })

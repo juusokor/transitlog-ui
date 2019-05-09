@@ -3,7 +3,7 @@ import React, {useMemo} from "react";
 import styled from "styled-components";
 import Info from "../icons/Info";
 import flow from "lodash/flow";
-import get from "lodash/get";
+import uniq from "lodash/uniq";
 import {observer} from "mobx-react-lite";
 import {inject} from "../helpers/inject";
 import {getAlertsInEffect} from "../helpers/getAlertsInEffect";
@@ -26,7 +26,12 @@ const decorate = flow(
 const AlertIcons = decorate(
   ({className, objectWithAlerts, includeNetworkAlerts = false, state}) => {
     const alertLevels = useMemo(
-      () => getAlertsInEffect(objectWithAlerts, state.timeMoment, includeNetworkAlerts),
+      () =>
+        uniq(
+          getAlertsInEffect(objectWithAlerts, state.timeMoment, includeNetworkAlerts).map(
+            (alert) => alert.level
+          )
+        ),
       [state.timeMoment, objectWithAlerts, includeNetworkAlerts]
     );
 
@@ -36,7 +41,9 @@ const AlertIcons = decorate(
           const Icon = level === "INFO" ? Info : Alert;
           const color = level === "INFO" ? "var(--light-blue)" : "var(--red)";
           const IconComponent = IconStyle.withComponent(Icon);
-          return <IconComponent fill={color} width="0.7rem" height="0.7rem" />;
+          return (
+            <IconComponent key={level} fill={color} width="0.7rem" height="0.7rem" />
+          );
         })}
       </IconsContainer>
     );

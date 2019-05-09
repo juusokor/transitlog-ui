@@ -52,7 +52,15 @@ class JourneyDetails extends React.Component {
     const journeyColor = get(transportColor, journeyMode, "var(--light-grey)");
     const stopDepartures = get(journey, "departures", []);
 
-    const journeyTime = stopDepartures.length ? stopDepartures[0].recordedAt : timeMoment;
+    const journeyTime =
+      stopDepartures.length !== 0
+        ? get(stopDepartures, "[0].observedDepartureTime.departureDateTime", timeMoment)
+        : timeMoment;
+
+    const alerts = getAlertsInEffect(
+      get(journey, "alerts", []).length !== 0 ? journey : route,
+      journeyTime
+    );
 
     return (
       <JourneyPanelWrapper>
@@ -72,15 +80,8 @@ class JourneyDetails extends React.Component {
                   color={journeyColor}
                 />
               )}
-              {get(route, "alerts", []).length !== 0 && (
-                <AlertsList
-                  alerts={getAlertsInEffect(
-                    journey.alerts && journey.alerts.length !== 0 ? journey : route,
-                    journeyTime
-                  )}
-                  name="journey-alerts"
-                  label="Alerts"
-                />
+              {alerts.length !== 0 && (
+                <AlertsList alerts={alerts} name="journey-alerts" label="Alerts" />
               )}
             </Tabs>
           </JourneyPanelContent>

@@ -4,6 +4,7 @@ import pick from "lodash/pick";
 import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import {setUpdateListener, removeUpdateListener} from "../stores/UpdateManager";
+import {AlertFieldsFragment} from "./AlertFieldsFragment";
 
 export const journeyQuery = gql`
   query journeyQuery(
@@ -140,7 +141,11 @@ export const journeyQuery = gql`
         }
       }
     }
+    alerts {
+      ...AlertFieldsFragment
+    }
   }
+  ${AlertFieldsFragment}
 `;
 
 const updateListenerName = "selected journey";

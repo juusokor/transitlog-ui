@@ -27,6 +27,7 @@ type Alert {
 }
 
 type AreaJourney {
+  alerts: [Alert!]!
   departureDate: Date!
   departureTime: Time!
   direction: Direction!
@@ -52,6 +53,7 @@ type Cancellation {
 }
 
 type Departure {
+  alerts: [Alert!]!
   dayType: String!
   departureId: Int!
   direction: Direction!
@@ -80,6 +82,7 @@ type Departure {
 
 type DepartureJourney {
   _numInstance: Int
+  alerts: [Alert!]!
   departureDate: Date!
   departureTime: Time!
   direction: Direction!
@@ -120,6 +123,7 @@ type ExceptionDay {
 }
 
 type Journey {
+  alerts: [Alert!]!
   departureDate: Date!
   departureTime: Time!
   departures: [Departure!]!
