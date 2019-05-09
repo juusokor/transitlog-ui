@@ -112,6 +112,11 @@ function App({route, state, UI}) {
     auth();
   }, [code]);
 
+  const detailsAreOpen = useMemo(
+    () => journeyDetailsOpen && (selectedJourneyId || route),
+    [journeyDetailsOpen, selectedJourneyId, route]
+  );
+
   return (
     <AppFrame>
       {loginModalOpen && <LoginModal />}
@@ -150,9 +155,10 @@ function App({route, state, UI}) {
                                         stop={stop}
                                         route={route}
                                         sidePanelOpen={sidePanelIsOpen}
+                                        detailsOpen={detailsAreOpen}
                                       />
                                       <MapPanel
-                                        detailsOpen={journeyDetailsOpen}
+                                        detailsOpen={detailsAreOpen}
                                         sidePanelOpen={sidePanelIsOpen}>
                                         {({
                                           zoom,
