@@ -21,8 +21,9 @@ export const StopMarkerCircle = styled.div`
   width: ${({big = false}) => (big ? "1.25rem" : "1rem")};
   height: ${({big = false}) => (big ? "1.25rem" : "1rem")};
   border-radius: 50%;
-  border: 3px solid ${({color = "var(--blue)"}) => color};
-  background-color: white;
+  border: 3px ${({dashed = false}) => (dashed ? "dashed" : "solid")}
+    ${({color = "var(--blue)"}) => color};
+  background-color: ${({fill = "white"}) => fill};
 `;
 
 export const IconWrapper = styled.div`
