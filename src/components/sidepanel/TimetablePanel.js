@@ -252,7 +252,7 @@ class TimetablePanel extends Component {
         scrollToIndex={focusedIndex !== -1 ? focusedIndex : undefined}
         list={departures}
         renderRow={renderRow(departures)}
-        rowHeight={35}
+        rowHeight={32}
         loading={loading}
         header={
           <Observer>

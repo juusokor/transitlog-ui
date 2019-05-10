@@ -25,9 +25,8 @@ import AlertIcons from "../AlertIcons";
 
 const JourneyListRow = styled.div`
   position: relative;
-  padding: ${({selected = false}) =>
-    selected ? "0.5rem 0.5rem 0.5rem 0.75rem" : "0 0.5rem 0 0.75rem"};
-  margin: ${({selected = false}) => (selected ? "0" : "0.5rem 0")};
+  padding: 0.25rem 0.5rem 0.25rem 0.75rem;
+  margin: 0;
   background: ${({selected = false}) => (selected ? "var(--blue)" : "transparent")};
 
   &:first-child {
@@ -240,9 +239,7 @@ class VehicleJourneys extends Component {
                         </ColoredBackgroundSlot>
                         <PlainSlotSmall>{observedTimeString}</PlainSlotSmall>
                       </TagButton>
-                      {(hasAlerts || hasInfo) && (
-                        <AlertIcons objectWithAlerts={journey} />
-                      )}
+                      <AlertIcons objectWithAlerts={journey} />
                     </JourneyListRow>
                   );
                 })

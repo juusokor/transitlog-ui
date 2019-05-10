@@ -8,7 +8,7 @@ import {getAlertStyle} from "../helpers/getAlertStyle";
 
 const IconsContainer = styled.div`
   position: absolute;
-  bottom: -0.6rem;
+  bottom: -0.35rem;
   left: 0.45rem;
 `;
 

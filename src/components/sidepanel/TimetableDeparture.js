@@ -19,10 +19,12 @@ import {secondsToTimeObject, getNormalTime} from "../../helpers/time";
 import {parseLineNumber} from "../../helpers/parseLineNumber";
 import {applyTooltip} from "../../hooks/useTooltip";
 import {getDayTypeFromDate, dayTypes} from "../../helpers/getDayTypeFromDate";
+import AlertIcons from "../AlertIcons";
 
 const ListRow = styled.div`
   padding: 0.25rem 0.5rem 0.25rem 0.75rem;
   margin: 0;
+  position: relative;
   background: ${({selected = false}) => (selected ? "var(--blue)" : "transparent")};
 `;
 
@@ -92,6 +94,7 @@ class TimetableDeparture extends Component {
         </PlannedTimeSlot>
         {children}
       </TimetableButton>
+      <AlertIcons objectWithAlerts={departure} />
     </ListRow>
   );
 
