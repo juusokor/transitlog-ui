@@ -54,7 +54,7 @@ const MapPanel = styled(Map)`
 `;
 
 const GraphContainer = styled.div`
-  background-color: white
+  background-color: white;
   border: 1px solid var(--alt-grey);
   height: ${({journeyGraphOpen}) => (journeyGraphOpen ? "170px" : "0px")};
   border: ${({journeyGraphOpen}) =>
