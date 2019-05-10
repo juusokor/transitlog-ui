@@ -5,6 +5,7 @@ import flow from "lodash/flow";
 import styled from "styled-components";
 import timingStopIcon from "../../icon-time1.svg";
 import {withStop} from "../../hoc/withStop";
+import {inject} from "../../helpers/inject";
 
 const StopOptionButton = styled.button`
   text-decoration: none;
@@ -36,7 +37,8 @@ function cleanRouteId(routeId) {
 
 const decorate = flow(
   observer,
-  withStop
+  withStop,
+  inject("state")
 );
 
 export const StopRouteSelect = decorate(({stop, stopLoading, color, onSelectRoute}) => {

@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useRef} from "react";
 import {observer} from "mobx-react-lite";
-import {Popup, CircleMarker} from "react-leaflet";
+import {CircleMarker} from "react-leaflet";
 import {latLng} from "leaflet";
 import get from "lodash/get";
 import {getPriorityMode, getModeColor} from "../../helpers/vehicleColor";
@@ -59,7 +59,7 @@ const StopMarker = decorate(
     const popupElement = (
       <MapPopup onClose={() => (didAutoOpen.current = false)}>
         <StopPopupContent
-          date={state.date}
+          dateTime={state.timeMoment}
           stop={stop}
           color={stopColor}
           onSelectRoute={selectRoute}

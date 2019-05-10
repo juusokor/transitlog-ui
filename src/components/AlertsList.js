@@ -12,7 +12,7 @@ const AlertsListWrapper = styled.div`
 const decorate = flow(observer);
 
 const AlertsList = decorate(({className, alerts = []}) => {
-  const validAlerts = !!alerts && Array.isArray(alerts) ? alerts : [];
+  const validAlerts = alerts && Array.isArray(alerts) ? alerts : [];
 
   return (
     <AlertsListWrapper className={className}>

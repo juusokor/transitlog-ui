@@ -164,7 +164,7 @@ style="border-color: ${stopColor}; background-color: ${
           {selectedStopObj && (
             <StopPopupContent
               stop={selectedStopObj}
-              date={state.date}
+              dateTime={state.timeMoment}
               color={stopColor}
               onSelectRoute={selectRoute}
               onShowStreetView={() => onViewLocation(markerPosition)}

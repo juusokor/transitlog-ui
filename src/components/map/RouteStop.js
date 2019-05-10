@@ -71,6 +71,7 @@ class RouteStop extends React.Component {
       showRadius,
       selected,
       highlighted,
+      state: {timeMoment},
     } = this.props;
 
     const isTerminal = firstTerminal || lastTerminal;
@@ -86,7 +87,11 @@ class RouteStop extends React.Component {
 
     let stopStreetViewPopup = (
       <MapPopup key={`stop_${stop.stopId}_popup`}>
-        <StopPopupContent stop={stop} onShowStreetView={this.onShowStreetView} />
+        <StopPopupContent
+          dateTime={timeMoment}
+          stop={stop}
+          onShowStreetView={this.onShowStreetView}
+        />
       </MapPopup>
     );
 

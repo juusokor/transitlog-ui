@@ -60,14 +60,14 @@ const MapContent = decorate(
         {/* When a route is NOT selected... */}
         {!hasRoute && (
           <>
-            {zoom > 14 ? (
+            {zoom > 14 && (
               <StopLayer
                 showRadius={showStopRadius}
                 onViewLocation={viewLocation}
                 date={date}
                 bounds={mapBounds}
               />
-            ) : null}
+            )}
           </>
         )}
         {/* When a route IS selected... */}
@@ -201,7 +201,7 @@ const MapContent = decorate(
               events={selectedJourneyEvents}
             />
           ))}
-        {stop && (
+        {stop && !hasRoute && (
           <StopMarker
             showRadius={showStopRadius}
             stop={stop}

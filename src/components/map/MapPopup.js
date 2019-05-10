@@ -25,6 +25,7 @@ const PopupStyle = createGlobalStyle`
     width: 1rem !important;
     height: 1.2rem !important;
     font-size: 1.75rem !important;
+    top: 0.5rem !important;
     right: 0.6rem !important;
   }
 `;

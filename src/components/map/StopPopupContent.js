@@ -7,6 +7,7 @@ import AlertsList from "../AlertsList";
 import {StopContent} from "../StopElements";
 import {getAlertsInEffect} from "../../helpers/getAlertsInEffect";
 import {Button} from "../Forms";
+import {observer} from "mobx-react-lite";
 
 export const StopAlerts = styled(AlertsList)`
   padding: 0;
@@ -37,30 +38,31 @@ export const StopStreetViewWrapper = styled(StopPopupContentSection)`
   margin-top: 1rem;
 `;
 
-const StopPopupContent = ({date, color, stop, onSelectRoute, onShowStreetView}) => {
-  return (
-    <StopContentWrapper>
-      <StopPopupContentSection>
-        <Heading level={4}>
-          {stop.name}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
-        </Heading>
-        {onSelectRoute && (
-          <StopRouteSelect
-            color={color}
-            onSelectRoute={onSelectRoute}
-            stopId={stop.stopId}
-            date={date}
-          />
-        )}
-      </StopPopupContentSection>
-      {stop && <StopAlerts alerts={getAlertsInEffect(stop, date)} />}
-      <StopStreetViewWrapper>
-        <Button onClick={onShowStreetView}>
-          <Text>map.stops.show_in_streetview</Text>
-        </Button>
-      </StopStreetViewWrapper>
-    </StopContentWrapper>
-  );
-};
+const StopPopupContent = observer(
+  ({dateTime, color, stop, onSelectRoute, onShowStreetView}) => {
+    return (
+      <StopContentWrapper>
+        <StopPopupContentSection>
+          <Heading level={4}>
+            {stop.name}, {stop.shortId.replace(/ /g, "")} ({stop.stopId})
+          </Heading>
+          {onSelectRoute && (
+            <StopRouteSelect
+              color={color}
+              onSelectRoute={onSelectRoute}
+              stopId={stop.stopId}
+            />
+          )}
+        </StopPopupContentSection>
+        {stop && <StopAlerts alerts={getAlertsInEffect(stop, dateTime)} />}
+        <StopStreetViewWrapper>
+          <Button onClick={onShowStreetView}>
+            <Text>map.stops.show_in_streetview</Text>
+          </Button>
+        </StopStreetViewWrapper>
+      </StopContentWrapper>
+    );
+  }
+);
 
 export default StopPopupContent;
