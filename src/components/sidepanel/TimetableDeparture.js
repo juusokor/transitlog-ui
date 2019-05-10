@@ -97,6 +97,11 @@ class TimetableDeparture extends Component {
 
   render() {
     const {stop, departure, onClick, selectedJourney} = this.props;
+
+    if (!stop || !departure) {
+      return null;
+    }
+
     const {modes = []} = stop;
 
     const stopMode = modes[0];

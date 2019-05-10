@@ -11,9 +11,8 @@ import {divIcon, latLng} from "leaflet";
 import {getPriorityMode, getModeColor} from "../../helpers/vehicleColor";
 import {flow} from "lodash";
 import {inject} from "../../helpers/inject";
-import StopRouteSelect from "./StopRouteSelect";
-import AlertsList from "../AlertsList";
-import StopPopupContent from "./StopPopupContent";
+import StopPopupContent, {StopPopupContentSection} from "./StopPopupContent";
+import MapPopup from "./MapPopup";
 
 const StopOptionButton = styled.button`
   text-decoration: none;
@@ -47,7 +46,6 @@ const MarkerIconStyle = createGlobalStyle`
     border-radius: 50%;
     background: white;
     border: 3px solid transparent;
-    display: flex !important;
     align-items: center;
     justify-content: center;
     font-size: 0.95rem;
@@ -55,8 +53,6 @@ const MarkerIconStyle = createGlobalStyle`
     color: var(--grey);
     font-weight: bold;
     display: flex;
-    align-items: center;
-    justify-content: center;
     width: 100%;
     height: 100%;
   }
@@ -148,28 +144,23 @@ style="border-color: ${stopColor}; background-color: ${
 
     const markerElement = (
       <Marker ref={markerRef} icon={markerIcon} pane="stops" position={markerPosition}>
-        <Popup
-          autoClose={false}
-          autoPan={false}
-          keepInView={false}
-          onClose={() => (didAutoOpen.current = false)}
-          minWidth={300}
-          maxHeight={750}
-          maxWidth={550}>
-          <ChooseStopHeading>Select stop:</ChooseStopHeading>
-          {stops.map((stopInGroup) => {
-            const mode = getPriorityMode(get(stopInGroup, "modes", []));
-            const stopColor = getModeColor(mode);
+        <MapPopup onClose={() => (didAutoOpen.current = false)}>
+          <StopPopupContentSection>
+            <ChooseStopHeading>Select stop:</ChooseStopHeading>
+            {stops.map((stopInGroup) => {
+              const mode = getPriorityMode(get(stopInGroup, "modes", []));
+              const stopColor = getModeColor(mode);
 
-            return (
-              <StopOptionButton
-                color={stopColor}
-                onClick={() => selectStop(stopInGroup.stopId)}
-                key={`stop_select_${stopInGroup.stopId}`}>
-                {stopInGroup.stopId} - {stopInGroup.name}
-              </StopOptionButton>
-            );
-          })}
+              return (
+                <StopOptionButton
+                  color={stopColor}
+                  onClick={() => selectStop(stopInGroup.stopId)}
+                  key={`stop_select_${stopInGroup.stopId}`}>
+                  {stopInGroup.stopId} - {stopInGroup.name}
+                </StopOptionButton>
+              );
+            })}
+          </StopPopupContentSection>
           {selectedStopObj && (
             <StopPopupContent
               stop={selectedStopObj}
@@ -179,7 +170,7 @@ style="border-color: ${stopColor}; background-color: ${
               onShowStreetView={() => onViewLocation(markerPosition)}
             />
           )}
-        </Popup>
+        </MapPopup>
       </Marker>
     );
 
