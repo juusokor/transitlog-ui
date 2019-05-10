@@ -1,5 +1,5 @@
 import React from "react";
-import {Tooltip, Popup} from "react-leaflet";
+import {Tooltip} from "react-leaflet";
 import {latLng} from "leaflet";
 import {observer, inject} from "mobx-react";
 import {P} from "../Typography";
@@ -17,18 +17,12 @@ import {Text} from "../../helpers/text";
 import {app} from "mobx-app";
 import {getTimelinessColor} from "../../helpers/timelinessColor";
 import doubleDigit from "../../helpers/doubleDigit";
-import {
-  TimeHeading,
-  StopHeading,
-  StopContent,
-  StopArrivalTime,
-  SmallText,
-} from "../StopElements";
+import {TimeHeading, StopHeading, StopArrivalTime, SmallText} from "../StopElements";
 import CalculateTerminalTime from "../sidepanel/journeyDetails/CalculateTerminalTime";
 import RouteStopMarker from "./RouteStopMarker";
 import getDelayType from "../../helpers/getDelayType";
-import AlertsList from "../AlertsList";
 import StopPopupContent, {StopContentWrapper, StopAlerts} from "./StopPopupContent";
+import MapPopup from "./MapPopup";
 
 const PopupParagraph = styled(P)`
   font-family: var(--font-family);
@@ -84,13 +78,9 @@ class RouteStop extends React.Component {
     );
 
     let stopStreetViewPopup = (
-      <Popup
-        minWidth={300}
-        maxWidth={800}
-        autoPan={true}
-        key={`stop_${stop.stopId}_popup`}>
+      <MapPopup key={`stop_${stop.stopId}_popup`}>
         <StopPopupContent stop={stop} onShowStreetView={this.onShowStreetView} />
-      </Popup>
+      </MapPopup>
     );
 
     let markerChildren = [stopTooltip, stopStreetViewPopup];
@@ -264,11 +254,7 @@ class RouteStop extends React.Component {
     const doorDidOpen = departure.observedArrivalTime.doorDidOpen;
 
     const stopPopup = (
-      <Popup
-        maxHeight={750}
-        maxWidth={500}
-        autoPan={true}
-        key={`stop${stop.stopId}_popup`}>
+      <MapPopup key={`stop${stop.stopId}_popup`}>
         <StopContentWrapper>
           <StopHeading>
             <strong>{stop.name}</strong> {stop.stopId} ({stop.shortId.replace(/ /g, "")})
@@ -319,8 +305,8 @@ class RouteStop extends React.Component {
         <button onClick={this.onShowStreetView}>
           <Text>map.stops.show_in_streetview</Text>
         </button>
-        <StopAlerts alerts={stop.alerts} />
-      </Popup>
+        <StopAlerts alerts={stop} />
+      </MapPopup>
     );
 
     stopTooltip = (
