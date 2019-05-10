@@ -14,7 +14,7 @@ class DivIcon extends MapLayer {
 
   // See https://github.com/PaulLeCam/react-leaflet/issues/275
   createLeafletElement(newProps) {
-    const {icon, position, className, html = "", iconSize, ...props} = newProps;
+    const {icon, position, className, html = "", iconSize, pane, ...props} = newProps;
     this.icon = new LeafletDivIcon({className, html, iconSize});
 
     this.leafletElement = new LeafletMarker(position, {

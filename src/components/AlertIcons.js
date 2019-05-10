@@ -14,12 +14,22 @@ const IconsContainer = styled.div`
 
 const IconStyle = styled.div`
   margin-right: 0.1rem;
+
+  &:last-child {
+    margin-right: 0;
+  }
 `;
 
 const decorate = flow(observer);
 
 const AlertIcons = decorate(
-  ({className, objectWithAlerts, includeNetworkAlerts = false, time = null}) => {
+  ({
+    className,
+    objectWithAlerts,
+    includeNetworkAlerts = false,
+    time = null,
+    iconSize = "0.7rem",
+  }) => {
     const alertLevels = useMemo(
       () =>
         uniq(
@@ -36,7 +46,14 @@ const AlertIcons = decorate(
           const {Icon, color} = getAlertStyle(level);
           const IconComponent = IconStyle.withComponent(Icon);
           return (
-            <IconComponent key={level} fill={color} width="0.7rem" height="0.7rem" />
+            <>
+              <IconComponent
+                key={level}
+                fill={color}
+                width={iconSize}
+                height={iconSize}
+              />
+            </>
           );
         })}
       </IconsContainer>

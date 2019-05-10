@@ -46,7 +46,6 @@ const DepartureTimeGroup = styled.div`
   min-width: 300px;
 `;
 
-@inject(app("Time"))
 @observer
 class RouteStop extends React.Component {
   onClickTime = (time) => (e) => {
@@ -71,7 +70,6 @@ class RouteStop extends React.Component {
       showRadius,
       selected,
       highlighted,
-      state: {timeMoment},
     } = this.props;
 
     const isTerminal = firstTerminal || lastTerminal;
@@ -87,11 +85,7 @@ class RouteStop extends React.Component {
 
     let stopStreetViewPopup = (
       <MapPopup key={`stop_${stop.stopId}_popup`}>
-        <StopPopupContent
-          dateTime={timeMoment}
-          stop={stop}
-          onShowStreetView={this.onShowStreetView}
-        />
+        <StopPopupContent stop={stop} onShowStreetView={this.onShowStreetView} />
       </MapPopup>
     );
 

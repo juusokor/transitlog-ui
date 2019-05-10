@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useRef} from "react";
 import {observer} from "mobx-react-lite";
-import {CircleMarker} from "react-leaflet";
+import styled from "styled-components";
 import {latLng} from "leaflet";
 import get from "lodash/get";
 import {getPriorityMode, getModeColor} from "../../helpers/vehicleColor";
@@ -9,11 +9,33 @@ import {flow} from "lodash";
 import {inject} from "../../helpers/inject";
 import StopPopupContent from "./StopPopupContent";
 import MapPopup from "./MapPopup";
+import DivIcon from "./DivIcon";
+import AlertIcons from "../AlertIcons";
 
 const decorate = flow(
   observer,
   inject("Filters")
 );
+
+const StopMarkerCircle = styled.div`
+  width: ${({big = false}) => (big ? "1.25rem" : "1rem")};
+  height: ${({big = false}) => (big ? "1.25rem" : "1rem")};
+  border-radius: 50%;
+  border: 3px solid ${({color = "var(--blue)"}) => color};
+  background-color: white;
+`;
+
+const IconWrapper = styled.div`
+  position: relative;
+  transform: translate(-50%, -50%);
+`;
+
+const MarkerIcons = styled(AlertIcons)`
+  display: flex;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, 100%);
+`;
 
 const StopMarker = decorate(
   ({popupOpen, stop, state, showRadius = true, onViewLocation, Filters}) => {
@@ -59,7 +81,6 @@ const StopMarker = decorate(
     const popupElement = (
       <MapPopup onClose={() => (didAutoOpen.current = false)}>
         <StopPopupContent
-          dateTime={state.timeMoment}
           stop={stop}
           color={stopColor}
           onSelectRoute={selectRoute}
@@ -71,20 +92,26 @@ const StopMarker = decorate(
     const markerPosition = latLng({lat, lng});
 
     const markerElement = (
-      <CircleMarker
+      <DivIcon
         ref={markerRef}
         pane="stops"
-        center={markerPosition}
-        color={stopColor}
-        fillColor={isSelected ? stopColor : "white"}
-        fillOpacity={1}
-        onClick={selectStop}
-        radius={isSelected ? 12 : 8}>
+        position={markerPosition}
+        icon={
+          <IconWrapper>
+            <StopMarkerCircle big={isSelected} color={stopColor} />
+            <MarkerIcons
+              iconSize="0.875rem"
+              objectWithAlerts={stop}
+              time={state.timeMoment}
+            />
+          </IconWrapper>
+        }
+        onClick={selectStop}>
         {popupElement}
-      </CircleMarker>
+      </DivIcon>
     );
 
-    const stopMarkerElement = showRadius ? (
+    return showRadius ? (
       <StopRadius
         // The "pane" prop on the Circle element is not dynamic, so the
         // StopRadius component should be remounted when selected or
@@ -99,8 +126,6 @@ const StopMarker = decorate(
     ) : (
       markerElement
     );
-
-    return stopMarkerElement;
   }
 );
 
