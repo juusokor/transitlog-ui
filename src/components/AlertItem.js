@@ -82,7 +82,7 @@ const AlertTime = styled.div`
 
 const AlertTitle = styled(Heading).attrs({level: 5})`
   margin: 0;
-  font-size: 1rem;
+  font-size: 0.875rem;
   font-weight: normal;
 `;
 
