@@ -56,7 +56,7 @@ class RouteStop extends React.Component {
 
   onShowStreetView = () => {
     const {onViewLocation, stop} = this.props;
-    onViewLocation(latLng({lat: stop.lat, lng: stop.lon}));
+    onViewLocation(latLng({lat: stop.lat, lng: stop.lng}));
   };
 
   render() {

@@ -67,14 +67,6 @@ const MapContent = decorate(
                 date={date}
                 bounds={mapBounds}
               />
-            ) : stop ? (
-              <StopMarker
-                showRadius={showStopRadius}
-                onViewLocation={viewLocation}
-                stop={stop}
-                popupOpen={true}
-                date={date}
-              />
             ) : null}
           </>
         )}
@@ -209,6 +201,15 @@ const MapContent = decorate(
               events={selectedJourneyEvents}
             />
           ))}
+        {stop && (
+          <StopMarker
+            showRadius={showStopRadius}
+            stop={stop}
+            onViewLocation={viewLocation}
+            popupOpen={true}
+            date={date}
+          />
+        )}
       </>
     );
   }
