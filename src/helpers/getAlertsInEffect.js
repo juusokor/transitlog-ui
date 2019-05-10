@@ -8,7 +8,7 @@ export const AlertLevel = {
   Severe: "SEVERE",
 };
 
-const AlertDistribution = {
+export const AlertDistribution = {
   Stop: "STOP",
   AllStops: "ALL_STOPS",
   Route: "ROUTE",

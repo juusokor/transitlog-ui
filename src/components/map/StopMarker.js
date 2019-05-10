@@ -8,6 +8,7 @@ import {StopRadius} from "./StopRadius";
 import {flow} from "lodash";
 import {inject} from "../../helpers/inject";
 import StopPopupContent from "./StopPopupContent";
+import MapPopup from "./MapPopup";
 
 const decorate = flow(
   observer,
@@ -56,14 +57,7 @@ const StopMarker = decorate(
     const stopColor = getModeColor(mode);
 
     const popupElement = (
-      <Popup
-        autoPan={false}
-        autoClose={false}
-        keepInView={false}
-        onClose={() => (didAutoOpen.current = false)}
-        minWidth={300}
-        maxHeight={750}
-        maxWidth={550}>
+      <MapPopup onClose={() => (didAutoOpen.current = false)}>
         <StopPopupContent
           date={state.date}
           stop={stop}
@@ -71,7 +65,7 @@ const StopMarker = decorate(
           onSelectRoute={selectRoute}
           onShowStreetView={onShowStreetView}
         />
-      </Popup>
+      </MapPopup>
     );
 
     const markerPosition = latLng({lat, lng});

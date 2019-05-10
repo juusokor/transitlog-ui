@@ -18,7 +18,13 @@ const ToggleButton = styled.button`
   width: auto;
 `;
 
-const ToggleView = ({children, className, closedLabel, openLabel}) => {
+const ToggleView = ({
+  children,
+  className,
+  label = "Toggle",
+  closedLabel = label,
+  openLabel = label,
+}) => {
   const [open, toggleOpen] = useToggle(false);
 
   return (
