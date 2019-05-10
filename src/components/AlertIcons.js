@@ -7,6 +7,7 @@ import uniq from "lodash/uniq";
 import {observer} from "mobx-react-lite";
 import {inject} from "../helpers/inject";
 import {getAlertsInEffect} from "../helpers/getAlertsInEffect";
+import {getAlertStyle} from "../helpers/getAlertStyle";
 
 const IconsContainer = styled.div`
   position: absolute;
@@ -18,28 +19,24 @@ const IconStyle = styled.div`
   margin-right: 0.1rem;
 `;
 
-const decorate = flow(
-  observer,
-  inject("state")
-);
+const decorate = flow(observer);
 
 const AlertIcons = decorate(
-  ({className, objectWithAlerts, includeNetworkAlerts = false, state}) => {
+  ({className, objectWithAlerts, includeNetworkAlerts = false, time = null}) => {
     const alertLevels = useMemo(
       () =>
         uniq(
-          getAlertsInEffect(objectWithAlerts, state.timeMoment, includeNetworkAlerts).map(
+          getAlertsInEffect(objectWithAlerts, time, includeNetworkAlerts).map(
             (alert) => alert.level
           )
         ),
-      [state.timeMoment, objectWithAlerts, includeNetworkAlerts]
+      [objectWithAlerts, includeNetworkAlerts, time]
     );
 
     return (
       <IconsContainer className={className}>
         {alertLevels.map((level) => {
-          const Icon = level === "INFO" ? Info : Alert;
-          const color = level === "INFO" ? "var(--light-blue)" : "var(--red)";
+          const {Icon, color} = getAlertStyle(level);
           const IconComponent = IconStyle.withComponent(Icon);
           return (
             <IconComponent key={level} fill={color} width="0.7rem" height="0.7rem" />

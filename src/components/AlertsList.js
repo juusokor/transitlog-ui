@@ -10,6 +10,8 @@ import Website from "../icons/Website";
 import flow from "lodash/flow";
 import {observer} from "mobx-react-lite";
 import {inject} from "../helpers/inject";
+import {getAlertKey} from "../helpers/getAlertKey";
+import {getAlertStyle} from "../helpers/getAlertStyle";
 
 const AlertsListWrapper = styled.div`
   padding: 0 0 1rem;
@@ -109,8 +111,7 @@ const AlertsList = decorate(({className, alerts = []}) => {
   return (
     <AlertsListWrapper className={className}>
       {validAlerts.map((alert) => {
-        let Icon = alert.level === "INFO" ? Info : AlertIcon;
-        let color = alert.level === "INFO" ? "var(--light-blue)" : "var(--red)";
+        const {Icon, color} = getAlertStyle(alert);
 
         const startMoment = moment.tz(alert.startDateTime, TIMEZONE);
         const endMoment = moment.tz(alert.endDateTime, TIMEZONE);
@@ -125,7 +126,7 @@ const AlertsList = decorate(({className, alerts = []}) => {
         const endTime = endMoment.format("HH:mm");
 
         return (
-          <AlertItem key={alert.id}>
+          <AlertItem key={getAlertKey(alert)}>
             <AlertIconWrapper>
               <Icon width="1.5rem" fill={color} />
               {alert.url && (

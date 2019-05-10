@@ -27,10 +27,12 @@ const timeProps = [
 ];
 
 export const getAlertsInEffect = (
-  objectWithAlerts,
+  objectWithAlerts = [],
   time,
   includeNetworkAlerts = false
 ) => {
+  // The first priority is to get the time from the object with the alerts
+  // according to the possible timeProps above. If that fails, use the `time` argument.
   const objectTimeProp = timeProps.find((tp) => get(objectWithAlerts, tp, false));
   let alertTime = get(objectWithAlerts, objectTimeProp, time);
   // If the time is a shorter string, that means that it is a day without the time part.
@@ -38,7 +40,9 @@ export const getAlertsInEffect = (
   const timeIsDate = typeof alertTime === "string" && alertTime.length < 11;
   const currentMoment = moment.tz(alertTime, TIMEZONE);
 
-  return get(objectWithAlerts, "alerts", [])
+  const alerts = get(objectWithAlerts, "alerts", objectWithAlerts || []);
+
+  return alerts
     .reduce((alerts, alert) => {
       if (
         !currentMoment.isBetween(

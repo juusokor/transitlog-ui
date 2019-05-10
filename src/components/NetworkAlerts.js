@@ -7,6 +7,8 @@ import {inject} from "../helpers/inject";
 import format from "date-fns/format";
 import {getAlertStyle} from "../helpers/getAlertStyle";
 import Time from "../icons/Time";
+import {getAlertKey} from "../helpers/getAlertKey";
+import {getAlertsInEffect} from "../helpers/getAlertsInEffect";
 
 const AlertsContainer = styled.div``;
 
@@ -70,13 +72,14 @@ const decorate = flow(
 );
 
 const NetworkAlerts = decorate(({state}) => {
-  const time = state.date;
+  const alertTime = state.date;
+  const currentTime = state.timeMoment;
 
   return (
     <AlertsContainer>
-      <AlertsQuery time={time}>
+      <AlertsQuery time={alertTime}>
         {({alerts = []}) => {
-          return alerts.map((alert) => {
+          return getAlertsInEffect(alerts, currentTime, true).map((alert) => {
             const {Icon, color} = getAlertStyle(alert, true);
             const IconComponent = IconStyle.withComponent(Icon);
 
@@ -87,15 +90,7 @@ const NetworkAlerts = decorate(({state}) => {
             const endTime = format(alert.endDateTime, "HH:mm");
 
             return (
-              <AlertItem
-                color={color}
-                key={
-                  alert.title +
-                  alert.level +
-                  alert.distribution +
-                  alert.startDateTime +
-                  alert.endDateTime
-                }>
+              <AlertItem color={color} key={getAlertKey(alert)}>
                 <AlertInfoWrapper>
                   <IconComponent width="1rem" fill="var(--dark-grey)" />
                   <AlertInfo separator=" /">{alert.level}</AlertInfo>
