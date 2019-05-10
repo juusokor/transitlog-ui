@@ -21,8 +21,15 @@ import {TimeHeading, StopHeading, StopArrivalTime, SmallText} from "../StopEleme
 import CalculateTerminalTime from "../sidepanel/journeyDetails/CalculateTerminalTime";
 import RouteStopMarker from "./RouteStopMarker";
 import getDelayType from "../../helpers/getDelayType";
-import StopPopupContent, {StopContentWrapper, StopAlerts} from "./StopPopupContent";
+import StopPopupContent, {
+  StopContentWrapper,
+  StopAlerts,
+  StopPopupContentSection,
+  StopStreetViewWrapper,
+} from "./StopPopupContent";
 import MapPopup from "./MapPopup";
+import {Button} from "../Forms";
+import {getAlertsInEffect} from "../../helpers/getAlertsInEffect";
 
 const PopupParagraph = styled(P)`
   font-family: var(--font-family);
@@ -255,57 +262,62 @@ class RouteStop extends React.Component {
 
     const stopPopup = (
       <MapPopup key={`stop${stop.stopId}_popup`}>
-        <StopContentWrapper>
-          <StopHeading>
-            <strong>{stop.name}</strong> {stop.stopId} ({stop.shortId.replace(/ /g, "")})
-          </StopHeading>
+        <StopPopupContentSection>
+          <StopContentWrapper>
+            <StopHeading>
+              <strong>{stop.name}</strong> {stop.stopId} ({stop.shortId.replace(/ /g, "")}
+              )
+            </StopHeading>
 
-          {(isTerminal || doorDidOpen) && departure.observedArrivalTime ? (
-            <>
-              <TimeHeading>
-                <Text>journey.arrival</Text>
-              </TimeHeading>
-              {observedArrivalTime}
-            </>
-          ) : !doorDidOpen ? (
-            <PopupParagraph>
-              <Text>map.stops.doors_not_open</Text>
-            </PopupParagraph>
-          ) : null}
+            {(isTerminal || doorDidOpen) && departure.observedArrivalTime ? (
+              <>
+                <TimeHeading>
+                  <Text>journey.arrival</Text>
+                </TimeHeading>
+                {observedArrivalTime}
+              </>
+            ) : !doorDidOpen ? (
+              <PopupParagraph>
+                <Text>map.stops.doors_not_open</Text>
+              </PopupParagraph>
+            ) : null}
 
-          {!lastTerminal && (
-            <DepartureTimeGroup>
-              <TimeHeading>
-                <Text>journey.departure</Text>
-              </TimeHeading>
-              {observedDepartureTime}
-            </DepartureTimeGroup>
-          )}
+            {!lastTerminal && (
+              <DepartureTimeGroup>
+                <TimeHeading>
+                  <Text>journey.departure</Text>
+                </TimeHeading>
+                {observedDepartureTime}
+              </DepartureTimeGroup>
+            )}
 
-          {plannedDuration > 0 && observedDuration > 0 && (
-            <>
-              <TimeHeading>
-                <Text>journey.duration</Text>
-              </TimeHeading>
-              <TagButton>
-                <PlainSlot>{secondsToTime(plannedDuration)}</PlainSlot>
-                <ColoredBackgroundSlot
-                  color="var(--dark-grey)"
-                  backgroundColor="var(--lighter-grey)">
-                  {durationDiffSign}
-                  {durationDiff.hours ? doubleDigit(durationDiff.hours) + ":" : ""}
-                  {doubleDigit(get(durationDiff, "minutes", 0))}:
-                  {doubleDigit(get(durationDiff, "seconds", 0))}
-                </ColoredBackgroundSlot>
-                <PlainSlotSmall>{secondsToTime(observedDuration)}</PlainSlotSmall>
-              </TagButton>
-            </>
-          )}
-        </StopContentWrapper>
-        <button onClick={this.onShowStreetView}>
-          <Text>map.stops.show_in_streetview</Text>
-        </button>
-        <StopAlerts alerts={stop} />
+            {plannedDuration > 0 && observedDuration > 0 && (
+              <>
+                <TimeHeading>
+                  <Text>journey.duration</Text>
+                </TimeHeading>
+                <TagButton>
+                  <PlainSlot>{secondsToTime(plannedDuration)}</PlainSlot>
+                  <ColoredBackgroundSlot
+                    color="var(--dark-grey)"
+                    backgroundColor="var(--lighter-grey)">
+                    {durationDiffSign}
+                    {durationDiff.hours ? doubleDigit(durationDiff.hours) + ":" : ""}
+                    {doubleDigit(get(durationDiff, "minutes", 0))}:
+                    {doubleDigit(get(durationDiff, "seconds", 0))}
+                  </ColoredBackgroundSlot>
+                  <PlainSlotSmall>{secondsToTime(observedDuration)}</PlainSlotSmall>
+                </TagButton>
+              </>
+            )}
+          </StopContentWrapper>
+        </StopPopupContentSection>
+        <StopAlerts alerts={getAlertsInEffect(departure)} />
+        <StopStreetViewWrapper>
+          <Button onClick={this.onShowStreetView}>
+            <Text>map.stops.show_in_streetview</Text>
+          </Button>
+        </StopStreetViewWrapper>
       </MapPopup>
     );
 

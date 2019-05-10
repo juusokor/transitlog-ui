@@ -40,7 +40,11 @@ export const getAlertsInEffect = (
   const timeIsDate = typeof alertTime === "string" && alertTime.length < 11;
   const currentMoment = moment.tz(alertTime, TIMEZONE);
 
-  const alerts = get(objectWithAlerts, "alerts", objectWithAlerts || []);
+  const alerts = get(
+    objectWithAlerts,
+    "alerts",
+    objectWithAlerts && Array.isArray(objectWithAlerts) ? objectWithAlerts : []
+  );
 
   return alerts
     .reduce((alerts, alert) => {

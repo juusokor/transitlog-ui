@@ -11,4 +11,8 @@ export const Heading = styled(({level, ...rest}) =>
   margin: 1rem 0;
   font-family: var(--font-family);
   color: ${({color = "var(--dark-grey)"}) => color};
+
+  &:first-child {
+    margin-top: 0;
+  }
 `;

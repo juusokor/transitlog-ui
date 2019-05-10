@@ -325,7 +325,10 @@ const Journeys = decorate(({state, Time, Journey}) => {
                             )}
                           </JourneyRowLeft>
                           {observedJourney}
-                          <JourneyAlertIcons objectWithAlerts={departure.journey} />
+                          <JourneyAlertIcons
+                            objectWithAlerts={departure.journey}
+                            time={departure.observedDepartureTime.departureDateTime}
+                          />
                         </JourneyListRow>
                       );
                     })

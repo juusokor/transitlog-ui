@@ -75,6 +75,9 @@ export const journeyQuery = gql`
         operatorId
         terminalTime
         recoveryTime
+        alerts {
+          ...AlertFieldsFragment
+        }
         stop {
           id
           isTimingStop

@@ -35,6 +35,12 @@ export const StopContentWrapper = styled(StopContent)`
   padding: 0;
 `;
 
+export const StopStreetViewWrapper = styled(StopPopupContentSection)`
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+`;
+
 const StopPopupContent = ({date, color, stop, onSelectRoute, onShowStreetView}) => {
   return (
     <StopContentWrapper>
@@ -52,11 +58,11 @@ const StopPopupContent = ({date, color, stop, onSelectRoute, onShowStreetView}) 
         )}
       </StopPopupContentSection>
       {stop && <StopAlerts alerts={getAlertsInEffect(stop, date)} />}
-      <StopPopupContentSection style={{display: "flex", justifyContent: "center"}}>
+      <StopStreetViewWrapper>
         <Button onClick={onShowStreetView}>
           <Text>map.stops.show_in_streetview</Text>
         </Button>
-      </StopPopupContentSection>
+      </StopStreetViewWrapper>
     </StopContentWrapper>
   );
 };
