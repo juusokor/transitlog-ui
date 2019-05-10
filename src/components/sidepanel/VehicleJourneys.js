@@ -206,14 +206,6 @@ class VehicleJourneys extends Component {
                     this.selectedJourneyIndex = journeyIndex;
                   }
 
-                  const hasAlerts = (journey.alerts || []).some(
-                    ({level}) => level !== "INFO"
-                  );
-
-                  const hasInfo = (journey.alerts || []).some(
-                    ({level}) => level === "INFO"
-                  );
-
                   return (
                     <JourneyListRow
                       selected={journeyIsSelected}
@@ -239,7 +231,9 @@ class VehicleJourneys extends Component {
                         </ColoredBackgroundSlot>
                         <PlainSlotSmall>{observedTimeString}</PlainSlotSmall>
                       </TagButton>
-                      <AlertIcons objectWithAlerts={journey} />
+                      {get(journey, "alerts", []).length !== 0 && (
+                        <AlertIcons objectWithAlerts={journey} />
+                      )}
                     </JourneyListRow>
                   );
                 })

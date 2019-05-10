@@ -17,7 +17,7 @@ const decorate = flow(
   inject("Filters")
 );
 
-const StopMarkerCircle = styled.div`
+export const StopMarkerCircle = styled.div`
   width: ${({big = false}) => (big ? "1.25rem" : "1rem")};
   height: ${({big = false}) => (big ? "1.25rem" : "1rem")};
   border-radius: 50%;
@@ -25,12 +25,12 @@ const StopMarkerCircle = styled.div`
   background-color: white;
 `;
 
-const IconWrapper = styled.div`
+export const IconWrapper = styled.div`
   position: relative;
   transform: translate(-50%, -50%);
 `;
 
-const MarkerIcons = styled(AlertIcons)`
+export const MarkerIcons = styled(AlertIcons)`
   display: flex;
   bottom: 0;
   left: 50%;
@@ -99,11 +99,9 @@ const StopMarker = decorate(
         icon={
           <IconWrapper>
             <StopMarkerCircle big={isSelected} color={stopColor} />
-            <MarkerIcons
-              iconSize="0.875rem"
-              objectWithAlerts={stop}
-              time={state.timeMoment}
-            />
+            {get(stop, "alerts", []).length !== 0 && (
+              <MarkerIcons iconSize="0.875rem" objectWithAlerts={stop} />
+            )}
           </IconWrapper>
         }
         onClick={selectStop}>

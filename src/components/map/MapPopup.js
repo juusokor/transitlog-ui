@@ -40,6 +40,7 @@ const MapPopup = ({className, children, onClose}) => {
         autoPan={false}
         keepInView={false}
         onClose={onClose}
+        offset={[0, -10]}
         minWidth={350}
         maxHeight={600}
         maxWidth={550}>

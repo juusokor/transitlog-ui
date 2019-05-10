@@ -59,6 +59,13 @@ export const getAlertsInEffect = (
         return alerts;
       }
 
+      // If we're given an array of alerts, we are only interested in matching them to
+      // the time argument. Thus return them without further matching.
+      if (Array.isArray(objectWithAlerts)) {
+        alerts.push(alert);
+        return alerts;
+      }
+
       if (includeNetworkAlerts && alert.distribution === AlertDistribution.Network) {
         alerts.push(alert);
       } else if (

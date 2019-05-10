@@ -250,7 +250,9 @@ const Journeys = decorate(({state, Time, Journey}) => {
                             <Tooltip helpText="Journey no data">
                               <span>{text("filterpanel.journey.no_data")}</span>
                             </Tooltip>
-                            <JourneyAlertIcons objectWithAlerts={departure} />
+                            {get(departure, "alerts", []).length !== 0 && (
+                              <JourneyAlertIcons objectWithAlerts={departure} />
+                            )}
                           </JourneyListRow>
                         );
                       }
@@ -325,10 +327,12 @@ const Journeys = decorate(({state, Time, Journey}) => {
                             )}
                           </JourneyRowLeft>
                           {observedJourney}
-                          <JourneyAlertIcons
-                            objectWithAlerts={departure.journey}
-                            time={departure.observedDepartureTime.departureDateTime}
-                          />
+                          {get(departure, "journey.alerts", []).length !== 0 && (
+                            <JourneyAlertIcons
+                              objectWithAlerts={departure.journey}
+                              time={departure.observedDepartureTime.departureDateTime}
+                            />
+                          )}
                         </JourneyListRow>
                       );
                     })

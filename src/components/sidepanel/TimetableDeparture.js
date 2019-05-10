@@ -94,7 +94,9 @@ class TimetableDeparture extends Component {
         </PlannedTimeSlot>
         {children}
       </TimetableButton>
-      <AlertIcons objectWithAlerts={departure} />
+      {get(departure, "alerts", []).length !== 0 && (
+        <AlertIcons objectWithAlerts={departure} />
+      )}
     </ListRow>
   );
 
