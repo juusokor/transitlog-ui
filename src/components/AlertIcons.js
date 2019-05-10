@@ -1,11 +1,8 @@
-import Alert from "../icons/Alert";
 import React, {useMemo} from "react";
 import styled from "styled-components";
-import Info from "../icons/Info";
 import flow from "lodash/flow";
 import uniq from "lodash/uniq";
 import {observer} from "mobx-react-lite";
-import {inject} from "../helpers/inject";
 import {getAlertsInEffect} from "../helpers/getAlertsInEffect";
 import {getAlertStyle} from "../helpers/getAlertStyle";
 

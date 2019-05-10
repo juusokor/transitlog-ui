@@ -4,6 +4,7 @@ import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import {observer} from "mobx-react-lite";
 import {setUpdateListener, removeUpdateListener} from "../stores/UpdateManager";
+import {AlertFieldsFragment} from "./AlertFieldsFragment";
 
 export const routeJourneysByWeekQuery = gql`
   query journeysByWeekQuery(
@@ -34,6 +35,9 @@ export const routeJourneysByWeekQuery = gql`
       direction
       stopId
       mode
+      alerts {
+        ...AlertFieldsFragment
+      }
       journey {
         id
         departureDate
@@ -61,6 +65,7 @@ export const routeJourneysByWeekQuery = gql`
       }
     }
   }
+  ${AlertFieldsFragment}
 `;
 
 const updateListenerName = "journey weel query";

@@ -27,6 +27,7 @@ import {TransportIcon} from "../transportModes";
 import Waiting from "../../icons/Waiting";
 import SomethingWrong from "../../icons/SomethingWrong";
 import Cross from "../../icons/Cross";
+import AlertIcons from "../AlertIcons";
 /*import {weeklyObservedTimeTypes} from "../../stores/UIStore";
 import ToggleButton from "../ToggleButton";*/
 
@@ -76,13 +77,14 @@ const TableCell = styled.div`
   text-align: center;
   border: 0;
   border-right: 1px solid var(--lightest-grey);
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   font-weight: ${({strong = false}) => (strong ? "bold" : "normal")};
   background: ${({backgroundColor = "transparent", highlight = false}) =>
     (!backgroundColor || backgroundColor === "transparent") && highlight
       ? "#f6fcff"
       : backgroundColor};
   color: ${({color}) => color};
+  position: relative;
 
   &:last-child {
     border-right: 0;
@@ -95,6 +97,16 @@ const TableCellButton = styled(TableCell.withComponent("button"))`
   display: block;
   font-family: inherit;
   outline: 0;
+`;
+
+const TableCellIcons = styled(AlertIcons)`
+  bottom: -0.1rem;
+  left: 0.2rem;
+
+  svg {
+    width: 0.5rem !important;
+    height: 0.5rem !important;
+  }
 `;
 
 const TableHeader = styled(TableRow)`
@@ -401,6 +413,7 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, UI}) => {
                                     key={`departure_day_${dayType}_${departureStatus}_${departureTime}_${idx}`}>
                                     <TableCell highlight={idx === currentDayTypeIndex}>
                                       <IconComponent width="1rem" fill="var(--grey)" />
+                                      <TableCellIcons objectWithAlerts={departure} />
                                     </TableCell>
                                   </Tooltip>
                                 );
@@ -449,6 +462,7 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, UI}) => {
                                     {plannedObservedDiff < 0 ? "-" : ""}
                                     {doubleDigit(diffTime.minutes)}:
                                     {doubleDigit(diffTime.seconds)}
+                                    <TableCellIcons objectWithAlerts={departure} />
                                   </TableCellButton>
                                 </Tooltip>
                               );
