@@ -16,7 +16,6 @@ type Alert {
   description: String!
   distribution: AlertDistribution!
   endDateTime: DateTime!
-  id: ID!
   impact: AlertImpact!
   level: AlertLevel!
   publishedDateTime: DateTime!
@@ -201,7 +200,7 @@ type PlannedDeparture {
 }
 
 type Query {
-  alerts(alertSearch: AlertSearchInput, time: DateTime): [Alert]!
+  alerts(alertSearch: AlertSearchInput, time: String): [Alert]!
   departures(date: Date!, filter: DepartureFilterInput, stopId: String!): [Departure]!
   equipment(date: Date, filter: EquipmentFilterInput): [Equipment]!
   eventsByBbox(bbox: PreciseBBox!, date: Date!, filters: AreaEventsFilterInput, maxTime: DateTime!, minTime: DateTime!): [AreaJourney]!

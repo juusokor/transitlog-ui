@@ -7,7 +7,7 @@ import {AlertFieldsFragment} from "./AlertFieldsFragment";
 
 const alertsQuery = gql`
   query routeOptionsQuery(
-    $time: DateTime!
+    $time: String!
     $network: Boolean
     $allRoutes: Boolean
     $allStops: Boolean
@@ -31,7 +31,7 @@ const alertsQuery = gql`
 `;
 
 const AlertsQuery = observer(({time, children}) => {
-  // TODO: Enable all alert queries through props if needed.
+  // TODO: Enable all alert search queries through props if needed.
 
   return (
     <Query query={alertsQuery} variables={{time, network: true}}>

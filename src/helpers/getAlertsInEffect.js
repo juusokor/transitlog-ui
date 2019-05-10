@@ -2,7 +2,7 @@ import get from "lodash/get";
 import moment from "moment-timezone";
 import {TIMEZONE} from "../constants";
 
-const AlertLevel = {
+export const AlertLevel = {
   Info: "INFO",
   Warning: "WARNING",
   Severe: "SEVERE",
