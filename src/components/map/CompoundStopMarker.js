@@ -7,7 +7,6 @@ import uniq from "lodash/uniq";
 import flow from "lodash/flow";
 import flatten from "lodash/flatten";
 import styled from "styled-components";
-import {StopRadius} from "./StopRadius";
 import {latLng} from "leaflet";
 import {getPriorityMode, getModeColor} from "../../helpers/vehicleColor";
 import {inject} from "../../helpers/inject";

@@ -28,6 +28,7 @@ import Waiting from "../../icons/Waiting";
 import SomethingWrong from "../../icons/SomethingWrong";
 import Cross from "../../icons/Cross";
 import AlertIcons from "../AlertIcons";
+import {getAlertsInEffect} from "../../helpers/getAlertsInEffect";
 /*import {weeklyObservedTimeTypes} from "../../stores/UIStore";
 import ToggleButton from "../ToggleButton";*/
 
@@ -413,7 +414,9 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, UI}) => {
                                     key={`departure_day_${dayType}_${departureStatus}_${departureTime}_${idx}`}>
                                     <TableCell highlight={idx === currentDayTypeIndex}>
                                       <IconComponent width="1rem" fill="var(--grey)" />
-                                      <TableCellIcons objectWithAlerts={departure} />
+                                      <TableCellIcons
+                                        alerts={getAlertsInEffect(departure)}
+                                      />
                                     </TableCell>
                                   </Tooltip>
                                 );
@@ -462,7 +465,9 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, UI}) => {
                                     {plannedObservedDiff < 0 ? "-" : ""}
                                     {doubleDigit(diffTime.minutes)}:
                                     {doubleDigit(diffTime.seconds)}
-                                    <TableCellIcons objectWithAlerts={departure} />
+                                    <TableCellIcons
+                                      alerts={getAlertsInEffect(departure)}
+                                    />
                                   </TableCellButton>
                                 </Tooltip>
                               );

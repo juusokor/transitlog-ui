@@ -20,6 +20,7 @@ import {parseLineNumber} from "../../helpers/parseLineNumber";
 import {applyTooltip} from "../../hooks/useTooltip";
 import {getDayTypeFromDate, dayTypes} from "../../helpers/getDayTypeFromDate";
 import AlertIcons from "../AlertIcons";
+import {getAlertsInEffect} from "../../helpers/getAlertsInEffect";
 
 const ListRow = styled.div`
   padding: 0.25rem 0.5rem 0.25rem 0.75rem;
@@ -95,7 +96,7 @@ class TimetableDeparture extends Component {
         {children}
       </TimetableButton>
       {get(departure, "alerts", []).length !== 0 && (
-        <AlertIcons objectWithAlerts={departure} />
+        <AlertIcons alerts={getAlertsInEffect(departure)} />
       )}
     </ListRow>
   );

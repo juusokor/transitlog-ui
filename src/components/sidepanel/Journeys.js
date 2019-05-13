@@ -21,6 +21,7 @@ import doubleDigit from "../../helpers/doubleDigit";
 import {dayTypes, getDayTypeFromDate} from "../../helpers/getDayTypeFromDate";
 import EmptyView from "../EmptyView";
 import AlertIcons from "../AlertIcons";
+import {getAlertsInEffect} from "../../helpers/getAlertsInEffect";
 
 const JourneyListRow = styled.button`
   display: flex;
@@ -251,7 +252,7 @@ const Journeys = decorate(({state, Time, Journey}) => {
                               <span>{text("filterpanel.journey.no_data")}</span>
                             </Tooltip>
                             {get(departure, "alerts", []).length !== 0 && (
-                              <JourneyAlertIcons objectWithAlerts={departure} />
+                              <JourneyAlertIcons alerts={getAlertsInEffect(departure)} />
                             )}
                           </JourneyListRow>
                         );

@@ -5,7 +5,6 @@ import styled from "styled-components";
 import Calendar from "../../../icons/Calendar";
 import JourneyPlanner from "../../../icons/JourneyPlanner";
 import Time2 from "../../../icons/Time2";
-import get from "lodash/get";
 import {observer} from "mobx-react-lite";
 import {parseLineNumber} from "../../../helpers/parseLineNumber";
 

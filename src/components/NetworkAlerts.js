@@ -1,6 +1,6 @@
 import React from "react";
 import flow from "lodash/flow";
-import {observer} from "mobx-react-lite";
+import {observer, Observer} from "mobx-react-lite";
 import styled, {css} from "styled-components";
 import AlertsQuery from "../queries/AlertsQuery";
 import {inject} from "../helpers/inject";
@@ -73,41 +73,46 @@ const decorate = flow(
 
 const NetworkAlerts = decorate(({state}) => {
   const alertTime = state.date;
-  const currentTime = state.timeMoment;
 
   return (
     <AlertsContainer>
       <AlertsQuery time={alertTime}>
-        {({alerts = []}) => {
-          return getAlertsInEffect(alerts, currentTime, true).map((alert) => {
-            const {Icon, color} = getAlertStyle(alert, true);
-            const IconComponent = IconStyle.withComponent(Icon);
+        {({alerts = []}) => (
+          <Observer>
+            {() => {
+              const currentTime = state.timeMoment;
 
-            const startDate = format(alert.startDateTime, "MM/DD");
-            const startTime = format(alert.startDateTime, "HH:mm");
+              return getAlertsInEffect(alerts, currentTime, true).map((alert) => {
+                const {Icon, color} = getAlertStyle(alert, true);
+                const IconComponent = IconStyle.withComponent(Icon);
 
-            const endDate = format(alert.endDateTime, "MM/DD");
-            const endTime = format(alert.endDateTime, "HH:mm");
+                const startDate = format(alert.startDateTime, "MM/DD");
+                const startTime = format(alert.startDateTime, "HH:mm");
 
-            return (
-              <AlertItem color={color} key={getAlertKey(alert)}>
-                <AlertInfoWrapper>
-                  <IconComponent width="1rem" fill="var(--dark-grey)" />
-                  <AlertInfo separator=" /">{alert.level}</AlertInfo>
-                  <AlertInfo separator=" /">{alert.category}</AlertInfo>
-                  <AlertInfo>{alert.impact}</AlertInfo>
-                </AlertInfoWrapper>
-                <AlertTitle>{alert.title}</AlertTitle>
-                <AlertTime>
-                  <Time fill="var(--dark-grey)" width="0.75rem" />
-                  {startDate === endDate
-                    ? `${startDate}, ${startTime} - ${endTime}`
-                    : `${startDate} ${startTime} - ${endDate} ${endTime}`}
-                </AlertTime>
-              </AlertItem>
-            );
-          });
-        }}
+                const endDate = format(alert.endDateTime, "MM/DD");
+                const endTime = format(alert.endDateTime, "HH:mm");
+
+                return (
+                  <AlertItem color={color} key={getAlertKey(alert)}>
+                    <AlertInfoWrapper>
+                      <IconComponent width="1rem" fill="var(--dark-grey)" />
+                      <AlertInfo separator=" /">{alert.level}</AlertInfo>
+                      <AlertInfo separator=" /">{alert.category}</AlertInfo>
+                      <AlertInfo>{alert.impact}</AlertInfo>
+                    </AlertInfoWrapper>
+                    <AlertTitle>{alert.title}</AlertTitle>
+                    <AlertTime>
+                      <Time fill="var(--dark-grey)" width="0.75rem" />
+                      {startDate === endDate
+                        ? `${startDate}, ${startTime} - ${endTime}`
+                        : `${startDate} ${startTime} - ${endDate} ${endTime}`}
+                    </AlertTime>
+                  </AlertItem>
+                );
+              });
+            }}
+          </Observer>
+        )}
       </AlertsQuery>
     </AlertsContainer>
   );

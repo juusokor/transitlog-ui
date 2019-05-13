@@ -22,6 +22,7 @@ import VehicleJourneysQuery from "../../queries/VehicleJourneysQuery";
 import {secondsToTimeObject} from "../../helpers/time";
 import {parseLineNumber} from "../../helpers/parseLineNumber";
 import AlertIcons from "../AlertIcons";
+import {getAlertsInEffect} from "../../helpers/getAlertsInEffect";
 
 const JourneyListRow = styled.div`
   position: relative;
@@ -232,7 +233,7 @@ class VehicleJourneys extends Component {
                         <PlainSlotSmall>{observedTimeString}</PlainSlotSmall>
                       </TagButton>
                       {get(journey, "alerts", []).length !== 0 && (
-                        <AlertIcons objectWithAlerts={journey} />
+                        <AlertIcons alerts={getAlertsInEffect(journey)} />
                       )}
                     </JourneyListRow>
                   );

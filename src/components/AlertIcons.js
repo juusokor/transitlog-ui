@@ -6,6 +6,7 @@ import {observer} from "mobx-react-lite";
 import {getAlertsInEffect} from "../helpers/getAlertsInEffect";
 import {getAlertStyle} from "../helpers/getAlertStyle";
 import {inject} from "../helpers/inject";
+import {useDebouncedValue} from "../hooks/useDebouncedValue";
 
 const IconsContainer = styled.div`
   position: absolute;
@@ -23,36 +24,20 @@ const IconStyle = styled.div`
 
 const decorate = flow(observer);
 
-const AlertIcons = decorate(
-  ({
-    className,
-    objectWithAlerts,
-    includeNetworkAlerts = false,
-    time,
-    iconSize = "0.7rem",
-  }) => {
-    const alertLevels = useMemo(
-      () =>
-        uniq(
-          getAlertsInEffect(objectWithAlerts, time, includeNetworkAlerts).map(
-            (alert) => alert.level
-          )
-        ),
-      [objectWithAlerts, includeNetworkAlerts]
-    );
+const AlertIcons = decorate(({className, alerts = [], iconSize = "0.7rem"}) => {
+  const alertLevels = useMemo(() => uniq(alerts.map(({level}) => level)), [alerts]);
 
-    return (
-      <IconsContainer className={className}>
-        {alertLevels.map((level) => {
-          const {Icon, color} = getAlertStyle(level);
-          const IconComponent = IconStyle.withComponent(Icon);
-          return (
-            <IconComponent key={level} fill={color} width={iconSize} height={iconSize} />
-          );
-        })}
-      </IconsContainer>
-    );
-  }
-);
+  return (
+    <IconsContainer className={className}>
+      {alertLevels.map((level) => {
+        const {Icon, color} = getAlertStyle(level);
+        const IconComponent = IconStyle.withComponent(Icon);
+        return (
+          <IconComponent key={level} fill={color} width={iconSize} height={iconSize} />
+        );
+      })}
+    </IconsContainer>
+  );
+});
 
 export default AlertIcons;
