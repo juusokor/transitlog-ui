@@ -59,8 +59,7 @@ export const SuggestionSectionTitle = styled.div`
 `;
 
 export const SuggestionAlerts = styled(AlertIcons)`
-  bottom: auto;
-  top: 3px;
+  bottom: 3px;
   right: 3px;
   left: auto;
   background: white;
