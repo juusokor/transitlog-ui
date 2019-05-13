@@ -21,18 +21,14 @@ const IconStyle = styled.div`
   }
 `;
 
-const decorate = flow(
-  observer,
-  inject("state")
-);
+const decorate = flow(observer);
 
 const AlertIcons = decorate(
   ({
     className,
-    state: {timeMoment},
     objectWithAlerts,
     includeNetworkAlerts = false,
-    time = timeMoment,
+    time,
     iconSize = "0.7rem",
   }) => {
     const alertLevels = useMemo(
@@ -42,7 +38,7 @@ const AlertIcons = decorate(
             (alert) => alert.level
           )
         ),
-      [objectWithAlerts, includeNetworkAlerts, time]
+      [objectWithAlerts, includeNetworkAlerts]
     );
 
     return (
