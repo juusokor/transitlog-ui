@@ -12,6 +12,7 @@ import MapPopup from "./MapPopup";
 import DivIcon from "./DivIcon";
 import AlertIcons from "../AlertIcons";
 import timingStopIcon from "../../icon-time1.svg";
+import {getAlertsInEffect} from "../../helpers/getAlertsInEffect";
 
 const decorate = flow(
   observer,
@@ -150,6 +151,11 @@ const StopMarker = decorate(
 
     const markerPosition = latLng({lat, lng});
 
+    const stopAlerts =
+      alerts && alerts.length !== 0
+        ? alerts
+        : getAlertsInEffect(get(stop, "alerts", []), state.timeMoment);
+
     const markerElement = (
       <DivIcon
         ref={markerRef}
@@ -170,8 +176,8 @@ const StopMarker = decorate(
                 iconChildren
               )}
             </StopMarkerCircle>
-            {get(stop, "alerts", alerts).length !== 0 && (
-              <MarkerIcons iconSize="0.875rem" objectWithAlerts={stop} />
+            {stopAlerts.length !== 0 && (
+              <MarkerIcons iconSize="0.875rem" alerts={stopAlerts} />
             )}
           </IconWrapper>
         }
