@@ -79,8 +79,8 @@ export default ({
             <StopMarker color={color} onClick={onStopClick} {...hoverProps} />
           )}
         </StopElementsWrapper>
-        <StopContent>
-          <StopHeading onClick={onStopClick} {...hoverProps}>
+        <StopContent {...hoverProps}>
+          <StopHeading onClick={onStopClick}>
             <strong>{stop.name}</strong> {stop.stopId} ({stop.shortId.replace(/ /g, "")})
           </StopHeading>
         </StopContent>
@@ -117,8 +117,8 @@ export default ({
           <StopMarker color={color} onClick={onStopClick} {...hoverProps} />
         )}
       </StopElementsWrapper>
-      <StopContent>
-        <StopHeading onClick={onStopClick} {...hoverProps}>
+      <StopContent {...hoverProps}>
+        <StopHeading onClick={onStopClick}>
           <strong>{stop.name}</strong> {stop.stopId} ({stop.shortId.replace(/ /g, "")})
         </StopHeading>
         {showPlannedArrivalTime ? (

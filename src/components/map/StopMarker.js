@@ -22,12 +22,13 @@ export const StopMarkerCircle = styled.div`
   width: ${({big = false}) => (big ? "2.2rem" : "1.25rem")};
   height: ${({big = false}) => (big ? "2.2rem" : "1.25rem")};
   border-radius: 50%;
-  border: ${({thickBorder = false}) => (thickBorder ? "4px" : "3px")}
+  border: ${({thickBorder = false, isHighlighted}) =>
+      thickBorder || isHighlighted ? "4px" : "3px"}
     ${({dashed = false}) => (dashed ? "dashed" : "solid")}
     ${({isSelected = false, color = "var(--blue)"}) =>
-      isSelected ? "var(--light-blue)" : color};
+      isSelected ? "var(--blue)" : color};
   background-color: ${({isHighlighted, isSelected, color = "var(--blue)"}) =>
-    isHighlighted ? "var(--purple)" : isSelected ? color : "white"};
+    isHighlighted ? "var(--grey)" : isSelected ? color : "white"};
   align-items: center;
   justify-content: center;
   color: ${({color = "var(--blue)"}) => color};
@@ -38,10 +39,17 @@ export const StopMarkerCircle = styled.div`
   background-clip: ${({isSelected = false}) =>
     isSelected ? "content-box" : "border-box"};
   padding: ${({isSelected = false}) => (isSelected ? "2px" : "0")};
+  transform: ${({isHighlighted}) => (isHighlighted ? "scale(1.5)" : "scale(1)")};
+  box-shadow: ${({isHighlighted}) =>
+    isHighlighted ? "0 0 20px 0 rgba(0,0,0,0.25)" : "none"};
+  position: relative;
+  z-index: ${({isHighlighted}) => (isHighlighted ? "10" : "auto")};
+  transition: all 0.05s ease-out;
 
   img {
     width: 100%;
     height: 100%;
+    display: block;
   }
 `;
 

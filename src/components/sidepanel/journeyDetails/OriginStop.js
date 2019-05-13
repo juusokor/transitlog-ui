@@ -59,8 +59,8 @@ const OriginStop = observer(
           <StopElementsWrapper color={color} terminus={"origin"}>
             <StopMarker color={color} onClick={onStopClick} {...hoverProps} />
           </StopElementsWrapper>
-          <OriginStopContent stopsExpanded={stopsExpanded}>
-            <StopHeading onClick={onStopClick} {...hoverProps}>
+          <OriginStopContent stopsExpanded={stopsExpanded} {...hoverProps}>
+            <StopHeading onClick={onStopClick}>
               <strong>{stop.name}</strong> {stop.stopId} ({stop.shortId.replace(/ /g, "")}
               )
             </StopHeading>
@@ -88,8 +88,11 @@ const OriginStop = observer(
         <StopElementsWrapper color={color} terminus="origin">
           <StopMarker color={color} onClick={onStopClick} {...hoverProps} />
         </StopElementsWrapper>
-        <OriginStopContent terminus="origin" stopsExpanded={stopsExpanded}>
-          <StopHeading onClick={onStopClick} {...hoverProps}>
+        <OriginStopContent
+          terminus="origin"
+          stopsExpanded={stopsExpanded}
+          {...hoverProps}>
+          <StopHeading onClick={onStopClick}>
             <strong>{stop.name}</strong> {stop.stopId} ({stop.shortId.replace(/ /g, "")})
           </StopHeading>
           <CalculateTerminalTime
