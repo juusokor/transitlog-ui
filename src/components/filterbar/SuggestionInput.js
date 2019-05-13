@@ -6,6 +6,7 @@ import styled from "styled-components";
 import {InputStyles} from "../Forms";
 import {observable, action} from "mobx";
 import Tooltip from "../Tooltip";
+import AlertIcons from "../AlertIcons";
 
 const AutosuggestWrapper = styled.div`
   width: 100%;
@@ -24,6 +25,7 @@ export const SuggestionContent = styled.div`
     no-repeat;
   color: ${({isHighlighted = false}) => (isHighlighted ? "white" : "var(--dark-grey)")};
   padding: 0.25rem 0.5rem;
+  position: relative;
 
   ${({withIcon = false}) =>
     withIcon
@@ -54,6 +56,16 @@ export const SuggestionSectionTitle = styled.div`
   font-weight: bold;
   margin: 0.5rem 0;
   padding: 0.25rem;
+`;
+
+export const SuggestionAlerts = styled(AlertIcons)`
+  bottom: auto;
+  top: 3px;
+  right: 3px;
+  left: auto;
+  background: white;
+  padding: 3px 5px;
+  border-radius: 3px;
 `;
 
 @observer
