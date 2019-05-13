@@ -46,7 +46,8 @@ const StopSettings = decorate(({Filters, state}) => {
                 {selectedStop && (
                   <SelectedOptionDisplay>
                     <SuggestionText>
-                      <strong>{selectedStop.id}</strong> ({selectedStop.shortId})
+                      <strong>{selectedStop.id}</strong> (
+                      {selectedStop.shortId.replace(/\s/g, "")})
                       <br />
                       {selectedStop.name}
                     </SuggestionText>
