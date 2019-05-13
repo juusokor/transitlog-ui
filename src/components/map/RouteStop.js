@@ -71,8 +71,6 @@ class RouteStop extends React.Component {
       highlighted,
     } = this.props;
 
-    console.log(stop);
-
     const isTerminal = firstTerminal || lastTerminal;
 
     let stopTooltip = (
