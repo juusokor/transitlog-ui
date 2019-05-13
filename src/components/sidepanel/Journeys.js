@@ -330,8 +330,10 @@ const Journeys = decorate(({state, Time, Journey}) => {
                           {observedJourney}
                           {get(departure, "journey.alerts", []).length !== 0 && (
                             <JourneyAlertIcons
-                              objectWithAlerts={departure.journey}
-                              time={departure.observedDepartureTime.departureDateTime}
+                              alerts={getAlertsInEffect(
+                                departure.journey,
+                                departure.observedDepartureTime.departureDateTime
+                              )}
                             />
                           )}
                         </JourneyListRow>
