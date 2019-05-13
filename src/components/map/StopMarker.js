@@ -11,6 +11,7 @@ import StopPopupContent from "./StopPopupContent";
 import MapPopup from "./MapPopup";
 import DivIcon from "./DivIcon";
 import AlertIcons from "../AlertIcons";
+import timingStopIcon from "../../icon-time1.svg";
 
 const decorate = flow(
   observer,
@@ -18,12 +19,30 @@ const decorate = flow(
 );
 
 export const StopMarkerCircle = styled.div`
-  width: ${({big = false}) => (big ? "1.25rem" : "1rem")};
-  height: ${({big = false}) => (big ? "1.25rem" : "1rem")};
+  width: ${({big = false}) => (big ? "2.2rem" : "1.25rem")};
+  height: ${({big = false}) => (big ? "2.2rem" : "1.25rem")};
   border-radius: 50%;
-  border: 3px ${({dashed = false}) => (dashed ? "dashed" : "solid")}
-    ${({color = "var(--blue)"}) => color};
-  background-color: ${({fill = "white"}) => fill};
+  border: ${({thickBorder = false}) => (thickBorder ? "4px" : "3px")}
+    ${({dashed = false}) => (dashed ? "dashed" : "solid")}
+    ${({isSelected = false, color = "var(--blue)"}) =>
+      isSelected ? "var(--light-blue)" : color};
+  background-color: ${({isHighlighted, isSelected, color = "var(--blue)"}) =>
+    isHighlighted ? "var(--purple)" : isSelected ? color : "white"};
+  align-items: center;
+  justify-content: center;
+  color: ${({color = "var(--blue)"}) => color};
+  font-weight: bold;
+  display: flex;
+  font-size: 0.95rem;
+  line-height: 1.1;
+  background-clip: ${({isSelected = false}) =>
+    isSelected ? "content-box" : "border-box"};
+  padding: ${({isSelected = false}) => (isSelected ? "2px" : "0")};
+
+  img {
+    width: 100%;
+    height: 100%;
+  }
 `;
 
 export const IconWrapper = styled.div`
@@ -39,18 +58,42 @@ export const MarkerIcons = styled(AlertIcons)`
 `;
 
 const StopMarker = decorate(
-  ({popupOpen, stop, state, showRadius = true, onViewLocation, Filters}) => {
+  ({
+    popupOpen,
+    stop,
+    position = null,
+    mode = "BUS",
+    selected,
+    color,
+    dashedBorder = false,
+    state,
+    showRadius = true,
+    isTerminal = false,
+    isTimingStop = false,
+    highlighted,
+    onViewLocation,
+    Filters,
+    alerts = [],
+    children,
+    iconChildren,
+    markerRef: ref,
+  }) => {
     const didAutoOpen = useRef(false);
-    const markerRef = useRef(null);
+    const defaultRef = useRef(null);
+    const markerRef = ref || defaultRef;
 
     useEffect(() => {
+      if (ref) {
+        return;
+      }
+
       if (popupOpen && markerRef.current) {
         markerRef.current.leafletElement.openPopup();
         didAutoOpen.current = true;
       } else if (didAutoOpen.current && markerRef.current) {
         markerRef.current.leafletElement.closePopup();
       }
-    }, [popupOpen]);
+    }, [ref, popupOpen]);
 
     const selectRoute = useCallback(
       (route) => () => {
@@ -67,19 +110,26 @@ const StopMarker = decorate(
       }
     }, [stop]);
 
-    const {lat, lng} = stop;
+    const {lat, lng} = stop || position || {};
 
     const onShowStreetView = useCallback(() => {
       onViewLocation(latLng({lat, lng}));
     }, [onViewLocation, stop]);
 
+    if (!stop && !position) {
+      return null;
+    }
+
     const {stop: selectedStop} = state;
 
-    const isSelected = selectedStop === stop.stopId;
-    const mode = getPriorityMode(get(stop, "modes", []));
-    const stopColor = getModeColor(mode);
+    const isSelected = selected || (stop && selectedStop === stop.stopId);
+    const stopIsTimingStop = isTimingStop || !!stop.isTimingStop;
+    const stopMode = !stop ? mode : getPriorityMode(get(stop, "modes", []));
+    const stopColor = color ? color : getModeColor(stopMode);
 
-    const popupElement = (
+    const popupElement = children ? (
+      children
+    ) : stop ? (
       <MapPopup onClose={() => (didAutoOpen.current = false)}>
         <StopPopupContent
           stop={stop}
@@ -88,7 +138,7 @@ const StopMarker = decorate(
           onShowStreetView={onShowStreetView}
         />
       </MapPopup>
-    );
+    ) : null;
 
     const markerPosition = latLng({lat, lng});
 
@@ -99,8 +149,20 @@ const StopMarker = decorate(
         position={markerPosition}
         icon={
           <IconWrapper>
-            <StopMarkerCircle big={isSelected} color={stopColor} />
-            {get(stop, "alerts", []).length !== 0 && (
+            <StopMarkerCircle
+              thickBorder={isTerminal}
+              isSelected={isSelected}
+              isHighlighted={highlighted}
+              dashed={dashedBorder}
+              big={!!(iconChildren || isSelected || isTerminal || stopIsTimingStop)}
+              color={stopColor}>
+              {stopIsTimingStop ? (
+                <img alt="Timing stop" src={timingStopIcon} />
+              ) : (
+                iconChildren
+              )}
+            </StopMarkerCircle>
+            {get(stop, "alerts", alerts).length !== 0 && (
               <MarkerIcons iconSize="0.875rem" objectWithAlerts={stop} />
             )}
           </IconWrapper>

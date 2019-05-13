@@ -13,8 +13,7 @@ import {getPriorityMode, getModeColor} from "../../helpers/vehicleColor";
 import {inject} from "../../helpers/inject";
 import StopPopupContent, {StopPopupContentSection} from "./StopPopupContent";
 import MapPopup from "./MapPopup";
-import DivIcon from "./DivIcon";
-import {IconWrapper, StopMarkerCircle, MarkerIcons} from "./StopMarker";
+import StopMarker from "./StopMarker";
 
 const StopOptionButton = styled.button`
   text-decoration: none;
@@ -35,18 +34,6 @@ const StopOptionButton = styled.button`
 const ChooseStopHeading = styled(Heading).attrs({level: 4})`
   margin-top: 0;
   margin-bottom: 0.5rem;
-`;
-
-const MarkerIcon = styled(StopMarkerCircle)`
-  width: 1.75rem;
-  height: 1.75rem;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.95rem;
-  line-height: 1.1;
-  color: ${({color = "var(--blue)"}) => color};
-  font-weight: bold;
-  display: flex;
 `;
 
 const decorate = flow(
@@ -124,19 +111,17 @@ const CompoundStopMarker = decorate(
       ? latLng(selectedStopObj.lat, selectedStopObj.lng)
       : bounds.getCenter();
 
-    const markerElement = (
-      <DivIcon
-        ref={markerRef}
-        icon={
-          <IconWrapper>
-            <MarkerIcon color={stopColor}>{stops.length}</MarkerIcon>
-            {alertsInCluster.length !== 0 && (
-              <MarkerIcons iconSize="0.875rem" objectWithAlerts={alertsInCluster} />
-            )}
-          </IconWrapper>
-        }
-        pane="stops"
-        position={markerPosition}>
+    return (
+      <StopMarker
+        popupOpen={popupOpen}
+        position={markerPosition}
+        mode={mode}
+        showRadius={showRadius}
+        onViewLocation={onViewLocation}
+        markerRef={markerRef}
+        alerts={alertsInCluster}
+        stop={selectedStopObj}
+        iconChildren={stops.length}>
         <MapPopup onClose={() => (didAutoOpen.current = false)}>
           <StopPopupContentSection>
             <ChooseStopHeading>Select stop:</ChooseStopHeading>
@@ -163,23 +148,7 @@ const CompoundStopMarker = decorate(
             />
           )}
         </MapPopup>
-      </DivIcon>
-    );
-
-    return showRadius && selectedStopObj ? (
-      <StopRadius
-        // The "pane" prop on the Circle element is not dynamic, so the
-        // StopRadius component should be remounted when selected or
-        // deselected for the circle to appear on the correct layer.
-        key={`stop_radius_${selectedStopObj.stopId}_selected`}
-        isHighlighted={true}
-        center={markerPosition}
-        color={stopColor}
-        radius={selectedStopObj.radius}>
-        {markerElement}
-      </StopRadius>
-    ) : (
-      markerElement
+      </StopMarker>
     );
   }
 );

@@ -1,7 +1,7 @@
 import React from "react";
 import {Tooltip} from "react-leaflet";
 import {latLng} from "leaflet";
-import {observer, inject} from "mobx-react";
+import {observer} from "mobx-react";
 import {P} from "../Typography";
 import {ColoredBackgroundSlot, PlainSlot, PlainSlotSmall, TagButton} from "../TagButton";
 import styled from "styled-components";
@@ -14,12 +14,10 @@ import {
   secondsToTimeObject,
 } from "../../helpers/time";
 import {Text} from "../../helpers/text";
-import {app} from "mobx-app";
 import {getTimelinessColor} from "../../helpers/timelinessColor";
 import doubleDigit from "../../helpers/doubleDigit";
 import {TimeHeading, StopHeading, StopArrivalTime, SmallText} from "../StopElements";
 import CalculateTerminalTime from "../sidepanel/journeyDetails/CalculateTerminalTime";
-import RouteStopMarker from "./RouteStopMarker";
 import getDelayType from "../../helpers/getDelayType";
 import StopPopupContent, {
   StopContentWrapper,
@@ -30,6 +28,7 @@ import StopPopupContent, {
 import MapPopup from "./MapPopup";
 import {Button} from "../Forms";
 import {getAlertsInEffect} from "../../helpers/getAlertsInEffect";
+import StopMarker from "./StopMarker";
 
 const PopupParagraph = styled(P)`
   font-family: var(--font-family);
@@ -72,6 +71,8 @@ class RouteStop extends React.Component {
       highlighted,
     } = this.props;
 
+    console.log(stop);
+
     const isTerminal = firstTerminal || lastTerminal;
 
     let stopTooltip = (
@@ -101,16 +102,17 @@ class RouteStop extends React.Component {
       !departure.observedArrivalTime
     ) {
       return (
-        <RouteStopMarker
+        <StopMarker
           key={`route_stop_marker_${stop.stopId}`}
-          delayType="none"
           color={color}
           isTerminal={isTerminal}
           stop={stop}
+          isTimingStop={get(stop, "isTimingStop", false)}
           showRadius={showRadius}
+          highlighted={highlighted}
           selected={selected}>
           {markerChildren}
-        </RouteStopMarker>
+        </StopMarker>
       );
     }
 
@@ -351,18 +353,18 @@ class RouteStop extends React.Component {
     markerChildren = [stopTooltip, stopPopup];
 
     return (
-      <RouteStopMarker
+      <StopMarker
         key={`journey_stop_marker_${stop.stopId}`}
-        doorDidOpen={doorDidOpen}
-        delayType={departureDelayType}
+        dashedBorder={!doorDidOpen}
         color={color}
+        isTimingStop={get(stop, "isTimingStop", false)}
         isTerminal={isTerminal}
         stop={stop}
         showRadius={showRadius}
         highlighted={highlighted}
         selected={selected}>
         {markerChildren}
-      </RouteStopMarker>
+      </StopMarker>
     );
   }
 }
