@@ -66,7 +66,7 @@ const RouteSettings = decorate(({Filters, state: {route, date}}) => {
                       <br />
                       {selectedRoute.origin} - {selectedRoute.destination}
                     </SuggestionText>
-                    <SuggestionAlerts alerts={getAlertsInEffect(selectedRoute)} />
+                    <SuggestionAlerts alerts={getAlertsInEffect(selectedRoute, date)} />
                   </SelectedOptionDisplay>
                 )}
               </>

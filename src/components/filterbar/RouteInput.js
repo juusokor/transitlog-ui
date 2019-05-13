@@ -21,6 +21,7 @@ const decorate = flow(
 
 const renderSuggestion = (date) => (suggestion, {isHighlighted}) => {
   const {routeId, direction, origin, destination} = suggestion;
+  const suggestionAlerts = getAlertsInEffect(suggestion, date);
 
   return (
     <SuggestionContent
@@ -32,7 +33,7 @@ const renderSuggestion = (date) => (suggestion, {isHighlighted}) => {
         <br />
         {origin} - {destination}
       </SuggestionText>
-      <SuggestionAlerts alerts={getAlertsInEffect(suggestion, date)} />
+      {suggestionAlerts.length !== 0 && <SuggestionAlerts alerts={suggestionAlerts} />}
     </SuggestionContent>
   );
 };
