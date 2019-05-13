@@ -364,7 +364,7 @@ class RouteStop extends React.Component {
         isTimingStop={get(stop, "isTimingStop", false)}
         isTerminal={isTerminal}
         stop={stop}
-        alerts={getAlertsInEffect(stop, stopDepartureDateTime)}
+        alerts={getAlertsInEffect(departure, stopDepartureDateTime)}
         showRadius={showRadius}
         highlighted={highlighted}
         selected={selected}>
