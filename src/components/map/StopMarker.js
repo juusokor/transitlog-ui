@@ -20,8 +20,8 @@ const decorate = flow(
 );
 
 export const StopMarkerCircle = styled.div`
-  width: ${({big = false}) => (big ? "2.2rem" : "1.5rem")};
-  height: ${({big = false}) => (big ? "2.2rem" : "1.5rem")};
+  width: ${({big = false}) => (big ? "2.2rem" : "1.275rem")};
+  height: ${({big = false}) => (big ? "2.2rem" : "1.275rem")};
   border-radius: 50%;
   border: ${({thickBorder = false}) => (thickBorder ? "4px" : "3px")}
     ${({dashed = false}) => (dashed ? "dashed" : "solid")}
