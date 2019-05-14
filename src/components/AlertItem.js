@@ -11,6 +11,7 @@ import {observer} from "mobx-react-lite";
 import {AlertDistribution} from "../helpers/getAlertsInEffect";
 import BusStop from "../icons/BusStop";
 import JourneyPlanner from "../icons/JourneyPlanner";
+import HSLLogoNoText from "../icons/HSLLogoNoText";
 
 const AlertComponent = styled.div`
   font-family: var(--font-family);
@@ -165,16 +166,19 @@ const AlertItem = observer(({alert}) => {
     ? moment.tz(alert.updatedDateTime, TIMEZONE)
     : null;
 
-  let TypeIcon = null;
+  let TypeIcon = HSLLogoNoText;
+  let type = "network";
 
   if (
     [AlertDistribution.AllRoutes, AlertDistribution.Route].includes(alert.distribution)
   ) {
     TypeIcon = JourneyPlanner;
+    type = "route";
   }
 
   if ([AlertDistribution.AllStops, AlertDistribution.Stop].includes(alert.distribution)) {
     TypeIcon = BusStop;
+    type = "stop";
   }
 
   return (
@@ -186,7 +190,10 @@ const AlertItem = observer(({alert}) => {
               <Icon width="1.25rem" fill={color} />
               <AlertType>
                 {TypeIcon && <TypeIcon fill="var(--grey)" width="1rem" />}
-                {alert.affectedId || "*"}
+                {alert.affectedId ||
+                  `All ${
+                    type === "route" ? "routes" : type === "stop" ? "stops" : "traffic"
+                  }`}
               </AlertType>
               <AlertTimeDisplay alert={alert} />
             </Row>
