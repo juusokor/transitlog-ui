@@ -76,7 +76,7 @@ const NetworkAlerts = decorate(({state}) => {
 
   return (
     <AlertsContainer>
-      <AlertsQuery time={alertTime}>
+      <AlertsQuery time={alertTime} alertSearch={{network: true}}>
         {({alerts = []}) => (
           <Observer>
             {() => {

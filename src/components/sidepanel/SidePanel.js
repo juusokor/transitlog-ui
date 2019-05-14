@@ -19,6 +19,7 @@ import {inject} from "../../helpers/inject";
 import JourneysByWeek from "./JourneysByWeek";
 import getWeek from "date-fns/get_iso_week";
 import getJourneyId from "../../helpers/getJourneyId";
+import Alerts from "./Alerts";
 
 const SidePanelContainer = styled.div`
   background: var(--lightest-grey);
@@ -150,7 +151,7 @@ const SidePanel = decorate((props) => {
     <SidePanelContainer visible={sidePanelOpen}>
       <MainSidePanel>
         {allTabsHidden ? (
-          <UsageInstructions language={language} />
+          <Alerts language={language} />
         ) : (
           <Tabs suggestedTab={suggestedTab}>
             {(areaEvents.length !== 0 || areaJourneysLoading) && (
@@ -196,6 +197,7 @@ const SidePanel = decorate((props) => {
                 label={text("sidepanel.tabs.timetables")}
               />
             )}
+            <Alerts helpText="All alerts" name="alerts" label="Alerts" />
           </Tabs>
         )}
       </MainSidePanel>

@@ -46,53 +46,43 @@ export const getAlertsInEffect = (
     objectWithAlerts && Array.isArray(objectWithAlerts) ? objectWithAlerts : []
   );
 
-  return alerts
-    .reduce((alerts, alert) => {
-      if (
-        !currentMoment.isBetween(
-          alert.startDateTime,
-          alert.endDateTime,
-          timeIsDate ? "day" : "minute",
-          "[]"
-        )
-      ) {
-        return alerts;
-      }
-
-      // If we're given an array of alerts, we are only interested in matching them to
-      // the time argument. Thus return them without further matching.
-      if (Array.isArray(objectWithAlerts)) {
-        alerts.push(alert);
-        return alerts;
-      }
-
-      if (includeNetworkAlerts && alert.distribution === AlertDistribution.Network) {
-        alerts.push(alert);
-      } else if (
-        (alert.distribution === AlertDistribution.Route &&
-          objectWithAlerts.routeId === alert.affectedId) ||
-        (alert.distribution === AlertDistribution.AllRoutes &&
-          typeof objectWithAlerts.routeId !== "undefined")
-      ) {
-        alerts.push(alert);
-      } else if (
-        (alert.distribution === AlertDistribution.Stop &&
-          objectWithAlerts.stopId === alert.affectedId) ||
-        (alert.distribution === AlertDistribution.AllStops &&
-          typeof objectWithAlerts.stopId !== "undefined")
-      ) {
-        alerts.push(alert);
-      }
-
+  return alerts.reduce((alerts, alert) => {
+    if (
+      !currentMoment.isBetween(
+        alert.startDateTime,
+        alert.endDateTime,
+        timeIsDate ? "day" : "minute",
+        "[]"
+      )
+    ) {
       return alerts;
-    }, [])
-    .sort((a, b) => {
-      const sortVal = {
-        [AlertLevel.Severe]: 2,
-        [AlertLevel.Warning]: 1,
-        [AlertLevel.Info]: 0,
-      };
+    }
 
-      return sortVal[a.level] >= sortVal[b.level] ? -1 : 1;
-    });
+    // If we're given an array of alerts, we are only interested in matching them to
+    // the time argument. Thus return them without further matching.
+    if (Array.isArray(objectWithAlerts)) {
+      alerts.push(alert);
+      return alerts;
+    }
+
+    if (includeNetworkAlerts && alert.distribution === AlertDistribution.Network) {
+      alerts.push(alert);
+    } else if (
+      (alert.distribution === AlertDistribution.Route &&
+        objectWithAlerts.routeId === alert.affectedId) ||
+      (alert.distribution === AlertDistribution.AllRoutes &&
+        typeof objectWithAlerts.routeId !== "undefined")
+    ) {
+      alerts.push(alert);
+    } else if (
+      (alert.distribution === AlertDistribution.Stop &&
+        objectWithAlerts.stopId === alert.affectedId) ||
+      (alert.distribution === AlertDistribution.AllStops &&
+        typeof objectWithAlerts.stopId !== "undefined")
+    ) {
+      alerts.push(alert);
+    }
+
+    return alerts;
+  }, []);
 };

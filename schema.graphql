@@ -403,6 +403,7 @@ enum CacheControlScope {
 }
 
 input AlertSearchInput {
+  all: Boolean
   allRoutes: Boolean
   allStops: Boolean
   network: Boolean

@@ -6,8 +6,9 @@ import {observer} from "mobx-react";
 import {AlertFieldsFragment} from "./AlertFieldsFragment";
 
 const alertsQuery = gql`
-  query routeOptionsQuery(
+  query alertsQuery(
     $time: String!
+    $all: Boolean
     $network: Boolean
     $allRoutes: Boolean
     $allStops: Boolean
@@ -17,6 +18,7 @@ const alertsQuery = gql`
     alerts(
       time: $time
       alertSearch: {
+        all: $all
         network: $network
         allRoutes: $allRoutes
         allStops: $allStops
@@ -30,11 +32,9 @@ const alertsQuery = gql`
   ${AlertFieldsFragment}
 `;
 
-const AlertsQuery = observer(({time, children}) => {
-  // TODO: Enable all alert search queries through props if needed.
-
+const AlertsQuery = observer(({time, alertSearch, children}) => {
   return (
-    <Query query={alertsQuery} variables={{time, network: true}}>
+    <Query query={alertsQuery} variables={{time, ...alertSearch}}>
       {({loading, error, data}) => {
         const alerts = get(data, "alerts", []);
 
