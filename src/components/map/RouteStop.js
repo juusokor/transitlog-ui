@@ -356,6 +356,8 @@ class RouteStop extends React.Component {
       get(departure, "plannedDepartureTime.departureDateTime", date)
     );
 
+    const stopAlerts = getAlertsInEffect(stop, stopDepartureDateTime);
+
     return (
       <StopMarker
         key={`journey_stop_marker_${stop.stopId}`}
@@ -364,7 +366,7 @@ class RouteStop extends React.Component {
         isTimingStop={get(stop, "isTimingStop", false)}
         isTerminal={isTerminal}
         stop={stop}
-        alerts={getAlertsInEffect(departure, stopDepartureDateTime)}
+        alerts={stopAlerts}
         showRadius={showRadius}
         highlighted={highlighted}
         selected={selected}>

@@ -96,6 +96,9 @@ export const journeyQuery = gql`
           shortId
           stopId
           stopIndex
+          alerts {
+            ...AlertFieldsFragment
+          }
         }
         plannedArrivalTime {
           id
