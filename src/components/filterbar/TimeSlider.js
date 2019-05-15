@@ -108,7 +108,7 @@ const TimeSlider = decorate(({className, Time, state, journeys}) => {
 
   rangeMin = isNaN(rangeMin) ? TIME_SLIDER_MIN : rangeMin;
   rangeMax = isNaN(rangeMax) ? TIME_SLIDER_MAX : rangeMax;
-  const currentValue = Math.max(numericTime, rangeMin);
+  const currentValue = Math.max(Math.min(numericTime, rangeMax), rangeMin);
 
   const valuePosition = useMemo(() => {
     let point = (currentValue - rangeMin) / (rangeMax - rangeMin);
