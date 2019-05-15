@@ -58,17 +58,24 @@ const MapContent = decorate(
           onSelectArea={setQueryBounds}
         />
         {/* When a route is NOT selected... */}
-        {!hasRoute && (
-          <>
-            {zoom > 14 ? (
-              <StopLayer
-                showRadius={showStopRadius}
-                onViewLocation={viewLocation}
-                date={date}
-                bounds={mapBounds}
-              />
-            ) : null}
-          </>
+        {!hasRoute && zoom > 14 ? (
+          <StopLayer
+            showRadius={showStopRadius}
+            onViewLocation={viewLocation}
+            date={date}
+            bounds={mapBounds}
+          />
+        ) : (
+          !hasRoute &&
+          stop && (
+            <StopMarker
+              showRadius={showStopRadius}
+              stop={stop}
+              onViewLocation={viewLocation}
+              popupOpen={true}
+              date={date}
+            />
+          )
         )}
         {/* When a route IS selected... */}
         {hasRoute && (
@@ -93,7 +100,9 @@ const MapContent = decorate(
               }
             </RouteGeometryQuery>
 
-            {!journeys.find((journey) => selectedJourneyId === journey.id) && (
+            {(!selectedJourneyId ||
+              journeys.length === 0 ||
+              !journeys.find((journey) => selectedJourneyId === journey.id)) && (
               <RouteStopsLayer
                 showRadius={showStopRadius}
                 onViewLocation={viewLocation}
@@ -199,15 +208,6 @@ const MapContent = decorate(
               events={selectedJourneyEvents}
             />
           ))}
-        {stop && (
-          <StopMarker
-            showRadius={showStopRadius}
-            stop={stop}
-            onViewLocation={viewLocation}
-            popupOpen={true}
-            date={date}
-          />
-        )}
       </>
     );
   }

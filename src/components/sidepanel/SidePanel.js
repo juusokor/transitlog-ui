@@ -18,6 +18,8 @@ import flow from "lodash/flow";
 import {inject} from "../../helpers/inject";
 import JourneysByWeek from "./JourneysByWeek";
 import getWeek from "date-fns/get_iso_week";
+import getJourneyId from "../../helpers/getJourneyId";
+import Alerts from "./Alerts";
 
 const SidePanelContainer = styled.div`
   background: var(--lightest-grey);
@@ -88,13 +90,15 @@ const MainSidePanel = styled.div`
   border-right: 1px solid var(--alt-grey);
   width: 22rem;
   position: relative;
-  z-index: 1;
+  z-index: 10;
   display: grid;
   grid-template-rows: 1fr;
   flex-direction: column;
 `;
 
 const JourneyPanel = styled.div`
+  position: relative;
+  z-index: 5;
   transition: margin-left 0.2s ease-out;
   margin-left: ${({visible}) =>
     visible ? 0 : "-22rem"}; // Makes the map area larger when the sidebar is hidden
@@ -117,22 +121,21 @@ const SidePanel = decorate((props) => {
     journeyLoading = false,
     areaJourneysLoading = false,
     stop,
-    detailsOpen,
+    route,
     sidePanelOpen,
+    detailsOpen,
     state: {
       language,
-      route,
       date,
       vehicle,
       stop: stateStop,
       selectedJourney,
       sidePanelVisible,
-      journeyDetailsOpen,
+      showInstructions = false,
     },
   } = props;
 
   const hasRoute = !!route && !!route.routeId;
-  const hasJourney = !!journey;
   // Figure out which tab is suggested. It will not be outright selected, but
   // if it appears and nothing else is selected then it will be.
   let suggestedTab = "";
@@ -150,11 +153,15 @@ const SidePanel = decorate((props) => {
     !vehicle &&
     !stateStop;
 
+  const detailsCanOpen = getJourneyId(selectedJourney) || route;
+
   return (
     <SidePanelContainer visible={sidePanelOpen}>
       <MainSidePanel>
-        {allTabsHidden ? (
-          <UsageInstructions language={language} />
+        {showInstructions ? (
+          <UsageInstructions />
+        ) : allTabsHidden ? (
+          <Alerts language={language} />
         ) : (
           <Tabs suggestedTab={suggestedTab}>
             {(areaEvents.length !== 0 || areaJourneysLoading) && (
@@ -200,30 +207,31 @@ const SidePanel = decorate((props) => {
                 label={text("sidepanel.tabs.timetables")}
               />
             )}
+            <Alerts helpText="All alerts" name="alerts" label="Alerts" />
           </Tabs>
         )}
       </MainSidePanel>
-      <JourneyPanel visible={detailsOpen || (journeyDetailsOpen && journeyLoading)}>
+      <JourneyPanel visible={detailsOpen}>
         {/* The content of the sidebar is independent from the sidebar wrapper so that we can animate it. */}
-        {(detailsOpen || (journeyDetailsOpen && journeyLoading)) && (
-          <JourneyDetails loading={journeyLoading} journey={journey} />
+        {detailsOpen && (
+          <JourneyDetails loading={journeyLoading} journey={journey} route={route} />
         )}
-        {(hasJourney || journeyLoading) && (
-          <div>
+        <div>
+          {detailsCanOpen && (
             <Tooltip helpText="Toggle journey details button">
               <ToggleJourneyDetailsButton onClick={() => toggleJourneyDetails()}>
                 <Info fill="white" height="1rem" width="1rem" />
               </ToggleJourneyDetailsButton>
             </Tooltip>
+          )}
+          {!!journey && (
             <Tooltip>
-              <ToggleGraphButton
-                isVisible={detailsOpen}
-                onClick={() => toggleJourneyGraph()}>
+              <ToggleGraphButton onClick={() => toggleJourneyGraph()}>
                 <Chart fill="white" height="1rem" width="1rem" />
               </ToggleGraphButton>
             </Tooltip>
-          </div>
-        )}
+          )}
+        </div>
       </JourneyPanel>
       <Tooltip helpText="Toggle sidebar button">
         <ToggleSidePanelButton

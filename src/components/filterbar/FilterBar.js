@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import DateSettings from "./DateSettings";
 import TimeSettings from "./TimeSettings";
-import {observer, inject} from "mobx-react";
+import {observer} from "mobx-react";
 import styled from "styled-components";
 import TimeSlider from "./TimeSlider";
 import AdditionalTimeSettings from "./AdditionalTimeSettings";
@@ -10,7 +10,7 @@ import FilterSection from "./FilterSection";
 import Header from "./Header";
 import VehicleSettings from "./VehicleSettings";
 import StopSettings from "./StopSettings";
-import {app} from "mobx-app";
+import NetworkAlerts from "../NetworkAlerts";
 
 const SiteHeader = styled(Header)`
   flex: 0 0 auto;
@@ -23,9 +23,8 @@ const FilterBarWrapper = styled.div`
   color: var(--dark-grey);
   border-bottom: 1px solid var(--alt-grey);
   overflow: visible;
-  height: 100%;
   display: flex;
-  flex: 1 1 100%;
+  flex: none;
   flex-direction: column;
   position: relative;
 `;
@@ -51,18 +50,17 @@ const CalendarRoot = styled.div`
   margin-left: 2.5rem;
 `;
 
-@inject(app("state"))
 @observer
 class FilterBar extends Component {
   calendarRootRef = React.createRef();
 
   render() {
-    const {state, journeys = []} = this.props;
-    const {sidePanelVisible: visible} = state;
+    const {className, journeys = []} = this.props;
 
     return (
-      <FilterBarWrapper visible={visible}>
+      <FilterBarWrapper className={className}>
         <SiteHeader />
+        <NetworkAlerts />
         <FilterBarGrid>
           <FilterSection scrollable={true}>
             <DateSettings calendarRootRef={this.calendarRootRef} />

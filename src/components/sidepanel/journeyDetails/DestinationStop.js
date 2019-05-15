@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useCallback} from "react";
 import {
   StopElementsWrapper,
   StopMarker,
@@ -28,12 +28,15 @@ export default ({
 
   const stop = departure.stop;
 
-  const selectWithStopId = onSelectStop(stop.stopId);
+  const selectWithStopId = useCallback(() => onSelectStop(stop.stopId), [stop.stopId]);
+  const hoverWithStopId = useCallback(() => onHoverStop(stop.stopId), [stop.stopId]);
+  const hoverReset = useCallback(() => onHoverStop(""), []);
+
   let onStopClick = selectWithStopId;
 
   const hoverProps = {
-    onMouseEnter: onHoverStop(stop.stopId),
-    onMouseLeave: onHoverStop(""),
+    onMouseEnter: hoverWithStopId,
+    onMouseLeave: hoverReset,
   };
 
   // Bail here if we don't have data about stop arrival and departure times.
@@ -43,8 +46,8 @@ export default ({
         <StopElementsWrapper color={color} terminus="destination">
           <StopMarker color={color} onClick={onStopClick} {...hoverProps} />
         </StopElementsWrapper>
-        <StopContent>
-          <StopHeading onClick={onStopClick} {...hoverProps}>
+        <StopContent {...hoverProps}>
+          <StopHeading onClick={onStopClick}>
             <strong>{stop.name}</strong> {stop.stopId} ({stop.shortId.replace(/ /g, "")})
           </StopHeading>
         </StopContent>
@@ -53,7 +56,7 @@ export default ({
   }
 
   const stopArrivalTime = departure.observedArrivalTime.arrivalTime;
-  const selectArrivalTime = onClickTime(stopArrivalTime);
+  const selectArrivalTime = () => onClickTime(stopArrivalTime);
 
   onStopClick = () => {
     selectWithStopId();
@@ -65,8 +68,8 @@ export default ({
       <StopElementsWrapper color={color} terminus="destination">
         <StopMarker color={color} onClick={onStopClick} {...hoverProps} />
       </StopElementsWrapper>
-      <StopContent terminus="destination">
-        <StopHeading onClick={onStopClick} {...hoverProps}>
+      <StopContent terminus="destination" {...hoverProps}>
+        <StopHeading onClick={onStopClick}>
           <strong>{stop.name}</strong> {stop.stopId} ({stop.shortId.replace(/ /g, "")})
         </StopHeading>
         <CalculateTerminalTime

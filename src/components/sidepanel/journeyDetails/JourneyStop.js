@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useCallback} from "react";
 import get from "lodash/get";
 import styled from "styled-components";
 import {
@@ -57,12 +57,15 @@ export default ({
 
   const stop = departure.stop;
 
-  const selectWithStopId = onSelectStop(stop.stopId);
+  const selectWithStopId = useCallback(() => onSelectStop(stop.stopId), [stop.stopId]);
+  const hoverWithStopId = useCallback(() => onHoverStop(stop.stopId), [stop.stopId]);
+  const hoverReset = useCallback(() => onHoverStop(""), []);
+
   let onStopClick = selectWithStopId;
 
   const hoverProps = {
-    onMouseEnter: onHoverStop(stop.stopId),
-    onMouseLeave: onHoverStop(""),
+    onMouseEnter: hoverWithStopId,
+    onMouseLeave: hoverReset,
   };
 
   // Bail early if we don't have all the data yet.
@@ -76,8 +79,8 @@ export default ({
             <StopMarker color={color} onClick={onStopClick} {...hoverProps} />
           )}
         </StopElementsWrapper>
-        <StopContent>
-          <StopHeading onClick={onStopClick} {...hoverProps}>
+        <StopContent {...hoverProps}>
+          <StopHeading onClick={onStopClick}>
             <strong>{stop.name}</strong> {stop.stopId} ({stop.shortId.replace(/ /g, "")})
           </StopHeading>
         </StopContent>
@@ -88,7 +91,7 @@ export default ({
   const stopArrivalTime = get(departure, "observedArrivalTime.arrivalTime", "");
   const stopDepartureTime = get(departure, "observedDepartureTime.departureTime", "");
 
-  const selectDepartureTime = onClickTime(stopDepartureTime);
+  const selectDepartureTime = () => onClickTime(stopDepartureTime);
 
   onStopClick = () => {
     selectWithStopId();
@@ -114,8 +117,8 @@ export default ({
           <StopMarker color={color} onClick={onStopClick} {...hoverProps} />
         )}
       </StopElementsWrapper>
-      <StopContent>
-        <StopHeading onClick={onStopClick} {...hoverProps}>
+      <StopContent {...hoverProps}>
+        <StopHeading onClick={onStopClick}>
           <strong>{stop.name}</strong> {stop.stopId} ({stop.shortId.replace(/ /g, "")})
         </StopHeading>
         {showPlannedArrivalTime ? (

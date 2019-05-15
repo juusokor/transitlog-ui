@@ -1,8 +1,13 @@
-import React from "react";
-import SuggestionInput, {SuggestionContent, SuggestionText} from "./SuggestionInput";
+import React, {useMemo} from "react";
+import SuggestionInput, {
+  SuggestionContent,
+  SuggestionText,
+  SuggestionAlerts,
+} from "./SuggestionInput";
 import get from "lodash/get";
 import {observer} from "mobx-react-lite";
 import {useSearchOptions} from "../../hooks/useSearchOptions";
+import {getAlertsInEffect} from "../../helpers/getAlertsInEffect";
 
 const getSuggestionValue = (suggestion) => {
   if (typeof suggestion === "string") {
@@ -12,20 +17,28 @@ const getSuggestionValue = (suggestion) => {
   return get(suggestion, "stopId", "");
 };
 
-const renderSuggestion = (suggestion, {query, isHighlighted}) => (
-  <SuggestionContent isHighlighted={isHighlighted}>
-    <SuggestionText>
-      <strong>
-        {suggestion.stopId} ({suggestion.shortId.replace(/ /g, "")})
-      </strong>
-      <br />
-      {suggestion.name}
-    </SuggestionText>
-  </SuggestionContent>
-);
+const renderSuggestion = (date) => (suggestion, {query, isHighlighted}) => {
+  const suggestionAlerts = getAlertsInEffect(suggestion, date);
 
-export default observer(({stops, onSelect, stop, search}) => {
+  return (
+    <SuggestionContent isHighlighted={isHighlighted}>
+      <SuggestionText>
+        <strong>
+          {suggestion.stopId} ({suggestion.shortId.replace(/ /g, "")})
+        </strong>
+        <br />
+        {suggestion.name}
+      </SuggestionText>
+      {suggestionAlerts.length !== 0 && (
+        <SuggestionAlerts alerts={getAlertsInEffect(suggestion, date)} />
+      )}
+    </SuggestionContent>
+  );
+};
+
+export default observer(({date, stops, onSelect, stop, search}) => {
   const [getSuggestions] = useSearchOptions(search);
+  const renderSuggestionFn = useMemo(() => renderSuggestion(date), [date]);
 
   return (
     <SuggestionInput
@@ -35,7 +48,7 @@ export default observer(({stops, onSelect, stop, search}) => {
       onSelect={onSelect}
       getValue={getSuggestionValue}
       highlightFirstSuggestion={true}
-      renderSuggestion={renderSuggestion}
+      renderSuggestion={renderSuggestionFn}
       suggestions={stops.slice(0, 100)}
       onSuggestionsFetchRequested={getSuggestions}
     />

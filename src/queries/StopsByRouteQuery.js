@@ -3,6 +3,7 @@ import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import get from "lodash/get";
 import {observer} from "mobx-react";
+import {AlertFieldsFragment} from "./AlertFieldsFragment";
 
 const stopsByRouteQuery = gql`
   query routeSegments($routeId: String!, $direction: Direction!, $date: Date!) {
@@ -25,8 +26,12 @@ const stopsByRouteQuery = gql`
       duration
       stopIndex
       isTimingStop
+      alerts {
+        ...AlertFieldsFragment
+      }
     }
   }
+  ${AlertFieldsFragment}
 `;
 
 export default observer(({children, route, date, skip}) => {

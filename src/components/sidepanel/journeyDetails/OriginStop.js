@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useCallback} from "react";
 import get from "lodash/get";
 import {
   StopElementsWrapper,
@@ -30,7 +30,7 @@ const OriginStop = observer(
     departure = null,
     color,
     date,
-    onClickTime,
+    onClickTime = () => {},
     onSelectStop = () => {},
     onHoverStop = () => {},
     stopsExpanded,
@@ -41,12 +41,15 @@ const OriginStop = observer(
 
     const stop = departure.stop;
 
-    const selectWithStopId = onSelectStop(stop.stopId);
+    const selectWithStopId = useCallback(() => onSelectStop(stop.stopId), [stop.stopId]);
+    const hoverWithStopId = useCallback(() => onHoverStop(stop.stopId), [stop.stopId]);
+    const hoverReset = useCallback(() => onHoverStop(""), []);
+
     let onStopClick = selectWithStopId;
 
     const hoverProps = {
-      onMouseEnter: onHoverStop(stop.stopId),
-      onMouseLeave: onHoverStop(""),
+      onMouseEnter: hoverWithStopId,
+      onMouseLeave: hoverReset,
     };
 
     // Bail here if we don't have data about departure arrival and departure times.
@@ -56,8 +59,8 @@ const OriginStop = observer(
           <StopElementsWrapper color={color} terminus={"origin"}>
             <StopMarker color={color} onClick={onStopClick} {...hoverProps} />
           </StopElementsWrapper>
-          <OriginStopContent stopsExpanded={stopsExpanded}>
-            <StopHeading onClick={onStopClick} {...hoverProps}>
+          <OriginStopContent stopsExpanded={stopsExpanded} {...hoverProps}>
+            <StopHeading onClick={onStopClick}>
               <strong>{stop.name}</strong> {stop.stopId} ({stop.shortId.replace(/ /g, "")}
               )
             </StopHeading>
@@ -69,7 +72,7 @@ const OriginStop = observer(
     const stopArrivalTime = get(departure, "observedArrivalTime.arrivalTime", "");
     const stopDepartureTime = get(departure, "observedDepartureTime.departureTime", "");
 
-    const selectDepartureTime = onClickTime(stopDepartureTime);
+    const selectDepartureTime = () => onClickTime(stopDepartureTime);
 
     onStopClick = () => {
       selectWithStopId();
@@ -85,8 +88,11 @@ const OriginStop = observer(
         <StopElementsWrapper color={color} terminus="origin">
           <StopMarker color={color} onClick={onStopClick} {...hoverProps} />
         </StopElementsWrapper>
-        <OriginStopContent terminus="origin" stopsExpanded={stopsExpanded}>
-          <StopHeading onClick={onStopClick} {...hoverProps}>
+        <OriginStopContent
+          terminus="origin"
+          stopsExpanded={stopsExpanded}
+          {...hoverProps}>
+          <StopHeading onClick={onStopClick}>
             <strong>{stop.name}</strong> {stop.stopId} ({stop.shortId.replace(/ /g, "")})
           </StopHeading>
           <CalculateTerminalTime

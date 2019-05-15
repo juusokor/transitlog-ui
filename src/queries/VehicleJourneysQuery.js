@@ -6,6 +6,7 @@ import {observer} from "mobx-react-lite";
 import {Query} from "react-apollo";
 import {removeUpdateListener, setUpdateListener} from "../stores/UpdateManager";
 import {timeToSeconds} from "../helpers/time";
+import {AlertFieldsFragment} from "./AlertFieldsFragment";
 
 export const hfpQuery = gql`
   query vehicleJourneysQuery($date: Date!, $uniqueVehicleId: VehicleId!) {
@@ -28,8 +29,12 @@ export const hfpQuery = gql`
       recordedTime
       timeDifference
       nextStopId
+      alerts {
+        ...AlertFieldsFragment
+      }
     }
   }
+  ${AlertFieldsFragment}
 `;
 
 const updateListenerName = "vehicle hfp query";

@@ -10,7 +10,23 @@ interface Position {
   lng: Float
 }
 
+type Alert {
+  affectedId: String!
+  category: AlertCategory!
+  description: String!
+  distribution: AlertDistribution!
+  endDateTime: DateTime!
+  impact: AlertImpact!
+  level: AlertLevel!
+  publishedDateTime: DateTime!
+  startDateTime: DateTime!
+  title: String!
+  updatedDateTime: DateTime
+  url: String
+}
+
 type AreaJourney {
+  alerts: [Alert!]!
   departureDate: Date!
   departureTime: Time!
   direction: Direction!
@@ -25,7 +41,18 @@ type AreaJourney {
   vehicleId: String
 }
 
+type Cancellation {
+  departureDate: Date!
+  direction: Direction!
+  id: ID!
+  isCancelled: Boolean
+  journeyStartTime: Time!
+  reason: String
+  routeId: String!
+}
+
 type Departure {
+  alerts: [Alert!]!
   dayType: String!
   departureId: Int!
   direction: Direction!
@@ -54,6 +81,7 @@ type Departure {
 
 type DepartureJourney {
   _numInstance: Int
+  alerts: [Alert!]!
   departureDate: Date!
   departureTime: Time!
   direction: Direction!
@@ -94,6 +122,7 @@ type ExceptionDay {
 }
 
 type Journey {
+  alerts: [Alert!]!
   departureDate: Date!
   departureTime: Time!
   departures: [Departure!]!
@@ -171,6 +200,7 @@ type PlannedDeparture {
 }
 
 type Query {
+  alerts(alertSearch: AlertSearchInput, time: String): [Alert]!
   departures(date: Date!, filter: DepartureFilterInput, stopId: String!): [Departure]!
   equipment(date: Date, filter: EquipmentFilterInput): [Equipment]!
   eventsByBbox(bbox: PreciseBBox!, date: Date!, filters: AreaEventsFilterInput, maxTime: DateTime!, minTime: DateTime!): [AreaJourney]!
@@ -192,6 +222,7 @@ type Query {
 
 type Route {
   _matchScore: Float
+  alerts: [Alert!]!
   destination: String
   destinationStopId: String
   direction: Direction!
@@ -216,6 +247,7 @@ type RouteGeometryPoint implements Position {
 }
 
 type RouteSegment implements Position {
+  alerts: [Alert!]!
   destination: String!
   direction: Direction!
   distanceFromPrevious: Int
@@ -238,6 +270,7 @@ type RouteSegment implements Position {
 
 type SimpleStop implements Position {
   _matchScore: Float
+  alerts: [Alert!]!
   id: ID!
   lat: Float!
   lng: Float!
@@ -249,13 +282,14 @@ type SimpleStop implements Position {
 }
 
 type Stop implements Position {
+  alerts: [Alert!]!
   id: ID!
   lat: Float!
   lng: Float!
   modes: [String]!
   name: String
   radius: Float
-  routes: [StopRoute]!
+  routes: [StopRoute!]!
   shortId: String!
   stopId: String!
 }
@@ -271,6 +305,7 @@ type StopRoute {
 }
 
 type VehicleJourney {
+  alerts: [Alert!]!
   departureDate: Date!
   departureTime: Time!
   direction: Direction!
@@ -291,9 +326,89 @@ type VehicleJourney {
   vehicleId: String
 }
 
+enum AlertCategory {
+  ACCIDENT
+  ASSAULT
+  DISTURBANCE
+  EARLIER_DISRUPTION
+  ITS_SYSTEM_ERROR
+  MEDICAL_INCIDENT
+  MISPARKED_VEHICLE
+  NO_DRIVER
+  NO_TRAFFIC_DISRUPTION
+  OTHER
+  OTHER_DRIVER_ERROR
+  POWER_FAILURE
+  PUBLIC_EVENT
+  ROAD_CLOSED
+  ROAD_MAINTENANCE
+  ROAD_TRENCH
+  SEIZURE
+  STAFF_DEFICIT
+  STATE_VISIT
+  STRIKE
+  SWITCH_FAILURE
+  TECHNICAL_FAILURE
+  TEST
+  TOO_MANY_PASSENGERS
+  TRACK_BLOCKED
+  TRACK_MAINTENANCE
+  TRAFFIC_ACCIDENT
+  TRAFFIC_JAM
+  VEHICLE_BREAKDOWN
+  VEHICLE_DEFICIT
+  VEHICLE_OFF_THE_ROAD
+  WEATHER
+  WEATHER_CONDITIONS
+}
+
+enum AlertDistribution {
+  ALL_ROUTES
+  ALL_STOPS
+  NETWORK
+  ROUTE
+  STOP
+}
+
+enum AlertImpact {
+  BICYCLE_STATION_OUT_OF_ORDER
+  BICYCLE_SYSTEM_OUT_OF_ORDER
+  CANCELLED
+  DELAYED
+  DEVIATING_SCHEDULE
+  DISRUPTION_ROUTE
+  IRREGULAR_DEPARTURES
+  IRREGULAR_DEPARTURES_MAX_15
+  IRREGULAR_DEPARTURES_MAX_30
+  NO_TRAFFIC_IMPACT
+  OTHER
+  POSSIBLE_DEVIATIONS
+  POSSIBLY_DELAYED
+  REDUCED_BICYCLE_PARK_CAPACITY
+  REDUCED_TRANSPORT
+  RETURNING_TO_NORMAL
+  UNKNOWN
+  VENDING_MACHINE_OUT_OF_ORDER
+}
+
+enum AlertLevel {
+  INFO
+  SEVERE
+  WARNING
+}
+
 enum CacheControlScope {
   PRIVATE
   PUBLIC
+}
+
+input AlertSearchInput {
+  all: Boolean
+  allRoutes: Boolean
+  allStops: Boolean
+  network: Boolean
+  route: String
+  stop: String
 }
 
 input AreaEventsFilterInput {
@@ -336,6 +451,9 @@ scalar Date
 "The direction of a route. An integer of either 1 or 2."
 scalar Direction
 
+"A DateTime string in ISO 8601 format (YYYY-MM-DDTHH:mm:ssZ). Timezone will be converted to Europe/Helsinki."
+scalar DateTime
+
 "A string that defines a bounding box. The coordinates should be in the format `minLng,maxLat,maxLng,minLat` which is compatible with what Leaflet's LatLngBounds.toBBoxString() returns. Toe coordinates will be rounded, use PreciseBBox if this is not desired."
 scalar BBox
 
@@ -344,9 +462,6 @@ scalar Time
 
 "A string that uniquely identifies a vehicle. The format is [operator ID]/[vehicle ID]. The operator ID is padded to have a length of 4 characters."
 scalar VehicleId
-
-"A DateTime string in ISO 8601 format (YYYY-MM-DDTHH:mm:ssZ). Timezone will be converted to Europe/Helsinki."
-scalar DateTime
 
 "A string that defines a bounding box. The coordinates should be in the format `minLng,maxLat,maxLng,minLat` which is compatible with what Leaflet's LatLngBounds.toBBoxString() returns. The precise bbox is not rounded."
 scalar PreciseBBox

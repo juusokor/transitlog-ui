@@ -1,7 +1,8 @@
 import styled from "styled-components";
-import TimingStopIcon from "../icon-time1.svg";
 import React from "react";
 import {TagButton} from "./TagButton";
+import TimingStop from "../icons/TimingStop";
+import omit from "lodash/omit";
 
 export const SmallText = styled.span`
   display: block;
@@ -29,16 +30,15 @@ const TimingStopMarkerBackground = styled(StopMarker)`
   margin-top: -0.3rem;
 `;
 
-const TimingStopMarkerIcon = styled.img.attrs({src: TimingStopIcon})`
-  border-radius: 50%;
+const TimingStopMarkerIcon = styled(TimingStop).attrs(({color}) => ({fill: color}))`
   width: 100%;
   height: 100%;
   display: block;
 `;
 
 export const TimingStopMarker = (props) => (
-  <TimingStopMarkerBackground {...props}>
-    <TimingStopMarkerIcon />
+  <TimingStopMarkerBackground className={props.className}>
+    <TimingStopMarkerIcon {...omit(props, "className")} />
   </TimingStopMarkerBackground>
 );
 
@@ -67,6 +67,7 @@ export const StopWrapper = styled.div`
   display: flex;
   flex-direction: row;
   align-items: flex-start;
+  width: 100%;
 `;
 export const StopContent = styled.div`
   padding: 0 1.25rem 1.5rem 0.75rem;

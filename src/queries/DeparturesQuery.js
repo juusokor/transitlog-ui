@@ -3,6 +3,7 @@ import {observer} from "mobx-react";
 import {Query} from "react-apollo";
 import gql from "graphql-tag";
 import get from "lodash/get";
+import {AlertFieldsFragment} from "./AlertFieldsFragment";
 
 const departuresQuery = gql`
   query departures(
@@ -32,6 +33,9 @@ const departuresQuery = gql`
       operatorId
       terminalTime
       recoveryTime
+      alerts {
+        ...AlertFieldsFragment
+      }
       journey {
         id
         routeId
@@ -58,6 +62,7 @@ const departuresQuery = gql`
       }
     }
   }
+  ${AlertFieldsFragment}
 `;
 
 const DeparturesQuery = observer(

@@ -4,6 +4,7 @@ import pick from "lodash/pick";
 import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import {setUpdateListener, removeUpdateListener} from "../stores/UpdateManager";
+import {AlertFieldsFragment} from "./AlertFieldsFragment";
 
 export const journeyQuery = gql`
   query journeyQuery(
@@ -74,6 +75,9 @@ export const journeyQuery = gql`
         operatorId
         terminalTime
         recoveryTime
+        alerts {
+          ...AlertFieldsFragment
+        }
         stop {
           id
           isTimingStop
@@ -92,6 +96,9 @@ export const journeyQuery = gql`
           shortId
           stopId
           stopIndex
+          alerts {
+            ...AlertFieldsFragment
+          }
         }
         plannedArrivalTime {
           id
@@ -140,7 +147,11 @@ export const journeyQuery = gql`
         }
       }
     }
+    alerts {
+      ...AlertFieldsFragment
+    }
   }
+  ${AlertFieldsFragment}
 `;
 
 const updateListenerName = "selected journey";

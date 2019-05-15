@@ -35,16 +35,14 @@ const AppGrid = styled.div`
   width: 100%;
   min-width: 1024px; // No, we are not mobile friendly
   height: 100vh;
-  display: grid;
-  grid-template-rows: 12.03rem 1fr;
-  align-content: stretch;
-  align-items: stretch;
+  display: flex;
+  flex-direction: column;
 `;
 
 const SidepanelAndMapWrapper = styled.div`
   display: flex;
   width: 100%;
-  height: 100%;
+  flex: 1 1 100%;
 `;
 
 const MapPanel = styled(Map)`
@@ -76,11 +74,10 @@ const decorate = flow(
   inject("UI")
 );
 
-function App({state, UI}) {
+function App({route, state, UI}) {
   const {
     date,
     stop: selectedStopId,
-    route,
     shareModalOpen,
     selectedJourney,
     journeyDetailsOpen,
@@ -113,6 +110,11 @@ function App({state, UI}) {
     auth();
   }, [code]);
 
+  const detailsAreOpen = useMemo(
+    () => journeyDetailsOpen && (selectedJourneyId || route),
+    [journeyDetailsOpen, selectedJourneyId, route]
+  );
+
   return (
     <AppFrame>
       {loginModalOpen && <LoginModal />}
@@ -132,7 +134,6 @@ function App({state, UI}) {
                     areaJourneys={areaJourneys}
                     selectedJourney={selectedJourney}>
                     {({currentJourneys = [], withRouteJourneys = []}) => {
-                      const detailsAreOpen = selectedJourney && journeyDetailsOpen;
                       const sidePanelIsOpen = sidePanelVisible;
 
                       return (
@@ -150,8 +151,9 @@ function App({state, UI}) {
                                         areaEvents={areaJourneys}
                                         journey={selectedJourney}
                                         stop={stop}
-                                        detailsOpen={detailsAreOpen}
+                                        route={route}
                                         sidePanelOpen={sidePanelIsOpen}
+                                        detailsOpen={detailsAreOpen}
                                       />
                                       <MapPanel
                                         detailsOpen={detailsAreOpen}

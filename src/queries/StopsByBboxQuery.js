@@ -3,6 +3,7 @@ import {observer} from "mobx-react-lite";
 import get from "lodash/get";
 import {Query} from "react-apollo";
 import gql from "graphql-tag";
+import {AlertFieldsFragment} from "./AlertFieldsFragment";
 
 export const stopsByBboxQuery = gql`
   query stopsByBboxQuery($bbox: BBox!) {
@@ -15,8 +16,12 @@ export const stopsByBboxQuery = gql`
       name
       radius
       modes
+      alerts {
+        ...AlertFieldsFragment
+      }
     }
   }
+  ${AlertFieldsFragment}
 `;
 
 const StopsByBboxQuery = observer((props) => {

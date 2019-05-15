@@ -1,4 +1,5 @@
 import gql from "graphql-tag";
+import {AlertFieldsFragment} from "./AlertFieldsFragment";
 
 export const StopFieldsFragment = gql`
   fragment StopFieldsFragment on Stop {
@@ -10,6 +11,9 @@ export const StopFieldsFragment = gql`
     name
     radius
     modes
+    alerts {
+      ...AlertFieldsFragment
+    }
     routes {
       id
       direction
@@ -19,4 +23,5 @@ export const StopFieldsFragment = gql`
       lineId
     }
   }
+  ${AlertFieldsFragment}
 `;

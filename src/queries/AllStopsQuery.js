@@ -2,6 +2,7 @@ import React, {useCallback, useRef} from "react";
 import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import get from "lodash/get";
+import {AlertFieldsFragment} from "./AlertFieldsFragment";
 
 const allStopsQuery = gql`
   query allStopsQuery($search: String) {
@@ -14,9 +15,13 @@ const allStopsQuery = gql`
       name
       radius
       modes
+      alerts {
+        ...AlertFieldsFragment
+      }
       _matchScore
     }
   }
+  ${AlertFieldsFragment}
 `;
 
 export default ({children}) => {

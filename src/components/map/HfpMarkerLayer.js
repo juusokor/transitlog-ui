@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import {observer, inject} from "mobx-react";
 import "./Map.css";
 import VehicleMarker from "./VehicleMarker";
-import DivIcon from "../../helpers/DivIcon";
+import DivIcon from "./DivIcon";
 import HfpTooltip from "./HfpTooltip";
 import {observable, action} from "mobx";
 import {app} from "mobx-app";

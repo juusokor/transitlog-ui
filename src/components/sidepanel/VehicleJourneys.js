@@ -21,11 +21,13 @@ import {getTimelinessColor} from "../../helpers/timelinessColor";
 import VehicleJourneysQuery from "../../queries/VehicleJourneysQuery";
 import {secondsToTimeObject} from "../../helpers/time";
 import {parseLineNumber} from "../../helpers/parseLineNumber";
+import AlertIcons from "../AlertIcons";
+import {getAlertsInEffect} from "../../helpers/getAlertsInEffect";
 
 const JourneyListRow = styled.div`
-  padding: ${({selected = false}) =>
-    selected ? "0.5rem 0.5rem 0.5rem 0.75rem" : "0 0.5rem 0 0.75rem"};
-  margin: ${({selected = false}) => (selected ? "0" : "0.5rem 0")};
+  position: relative;
+  padding: 0.25rem 0.5rem 0.25rem 0.75rem;
+  margin: 0;
   background: ${({selected = false}) => (selected ? "var(--blue)" : "transparent")};
 
   &:first-child {
@@ -230,6 +232,9 @@ class VehicleJourneys extends Component {
                         </ColoredBackgroundSlot>
                         <PlainSlotSmall>{observedTimeString}</PlainSlotSmall>
                       </TagButton>
+                      {get(journey, "alerts", []).length !== 0 && (
+                        <AlertIcons alerts={getAlertsInEffect(journey)} />
+                      )}
                     </JourneyListRow>
                   );
                 })

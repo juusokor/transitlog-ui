@@ -30,6 +30,7 @@ export default (state) => {
     sidePanelVisible: getUrlValue("sidePanelVisible", true),
     journeyDetailsOpen: getUrlValue("journeysDetailsOpen", true),
     journeyGraphOpen: getUrlValue("journeyGraphOpen", false),
+    showInstructions: getUrlValue("showInstructions", false),
     mapOverlays: getUrlValue("mapOverlays", "").split(","),
     areaEventsStyle: getUrlValue("areaEventsStyle", areaEventsStyles.MARKERS),
     weeklyObservedTimes: getUrlValue(

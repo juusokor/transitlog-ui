@@ -5,7 +5,6 @@ import styled from "styled-components";
 import Calendar from "../../../icons/Calendar";
 import JourneyPlanner from "../../../icons/JourneyPlanner";
 import Time2 from "../../../icons/Time2";
-import get from "lodash/get";
 import {observer} from "mobx-react-lite";
 import {parseLineNumber} from "../../../helpers/parseLineNumber";
 
@@ -74,40 +73,45 @@ const DateTimeHeading = styled.div`
   margin-bottom: 0.75rem;
 `;
 
-export default observer(({date, journey, currentTime}) => {
-  const {mode, routeId, direction, uniqueVehicleId, departureTime, name} = journey;
-  const routeNameParts = name.split(" - ");
-
-  if (direction === 2) {
-    routeNameParts.reverse();
+export default observer(({route, journey}) => {
+  if (!journey && !route) {
+    return null;
   }
 
-  const routeName = routeNameParts.join(" - ");
+  const {uniqueVehicleId, departureTime, departureDate} = journey || {};
+  const {mode, routeId, origin, destination} = route || {};
+  const routeName = [origin, destination].join(" - ");
 
   return (
     <JourneyPanelHeader>
       <MainHeaderRow>
         <TransportIcon width={23} height={23} mode={mode} />
-        <LineIdHeading>{parseLineNumber(get(journey, "lineId", ""))}</LineIdHeading>
+        <LineIdHeading>{parseLineNumber(routeId)}</LineIdHeading>
         <HeaderText>
           <JourneyPlanner fill="var(--blue)" width="1rem" height="1rem" />
           {routeId}
         </HeaderText>
-        <HeaderText>
-          <TransportIcon mode={mode} width={17} height={17} />
-          {uniqueVehicleId}
-        </HeaderText>
+        {uniqueVehicleId && (
+          <HeaderText>
+            <TransportIcon mode={mode} width={17} height={17} />
+            {uniqueVehicleId}
+          </HeaderText>
+        )}
       </MainHeaderRow>
-      <DateTimeHeading>
-        <HeaderText>
-          <Calendar fill="var(--blue)" width="1rem" height="1rem" />
-          {date}
-        </HeaderText>
-        <HeaderText>
-          <Time2 fill="var(--blue)" width="1rem" height="1rem" />
-          {departureTime}
-        </HeaderText>
-      </DateTimeHeading>
+      {departureDate && departureTime && (
+        <>
+          <DateTimeHeading>
+            <HeaderText>
+              <Calendar fill="var(--blue)" width="1rem" height="1rem" />
+              {departureDate}
+            </HeaderText>
+            <HeaderText>
+              <Time2 fill="var(--blue)" width="1rem" height="1rem" />
+              {departureTime}
+            </HeaderText>
+          </DateTimeHeading>
+        </>
+      )}
       <LineNameHeading>{routeName}</LineNameHeading>
     </JourneyPanelHeader>
   );

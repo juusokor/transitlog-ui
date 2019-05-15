@@ -1,21 +1,27 @@
-import React, {useCallback, useState} from "react";
+import React, {useCallback, useState, useMemo} from "react";
 import {createRouteId} from "../../helpers/keys";
 import flow from "lodash/flow";
 import {observer} from "mobx-react-lite";
 import {inject} from "../../helpers/inject";
-import SuggestionInput, {SuggestionContent, SuggestionText} from "./SuggestionInput";
+import SuggestionInput, {
+  SuggestionContent,
+  SuggestionText,
+  SuggestionAlerts,
+} from "./SuggestionInput";
 import getTransportType from "../../helpers/getTransportType";
 import {parseLineNumber} from "../../helpers/parseLineNumber";
 import sortBy from "lodash/sortBy";
 import {text} from "../../helpers/text";
+import {getAlertsInEffect} from "../../helpers/getAlertsInEffect";
 
 const decorate = flow(
   observer,
   inject("Filters")
 );
 
-const renderSuggestion = (suggestion, {isHighlighted}) => {
+const renderSuggestion = (date) => (suggestion, {isHighlighted}) => {
   const {routeId, direction, origin, destination} = suggestion;
+  const suggestionAlerts = getAlertsInEffect(suggestion, date);
 
   return (
     <SuggestionContent
@@ -27,6 +33,7 @@ const renderSuggestion = (suggestion, {isHighlighted}) => {
         <br />
         {origin} - {destination}
       </SuggestionText>
+      {suggestionAlerts.length !== 0 && <SuggestionAlerts alerts={suggestionAlerts} />}
     </SuggestionContent>
   );
 };
@@ -69,7 +76,7 @@ export const getFullRoute = (routes, selectedRoute) => {
   return routes.find((r) => createRouteId(r) === routeId);
 };
 
-const RouteInput = decorate(({state: {route}, Filters, routes}) => {
+const RouteInput = decorate(({state: {route, date}, Filters, routes}) => {
   const [options, setOptions] = useState([]);
 
   const getValue = useCallback(
@@ -102,6 +109,8 @@ const RouteInput = decorate(({state: {route}, Filters, routes}) => {
 
   const hasRoutes = routes.length > 0;
 
+  const suggestionRenderFn = useMemo(() => renderSuggestion(date), [date]);
+
   return (
     <SuggestionInput
       disabled={!hasRoutes}
@@ -111,7 +120,7 @@ const RouteInput = decorate(({state: {route}, Filters, routes}) => {
       onSelect={onSelect}
       getValue={getValue}
       getScalarValue={(val) => (typeof val === "string" ? val : createRouteId(val))}
-      renderSuggestion={renderSuggestion}
+      renderSuggestion={suggestionRenderFn}
       suggestions={options.slice(0, 50)}
       onSuggestionsFetchRequested={getSuggestions}
     />
