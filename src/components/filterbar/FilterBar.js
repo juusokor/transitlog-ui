@@ -64,7 +64,7 @@ class FilterBar extends Component {
         <FilterBarGrid>
           <FilterSection scrollable={true}>
             <DateSettings calendarRootRef={this.calendarRootRef} />
-            <TimeSettings />
+            <TimeSettings journeys={journeys} />
             <AdditionalTimeSettings />
           </FilterSection>
           {/*

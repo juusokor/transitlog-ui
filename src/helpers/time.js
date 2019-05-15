@@ -1,11 +1,18 @@
 import moment from "moment-timezone";
 import doubleDigit from "./doubleDigit";
-import {TIMEZONE} from "../constants";
-
-const num = (val) => parseInt(val, 10);
+import {
+  TIMEZONE,
+  TIME_SLIDER_DEFAULT_MIN,
+  TIME_SLIDER_MIN,
+  TIME_SLIDER_MAX,
+} from "../constants";
+import flatten from "lodash/flatten";
+import {getTimeRangeFromEvents} from "./getTimeRangeFromEvents";
 
 export function timeToTimeObject(timeStr = "") {
+  const num = (val) => parseInt(val, 10);
   const [hours = 0, minutes = 0, seconds = 0] = (timeStr || "").split(":");
+
   return {
     hours: num(hours),
     minutes: num(minutes),
@@ -71,6 +78,51 @@ export function getMomentFromDateTime(date, time = "00:00:00", timezone = TIMEZO
 
   return nextDate;
 }
+
+export const getValidTimeWithinRange = (time, journeys = [], returnRange = false) => {
+  const numericTime =
+    typeof time === "string" && time.includes(":")
+      ? timeToSeconds(time)
+      : typeof time === "number"
+      ? time
+      : 0;
+
+  let timeRange = {min: TIME_SLIDER_DEFAULT_MIN, max: TIME_SLIDER_MAX};
+
+  if (journeys.length !== 0) {
+    // Get the first and last event from each journey. This is used
+    // to get the min and max time for the range slider and time input
+    const eventsRange = flatten(
+      journeys.map(({events = []}) => [events[0], events[events.length - 1]])
+    );
+
+    const eventsTimeRange = getTimeRangeFromEvents(eventsRange);
+
+    if (eventsTimeRange) {
+      timeRange = eventsTimeRange;
+    }
+  }
+
+  const {min = TIME_SLIDER_MIN, max = TIME_SLIDER_MAX} = timeRange;
+  let rangeMin = min;
+  let rangeMax = max;
+
+  rangeMin = isNaN(rangeMin) ? TIME_SLIDER_MIN : rangeMin;
+  rangeMax = isNaN(rangeMax) ? TIME_SLIDER_MAX : rangeMax;
+
+  const currentValue = Math.max(Math.min(numericTime, rangeMax), rangeMin);
+  const timeStr = secondsToTime(currentValue);
+
+  if (!returnRange) {
+    return timeStr;
+  }
+
+  return {
+    timeValue: currentValue, // Numeric value returned if range requested.
+    rangeMin: rangeMin,
+    rangeMax: rangeMax,
+  };
+};
 
 // Get the (potentially) 24h+ time of the journey.
 // For best results, pass in the observed start time as useMoment, but if that's

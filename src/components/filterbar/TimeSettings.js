@@ -1,7 +1,7 @@
-import React, {Component} from "react";
+import React, {Component, useMemo} from "react";
 import {app} from "mobx-app";
 import {inject, observer} from "mobx-react";
-import {timeToSeconds, secondsToTime} from "../../helpers/time";
+import {timeToSeconds, secondsToTime, getValidTimeWithinRange} from "../../helpers/time";
 import {InputBase, ControlGroup} from "../Forms";
 import PlusMinusInput from "../PlusMinusInput";
 import styled from "styled-components";
@@ -37,7 +37,9 @@ class TimeSettings extends Component {
 
   @computed
   get displayTime() {
-    const {time} = this.props.state;
+    const {
+      state: {time},
+    } = this.props;
     // Display either the state value or the local value in the input.
     return this.isDirty ? this.timeInput : time;
   }
@@ -56,15 +58,13 @@ class TimeSettings extends Component {
   onTimeButtonClick = (modifier) => () => {
     const {
       state: {time},
-      Time,
     } = this.props;
 
     const currentTime = timeToSeconds(time);
     const nextTime = currentTime + modifier;
 
     if (nextTime >= 0) {
-      Time.toggleLive(false);
-      Time.setTime(secondsToTime(nextTime));
+      this.onSetTime(nextTime);
     }
   };
 
@@ -89,7 +89,6 @@ class TimeSettings extends Component {
   };
 
   onBlur = () => {
-    const {Time} = this.props;
     // Get the current input value and remove non-number characters.
     const timeValue = this.timeInput.replace(/([^0-9])+/g, "");
 
@@ -136,9 +135,17 @@ class TimeSettings extends Component {
     )}:${doubleDigit(padStart(seconds))}`;
 
     // Assign it to the state for stuff to happen
-    Time.setTime(nextTimeVal);
+    this.onSetTime(nextTimeVal);
     // Clear the local state and set it as not dirty to show the state value in the input.
     this.setTimeValue("", false);
+  };
+
+  onSetTime = (timeVal) => {
+    const {journeys = [], Time} = this.props;
+    const timeInRange = getValidTimeWithinRange(timeVal, journeys);
+
+    Time.toggleLive(false);
+    Time.setTime(timeInRange);
   };
 
   render() {
