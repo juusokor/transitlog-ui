@@ -124,7 +124,15 @@ const SidePanel = decorate((props) => {
     route,
     sidePanelOpen,
     detailsOpen,
-    state: {language, date, vehicle, stop: stateStop, selectedJourney, sidePanelVisible},
+    state: {
+      language,
+      date,
+      vehicle,
+      stop: stateStop,
+      selectedJourney,
+      sidePanelVisible,
+      showInstructions = false,
+    },
   } = props;
 
   const hasRoute = !!route && !!route.routeId;
@@ -150,7 +158,9 @@ const SidePanel = decorate((props) => {
   return (
     <SidePanelContainer visible={sidePanelOpen}>
       <MainSidePanel>
-        {allTabsHidden ? (
+        {showInstructions ? (
+          <UsageInstructions />
+        ) : allTabsHidden ? (
           <Alerts language={language} />
         ) : (
           <Tabs suggestedTab={suggestedTab}>

@@ -3,10 +3,7 @@ import styled from "styled-components";
 import flow from "lodash/flow";
 import uniq from "lodash/uniq";
 import {observer} from "mobx-react-lite";
-import {getAlertsInEffect} from "../helpers/getAlertsInEffect";
 import {getAlertStyle} from "../helpers/getAlertStyle";
-import {inject} from "../helpers/inject";
-import {useDebouncedValue} from "../hooks/useDebouncedValue";
 
 const IconsContainer = styled.div`
   position: absolute;
