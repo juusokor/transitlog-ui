@@ -11,8 +11,8 @@ import StopPopupContent from "./StopPopupContent";
 import MapPopup from "./MapPopup";
 import DivIcon from "./DivIcon";
 import AlertIcons from "../AlertIcons";
-import timingStopIcon from "../../icon-time1.svg";
 import {getAlertsInEffect} from "../../helpers/getAlertsInEffect";
+import TimingStop from "../../icons/TimingStop";
 
 const decorate = flow(
   observer,
@@ -20,15 +20,28 @@ const decorate = flow(
 );
 
 export const StopMarkerCircle = styled.div`
-  width: ${({big = false}) => (big ? "2.2rem" : "1.275rem")};
-  height: ${({big = false}) => (big ? "2.2rem" : "1.275rem")};
+  width: ${({isSelected, big}) =>
+    isSelected && big ? "2.75rem" : big ? "2rem" : "1.275rem"};
+  height: ${({isSelected, big}) =>
+    isSelected && big ? "2.75rem" : big ? "2rem" : "1.275rem"};
   border-radius: 50%;
-  border: ${({thickBorder = false}) => (thickBorder ? "4px" : "3px")}
-    ${({dashed = false}) => (dashed ? "dashed" : "solid")}
-    ${({isSelected = false, color = "var(--blue)"}) =>
-      isSelected ? "var(--blue)" : color};
-  background-color: ${({isHighlighted, isSelected, color = "var(--blue)"}) =>
-    isHighlighted ? "var(--grey)" : isSelected ? color : "white"};
+  border: ${({thickBorder, isSelected, isTimingStop}) =>
+      isTimingStop && !isSelected ? 0 : thickBorder ? "4px" : "3px"}
+    ${({dashed}) => (dashed ? "dashed" : "solid")}
+    ${({isSelected, color = "var(--blue)"}) => (isSelected ? "var(--blue)" : color)};
+  background-color: ${({
+    isTimingStop,
+    isHighlighted,
+    isSelected,
+    color = "var(--blue)",
+  }) =>
+    isTimingStop
+      ? "white"
+      : isHighlighted
+      ? "var(--grey)"
+      : isSelected
+      ? color
+      : "white"};
   align-items: center;
   justify-content: center;
   color: ${({color = "var(--blue)"}) => color};
@@ -36,9 +49,8 @@ export const StopMarkerCircle = styled.div`
   display: flex;
   font-size: 0.95rem;
   line-height: 1.1;
-  background-clip: ${({isSelected = false}) =>
-    isSelected ? "content-box" : "border-box"};
-  padding: ${({isSelected = false}) => (isSelected ? "2px" : "0")};
+  background-clip: ${({isSelected}) => (isSelected ? "content-box" : "border-box")};
+  padding: ${({isSelected}) => (isSelected ? "2px" : "0")};
   transform: ${({isHighlighted}) => (isHighlighted ? "scale(1.5)" : "scale(1)")};
   box-shadow: ${({isHighlighted}) =>
     isHighlighted ? "0 0 20px 0 rgba(0,0,0,0.25)" : "none"};
@@ -46,7 +58,7 @@ export const StopMarkerCircle = styled.div`
   z-index: ${({isHighlighted}) => (isHighlighted ? "10" : "auto")};
   transition: all 0.05s ease-out;
 
-  img {
+  svg {
     width: 100%;
     height: 100%;
     display: block;
@@ -131,7 +143,7 @@ const StopMarker = decorate(
     const {stop: selectedStop} = state;
 
     const isSelected = selected || (stop && selectedStop === stop.stopId);
-    const stopIsTimingStop = isTimingStop || !!stop.isTimingStop;
+    const stopIsTimingStop = isTimingStop || !!get(stop, "isTimingStop", false);
     const stopMode = !stop ? mode : getPriorityMode(get(stop, "modes", []));
     const stopColor = color ? color : getModeColor(stopMode);
 
@@ -166,14 +178,11 @@ const StopMarker = decorate(
               thickBorder={isTerminal}
               isSelected={isSelected}
               isHighlighted={highlighted}
+              isTimingStop={stopIsTimingStop}
               dashed={dashedBorder}
               big={!!(iconChildren || isSelected || isTerminal || stopIsTimingStop)}
               color={stopColor}>
-              {stopIsTimingStop ? (
-                <img alt="Timing stop" src={timingStopIcon} />
-              ) : (
-                iconChildren
-              )}
+              {stopIsTimingStop ? <TimingStop fill={stopColor} /> : iconChildren}
             </StopMarkerCircle>
             {stopAlerts.length !== 0 && (
               <MarkerIcons iconSize="0.875rem" alerts={stopAlerts} />

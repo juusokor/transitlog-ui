@@ -3,7 +3,6 @@ import {observer} from "mobx-react";
 import get from "lodash/get";
 import doubleDigit from "../../helpers/doubleDigit";
 import getDelayType from "../../helpers/getDelayType";
-import timingStopIcon from "../../icon-time1.svg";
 import {transportColor} from "../transportModes";
 import {
   ColoredBackgroundSlot,
@@ -21,6 +20,7 @@ import {applyTooltip} from "../../hooks/useTooltip";
 import {getDayTypeFromDate, dayTypes} from "../../helpers/getDayTypeFromDate";
 import AlertIcons from "../AlertIcons";
 import {getAlertsInEffect} from "../../helpers/getAlertsInEffect";
+import TimingStop from "../../icons/TimingStop";
 
 const ListRow = styled.div`
   padding: 0.25rem 0.5rem 0.25rem 0.75rem;
@@ -36,14 +36,10 @@ const LineSlot = styled(ColoredSlot)`
 
 const PlannedTimeSlot = styled(PlainSlot)`
   min-width: 4.5rem;
-`;
 
-const TimingIcon = styled.img`
-  width: 0.95rem;
-  height: 0.95rem;
-  display: block;
-  margin-left: auto;
-  margin-bottom: 0;
+  svg {
+    margin-left: auto;
+  }
 `;
 
 const TimetableButton = styled(TagButton)`
@@ -91,7 +87,7 @@ class TimetableDeparture extends Component {
         </LineSlot>
         <PlannedTimeSlot>
           {getNormalTime(departure.plannedDepartureTime.departureTime).slice(0, -3)}
-          {isTimingStop && <TimingIcon src={timingStopIcon} />}
+          {isTimingStop && <TimingStop fill={color} width="1rem" height="1rem" />}
         </PlannedTimeSlot>
         {children}
       </TimetableButton>

@@ -3,9 +3,9 @@ import {observer} from "mobx-react-lite";
 import get from "lodash/get";
 import flow from "lodash/flow";
 import styled from "styled-components";
-import timingStopIcon from "../../icon-time1.svg";
 import {withStop} from "../../hoc/withStop";
 import {inject} from "../../helpers/inject";
+import TimingStop from "../../icons/TimingStop";
 
 const StopOptionButton = styled.button`
   text-decoration: none;
@@ -13,22 +13,20 @@ const StopOptionButton = styled.button`
   border-radius: 5px;
   background: var(--lightest-grey);
   margin: 0 0 0.5rem 0;
-  display: block;
   border: ${({color = "var(--lightest-grey)"}) =>
     color ? `3px solid ${color}` : "3px solid var(--lightest-grey)"};
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   &:hover {
     background-color: var(--lighter-grey);
   }
-`;
 
-const TimingIcon = styled.img`
-  width: 0.95rem;
-  height: 0.95rem;
-  display: block;
-  margin-left: auto;
-  margin-bottom: 0;
+  svg {
+    margin-left: 0.75rem;
+  }
 `;
 
 function cleanRouteId(routeId) {
@@ -50,7 +48,7 @@ export const StopRouteSelect = decorate(({stop, stopLoading, color, onSelectRout
           key={`route_${route.routeId}_${route.direction}`}
           onClick={onSelectRoute(route)}>
           {cleanRouteId(route.routeId)}
-          {route.isTimingStop && <TimingIcon src={timingStopIcon} />}
+          {route.isTimingStop && <TimingStop fill={color} width="1rem" height="1rem" />}
         </StopOptionButton>
       ));
 });
