@@ -13,6 +13,7 @@ import {inject} from "../../helpers/inject";
 import StopPopupContent, {StopPopupContentSection} from "./StopPopupContent";
 import MapPopup from "./MapPopup";
 import StopMarker from "./StopMarker";
+import {Text} from "../../helpers/text";
 
 const StopOptionButton = styled.button`
   text-decoration: none;
@@ -123,7 +124,9 @@ const CompoundStopMarker = decorate(
         iconChildren={stops.length}>
         <MapPopup onClose={() => (didAutoOpen.current = false)}>
           <StopPopupContentSection>
-            <ChooseStopHeading>Select stop:</ChooseStopHeading>
+            <ChooseStopHeading>
+              <Text>map.stops.select_stop</Text>
+            </ChooseStopHeading>
             {stops.map((stopInGroup) => {
               const mode = getPriorityMode(get(stopInGroup, "modes", []));
               const stopColor = getModeColor(mode);

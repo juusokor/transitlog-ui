@@ -12,6 +12,7 @@ import {AlertDistribution} from "../helpers/getAlertsInEffect";
 import BusStop from "../icons/BusStop";
 import JourneyPlanner from "../icons/JourneyPlanner";
 import HSLLogoNoText from "../icons/HSLLogoNoText";
+import {text} from "../helpers/text";
 
 const AlertComponent = styled.div`
   font-family: var(--font-family);
@@ -190,10 +191,11 @@ const AlertItem = observer(({alert}) => {
               <Icon width="1.25rem" fill={color} />
               <AlertType>
                 {TypeIcon && <TypeIcon fill="var(--grey)" width="1rem" />}
-                {alert.affectedId ||
-                  `All ${
-                    type === "route" ? "routes" : type === "stop" ? "stops" : "traffic"
-                  }`}
+                {alert.affectedId || type === "route"
+                  ? text("domain.alerts.all_routes")
+                  : type === "stop"
+                  ? text("domain.alerts.all_stops")
+                  : text("domain.alerts.network")}
               </AlertType>
               <AlertTimeDisplay alert={alert} />
             </Row>
@@ -208,10 +210,10 @@ const AlertItem = observer(({alert}) => {
           </AlertDescription>
           <AlertInfo>
             <AlertInfoRow>
-              Category: <strong>{alert.category}</strong>
+              {text("general.category")}: <strong>{alert.category}</strong>
             </AlertInfoRow>
             <AlertInfoRow>
-              Impact: <strong>{alert.impact}</strong>
+              {text("general.impact")}: <strong>{alert.impact}</strong>
             </AlertInfoRow>
           </AlertInfo>
           <AlertFooter>
