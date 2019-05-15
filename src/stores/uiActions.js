@@ -27,6 +27,11 @@ export default (state) => {
     setUrlValue("journeyGraphOpen", state.journeyGraphOpen);
   });
 
+  const toggleInstructions = action((setTo = !state.showInstructions) => {
+    state.showInstructions = !!setTo;
+    setUrlValue("showInstructions", state.showInstructions);
+  });
+
   const setLanguage = action((language) => {
     if (Object.values(LANGUAGES).includes(language)) {
       languageState.language = language;
@@ -124,6 +129,7 @@ export default (state) => {
     toggleJourneyDetails,
     toggleJourneyGraph,
     toggleLoginModal,
+    toggleInstructions,
     setLanguage,
     changeOverlay,
     addError,

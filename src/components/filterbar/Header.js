@@ -9,6 +9,8 @@ import flow from "lodash/flow";
 import {inject} from "../../helpers/inject";
 import Login from "../../icons/Login";
 import ControlBar from "../sidepanel/ControlBar";
+import {Button} from "../Forms";
+import Info from "../../icons/Info";
 
 const Header = styled.header`
   width: 100%;
@@ -62,18 +64,23 @@ const LoginContainer = styled.div`
   display: flex;
   flex: 1;
   justify-content: flex-end;
+  align-items: center;
   margin-left: auto;
 `;
 
 const Username = styled.div`
   color: white;
-  margin-right: 10px;
+  margin-right: 1rem;
 `;
 
-const LoginIconContainer = styled.div`
-  cursor: pointer;
-  :hover {
-    transform: scale(1.1);
+const IconButton = styled(Button).attrs({small: true, transparent: true})`
+  font-size: 0.75rem;
+  padding: 0.2rem 0.75rem;
+  border: 0;
+  margin-left: 1rem;
+
+  &:last-child {
+    margin-right: 0;
   }
 `;
 
@@ -98,9 +105,12 @@ function HeaderComponent({state, UI, className}) {
       </LangSelectContainer>
       <LoginContainer>
         {user && <Username>{user}</Username>}
-        <LoginIconContainer>
-          <Login height="1rem" fill="white" onClick={UI.toggleLoginModal} />
-        </LoginIconContainer>
+        <IconButton onClick={() => UI.toggleLoginModal()}>
+          <Login height="1.2rem" fill="white" />
+        </IconButton>
+        <IconButton onClick={() => UI.toggleInstructions()}>
+          <Info fill="white" width="1.2rem" height="1.2rem" />
+        </IconButton>
       </LoginContainer>
     </Header>
   );
