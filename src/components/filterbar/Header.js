@@ -70,14 +70,14 @@ const LoginContainer = styled.div`
 
 const Username = styled.div`
   color: white;
-  margin-right: 1rem;
+  margin-right: 0.75rem;
 `;
 
 const IconButton = styled(Button).attrs({small: true, transparent: true})`
   font-size: 0.75rem;
   padding: 0.2rem 0.75rem;
   border: 0;
-  margin-left: 1rem;
+  margin-left: 0.75rem;
 
   &:last-child {
     margin-right: 0;
