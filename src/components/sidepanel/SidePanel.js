@@ -207,7 +207,7 @@ const SidePanel = decorate((props) => {
                 label={text("sidepanel.tabs.timetables")}
               />
             )}
-            <Alerts helpText="All alerts" name="alerts" label="Alerts" />
+            <Alerts helpText="All alerts" name="alerts" label={text("domain.alerts")} />
           </Tabs>
         )}
       </MainSidePanel>

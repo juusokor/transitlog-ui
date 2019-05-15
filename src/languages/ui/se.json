@@ -59,10 +59,12 @@
   "journey.departure": "Avfärd",
   "journey.end_of_stream": "De sista uppgifterna används som hållplatsens avfärd.",
   "journey.duration": "Resans tidslängd",
+  "journey.stops": "Hållplatser",
 
   "domain.line": "Linje",
   "domain.route": "Rutt",
   "domain.direction": "riktning",
+  "domain.alerts": "Varningar",
 
   "general.minutes": "minuter",
   "general.hour": "timme",

@@ -11,6 +11,7 @@ import {transportColor} from "../../transportModes";
 import Tabs from "../Tabs";
 import AlertsList from "../../AlertsList";
 import {getAlertsInEffect} from "../../../helpers/getAlertsInEffect";
+import {text} from "../../../helpers/text";
 
 const JourneyPanelWrapper = styled.div`
   height: 100%;
@@ -74,14 +75,18 @@ class JourneyDetails extends React.Component {
                 <JourneyStops
                   loading={loading}
                   name="journey-stops"
-                  label="Stops"
+                  label={text("journey.stops")}
                   departures={stopDepartures}
                   date={date}
                   color={journeyColor}
                 />
               )}
               {alerts.length !== 0 && (
-                <AlertsList alerts={alerts} name="journey-alerts" label="Alerts" />
+                <AlertsList
+                  alerts={alerts}
+                  name="journey-alerts"
+                  label={text("domain.alerts")}
+                />
               )}
             </Tabs>
           </JourneyPanelContent>

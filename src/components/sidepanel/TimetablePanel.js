@@ -286,7 +286,9 @@ class TimetablePanel extends Component {
                   onClick={
                     this.filterButtonClears ? this.onClearFilters : this.onApplyFilters
                   }>
-                  {this.filterButtonClears ? "Clear" : "Apply"}
+                  {this.filterButtonClears
+                    ? text("general.clear")
+                    : text("general.apply")}
                 </ApplyButton>
               </TimetableFilters>
             )}
