@@ -37,6 +37,7 @@
   "map.stops.observed_driveby": "Toteutunut ohitusaika",
   "map.stops.show_in_streetview": "Näytä katunäkymässä",
   "map.stops.doors_not_open": "Ovet eivät avautuneet tällä pysäkillä.",
+  "map.stops.select_stop": "Valitse pysäkki",
   "map.road": "Tie",
   "map.aerial": "Ilmakartta",
   "map.weather": "Sää",
@@ -70,6 +71,9 @@
   "domain.route": "Reitti",
   "domain.direction": "suunta",
   "domain.alerts": "Tiedotteet",
+  "domain.alerts.all_routes": "Kaikki reitit",
+  "domain.alerts.all_stops": "Kaikki pysäkit",
+  "domain.alerts.network": "Koko alue",
 
   "general.minutes": "minuutteja",
   "general.hour": "tunti",
@@ -96,10 +100,6 @@
   "general.clear": "Tyhjennä",
   "general.error_messages": "Virheviestejä",
   "general.error_messages.server": "Virheviestejä palvelimelta",
-  "general.all": "Kaikki",
-  "general.routes": "reitit",
-  "general.stops": "pysäkit",
-  "general.traffic": "liikenne",
   "general.category": "Kategoria",
   "general.impact": "Vaikutus",
 

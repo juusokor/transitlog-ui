@@ -37,6 +37,7 @@
   "map.stops.observed_driveby": "Observed drive-by time",
   "map.stops.show_in_streetview": "Show in street view",
   "map.stops.doors_not_open": "The doors did not open at this stop.",
+  "map.stops.select_stop": "Select stop",
   "map.road": "Road",
   "map.aerial": "Aerial map",
   "map.weather": "Weather",
@@ -70,6 +71,9 @@
   "domain.route": "Route",
   "domain.direction": "direction",
   "domain.alerts": "Tiedotteet",
+  "domain.alerts.all_routes": "All routes",
+  "domain.alerts.all_stops": "All stops",
+  "domain.alerts.network": "Network",
 
   "general.minutes": "minutes",
   "general.hour": "hour",
@@ -96,10 +100,6 @@
   "general.share": "Share view",
   "general.error_messages": "Error messages",
   "general.error_messages.server": "Messages from the server",
-  "general.all": "All",
-  "general.routes": "routes",
-  "general.stops": "stops",
-  "general.traffic": "traffic",
   "general.category": "Category",
   "general.impact": "Impact",
 

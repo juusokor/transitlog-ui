@@ -37,6 +37,7 @@
   "map.stops.observed_driveby": "Observerad körtid",
   "map.stops.show_in_streetview": "Visa i gatuvy",
   "map.stops.doors_not_open": "Dörrarna öppnades aldrig på denna hållplats",
+  "map.stops.select_stop": "Välj hållplats",
   "map.road": "Väg",
   "map.aerial": "Väder",
   "map.stop_radius": "Hållplatsradie",
@@ -67,6 +68,9 @@
   "domain.route": "Rutt",
   "domain.direction": "riktning",
   "domain.alerts": "Varningar",
+  "domain.alerts.all_routes": "Alla rutter",
+  "domain.alerts.all_stops": "Alla hållplatser",
+  "domain.alerts.network": "Hela nätverket",
 
   "general.minutes": "minuter",
   "general.hour": "timme",
@@ -93,10 +97,6 @@
   "general.share": "Dela vy",
   "general.error_messages": "Felmeddelanden",
   "general.error_messages.server": "Felmeddelanden från servern",
-  "general.all": "Alla",
-  "general.routes": "rutter",
-  "general.stops": "hållplatser",
-  "general.traffic": "trafik",
   "general.category": "Kategori",
   "general.impact": "Effekt",
 

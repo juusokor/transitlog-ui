@@ -191,14 +191,11 @@ const AlertItem = observer(({alert}) => {
               <Icon width="1.25rem" fill={color} />
               <AlertType>
                 {TypeIcon && <TypeIcon fill="var(--grey)" width="1rem" />}
-                {alert.affectedId ||
-                  `${text("general.all")} ${
-                    type === "route"
-                      ? text("general.routes")
-                      : type === "stop"
-                      ? text("general.stops")
-                      : text("general.traffic")
-                  }`}
+                {alert.affectedId || type === "route"
+                  ? text("domain.alerts.all_routes")
+                  : type === "stop"
+                  ? text("domain.alerts.all_stops")
+                  : text("domain.alerts.network")}
               </AlertType>
               <AlertTimeDisplay alert={alert} />
             </Row>
