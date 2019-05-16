@@ -11,7 +11,7 @@ function getTransportType(lineId, numeric = false) {
     return "TRAM";
   }
 
-  // Subway route ID's all start with 31M
+  // The only ferry routes are 1019 and 1019E.
   if (lineId.startsWith("1019")) {
     if (numeric) {
       return 50;
