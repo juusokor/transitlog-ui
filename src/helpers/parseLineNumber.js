@@ -7,6 +7,10 @@ export const parseLineNumber = (lineId) => {
     return lineStr.replace(/\d+/, "");
   }
 
+  if (lineStr.startsWith("31M")) {
+    return lineStr.substr(2);
+  }
+
   // Remove 1st number, which represents the city
   // Remove all zeros from the beginning
   return lineStr

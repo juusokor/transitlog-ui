@@ -48,14 +48,20 @@ const getFilteredSuggestions = (routes, {value = ""}) => {
   const filteredRoutes =
     inputLength === 0
       ? routes
-      : routes.filter(
-          ({routeId, direction}) =>
+      : routes.filter(({routeId, direction}) => {
+          const matchRouteId = routeId
+            .trim()
+            .replace(/\s/g, "")
+            .toLowerCase();
+
+          return (
             (searchDirection &&
               direction === searchDirection &&
-              routeId.includes(searchRouteId)) ||
-            (!searchDirection && routeId.includes(searchRouteId)) ||
-            parseLineNumber(routeId).includes(searchRouteId.slice(0, inputLength))
-        );
+              matchRouteId.includes(searchRouteId)) ||
+            (!searchDirection && matchRouteId.includes(searchRouteId)) ||
+            parseLineNumber(matchRouteId).includes(searchRouteId.slice(0, inputLength))
+          );
+        });
 
   return sortBy(filteredRoutes, ({routeId}) => {
     const parsedLineId = parseLineNumber(routeId);
