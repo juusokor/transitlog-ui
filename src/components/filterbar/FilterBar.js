@@ -10,7 +10,6 @@ import FilterSection from "./FilterSection";
 import Header from "./Header";
 import VehicleSettings from "./VehicleSettings";
 import StopSettings from "./StopSettings";
-import NetworkAlerts from "../NetworkAlerts";
 
 const SiteHeader = styled(Header)`
   flex: 0 0 auto;
@@ -60,7 +59,6 @@ class FilterBar extends Component {
     return (
       <FilterBarWrapper className={className}>
         <SiteHeader />
-        <NetworkAlerts />
         <FilterBarGrid>
           <FilterSection scrollable={true}>
             <DateSettings calendarRootRef={this.calendarRootRef} />

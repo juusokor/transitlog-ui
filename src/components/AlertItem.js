@@ -16,13 +16,15 @@ import {text} from "../helpers/text";
 
 const AlertComponent = styled.div`
   font-family: var(--font-family);
+  background: ${({color}) => (color ? color : "transparent")};
+  color: ${({lightText}) => (lightText ? "white" : "var(--dark-grey)")};
 
   &:first-child {
     margin-top: 0;
   }
 
   &:nth-child(odd) {
-    background: rgba(0, 0, 0, 0.03);
+    background: ${({color}) => (color ? color : "rgba(0, 0, 0, 0.03)")};
   }
 `;
 
@@ -92,7 +94,8 @@ const AlertDescription = styled.div`
   margin: 0 0 1rem;
   font-size: 0.875rem;
   padding-top: 0.75rem;
-  border-top: 1px solid var(--lighter-grey);
+  border-top: 1px solid
+    ${({lightBg}) => (lightBg ? "var(--grey)" : "var(--lighter-grey)")};
 `;
 
 const AlertInfo = styled.div`
@@ -107,13 +110,13 @@ const AlertInfoRow = styled.div`
 const AlertPublishTime = styled.span`
   font-size: 0.75rem;
   margin-left: auto;
-  color: var(--light-grey);
+  color: ${({lightText}) => (lightText ? "var(--light-grey)" : "var(--grey)")};
 `;
 
 const AlertFooter = styled.div`
   margin-top: 0.375rem;
-  padding-top: 0.375rem;
-  border-top: 1px solid var(--alt-grey);
+  padding-top: 0.75rem;
+  border-top: 1px solid ${({lightBg}) => (lightBg ? "var(--grey)" : "var(--alt-grey)")};
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -182,15 +185,28 @@ const AlertItem = observer(({alert}) => {
     type = "stop";
   }
 
+  const colorful = type === "network";
+  const lightBg = (colorful && !color.includes("red")) || !colorful;
+
   return (
-    <AlertComponent key={getAlertKey(alert)}>
+    <AlertComponent
+      lightText={!lightBg}
+      color={colorful ? color : undefined}
+      key={getAlertKey(alert)}>
       <Accordion
         label={
           <AlertHeader>
             <Row>
-              <Icon width="1.25rem" fill={color} />
+              <Icon
+                width="1.25rem"
+                fill={
+                  colorful && !lightBg ? "white" : colorful ? "var(--dark-grey)" : color
+                }
+              />
               <AlertType>
-                {TypeIcon && <TypeIcon fill="var(--grey)" width="1rem" />}
+                {TypeIcon && (
+                  <TypeIcon fill={!lightBg ? "white" : "var(--dark-grey)"} width="1rem" />
+                )}
                 {alert.affectedId || type === "route"
                   ? text("domain.alerts.all_routes")
                   : type === "stop"
@@ -205,7 +221,7 @@ const AlertItem = observer(({alert}) => {
           </AlertHeader>
         }>
         <AlertContent>
-          <AlertDescription style={{marginBottom: "0.75rem"}}>
+          <AlertDescription lightBg={colorful && lightBg}>
             {alert.description}
           </AlertDescription>
           <AlertInfo>
@@ -216,13 +232,16 @@ const AlertItem = observer(({alert}) => {
               {text("general.impact")}: <strong>{alert.impact}</strong>
             </AlertInfoRow>
           </AlertInfo>
-          <AlertFooter>
+          <AlertFooter lightBg={colorful && lightBg}>
             {alert.url && (
               <AlertLink target="_blank" href={alert.url}>
-                <Website width="1.25rem" fill="var(--light-grey)" />
+                <Website
+                  width="1.25rem"
+                  fill={lightBg ? "var(--grey)" : "var(--light-grey)"}
+                />
               </AlertLink>
             )}
-            <AlertPublishTime>
+            <AlertPublishTime lightText={!lightBg}>
               {updatedMoment ? (
                 <span>
                   {updatedMoment.format("MM/DD")}, {updatedMoment.format("HH:mm")}

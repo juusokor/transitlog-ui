@@ -3,7 +3,7 @@ import flow from "lodash/flow";
 import {observer, Observer} from "mobx-react-lite";
 import {inject} from "../../helpers/inject";
 import React from "react";
-import {getAlertsInEffect} from "../../helpers/getAlertsInEffect";
+import {getAlertsInEffect, AlertDistribution} from "../../helpers/getAlertsInEffect";
 import SidepanelList from "./SidepanelList";
 import AlertsList from "../AlertsList";
 
@@ -20,7 +20,9 @@ const Alerts = decorate(({state}) => {
       {({alerts = [], loading}) => (
         <Observer>
           {() => {
-            const alertsInEffect = getAlertsInEffect(alerts, state.timeMoment);
+            const alertsInEffect = getAlertsInEffect(alerts, state.timeMoment).sort((a) =>
+              a.distribution === AlertDistribution.Network ? -1 : 0
+            );
 
             return (
               <SidepanelList loading={loading}>
