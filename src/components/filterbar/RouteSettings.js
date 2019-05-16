@@ -30,7 +30,6 @@ const RouteSettings = decorate(({Filters, state: {route, date}}) => {
         <Observer>
           {() => {
             const selectedRoute = getFullRoute(routes, route);
-            console.log(selectedRoute);
 
             return loading ? (
               <LoadingSpinner inline={true} />

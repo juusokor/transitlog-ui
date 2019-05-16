@@ -12,6 +12,7 @@ import Tabs from "../Tabs";
 import AlertsList from "../../AlertsList";
 import {getAlertsInEffect} from "../../../helpers/getAlertsInEffect";
 import {text} from "../../../helpers/text";
+import CancellationsList from "../../CancellationsList";
 
 const JourneyPanelWrapper = styled.div`
   height: 100%;
@@ -21,6 +22,8 @@ const JourneyPanelWrapper = styled.div`
   align-items: stretch;
   position: relative;
 `;
+
+const ListWrapper = styled.div``;
 
 const ScrollContainer = styled.div`
   height: 100%;
@@ -63,6 +66,8 @@ class JourneyDetails extends React.Component {
       journeyTime
     );
 
+    const cancellations = get(route, "cancellations", []);
+
     return (
       <JourneyPanelWrapper>
         <LoadingDisplay loading={loading} />
@@ -81,12 +86,13 @@ class JourneyDetails extends React.Component {
                   color={journeyColor}
                 />
               )}
-              {alerts.length !== 0 && (
-                <AlertsList
-                  alerts={alerts}
-                  name="journey-alerts"
-                  label={text("domain.alerts")}
-                />
+              {(alerts.length !== 0 || cancellations.length !== 0) && (
+                <ListWrapper name="journey-alerts" label={text("domain.alerts")}>
+                  {cancellations.length !== 0 && (
+                    <CancellationsList cancellations={cancellations} />
+                  )}
+                  {alerts.length !== 0 && <AlertsList alerts={alerts} />}
+                </ListWrapper>
               )}
             </Tabs>
           </JourneyPanelContent>

@@ -4,9 +4,10 @@ import flow from "lodash/flow";
 import {observer} from "mobx-react-lite";
 import AlertItem from "./AlertItem";
 import {getAlertKey} from "../helpers/getAlertKey";
+import {ListHeading} from "./commonComponents";
 
 const AlertsListWrapper = styled.div`
-  padding: 0 0 1rem;
+  padding-bottom: 1rem;
 `;
 
 const decorate = flow(observer);
@@ -16,6 +17,7 @@ const AlertsList = decorate(({className, alerts = []}) => {
 
   return (
     <AlertsListWrapper className={className}>
+      <ListHeading>Alerts</ListHeading>
       {validAlerts.map((alert) => (
         <AlertItem key={getAlertKey(alert)} alert={alert} />
       ))}

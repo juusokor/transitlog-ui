@@ -87,13 +87,15 @@ const AlertTime = styled.div`
 const AlertTitle = styled(Heading).attrs({level: 5})`
   margin: 0;
   font-size: 0.875rem;
-  font-weight: normal;
+  font-weight: bold;
+  color: inherit;
 `;
 
 const AlertDescription = styled.div`
   margin: 0 0 1rem;
   font-size: 0.875rem;
   padding-top: 0.75rem;
+  color: inherit;
   border-top: 1px solid
     ${({lightBg}) => (lightBg ? "var(--grey)" : "var(--lighter-grey)")};
 `;
@@ -137,8 +139,8 @@ const AlertTimeDisplay = observer(({alert}) => {
   const startMoment = moment.tz(alert.startDateTime, TIMEZONE);
   const endMoment = moment.tz(alert.endDateTime, TIMEZONE);
 
-  const startDate = startMoment.format("MM/DD");
-  const endDate = endMoment.format("MM/DD");
+  const startDate = startMoment.format("DD/MM");
+  const endDate = endMoment.format("DD/MM");
   const startTime = startMoment.format("HH:mm");
   const endTime = endMoment.format("HH:mm");
 
@@ -244,11 +246,11 @@ const AlertItem = observer(({alert}) => {
             <AlertPublishTime lightText={!lightBg}>
               {updatedMoment ? (
                 <span>
-                  {updatedMoment.format("MM/DD")}, {updatedMoment.format("HH:mm")}
+                  {updatedMoment.format("DD/MM")}, {updatedMoment.format("HH:mm")}
                 </span>
               ) : (
                 <span>
-                  {publishedMoment.format("MM/DD")}, {publishedMoment.format("HH:mm")}
+                  {publishedMoment.format("DD/MM")}, {publishedMoment.format("HH:mm")}
                 </span>
               )}
             </AlertPublishTime>
