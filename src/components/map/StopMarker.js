@@ -165,7 +165,7 @@ const StopMarker = decorate(
     const stopAlerts =
       alerts && alerts.length !== 0
         ? alerts
-        : getAlertsInEffect(get(stop, "alerts", []), state.timeMoment);
+        : getAlertsInEffect(get(stop, "alerts", []), state.date);
 
     const markerElement = (
       <DivIcon

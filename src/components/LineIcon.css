@@ -19,3 +19,13 @@
   background-image: url("../icon-trunk.svg");
   color: #ff6319;
 }
+
+.FERRY:before {
+  background-image: url("../icon-ferry.svg");
+  color: var(--light-blue);
+}
+
+.SUBWAY:before {
+  background-image: url("../icon-subway.svg");
+  color: var(--orange);
+}

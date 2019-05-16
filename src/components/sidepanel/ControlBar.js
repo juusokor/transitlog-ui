@@ -34,8 +34,10 @@ class ControlBar extends Component {
   onClickReset = () => {
     this.props.Filters.reset();
   };
+
   onClickUpdate = () => this.props.Update.update();
-  onToggleLive = () => this.props.Time2.toggleLive();
+
+  onToggleLive = () => this.props.Time.toggleLive();
 
   render() {
     const {
