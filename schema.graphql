@@ -42,13 +42,18 @@ type AreaJourney {
 }
 
 type Cancellation {
+  cancellationEffect: CancellationEffect!
+  cancellationType: CancellationType!
+  category: AlertCategory!
   departureDate: Date!
+  description: String!
   direction: Direction!
-  id: ID!
-  isCancelled: Boolean
+  isCancelled: Boolean!
   journeyStartTime: Time!
-  reason: String
+  lastModifiedDateTime: DateTime!
   routeId: String!
+  subCategory: CancellationSubcategory!
+  title: String!
 }
 
 type Departure {
@@ -223,6 +228,7 @@ type Query {
 type Route {
   _matchScore: Float
   alerts: [Alert!]!
+  cancellations: [Cancellation!]!
   destination: String
   destinationStopId: String
   direction: Direction!
@@ -400,6 +406,75 @@ enum AlertLevel {
 enum CacheControlScope {
   PRIVATE
   PUBLIC
+}
+
+enum CancellationEffect {
+  CANCEL_ENTIRE_DEPARTURE
+  CANCEL_STOPS_FROM_END
+  CANCEL_STOPS_FROM_MIDDLE
+  CANCEL_STOPS_FROM_START
+}
+
+enum CancellationSubcategory {
+  ASSAULT_ON_DRIVER
+  ASSAULT_ON_PASSENGER
+  ASSAULT_ON_VEHICLE
+  BREAK_MALFUNCTION
+  CONGESTION_CAUSED_BY_ACCIDENT
+  CONGESTION_CAUSED_BY_WEATHER
+  CONGESTION_REASON_UKNOWN
+  DEVICE_ERROR
+  DRIVER_ERROR
+  DRIVER_LATE
+  DRIVER_SEIZURE
+  ELECTRIC_MALFUNCTION
+  ENGINE_MALFUNCTION
+  FALSE_ALARM
+  FAULT_UNKNOWN
+  FLUID_LEAKAGE
+  INSUFFICIENT_CAPASITY
+  INSUFFICIENT_INSTRUCTIONS_BY_AUTHORITY
+  INSUFFICIENT_INSTRUCTIONS_BY_OPERATOR
+  ITS_SYSTEM_NOT_INSTALLED
+  MISSPARKED_VEHICLE
+  ND_OPERATOR_PLANNING_ERROR
+  NO_VEHICLE_AVAILABLE
+  OPERATOR_DEVICE_ERROR
+  OPERATOR_PERSONNEL_ON_STRIKE
+  OPPOSITE_FAULT
+  OTHER_ASSAULT
+  OTHER_ITS_ERROR
+  OTHER_MALFUNCTION
+  OTHER_OPERATOR_REASON
+  OTHER_SEIZURE
+  OTHER_STRIKE
+  OUT_OF_FUEL
+  OWN_FAULT
+  PASSED_OUT_PASSENGER
+  PASSENGER_INJURED
+  PASSENGER_SEIZURE
+  ROAD_BLOCKED
+  SLIPPERY_TRACK
+  STAFF_SHORTAGE
+  STUCK_CAUSED_BY_SLIPPERY
+  UNDRIVEABLE_CONDITIONS
+  UNKNOWN_CAUSE
+  USER_ERROR
+  VEHICLE_OFF_THE_ROAD_BY_DRIVER_ERROR
+  VEHICLE_OFF_THE_ROAD_BY_OTHER_REASON
+  WRONG_INFORMATION_IN_DEVICE
+}
+
+enum CancellationType {
+  BLOCK_FIRST_DEPARTURE_LATE
+  CANCEL_DEPARTURE
+  DEPARTURED_AFTER_NEXT_JOURNEY
+  DETOUR
+  EARLY_DEPARTURE
+  EARLY_DEPARTURE_FROM_TIMING_POINT
+  LATE_DEPARTURE
+  SKIPPED_STOP_CALLS
+  TIS_ERROR
 }
 
 input AlertSearchInput {
