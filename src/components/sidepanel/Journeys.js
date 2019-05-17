@@ -51,11 +51,12 @@ const JourneyListRow = styled.button`
             content: "";
             position: absolute;
             pointer-events: none;
-            height: 1px;
+            height: 2px;
             background: var(--red);
-            top: 50%;
+            top: 45%;
             left: 0.5rem;
             right: 0.5rem;
+            // opacity: 0.7;
           }
         `
       : ""}
@@ -66,6 +67,7 @@ const JourneyRowLeft = styled.span`
   font-weight: bold;
   min-width: 7.5rem;
   text-align: left;
+  position: relative;
 `;
 
 const DelaySlot = styled(ColoredBackgroundSlot)`
@@ -226,7 +228,7 @@ const Journeys = decorate(({state, Time, Journey}) => {
                       const isSpecialDayType =
                         getDayTypeFromDate(departureDate) !== departure.dayType ||
                         !dayTypes.includes(departure.dayType);
-                      const {isCancelled, cancellations} = departure;
+                      const {isCancelled} = departure;
 
                       if (!departure.journey) {
                         const compositeJourney = createCompositeJourney(
@@ -249,10 +251,10 @@ const Journeys = decorate(({state, Time, Journey}) => {
 
                         return (
                           <JourneyListRow
-                            isCancelled={isCancelled}
                             ref={journeyIsFocused ? scrollRef : null}
                             key={`planned_journey_row_${journeyId}`}
                             selected={journeyIsSelected}
+                            isCancelled={isCancelled}
                             onClick={() => selectJourney(compositeJourney)}>
                             <Tooltip helpText="Planned journey time">
                               <JourneyRowLeft>
@@ -327,6 +329,7 @@ const Journeys = decorate(({state, Time, Journey}) => {
                           ref={journeyIsFocused ? scrollRef : null}
                           selected={journeyIsSelected}
                           key={`journey_row_${journeyId}_${departure.id}`}
+                          isCancelled={isCancelled}
                           onClick={() => selectJourney(departure.journey)}>
                           <JourneyRowLeft
                             {...applyTooltip("Planned journey time with data")}>

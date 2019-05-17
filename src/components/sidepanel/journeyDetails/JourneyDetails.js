@@ -4,7 +4,6 @@ import JourneyDetailsHeader from "./JourneyDetailsHeader";
 import {observer, inject} from "mobx-react";
 import {app} from "mobx-app";
 import get from "lodash/get";
-import groupBy from "lodash/groupBy";
 import JourneyStops from "./JourneyStops";
 import {LoadingDisplay} from "../../Loading";
 import JourneyInfo from "./JourneyInfo";
@@ -67,7 +66,7 @@ class JourneyDetails extends React.Component {
       journeyTime
     );
 
-    const cancellations = get(route, "cancellations", []);
+    const cancellations = get(journey, "cancellations", get(route, "cancellations", []));
 
     return (
       <JourneyPanelWrapper>

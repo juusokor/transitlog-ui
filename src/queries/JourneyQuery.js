@@ -5,6 +5,7 @@ import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import {setUpdateListener, removeUpdateListener} from "../stores/UpdateManager";
 import {AlertFieldsFragment} from "./AlertFieldsFragment";
+import {CancellationFieldsFragment} from "./CancellationFieldsFragment";
 
 export const journeyQuery = gql`
   query journeyQuery(
@@ -34,6 +35,13 @@ export const journeyQuery = gql`
       name
       mode
       headsign
+      isCancelled
+      cancellations {
+        ...CancellationFieldsFragment
+      }
+      alerts {
+        ...AlertFieldsFragment
+      }
       equipment {
         age
         emissionClass
@@ -147,11 +155,9 @@ export const journeyQuery = gql`
         }
       }
     }
-    alerts {
-      ...AlertFieldsFragment
-    }
   }
   ${AlertFieldsFragment}
+  ${CancellationFieldsFragment}
 `;
 
 const updateListenerName = "selected journey";

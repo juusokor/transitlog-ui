@@ -27,12 +27,14 @@ type Alert {
 
 type AreaJourney {
   alerts: [Alert!]!
+  cancellations: [Cancellation!]!
   departureDate: Date!
   departureTime: Time!
   direction: Direction!
   events: [JourneyEvent]!
   headsign: String
   id: ID!
+  isCancelled: Boolean!
   lineId: String
   mode: String
   operatorId: String
@@ -89,11 +91,13 @@ type Departure {
 type DepartureJourney {
   _numInstance: Int
   alerts: [Alert!]!
+  cancellations: [Cancellation!]!
   departureDate: Date!
   departureTime: Time!
   direction: Direction!
   events: [JourneyEvent!]
   id: ID!
+  isCancelled: Boolean!
   lineId: String
   mode: String
   originStopId: String
@@ -130,6 +134,7 @@ type ExceptionDay {
 
 type Journey {
   alerts: [Alert!]!
+  cancellations: [Cancellation!]!
   departureDate: Date!
   departureTime: Time!
   departures: [Departure!]!
@@ -138,6 +143,7 @@ type Journey {
   events: [JourneyEvent!]!
   headsign: String
   id: ID!
+  isCancelled: Boolean!
   lineId: String
   mode: String
   name: String
@@ -256,6 +262,7 @@ type RouteGeometryPoint implements Position {
 
 type RouteSegment implements Position {
   alerts: [Alert!]!
+  cancellations: [Cancellation!]!
   destination: String!
   direction: Direction!
   distanceFromPrevious: Int
@@ -314,11 +321,13 @@ type StopRoute {
 
 type VehicleJourney {
   alerts: [Alert!]!
+  cancellations: [Cancellation!]!
   departureDate: Date!
   departureTime: Time!
   direction: Direction!
   headsign: String
   id: ID!
+  isCancelled: Boolean!
   lineId: String
   mode: String
   nextStopId: String!
