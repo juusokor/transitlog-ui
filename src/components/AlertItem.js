@@ -108,7 +108,7 @@ const AlertInfoRow = styled.div`
 const AlertPublishTime = styled.span`
   font-size: 0.75rem;
   margin-left: auto;
-  color: ${({lightText}) => (lightText ? "var(--light-grey)" : "var(--grey)")};
+  color: ${({lightText}) => (lightText ? "white" : "var(--grey)")};
 `;
 
 const AlertFooter = styled.div`
@@ -231,10 +231,7 @@ const AlertItem = observer(({alert}) => {
           <AlertFooter lightBg={colorful && lightBg}>
             {alert.url && (
               <AlertLink target="_blank" href={alert.url}>
-                <Website
-                  width="1.25rem"
-                  fill={lightBg ? "var(--grey)" : "var(--light-grey)"}
-                />
+                <Website width="1.25rem" fill={lightBg ? "var(--grey)" : "white"} />
               </AlertLink>
             )}
             <AlertPublishTime lightText={!lightBg}>

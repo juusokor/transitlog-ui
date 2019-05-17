@@ -6,7 +6,7 @@ import {Heading} from "./Typography";
 import ToggleView from "./ToggleView";
 import {observer} from "mobx-react-lite";
 import TrashCan from "../icons/TrashCan";
-import {text} from "../helpers/text";
+import {text, Text} from "../helpers/text";
 import Checkmark from "../icons/Checkmark";
 import format from "date-fns/format";
 
@@ -180,7 +180,7 @@ const CancellationItem = observer(({cancellation, small = false, children}) => {
               {text("general.category")}: <strong>{cancellation.category}</strong>
             </CancellationInfoRow>
             <CancellationInfoRow>
-              Subcategory: <strong>{cancellation.subCategory}</strong>
+              {text("general.subcategory")}: <strong>{cancellation.subCategory}</strong>
             </CancellationInfoRow>
             <CancellationInfoRow>
               {text("general.impact")}: <strong>{cancellation.cancellationEffect}</strong>
@@ -195,7 +195,9 @@ const CancellationItem = observer(({cancellation, small = false, children}) => {
       </Accordion>
       {children && (
         <>
-          <ChildHeading>Previous:</ChildHeading>
+          <ChildHeading>
+            <Text>general.previous.plural</Text>
+          </ChildHeading>
           <ChildWrapper>{children}</ChildWrapper>
         </>
       )}

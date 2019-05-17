@@ -6,6 +6,7 @@ import {getCancellationKey} from "../helpers/getAlertKey";
 import CancellationItem from "./CancellationItem";
 import {ListHeading} from "./commonComponents";
 import groupBy from "lodash/groupBy";
+import {Text} from "../helpers/text";
 
 const CancellationsListWrapper = styled.div`
   padding-bottom: 1rem;
@@ -13,46 +14,52 @@ const CancellationsListWrapper = styled.div`
 
 const decorate = flow(observer);
 
-const CancellationsList = decorate(({className, cancellations = []}) => {
-  const validCancellations =
-    cancellations && Array.isArray(cancellations) ? cancellations : [];
+const CancellationsList = decorate(
+  ({className, cancellations = [], showListHeading = false}) => {
+    const validCancellations =
+      cancellations && Array.isArray(cancellations) ? cancellations : [];
 
-  const cancellationGroups = groupBy(
-    validCancellations,
-    ({departureDate, journeyStartTime}) => departureDate + journeyStartTime
-  );
+    const cancellationGroups = groupBy(
+      validCancellations,
+      ({departureDate, journeyStartTime}) => departureDate + journeyStartTime
+    );
 
-  return (
-    <CancellationsListWrapper className={className}>
-      <ListHeading>Cancellations</ListHeading>
-      {Object.values(cancellationGroups).map((cancellationGroup) => {
-        const firstCancellation = cancellationGroup[0];
+    return (
+      <CancellationsListWrapper className={className}>
+        {showListHeading && (
+          <ListHeading>
+            <Text>domain.cancellations</Text>
+          </ListHeading>
+        )}
+        {Object.values(cancellationGroups).map((cancellationGroup) => {
+          const firstCancellation = cancellationGroup[0];
 
-        if (cancellationGroup.length === 1) {
+          if (cancellationGroup.length === 1) {
+            return (
+              <CancellationItem
+                key={getCancellationKey(firstCancellation)}
+                cancellation={firstCancellation}
+              />
+            );
+          }
+
           return (
             <CancellationItem
               key={getCancellationKey(firstCancellation)}
-              cancellation={firstCancellation}
-            />
+              cancellation={firstCancellation}>
+              {cancellationGroup.slice(1).map((cancellation) => (
+                <CancellationItem
+                  small={true}
+                  key={getCancellationKey(cancellation)}
+                  cancellation={cancellation}
+                />
+              ))}
+            </CancellationItem>
           );
-        }
-
-        return (
-          <CancellationItem
-            key={getCancellationKey(firstCancellation)}
-            cancellation={firstCancellation}>
-            {cancellationGroup.slice(1).map((cancellation) => (
-              <CancellationItem
-                small={true}
-                key={getCancellationKey(cancellation)}
-                cancellation={cancellation}
-              />
-            ))}
-          </CancellationItem>
-        );
-      })}
-    </CancellationsListWrapper>
-  );
-});
+        })}
+      </CancellationsListWrapper>
+    );
+  }
+);
 
 export default CancellationsList;
