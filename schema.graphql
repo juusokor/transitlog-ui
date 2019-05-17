@@ -58,6 +58,7 @@ type Cancellation {
 
 type Departure {
   alerts: [Alert!]!
+  cancellations: [Cancellation!]!
   dayType: String!
   departureId: Int!
   direction: Direction!
@@ -67,6 +68,7 @@ type Departure {
   extraDeparture: String!
   id: ID!
   index: Int
+  isCancelled: Boolean!
   isNextDay: Boolean!
   isTimingStop: Boolean!
   journey: DepartureJourney

@@ -2,7 +2,7 @@ import React, {useCallback} from "react";
 import {observer, Observer} from "mobx-react-lite";
 import get from "lodash/get";
 import getJourneyId from "../../helpers/getJourneyId";
-import styled from "styled-components";
+import styled, {css} from "styled-components";
 import {Text, text} from "../../helpers/text";
 import SidepanelList from "./SidepanelList";
 import {createRouteId} from "../../helpers/keys";
@@ -43,6 +43,22 @@ const JourneyListRow = styled.button`
     background: ${({selected = false}) =>
       selected ? "var(--blue)" : "rgba(0, 0, 0, 0.03)"};
   }
+
+  ${({isCancelled = false}) =>
+    isCancelled
+      ? css`
+          &:after {
+            content: "";
+            position: absolute;
+            pointer-events: none;
+            height: 1px;
+            background: var(--red);
+            top: 50%;
+            left: 0.5rem;
+            right: 0.5rem;
+          }
+        `
+      : ""}
 `;
 
 const JourneyRowLeft = styled.span`
@@ -210,6 +226,7 @@ const Journeys = decorate(({state, Time, Journey}) => {
                       const isSpecialDayType =
                         getDayTypeFromDate(departureDate) !== departure.dayType ||
                         !dayTypes.includes(departure.dayType);
+                      const {isCancelled, cancellations} = departure;
 
                       if (!departure.journey) {
                         const compositeJourney = createCompositeJourney(
@@ -232,6 +249,7 @@ const Journeys = decorate(({state, Time, Journey}) => {
 
                         return (
                           <JourneyListRow
+                            isCancelled={isCancelled}
                             ref={journeyIsFocused ? scrollRef : null}
                             key={`planned_journey_row_${journeyId}`}
                             selected={journeyIsSelected}
