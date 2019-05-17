@@ -129,13 +129,14 @@ const SidePanel = decorate((props) => {
       date,
       vehicle,
       stop: stateStop,
+      route: stateRoute,
       selectedJourney,
       sidePanelVisible,
       showInstructions = false,
     },
   } = props;
 
-  const hasRoute = !!route && !!route.routeId;
+  const hasRoute = (!!stateRoute || !!route) && !!(stateRoute || route).routeId;
   // Figure out which tab is suggested. It will not be outright selected, but
   // if it appears and nothing else is selected then it will be.
   let suggestedTab = "";
@@ -214,7 +215,11 @@ const SidePanel = decorate((props) => {
       <JourneyPanel visible={detailsOpen}>
         {/* The content of the sidebar is independent from the sidebar wrapper so that we can animate it. */}
         {detailsOpen && (
-          <JourneyDetails loading={journeyLoading} journey={journey} route={route} />
+          <JourneyDetails
+            loading={journeyLoading}
+            journey={journey}
+            route={route || stateRoute}
+          />
         )}
         <div>
           {detailsCanOpen && (

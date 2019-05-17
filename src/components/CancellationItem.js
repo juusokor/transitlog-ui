@@ -14,14 +14,36 @@ const CancellationComponent = styled.div`
   font-family: var(--font-family);
   background: transparent;
   color: var(--dark-grey);
+  border-bottom: 1px solid var(--lightest-grey);
 
   &:first-child {
     margin-top: 0;
   }
 
-  &:nth-child(odd) {
+  &:nth-child(even) {
     background: rgba(0, 0, 0, 0.03);
   }
+`;
+
+const ChildWrapper = styled.div`
+  background: white;
+  margin-bottom: 0.5rem;
+  margin-left: 1rem;
+  border-top: 1px solid var(--alt-grey);
+  border-left: 1px solid var(--alt-grey);
+  border-bottom: 1px solid var(--alt-grey);
+
+  ${CancellationComponent}:last-child {
+    border-bottom: 0;
+  }
+`;
+
+const ChildHeading = styled(Heading).attrs({level: 6})`
+  margin-left: 1rem;
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: normal;
 `;
 
 const CancellationHeader = styled.div`
@@ -62,7 +84,6 @@ const CancellationContent = styled.div`
 `;
 
 const CancellationTime = styled.div`
-  font-size: 0.875rem;
   text-align: right;
   margin-left: auto;
 
@@ -71,7 +92,7 @@ const CancellationTime = styled.div`
   }
 
   strong {
-    font-size: 0.87rem;
+    font-size: 0.8rem;
     font-weight: bold;
   }
 
@@ -81,17 +102,19 @@ const CancellationTime = styled.div`
 `;
 
 const CancellationTitle = styled(Heading).attrs({level: 5})`
-  margin: 0;
+  margin: 0 0 0.75rem;
   font-size: 0.875rem;
   font-weight: bold;
   color: inherit;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 `;
 
 const CancellationDescription = styled.div`
   margin: 0 0 1rem;
   font-size: 0.875rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid var(--lighter-grey);
 `;
 
 const CancellationInfo = styled.div`
@@ -105,17 +128,14 @@ const CancellationInfoRow = styled.div`
 
 const CancellationPublishTime = styled.span`
   font-size: 0.75rem;
-  margin-left: auto;
   color: var(--grey);
 `;
 
 const CancellationFooter = styled.div`
-  margin-top: 0.375rem;
   padding-top: 0.75rem;
-  border-top: 1px solid var(--alt-grey);
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: flex-end;
 `;
 
 const Accordion = styled(ToggleView)`
@@ -127,7 +147,7 @@ const Accordion = styled(ToggleView)`
   }
 `;
 
-const CancellationItem = observer(({cancellation}) => {
+const CancellationItem = observer(({cancellation, small = false, children}) => {
   const publishedMoment = moment.tz(cancellation.lastModifiedDateTime, TIMEZONE);
   const Icon = cancellation.isCancelled ? TrashCan : Checkmark;
 
@@ -138,7 +158,7 @@ const CancellationItem = observer(({cancellation}) => {
           <CancellationHeader>
             <Row>
               <Icon
-                width="1.25rem"
+                width="1rem"
                 fill={cancellation.isCancelled ? "var(--red)" : "var(--green)"}
               />
               <CancellationType>
@@ -149,12 +169,11 @@ const CancellationItem = observer(({cancellation}) => {
                 <strong>{cancellation.journeyStartTime}</strong>
               </CancellationTime>
             </Row>
-            <Row>
-              <CancellationTitle>{cancellation.title}</CancellationTitle>
-            </Row>
+            {!small && <CancellationTitle>{cancellation.title}</CancellationTitle>}
           </CancellationHeader>
         }>
         <CancellationContent>
+          {small && <CancellationTitle>{cancellation.title}</CancellationTitle>}
           <CancellationDescription>{cancellation.description}</CancellationDescription>
           <CancellationInfo>
             <CancellationInfoRow>
@@ -169,13 +188,17 @@ const CancellationItem = observer(({cancellation}) => {
           </CancellationInfo>
           <CancellationFooter>
             <CancellationPublishTime>
-              <span>
-                {publishedMoment.format("MM/DD")}, {publishedMoment.format("HH:mm")}
-              </span>
+              {publishedMoment.format("DD/MM")} {publishedMoment.format("HH:mm")}
             </CancellationPublishTime>
           </CancellationFooter>
         </CancellationContent>
       </Accordion>
+      {children && (
+        <>
+          <ChildHeading>Previous:</ChildHeading>
+          <ChildWrapper>{children}</ChildWrapper>
+        </>
+      )}
     </CancellationComponent>
   );
 });

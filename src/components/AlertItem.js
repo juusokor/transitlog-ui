@@ -23,7 +23,7 @@ const AlertComponent = styled.div`
     margin-top: 0;
   }
 
-  &:nth-child(odd) {
+  &:nth-child(even) {
     background: ${({color}) => (color ? color : "rgba(0, 0, 0, 0.03)")};
   }
 `;
@@ -66,7 +66,6 @@ const AlertContent = styled.div`
 `;
 
 const AlertTime = styled.div`
-  font-size: 0.875rem;
   text-align: right;
   margin-left: auto;
 
@@ -75,7 +74,7 @@ const AlertTime = styled.div`
   }
 
   strong {
-    font-size: 0.87rem;
+    font-size: 0.8rem;
     font-weight: bold;
   }
 
@@ -94,10 +93,7 @@ const AlertTitle = styled(Heading).attrs({level: 5})`
 const AlertDescription = styled.div`
   margin: 0 0 1rem;
   font-size: 0.875rem;
-  padding-top: 0.75rem;
   color: inherit;
-  border-top: 1px solid
-    ${({lightBg}) => (lightBg ? "var(--grey)" : "var(--lighter-grey)")};
 `;
 
 const AlertInfo = styled.div`
@@ -116,9 +112,7 @@ const AlertPublishTime = styled.span`
 `;
 
 const AlertFooter = styled.div`
-  margin-top: 0.375rem;
   padding-top: 0.75rem;
-  border-top: 1px solid ${({lightBg}) => (lightBg ? "var(--grey)" : "var(--alt-grey)")};
   display: flex;
   align-items: center;
   justify-content: flex-start;
