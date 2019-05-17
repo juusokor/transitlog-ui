@@ -5,10 +5,10 @@ import styled from "styled-components";
 import {Heading} from "./Typography";
 import ToggleView from "./ToggleView";
 import {observer} from "mobx-react-lite";
-import TrashCan from "../icons/TrashCan";
 import {text, Text} from "../helpers/text";
-import Checkmark from "../icons/Checkmark";
 import format from "date-fns/format";
+import CrossThick from "../icons/CrossThick";
+import Checkmark2 from "../icons/Checkmark2";
 
 const CancellationComponent = styled.div`
   font-family: var(--font-family);
@@ -149,7 +149,7 @@ const Accordion = styled(ToggleView)`
 
 const CancellationItem = observer(({cancellation, small = false, children}) => {
   const publishedMoment = moment.tz(cancellation.lastModifiedDateTime, TIMEZONE);
-  const Icon = cancellation.isCancelled ? TrashCan : Checkmark;
+  const Icon = cancellation.isCancelled ? CrossThick : Checkmark2;
 
   return (
     <CancellationComponent>
@@ -162,7 +162,7 @@ const CancellationItem = observer(({cancellation, small = false, children}) => {
                 fill={cancellation.isCancelled ? "var(--red)" : "var(--green)"}
               />
               <CancellationType>
-                {cancellation.routeId} / {cancellation.direction}
+                {cancellation.routeId}/{cancellation.direction}
               </CancellationType>
               <CancellationTime>
                 <span>{format(cancellation.departureDate, "DD/MM")} </span>
