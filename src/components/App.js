@@ -174,8 +174,8 @@ function App({route, state, UI}) {
                                                     : false;
 
                                                   const selectedJourneyPosition =
-                                                    selectedJourney &&
-                                                    currentJourneyPositions.size === 1
+                                                    currentJourneyPositions.size === 1 &&
+                                                    selectedJourneyId
                                                       ? currentJourneyPositions.get(
                                                           selectedJourneyId
                                                         ) || false
@@ -184,10 +184,14 @@ function App({route, state, UI}) {
                                                   const {lat, lng} =
                                                     selectedJourneyPosition || {};
 
+                                                  // If a journey is selected, use the journey position if available.
+                                                  // Else use the selected stop position if available.
                                                   const centerPosition =
-                                                    lat && lng
+                                                    lat && lng && selectedJourney
                                                       ? latLng([lat, lng])
-                                                      : stopPosition;
+                                                      : !selectedJourney
+                                                      ? stopPosition
+                                                      : false;
 
                                                   if (centerPosition) {
                                                     setMapView(centerPosition);
