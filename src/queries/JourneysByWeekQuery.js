@@ -5,6 +5,7 @@ import {Query} from "react-apollo";
 import {observer} from "mobx-react-lite";
 import {setUpdateListener, removeUpdateListener} from "../stores/UpdateManager";
 import {AlertFieldsFragment} from "./AlertFieldsFragment";
+import {CancellationFieldsFragment} from "./CancellationFieldsFragment";
 
 export const routeJourneysByWeekQuery = gql`
   query journeysByWeekQuery(
@@ -35,6 +36,10 @@ export const routeJourneysByWeekQuery = gql`
       direction
       stopId
       mode
+      isCancelled
+      cancellations {
+        ...CancellationFieldsFragment
+      }
       alerts {
         ...AlertFieldsFragment
       }
@@ -66,6 +71,7 @@ export const routeJourneysByWeekQuery = gql`
     }
   }
   ${AlertFieldsFragment}
+  ${CancellationFieldsFragment}
 `;
 
 const updateListenerName = "journey weel query";

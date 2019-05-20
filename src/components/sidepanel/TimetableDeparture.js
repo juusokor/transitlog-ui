@@ -12,7 +12,7 @@ import {
   PlainSlotSmall,
 } from "../TagButton";
 import {getTimelinessColor} from "../../helpers/timelinessColor";
-import styled, {css} from "styled-components";
+import styled from "styled-components";
 import getJourneyId from "../../helpers/getJourneyId";
 import {secondsToTimeObject, getNormalTime} from "../../helpers/time";
 import {parseLineNumber} from "../../helpers/parseLineNumber";
@@ -21,29 +21,14 @@ import {getDayTypeFromDate, dayTypes} from "../../helpers/getDayTypeFromDate";
 import AlertIcons from "../AlertIcons";
 import {getAlertsInEffect} from "../../helpers/getAlertsInEffect";
 import TimingStop from "../../icons/TimingStop";
+import {cancelledStyle} from "../commonComponents";
 
 const ListRow = styled.div`
   padding: 0.25rem 0.5rem 0.25rem 0.75rem;
   margin: 0;
   position: relative;
   background: ${({selected = false}) => (selected ? "var(--blue)" : "transparent")};
-
-  ${({isCancelled = false}) =>
-    isCancelled
-      ? css`
-          &:after {
-            content: "";
-            position: absolute;
-            pointer-events: none;
-            height: 2px;
-            background: var(--red);
-            top: 45%;
-            left: 0.5rem;
-            right: 0.5rem;
-            // opacity: 0.7;
-          }
-        `
-      : ""}
+  ${cancelledStyle}
 `;
 
 const LineSlot = styled(ColoredSlot)`

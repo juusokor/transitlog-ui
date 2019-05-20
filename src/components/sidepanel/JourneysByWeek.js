@@ -29,6 +29,8 @@ import SomethingWrong from "../../icons/SomethingWrong";
 import Cross from "../../icons/Cross";
 import AlertIcons from "../AlertIcons";
 import {getAlertsInEffect} from "../../helpers/getAlertsInEffect";
+import {cancelledStyle} from "../commonComponents";
+import CrossThick from "../../icons/CrossThick";
 /*import {weeklyObservedTimeTypes} from "../../stores/UIStore";
 import ToggleButton from "../ToggleButton";*/
 
@@ -98,6 +100,7 @@ const TableCellButton = styled(TableCell.withComponent("button"))`
   display: block;
   font-family: inherit;
   outline: 0;
+  ${cancelledStyle}
 `;
 
 const TableCellIcons = styled(AlertIcons)`
@@ -377,7 +380,11 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, UI}) => {
                               let departureStatus = "notavailable";
 
                               // Find out the status of the departure
-                              if (departure && observedTime) {
+                              if (departure && departure.isCancelled) {
+                                departureStatus = observedTime
+                                  ? "partially-cancelled"
+                                  : "cancelled";
+                              } else if (departure && observedTime) {
                                 // We have a planned departure and observed times
                                 departureStatus = "ok";
                               } else if (departure && !observedTime) {
@@ -392,15 +399,20 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, UI}) => {
                               }
 
                               // Show an icon if the departure is not ok
-                              if (departureStatus !== "ok") {
+                              if (
+                                !["partially-cancelled", "ok"].includes(departureStatus)
+                              ) {
                                 let IconComponent = null;
 
                                 switch (departureStatus) {
-                                  case "notobserved":
-                                    IconComponent = Waiting;
+                                  case "cancelled":
+                                    IconComponent = CrossThick;
                                     break;
                                   case "notforday":
                                     IconComponent = Cross;
+                                    break;
+                                  case "notobserved":
+                                    IconComponent = Waiting;
                                     break;
                                   case "notavailable":
                                   default:
@@ -450,6 +462,7 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, UI}) => {
                                     departure.dayType
                                   }_${departureTime}`}>
                                   <TableCellButton
+                                    isCancelled={departure.isCancelled}
                                     highlight={idx === currentDayTypeIndex}
                                     onClick={() => selectJourney(departure.journey)}
                                     color={
