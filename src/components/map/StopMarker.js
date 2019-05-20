@@ -199,7 +199,9 @@ const StopMarker = decorate(
         // The "pane" prop on the Circle element is not dynamic, so the
         // StopRadius component should be remounted when selected or
         // deselected for the circle to appear on the correct layer.
-        key={`stop_radius_${stop.stopId}${isSelected ? "_selected" : ""}`}
+        key={`stop_radius_${get(stop, "stopId", selectedStop)}${
+          isSelected ? "_selected" : ""
+        }`}
         isHighlighted={isSelected}
         center={markerPosition}
         color={stopColor}

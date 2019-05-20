@@ -156,16 +156,18 @@ export default observer(({journey, date}) => {
           </Values>
         </Line>
       </JourneyInfoRow>
-      <JourneyInfoRow>
-        <Line>
-          <LineHeading>
-            <Text>vehicle.identifier</Text>
-          </LineHeading>
-          <Values>
-            <span>{journey.uniqueVehicleId}</span>
-          </Values>
-        </Line>
-      </JourneyInfoRow>
+      {journey.uniqueVehicleId && (
+        <JourneyInfoRow>
+          <Line>
+            <LineHeading>
+              <Text>vehicle.identifier</Text>
+            </LineHeading>
+            <Values>
+              <span>{journey.uniqueVehicleId}</span>
+            </Values>
+          </Line>
+        </JourneyInfoRow>
+      )}
       <JourneyInfoRow>
         <Line>
           <LineHeading>
@@ -175,7 +177,7 @@ export default observer(({journey, date}) => {
             <span>{operatorName}</span>
           </Values>
         </Line>
-        {observedOperatorName !== operatorName && (
+        {observedOperatorName && observedOperatorName !== operatorName && (
           <Line>
             <LineHeading>
               <Text>vehicle.subcontractor</Text>

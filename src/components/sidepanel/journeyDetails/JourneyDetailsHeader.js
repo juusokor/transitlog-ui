@@ -7,12 +7,21 @@ import JourneyPlanner from "../../../icons/JourneyPlanner";
 import Time2 from "../../../icons/Time2";
 import {observer} from "mobx-react-lite";
 import {parseLineNumber} from "../../../helpers/parseLineNumber";
+import CrossThick from "../../../icons/CrossThick";
 
 const JourneyPanelHeader = styled.div`
   flex: none;
-  padding: 1rem;
   border-bottom: 1px solid var(--lighter-grey);
   width: 100%;
+
+  svg {
+    margin-left: -0.2rem;
+    margin-right: 0.5rem;
+  }
+`;
+
+const HeaderContent = styled.div`
+  padding: 1rem;
 
   > * {
     display: flex;
@@ -25,11 +34,6 @@ const JourneyPanelHeader = styled.div`
 
   > *:last-child {
     margin-bottom: 0;
-  }
-
-  svg {
-    margin-left: -0.2rem;
-    margin-right: 0.5rem;
   }
 `;
 
@@ -73,46 +77,68 @@ const DateTimeHeading = styled.div`
   margin-bottom: 0.75rem;
 `;
 
+const CancelledAlert = styled.div`
+  background: var(--red);
+  color: white;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+
+  svg {
+    margin-right: 1rem;
+    display: block;
+    margin-left: 0;
+  }
+`;
+
 export default observer(({route, journey}) => {
   if (!journey && !route) {
     return null;
   }
 
-  const {uniqueVehicleId, departureTime, departureDate} = journey || {};
+  const {uniqueVehicleId, departureTime, departureDate, isCancelled} = journey || {};
   const {mode, routeId, origin, destination} = route || {};
   const routeName = [origin, destination].join(" - ");
 
   return (
     <JourneyPanelHeader>
-      <MainHeaderRow>
-        <TransportIcon width={23} height={23} mode={mode} />
-        <LineIdHeading>{parseLineNumber(routeId)}</LineIdHeading>
-        <HeaderText>
-          <JourneyPlanner fill="var(--blue)" width="1rem" height="1rem" />
-          {routeId}
-        </HeaderText>
-        {uniqueVehicleId && (
+      <HeaderContent>
+        <MainHeaderRow>
+          <TransportIcon width={23} height={23} mode={mode} />
+          <LineIdHeading>{parseLineNumber(routeId)}</LineIdHeading>
           <HeaderText>
-            <TransportIcon mode={mode} width={17} height={17} />
-            {uniqueVehicleId}
+            <JourneyPlanner fill="var(--blue)" width="1rem" height="1rem" />
+            {routeId}
           </HeaderText>
+          {uniqueVehicleId && (
+            <HeaderText>
+              <TransportIcon mode={mode} width={17} height={17} />
+              {uniqueVehicleId}
+            </HeaderText>
+          )}
+        </MainHeaderRow>
+        {departureDate && departureTime && (
+          <>
+            <DateTimeHeading>
+              <HeaderText>
+                <Calendar fill="var(--blue)" width="1rem" height="1rem" />
+                {departureDate}
+              </HeaderText>
+              <HeaderText>
+                <Time2 fill="var(--blue)" width="1rem" height="1rem" />
+                {departureTime}
+              </HeaderText>
+            </DateTimeHeading>
+          </>
         )}
-      </MainHeaderRow>
-      {departureDate && departureTime && (
-        <>
-          <DateTimeHeading>
-            <HeaderText>
-              <Calendar fill="var(--blue)" width="1rem" height="1rem" />
-              {departureDate}
-            </HeaderText>
-            <HeaderText>
-              <Time2 fill="var(--blue)" width="1rem" height="1rem" />
-              {departureTime}
-            </HeaderText>
-          </DateTimeHeading>
-        </>
+        <LineNameHeading>{routeName}</LineNameHeading>
+      </HeaderContent>
+      {isCancelled && (
+        <CancelledAlert>
+          <CrossThick fill="white" width="0.75rem" height="0.75rem" /> Cancelled
+        </CancelledAlert>
       )}
-      <LineNameHeading>{routeName}</LineNameHeading>
     </JourneyPanelHeader>
   );
 });

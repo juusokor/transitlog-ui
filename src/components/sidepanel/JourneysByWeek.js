@@ -104,12 +104,22 @@ const TableCellButton = styled(TableCell.withComponent("button"))`
 `;
 
 const TableCellIcons = styled(AlertIcons)`
-  bottom: -0.1rem;
-  left: 0.2rem;
+  bottom: 2px;
+  left: 2px;
+  padding: 0 2px;
+  border-radius: 2px;
+  background: white;
+  height: 0.75rem;
+  display: flex;
+  align-items: center;
 
   svg {
     width: 0.5rem !important;
     height: 0.5rem !important;
+  }
+
+  &:empty {
+    padding: 0;
   }
 `;
 
@@ -447,7 +457,7 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, route: propsRou
                                       }
                                       backgroundColor={
                                         departureIsSelected
-                                          ? "var(--blue)"
+                                          ? "var(--light-blue)"
                                           : "transparent"
                                       }
                                       onClick={() => selectJourney(departure, false)}
