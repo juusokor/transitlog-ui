@@ -17,14 +17,10 @@ const decorate = flow(
 const EnsureJourneySelection = decorate(
   ({Filters, Journey, children, journey, loading}) => {
     useEffect(() => {
-      if (!loading) {
-        if (!journey || journey.events.length === 0) {
-          Journey.setSelectedJourney(null);
-        } else if (journey) {
-          const vehicleId = get(journey, "uniqueVehicleId", "");
-          Filters.setVehicle(vehicleId);
-          Journey.setJourneyVehicle(vehicleId);
-        }
+      if (!loading && journey && journey.uniqueVehicleId) {
+        const vehicleId = journey.uniqueVehicleId;
+        Filters.setVehicle(vehicleId);
+        Journey.setJourneyVehicle(vehicleId);
       }
     }, [journey, loading]);
 

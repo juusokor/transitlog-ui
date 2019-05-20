@@ -26,6 +26,8 @@ export const routeJourneysQuery = gql`
       isTimingStop
       dayType
       departureId
+      departureDate
+      departureTime
       equipmentColor
       equipmentType
       extraDeparture

@@ -132,7 +132,7 @@ const CancellationPublishTime = styled.span`
 `;
 
 const CancellationFooter = styled.div`
-  padding-top: 0.75rem;
+  padding-top: 0;
   display: flex;
   align-items: center;
   justify-content: flex-end;

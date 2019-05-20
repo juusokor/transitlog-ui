@@ -62,7 +62,9 @@ type Departure {
   alerts: [Alert!]!
   cancellations: [Cancellation!]!
   dayType: String!
+  departureDate: Date!
   departureId: Int!
+  departureTime: Time!
   direction: Direction!
   equipmentColor: String
   equipmentIsRequired: Boolean

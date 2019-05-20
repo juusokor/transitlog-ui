@@ -73,6 +73,8 @@ export const journeyQuery = gql`
         stopId
         dayType
         departureId
+        departureDate
+        departureTime
         equipmentColor
         equipmentIsRequired
         equipmentType

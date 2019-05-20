@@ -128,20 +128,31 @@ const TableHeader = styled(TableRow)`
   margin-top: -0.25rem;
 `;*/
 
+function createDepartureJourneyId(departure, departureTime) {
+  const compositeJourney = createCompositeJourney(
+    departure.plannedDepartureTime.departureDate,
+    departure,
+    departureTime ? departureTime : departure.plannedDepartureTime.departureTime
+  );
+
+  return getJourneyId(compositeJourney, false);
+}
+
 const decorate = flow(
   observer,
   inject("UI", "Journey", "Filters", "Time")
 );
 
-const JourneysByWeek = decorate(({state, Time, Filters, Journey, UI}) => {
-  const selectJourney = useCallback((journey) => {
+const JourneysByWeek = decorate(({state, Time, Filters, Journey, route: propsRoute}) => {
+  const selectJourney = useCallback((journey, matchVehicle = true) => {
     let journeyToSelect = null;
 
     if (journey) {
-      const journeyId = getJourneyId(journey);
+      const journeyId = getJourneyId(journey, matchVehicle);
+      const selectedJourneyId = getJourneyId(state.selectedJourney, matchVehicle);
 
       // Only set these if the journey is truthy and was not already selected
-      if (journeyId && getJourneyId(state.selectedJourney) !== journeyId) {
+      if (journeyId && selectedJourneyId !== journeyId) {
         Time.setTime(journey.departureTime);
         Filters.setDate(journey.departureDate);
         journeyToSelect = journey;
@@ -163,8 +174,10 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, UI}) => {
     );
   }, []);*/
 
-  const {date, route} = state;
-  const selectedJourneyId = getJourneyId(state.selectedJourney);
+  const {date, route: stateRoute, selectedJourney} = state;
+  const route = propsRoute || stateRoute;
+
+  const selectedJourneyId = getJourneyId(selectedJourney);
 
   const weekNumber = getWeek(date);
   const currentDayType = getDayTypeFromDate(date);
@@ -226,7 +239,10 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, UI}) => {
   }, [weekStartDate, selectedDayTypes]);
 
   return (
-    <JourneysByWeekQuery route={route} date={weekStartDate}>
+    <JourneysByWeekQuery
+      skip={!get(route, "routeId", null)}
+      route={route}
+      date={weekStartDate}>
       {({departures, loading}) => (
         <Observer>
           {() => {
@@ -339,13 +355,10 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, UI}) => {
 
                           // Check if the row contains a selected departure
                           if (dep) {
-                            const compositeJourney = createCompositeJourney(
-                              dep.plannedDepartureTime.departureDate,
+                            const journeyId = createDepartureJourneyId(
                               dep,
                               departureTime
                             );
-
-                            const journeyId = getJourneyId(compositeJourney, false);
 
                             if (
                               selectedJourneyId &&
@@ -420,16 +433,39 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, UI}) => {
                                     break;
                                 }
 
+                                const departureIsSelected =
+                                  getJourneyId(selectedJourney, false) ===
+                                  createDepartureJourneyId(departure);
+
                                 return (
                                   <Tooltip
                                     helpText={`This departure is not available due to: ${departureStatus}, ${dayType}`}
                                     key={`departure_day_${dayType}_${departureStatus}_${departureTime}_${idx}`}>
-                                    <TableCell highlight={idx === currentDayTypeIndex}>
-                                      <IconComponent width="1rem" fill="var(--grey)" />
+                                    <TableCellButton
+                                      color={
+                                        departureIsSelected ? "white" : "var(--dark-grey)"
+                                      }
+                                      backgroundColor={
+                                        departureIsSelected
+                                          ? "var(--blue)"
+                                          : "transparent"
+                                      }
+                                      onClick={() => selectJourney(departure, false)}
+                                      highlight={idx === currentDayTypeIndex}>
+                                      <IconComponent
+                                        width="1rem"
+                                        fill={
+                                          departureStatus === "cancelled"
+                                            ? "var(--red)"
+                                            : departureIsSelected
+                                            ? "white"
+                                            : "var(--grey)"
+                                        }
+                                      />
                                       <TableCellIcons
                                         alerts={getAlertsInEffect(departure)}
                                       />
-                                    </TableCell>
+                                    </TableCellButton>
                                   </Tooltip>
                                 );
                               }
@@ -464,7 +500,7 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, UI}) => {
                                   <TableCellButton
                                     isCancelled={departure.isCancelled}
                                     highlight={idx === currentDayTypeIndex}
-                                    onClick={() => selectJourney(departure.journey)}
+                                    onClick={() => selectJourney(departure.journey, true)}
                                     color={
                                       journeyIsSelected
                                         ? delayType === "late"

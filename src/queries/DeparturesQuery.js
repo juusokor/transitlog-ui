@@ -25,6 +25,8 @@ const departuresQuery = gql`
       direction
       dayType
       departureId
+      departureDate
+      departureTime
       equipmentColor
       equipmentType
       extraDeparture
