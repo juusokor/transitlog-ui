@@ -8,6 +8,7 @@ import Time2 from "../../../icons/Time2";
 import {observer} from "mobx-react-lite";
 import {parseLineNumber} from "../../../helpers/parseLineNumber";
 import CrossThick from "../../../icons/CrossThick";
+import {Text} from "../../../helpers/text";
 
 const JourneyPanelHeader = styled.div`
   flex: none;
@@ -136,7 +137,8 @@ export default observer(({route, journey}) => {
       </HeaderContent>
       {isCancelled && (
         <CancelledAlert>
-          <CrossThick fill="white" width="0.75rem" height="0.75rem" /> Cancelled
+          <CrossThick fill="white" width="0.75rem" height="0.75rem" />
+          <Text>domain.cancelled</Text>
         </CancelledAlert>
       )}
     </JourneyPanelHeader>

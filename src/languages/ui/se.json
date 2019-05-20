@@ -73,6 +73,7 @@
   "domain.alerts.network": "Hela nätverket",
   "domain.cancellations": "Annulleringar",
   "domain.alerts.subset": "Undantagsinformation",
+  "domain.cancelled": "Annullerad",
 
   "general.minutes": "minuter",
   "general.hour": "timme",

@@ -76,6 +76,7 @@
   "domain.alerts.network": "Network",
   "domain.cancellations": "Cancellations",
   "domain.alerts.subset": "Alerts",
+  "domain.cancelled": "Cancelled",
 
   "general.minutes": "minutes",
   "general.hour": "hour",

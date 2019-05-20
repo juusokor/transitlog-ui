@@ -76,6 +76,7 @@
   "domain.alerts.network": "Koko alue",
   "domain.cancellations": "Peruutukset",
   "domain.alerts.subset": "Poikkeustiedotteet",
+  "domain.cancelled": "Peruutettu",
 
   "general.minutes": "minuutteja",
   "general.hour": "tunti",
