@@ -27,7 +27,6 @@ import getDelayType from "../../../helpers/getDelayType";
 
 const StopWrapper = styled(DefaultStopWrapper)`
   padding: 0;
-  margin-left: 0.25rem;
 `;
 
 const SimpleStopArrivalTime = styled.div`

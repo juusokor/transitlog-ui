@@ -78,6 +78,7 @@ class JourneyDetails extends React.Component {
             <Tabs suggestedTab="journey-stops">
               {stopDepartures.length !== 0 && (
                 <JourneyStops
+                  cancellations={cancellations}
                   loading={loading}
                   name="journey-stops"
                   label={text("journey.stops")}

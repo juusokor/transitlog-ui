@@ -147,62 +147,86 @@ const Accordion = styled(ToggleView)`
   }
 `;
 
-const CancellationItem = observer(({cancellation, small = false, children}) => {
-  const publishedMoment = moment.tz(cancellation.lastModifiedDateTime, TIMEZONE);
-  const Icon = cancellation.isCancelled ? CrossThick : Checkmark2;
+const CancellationItem = observer(
+  ({
+    cancellation,
+    small = false,
+    children,
+    className,
+    noIcon = false,
+    timestampInHeader = false,
+  }) => {
+    const publishedMoment = moment.tz(cancellation.lastModifiedDateTime, TIMEZONE);
+    const Icon = cancellation.isCancelled ? CrossThick : Checkmark2;
 
-  return (
-    <CancellationComponent>
-      <Accordion
-        label={
-          <CancellationHeader>
-            <Row>
-              <Icon
-                width="1rem"
-                fill={cancellation.isCancelled ? "var(--red)" : "var(--green)"}
-              />
-              <CancellationType>
-                {cancellation.routeId}/{cancellation.direction}
-              </CancellationType>
-              <CancellationTime>
-                <span>{format(cancellation.departureDate, "DD/MM")} </span>
-                <strong>{cancellation.journeyStartTime}</strong>
-              </CancellationTime>
-            </Row>
-            {!small && <CancellationTitle>{cancellation.title}</CancellationTitle>}
-          </CancellationHeader>
-        }>
-        <CancellationContent>
-          {small && <CancellationTitle>{cancellation.title}</CancellationTitle>}
-          <CancellationDescription>{cancellation.description}</CancellationDescription>
-          <CancellationInfo>
-            <CancellationInfoRow>
-              {text("general.category")}: <strong>{cancellation.category}</strong>
-            </CancellationInfoRow>
-            <CancellationInfoRow>
-              {text("general.subcategory")}: <strong>{cancellation.subCategory}</strong>
-            </CancellationInfoRow>
-            <CancellationInfoRow>
-              {text("general.impact")}: <strong>{cancellation.cancellationEffect}</strong>
-            </CancellationInfoRow>
-          </CancellationInfo>
-          <CancellationFooter>
-            <CancellationPublishTime>
-              {publishedMoment.format("DD/MM")} {publishedMoment.format("HH:mm")}
-            </CancellationPublishTime>
-          </CancellationFooter>
-        </CancellationContent>
-      </Accordion>
-      {children && (
-        <>
-          <ChildHeading>
-            <Text>general.previous.plural</Text>
-          </ChildHeading>
-          <ChildWrapper>{children}</ChildWrapper>
-        </>
-      )}
-    </CancellationComponent>
-  );
-});
+    return (
+      <CancellationComponent className={className}>
+        <Accordion
+          label={
+            <CancellationHeader>
+              <Row>
+                {!noIcon && (
+                  <Icon
+                    width="1rem"
+                    fill={cancellation.isCancelled ? "var(--red)" : "var(--green)"}
+                  />
+                )}
+                {timestampInHeader ? (
+                  <CancellationType>
+                    {publishedMoment.format("DD/MM")} {publishedMoment.format("HH:mm")}
+                  </CancellationType>
+                ) : (
+                  <CancellationType>
+                    {cancellation.routeId}/{cancellation.direction}
+                  </CancellationType>
+                )}
+                <CancellationTime>
+                  <span>{format(cancellation.departureDate, "DD/MM")} </span>
+                  <strong>{cancellation.journeyStartTime}</strong>
+                </CancellationTime>
+              </Row>
+              {!small && <CancellationTitle>{cancellation.title}</CancellationTitle>}
+            </CancellationHeader>
+          }>
+          <CancellationContent>
+            {small && <CancellationTitle>{cancellation.title}</CancellationTitle>}
+            <CancellationDescription>{cancellation.description}</CancellationDescription>
+            <CancellationInfo>
+              <CancellationInfoRow>
+                {text("general.category")}: <strong>{cancellation.category}</strong>
+              </CancellationInfoRow>
+              <CancellationInfoRow>
+                {text("general.subcategory")}: <strong>{cancellation.subCategory}</strong>
+              </CancellationInfoRow>
+              <CancellationInfoRow>
+                {text("general.impact")}:{" "}
+                <strong>{cancellation.cancellationEffect}</strong>
+              </CancellationInfoRow>
+            </CancellationInfo>
+            <CancellationFooter>
+              {timestampInHeader ? (
+                <CancellationPublishTime>
+                  {cancellation.routeId}/{cancellation.direction}
+                </CancellationPublishTime>
+              ) : (
+                <CancellationPublishTime>
+                  {publishedMoment.format("DD/MM")} {publishedMoment.format("HH:mm")}
+                </CancellationPublishTime>
+              )}
+            </CancellationFooter>
+          </CancellationContent>
+        </Accordion>
+        {children && (
+          <>
+            <ChildHeading>
+              <Text>general.previous.plural</Text>
+            </ChildHeading>
+            <ChildWrapper>{children}</ChildWrapper>
+          </>
+        )}
+      </CancellationComponent>
+    );
+  }
+);
 
 export default CancellationItem;

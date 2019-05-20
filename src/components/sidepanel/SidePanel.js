@@ -160,7 +160,7 @@ const SidePanel = decorate((props) => {
     <SidePanelContainer visible={sidePanelOpen}>
       <MainSidePanel>
         {showInstructions ? (
-          <UsageInstructions />
+          <UsageInstructions language={language} />
         ) : allTabsHidden ? (
           <Alerts language={language} />
         ) : (

@@ -63,14 +63,14 @@ export const StopElementsWrapper = styled.div`
 `;
 export const StopWrapper = styled.div`
   padding: 0 1rem 0 0;
-  margin-left: 0.75rem;
+  margin-left: 0.5rem;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
   width: 100%;
 `;
 export const StopContent = styled.div`
-  padding: 0 1.25rem 1.5rem 0.75rem;
+  padding: 0 1rem 1.5rem 0.75rem;
   width: 100%;
 `;
 export const StopHeading = styled.button`

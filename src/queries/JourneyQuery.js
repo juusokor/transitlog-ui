@@ -85,6 +85,7 @@ export const journeyQuery = gql`
         operatorId
         terminalTime
         recoveryTime
+        isCancelled
         alerts {
           ...AlertFieldsFragment
         }
