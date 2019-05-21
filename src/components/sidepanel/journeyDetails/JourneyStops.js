@@ -125,12 +125,8 @@ const JourneyStops = decorate(
       (item) => {
         const time = get(
           item,
-          "observedDepartureTime.departureDateTime",
-          get(
-            item,
-            "plannedDepartureTime.departureDateTime",
-            get(item, "lastModifiedDateTime", null)
-          )
+          "plannedDepartureTime.departureDateTime",
+          get(item, "lastModifiedDateTime", null)
         );
 
         if (time) {
