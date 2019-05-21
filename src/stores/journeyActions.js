@@ -1,5 +1,4 @@
 import {action} from "mobx";
-import getJourneyId from "../helpers/getJourneyId";
 import {getJourneyObject} from "../helpers/getJourneyObject";
 import filterActions from "./filterActions";
 import {setPathName} from "./UrlManager";

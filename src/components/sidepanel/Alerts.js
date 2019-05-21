@@ -1,6 +1,5 @@
 import AlertsQuery from "../../queries/AlertsQuery";
 import flow from "lodash/flow";
-import get from "lodash/get";
 import {observer, Observer} from "mobx-react-lite";
 import {inject} from "../../helpers/inject";
 import React from "react";
@@ -8,7 +7,6 @@ import {getAlertsInEffect, AlertDistribution} from "../../helpers/getAlertsInEff
 import SidepanelList from "./SidepanelList";
 import AlertsList from "../AlertsList";
 import CancellationsQuery from "../../queries/CancellationsQuery";
-import isBefore from "date-fns/is_before";
 import CancellationsList from "../CancellationsList";
 
 const decorate = flow(

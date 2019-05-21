@@ -1,12 +1,10 @@
 import {useEffect} from "react";
 import {observer} from "mobx-react-lite";
-import get from "lodash/get";
 import flow from "lodash/flow";
 import {inject} from "./inject";
 
 /*
-  A helper component to deselect a selected journey that does not exist
-  if one such journey has somehow become selected.
+  A helper component to ensure that the correct vehicle ID is set when a journey is selected.
  */
 
 const decorate = flow(
