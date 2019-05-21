@@ -124,8 +124,10 @@ class LeafletMap extends Component {
               name="Aerial"
               checked={currentBaseLayer === "Aerial"}>
               <TileLayer
-                attribution="MML/LUKE"
-                url="http://tiles.kartat.kapsi.fi/ortokuva/{z}/{x}/{y}.jpg"
+                maxZoom={18}
+                tileSize={256}
+                attribution="HSL/HSY"
+                url="https://ortophotos.blob.core.windows.net/hsy-map/hsy_tiles2/{z}/{x}/{y}.jpg"
               />
             </LayersControl.BaseLayer>
             <LayersControl.Overlay
