@@ -215,7 +215,8 @@ type PlannedDeparture {
 }
 
 type Query {
-  alerts(alertSearch: AlertSearchInput, time: String): [Alert]!
+  alerts(alertSearch: AlertSearchInput, time: String): [Alert!]!
+  cancellations(cancellationSearch: CancellationSearchInput, time: String): [Cancellation!]!
   departures(date: Date!, filter: DepartureFilterInput, stopId: String!): [Departure]!
   equipment(date: Date, filter: EquipmentFilterInput): [Equipment]!
   eventsByBbox(bbox: PreciseBBox!, date: Date!, filters: AreaEventsFilterInput, maxTime: DateTime!, minTime: DateTime!): [AreaJourney]!
@@ -501,6 +502,13 @@ input AlertSearchInput {
 
 input AreaEventsFilterInput {
   direction: Direction
+  routeId: String
+}
+
+input CancellationSearchInput {
+  all: Boolean
+  departureTime: String
+  direction: Int
   routeId: String
 }
 
