@@ -1,5 +1,4 @@
 import {action} from "mobx";
-import getJourneyId from "../helpers/getJourneyId";
 import {getJourneyObject} from "../helpers/getJourneyObject";
 import filterActions from "./filterActions";
 import {setPathName} from "./UrlManager";
@@ -10,9 +9,9 @@ import {intval} from "../helpers/isWithinRange";
 export function createJourneyPath(journey) {
   const dateStr = journey.departureDate.replace(/-/g, "");
   const timeStr = journey.departureTime.replace(/:/g, "");
-  return `/journey/${dateStr}/${timeStr}/${journey.routeId}/${
-    journey.direction
-  }/${journey.uniqueVehicleId.replace("/", "_")}`;
+  return `/journey/${dateStr}/${timeStr}/${journey.routeId}/${journey.direction}/${(
+    journey.uniqueVehicleId || ""
+  ).replace("/", "_")}`;
 }
 
 export function createCompositeJourney(date, route, time, uniqueVehicleId = "") {
@@ -35,11 +34,7 @@ export default (state) => {
   const time = timeActions(state);
 
   const setSelectedJourney = action("Set selected journey", (journeyItem = null) => {
-    if (
-      !journeyItem ||
-      (state.selectedJourney &&
-        getJourneyId(state.selectedJourney) === getJourneyId(journeyItem))
-    ) {
+    if (!journeyItem) {
       state.selectedJourney = null;
       setPathName("/");
     } else if (journeyItem) {

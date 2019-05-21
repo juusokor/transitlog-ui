@@ -4,6 +4,7 @@ import {Query} from "react-apollo";
 import gql from "graphql-tag";
 import get from "lodash/get";
 import {AlertFieldsFragment} from "./AlertFieldsFragment";
+import {CancellationFieldsFragment} from "./CancellationFieldsFragment";
 
 const departuresQuery = gql`
   query departures(
@@ -24,6 +25,8 @@ const departuresQuery = gql`
       direction
       dayType
       departureId
+      departureDate
+      departureTime
       equipmentColor
       equipmentType
       extraDeparture
@@ -33,6 +36,10 @@ const departuresQuery = gql`
       operatorId
       terminalTime
       recoveryTime
+      isCancelled
+      cancellations {
+        ...CancellationFieldsFragment
+      }
       alerts {
         ...AlertFieldsFragment
       }
@@ -63,6 +70,7 @@ const departuresQuery = gql`
     }
   }
   ${AlertFieldsFragment}
+  ${CancellationFieldsFragment}
 `;
 
 const DeparturesQuery = observer(

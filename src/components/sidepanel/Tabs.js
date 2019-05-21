@@ -25,7 +25,7 @@ const TabButtonsWrapper = styled.div`
 
 const TabButton = styled.button`
   font-family: inherit;
-  font-size: ${({fontSizeMultiplier = 1}) => `calc(0.5rem * ${fontSizeMultiplier})`};
+  font-size: ${({fontSizeMultiplier = 1}) => `calc(0.4rem * ${fontSizeMultiplier})`};
   text-transform: uppercase;
   background-color: ${({selected}) => (selected ? "white" : "var(--lightest-grey)")};
   border: 1px solid var(--alt-grey);

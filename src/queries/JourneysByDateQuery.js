@@ -5,6 +5,7 @@ import {Query} from "react-apollo";
 import {observer} from "mobx-react-lite";
 import {setUpdateListener, removeUpdateListener} from "../stores/UpdateManager";
 import {AlertFieldsFragment} from "./AlertFieldsFragment";
+import {CancellationFieldsFragment} from "./CancellationFieldsFragment";
 
 export const routeJourneysQuery = gql`
   query journeysByDateQuery(
@@ -25,6 +26,8 @@ export const routeJourneysQuery = gql`
       isTimingStop
       dayType
       departureId
+      departureDate
+      departureTime
       equipmentColor
       equipmentType
       extraDeparture
@@ -34,8 +37,12 @@ export const routeJourneysQuery = gql`
       routeId
       direction
       stopId
+      isCancelled
       alerts {
         ...AlertFieldsFragment
+      }
+      cancellations {
+        ...CancellationFieldsFragment
       }
       journey {
         id
@@ -83,6 +90,7 @@ export const routeJourneysQuery = gql`
     }
   }
   ${AlertFieldsFragment}
+  ${CancellationFieldsFragment}
 `;
 
 const updateListenerName = "journey list query";

@@ -21,12 +21,14 @@ import {getDayTypeFromDate, dayTypes} from "../../helpers/getDayTypeFromDate";
 import AlertIcons from "../AlertIcons";
 import {getAlertsInEffect} from "../../helpers/getAlertsInEffect";
 import TimingStop from "../../icons/TimingStop";
+import {cancelledStyle} from "../commonComponents";
 
 const ListRow = styled.div`
   padding: 0.25rem 0.5rem 0.25rem 0.75rem;
   margin: 0;
   position: relative;
   background: ${({selected = false}) => (selected ? "var(--blue)" : "transparent")};
+  ${cancelledStyle}
 `;
 
 const LineSlot = styled(ColoredSlot)`
@@ -72,7 +74,7 @@ class TimetableDeparture extends Component {
     isTimingStop,
     isSpecialDayType
   ) => (children = null, onClick) => (
-    <ListRow selected={journeyIsSelected}>
+    <ListRow isCancelled={departure.isCancelled} selected={journeyIsSelected}>
       <TimetableButton
         hasData={!!children}
         selected={journeyIsSelected}
@@ -108,13 +110,12 @@ class TimetableDeparture extends Component {
 
     const stopMode = modes[0];
     const currentTransportColor = get(transportColor, stopMode, "var(--light-grey)");
-    const selectedJourneyId = getJourneyId(selectedJourney);
+    const selectedJourneyId = getJourneyId(selectedJourney, false);
     const isTimingStop = departure.isTimingStop;
 
     const journeyIsSelected =
       !!selectedJourneyId &&
-      departure.journey &&
-      selectedJourneyId === getJourneyId(departure.journey);
+      selectedJourneyId === getJourneyId(departure.journey || departure, false);
 
     const isSpecialDayType =
       getDayTypeFromDate(departure.plannedDepartureTime.departureDate) !==

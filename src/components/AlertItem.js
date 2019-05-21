@@ -23,7 +23,7 @@ const AlertComponent = styled.div`
     margin-top: 0;
   }
 
-  &:nth-child(odd) {
+  &:nth-child(even) {
     background: ${({color}) => (color ? color : "rgba(0, 0, 0, 0.03)")};
   }
 `;
@@ -66,7 +66,6 @@ const AlertContent = styled.div`
 `;
 
 const AlertTime = styled.div`
-  font-size: 0.875rem;
   text-align: right;
   margin-left: auto;
 
@@ -75,7 +74,7 @@ const AlertTime = styled.div`
   }
 
   strong {
-    font-size: 0.87rem;
+    font-size: 0.8rem;
     font-weight: bold;
   }
 
@@ -87,15 +86,14 @@ const AlertTime = styled.div`
 const AlertTitle = styled(Heading).attrs({level: 5})`
   margin: 0;
   font-size: 0.875rem;
-  font-weight: normal;
+  font-weight: bold;
+  color: inherit;
 `;
 
 const AlertDescription = styled.div`
   margin: 0 0 1rem;
   font-size: 0.875rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid
-    ${({lightBg}) => (lightBg ? "var(--grey)" : "var(--lighter-grey)")};
+  color: inherit;
 `;
 
 const AlertInfo = styled.div`
@@ -110,13 +108,11 @@ const AlertInfoRow = styled.div`
 const AlertPublishTime = styled.span`
   font-size: 0.75rem;
   margin-left: auto;
-  color: ${({lightText}) => (lightText ? "var(--light-grey)" : "var(--grey)")};
+  color: ${({lightText}) => (lightText ? "white" : "var(--grey)")};
 `;
 
 const AlertFooter = styled.div`
-  margin-top: 0.375rem;
   padding-top: 0.75rem;
-  border-top: 1px solid ${({lightBg}) => (lightBg ? "var(--grey)" : "var(--alt-grey)")};
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -137,8 +133,8 @@ const AlertTimeDisplay = observer(({alert}) => {
   const startMoment = moment.tz(alert.startDateTime, TIMEZONE);
   const endMoment = moment.tz(alert.endDateTime, TIMEZONE);
 
-  const startDate = startMoment.format("MM/DD");
-  const endDate = endMoment.format("MM/DD");
+  const startDate = startMoment.format("DD/MM");
+  const endDate = endMoment.format("DD/MM");
   const startTime = startMoment.format("HH:mm");
   const endTime = endMoment.format("HH:mm");
 
@@ -235,20 +231,17 @@ const AlertItem = observer(({alert}) => {
           <AlertFooter lightBg={colorful && lightBg}>
             {alert.url && (
               <AlertLink target="_blank" href={alert.url}>
-                <Website
-                  width="1.25rem"
-                  fill={lightBg ? "var(--grey)" : "var(--light-grey)"}
-                />
+                <Website width="1.25rem" fill={lightBg ? "var(--grey)" : "white"} />
               </AlertLink>
             )}
             <AlertPublishTime lightText={!lightBg}>
               {updatedMoment ? (
                 <span>
-                  {updatedMoment.format("MM/DD")}, {updatedMoment.format("HH:mm")}
+                  {updatedMoment.format("DD/MM")}, {updatedMoment.format("HH:mm")}
                 </span>
               ) : (
                 <span>
-                  {publishedMoment.format("MM/DD")}, {publishedMoment.format("HH:mm")}
+                  {publishedMoment.format("DD/MM")}, {publishedMoment.format("HH:mm")}
                 </span>
               )}
             </AlertPublishTime>

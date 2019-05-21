@@ -1,11 +1,12 @@
 export const getJourneySpeeds = (selectedJourneyEvents = [], length) => {
   if (!selectedJourneyEvents || selectedJourneyEvents.length === 0) {
-    return;
+    return [];
   }
 
   const speeds = [];
   let xTickLength = length / selectedJourneyEvents.length;
   let xTick = 0;
+
   selectedJourneyEvents.forEach((event, index) => {
     xTick = xTick + xTickLength;
     speeds.push({

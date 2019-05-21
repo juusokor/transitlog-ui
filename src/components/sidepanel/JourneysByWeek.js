@@ -1,6 +1,6 @@
 import React, {useCallback, useState, useEffect, useMemo} from "react";
 import {observer, Observer} from "mobx-react-lite";
-import getJourneyId from "../../helpers/getJourneyId";
+import getJourneyId, {createDepartureJourneyId} from "../../helpers/getJourneyId";
 import styled from "styled-components";
 import SidepanelList from "./SidepanelList";
 import {getTimelinessColor} from "../../helpers/timelinessColor";
@@ -21,14 +21,15 @@ import {TIMEZONE} from "../../constants";
 import moment from "moment-timezone";
 import Tooltip from "../Tooltip";
 import getDelayType from "../../helpers/getDelayType";
-import {createCompositeJourney} from "../../stores/journeyActions";
 import {text, Text} from "../../helpers/text";
 import {TransportIcon} from "../transportModes";
-import Waiting from "../../icons/Waiting";
 import SomethingWrong from "../../icons/SomethingWrong";
 import Cross from "../../icons/Cross";
 import AlertIcons from "../AlertIcons";
 import {getAlertsInEffect} from "../../helpers/getAlertsInEffect";
+import {cancelledStyle} from "../commonComponents";
+import CrossThick from "../../icons/CrossThick";
+import Timetable from "../../icons/Timetable";
 /*import {weeklyObservedTimeTypes} from "../../stores/UIStore";
 import ToggleButton from "../ToggleButton";*/
 
@@ -98,15 +99,26 @@ const TableCellButton = styled(TableCell.withComponent("button"))`
   display: block;
   font-family: inherit;
   outline: 0;
+  ${cancelledStyle}
 `;
 
 const TableCellIcons = styled(AlertIcons)`
-  bottom: -0.1rem;
-  left: 0.2rem;
+  bottom: 2px;
+  left: 2px;
+  padding: 0 2px;
+  border-radius: 2px;
+  background: white;
+  height: 0.75rem;
+  display: flex;
+  align-items: center;
 
   svg {
     width: 0.5rem !important;
     height: 0.5rem !important;
+  }
+
+  &:empty {
+    padding: 0;
   }
 `;
 
@@ -130,15 +142,16 @@ const decorate = flow(
   inject("UI", "Journey", "Filters", "Time")
 );
 
-const JourneysByWeek = decorate(({state, Time, Filters, Journey, UI}) => {
-  const selectJourney = useCallback((journey) => {
+const JourneysByWeek = decorate(({state, Time, Filters, Journey, route: propsRoute}) => {
+  const selectJourney = useCallback((journey, matchVehicle = true) => {
     let journeyToSelect = null;
 
     if (journey) {
-      const journeyId = getJourneyId(journey);
+      const journeyId = getJourneyId(journey, matchVehicle);
+      const selectedJourneyId = getJourneyId(state.selectedJourney, matchVehicle);
 
       // Only set these if the journey is truthy and was not already selected
-      if (journeyId && getJourneyId(state.selectedJourney) !== journeyId) {
+      if (journeyId && selectedJourneyId !== journeyId) {
         Time.setTime(journey.departureTime);
         Filters.setDate(journey.departureDate);
         journeyToSelect = journey;
@@ -160,8 +173,10 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, UI}) => {
     );
   }, []);*/
 
-  const {date, route} = state;
-  const selectedJourneyId = getJourneyId(state.selectedJourney);
+  const {date, route: stateRoute, selectedJourney} = state;
+  const route = propsRoute || stateRoute;
+
+  const selectedJourneyId = getJourneyId(selectedJourney);
 
   const weekNumber = getWeek(date);
   const currentDayType = getDayTypeFromDate(date);
@@ -223,7 +238,10 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, UI}) => {
   }, [weekStartDate, selectedDayTypes]);
 
   return (
-    <JourneysByWeekQuery route={route} date={weekStartDate}>
+    <JourneysByWeekQuery
+      skip={!get(route, "routeId", null)}
+      route={route}
+      date={weekStartDate}>
       {({departures, loading}) => (
         <Observer>
           {() => {
@@ -336,17 +354,14 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, UI}) => {
 
                           // Check if the row contains a selected departure
                           if (dep) {
-                            const compositeJourney = createCompositeJourney(
-                              dep.plannedDepartureTime.departureDate,
+                            const journeyId = createDepartureJourneyId(
                               dep,
                               departureTime
                             );
 
-                            const journeyId = getJourneyId(compositeJourney, false);
-
                             if (
-                              selectedJourneyId &&
-                              getJourneyId(selectedJourneyId, false) === journeyId
+                              selectedJourney &&
+                              getJourneyId(selectedJourney, false) === journeyId
                             ) {
                               rowIsSelected = true;
                             }
@@ -377,7 +392,11 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, UI}) => {
                               let departureStatus = "notavailable";
 
                               // Find out the status of the departure
-                              if (departure && observedTime) {
+                              if (departure && departure.isCancelled) {
+                                departureStatus = observedTime
+                                  ? "partially-cancelled"
+                                  : "cancelled";
+                              } else if (departure && observedTime) {
                                 // We have a planned departure and observed times
                                 departureStatus = "ok";
                               } else if (departure && !observedTime) {
@@ -392,15 +411,20 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, UI}) => {
                               }
 
                               // Show an icon if the departure is not ok
-                              if (departureStatus !== "ok") {
+                              if (
+                                !["partially-cancelled", "ok"].includes(departureStatus)
+                              ) {
                                 let IconComponent = null;
 
                                 switch (departureStatus) {
-                                  case "notobserved":
-                                    IconComponent = Waiting;
+                                  case "cancelled":
+                                    IconComponent = CrossThick;
                                     break;
                                   case "notforday":
                                     IconComponent = Cross;
+                                    break;
+                                  case "notobserved":
+                                    IconComponent = Timetable;
                                     break;
                                   case "notavailable":
                                   default:
@@ -408,16 +432,40 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, UI}) => {
                                     break;
                                 }
 
+                                const departureIsSelected =
+                                  getJourneyId(selectedJourney, false) ===
+                                  createDepartureJourneyId(departure);
+
                                 return (
                                   <Tooltip
                                     helpText={`This departure is not available due to: ${departureStatus}, ${dayType}`}
                                     key={`departure_day_${dayType}_${departureStatus}_${departureTime}_${idx}`}>
-                                    <TableCell highlight={idx === currentDayTypeIndex}>
-                                      <IconComponent width="1rem" fill="var(--grey)" />
+                                    <TableCellButton
+                                      color={
+                                        departureIsSelected ? "white" : "var(--dark-grey)"
+                                      }
+                                      backgroundColor={
+                                        departureIsSelected
+                                          ? "var(--light-blue)"
+                                          : "transparent"
+                                      }
+                                      onClick={() => selectJourney(departure, false)}
+                                      highlight={idx === currentDayTypeIndex}>
+                                      <IconComponent
+                                        width="1rem"
+                                        height="1rem"
+                                        fill={
+                                          departureStatus === "cancelled"
+                                            ? "var(--red)"
+                                            : departureIsSelected
+                                            ? "white"
+                                            : "var(--light-grey)"
+                                        }
+                                      />
                                       <TableCellIcons
                                         alerts={getAlertsInEffect(departure)}
                                       />
-                                    </TableCell>
+                                    </TableCellButton>
                                   </Tooltip>
                                 );
                               }
@@ -450,8 +498,9 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, UI}) => {
                                     departure.dayType
                                   }_${departureTime}`}>
                                   <TableCellButton
+                                    isCancelled={departure.isCancelled}
                                     highlight={idx === currentDayTypeIndex}
-                                    onClick={() => selectJourney(departure.journey)}
+                                    onClick={() => selectJourney(departure.journey, true)}
                                     color={
                                       journeyIsSelected
                                         ? delayType === "late"

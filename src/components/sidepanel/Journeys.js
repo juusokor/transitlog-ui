@@ -22,6 +22,7 @@ import {dayTypes, getDayTypeFromDate} from "../../helpers/getDayTypeFromDate";
 import EmptyView from "../EmptyView";
 import AlertIcons from "../AlertIcons";
 import {getAlertsInEffect} from "../../helpers/getAlertsInEffect";
+import {cancelledStyle} from "../commonComponents";
 
 const JourneyListRow = styled.button`
   display: flex;
@@ -43,6 +44,8 @@ const JourneyListRow = styled.button`
     background: ${({selected = false}) =>
       selected ? "var(--blue)" : "rgba(0, 0, 0, 0.03)"};
   }
+
+  ${cancelledStyle}
 `;
 
 const JourneyRowLeft = styled.span`
@@ -50,6 +53,7 @@ const JourneyRowLeft = styled.span`
   font-weight: bold;
   min-width: 7.5rem;
   text-align: left;
+  position: relative;
 `;
 
 const DelaySlot = styled(ColoredBackgroundSlot)`
@@ -103,14 +107,15 @@ const decorate = flow(
 );
 
 const Journeys = decorate(({state, Time, Journey}) => {
-  const selectJourney = useCallback((journey) => {
+  const selectJourney = useCallback((journey, matchVehicle = true) => {
     let journeyToSelect = null;
 
     if (journey) {
-      const journeyId = getJourneyId(journey);
+      const journeyId = getJourneyId(journey, matchVehicle);
+      const selectedJourneyId = getJourneyId(state.selectedJourney, matchVehicle);
 
       // Only set these if the journey is truthy and was not already selected
-      if (journeyId && getJourneyId(state.selectedJourney) !== journeyId) {
+      if (journeyId && selectedJourneyId !== journeyId) {
         Time.setTime(journey.departureTime);
         journeyToSelect = journey;
       }
@@ -210,6 +215,7 @@ const Journeys = decorate(({state, Time, Journey}) => {
                       const isSpecialDayType =
                         getDayTypeFromDate(departureDate) !== departure.dayType ||
                         !dayTypes.includes(departure.dayType);
+                      const {isCancelled} = departure;
 
                       if (!departure.journey) {
                         const compositeJourney = createCompositeJourney(
@@ -223,7 +229,7 @@ const Journeys = decorate(({state, Time, Journey}) => {
                         const journeyIsSelected = expr(
                           () =>
                             state.selectedJourney &&
-                            getJourneyId(selectedJourneyId, false) === journeyId
+                            getJourneyId(state.selectedJourney, false) === journeyId
                         );
 
                         const journeyIsFocused =
@@ -235,7 +241,8 @@ const Journeys = decorate(({state, Time, Journey}) => {
                             ref={journeyIsFocused ? scrollRef : null}
                             key={`planned_journey_row_${journeyId}`}
                             selected={journeyIsSelected}
-                            onClick={() => selectJourney(compositeJourney)}>
+                            isCancelled={isCancelled}
+                            onClick={() => selectJourney(compositeJourney, false)}>
                             <Tooltip helpText="Planned journey time">
                               <JourneyRowLeft>
                                 {getNormalTime(departureTime).slice(0, -3)}
@@ -309,6 +316,7 @@ const Journeys = decorate(({state, Time, Journey}) => {
                           ref={journeyIsFocused ? scrollRef : null}
                           selected={journeyIsSelected}
                           key={`journey_row_${journeyId}_${departure.id}`}
+                          isCancelled={isCancelled}
                           onClick={() => selectJourney(departure.journey)}>
                           <JourneyRowLeft
                             {...applyTooltip("Planned journey time with data")}>

@@ -15,6 +15,7 @@ import {getDepartureByTime} from "../../helpers/getDepartureByTime";
 import getJourneyId from "../../helpers/getJourneyId";
 import DeparturesQuery from "../../queries/DeparturesQuery";
 import {withStop} from "../../hoc/withStop";
+import {createCompositeJourney} from "../../stores/journeyActions";
 
 const TimetableFilters = styled.div`
   display: flex;
@@ -203,7 +204,16 @@ class TimetablePanel extends Component {
 
   selectAsJourney = (departure) => (e) => {
     e.preventDefault();
-    const {Journey, Time} = this.props;
+
+    if (!departure) {
+      return;
+    }
+
+    const {
+      Journey,
+      Time,
+      state: {selectedJourney},
+    } = this.props;
 
     const currentTime = get(
       departure,
@@ -215,14 +225,25 @@ class TimetablePanel extends Component {
       Time.setTime(currentTime);
     }
 
-    if (departure.journey) {
-      Journey.setSelectedJourney(departure.journey);
+    const journey =
+      departure.journey ||
+      createCompositeJourney(
+        departure.plannedDepartureTime.departureDate,
+        departure,
+        departure.plannedDepartureTime.departureTime
+      );
+
+    const selectedJourneyId = getJourneyId(selectedJourney, false);
+
+    if (journey && getJourneyId(journey, false) !== selectedJourneyId) {
+      Journey.setSelectedJourney(journey);
+    } else {
+      Journey.setSelectedJourney(null);
     }
   };
 
   renderRow = (props) => (list) => ({key, index, style, isScrolling, isVisible}) => {
     const departure = list[index];
-    // TODO: Fix the instance things
     const instance = get(departure, "journey.instance", 0);
     const departureTime = get(departure, "plannedDepartureTime.departureDateTime", "");
 
@@ -314,20 +335,23 @@ class TimetablePanel extends Component {
         stopId={stopId}
         date={date}
         routeId={routeId || undefined}
-        minHour={intOrUndefined(minHour, 10)}
-        maxHour={intOrUndefined(maxHour, 10)}>
+        minHour={intOrUndefined(minHour)}
+        maxHour={intOrUndefined(maxHour)}>
         {({departures, loading}) => {
-          const selectedJourneyId = getJourneyId(selectedJourney);
+          const selectedJourneyId = getJourneyId(selectedJourney, false);
 
           const focusedDeparture = selectedJourneyId
-            ? departures.find(({journey}) =>
-                journey ? selectedJourneyId === getJourneyId(journey) : false
+            ? departures.find(
+                (departure) =>
+                  selectedJourneyId ===
+                  getJourneyId(departure.journey || departure, false)
               )
             : getDepartureByTime(departures, this.reactionlessTime);
 
           const focusedIndex = focusedDeparture
             ? departures.findIndex((departure) => departure === focusedDeparture)
             : -1;
+
           const rowRenderer = this.renderRow({
             selectedJourney,
             onClick: this.selectAsJourney,

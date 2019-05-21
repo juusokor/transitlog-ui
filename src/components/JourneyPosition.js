@@ -78,7 +78,7 @@ const matchEventToTime = (time, events, defaultToEnds = true) => {
         event &&
         event.lat &&
         event.lng &&
-        Math.abs(checkSeconds - event.recordedAtUnix) <= 1
+        Math.abs(checkSeconds - event.recordedAtUnix) <= 2
       ) {
         return event;
       }
@@ -118,7 +118,10 @@ const getIndexedEvents = (time, timeIndex, journeys) => {
       }
 
       const nextEvent = matchEventToTime(time, events, journeys.length === 1);
-      journeysForTime.set(journey.id, nextEvent);
+
+      if (nextEvent) {
+        journeysForTime.set(journey.id, nextEvent);
+      }
     }
   }
 
@@ -140,6 +143,10 @@ const JourneyPosition = decorate(({journeys, state, children}) => {
       const journeyId = journey.id;
 
       for (const event of journey.events) {
+        if (!event.lat || !event.lng) {
+          continue;
+        }
+
         const ts = event.recordedAtUnix;
         const timeKeyEvents = nextTimeIndex.get(ts) || new Map();
         timeKeyEvents.set(journeyId, event);

@@ -1,10 +1,11 @@
-import React, {useCallback, useEffect} from "react";
+import React, {useCallback, useEffect, useRef} from "react";
 import get from "lodash/get";
 import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import {observer} from "mobx-react-lite";
 import {setUpdateListener, removeUpdateListener} from "../stores/UpdateManager";
 import {AlertFieldsFragment} from "./AlertFieldsFragment";
+import {CancellationFieldsFragment} from "./CancellationFieldsFragment";
 
 export const routeJourneysByWeekQuery = gql`
   query journeysByWeekQuery(
@@ -25,6 +26,8 @@ export const routeJourneysByWeekQuery = gql`
       isTimingStop
       dayType
       departureId
+      departureDate
+      departureTime
       equipmentColor
       equipmentType
       extraDeparture
@@ -35,6 +38,10 @@ export const routeJourneysByWeekQuery = gql`
       direction
       stopId
       mode
+      isCancelled
+      cancellations {
+        ...CancellationFieldsFragment
+      }
       alerts {
         ...AlertFieldsFragment
       }
@@ -66,11 +73,14 @@ export const routeJourneysByWeekQuery = gql`
     }
   }
   ${AlertFieldsFragment}
+  ${CancellationFieldsFragment}
 `;
 
 const updateListenerName = "journey weel query";
 
 const JourneysByDateQuery = observer(({children, route, date, skip}) => {
+  const prevResults = useRef([]);
+
   const createRefetcher = useCallback(
     (refetch) => () => {
       const {routeId, direction, originStopId} = route;
@@ -102,12 +112,14 @@ const JourneysByDateQuery = observer(({children, route, date, skip}) => {
       }}>
       {({data, error, loading, refetch}) => {
         if (!data || loading) {
-          return children({departures: [], loading, error});
+          return children({departures: prevResults.current, loading, error});
         }
 
         const departures = get(data, "weeklyDepartures", []);
 
         setUpdateListener(updateListenerName, createRefetcher(refetch), false);
+
+        prevResults.current = departures;
         return children({departures, loading, error});
       }}
     </Query>
