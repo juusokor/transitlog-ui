@@ -11,7 +11,7 @@ export const StopRadius = ({center, radius, children, color, isHighlighted = fal
       opacity={isHighlighted ? 0.875 : 0.2}
       color={color}
       fillColor={color}
-      fillOpacity={isHighlighted ? 0.3 : 0.2}
+      fillOpacity={isHighlighted ? 0.3 : 0.15}
       radius={radius}>
       {children}
     </Circle>

@@ -205,7 +205,7 @@ const StopMarker = decorate(
         isHighlighted={isSelected}
         center={markerPosition}
         color={stopColor}
-        radius={stop.radius}>
+        radius={get(stop, "radius", 0)}>
         {markerElement}
       </StopRadius>
     ) : (
