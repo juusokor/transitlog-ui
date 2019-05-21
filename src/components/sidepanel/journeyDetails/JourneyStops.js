@@ -8,6 +8,7 @@ import DestinationStop from "./DestinationStop";
 import flow from "lodash/flow";
 import orderBy from "lodash/orderBy";
 import get from "lodash/get";
+import compact from "lodash/compact";
 import {inject} from "../../../helpers/inject";
 import ToggleView from "../../ToggleView";
 import CancellationItem from "../../CancellationItem";
@@ -68,7 +69,7 @@ const CancellationWrapper = styled(StopWrapper)`
 const StopCancellation = styled(CancellationItem)`
   background: transparent !important;
   width: 100%;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
   border-bottom: 0;
 `;
 
@@ -120,7 +121,7 @@ const JourneyStops = decorate(
     );
 
     const departuresAndCancellations = orderBy(
-      [...departures, cancellations[0]],
+      compact([...departures, cancellations[0]]),
       (item) => {
         const time = get(
           item,
@@ -144,9 +145,13 @@ const JourneyStops = decorate(
     const firstItem = departuresAndCancellations[0];
     const lastItem = departuresAndCancellations[departures.length - 1];
 
+    if (!firstItem) {
+      return null;
+    }
+
     return (
       <StopsListWrapper>
-        {firstItem.lastModifiedDateTime ? (
+        {get(firstItem, "lastModifiedDateTime") ? (
           <CancellationTimelineItem isFirst={true} cancellation={firstItem} />
         ) : (
           <OriginStop
