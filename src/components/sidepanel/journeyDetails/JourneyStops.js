@@ -10,8 +10,6 @@ import orderBy from "lodash/orderBy";
 import get from "lodash/get";
 import {inject} from "../../../helpers/inject";
 import ToggleView from "../../ToggleView";
-import moment from "moment-timezone";
-import {TIMEZONE} from "../../../constants";
 import CancellationItem from "../../CancellationItem";
 import {StopElementsWrapper, StopWrapper} from "../../StopElements";
 import CrossThick from "../../../icons/CrossThick";
@@ -33,6 +31,7 @@ const HiddenStopsMessage = styled.div`
   margin-left: calc(1.25rem - 1.5px);
   border-left: ${({expanded, color = "var(--blue)"}) =>
     expanded ? `3px solid ${color}` : "3px dotted var(--light-grey)"};
+  transform: none !important;
 `;
 
 const ExpandingStops = styled(ToggleView)`
@@ -79,7 +78,7 @@ const CancellationTimelineItem = observer(({cancellation, isFirst}) => (
       {cancellation.isCancelled ? (
         <CrossThick fill="var(--red)" width="1rem" />
       ) : (
-        <CircleCheckmark fill="var(--green)" width="1rem" />
+        <CircleCheckmark fill={{outer: "var(--green)"}} width="1.2rem" />
       )}
     </StopElementsWrapper>
     <StopCancellation
@@ -121,7 +120,7 @@ const JourneyStops = decorate(
     );
 
     const departuresAndCancellations = orderBy(
-      [...departures, ...cancellations],
+      [...departures, cancellations[0]],
       (item) => {
         const time = get(
           item,

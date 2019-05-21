@@ -16,9 +16,12 @@ const ToggleButton = styled.button`
   outline: none;
   text-align: left;
   width: auto;
-  transition: all 0.1s ease-out;
 
-  &:hover {
+  > * {
+    transition: all 0.1s ease-out;
+  }
+
+  &:hover > * {
     transform: scale(1.025);
   }
 `;
