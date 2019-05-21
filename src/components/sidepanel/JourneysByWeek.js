@@ -360,8 +360,8 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, route: propsRou
                             );
 
                             if (
-                              selectedJourneyId &&
-                              getJourneyId(selectedJourneyId, false) === journeyId
+                              selectedJourney &&
+                              getJourneyId(selectedJourney, false) === journeyId
                             ) {
                               rowIsSelected = true;
                             }
