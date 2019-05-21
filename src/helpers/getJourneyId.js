@@ -1,4 +1,5 @@
 import {getJourneyObject} from "./getJourneyObject";
+import {createCompositeJourney} from "../stores/journeyActions";
 
 const getJourneyId = (journey = null, matchVehicle = true) => {
   if (!journey) {
@@ -47,3 +48,13 @@ const getJourneyIdFromJourney = (journey = {}, matchVehicle = true) => {
 };
 
 export default getJourneyId;
+
+export function createDepartureJourneyId(departure, departureTime) {
+  const compositeJourney = createCompositeJourney(
+    departure.plannedDepartureTime.departureDate,
+    departure,
+    departureTime ? departureTime : departure.plannedDepartureTime.departureTime
+  );
+
+  return getJourneyId(compositeJourney, false);
+}

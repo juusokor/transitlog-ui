@@ -110,13 +110,12 @@ class TimetableDeparture extends Component {
 
     const stopMode = modes[0];
     const currentTransportColor = get(transportColor, stopMode, "var(--light-grey)");
-    const selectedJourneyId = getJourneyId(selectedJourney);
+    const selectedJourneyId = getJourneyId(selectedJourney, false);
     const isTimingStop = departure.isTimingStop;
 
     const journeyIsSelected =
       !!selectedJourneyId &&
-      departure.journey &&
-      selectedJourneyId === getJourneyId(departure.journey);
+      selectedJourneyId === getJourneyId(departure.journey || departure, false);
 
     const isSpecialDayType =
       getDayTypeFromDate(departure.plannedDepartureTime.departureDate) !==

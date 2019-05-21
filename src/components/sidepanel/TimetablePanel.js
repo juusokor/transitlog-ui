@@ -15,6 +15,7 @@ import {getDepartureByTime} from "../../helpers/getDepartureByTime";
 import getJourneyId from "../../helpers/getJourneyId";
 import DeparturesQuery from "../../queries/DeparturesQuery";
 import {withStop} from "../../hoc/withStop";
+import {createCompositeJourney} from "../../stores/journeyActions";
 
 const TimetableFilters = styled.div`
   display: flex;
@@ -203,6 +204,11 @@ class TimetablePanel extends Component {
 
   selectAsJourney = (departure) => (e) => {
     e.preventDefault();
+
+    if (!departure) {
+      return;
+    }
+
     const {Journey, Time} = this.props;
 
     const currentTime = get(
@@ -215,8 +221,18 @@ class TimetablePanel extends Component {
       Time.setTime(currentTime);
     }
 
+    // TODO: Firgure out why some departures cannot be selected (7:30, others)
+
     if (departure.journey) {
       Journey.setSelectedJourney(departure.journey);
+    } else {
+      const compositeJourney = createCompositeJourney(
+        departure.plannedDepartureTime.departureDate,
+        departure,
+        departure.plannedDepartureTime.departureTime
+      );
+
+      Journey.setSelectedJourney(compositeJourney);
     }
   };
 
@@ -313,20 +329,23 @@ class TimetablePanel extends Component {
         stopId={stopId}
         date={date}
         routeId={routeId || undefined}
-        minHour={intOrUndefined(minHour, 10)}
-        maxHour={intOrUndefined(maxHour, 10)}>
+        minHour={intOrUndefined(minHour)}
+        maxHour={intOrUndefined(maxHour)}>
         {({departures, loading}) => {
-          const selectedJourneyId = getJourneyId(selectedJourney);
+          const selectedJourneyId = getJourneyId(selectedJourney, false);
 
           const focusedDeparture = selectedJourneyId
-            ? departures.find(({journey}) =>
-                journey ? selectedJourneyId === getJourneyId(journey) : false
+            ? departures.find(
+                (departure) =>
+                  selectedJourneyId ===
+                  getJourneyId(departure.journey || departure, false)
               )
             : getDepartureByTime(departures, this.reactionlessTime);
 
           const focusedIndex = focusedDeparture
             ? departures.findIndex((departure) => departure === focusedDeparture)
             : -1;
+
           const rowRenderer = this.renderRow({
             selectedJourney,
             onClick: this.selectAsJourney,

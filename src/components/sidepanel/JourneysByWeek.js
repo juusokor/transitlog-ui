@@ -1,6 +1,6 @@
 import React, {useCallback, useState, useEffect, useMemo} from "react";
 import {observer, Observer} from "mobx-react-lite";
-import getJourneyId from "../../helpers/getJourneyId";
+import getJourneyId, {createDepartureJourneyId} from "../../helpers/getJourneyId";
 import styled from "styled-components";
 import SidepanelList from "./SidepanelList";
 import {getTimelinessColor} from "../../helpers/timelinessColor";
@@ -21,16 +21,15 @@ import {TIMEZONE} from "../../constants";
 import moment from "moment-timezone";
 import Tooltip from "../Tooltip";
 import getDelayType from "../../helpers/getDelayType";
-import {createCompositeJourney} from "../../stores/journeyActions";
 import {text, Text} from "../../helpers/text";
 import {TransportIcon} from "../transportModes";
-import Waiting from "../../icons/Waiting";
 import SomethingWrong from "../../icons/SomethingWrong";
 import Cross from "../../icons/Cross";
 import AlertIcons from "../AlertIcons";
 import {getAlertsInEffect} from "../../helpers/getAlertsInEffect";
 import {cancelledStyle} from "../commonComponents";
 import CrossThick from "../../icons/CrossThick";
+import Timetable from "../../icons/Timetable";
 /*import {weeklyObservedTimeTypes} from "../../stores/UIStore";
 import ToggleButton from "../ToggleButton";*/
 
@@ -137,16 +136,6 @@ const TableHeader = styled(TableRow)`
   padding: 0 0.75rem 0;
   margin-top: -0.25rem;
 `;*/
-
-function createDepartureJourneyId(departure, departureTime) {
-  const compositeJourney = createCompositeJourney(
-    departure.plannedDepartureTime.departureDate,
-    departure,
-    departureTime ? departureTime : departure.plannedDepartureTime.departureTime
-  );
-
-  return getJourneyId(compositeJourney, false);
-}
 
 const decorate = flow(
   observer,
@@ -435,7 +424,7 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, route: propsRou
                                     IconComponent = Cross;
                                     break;
                                   case "notobserved":
-                                    IconComponent = Waiting;
+                                    IconComponent = Timetable;
                                     break;
                                   case "notavailable":
                                   default:
@@ -464,12 +453,13 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, route: propsRou
                                       highlight={idx === currentDayTypeIndex}>
                                       <IconComponent
                                         width="1rem"
+                                        height="1rem"
                                         fill={
                                           departureStatus === "cancelled"
                                             ? "var(--red)"
                                             : departureIsSelected
                                             ? "white"
-                                            : "var(--grey)"
+                                            : "var(--light-grey)"
                                         }
                                       />
                                       <TableCellIcons

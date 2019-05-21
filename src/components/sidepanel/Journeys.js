@@ -107,14 +107,15 @@ const decorate = flow(
 );
 
 const Journeys = decorate(({state, Time, Journey}) => {
-  const selectJourney = useCallback((journey) => {
+  const selectJourney = useCallback((journey, matchVehicle = true) => {
     let journeyToSelect = null;
 
     if (journey) {
-      const journeyId = getJourneyId(journey);
+      const journeyId = getJourneyId(journey, matchVehicle);
+      const selectedJourneyId = getJourneyId(state.selectedJourney, matchVehicle);
 
       // Only set these if the journey is truthy and was not already selected
-      if (journeyId && getJourneyId(state.selectedJourney) !== journeyId) {
+      if (journeyId && selectedJourneyId !== journeyId) {
         Time.setTime(journey.departureTime);
         journeyToSelect = journey;
       }
@@ -228,7 +229,7 @@ const Journeys = decorate(({state, Time, Journey}) => {
                         const journeyIsSelected = expr(
                           () =>
                             state.selectedJourney &&
-                            getJourneyId(selectedJourneyId, false) === journeyId
+                            getJourneyId(state.selectedJourney, false) === journeyId
                         );
 
                         const journeyIsFocused =
@@ -241,7 +242,7 @@ const Journeys = decorate(({state, Time, Journey}) => {
                             key={`planned_journey_row_${journeyId}`}
                             selected={journeyIsSelected}
                             isCancelled={isCancelled}
-                            onClick={() => selectJourney(compositeJourney)}>
+                            onClick={() => selectJourney(compositeJourney, false)}>
                             <Tooltip helpText="Planned journey time">
                               <JourneyRowLeft>
                                 {getNormalTime(departureTime).slice(0, -3)}
