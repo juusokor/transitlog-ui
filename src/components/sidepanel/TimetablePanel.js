@@ -209,7 +209,11 @@ class TimetablePanel extends Component {
       return;
     }
 
-    const {Journey, Time} = this.props;
+    const {
+      Journey,
+      Time,
+      state: {selectedJourney},
+    } = this.props;
 
     const currentTime = get(
       departure,
@@ -221,18 +225,20 @@ class TimetablePanel extends Component {
       Time.setTime(currentTime);
     }
 
-    // TODO: Firgure out why some departures cannot be selected (7:30, others)
-
-    if (departure.journey) {
-      Journey.setSelectedJourney(departure.journey);
-    } else {
-      const compositeJourney = createCompositeJourney(
+    const journey =
+      departure.journey ||
+      createCompositeJourney(
         departure.plannedDepartureTime.departureDate,
         departure,
         departure.plannedDepartureTime.departureTime
       );
 
-      Journey.setSelectedJourney(compositeJourney);
+    const selectedJourneyId = getJourneyId(selectedJourney, false);
+
+    if (journey && getJourneyId(journey, false) !== selectedJourneyId) {
+      Journey.setSelectedJourney(journey);
+    } else {
+      Journey.setSelectedJourney(null);
     }
   };
 
