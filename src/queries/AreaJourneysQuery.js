@@ -62,7 +62,6 @@ const AreaJourneysQuery = observer((props) => {
         bbox,
         date,
       }}
-      notifyOnNetworkStatusChange={true}
       query={areaJourneysQuery}>
       {({loading, data, error}) => {
         if (!data || loading) {
