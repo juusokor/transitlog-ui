@@ -27,12 +27,12 @@ const StopSettings = decorate(({Filters, state}) => {
 
   return (
     <AllStopsQuery>
-      {({stops, loading, search}) => (
+      {({stops = [], loading, search}) => (
         <Observer>
           {() => {
             const selectedStop = stops.find((s) => s.id === stop);
 
-            if (loading) {
+            if (loading && stops.length === 0) {
               return <LoadingSpinner inline={true} />;
             }
 

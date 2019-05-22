@@ -30,12 +30,12 @@ const VehicleSettings = decorate(({Filters, state}) => {
 
   return (
     <VehicleOptionsQuery date={date}>
-      {({vehicles, search, loading}) => (
+      {({vehicles = [], search, loading}) => (
         <Observer>
           {() => {
             const selectedVehicle = vehicles.find((v) => v.id === vehicle);
 
-            if (loading) {
+            if (loading && vehicles.length === 0) {
               return <LoadingSpinner inline={true} />;
             }
 
