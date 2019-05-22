@@ -8,6 +8,12 @@ import get from "lodash/get";
 import {observer} from "mobx-react-lite";
 import {useSearchOptions} from "../../hooks/useSearchOptions";
 import {getAlertsInEffect} from "../../helpers/getAlertsInEffect";
+import styled from "styled-components";
+import Loading from "../Loading";
+
+const LoadingSpinner = styled(Loading)`
+  margin: 0.5rem 0.5rem 0.5rem 1rem;
+`;
 
 const getSuggestionValue = (suggestion) => {
   if (typeof suggestion === "string") {
@@ -36,7 +42,13 @@ const renderSuggestion = (date) => (suggestion, {query, isHighlighted}) => {
   );
 };
 
-export default observer(({date, stops, onSelect, stop, search}) => {
+const renderSuggestionsContainer = (loading) => ({containerProps, children, query}) => {
+  return (
+    <div {...containerProps}>{loading ? <LoadingSpinner inline={true} /> : children}</div>
+  );
+};
+
+export default observer(({date, stops, onSelect, stop, search, loading}) => {
   const [getSuggestions] = useSearchOptions(search);
   const renderSuggestionFn = useMemo(() => renderSuggestion(date), [date]);
 
@@ -50,6 +62,7 @@ export default observer(({date, stops, onSelect, stop, search}) => {
       highlightFirstSuggestion={true}
       renderSuggestion={renderSuggestionFn}
       suggestions={stops}
+      renderSuggestionsContainer={renderSuggestionsContainer(loading)}
       onSuggestionsFetchRequested={getSuggestions}
     />
   );
