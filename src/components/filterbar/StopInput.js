@@ -49,7 +49,7 @@ export default observer(({date, stops, onSelect, stop, search}) => {
       getValue={getSuggestionValue}
       highlightFirstSuggestion={true}
       renderSuggestion={renderSuggestionFn}
-      suggestions={stops.slice(0, 100)}
+      suggestions={stops}
       onSuggestionsFetchRequested={getSuggestions}
     />
   );
