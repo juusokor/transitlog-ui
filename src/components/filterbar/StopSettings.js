@@ -10,6 +10,12 @@ import {SelectedOptionDisplay, SuggestionText, SuggestionAlerts} from "./Suggest
 import flow from "lodash/flow";
 import {inject} from "../../helpers/inject";
 import {getAlertsInEffect} from "../../helpers/getAlertsInEffect";
+import styled from "styled-components";
+import Loading from "../Loading";
+
+const LoadingSpinner = styled(Loading)`
+  margin: 0.5rem 0.5rem 0.5rem 1rem;
+`;
 
 const decorate = flow(
   observer,
@@ -21,10 +27,14 @@ const StopSettings = decorate(({Filters, state}) => {
 
   return (
     <AllStopsQuery>
-      {({stops, loading, search}) => (
+      {({stops = [], loading, search}) => (
         <Observer>
           {() => {
             const selectedStop = stops.find((s) => s.id === stop);
+
+            if (loading && stops.length === 0) {
+              return <LoadingSpinner inline={true} />;
+            }
 
             return (
               <>

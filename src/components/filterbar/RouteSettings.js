@@ -31,9 +31,11 @@ const RouteSettings = decorate(({Filters, state: {route, date}}) => {
           {() => {
             const selectedRoute = getFullRoute(routes, route);
 
-            return loading ? (
-              <LoadingSpinner inline={true} />
-            ) : (
+            if (loading) {
+              return <LoadingSpinner inline={true} />;
+            }
+
+            return (
               <>
                 <ControlGroup>
                   <Input

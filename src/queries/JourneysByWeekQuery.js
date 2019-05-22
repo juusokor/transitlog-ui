@@ -78,7 +78,7 @@ export const routeJourneysByWeekQuery = gql`
 
 const updateListenerName = "journey weel query";
 
-const JourneysByDateQuery = observer(({children, route, date, skip}) => {
+const JourneysByWeekQuery = observer(({children, route, date, skip}) => {
   const prevResults = useRef([]);
 
   const createRefetcher = useCallback(
@@ -126,4 +126,4 @@ const JourneysByDateQuery = observer(({children, route, date, skip}) => {
   );
 });
 
-export default JourneysByDateQuery;
+export default JourneysByWeekQuery;

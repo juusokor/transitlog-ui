@@ -9,6 +9,12 @@ import VehicleOptionsQuery from "../../queries/VehicleOptionsQuery";
 import Tooltip from "../Tooltip";
 import {inject} from "../../helpers/inject";
 import {SelectedOptionDisplay, SuggestionText} from "./SuggestionInput";
+import styled from "styled-components";
+import Loading from "../Loading";
+
+const LoadingSpinner = styled(Loading)`
+  margin: 0.5rem 0.5rem 0.5rem 1rem;
+`;
 
 const decorate = flow(
   observer,
@@ -24,10 +30,14 @@ const VehicleSettings = decorate(({Filters, state}) => {
 
   return (
     <VehicleOptionsQuery date={date}>
-      {({vehicles, search}) => (
+      {({vehicles = [], search, loading}) => (
         <Observer>
           {() => {
             const selectedVehicle = vehicles.find((v) => v.id === vehicle);
+
+            if (loading && vehicles.length === 0) {
+              return <LoadingSpinner inline={true} />;
+            }
 
             return (
               <>

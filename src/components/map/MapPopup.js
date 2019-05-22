@@ -9,6 +9,8 @@ const PopupStyle = createGlobalStyle`
 
   .leaflet-popup-content {
     margin: 0 !important;
+    max-height: 550px; // Sometimes leaflet does not apply a maxHeight so we're doing it here.
+    overflow-y: auto;
   }
   
   .leaflet-popup-scrolled {
@@ -42,7 +44,6 @@ const MapPopup = ({className, children, onClose}) => {
         onClose={onClose}
         offset={[0, -10]}
         minWidth={350}
-        maxHeight={600}
         maxWidth={550}>
         {children}
       </Popup>

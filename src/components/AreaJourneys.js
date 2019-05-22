@@ -19,8 +19,10 @@ const updateListenerName = "area hfp query";
 const AreaJourneys = decorate((props) => {
   const {children, skip, state} = props;
   const {isLiveAndCurrent, areaSearchRangeMinutes, unixTime, date} = state;
+
   const [queryBounds, setQueryBounds] = useState(null);
   const [queryRange, setQueryRange] = useState(null);
+  const [areaLoading, setAreaLoading] = useState(false);
 
   const resetAreaQuery = useCallback(() => {
     setQueryRange(null);
@@ -49,8 +51,10 @@ const AreaJourneys = decorate((props) => {
   );
 
   const updateAreaQuery = useCallback(() => {
-    createAreaQuery(queryBounds, unixTime);
-  }, [queryBounds, unixTime, isLiveAndCurrent, areaSearchRangeMinutes]);
+    if (!areaLoading) {
+      createAreaQuery(queryBounds, unixTime);
+    }
+  }, [queryBounds, unixTime, isLiveAndCurrent, areaSearchRangeMinutes, areaLoading]);
 
   // Create an area query if the bounds are valid
   const requestArea = useCallback(
@@ -88,23 +92,24 @@ const AreaJourneys = decorate((props) => {
     updateAreaQuery,
   ]);
 
-  useEffect(updateAreaQuery, [date]);
+  useEffect(updateAreaQuery, [date, isLiveAndCurrent]);
 
   return (
     <AreaJourneysQuery
-      isLive={isLiveAndCurrent}
       skip={!queryVars || skip} // Skip query if some params are falsy
       {...queryVars || {}}>
-      {({journeys, loading, error}) =>
-        children({
+      {({journeys, loading, error}) => {
+        setAreaLoading(loading);
+
+        return children({
           setQueryBounds: requestArea,
           // Query bounds may be limited in some cases. If so, put the actual bounds here:
           actualQueryBounds: queryBounds,
           journeys,
           loading,
           error,
-        })
-      }
+        });
+      }}
     </AreaJourneysQuery>
   );
 });

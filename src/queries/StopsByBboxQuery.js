@@ -6,7 +6,7 @@ import gql from "graphql-tag";
 import {AlertFieldsFragment} from "./AlertFieldsFragment";
 
 export const stopsByBboxQuery = gql`
-  query stopsByBboxQuery($bbox: BBox!) {
+  query stopsByBboxQuery($bbox: PreciseBBox!) {
     stopsByBbox(bbox: $bbox) {
       id
       stopId
