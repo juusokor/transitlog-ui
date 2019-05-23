@@ -6,15 +6,15 @@ import {observer} from "mobx-react";
 import {CancellationFieldsFragment} from "./CancellationFieldsFragment";
 
 const cancellationsQuery = gql`
-  query alertsQuery(
-    $time: String!
+  query cancellationsQuery(
+    $date: Date!
     $all: Boolean
     $routeId: String
     $direction: Int
     $departureTime: String
   ) {
     cancellations(
-      time: $time
+      date: $date
       cancellationSearch: {
         all: $all
         routeId: $routeId
@@ -28,9 +28,9 @@ const cancellationsQuery = gql`
   ${CancellationFieldsFragment}
 `;
 
-const CancellationsQuery = observer(({time, cancellationsSearch, children}) => {
+const CancellationsQuery = observer(({date, cancellationsSearch, children}) => {
   return (
-    <Query query={cancellationsQuery} variables={{time, ...cancellationsSearch}}>
+    <Query query={cancellationsQuery} variables={{date, ...cancellationsSearch}}>
       {({loading, error, data}) => {
         const cancellations = get(data, "cancellations", []);
 

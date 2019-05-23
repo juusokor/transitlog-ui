@@ -161,10 +161,7 @@ const AlertTimeDisplay = observer(({alert}) => {
 const AlertItem = observer(({alert}) => {
   const {Icon, color} = getAlertStyle(alert);
 
-  const publishedMoment = moment.tz(alert.publishedDateTime, TIMEZONE);
-  const updatedMoment = alert.updatedDateTime
-    ? moment.tz(alert.updatedDateTime, TIMEZONE)
-    : null;
+  const publishedMoment = moment.tz(alert.lastModifiedDateTime, TIMEZONE);
 
   let TypeIcon = HSLLogoNoText;
   let type = "network";
@@ -235,15 +232,9 @@ const AlertItem = observer(({alert}) => {
               </AlertLink>
             )}
             <AlertPublishTime lightText={!lightBg}>
-              {updatedMoment ? (
-                <span>
-                  {updatedMoment.format("DD/MM")}, {updatedMoment.format("HH:mm")}
-                </span>
-              ) : (
-                <span>
-                  {publishedMoment.format("DD/MM")}, {publishedMoment.format("HH:mm")}
-                </span>
-              )}
+              <span>
+                {publishedMoment.format("DD/MM")}, {publishedMoment.format("HH:mm")}
+              </span>
             </AlertPublishTime>
           </AlertFooter>
         </AlertContent>
