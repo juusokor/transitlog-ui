@@ -12,7 +12,7 @@
   "Search range minutes field": "Aseta aluehaun aikaväli, eli kuinka pitkältä aikaväliltä aluehaku hakee tapahtumia. Aikavälin keskipiste on valittu aika hakuhetkellä.",
   "Select line": "Valitse linja. Kirjoittamalla linjan alkunumeroa näet sillä alkunumerolla alkavia linjoja.",
   "Select route": "Valitse linjan reitti. Valikossa näkyy vain reittejä jotka olivat voimassa valitun päivämäärän aikana.",
-  "Select vehicle": "Etsi HSL-alueen ajoneuvoa rekisterinumerolla, kylkinumerolla tai liikennöitsijän nimellä. Ajoneuvot jotka eivät olleet liikenteessä valittuna päivämääränä näkyy harmaalla värillä.",
+  "Select vehicle": "Etsi HSL-alueen ajoneuvoa rekisterinumerolla, kylkinumerolla tai liikennöitsijän nimellä. Ajoneuvot jotka eivät olleet liikenteessä valittuna päivämääränä näkyvät harmaalla värillä.",
   "Select vehicle disabled": "Ajoneuvohaku on suljettu kun sinulla on valittu lähtö. Poista lähtö-valinta niin voit hakea ajoneuvoa.",
   "Select stop": "Etsi pysäkki pysäkkinumerolla, tunnisteella tai nimellä.",
   "Clear vehicle": "Tyhjentää ajoneuvohaku-kenttää. Tiedot mitkä haettiin ajoneuvotiedon pohjalta tyhjentyy myös.",
