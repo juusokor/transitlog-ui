@@ -30,6 +30,8 @@
 
 * {
   box-sizing: border-box;
+  -moz-scrollbar-width: thin;
+  scrollbar-width: thin;
 }
 
 html {
