@@ -7,6 +7,7 @@ import CancellationItem from "./CancellationItem";
 import {ListHeading} from "./commonComponents";
 import groupBy from "lodash/groupBy";
 import {Text} from "../helpers/text";
+import Tooltip from "./Tooltip";
 
 const CancellationsListWrapper = styled.div`
   padding-bottom: 1rem;
@@ -15,7 +16,7 @@ const CancellationsListWrapper = styled.div`
 const decorate = flow(observer);
 
 const CancellationsList = decorate(
-  ({className, cancellations = [], showListHeading = false}) => {
+  ({className, cancellations = [], showListHeading = false, helpText}) => {
     const validCancellations =
       cancellations && Array.isArray(cancellations) ? cancellations : [];
 
@@ -27,9 +28,11 @@ const CancellationsList = decorate(
     return (
       <CancellationsListWrapper className={className}>
         {showListHeading && (
-          <ListHeading>
-            <Text>domain.cancellations</Text>
-          </ListHeading>
+          <Tooltip helpText={helpText || "Cancellations heading"}>
+            <ListHeading>
+              <Text>domain.cancellations</Text>
+            </ListHeading>
+          </Tooltip>
         )}
         {Object.values(cancellationGroups).map((cancellationGroup) => {
           const firstCancellation = cancellationGroup[0];

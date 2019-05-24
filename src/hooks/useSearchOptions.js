@@ -25,7 +25,9 @@ export const useSearchOptions = (searchFunction) => {
         toggleIsSearch(false);
       }
 
-      searcher(searchTerm);
+      if (isSearch) {
+        searcher(searchTerm);
+      }
     },
     [searchFunction, isSearch]
   );

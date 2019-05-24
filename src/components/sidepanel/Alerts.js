@@ -36,12 +36,17 @@ const Alerts = decorate(({state}) => {
                       <>
                         {cancellations.length !== 0 && (
                           <CancellationsList
+                            helpText="All cancellations heading"
                             showListHeading={true}
                             cancellations={cancellations}
                           />
                         )}
                         {alertsInEffect.length !== 0 && (
-                          <AlertsList showListHeading={true} alerts={alertsInEffect} />
+                          <AlertsList
+                            helpText="All alerts heading"
+                            showListHeading={true}
+                            alerts={alertsInEffect}
+                          />
                         )}
                       </>
                     )}
