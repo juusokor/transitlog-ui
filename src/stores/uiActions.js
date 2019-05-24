@@ -46,6 +46,11 @@ export default (state) => {
     }
   });
 
+  const setAreaEventsRouteFilter = action((value = "") => {
+    state.areaEventsRouteFilter = value;
+    setUrlValue("areaEventsRouteFilter", state.areaEventsRouteFilter);
+  });
+
   const toggleLoginModal = action((setTo = !state.loginModalOpen) => {
     state.loginModalOpen = !!setTo;
   });
@@ -135,6 +140,7 @@ export default (state) => {
     addError,
     removeError,
     setAreaEventsStyle,
+    setAreaEventsRouteFilter,
     toggleShareModal,
     highlightStop,
     setUser,

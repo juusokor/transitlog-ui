@@ -33,6 +33,7 @@ export default (state) => {
     showInstructions: getUrlValue("showInstructions", false),
     mapOverlays: getUrlValue("mapOverlays", "").split(","),
     areaEventsStyle: getUrlValue("areaEventsStyle", areaEventsStyles.MARKERS),
+    areaEventsRouteFilter: getUrlValue("areaEventsRouteFilter", ""),
     weeklyObservedTimes: getUrlValue(
       "weeklyObservedTimes",
       weeklyObservedTimeTypes.FIRST_STOP_DEPARTURE

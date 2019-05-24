@@ -1,6 +1,5 @@
-import React, {Component} from "react";
-import {observer, inject} from "mobx-react";
-import {app} from "mobx-app";
+import React, {useCallback, useMemo} from "react";
+import {observer} from "mobx-react-lite";
 import SidepanelList from "./SidepanelList";
 import styled from "styled-components";
 import getJourneyId from "../../helpers/getJourneyId";
@@ -8,6 +7,11 @@ import ToggleButton from "../ToggleButton";
 import {areaEventsStyles} from "../../stores/UIStore";
 import {text} from "../../helpers/text";
 import {getNormalTime} from "../../helpers/time";
+import Input from "../Input";
+import flow from "lodash/flow";
+import get from "lodash/get";
+import {inject} from "../../helpers/inject";
+import {Button} from "../Forms";
 
 const JourneyListRow = styled.button`
   display: flex;
@@ -45,60 +49,130 @@ const TimeSlot = styled.span`
   text-align: right;
 `;
 
-@inject(app("Journey", "Time", "UI"))
-@observer
-class AreaJourneyList extends Component {
-  selectJourney = (journey) => (e) => {
-    e.preventDefault();
-    const {Journey, state} = this.props;
+const ListHeader = styled.div`
+  width: 100%;
+`;
 
-    if (journey) {
-      const journeyId = getJourneyId(journey);
+const HeaderRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+  width: 100%;
+`;
 
-      // Only set these if the journey is truthy and was not already selected
-      if (journeyId && getJourneyId(state.selectedJourney) !== journeyId) {
-        Journey.setSelectedJourney(journey);
-      } else {
-        Journey.setSelectedJourney(null);
-      }
-    }
-  };
+const TimetableFilters = styled.div`
+  display: flex;
+  width: 100%;
+  align-items: flex-end;
+`;
 
-  onChangeDisplayStyle = (e) => {
-    const {UI} = this.props;
-    const value = e.target.value;
+const RouteFilterContainer = styled.div`
+  width: auto;
+  margin-right: 1rem;
 
-    UI.setAreaEventsStyle(
-      value === areaEventsStyles.MARKERS
-        ? areaEventsStyles.POLYLINES
-        : areaEventsStyles.MARKERS
+  label {
+    font-size: 0.75rem;
+  }
+
+  ${Input} input {
+    background-color: ${({noResult = false}) =>
+      noResult ? "rgba(255,100,100, 0.15)" : "white"};
+  }
+`;
+
+const ApplyButton = styled(Button).attrs({small: true, primary: true})`
+  margin-left: 0.5rem;
+  margin-bottom: 1px;
+`;
+
+const decorate = flow(
+  observer,
+  inject("Journey", "Time", "UI")
+);
+
+const AreaJourneyList = decorate(
+  ({
+    journeys,
+    loading,
+    Journey,
+    UI,
+    state: {selectedJourney, areaEventsStyle, areaEventsRouteFilter},
+  }) => {
+    const selectedJourneyId = useMemo(() => getJourneyId(selectedJourney), [
+      selectedJourney,
+    ]);
+
+    const selectJourney = useCallback(
+      (journey) => {
+        if (journey) {
+          const journeyId = getJourneyId(journey);
+
+          // Only set these if the journey is truthy and was not already selected
+          if (journeyId && selectedJourneyId !== journeyId) {
+            Journey.setSelectedJourney(journey);
+          } else {
+            Journey.setSelectedJourney(null);
+          }
+        }
+      },
+      [selectedJourneyId]
     );
-  };
 
-  render() {
-    const {
-      journeys,
-      loading,
-      state: {selectedJourney, areaEventsStyle},
-    } = this.props;
+    const onChangeDisplayStyle = useCallback((e) => {
+      const value = e.target.value;
 
-    const selectedJourneyId = getJourneyId(selectedJourney);
+      UI.setAreaEventsStyle(
+        value === areaEventsStyles.MARKERS
+          ? areaEventsStyles.POLYLINES
+          : areaEventsStyles.MARKERS
+      );
+    }, []);
+
+    const onChangeAreaEventsFilter = useCallback((e) => {
+      const value = get(e, "target.value", "");
+      UI.setAreaEventsRouteFilter(value);
+    }, []);
+
+    const filteringNoResults = useMemo(
+      () => !!areaEventsRouteFilter && journeys.length === 0,
+      [areaEventsRouteFilter, journeys.length]
+    );
 
     return (
       <SidepanelList
         focusKey={selectedJourneyId}
         loading={loading}
         header={
-          <ToggleButton
-            type="checkbox"
-            onChange={this.onChangeDisplayStyle}
-            name="area_events_style"
-            isSwitch={true}
-            preLabel={text("sidepanel.area_events.show_lines")}
-            label={text("sidepanel.area_events.show_markers")}
-            checked={areaEventsStyle === areaEventsStyles.MARKERS}
-            value={areaEventsStyle}
-          />
+          <ListHeader>
+            <HeaderRow>
+              <ToggleButton
+                type="checkbox"
+                onChange={onChangeDisplayStyle}
+                name="area_events_style"
+                isSwitch={true}
+                preLabel={text("sidepanel.area_events.show_lines")}
+                label={text("sidepanel.area_events.show_markers")}
+                checked={areaEventsStyle === areaEventsStyles.MARKERS}
+                value={areaEventsStyle}
+              />
+            </HeaderRow>
+            <HeaderRow>
+              <TimetableFilters>
+                <RouteFilterContainer noResult={filteringNoResults}>
+                  <Input
+                    value={areaEventsRouteFilter}
+                    animatedLabel={false}
+                    onChange={onChangeAreaEventsFilter}
+                    label={text("domain.route")}
+                  />
+                </RouteFilterContainer>
+                <ApplyButton onClick={() => onChangeAreaEventsFilter("")}>
+                  {text("general.clear")}
+                </ApplyButton>
+              </TimetableFilters>
+            </HeaderRow>
+          </ListHeader>
         }>
         {(scrollRef) =>
           journeys.map((journey) => {
@@ -110,7 +184,7 @@ class AreaJourneyList extends Component {
                 ref={journeyIsSelected ? scrollRef : null}
                 key={`area_event_row_${journeyId}`}
                 selected={journeyIsSelected}
-                onClick={this.selectJourney(journey)}>
+                onClick={() => selectJourney(journey)}>
                 <JourneyRowLeft>
                   {routeId} / {direction}
                 </JourneyRowLeft>
@@ -122,6 +196,6 @@ class AreaJourneyList extends Component {
       </SidepanelList>
     );
   }
-}
+);
 
 export default AreaJourneyList;
