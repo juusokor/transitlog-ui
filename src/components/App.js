@@ -163,7 +163,13 @@ function App({route, state, UI}) {
                                             !live && areaJourneysLoading
                                           }
                                           journeyLoading={journeyLoading}
-                                          areaEvents={areaJourneys}
+                                          areaEvents={
+                                            areaJourneys.length !== 0
+                                              ? areaJourneys
+                                              : areaEventsRouteFilter
+                                              ? true
+                                              : []
+                                          }
                                           journey={selectedJourney}
                                           stop={stop}
                                           route={route}

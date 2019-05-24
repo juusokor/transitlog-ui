@@ -1,5 +1,5 @@
-import React, {useCallback, useState, useMemo} from "react";
-import {observer, Observer} from "mobx-react-lite";
+import React, {useCallback, useMemo} from "react";
+import {observer} from "mobx-react-lite";
 import SidepanelList from "./SidepanelList";
 import styled from "styled-components";
 import getJourneyId from "../../helpers/getJourneyId";
@@ -9,7 +9,9 @@ import {text} from "../../helpers/text";
 import {getNormalTime} from "../../helpers/time";
 import Input from "../Input";
 import flow from "lodash/flow";
+import get from "lodash/get";
 import {inject} from "../../helpers/inject";
+import {Button} from "../Forms";
 
 const JourneyListRow = styled.button`
   display: flex;
@@ -47,13 +49,16 @@ const TimeSlot = styled.span`
   text-align: right;
 `;
 
-const ListHeader = styled.div``;
+const ListHeader = styled.div`
+  width: 100%;
+`;
 
 const HeaderRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 0.5rem;
+  width: 100%;
 `;
 
 const TimetableFilters = styled.div`
@@ -63,11 +68,22 @@ const TimetableFilters = styled.div`
 `;
 
 const RouteFilterContainer = styled.div`
-  flex: 1 1 50%;
+  width: auto;
+  margin-right: 1rem;
 
   label {
     font-size: 0.75rem;
   }
+
+  ${Input} input {
+    background-color: ${({noResult = false}) =>
+      noResult ? "rgba(255,100,100, 0.15)" : "white"};
+  }
+`;
+
+const ApplyButton = styled(Button).attrs({small: true, primary: true})`
+  margin-left: 0.5rem;
+  margin-bottom: 1px;
 `;
 
 const decorate = flow(
@@ -114,57 +130,52 @@ const AreaJourneyList = decorate(
     }, []);
 
     const onChangeAreaEventsFilter = useCallback((e) => {
-      const value = e.target.value;
+      const value = get(e, "target.value", "");
       UI.setAreaEventsRouteFilter(value);
     }, []);
 
-    let journeyList = journeys;
-
-    if (areaEventsRouteFilter) {
-      const routes = areaEventsRouteFilter.split(",").map((r) => r.trim());
-      journeyList = journeys.filter(({routeId}) =>
-        routes.some((r) => routeId.includes(r))
-      );
-    }
+    const filteringNoResults = useMemo(
+      () => !!areaEventsRouteFilter && journeys.length === 0,
+      [areaEventsRouteFilter, journeys.length]
+    );
 
     return (
       <SidepanelList
         focusKey={selectedJourneyId}
         loading={loading}
         header={
-          <Observer>
-            {() => (
-              <ListHeader>
-                <HeaderRow>
-                  <ToggleButton
-                    type="checkbox"
-                    onChange={onChangeDisplayStyle}
-                    name="area_events_style"
-                    isSwitch={true}
-                    preLabel={text("sidepanel.area_events.show_lines")}
-                    label={text("sidepanel.area_events.show_markers")}
-                    checked={areaEventsStyle === areaEventsStyles.MARKERS}
-                    value={areaEventsStyle}
+          <ListHeader>
+            <HeaderRow>
+              <ToggleButton
+                type="checkbox"
+                onChange={onChangeDisplayStyle}
+                name="area_events_style"
+                isSwitch={true}
+                preLabel={text("sidepanel.area_events.show_lines")}
+                label={text("sidepanel.area_events.show_markers")}
+                checked={areaEventsStyle === areaEventsStyles.MARKERS}
+                value={areaEventsStyle}
+              />
+            </HeaderRow>
+            <HeaderRow>
+              <TimetableFilters>
+                <RouteFilterContainer noResult={filteringNoResults}>
+                  <Input
+                    value={areaEventsRouteFilter}
+                    animatedLabel={false}
+                    onChange={onChangeAreaEventsFilter}
+                    label={text("domain.route")}
                   />
-                </HeaderRow>
-                <HeaderRow>
-                  <TimetableFilters>
-                    <RouteFilterContainer>
-                      <Input
-                        value={areaEventsRouteFilter}
-                        animatedLabel={false}
-                        onChange={onChangeAreaEventsFilter}
-                        label={text("domain.route")}
-                      />
-                    </RouteFilterContainer>
-                  </TimetableFilters>
-                </HeaderRow>
-              </ListHeader>
-            )}
-          </Observer>
+                </RouteFilterContainer>
+                <ApplyButton onClick={() => onChangeAreaEventsFilter("")}>
+                  {text("general.clear")}
+                </ApplyButton>
+              </TimetableFilters>
+            </HeaderRow>
+          </ListHeader>
         }>
         {(scrollRef) =>
-          journeyList.map((journey) => {
+          journeys.map((journey) => {
             const {routeId, direction, departureTime, id: journeyId} = journey;
             const journeyIsSelected = selectedJourney && selectedJourneyId === journeyId;
 
