@@ -40,8 +40,8 @@ const AlertHeader = styled.div`
 
 const Row = styled.div`
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  align-items: ${({baseline = false}) => (baseline ? "baseline" : "flex-start")};
+  justify-content: flex-start;
   flex-wrap: nowrap;
   margin-bottom: 0.75rem;
 
@@ -53,10 +53,11 @@ const Row = styled.div`
 const AlertType = styled.span`
   margin-right: 1rem;
   flex: 1 1 auto;
+  white-space: nowrap;
 
   svg {
     display: inline-block;
-    margin-right: 0.5rem;
+    margin-right: 1rem;
   }
 `;
 
@@ -68,6 +69,7 @@ const AlertContent = styled.div`
 const AlertTime = styled.div`
   text-align: right;
   margin-left: auto;
+  white-space: nowrap;
 
   svg {
     margin: 0 1rem;
@@ -83,11 +85,17 @@ const AlertTime = styled.div`
   }
 `;
 
+const AlertIconStyle = styled.svg`
+  flex: none;
+  margin-left: -0.25rem;
+`;
+
 const AlertTitle = styled(Heading).attrs({level: 5})`
   margin: 0;
   font-size: 0.875rem;
   font-weight: bold;
   color: inherit;
+  flex: 1 1 auto;
 `;
 
 const AlertDescription = styled.div`
@@ -161,6 +169,7 @@ const AlertTimeDisplay = observer(({alert}) => {
 const AlertItem = observer(({alert}) => {
   const {Icon, color} = getAlertStyle(alert);
 
+  const AlertIcon = AlertIconStyle.withComponent(Icon);
   const publishedMoment = moment.tz(alert.lastModifiedDateTime, TIMEZONE);
 
   let TypeIcon = HSLLogoNoText;
@@ -189,17 +198,9 @@ const AlertItem = observer(({alert}) => {
       <Accordion
         label={
           <AlertHeader>
-            <Row>
-              <Icon
-                width="1.25rem"
-                fill={
-                  colorful && !lightBg ? "white" : colorful ? "var(--dark-grey)" : color
-                }
-              />
+            <Row baseline>
               <AlertType>
-                {TypeIcon && (
-                  <TypeIcon fill={!lightBg ? "white" : "var(--dark-grey)"} width="1rem" />
-                )}
+                <TypeIcon fill={!lightBg ? "white" : "var(--dark-grey)"} width="1rem" />
                 {alert.affectedId || type === "route"
                   ? text("domain.alerts.all_routes")
                   : type === "stop"
@@ -209,6 +210,13 @@ const AlertItem = observer(({alert}) => {
               <AlertTimeDisplay alert={alert} />
             </Row>
             <Row>
+              <AlertIcon
+                width="1.5rem"
+                height="1.5rem"
+                fill={
+                  colorful && !lightBg ? "white" : colorful ? "var(--dark-grey)" : color
+                }
+              />
               <AlertTitle>{alert.title}</AlertTitle>
             </Row>
           </AlertHeader>
