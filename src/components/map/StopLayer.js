@@ -23,8 +23,6 @@ const StopLayer = decorate(
         ? bounds
         : "";
 
-    console.log(zoom);
-
     return (
       <StopsByBboxQuery skip={!bbox} bbox={bbox}>
         {({stops = []}) => {
