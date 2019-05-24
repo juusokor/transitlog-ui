@@ -170,7 +170,10 @@ const AlertItem = observer(({alert}) => {
   const {Icon, color} = getAlertStyle(alert);
 
   const AlertIcon = AlertIconStyle.withComponent(Icon);
-  const publishedMoment = moment.tz(alert.lastModifiedDateTime, TIMEZONE);
+  const publishedMoment = moment.tz(
+    alert.lastModifiedDateTime || alert.publishedDateTime,
+    TIMEZONE
+  );
 
   let TypeIcon = HSLLogoNoText;
   let type = "network";
