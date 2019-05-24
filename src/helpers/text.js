@@ -14,11 +14,11 @@ const helpFiles = {
   en: require("../languages/help/en.json"),
 };
 
-function getTextForToken(token, files) {
-  const languageFile = get(files, languageState.language, false);
+function getTextForToken(token, files, language = languageState.language) {
+  const languageFile = get(files, language, false);
 
   if (!languageFile) {
-    console.error("No language file found for language: " + languageState.language);
+    console.error("No language file found for language: " + language);
   }
 
   const languageStr = languageFile[token];
@@ -30,15 +30,15 @@ function getTextForToken(token, files) {
   return languageStr;
 }
 
-export function helpText(text) {
-  return getTextForToken(text, helpFiles);
+export function helpText(text, language) {
+  return getTextForToken(text, helpFiles, language);
 }
 
-export function text(token) {
-  return getTextForToken(token, uiFiles);
+export function text(token, language) {
+  return getTextForToken(token, uiFiles, language);
 }
 
 export const Text = observer(({children, text: textToken = children}) => {
-  const str = text(textToken);
-  return str;
+  const selectedLanguage = languageState.language;
+  return text(textToken, selectedLanguage);
 });

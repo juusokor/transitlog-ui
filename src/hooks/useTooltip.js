@@ -1,5 +1,6 @@
 import {helpText as translateHelpText} from "../helpers/text";
-import {useMemo} from "react";
+import {useObserver} from "mobx-react-lite";
+import {languageState} from "../stores/UIStore";
 
 /**
  * Returns a tooltipProps object with one property; title.
@@ -7,10 +8,14 @@ import {useMemo} from "react";
  */
 
 export const useTooltip = (helpText) => {
-  const translatedText = useMemo(() => translateHelpText(helpText), [helpText]);
-  return {
-    title: translatedText,
-  };
+  return useObserver(() => {
+    const selectedLanguage = languageState.language;
+    const translatedText = translateHelpText(helpText, selectedLanguage);
+
+    return {
+      title: translatedText,
+    };
+  });
 };
 
 export const applyTooltip = (helpText) => {
