@@ -1,7 +1,7 @@
 import React from "react";
 import "jest-dom/extend-expect";
 import "jest-styled-components";
-import {render, cleanup, waitForElement, waitForDomChange} from "react-testing-library";
+import {render, cleanup, waitForElement} from "react-testing-library";
 import Journeys from "../../components/sidepanel/Journeys";
 import {MockedProvider} from "react-apollo/test-utils";
 import {routeJourneysQuery} from "../../queries/JourneysByDateQuery";

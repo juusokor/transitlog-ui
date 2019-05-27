@@ -4,7 +4,7 @@ import {Query} from "react-apollo";
 import get from "lodash/get";
 import {AlertFieldsFragment} from "./AlertFieldsFragment";
 
-const allStopsQuery = gql`
+export const allStopsQuery = gql`
   query allStopsQuery($search: String) {
     stops(filter: {search: $search}) {
       id
@@ -18,7 +18,6 @@ const allStopsQuery = gql`
       alerts {
         ...AlertFieldsFragment
       }
-      _matchScore
     }
   }
   ${AlertFieldsFragment}
