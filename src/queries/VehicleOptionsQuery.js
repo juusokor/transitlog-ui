@@ -1,4 +1,4 @@
-import React, {useRef, useCallback} from "react";
+import React, {useRef} from "react";
 import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import get from "lodash/get";
@@ -7,7 +7,6 @@ import {observer} from "mobx-react-lite";
 const vehiclesQuery = gql`
   query vehicleOptionsQuery($date: Date, $search: String) {
     equipment(date: $date, filter: {search: $search}) {
-      _matchScore
       age
       id
       inService
@@ -26,19 +25,13 @@ const vehiclesQuery = gql`
 export default observer(({children, date, skip}) => {
   const prevResults = useRef([]);
 
-  const createSearchFetcher = useCallback(
-    (refetch) => (searchTerm) => refetch({search: searchTerm, date}),
-    [date]
-  );
-
   return (
     <Query query={vehiclesQuery} variables={{date}} skip={skip}>
-      {({loading, error, data, refetch}) => {
+      {({loading, error, data}) => {
         if (loading || !data) {
           return children({
             loading,
             error,
-            search: createSearchFetcher(refetch),
             vehicles: prevResults.current,
           });
         }
@@ -49,7 +42,6 @@ export default observer(({children, date, skip}) => {
         return children({
           loading: loading,
           error,
-          search: createSearchFetcher(refetch),
           vehicles,
         });
       }}

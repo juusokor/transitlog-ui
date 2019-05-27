@@ -1,4 +1,4 @@
-import React, {useMemo} from "react";
+import React, {useMemo, useState, useCallback} from "react";
 import SuggestionInput, {
   SuggestionContent,
   SuggestionText,
@@ -12,7 +12,8 @@ import {inject} from "../../helpers/inject";
 import orderBy from "lodash/orderBy";
 import map from "lodash/map";
 import groupBy from "lodash/groupBy";
-import {useSearchOptions} from "../../hooks/useSearchOptions";
+import {useSearch} from "../../hooks/useSearch";
+import {isNumeric} from "../../helpers/isNumeric";
 
 const VehicleSuggestion = styled(SuggestionContent)`
   color: ${({inService = true, isHighlighted = false}) =>
@@ -53,11 +54,6 @@ const renderSectionTitle = (section) => (
 const getSectionSuggestions = (section) => section.vehicles;
 
 const getVehicleGroups = (vehicles = [], sortByMatchScore = false) => {
-  const sortVehiclesBy = sortByMatchScore ? "_matchScore" : "vehicleId";
-  const sortGroupsBy = sortByMatchScore
-    ? "combinedMatchScore"
-    : ({operator}) => /\(([^)]+)\)/.exec(operator);
-
   const sortDirection = sortByMatchScore ? "desc" : "asc";
 
   return orderBy(
@@ -68,28 +64,43 @@ const getVehicleGroups = (vehicles = [], sortByMatchScore = false) => {
       ),
       (vehicles, groupLabel) => ({
         operator: groupLabel,
-        combinedMatchScore: sortByMatchScore
-          ? vehicles.reduce((score, {_matchScore = 0}) => score + _matchScore, 0)
-          : 0,
-        vehicles: orderBy(vehicles, sortVehiclesBy, sortDirection).slice(0, 50),
+        vehicles: orderBy(vehicles, "vehicleId", sortDirection).slice(0, 50),
       })
     ),
-    sortGroupsBy,
+    ({operator}) => /\(([^)]+)\)/.exec(operator),
     sortDirection
   ).slice(0, 5);
 };
 
-const enhance = flow(
-  observer,
-  inject("state")
-);
+const enhance = flow(observer);
 
-export default enhance(({value = "", onSelect, search, options = []}) => {
-  const [getSuggestions, searchActive] = useSearchOptions(search);
+export default enhance(({value = "", onSelect, vehicles = []}) => {
+  const [options, setOptions] = useState(vehicles);
 
-  const vehicleOptions = useMemo(() => getVehicleGroups(options, searchActive), [
-    options,
-  ]);
+  const doSearch = useSearch(
+    vehicles,
+    (queryVal) =>
+      isNumeric(queryVal)
+        ? [{name: "vehicleId", weight: 0.45}, {name: "operatorId", weight: 0.65}]
+        : [
+            {name: "id", weight: 0.2},
+            {name: "operatorName", weight: 0.3},
+            {name: "registryNr", weight: 0.3},
+            {name: "exteriorColor", weight: 0.1},
+            {name: "emissionDesc", weight: 0.1},
+          ],
+    {threshold: 0.2}
+  );
+
+  const onSearch = useCallback(
+    (searchQuery = "") => {
+      const result = doSearch(searchQuery);
+      setOptions(result);
+    },
+    [doSearch]
+  );
+
+  const vehicleOptionGroups = useMemo(() => getVehicleGroups(options), [options]);
 
   return (
     <SuggestionInput
@@ -102,8 +113,8 @@ export default enhance(({value = "", onSelect, search, options = []}) => {
       getSectionSuggestions={getSectionSuggestions}
       getValue={getSuggestionValue}
       renderSuggestion={renderSuggestion}
-      suggestions={vehicleOptions}
-      onSuggestionsFetchRequested={getSuggestions}
+      suggestions={vehicleOptionGroups}
+      onSuggestionsFetchRequested={onSearch}
     />
   );
 });

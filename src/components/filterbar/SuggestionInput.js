@@ -110,7 +110,7 @@ class SuggestionInput extends Component {
   };
 
   shouldRenderSuggestions = (limit) => (value = "") => {
-    return (value || "").trim().length >= limit;
+    return typeof value === "string" ? (value || "").trim().length >= limit : true;
   };
 
   componentDidUpdate({value: prevValue}) {

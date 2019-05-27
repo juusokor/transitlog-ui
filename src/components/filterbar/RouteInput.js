@@ -48,18 +48,22 @@ const getFilteredSuggestions = (routes, {value = ""}) => {
   const filteredRoutes =
     inputLength === 0
       ? routes
-      : routes.filter(({routeId, direction}) => {
+      : routes.filter(({mode, routeId, direction, originStopId}) => {
           const matchRouteId = routeId
             .trim()
             .replace(/\s/g, "")
             .toLowerCase();
+
+          const matchMode = mode.toLowerCase();
 
           return (
             (searchDirection &&
               direction === searchDirection &&
               matchRouteId.includes(searchRouteId)) ||
             (!searchDirection && matchRouteId.includes(searchRouteId)) ||
-            parseLineNumber(matchRouteId).includes(searchRouteId.slice(0, inputLength))
+            parseLineNumber(matchRouteId).includes(searchRouteId.slice(0, inputLength)) ||
+            matchMode.startsWith(searchRouteId) ||
+            originStopId.startsWith(searchRouteId)
           );
         });
 

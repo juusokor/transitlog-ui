@@ -30,7 +30,7 @@ const VehicleSettings = decorate(({Filters, state}) => {
 
   return (
     <VehicleOptionsQuery date={date}>
-      {({vehicles = [], search, loading}) => (
+      {({vehicles = [], loading}) => (
         <Observer>
           {() => {
             const selectedVehicle = vehicles.find((v) => v.id === vehicle);
@@ -49,8 +49,7 @@ const VehicleSettings = decorate(({Filters, state}) => {
                     value={vehicle}
                     disabled={isDisabled}>
                     <VehicleInput
-                      search={search}
-                      options={vehicles}
+                      vehicles={vehicles}
                       value={vehicle}
                       onSelect={onSelectVehicle}
                     />
