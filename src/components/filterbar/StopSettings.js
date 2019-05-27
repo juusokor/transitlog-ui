@@ -27,7 +27,7 @@ const StopSettings = decorate(({Filters, state}) => {
 
   return (
     <AllStopsQuery>
-      {({stops = [], loading, search}) => (
+      {({stops = [], loading}) => (
         <Observer>
           {() => {
             const selectedStop = stops.find((s) => s.id === stop);
@@ -42,7 +42,6 @@ const StopSettings = decorate(({Filters, state}) => {
                   <Input label={text("filterpanel.filter_by_stop")} animatedLabel={false}>
                     <StopInput
                       date={date}
-                      search={search}
                       onSelect={Filters.setStop}
                       stop={stop}
                       stops={stops}

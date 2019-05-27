@@ -1,4 +1,4 @@
-import React, {useMemo} from "react";
+import React, {useMemo, useState, useCallback} from "react";
 import SuggestionInput, {
   SuggestionContent,
   SuggestionText,
@@ -6,7 +6,7 @@ import SuggestionInput, {
 } from "./SuggestionInput";
 import get from "lodash/get";
 import {observer} from "mobx-react-lite";
-import {useSearchOptions} from "../../hooks/useSearchOptions";
+import {useSearch} from "../../hooks/useSearch";
 import {getAlertsInEffect} from "../../helpers/getAlertsInEffect";
 import styled from "styled-components";
 import Loading from "../Loading";
@@ -48,9 +48,23 @@ const renderSuggestionsContainer = (loading) => ({containerProps, children, quer
   );
 };
 
-export default observer(({date, stops, onSelect, stop, search, loading}) => {
-  const [getSuggestions] = useSearchOptions(search);
+export default observer(({date, stops, onSelect, stop, loading}) => {
+  const [options, setOptions] = useState(stops);
+
+  const doSearch = useSearch(stops, [
+    {name: "shortId", weight: 0.7},
+    {name: "name", weight: 0.1},
+    {name: "stopId", weight: 0.2},
+  ]);
   const renderSuggestionFn = useMemo(() => renderSuggestion(date), [date]);
+
+  const onSearch = useCallback(
+    (searchQuery) => {
+      const result = doSearch(searchQuery);
+      setOptions(result);
+    },
+    [doSearch]
+  );
 
   return (
     <SuggestionInput
@@ -61,9 +75,9 @@ export default observer(({date, stops, onSelect, stop, search, loading}) => {
       getValue={getSuggestionValue}
       highlightFirstSuggestion={true}
       renderSuggestion={renderSuggestionFn}
-      suggestions={stops}
+      suggestions={options}
       renderSuggestionsContainer={renderSuggestionsContainer(loading)}
-      onSuggestionsFetchRequested={getSuggestions}
+      onSuggestionsFetchRequested={onSearch}
     />
   );
 });
