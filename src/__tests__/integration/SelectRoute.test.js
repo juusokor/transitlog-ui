@@ -10,6 +10,7 @@ import {MobxProviders} from "../util/MobxProviders";
 import {observable} from "mobx";
 import filterActions from "../../stores/filterActions";
 import SidePanel from "../../components/sidepanel/SidePanel";
+import {text} from "../../helpers/text";
 
 const date = "2019-05-27";
 
@@ -92,7 +93,9 @@ describe("When a route is selected", () => {
 
     const sidepanel = await waitForElement(() => getByTestId("sidepanel"));
     expect(sidepanel).toBeInTheDocument();
-    expect(sidepanel).toHaveTextContent("Lähdöt");
+    expect(sidepanel).toHaveTextContent(text("sidepanel.tabs.journeys", "fi"));
+    expect(sidepanel).toHaveTextContent(text("sidepanel.tabs.week_journeys", "fi"));
+    expect(sidepanel).toHaveTextContent(text("domain.alerts", "fi"));
 
     const details = await waitForElement(() => getByTestId("journey-details"));
     expect(details).toBeInTheDocument();
