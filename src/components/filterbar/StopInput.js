@@ -75,7 +75,7 @@ export default observer(({date, stops, onSelect, stop, loading}) => {
       getValue={getSuggestionValue}
       highlightFirstSuggestion={true}
       renderSuggestion={renderSuggestionFn}
-      suggestions={options}
+      suggestions={options.slice(0, 50)}
       renderSuggestionsContainer={renderSuggestionsContainer(loading)}
       onSuggestionsFetchRequested={onSearch}
     />
