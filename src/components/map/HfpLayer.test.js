@@ -1,5 +1,4 @@
 import {getLineChunksByDelay} from "./JourneyLayer";
-import getJourneyId from "../../helpers/getJourneyId";
 
 describe("SimpleHfpLayer", () => {
   const baseEvent = {

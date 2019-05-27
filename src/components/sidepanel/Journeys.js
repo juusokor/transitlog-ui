@@ -239,6 +239,7 @@ const Journeys = decorate(({state, Time, Journey}) => {
                         return (
                           <JourneyListRow
                             ref={journeyIsFocused ? scrollRef : null}
+                            data-testid={`journey-list-row-${departureTime}`}
                             key={`planned_journey_row_${journeyId}`}
                             selected={journeyIsSelected}
                             isCancelled={isCancelled}
@@ -313,6 +314,7 @@ const Journeys = decorate(({state, Time, Journey}) => {
                       return (
                         <JourneyListRow
                           {...applyTooltip("Journey list row")}
+                          data-testid={`journey-list-row-${departureTime}`}
                           ref={journeyIsFocused ? scrollRef : null}
                           selected={journeyIsSelected}
                           key={`journey_row_${journeyId}_${departure.id}`}

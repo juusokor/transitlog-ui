@@ -116,17 +116,15 @@ const JourneysByDateQuery = observer(({children, route, date, skip}) => {
 
   const {routeId, direction, originStopId} = route;
   const shouldSkip = skip || !route || !routeId || !direction || !originStopId;
+  const queryVars = {
+    routeId: routeId,
+    direction: parseInt(direction, 10),
+    stopId: originStopId || "",
+    date,
+  };
 
   return (
-    <Query
-      skip={shouldSkip}
-      query={routeJourneysQuery}
-      variables={{
-        routeId: routeId,
-        direction: parseInt(direction, 10),
-        stopId: originStopId || "",
-        date,
-      }}>
+    <Query skip={shouldSkip} query={routeJourneysQuery} variables={queryVars}>
       {({data, error, loading, refetch}) => {
         if (!data || loading) {
           return children({departures: [], loading, error, skipped: shouldSkip});
