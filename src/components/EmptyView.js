@@ -81,7 +81,7 @@ const EmptyView = decorate(({error}) => {
   }
 
   return (
-    <EmptyViewWrapper>
+    <EmptyViewWrapper data-testid={`empty-view-${emptyReason}`}>
       {emptyReason === emptyReasons.NETWORK ? (
         <>
           <NoConnection fill="var(--alt-grey)" height="5rem" width="5rem" />
