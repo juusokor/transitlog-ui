@@ -232,17 +232,25 @@ export default observer(({journey, date}) => {
             </Line>
             <Line right>
               <Values>
-                {validateEquipment(departure, journey.equipment).map(
-                  (prop) =>
+                {validateEquipment(departure, journey.equipment).map((prop) => {
+                  const propVal = prop.observed;
+                  let propValShort = propVal.slice(0, 11).trim();
+
+                  if (propValShort < propVal) {
+                    propValShort += ".";
+                  }
+
+                  return (
                     prop.observed && (
                       <ObservedValue
                         key={`equipment_prop_${prop.name}`}
                         backgroundColor={prop.color}
                         color={prop.required !== false ? "white" : "var(--dark-grey)"}>
-                        {prop.observed}
+                        {propValShort}
                       </ObservedValue>
                     )
-                )}
+                  );
+                })}
               </Values>
             </Line>
           </JourneyInfoRow>
