@@ -9,6 +9,7 @@ import mockJourneysResponse from "../route_journeys_response";
 import {MobxProviders} from "../util/MobxProviders";
 import {observable} from "mobx";
 import filterActions from "../../stores/filterActions";
+import SidePanel from "../../components/sidepanel/SidePanel";
 
 const date = "2019-05-27";
 
@@ -34,16 +35,29 @@ describe("When a route is selected", () => {
     language: "fi",
     live: false,
     date,
+    sidePanelVisible: true,
     route: {routeId: "", direction: "", originStopId: ""},
   });
 
+  const RenderContext = ({children}) => (
+    <MobxProviders state={state} actions={{UI: {}}}>
+      <MockedProvider addTypename={true} mocks={routeDepartureMocks}>
+        {children}
+      </MockedProvider>
+    </MobxProviders>
+  );
+
   const renderJourneys = () =>
     render(
-      <MobxProviders state={state}>
-        <MockedProvider addTypename={true} mocks={routeDepartureMocks}>
-          <Journeys />
-        </MockedProvider>
-      </MobxProviders>
+      <RenderContext>
+        <Journeys />
+      </RenderContext>
+    );
+  const renderSidebar = () =>
+    render(
+      <RenderContext>
+        <SidePanel detailsOpen={true} sidePanelOpen={true} />
+      </RenderContext>
     );
 
   afterEach(cleanup);
@@ -59,6 +73,7 @@ describe("When a route is selected", () => {
 
     const lastDepartureRow = getByTestId("journey-list-row-22:26:00");
 
+    // The following assertions are based on the mock response
     expect(firstDepartureRow).toBeInTheDocument();
     expect(firstDepartureRow).toHaveTextContent("05:28"); // The planned departure time
     expect(firstDepartureRow).toHaveTextContent("05:28:26"); // The observed departure time
@@ -66,8 +81,21 @@ describe("When a route is selected", () => {
     expect(firstDepartureRow).toHaveTextContent("H0"); // The special dayType
 
     expect(lastDepartureRow).toBeInTheDocument();
-    expect(lastDepartureRow).toHaveTextContent("Ei tietoja");
+    expect(lastDepartureRow).toHaveTextContent("Ei tietoja"); // Finnish is set as the language in the state.
     expect(lastDepartureRow).toHaveTextContent("22:26");
     expect(lastDepartureRow).toHaveTextContent("H0");
+  });
+
+  test("Shows information in the sidebar", async () => {
+    const {getByTestId} = renderSidebar();
+    filterActions(state).setRoute(route);
+
+    const sidepanel = await waitForElement(() => getByTestId("sidepanel"));
+    expect(sidepanel).toBeInTheDocument();
+    expect(sidepanel).toHaveTextContent("Lähdöt");
+
+    const details = await waitForElement(() => getByTestId("journey-details"));
+    expect(details).toBeInTheDocument();
+    expect(details).toHaveTextContent("1018");
   });
 });

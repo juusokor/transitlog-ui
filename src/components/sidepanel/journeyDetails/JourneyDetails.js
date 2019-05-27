@@ -69,7 +69,7 @@ class JourneyDetails extends React.Component {
     const cancellations = get(journey, "cancellations", get(route, "cancellations", []));
 
     return (
-      <JourneyPanelWrapper>
+      <JourneyPanelWrapper data-testid="journey-details">
         <LoadingDisplay loading={loading} />
         <JourneyDetailsHeader journey={journey} route={route} />
         <ScrollContainer>
