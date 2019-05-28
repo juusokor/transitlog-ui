@@ -1,7 +1,7 @@
 import React from "react";
 import "jest-dom/extend-expect";
 import "jest-styled-components";
-import {render, cleanup, waitForElement} from "react-testing-library";
+import {render, cleanup} from "react-testing-library";
 import {observable, action} from "mobx";
 import {MobxProviders} from "../util/MobxProviders";
 import {MockedProvider} from "react-apollo/test-utils";
@@ -9,7 +9,6 @@ import {allStopsQuery} from "../../queries/AllStopsQuery";
 import stopMockResponse from "../stop_options_response.json";
 import StopSettings from "../../components/filterbar/StopSettings";
 import get from "lodash/get";
-import {text} from "../../helpers/text";
 
 const date = "2019-05-27";
 
@@ -60,11 +59,14 @@ describe("Stop search and filtering", () => {
   afterEach(cleanup);
 
   test("Renders a list of stop suggestions when input is focused", async () => {
-    const {getByText} = renderStopSettings();
-    const stopInput = await waitForElement(() =>
-      getByText(text("filterpanel.filter_by_stop", "fi"))
-    );
+    const {findByTestId, findByText} = renderStopSettings();
+    const stopInput = await findByTestId("stop-input");
 
-    expect(stopInput).toBeInTheDocument();
+    // Trigger the autosuggest options
+    stopInput.focus();
+
+    // The name of the first stop in the mock data
+    const firstStopOption = await findByText("Marsalkantie");
+    expect(firstStopOption).toBeInTheDocument();
   });
 });

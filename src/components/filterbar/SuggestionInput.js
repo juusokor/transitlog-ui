@@ -134,6 +134,7 @@ class SuggestionInput extends Component {
       getSectionSuggestions,
       helpText = "",
       value,
+      testId,
       ...autosuggestProps
     } = this.props;
 
@@ -141,6 +142,7 @@ class SuggestionInput extends Component {
       placeholder,
       value: this.inputValue,
       onChange: this.onChange,
+      "data-testid": testId,
       onFocus: () => {
         this.setValue(this.getScalarValue(value));
       },

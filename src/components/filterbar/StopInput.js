@@ -68,6 +68,7 @@ export default observer(({date, stops, onSelect, stop, loading}) => {
 
   return (
     <SuggestionInput
+      testId="stop-input"
       helpText="Select stop"
       minimumInput={0}
       value={stop}
