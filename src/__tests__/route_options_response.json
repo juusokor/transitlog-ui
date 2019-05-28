@@ -62,14 +62,14 @@
         "__typename": "Route"
       },
       {
-        "id": "1075_1_2019-03-04_2050-12-31",
-        "routeId": "1075",
+        "id": "1018_1_2019-03-04_2050-12-31",
+        "routeId": "1018",
         "direction": 1,
-        "destination": "Puistola as.",
+        "destination": "Munkkivuori",
         "destinationStopId": "1402132",
         "mode": "BUS",
-        "name": "Rautatientori-Jakomäki-Puistolan asema",
-        "origin": "Rautatientori, l. 5",
+        "name": "Eira - Munkkivuori",
+        "origin": "Eira",
         "originStopId": "1020117",
         "alerts": [
           {
@@ -152,15 +152,15 @@
         "__typename": "Route"
       },
       {
-        "id": "1075_2_2019-03-04_2050-12-31",
-        "routeId": "1075",
+        "id": "1018_2_2019-03-04_2050-12-31",
+        "routeId": "1018",
         "direction": 2,
-        "destination": "Rautatientori",
+        "destination": "Eira",
         "destinationStopId": "1020201",
         "mode": "BUS",
-        "name": "Rautatientori-Jakomäki-Puistolan asema",
-        "origin": "Puistolan asema",
-        "originStopId": "1402125",
+        "name": "Eira - Munkkivuori",
+        "origin": "Munkkivuori",
+        "originStopId": "1304130",
         "alerts": [
           {
             "affectedId": "",

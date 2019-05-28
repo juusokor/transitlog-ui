@@ -89,14 +89,20 @@ describe("Route selection and filtering", () => {
   const renderJourneys = () =>
     render(
       <RenderContext>
-        <Journeys />
+        <>
+          <RouteSettings />
+          <Journeys />
+        </>
       </RenderContext>
     );
 
   const renderSidebar = () =>
     render(
       <RenderContext>
-        <SidePanel detailsOpen={true} sidePanelOpen={true} />
+        <>
+          <RouteSettings />
+          <SidePanel detailsOpen={true} sidePanelOpen={true} />
+        </>
       </RenderContext>
     );
 
@@ -141,30 +147,37 @@ describe("Route selection and filtering", () => {
     const {findByTestId} = renderRouteSettings();
     const routeInput = await findByTestId("route-input");
 
-    // Trigger the autosuggest options and do a search by the short ID
+    // Trigger the autosuggest options and search by route ID
     fireEvent.focus(routeInput);
-    fireEvent.change(routeInput, {target: {value: "1081"}});
+    fireEvent.change(routeInput, {target: {value: "1018"}});
 
     // Check that the name of the first suggestion matches the search term
     const suggestions = await findByTestId("route-suggestions-list");
-    expect(suggestions.firstChild).toHaveTextContent(/^1081 suunta 1/);
+    expect(suggestions.firstChild).toHaveTextContent(/^1018 suunta 1/);
 
     // Clear and ensure that the list is unfiltered
     fireEvent.change(routeInput, {target: {value: ""}});
     expect(suggestions.firstChild).toHaveTextContent(/^1001 suunta 1/);
 
-    fireEvent.change(routeInput, {target: {value: "1081/2"}});
+    fireEvent.change(routeInput, {target: {value: "1018/2"}});
 
     // Finally select the suggestion
-    fireEvent.click(getByTextUtil(suggestions.firstChild, "1081"));
+    fireEvent.click(getByTextUtil(suggestions.firstChild, "1018"));
     expect(setRouteMock).toHaveBeenCalled();
-    expect(state.route.routeId).toBe("1081");
+    expect(state.route.routeId).toBe("1018");
     expect(state.route.direction).toBe(2);
   });
 
   test("Fetches and renders a list of the route's departures", async () => {
     const {findByTestId} = renderJourneys();
-    filterActions(state).setRoute(route);
+    const routeInput = await findByTestId("route-input");
+
+    fireEvent.focus(routeInput);
+    fireEvent.change(routeInput, {target: {value: "1018/2"}});
+
+    const suggestions = await findByTestId("route-suggestions-list");
+    fireEvent.click(getByTextUtil(suggestions.firstChild, "1018"));
+    expect(setRouteMock).toHaveBeenCalled();
 
     // Wait for the list to render
     const firstDepartureRow = await findByTestId("journey-list-row-05:28:00");
@@ -185,7 +198,14 @@ describe("Route selection and filtering", () => {
 
   test("Shows information in the sidebar", async () => {
     const {findByTestId} = renderSidebar();
-    filterActions(state).setRoute(route);
+    const routeInput = await findByTestId("route-input");
+
+    fireEvent.focus(routeInput);
+    fireEvent.change(routeInput, {target: {value: "1018/2"}});
+
+    const suggestions = await findByTestId("route-suggestions-list");
+    fireEvent.click(getByTextUtil(suggestions.firstChild, "1018"));
+    expect(setRouteMock).toHaveBeenCalled();
 
     const sidepanel = await findByTestId("sidepanel");
     expect(sidepanel).toBeInTheDocument();
