@@ -36,6 +36,10 @@ const StopSettings = decorate(({Filters, state}) => {
               return <LoadingSpinner inline={true} />;
             }
 
+            const alertsInEffect = !selectedStop
+              ? []
+              : getAlertsInEffect(selectedStop, date);
+
             return (
               <>
                 <ControlGroup>
@@ -55,14 +59,16 @@ const StopSettings = decorate(({Filters, state}) => {
                   )}
                 </ControlGroup>
                 {selectedStop && (
-                  <SelectedOptionDisplay>
+                  <SelectedOptionDisplay data-testid="selected-stop-display">
                     <SuggestionText>
                       <strong>{selectedStop.id}</strong> (
                       {selectedStop.shortId.replace(/\s/g, "")})
                       <br />
                       {selectedStop.name}
                     </SuggestionText>
-                    <SuggestionAlerts alerts={getAlertsInEffect(selectedStop, date)} />
+                    {alertsInEffect.length !== 0 && (
+                      <SuggestionAlerts alerts={alertsInEffect} />
+                    )}
                   </SelectedOptionDisplay>
                 )}
               </>

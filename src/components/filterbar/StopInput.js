@@ -44,18 +44,24 @@ const renderSuggestion = (date) => (suggestion, {query, isHighlighted}) => {
 
 const renderSuggestionsContainer = (loading) => ({containerProps, children, query}) => {
   return (
-    <div {...containerProps}>{loading ? <LoadingSpinner inline={true} /> : children}</div>
+    <div data-testid="stop-suggestions-list" {...containerProps}>
+      {loading ? <LoadingSpinner inline={true} /> : children}
+    </div>
   );
 };
 
 export default observer(({date, stops, onSelect, stop, loading}) => {
   const [options, setOptions] = useState(stops);
 
-  const doSearch = useSearch(stops, [
-    {name: "shortId", weight: 0.7},
-    {name: "name", weight: 0.1},
-    {name: "stopId", weight: 0.2},
-  ]);
+  const doSearch = useSearch(
+    stops,
+    [
+      {name: "shortId", weight: 0.7},
+      {name: "name", weight: 0.1},
+      {name: "stopId", weight: 0.2},
+    ],
+    {threshold: 0.2, distance: 10}
+  );
   const renderSuggestionFn = useMemo(() => renderSuggestion(date), [date]);
 
   const onSearch = useCallback(

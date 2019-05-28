@@ -54,6 +54,7 @@ describe("When a route is selected", () => {
         <Journeys />
       </RenderContext>
     );
+
   const renderSidebar = () =>
     render(
       <RenderContext>
