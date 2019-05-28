@@ -123,6 +123,7 @@ const RouteInput = decorate(({state: {route, date}, Filters, routes}) => {
 
   return (
     <SuggestionInput
+      testId="route-input"
       disabled={!hasRoutes}
       helpText="Select route"
       minimumInput={0}
