@@ -248,7 +248,7 @@ class TimetablePanel extends Component {
     const departureTime = get(departure, "plannedDepartureTime.departureDateTime", "");
 
     return (
-      <div style={style} key={key}>
+      <div style={style} key={key} data-testid={index === 0 ? "first-timetable" : ""}>
         <TimetableDeparture
           key={`departure_${departure.departureId}_${departure.routeId}_${
             departure.direction
@@ -266,6 +266,8 @@ class TimetablePanel extends Component {
     const {
       state: {date, stop: stopId},
     } = this.props;
+
+    console.log(departures);
 
     return stopId ? (
       <VirtualizedSidepanelList
@@ -337,7 +339,7 @@ class TimetablePanel extends Component {
         routeId={routeId || undefined}
         minHour={intOrUndefined(minHour)}
         maxHour={intOrUndefined(maxHour)}>
-        {({departures, loading}) => {
+        {({departures = [], loading}) => {
           const selectedJourneyId = getJourneyId(selectedJourney, false);
 
           const focusedDeparture = selectedJourneyId

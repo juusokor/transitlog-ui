@@ -7,7 +7,7 @@ import {AlertFieldsFragment} from "./AlertFieldsFragment";
 import {CancellationFieldsFragment} from "./CancellationFieldsFragment";
 import {removeUpdateListener, setUpdateListener} from "../stores/UpdateManager";
 
-const departuresQuery = gql`
+export const departuresQuery = gql`
   query departures(
     $stopId: String!
     $date: Date!
@@ -107,6 +107,7 @@ const DeparturesQuery = observer(
         }}
         skip={skip || !stopId || !date}>
         {({loading, error, data, refetch}) => {
+          console.log(data);
           if (loading || error) {
             return children({departures: [], loading, error});
           }

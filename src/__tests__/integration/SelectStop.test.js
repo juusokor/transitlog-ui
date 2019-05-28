@@ -1,25 +1,54 @@
-import React, {Children} from "react";
+import React from "react";
 import "jest-dom/extend-expect";
 import "jest-styled-components";
-import {render, cleanup, fireEvent, getByText} from "react-testing-library";
+import {
+  render,
+  cleanup,
+  fireEvent,
+  getByText as getByTextUtil,
+} from "react-testing-library";
 import {observable, action} from "mobx";
 import {MobxProviders} from "../util/MobxProviders";
 import {MockedProvider} from "react-apollo/test-utils";
 import {allStopsQuery} from "../../queries/AllStopsQuery";
-import stopMockResponse from "../stop_options_response.json";
+import mockStopResponse from "../stop_options_response.json";
+import mockStopDeparturesResponse from "../stop_departures_response.json";
+import mockSingleStopResponse from "../single_stop_response.json";
 import StopSettings from "../../components/filterbar/StopSettings";
 import get from "lodash/get";
 import SidePanel from "../../components/sidepanel/SidePanel";
 import {text} from "../../helpers/text";
+import {departuresQuery} from "../../queries/DeparturesQuery";
+import {singleStopQuery} from "../../queries/SingleStopQuery";
 
 const date = "2019-05-27";
 
 const stopRequestMocks = [
   {
     request: {
+      query: departuresQuery,
+      variables: {
+        date,
+        stopId: "1420104",
+      },
+    },
+    result: mockStopDeparturesResponse,
+  },
+  {
+    request: {
+      query: singleStopQuery,
+      variables: {
+        date,
+        stopId: "1420104",
+      },
+    },
+    result: mockSingleStopResponse,
+  },
+  {
+    request: {
       query: allStopsQuery,
     },
-    result: stopMockResponse,
+    result: mockStopResponse,
   },
 ];
 
@@ -130,13 +159,14 @@ describe("Stop search and filtering", () => {
     expect(suggestions.firstChild).toHaveTextContent("Matkamiehentie");
 
     // Finally select the suggestion
-    fireEvent.click(getByText(suggestions.firstChild, "Matkamiehentie"));
+    fireEvent.click(getByTextUtil(suggestions.firstChild, "Matkamiehentie"));
     expect(setStopMock).toHaveBeenCalledWith("1291162");
     expect(state.stop).toBe("1291162");
   });
 
   test("The stop timetables are shown in the sidepanel when a stop is selected.", async () => {
-    const {findByTestId, findByText} = renderWithSidebar();
+    jest.setTimeout(100000);
+    const {findByTestId, findByText, getByText} = renderWithSidebar();
     const stopInput = await findByTestId("stop-input");
 
     // Trigger the autosuggest options
@@ -148,7 +178,11 @@ describe("Stop search and filtering", () => {
     expect(state.stop).toBe("1420104");
 
     const sidepanel = await findByTestId("sidepanel");
-    expect(sidepanel).toBeInTheDocument();
     expect(sidepanel).toHaveTextContent(text("sidepanel.tabs.timetables", "fi"));
+
+    fireEvent.click(getByText(text("sidepanel.tabs.timetables", "fi")));
+
+    const firstDeparture = await findByTestId("virtual-list");
+    // expect(firstDeparture).toHaveTextContent("05:38");
   });
 });
