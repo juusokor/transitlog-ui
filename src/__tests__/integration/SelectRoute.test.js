@@ -1,19 +1,25 @@
 import React from "react";
 import "jest-dom/extend-expect";
 import "jest-styled-components";
-import {render, cleanup, fireEvent} from "react-testing-library";
+import {
+  render,
+  cleanup,
+  fireEvent,
+  getByText as getByTextUtil,
+} from "react-testing-library";
 import Journeys from "../../components/sidepanel/Journeys";
 import {MockedProvider} from "react-apollo/test-utils";
 import {routeJourneysQuery} from "../../queries/JourneysByDateQuery";
 import mockJourneysResponse from "../route_journeys_response";
 import mockRouteOptionsResponse from "../route_options_response";
 import {MobxProviders} from "../util/MobxProviders";
-import {observable} from "mobx";
+import {observable, action} from "mobx";
 import filterActions from "../../stores/filterActions";
 import SidePanel from "../../components/sidepanel/SidePanel";
 import {text} from "../../helpers/text";
 import {routeOptionsQuery} from "../../queries/RouteOptionsQuery";
 import RouteSettings from "../../components/filterbar/RouteSettings";
+import {intval} from "../../helpers/isWithinRange";
 
 const date = "2019-05-27";
 
@@ -44,6 +50,7 @@ const routeDepartureMocks = [
 describe("Route selection and filtering", () => {
   const route = {routeId: "1018", direction: 2, originStopId: "1304130"};
   let state = {};
+  let setRouteMock = jest.fn();
 
   const createState = () => {
     state = observable({
@@ -53,23 +60,31 @@ describe("Route selection and filtering", () => {
       sidePanelVisible: true,
       route: {routeId: "", direction: "", originStopId: ""},
     });
+
+    setRouteMock = jest.fn(
+      action((route) => {
+        const {routeId = "", direction = "", originStopId = ""} = route || {};
+        state.route.routeId = routeId;
+        state.route.direction = intval(direction);
+        state.route.originStopId = originStopId;
+      })
+    );
   };
 
   const RenderContext = ({children}) => (
-    <MobxProviders state={state} actions={{UI: {}}}>
+    <MobxProviders state={state} actions={{UI: {}, Filters: {setRoute: setRouteMock}}}>
       <MockedProvider addTypename={true} mocks={routeDepartureMocks}>
         {children}
       </MockedProvider>
     </MobxProviders>
   );
 
-  const renderRouteSettings = () => {
+  const renderRouteSettings = () =>
     render(
       <RenderContext>
         <RouteSettings />
       </RenderContext>
     );
-  };
 
   const renderJourneys = () =>
     render(
@@ -87,62 +102,64 @@ describe("Route selection and filtering", () => {
 
   beforeEach(createState);
   afterEach(cleanup);
-  
+
   test("Renders a list of route suggestions when input is focused", async () => {
-    const {findByTestId, findByText} = renderRouteSettings();
+    const {findByTestId, findAllByText} = renderRouteSettings();
     const routeInput = await findByTestId("route-input");
-    
+
     // Trigger the autosuggest options
     fireEvent.focus(routeInput);
-    
+
     // The name of the first route in the mock data
-    const firstStopOption = await findByText("Marsalkantie");
-    expect(firstStopOption).toBeInTheDocument();
+    const firstRouteOption = await findAllByText("1001");
+    expect(firstRouteOption[0]).toBeInTheDocument();
   });
-  
-  test("Stop is selected when the suggestion is clicked.", async () => {
+
+  test("Route is selected when the suggestion is clicked.", async () => {
     const {findByTestId, findByText} = renderRouteSettings();
     const routeInput = await findByTestId("route-input");
-    
+
     // Trigger the autosuggest options
     fireEvent.focus(routeInput);
-    
+
+    const name = "Eira - Käpylä";
     // The name of the first route in the mock data
-    const firstStopOption = await findByText("Marsalkantie");
-    
-    fireEvent.click(firstStopOption);
-    expect(setStopMock).toHaveBeenCalledWith("1420104");
-    expect(state.route).toBe("1420104");
-    
-    const selectedStopDisplay = await findByTestId("selected-route-display");
-    expect(selectedStopDisplay).toHaveTextContent(/^1420104/g);
-    expect(selectedStopDisplay).toHaveTextContent(/Marsalkantie$/g);
+    const firstRouteOption = await findByText(name);
+
+    fireEvent.click(firstRouteOption);
+
+    expect(setRouteMock).toHaveBeenCalled();
+    expect(state.route.routeId).toBe("1001");
+    expect(state.route.direction).toBe(1);
+
+    const selectedRouteDisplay = await findByTestId("selected-route-display");
+    expect(selectedRouteDisplay).toHaveTextContent(/^1001/g);
+    expect(selectedRouteDisplay).toHaveTextContent(name);
   });
-  
+
   test("The correct route is suggested when searching", async () => {
     const {findByTestId} = renderRouteSettings();
     const routeInput = await findByTestId("route-input");
-    
+
     // Trigger the autosuggest options and do a search by the short ID
     fireEvent.focus(routeInput);
-    fireEvent.change(routeInput, {target: {value: "1728"}});
-    
+    fireEvent.change(routeInput, {target: {value: "1081"}});
+
     // Check that the name of the first suggestion matches the search term
     const suggestions = await findByTestId("route-suggestions-list");
-    expect(suggestions.firstChild).toHaveTextContent("Matkamiehentie");
-    
+    expect(suggestions.firstChild).toHaveTextContent(/^1081 suunta 1/);
+
     // Clear and ensure that the list is unfiltered
     fireEvent.change(routeInput, {target: {value: ""}});
-    expect(suggestions.firstChild).toHaveTextContent("Marsalkantie");
-    
-    // Then search again by the name of the route.
-    fireEvent.change(routeInput, {target: {value: "Matkamie"}});
-    expect(suggestions.firstChild).toHaveTextContent("Matkamiehentie");
-    
+    expect(suggestions.firstChild).toHaveTextContent(/^1001 suunta 1/);
+
+    fireEvent.change(routeInput, {target: {value: "1081/2"}});
+
     // Finally select the suggestion
-    fireEvent.click(getByText(suggestions.firstChild, "Matkamiehentie"));
-    expect(setStopMock).toHaveBeenCalledWith("1291162");
-    expect(state.route).toBe("1291162");
+    fireEvent.click(getByTextUtil(suggestions.firstChild, "1081"));
+    expect(setRouteMock).toHaveBeenCalled();
+    expect(state.route.routeId).toBe("1081");
+    expect(state.route.direction).toBe(2);
   });
 
   test("Fetches and renders a list of the route's departures", async () => {

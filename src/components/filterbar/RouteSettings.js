@@ -60,6 +60,7 @@ const RouteSettings = decorate(({Filters, state: {route, date}}) => {
                 </ControlGroup>
                 {selectedRoute && (
                   <SelectedOptionDisplay
+                    data-testid="selected-route-display"
                     withIcon={true}
                     className={getTransportType(selectedRoute.routeId)}>
                     <SuggestionText withIcon={true}>
