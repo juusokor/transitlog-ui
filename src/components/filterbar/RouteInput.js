@@ -19,9 +19,10 @@ const decorate = flow(
   inject("Filters")
 );
 
-const renderSuggestion = (date) => (suggestion, {isHighlighted}) => {
-  const {routeId, direction, origin, destination} = suggestion;
-  const suggestionAlerts = getAlertsInEffect(suggestion, date);
+const renderSuggestion = (date, routes) => (suggestion, {isHighlighted}) => {
+  const route = getFullRoute(routes, suggestion);
+  const {routeId, direction, origin, destination} = route;
+  const suggestionAlerts = getAlertsInEffect(route, date);
 
   return (
     <SuggestionContent
@@ -83,14 +84,18 @@ const getFilteredSuggestions = (routes, {value = ""}) => {
 export const getFullRoute = (routes, selectedRoute) => {
   const routeId =
     typeof selectedRoute === "string" ? selectedRoute : createRouteId(selectedRoute);
-  return routes.find((r) => createRouteId(r) === routeId);
+
+  return routes.find((r) => createRouteId(r) === routeId) || null;
 };
 
 const RouteInput = decorate(({state: {route, date}, Filters, routes}) => {
   const [options, setOptions] = useState([]);
 
   const getValue = useCallback(
-    (routeIdentifier) => getFullRoute(routes, routeIdentifier),
+    (routeIdentifier) =>
+      typeof routeIdentifier === "string"
+        ? routeIdentifier
+        : createRouteId(routeIdentifier),
     [routes]
   );
 
@@ -100,13 +105,13 @@ const RouteInput = decorate(({state: {route, date}, Filters, routes}) => {
         return Filters.setRoute({routeId: "", direction: "", originStopId: ""});
       }
 
-      const selectedRoute = getValue(selectedValue);
+      const selectedRoute = getFullRoute(routes, selectedValue);
 
       if (selectedRoute) {
         Filters.setRoute(selectedRoute);
       }
     },
-    [Filters, options]
+    [Filters, routes]
   );
 
   const getSuggestions = useCallback(
@@ -118,8 +123,10 @@ const RouteInput = decorate(({state: {route, date}, Filters, routes}) => {
   );
 
   const hasRoutes = routes.length > 0;
-
-  const suggestionRenderFn = useMemo(() => renderSuggestion(date), [date]);
+  const suggestionRenderFn = useMemo(() => renderSuggestion(date, routes), [
+    date,
+    routes,
+  ]);
 
   return (
     <SuggestionInput
@@ -129,7 +136,6 @@ const RouteInput = decorate(({state: {route, date}, Filters, routes}) => {
       value={getValue(route)}
       onSelect={onSelect}
       getValue={getValue}
-      getScalarValue={(val) => (typeof val === "string" ? val : createRouteId(val))}
       renderSuggestion={suggestionRenderFn}
       suggestions={options.slice(0, 50)}
       onSuggestionsFetchRequested={getSuggestions}
