@@ -26,7 +26,7 @@ const StopSettings = decorate(({Filters, state}) => {
   const {stop, date} = state;
 
   return (
-    <AllStopsQuery>
+    <AllStopsQuery date={date}>
       {({stops = [], loading}) => (
         <Observer>
           {() => {
@@ -62,7 +62,9 @@ const StopSettings = decorate(({Filters, state}) => {
                       <br />
                       {selectedStop.name}
                     </SuggestionText>
-                    <SuggestionAlerts alerts={getAlertsInEffect(selectedStop, date)} />
+                    <SuggestionAlerts
+                      alerts={getAlertsInEffect(selectedStop.alerts || [], date)}
+                    />
                   </SelectedOptionDisplay>
                 )}
               </>

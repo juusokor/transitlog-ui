@@ -10,6 +10,7 @@ import {useSearch} from "../../hooks/useSearch";
 import {getAlertsInEffect} from "../../helpers/getAlertsInEffect";
 import styled from "styled-components";
 import Loading from "../Loading";
+import {applyTooltip} from "../../hooks/useTooltip";
 
 const LoadingSpinner = styled(Loading)`
   margin: 0.5rem 0.5rem 0.5rem 1rem;
@@ -24,10 +25,19 @@ const getSuggestionValue = (suggestion) => {
 };
 
 const renderSuggestion = (date) => (suggestion, {query, isHighlighted}) => {
-  const suggestionAlerts = getAlertsInEffect(suggestion, date);
+  const suggestionAlerts = getAlertsInEffect(suggestion.alerts || [], date);
 
   return (
-    <SuggestionContent isHighlighted={isHighlighted}>
+    <SuggestionContent
+      {...applyTooltip(
+        (suggestion.routes || [])
+          .map(
+            ({routeId, direction, isTimingStop}) =>
+              `${routeId}/${direction}${isTimingStop ? " 🕒" : ""}`
+          )
+          .join("\n")
+      )}
+      isHighlighted={isHighlighted}>
       <SuggestionText>
         <strong>
           {suggestion.stopId} ({suggestion.shortId.replace(/ /g, "")})
@@ -35,9 +45,7 @@ const renderSuggestion = (date) => (suggestion, {query, isHighlighted}) => {
         <br />
         {suggestion.name}
       </SuggestionText>
-      {suggestionAlerts.length !== 0 && (
-        <SuggestionAlerts alerts={getAlertsInEffect(suggestion, date)} />
-      )}
+      {suggestionAlerts.length !== 0 && <SuggestionAlerts alerts={suggestionAlerts} />}
     </SuggestionContent>
   );
 };
