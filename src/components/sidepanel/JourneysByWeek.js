@@ -433,8 +433,9 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, route: propsRou
                                 }
 
                                 const departureIsSelected =
+                                  departure &&
                                   getJourneyId(selectedJourney, false) ===
-                                  createDepartureJourneyId(departure);
+                                    createDepartureJourneyId(departure);
 
                                 return (
                                   <Tooltip
