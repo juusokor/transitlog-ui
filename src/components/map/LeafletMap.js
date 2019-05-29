@@ -169,8 +169,8 @@ class LeafletMap extends Component {
           <Pane name="stop-radius" style={{zIndex: 440}} />
           <Pane name="selected-stop-radius" style={{zIndex: 445}} />
           <Pane name="stops" style={{zIndex: 450}} />
-          <Pane name="hfp-markers" style={{zIndex: 460}} />
-          <Pane name="hfp-markers-primary" style={{zIndex: 465}} />
+          <Pane name="hfp-markers" style={{zIndex: 900}} />
+          <Pane name="hfp-markers-primary" style={{zIndex: 950}} />
           <ZoomControl position="topright" />
           <ScaleControl position="bottomleft" imperial={false} />
           {visualLog.bounds && <Rectangle bounds={visualLog.bounds} />}
