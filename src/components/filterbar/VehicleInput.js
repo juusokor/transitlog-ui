@@ -8,7 +8,6 @@ import flow from "lodash/flow";
 import get from "lodash/get";
 import {observer} from "mobx-react-lite";
 import styled from "styled-components";
-import {inject} from "../../helpers/inject";
 import orderBy from "lodash/orderBy";
 import map from "lodash/map";
 import groupBy from "lodash/groupBy";

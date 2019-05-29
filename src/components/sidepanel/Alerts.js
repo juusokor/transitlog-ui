@@ -34,18 +34,18 @@ const Alerts = decorate(({state}) => {
                   <SidepanelList loading={alertsLoading || cancellationsLoading}>
                     {() => (
                       <>
-                        {cancellations.length !== 0 && (
-                          <CancellationsList
-                            helpText="All cancellations heading"
-                            showListHeading={true}
-                            cancellations={cancellations}
-                          />
-                        )}
                         {alertsInEffect.length !== 0 && (
                           <AlertsList
                             helpText="All alerts heading"
                             showListHeading={true}
                             alerts={alertsInEffect}
+                          />
+                        )}
+                        {cancellations.length !== 0 && (
+                          <CancellationsList
+                            helpText="All cancellations heading"
+                            showListHeading={true}
+                            cancellations={cancellations}
                           />
                         )}
                       </>
