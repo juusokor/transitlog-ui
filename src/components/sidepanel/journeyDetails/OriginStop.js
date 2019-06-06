@@ -16,6 +16,7 @@ import {getTimelinessColor} from "../../../helpers/timelinessColor";
 import doubleDigit from "../../../helpers/doubleDigit";
 import CalculateTerminalTime from "./CalculateTerminalTime";
 import {Text} from "../../../helpers/text";
+import {applyTooltip} from "../../../hooks/useTooltip";
 import {getNormalTime, secondsToTimeObject} from "../../../helpers/time";
 import styled from "styled-components";
 import {observer} from "mobx-react-lite";
@@ -60,7 +61,7 @@ const OriginStop = observer(
             <StopMarker color={color} onClick={onStopClick} {...hoverProps} />
           </StopElementsWrapper>
           <OriginStopContent stopsExpanded={stopsExpanded} {...hoverProps}>
-            <StopHeading onClick={onStopClick}>
+            <StopHeading onClick={onStopClick} {...applyTooltip("Focus on stop")}>
               <strong>{stop.name}</strong> {stop.stopId} ({stop.shortId.replace(/ /g, "")}
               )
             </StopHeading>
@@ -92,7 +93,7 @@ const OriginStop = observer(
           terminus="origin"
           stopsExpanded={stopsExpanded}
           {...hoverProps}>
-          <StopHeading onClick={onStopClick}>
+          <StopHeading onClick={onStopClick} {...applyTooltip("Focus on stop")}>
             <strong>{stop.name}</strong> {stop.stopId} ({stop.shortId.replace(/ /g, "")})
           </StopHeading>
           <CalculateTerminalTime

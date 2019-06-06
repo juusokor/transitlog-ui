@@ -13,6 +13,7 @@ import doubleDigit from "../../../helpers/doubleDigit";
 import CalculateTerminalTime from "./CalculateTerminalTime";
 import {Text} from "../../../helpers/text";
 import {getNormalTime} from "../../../helpers/time";
+import {applyTooltip} from "../../../hooks/useTooltip";
 
 export default ({
   departure = {},
@@ -47,7 +48,7 @@ export default ({
           <StopMarker color={color} onClick={onStopClick} {...hoverProps} />
         </StopElementsWrapper>
         <StopContent {...hoverProps}>
-          <StopHeading onClick={onStopClick}>
+          <StopHeading onClick={onStopClick} {...applyTooltip("Focus on stop")}>
             <strong>{stop.name}</strong> {stop.stopId} ({stop.shortId.replace(/ /g, "")})
           </StopHeading>
         </StopContent>
@@ -68,8 +69,11 @@ export default ({
       <StopElementsWrapper color={color} terminus="destination">
         <StopMarker color={color} onClick={onStopClick} {...hoverProps} />
       </StopElementsWrapper>
-      <StopContent terminus="destination" {...hoverProps}>
-        <StopHeading onClick={onStopClick}>
+      <StopContent terminus="destination">
+        <StopHeading
+          onClick={onStopClick}
+          {...hoverProps}
+          {...applyTooltip("Focus on stop")}>
           <strong>{stop.name}</strong> {stop.stopId} ({stop.shortId.replace(/ /g, "")})
         </StopHeading>
         <CalculateTerminalTime

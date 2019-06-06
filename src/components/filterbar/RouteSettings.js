@@ -4,6 +4,7 @@ import {ControlGroup, ClearButton} from "../Forms";
 import Input from "../Input";
 import RouteOptionsQuery from "../../queries/RouteOptionsQuery";
 import RouteInput, {getFullRoute} from "./RouteInput";
+import {applyTooltip} from "../../hooks/useTooltip";
 import {text, Text} from "../../helpers/text";
 import styled from "styled-components";
 import Loading from "../Loading";
@@ -45,8 +46,9 @@ const RouteSettings = decorate(({Filters, state: {route, date}}) => {
                     <RouteInput search={search} route={route} routes={routes} />
                   </Input>
                   {route && route.routeId && (
-                    <Tooltip helpText="Clear route">
+                    <Tooltip>
                       <ClearButton
+                        helpText={text("filterpanel.remove_route")}
                         onClick={() =>
                           Filters.setRoute({
                             routeId: "",

@@ -24,6 +24,7 @@ import ArrowRightLong from "../../../icons/ArrowRightLong";
 import {Text} from "../../../helpers/text";
 import {getNormalTime, secondsToTimeObject} from "../../../helpers/time";
 import getDelayType from "../../../helpers/getDelayType";
+import {applyTooltip} from "../../../hooks/useTooltip";
 
 const StopWrapper = styled(DefaultStopWrapper)`
   padding: 0;
@@ -79,7 +80,7 @@ export default ({
           )}
         </StopElementsWrapper>
         <StopContent {...hoverProps}>
-          <StopHeading onClick={onStopClick}>
+          <StopHeading onClick={onStopClick} {...applyTooltip("Focus on stop")}>
             <strong>{stop.name}</strong> {stop.stopId} ({stop.shortId.replace(/ /g, "")})
           </StopHeading>
         </StopContent>
@@ -117,7 +118,7 @@ export default ({
         )}
       </StopElementsWrapper>
       <StopContent {...hoverProps}>
-        <StopHeading onClick={onStopClick}>
+        <StopHeading onClick={onStopClick} {...applyTooltip("Focus on stop")}>
           <strong>{stop.name}</strong> {stop.stopId} ({stop.shortId.replace(/ /g, "")})
         </StopHeading>
         {showPlannedArrivalTime ? (
