@@ -23,6 +23,7 @@ import LoginModal from "./LoginModal";
 import RouteJourneys from "./RouteJourneys";
 import {checkExistingSession, authorize} from "../auth/authService";
 import {removeAuthParams} from "../stores/UrlManager";
+import ServerMessage from "./ServerMessage";
 
 const AppFrame = styled.main`
   width: 100%;
@@ -149,6 +150,7 @@ function App({route, state, UI}) {
 
                         return (
                           <AppGrid>
+                            <ServerMessage />
                             <FilterBar journeys={currentJourneys} />
                             <SidepanelAndMapWrapper>
                               <SingleStopQuery date={date} stopId={selectedStopId}>
