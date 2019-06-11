@@ -18,8 +18,6 @@ const ServerMessage = () => {
       {({data}) => {
         const message = get(data, "uiMessage.message", "");
 
-        console.log(message);
-
         if (!message) {
           return null;
         }
