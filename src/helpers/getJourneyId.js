@@ -50,6 +50,10 @@ const getJourneyIdFromJourney = (journey = {}, matchVehicle = true) => {
 export default getJourneyId;
 
 export function createDepartureJourneyId(departure, departureTime) {
+  if (!departure) {
+    return "";
+  }
+
   const compositeJourney = createCompositeJourney(
     departure.plannedDepartureTime.departureDate,
     departure,

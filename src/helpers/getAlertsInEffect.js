@@ -46,25 +46,22 @@ export const getAlertsInEffect = (
     objectWithAlerts && Array.isArray(objectWithAlerts) ? objectWithAlerts : []
   );
 
-  return alerts.reduce((alerts, alert) => {
-    if (
-      !currentMoment.isBetween(
-        alert.startDateTime,
-        alert.endDateTime,
-        timeIsDate ? "day" : "minute",
-        "[]"
-      )
-    ) {
-      return alerts;
-    }
+  function filterByDate(alert) {
+    return currentMoment.isBetween(
+      alert.startDateTime,
+      alert.endDateTime,
+      timeIsDate ? "day" : "minute",
+      "[]"
+    );
+  }
 
-    // If we're given an array of alerts, we are only interested in matching them to
-    // the time argument. Thus return them without further matching.
-    if (Array.isArray(objectWithAlerts)) {
-      alerts.push(alert);
-      return alerts;
-    }
+  const alertsInEffect = alerts.filter(filterByDate);
 
+  if (Array.isArray(objectWithAlerts)) {
+    return alertsInEffect;
+  }
+
+  return alertsInEffect.reduce((alerts, alert) => {
     if (includeNetworkAlerts && alert.distribution === AlertDistribution.Network) {
       alerts.push(alert);
     } else if (

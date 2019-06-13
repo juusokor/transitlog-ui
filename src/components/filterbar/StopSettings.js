@@ -26,7 +26,7 @@ const StopSettings = decorate(({Filters, state}) => {
   const {stop, date} = state;
 
   return (
-    <AllStopsQuery>
+    <AllStopsQuery date={date}>
       {({stops = [], loading}) => (
         <Observer>
           {() => {

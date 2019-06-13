@@ -107,7 +107,6 @@ const DeparturesQuery = observer(
         }}
         skip={skip || !stopId || !date}>
         {({loading, error, data, refetch}) => {
-          console.log(data);
           if (loading || error) {
             return children({departures: [], loading, error});
           }

@@ -47,6 +47,9 @@ const stopRequestMocks = [
   {
     request: {
       query: allStopsQuery,
+      variables: {
+        date,
+      },
     },
     result: mockStopResponse,
   },

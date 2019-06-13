@@ -267,8 +267,6 @@ class TimetablePanel extends Component {
       state: {date, stop: stopId},
     } = this.props;
 
-    console.log(departures);
-
     return stopId ? (
       <VirtualizedSidepanelList
         date={date}

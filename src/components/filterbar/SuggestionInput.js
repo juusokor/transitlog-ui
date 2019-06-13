@@ -76,48 +76,40 @@ class SuggestionInput extends Component {
   };
 
   @observable
-  inputValue = this.getScalarValue(this.props.value);
+  inputValue = this.getStringValue(this.props.value);
 
-  @action
-  setValue(value) {
+  setValue = action((value) => {
     this.inputValue = value;
-  }
+  });
 
-  getScalarValue(val) {
-    const {getValue, getScalarValue = getValue} = this.props;
-
-    if (typeof val === "string") {
-      return getScalarValue(getValue(val));
-    }
-
-    return getScalarValue(val);
-  }
+  getStringValue = (val) => {
+    const {getValue} = this.props;
+    return getValue(val);
+  };
 
   onChange = (event, {newValue}) => {
-    const value = newValue;
-
-    if (!value) {
+    if (!newValue) {
       this.props.onSelect("");
     }
 
-    this.setValue(value);
+    this.setValue(newValue);
   };
 
   onSuggestionSelected = (event, {suggestion}) => {
-    const nextValue = this.getScalarValue(suggestion);
+    const nextValue = this.getStringValue(suggestion);
     this.props.onSelect(nextValue);
     this.setValue(nextValue);
   };
 
   shouldRenderSuggestions = (limit) => (value = "") => {
-    return typeof value === "string" ? (value || "").trim().length >= limit : true;
+    return typeof value.trim === "function" ? (value || "").trim().length >= limit : true;
   };
 
   componentDidUpdate({value: prevValue}) {
     const {value} = this.props;
 
     if (value !== prevValue) {
-      const nextValue = this.getScalarValue(value);
+      const nextValue = this.getStringValue(value);
       this.setValue(nextValue);
     }
   }
@@ -144,7 +136,7 @@ class SuggestionInput extends Component {
       onChange: this.onChange,
       "data-testid": testId,
       onFocus: () => {
-        this.setValue(this.getScalarValue(value));
+        this.setValue(this.getStringValue(value));
       },
     };
 
@@ -155,7 +147,7 @@ class SuggestionInput extends Component {
             focusInputOnSuggestionClick={false}
             shouldRenderSuggestions={this.shouldRenderSuggestions(minimumInput)}
             onSuggestionSelected={this.onSuggestionSelected}
-            getSuggestionValue={getValue}
+            getSuggestionValue={this.getStringValue}
             highlightFirstSuggestion={true}
             multiSection={multiSection}
             renderSectionTitle={renderSectionTitle}

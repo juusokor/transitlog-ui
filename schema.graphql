@@ -230,8 +230,9 @@ type Query {
   routeSegments(date: Date!, direction: Direction!, routeId: String!): [RouteSegment]!
   routes(date: Date, filter: RouteFilterInput, line: String): [Route]!
   stop(date: Date!, stopId: String!): Stop
-  stops(filter: StopFilterInput): [SimpleStop]!
+  stops(date: Date, filter: StopFilterInput): [SimpleStop]!
   stopsByBbox(bbox: PreciseBBox!, filter: StopFilterInput): [SimpleStop]!
+  uiMessage: UIMessage!
   vehicleJourneys(date: Date!, uniqueVehicleId: VehicleId!): [VehicleJourney]!
   weeklyDepartures(date: Date!, direction: Direction!, routeId: String!, stopId: String!): [Departure]!
 }
@@ -286,6 +287,12 @@ type RouteSegment implements Position {
   stopIndex: Int!
 }
 
+type SimpleRoute {
+  direction: Direction!
+  isTimingStop: Boolean!
+  routeId: String!
+}
+
 type SimpleStop implements Position {
   _matchScore: Float
   alerts: [Alert!]!
@@ -295,6 +302,7 @@ type SimpleStop implements Position {
   modes: [String]!
   name: String
   radius: Float
+  routes: [SimpleRoute!]!
   shortId: String!
   stopId: String!
 }
@@ -320,6 +328,11 @@ type StopRoute {
   mode: String
   originStopId: String
   routeId: String!
+}
+
+type UIMessage {
+  date: String
+  message: String
 }
 
 type VehicleJourney {

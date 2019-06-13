@@ -1,7 +1,6 @@
 import React, {useMemo} from "react";
 import {observer} from "mobx-react-lite";
 import StopLayer from "./StopLayer";
-import StopMarker from "./StopMarker";
 import RouteGeometryQuery from "../../queries/RouteGeometryQuery";
 import RouteLayer from "./RouteLayer";
 import flow from "lodash/flow";

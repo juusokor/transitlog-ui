@@ -2,11 +2,10 @@ import React, {useRef} from "react";
 import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import get from "lodash/get";
-import {AlertFieldsFragment} from "./AlertFieldsFragment";
 
 export const allStopsQuery = gql`
-  query allStopsQuery($search: String) {
-    stops(filter: {search: $search}) {
+  query allStopsQuery($date: Date, $search: String) {
+    stops(date: $date, filter: {search: $search}) {
       id
       stopId
       shortId
@@ -15,19 +14,25 @@ export const allStopsQuery = gql`
       name
       radius
       modes
+      routes {
+        routeId
+        direction
+        isTimingStop
+      }
       alerts {
-        ...AlertFieldsFragment
+        level
+        startDateTime
+        endDateTime
       }
     }
   }
-  ${AlertFieldsFragment}
 `;
 
-export default ({children}) => {
+const AllStopsQuery = ({children, date}) => {
   const prevResults = useRef([]);
 
   return (
-    <Query query={allStopsQuery}>
+    <Query partialRefetch={true} query={allStopsQuery} variables={{date}}>
       {({loading, error, data}) => {
         if (loading || !data) {
           return children({
@@ -49,3 +54,5 @@ export default ({children}) => {
     </Query>
   );
 };
+
+export default AllStopsQuery;

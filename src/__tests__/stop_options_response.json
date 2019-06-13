@@ -10,6 +10,7 @@
         "name": "Marsalkantie",
         "radius": 30,
         "modes": ["BUS"],
+        "routes": [],
         "alerts": [],
         "__typename": "Stop"
       },
@@ -22,6 +23,7 @@
         "name": "Elielinaukio",
         "radius": 40,
         "modes": ["BUS"],
+        "routes": [],
         "alerts": [],
         "__typename": "Stop"
       },
@@ -34,6 +36,7 @@
         "name": "Matkamiehentie",
         "radius": 40,
         "modes": ["BUS"],
+        "routes": [],
         "alerts": [],
         "__typename": "Stop"
       }
