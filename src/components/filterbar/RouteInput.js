@@ -30,12 +30,21 @@ const renderSuggestion = (date, routes) => (suggestion, {isHighlighted}) => {
       withIcon={true}
       className={getTransportType(routeId)}>
       <SuggestionText withIcon={true}>
-        <strong>{routeId}</strong> {text("domain.direction")} {direction}
-        <br />
-        {origin} - {destination}
+        <div>
+          <strong>{routeId}</strong> {text("domain.direction")} {direction}
+        </div>
+        <div>{`${origin} - ${destination}`}</div>
       </SuggestionText>
       {suggestionAlerts.length !== 0 && <SuggestionAlerts alerts={suggestionAlerts} />}
     </SuggestionContent>
+  );
+};
+
+const renderSuggestionsContainer = ({containerProps, children, query}) => {
+  return (
+    <div data-testid="route-suggestions-list" {...containerProps}>
+      {children}
+    </div>
   );
 };
 
@@ -130,6 +139,7 @@ const RouteInput = decorate(({state: {route, date}, Filters, routes}) => {
 
   return (
     <SuggestionInput
+      testId="route-input"
       disabled={!hasRoutes}
       helpText="Select route"
       minimumInput={0}
@@ -138,6 +148,7 @@ const RouteInput = decorate(({state: {route, date}, Filters, routes}) => {
       getValue={getValue}
       renderSuggestion={suggestionRenderFn}
       suggestions={options.slice(0, 50)}
+      renderSuggestionsContainer={renderSuggestionsContainer}
       onSuggestionsFetchRequested={getSuggestions}
     />
   );

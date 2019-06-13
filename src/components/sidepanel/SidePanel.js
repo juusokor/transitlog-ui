@@ -160,7 +160,7 @@ const SidePanel = decorate((props) => {
   const detailsCanOpen = getJourneyId(selectedJourney) || route;
 
   return (
-    <SidePanelContainer visible={sidePanelOpen}>
+    <SidePanelContainer data-testid="sidepanel" visible={sidePanelOpen}>
       <MainSidePanel>
         {showInstructions ? (
           <UsageInstructions language={language} />

@@ -6,11 +6,10 @@ import {observer} from "mobx-react";
 import orderBy from "lodash/orderBy";
 import {RouteFieldsFragment} from "./RouteFieldsFragment";
 
-const routesQuery = gql`
+export const routeOptionsQuery = gql`
   query routeOptionsQuery($date: Date!) {
     routes(date: $date) {
       ...RouteFieldsFragment
-      _matchScore
     }
   }
   ${RouteFieldsFragment}
@@ -18,7 +17,7 @@ const routesQuery = gql`
 
 const RouteOptionsQuery = observer(({date, children}) => {
   return (
-    <Query query={routesQuery} variables={{date}}>
+    <Query query={routeOptionsQuery} variables={{date}}>
       {({loading, error, data}) => {
         const routes = get(data, "routes", []);
         const filteredRoutes = orderBy(routes, ["routeId", "direction"]);

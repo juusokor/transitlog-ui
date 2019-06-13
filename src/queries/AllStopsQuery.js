@@ -3,7 +3,7 @@ import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import get from "lodash/get";
 
-const allStopsQuery = gql`
+export const allStopsQuery = gql`
   query allStopsQuery($date: Date, $search: String) {
     stops(date: $date, filter: {search: $search}) {
       id

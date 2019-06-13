@@ -7,7 +7,7 @@ import {AlertFieldsFragment} from "./AlertFieldsFragment";
 import {CancellationFieldsFragment} from "./CancellationFieldsFragment";
 import {removeUpdateListener, setUpdateListener} from "../stores/UpdateManager";
 
-const departuresQuery = gql`
+export const departuresQuery = gql`
   query departures(
     $stopId: String!
     $date: Date!

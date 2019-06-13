@@ -42,7 +42,7 @@ class VirtualizedSidepanelList extends Component {
     } = this.props;
 
     return (
-      <ListWrapper hasHeader={!!header}>
+      <ListWrapper data-testid="virtual-list" hasHeader={!!header}>
         {header && <ListHeader>{header}</ListHeader>}
         <div>
           <AutoSizer>
