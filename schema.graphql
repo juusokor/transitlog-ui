@@ -232,6 +232,7 @@ type Query {
   stop(date: Date!, stopId: String!): Stop
   stops(date: Date, filter: StopFilterInput): [SimpleStop]!
   stopsByBbox(bbox: PreciseBBox!, filter: StopFilterInput): [SimpleStop]!
+  uiMessage: UIMessage!
   vehicleJourneys(date: Date!, uniqueVehicleId: VehicleId!): [VehicleJourney]!
   weeklyDepartures(date: Date!, direction: Direction!, routeId: String!, stopId: String!): [Departure]!
 }
@@ -327,6 +328,11 @@ type StopRoute {
   mode: String
   originStopId: String
   routeId: String!
+}
+
+type UIMessage {
+  date: String
+  message: String
 }
 
 type VehicleJourney {
