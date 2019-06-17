@@ -8,14 +8,6 @@ import {
   PlainSlotSmall,
 } from "../TagButton";
 
-const DelaySlot = styled(ColoredBackgroundSlot)`
-  font-size: 0.875rem;
-  margin: -2.5px auto -2.5px 0;
-  transform: none;
-  padding: 5px;
-  line-height: 1;
-`;
-
 const ExampleSlotWrapper = styled.div`
   margin-left: 20px;
 `;
