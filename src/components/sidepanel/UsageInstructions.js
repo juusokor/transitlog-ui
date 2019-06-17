@@ -8,6 +8,18 @@ import {
   PlainSlotSmall,
 } from "../TagButton";
 
+const DelaySlot = styled(ColoredBackgroundSlot)`
+  font-size: 0.875rem;
+  margin: -2.5px auto -2.5px 0;
+  transform: none;
+  padding: 5px;
+  line-height: 1;
+`;
+
+const ExampleSlotWrapper = styled.div`
+  margin-left: 20px;
+`;
+
 const InstructionsWrapper = styled.div`
   color: var(--grey);
   font-size: 0.875rem;
@@ -82,18 +94,55 @@ export function UsageInstructions({language}) {
               in the Journey list tells us how late (yellow) or early (red) or on-time
               (green) the vehicle began its journey. Usually the data contained in the
               colored box is the difference between the planned and the observed times.
-              Example:
-              <br />
-              <TagButton style={{marginTop: "0.5rem", marginBottom: "1rem"}}>
-                <ColoredSlot style={{minWidth: "3rem"}} color="var(--green)">
-                  10
-                </ColoredSlot>
-                <PlainSlot style={{minWidth: "4rem"}}>15:00</PlainSlot>
-                <ColoredBackgroundSlot color="white" backgroundColor="var(--light-green)">
-                  03:10
-                </ColoredBackgroundSlot>
-                <PlainSlotSmall>18:00:10</PlainSlotSmall>
-              </TagButton>
+              Examples below.
+            </li>
+            <ExampleSlotWrapper>
+              <li>
+                <TagButton style={{marginTop: "0.5rem", marginBottom: "1rem"}}>
+                  <PlainSlotSmall>18:00:00</PlainSlotSmall>
+                  <ColoredBackgroundSlot
+                    color="white"
+                    backgroundColor="var(--light-green)">
+                    00:25
+                  </ColoredBackgroundSlot>
+                  <PlainSlotSmall>18:00:25</PlainSlotSmall>
+                </TagButton>
+                The vehicle departured less than 3 minutes after the scheduled departure
+                time so it is on time.
+              </li>
+              <li>
+                <TagButton style={{marginTop: "0.5rem", marginBottom: "1rem"}}>
+                  <PlainSlotSmall>18:00:00</PlainSlotSmall>
+                  <ColoredBackgroundSlot
+                    color="white"
+                    backgroundColor="var(--dark-yellow)">
+                    03:04
+                  </ColoredBackgroundSlot>
+                  <PlainSlotSmall>18:03:04</PlainSlotSmall>
+                </TagButton>
+                The vehicle departured more than 3 minutes after the scheduled departure
+                time so it is late.
+              </li>
+              <li>
+                <TagButton style={{marginTop: "0.5rem", marginBottom: "1rem"}}>
+                  <PlainSlotSmall>18:00:00</PlainSlotSmall>
+                  <ColoredBackgroundSlot color="white" backgroundColor="var(--red)">
+                    -00:30
+                  </ColoredBackgroundSlot>
+                  <PlainSlotSmall>17:59:30</PlainSlotSmall>
+                </TagButton>
+                The vehicle departured more than 10 seconds before the scheduled departure
+                so it is early.
+              </li>
+            </ExampleSlotWrapper>
+            <li>
+              There are some exceptions to this though. The last stop of the journey has a
+              so called recovery time. Because of this the vehicle can arrive to the last
+              stop more than few minutes (or whatever the recovery time for that
+              particular journey is) late and still be considered on time. The vehicle is
+              also considered to be on time at the starting stop if the vehicle arrives
+              before the planned departure. If the vehicle arrives to the starting stop
+              after the planned departure it is considered late and marked with red.
             </li>
             <li>
               To view the timetables for a stop, either select a stop from the map (you
@@ -144,7 +193,7 @@ export function UsageInstructions({language}) {
             </li>
             <li>
               <strong>Valitse päivä ja aika</strong>: valitse päivämäärä ja kellonaika eli
-              ajankohta, jolta haet lähtöjä. Päivämäärä pitää aina olla valittuna
+              ajankohta, jolta haet lähtöjä. Päivämäärä pitää aina olla valittuna.
             </li>
             <li>
               <strong>Hae reitti</strong>: kirjoita sen reitin tai linjan numero, jonka
@@ -158,7 +207,7 @@ export function UsageInstructions({language}) {
               <strong>Hae pysäkkiä</strong>: kirjoita pysäkin numero, tunniste tai nimi.
             </li>
             <li>
-              Kun olet täyttänyt hakukriteerit, vasempaan ikkunan avautuu listaus valitun
+              Kun olet täyttänyt hakukriteerit, vasempaan ikkunaan avautuu listaus valitun
               reitin lähdöistä tai lähtöketjun eli kyseisen kulkuneuvon lähdöistä ko.
               päivältä tai aikataululistaus kaikista linjoista, jotka käyttävät valittua
               pysäkkiä.
@@ -177,8 +226,63 @@ export function UsageInstructions({language}) {
               värein. Värit kertovat, onko auto ohittanut pysäkin ajallaan, etuajassa vai
               myöhässä. Vihreä merkitsee ajallaan (0- +3 min), punainen etuajassa ja
               keltainen myöhässä (yli 3 min). Myös saapumisen kellonaika on kerrottu
-              pysäkkikohtaisesti.
+              pysäkkikohtaisesti. Alla esimerkkejä tilanteista.
             </li>
+            <ExampleSlotWrapper>
+              <li>
+                <TagButton style={{marginTop: "0.5rem", marginBottom: "1rem"}}>
+                  <PlainSlotSmall>18:00:00</PlainSlotSmall>
+                  <ColoredBackgroundSlot
+                    color="white"
+                    backgroundColor="var(--light-green)">
+                    00:25
+                  </ColoredBackgroundSlot>
+                  <PlainSlotSmall>18:00:25</PlainSlotSmall>
+                </TagButton>
+                <p>
+                  {" "}
+                  Lähtö on tapahtunut alle 3 minuuttia suunnitellun lähdön jälkeen eli
+                  lähtö on ajoissa.
+                </p>
+              </li>
+              <li>
+                <TagButton style={{marginTop: "0.5rem", marginBottom: "1rem"}}>
+                  <PlainSlotSmall>18:00:00</PlainSlotSmall>
+                  <ColoredBackgroundSlot
+                    color="white"
+                    backgroundColor="var(--dark-yellow)">
+                    03:04
+                  </ColoredBackgroundSlot>
+                  <PlainSlotSmall>18:03:04</PlainSlotSmall>
+                </TagButton>
+                <p>
+                  {" "}
+                  Lähtö on tapahtunut yli 3 minuuttia suunnitellun lähdön jälkeen eli
+                  lähtö on myöhässä.
+                </p>
+              </li>
+              <li>
+                <TagButton style={{marginTop: "0.5rem", marginBottom: "1rem"}}>
+                  <PlainSlotSmall>18:00:00</PlainSlotSmall>
+                  <ColoredBackgroundSlot color="white" backgroundColor="var(--red)">
+                    -00:30
+                  </ColoredBackgroundSlot>
+                  <PlainSlotSmall>17:59:30</PlainSlotSmall>
+                </TagButton>
+                Lähtö on tapahtunut 10 sekuntia ennen suunniteltua lähtöä eli lähtö on
+                etuajassa.
+              </li>
+            </ExampleSlotWrapper>
+
+            <li>
+              Värikoodituksessa reitin alku- ja loppupysäkit ovat kuitenkin
+              poikkeuksellisia. Loppupysäkillä on elpymisaika. Tämän takia ajoneuvo voi
+              olla viimeiseltä pysäkiltä elpymisajan verran myöhässä, mutta kuitenkin
+              ajoissa. Alkupysäkillä värikoodina on vihreä jos ajoneuvo on saapunut
+              pysäkille ennen suuniteltua lähtöaikaa. Jos ajoneuvo saapuu alkupysäkille
+              suunnitellun lähtöajan jälkeen värikoodi on aina punainen.
+            </li>
+
             <li>
               Kartalla myös pysäkit ja reittiviiva on korostettu värein. Väri kertoo,
               miten auto on kulkenut aikatauluun nähden. Värien merkitykset ovat samat
