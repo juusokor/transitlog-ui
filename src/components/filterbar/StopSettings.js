@@ -54,7 +54,10 @@ const StopSettings = decorate(({Filters, state}) => {
                   </Input>
                   {!!stop && (
                     <Tooltip helpText="Clear stop">
-                      <ClearButton onClick={() => Filters.setStop("")} />
+                      <ClearButton
+                        onClick={() => Filters.setStop("")}
+                        helpText={text("filterpanel.remove_stop")}
+                      />
                     </Tooltip>
                   )}
                 </ControlGroup>

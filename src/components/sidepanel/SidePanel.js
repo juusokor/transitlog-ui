@@ -233,7 +233,7 @@ const SidePanel = decorate((props) => {
             </Tooltip>
           )}
           {!!journey && (
-            <Tooltip>
+            <Tooltip helpText="Toggle journey graph button">
               <ToggleGraphButton onClick={() => toggleJourneyGraph()}>
                 <Chart fill="white" height="1rem" width="1rem" />
               </ToggleGraphButton>

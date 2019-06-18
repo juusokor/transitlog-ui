@@ -11,6 +11,8 @@ import Login from "../../icons/Login";
 import ControlBar from "../sidepanel/ControlBar";
 import {Button} from "../Forms";
 import Info from "../../icons/Info";
+import {applyTooltip} from "../../hooks/useTooltip";
+import {text} from "../../helpers/text";
 
 const Header = styled.header`
   width: 100%;
@@ -105,10 +107,10 @@ function HeaderComponent({state, UI, className}) {
       </LangSelectContainer>
       <LoginContainer>
         {user && <Username>{user}</Username>}
-        <IconButton onClick={() => UI.toggleLoginModal()}>
+        <IconButton onClick={() => UI.toggleLoginModal()} helpText={text("Sign in")}>
           <Login height="1.2rem" fill="white" />
         </IconButton>
-        <IconButton onClick={() => UI.toggleInstructions()}>
+        <IconButton onClick={() => UI.toggleInstructions()} helpText={text("Show info")}>
           <Info fill="white" width="1.2rem" height="1.2rem" />
         </IconButton>
       </LoginContainer>

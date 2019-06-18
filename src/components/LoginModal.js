@@ -4,6 +4,7 @@ import {app} from "mobx-app";
 import styled from "styled-components";
 import HSLLogoNoText from "../icons/HSLLogoNoText";
 import Login from "../icons/Login";
+import {applyTooltip} from "../hooks/useTooltip";
 import {logout, authorize} from "../auth/authService";
 import {redirectToLogin} from "../stores/UrlManager";
 
@@ -53,7 +54,7 @@ const LoginButton = styled.button`
   color: #3e3e3e;
   padding: 15px;
   font-family: inherit;
-  
+
   :hover {
     background-color: #FFF;
     box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), 0 3px 14px rgba(0, 0, 0, 0.4);
@@ -124,21 +125,27 @@ class LoginModal extends React.Component {
           ) : (
             <>
               <p>
-                <LoginButton onClick={this.openAuthForm("login")}>
+                <LoginButton
+                  onClick={this.openAuthForm("login")}
+                  {...applyTooltip("Sign in with HSL-ID")}>
                   <Login height={"1em"} fill={"#3e3e3e"} />
                   <LoginText>Kirjaudu (HSL ID)</LoginText>
                 </LoginButton>
               </p>
               {allowDevLogin && (
                 <p>
-                  <LoginButton onClick={this.onDevLogin}>
+                  <LoginButton
+                    onClick={this.onDevLogin}
+                    {...applyTooltip("Developer sign in")}>
                     <Login height={"1em"} fill={"#3e3e3e"} />
                     <LoginText>Dev login</LoginText>
                   </LoginButton>
                 </p>
               )}
               <p>
-                <LoginButton onClick={this.openAuthForm("register")}>
+                <LoginButton
+                  onClick={this.openAuthForm("register")}
+                  {...applyTooltip("Create user")}>
                   <Login height={"1em"} fill={"#3e3e3e"} />
                   <LoginText>Tee Transitlog-tunnus</LoginText>
                 </LoginButton>

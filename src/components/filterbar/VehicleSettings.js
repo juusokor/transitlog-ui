@@ -57,6 +57,7 @@ const VehicleSettings = decorate(({Filters, state}) => {
                   {!!vehicle && (
                     <Tooltip helpText="Clear vehicle">
                       <ClearButton
+                        helpText={text("filterpanel.filter_by_vehicle")}
                         primary={false}
                         small={true}
                         onClick={() => Filters.setVehicle("")}
