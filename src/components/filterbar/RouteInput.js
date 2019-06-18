@@ -19,9 +19,10 @@ const decorate = flow(
   inject("Filters")
 );
 
-const renderSuggestion = (date) => (suggestion, {isHighlighted}) => {
-  const {routeId, direction, origin, destination} = suggestion;
-  const suggestionAlerts = getAlertsInEffect(suggestion, date);
+const renderSuggestion = (date, routes) => (suggestion, {isHighlighted}) => {
+  const route = getFullRoute(routes, suggestion);
+  const {routeId, direction, origin, destination} = route;
+  const suggestionAlerts = getAlertsInEffect(route, date);
 
   return (
     <SuggestionContent
@@ -29,12 +30,21 @@ const renderSuggestion = (date) => (suggestion, {isHighlighted}) => {
       withIcon={true}
       className={getTransportType(routeId)}>
       <SuggestionText withIcon={true}>
-        <strong>{routeId}</strong> {text("domain.direction")} {direction}
-        <br />
-        {origin} - {destination}
+        <div>
+          <strong>{routeId}</strong> {text("domain.direction")} {direction}
+        </div>
+        <div>{`${origin} - ${destination}`}</div>
       </SuggestionText>
       {suggestionAlerts.length !== 0 && <SuggestionAlerts alerts={suggestionAlerts} />}
     </SuggestionContent>
+  );
+};
+
+const renderSuggestionsContainer = ({containerProps, children, query}) => {
+  return (
+    <div data-testid="route-suggestions-list" {...containerProps}>
+      {children}
+    </div>
   );
 };
 
@@ -48,18 +58,22 @@ const getFilteredSuggestions = (routes, {value = ""}) => {
   const filteredRoutes =
     inputLength === 0
       ? routes
-      : routes.filter(({routeId, direction}) => {
+      : routes.filter(({mode, routeId, direction, originStopId}) => {
           const matchRouteId = routeId
             .trim()
             .replace(/\s/g, "")
             .toLowerCase();
+
+          const matchMode = mode.toLowerCase();
 
           return (
             (searchDirection &&
               direction === searchDirection &&
               matchRouteId.includes(searchRouteId)) ||
             (!searchDirection && matchRouteId.includes(searchRouteId)) ||
-            parseLineNumber(matchRouteId).includes(searchRouteId.slice(0, inputLength))
+            parseLineNumber(matchRouteId).includes(searchRouteId.slice(0, inputLength)) ||
+            matchMode.startsWith(searchRouteId) ||
+            originStopId.startsWith(searchRouteId)
           );
         });
 
@@ -79,14 +93,18 @@ const getFilteredSuggestions = (routes, {value = ""}) => {
 export const getFullRoute = (routes, selectedRoute) => {
   const routeId =
     typeof selectedRoute === "string" ? selectedRoute : createRouteId(selectedRoute);
-  return routes.find((r) => createRouteId(r) === routeId);
+
+  return routes.find((r) => createRouteId(r) === routeId) || null;
 };
 
 const RouteInput = decorate(({state: {route, date}, Filters, routes}) => {
   const [options, setOptions] = useState([]);
 
   const getValue = useCallback(
-    (routeIdentifier) => getFullRoute(routes, routeIdentifier),
+    (routeIdentifier) =>
+      typeof routeIdentifier === "string"
+        ? routeIdentifier
+        : createRouteId(routeIdentifier),
     [routes]
   );
 
@@ -96,13 +114,13 @@ const RouteInput = decorate(({state: {route, date}, Filters, routes}) => {
         return Filters.setRoute({routeId: "", direction: "", originStopId: ""});
       }
 
-      const selectedRoute = getValue(selectedValue);
+      const selectedRoute = getFullRoute(routes, selectedValue);
 
       if (selectedRoute) {
         Filters.setRoute(selectedRoute);
       }
     },
-    [Filters, options]
+    [Filters, routes]
   );
 
   const getSuggestions = useCallback(
@@ -114,20 +132,23 @@ const RouteInput = decorate(({state: {route, date}, Filters, routes}) => {
   );
 
   const hasRoutes = routes.length > 0;
-
-  const suggestionRenderFn = useMemo(() => renderSuggestion(date), [date]);
+  const suggestionRenderFn = useMemo(() => renderSuggestion(date, routes), [
+    date,
+    routes,
+  ]);
 
   return (
     <SuggestionInput
+      testId="route-input"
       disabled={!hasRoutes}
       helpText="Select route"
       minimumInput={0}
       value={getValue(route)}
       onSelect={onSelect}
       getValue={getValue}
-      getScalarValue={(val) => (typeof val === "string" ? val : createRouteId(val))}
       renderSuggestion={suggestionRenderFn}
       suggestions={options.slice(0, 50)}
+      renderSuggestionsContainer={renderSuggestionsContainer}
       onSuggestionsFetchRequested={getSuggestions}
     />
   );

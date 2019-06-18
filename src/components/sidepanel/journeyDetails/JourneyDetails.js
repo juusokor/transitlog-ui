@@ -69,7 +69,7 @@ class JourneyDetails extends React.Component {
     const cancellations = get(journey, "cancellations", get(route, "cancellations", []));
 
     return (
-      <JourneyPanelWrapper>
+      <JourneyPanelWrapper data-testid="journey-details">
         <LoadingDisplay loading={loading} />
         <JourneyDetailsHeader journey={journey} route={route} />
         <ScrollContainer>
@@ -89,14 +89,14 @@ class JourneyDetails extends React.Component {
               )}
               {(alerts.length !== 0 || cancellations.length !== 0) && (
                 <ListWrapper name="journey-alerts" label={text("domain.alerts")}>
+                  {alerts.length !== 0 && (
+                    <AlertsList showListHeading={true} alerts={alerts} />
+                  )}
                   {cancellations.length !== 0 && (
                     <CancellationsList
                       cancellations={cancellations}
                       showListHeading={true}
                     />
-                  )}
-                  {alerts.length !== 0 && (
-                    <AlertsList showListHeading={true} alerts={alerts} />
                   )}
                 </ListWrapper>
               )}

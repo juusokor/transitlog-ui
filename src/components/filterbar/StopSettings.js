@@ -26,8 +26,8 @@ const StopSettings = decorate(({Filters, state}) => {
   const {stop, date} = state;
 
   return (
-    <AllStopsQuery>
-      {({stops = [], loading, search}) => (
+    <AllStopsQuery date={date}>
+      {({stops = [], loading}) => (
         <Observer>
           {() => {
             const selectedStop = stops.find((s) => s.id === stop);
@@ -36,13 +36,16 @@ const StopSettings = decorate(({Filters, state}) => {
               return <LoadingSpinner inline={true} />;
             }
 
+            const alertsInEffect = !selectedStop
+              ? []
+              : getAlertsInEffect(selectedStop, date);
+
             return (
               <>
                 <ControlGroup>
                   <Input label={text("filterpanel.filter_by_stop")} animatedLabel={false}>
                     <StopInput
                       date={date}
-                      search={search}
                       onSelect={Filters.setStop}
                       stop={stop}
                       stops={stops}
@@ -56,14 +59,16 @@ const StopSettings = decorate(({Filters, state}) => {
                   )}
                 </ControlGroup>
                 {selectedStop && (
-                  <SelectedOptionDisplay>
+                  <SelectedOptionDisplay data-testid="selected-stop-display">
                     <SuggestionText>
                       <strong>{selectedStop.id}</strong> (
                       {selectedStop.shortId.replace(/\s/g, "")})
                       <br />
                       {selectedStop.name}
                     </SuggestionText>
-                    <SuggestionAlerts alerts={getAlertsInEffect(selectedStop, date)} />
+                    {alertsInEffect.length !== 0 && (
+                      <SuggestionAlerts alerts={alertsInEffect} />
+                    )}
                   </SelectedOptionDisplay>
                 )}
               </>

@@ -1,7 +1,6 @@
 import React, {useMemo} from "react";
 import {observer} from "mobx-react-lite";
 import StopLayer from "./StopLayer";
-import StopMarker from "./StopMarker";
 import RouteGeometryQuery from "../../queries/RouteGeometryQuery";
 import RouteLayer from "./RouteLayer";
 import flow from "lodash/flow";
@@ -58,24 +57,15 @@ const MapContent = decorate(
           onSelectArea={setQueryBounds}
         />
         {/* When a route is NOT selected... */}
-        {!hasRoute && zoom > 14 ? (
+        {!hasRoute && (
           <StopLayer
             showRadius={showStopRadius}
             onViewLocation={viewLocation}
             date={date}
+            selectedStop={stop}
+            zoom={zoom}
             bounds={mapBounds}
           />
-        ) : (
-          !hasRoute &&
-          stop && (
-            <StopMarker
-              showRadius={showStopRadius}
-              stop={stop}
-              onViewLocation={viewLocation}
-              popupOpen={true}
-              date={date}
-            />
-          )
         )}
         {/* When a route IS selected... */}
         {hasRoute && (

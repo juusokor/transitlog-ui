@@ -5,7 +5,7 @@ import {
   getUrlState,
   resetUrlState,
 } from "./UrlManager";
-import createMemoryHistory from "history/createMemoryHistory";
+import {createMemoryHistory} from "history";
 
 describe("UrlManager", () => {
   let history;

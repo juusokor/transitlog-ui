@@ -1,6 +1,6 @@
 import "../components/LineIcon.css";
 
-function getTransportType(lineId, numeric = false) {
+function getTransportType(lineId = "", numeric = false) {
   const lineType = lineId.substring(0, 4);
 
   if (lineType >= 1001 && lineType <= 1010) {

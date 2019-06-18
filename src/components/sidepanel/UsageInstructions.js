@@ -126,68 +126,78 @@ export function UsageInstructions({language}) {
         <div>
           <h3>Käyttöohjeet</h3>
           <p>
-            Transitlog näyttää karttapohjaisessa ohjelmassa julkisen liikenteen ajetuista
-            lähdöistä toteutunutta historia- ja reaaliaikaista tietoa sekä vertaa
-            toteutumia suunniteltuihin lähtöihin.
+            Reittilogi näyttää selainpohjaisessa karttaohjelmassa joukkoliikenteen
+            ajetuista lähdöistä historia- ja reaaliaikaista tietoa sekä vertaa
+            toteutunutta liikennettä aikataulun mukaisiin lähtöihin.
           </p>
           <InstructionsList>
             <li>
-              Nollataksesi hakuvalinnat paina vasemmasta yläkulmasta ”Palauta asetukset”
-              –nappia
+              <strong>Jaa näkymä</strong>: voit kopioida näkymän linkin ja esimerkiksi
+              lähettää sen sähköpostilla.
             </li>
             <li>
-              Päivittääksesi viimeisimmän datan ohjelmaan ja päivittääksesi kellonajan
-              reaaliaikaan paina vasemmasta yläkulmasta ”Päivitä”-nappia.
+              <strong>Uusi haku</strong>: nollaa hakuvalinnat, voit tehdä uuden haun.
             </li>
             <li>
-              Sivun ylähakupalkissa asetetaan hakukriteerit, mitä haetaan. Ensimmäisenä on
-              päivämäärä ja kellonaika valinnat. Päivämäärä pitää aina olla valittuna, kun
-              tutkitaan lähtöjä. Seuraavaksi yläpalkissa näkyy kolme hakukenttää, joiden
-              kautta voi hakea lähtöjä. Ensimmäisenä on linjan ja reitin kautta, toisena
-              hakukenttänä on kulkuneuvo ja kolmantena hakumahdollisuutena on pysäkkihaku.
+              <strong>Päivitä</strong>: tuo ohjelmaan viimeisimmät tiedot ja päivittää
+              kellonajan tähän hetkeen.
             </li>
             <li>
-              Kun alkuvalinnat on tehty, vasempaan ikkunan avautuu listaus valitun
-              reittien lähdöistä tai lähtöketjun eli kyseisen kulkuneuvon lähdöt ko.
-              päivältä tai aikataulu-listaus kaikista linjoista, jotka käyttävät valittua
+              <strong>Valitse päivä ja aika</strong>: valitse päivämäärä ja kellonaika eli
+              ajankohta, jolta haet lähtöjä. Päivämäärä pitää aina olla valittuna
+            </li>
+            <li>
+              <strong>Hae reitti</strong>: kirjoita sen reitin tai linjan numero, jonka
+              lähtöjä haet.
+            </li>
+            <li>
+              <strong>Hae ajoneuvoja</strong>: kirjoita rekisterinumero, kylkinumero tai
+              liikennöitsijän nimi.
+            </li>
+            <li>
+              <strong>Hae pysäkkiä</strong>: kirjoita pysäkin numero, tunniste tai nimi.
+            </li>
+            <li>
+              Kun olet täyttänyt hakukriteerit, vasempaan ikkunan avautuu listaus valitun
+              reitin lähdöistä tai lähtöketjun eli kyseisen kulkuneuvon lähdöistä ko.
+              päivältä tai aikataululistaus kaikista linjoista, jotka käyttävät valittua
               pysäkkiä.
             </li>
             <li>
-              Yhtenä hakumahdollisuutena on myös käyttää sivun oikeassa alakulmassa olevaa
-              -nappia, jolla rajataan haluttu alue kartalta. Valittuna olevalta ajalta
-              kaikki lähdöt, jotka ovat kulkeneet ko. alueella tuolloin tulevat
-              listaukseen vasemmalle. Aikaväliä voidaan rajata aluehaun
-              minuuttirajauksella päivämäärä-ikkunassa.
+              Voit hakea lähtöjä myös rajaamalla alueen kartalta. Klikkaa kartan oikeassa
+              alakulmassa olevaa työkalua ja rajaa haluamasi alue kartalta. Näet kaikki
+              lähdöt, jotka ovat kulkeneet rajatulla alueella päivä- ja aika-kentissä
+              valittuna olevana aikana. Voit rajata aikaväliä aluehaun minuuttirajauksella
+              päivämäärä-asetuksissa.
             </li>
             <li>
-              Valitse etsimäsi lähtö listasta, jotta saat tarkemmat tiedot lähdöstä. Kun
-              listasta valitaan haluama lähtö, avautuu palkin viereen uusi ikkuna, josta
-              löytyy tarkemmat tiedot ko. lähdöstä. Lähdöstä on kerrottu
-              pysäkkikohtaisesti suunniteltu ja toteutunut lähtöaika sekä niiden erotus,
-              joka on korostettu värein. Värit kertovat miten lähtö on ajettu suunnitellun
-              ajoaikojen mukaisesti. Vihreä on ajallaan (0- +3 min), punainen on etuajassa
-              ja keltainen on myöhässä (yli 3 min). Myös saapumisen kellonaika on kerrottu
+              Kun valitset lähdön listasta, saat siitä tarkemmat tiedot palkin viereen
+              avautuvaan uuteen ikkunaan. Lähdöstä kerrotaan pysäkkikohtaisesti
+              suunniteltu ja toteutunut lähtöaika sekä niiden erotus, joka on korostettu
+              värein. Värit kertovat, onko auto ohittanut pysäkin ajallaan, etuajassa vai
+              myöhässä. Vihreä merkitsee ajallaan (0- +3 min), punainen etuajassa ja
+              keltainen myöhässä (yli 3 min). Myös saapumisen kellonaika on kerrottu
               pysäkkikohtaisesti.
             </li>
             <li>
-              Kartalla pysäkit ja reittiviiva on myös korostettu värein miten lähtö on
-              ajanut suunniteltuun nähden. Väliaikapysäkit on lisäksi korostettu sisältä
-              keltaisella/punaisella, jos väliaikapysäkin lähtöaikaa ei ole noudatettu.
-              Pysäkin merkkiväri on katkoviivainen , jos pysäkillä ovet eivät ole
-              avautuneet. Lisäksi bussin viereen tulee sininen pieni ympyrä, kun ovet ovat
+              Kartalla myös pysäkit ja reittiviiva on korostettu värein. Väri kertoo,
+              miten auto on kulkenut aikatauluun nähden. Värien merkitykset ovat samat
+              kuin edellisessä kohdassa. Väliaikapysäkit on korostettu sisältä keltaisella
+              tai punaisella, jos väliaikapysäkin lähtöaikaa ei ole noudatettu. Pysäkin
+              merkkiväri on merkitty katkoviivalla, jos ovet eivät ole avautuneet
+              pysäkillä. Lisäksi bussin viereen tulee sininen pieni ympyrä, kun ovet ovat
               avoinna.
             </li>
+            <li>Infoikkunan saa piilotettua sivupalkin oikealta reunalta kuvakkeesta.</li>
             <li>
-              Lähtö-/lähtöketju-/aikataululistaus-ikkunan saa piiloon vieressä olevasta
-              -kuvakkeesta. Infoikkunan saa myös piilotettua ikkunan oikealta reunalta
-              -kuvakkeesta.
+              Ylähakupalkin alareunassa on liukusäädin, jossa näkyy kellonaika. Säädintä
+              liikuttamalla voit muuttaa aikavalintaa. Kun tietty lähtö on valittuna, voit
+              tarkastella liukusäätimellä ko. lähdön tapahtumia.
             </li>
             <li>
-              Ylähakupalkin alareunassa on liukusäädin, jota liikuttamalla voidaan muuttaa
-              aikaa. Kun tietty lähtö on valittuna, liukusäätimellä voi tarkastella juuri
-              ko. lähdön tapahtumia. Live-painike vasemmalla yläkulmasta toistaa
-              valitsemasi lähdön tapahtumat kartalle haluamallasi nopeudellasi. Nopeutta
-              voi muokata päivämäärä-ikkunassa aikamuutos kohdassa.
+              Aikasimulointi- tai live-napilla voit toistaa valitsemasi lähdön tapahtumat
+              kartalle haluamallasi nopeudella. Nopeutta voi muokata päivämäärä-ikkunassa
+              aikamuutos kohdassa.
             </li>
           </InstructionsList>
         </div>

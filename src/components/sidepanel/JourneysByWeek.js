@@ -258,18 +258,6 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, route: propsRou
               <SidepanelList
                 focusKey={selectedJourneyId}
                 loading={loading}
-                floatingListHeader={
-                  <TableHeader>
-                    <TableCell>Time</TableCell>
-                    {selectedDates.map((day, idx) => (
-                      <TableCell
-                        highlight={idx === currentDayTypeIndex}
-                        key={`header_date_${day}`}>
-                        {format(day, "D.M")}
-                      </TableCell>
-                    ))}
-                  </TableHeader>
-                }
                 header={
                   <ListHeader>
                     <ListHeading>
@@ -324,6 +312,18 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, route: propsRou
                       />
                     </div>
                   </ListHeader>
+                }
+                floatingListHeader={
+                  <TableHeader>
+                    <TableCell>Time</TableCell>
+                    {selectedDates.map((day, idx) => (
+                      <TableCell
+                        highlight={idx === currentDayTypeIndex}
+                        key={`header_date_${day}`}>
+                        {format(day, "D.M")}
+                      </TableCell>
+                    ))}
+                  </TableHeader>
                 }>
                 {(scrollRef) => (
                   <ListWrapper>
@@ -433,8 +433,9 @@ const JourneysByWeek = decorate(({state, Time, Filters, Journey, route: propsRou
                                 }
 
                                 const departureIsSelected =
+                                  departure &&
                                   getJourneyId(selectedJourney, false) ===
-                                  createDepartureJourneyId(departure);
+                                    createDepartureJourneyId(departure);
 
                                 return (
                                   <Tooltip

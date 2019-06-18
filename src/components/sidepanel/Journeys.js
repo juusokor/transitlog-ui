@@ -142,8 +142,8 @@ const Journeys = decorate(({state, Time, Journey}) => {
 
   return (
     <JourneysByDateQuery route={route} date={date}>
-      {({departures, loading, error, skipped}) =>
-        error || (!loading && !skipped && departures.length === 0) ? (
+      {({departures, loading, error, skipped}) => {
+        return error || (!loading && !skipped && departures.length === 0) ? (
           <EmptyView
             error={
               error ? error : {emptyDataError: {message: "No data returned from server."}}
@@ -197,7 +197,7 @@ const Journeys = decorate(({state, Time, Journey}) => {
               return (
                 <SidepanelList
                   focusKey={focusedJourney}
-                  loading={loading}
+                  loading={false}
                   header={
                     <JourneyListHeader>
                       <JourneyRowLeft>
@@ -239,6 +239,7 @@ const Journeys = decorate(({state, Time, Journey}) => {
                         return (
                           <JourneyListRow
                             ref={journeyIsFocused ? scrollRef : null}
+                            data-testid={`journey-list-row-${departureTime}`}
                             key={`planned_journey_row_${journeyId}`}
                             selected={journeyIsSelected}
                             isCancelled={isCancelled}
@@ -313,6 +314,7 @@ const Journeys = decorate(({state, Time, Journey}) => {
                       return (
                         <JourneyListRow
                           {...applyTooltip("Journey list row")}
+                          data-testid={`journey-list-row-${departureTime}`}
                           ref={journeyIsFocused ? scrollRef : null}
                           selected={journeyIsSelected}
                           key={`journey_row_${journeyId}_${departure.id}`}
@@ -352,8 +354,8 @@ const Journeys = decorate(({state, Time, Journey}) => {
               );
             }}
           </Observer>
-        )
-      }
+        );
+      }}
     </JourneysByDateQuery>
   );
 });

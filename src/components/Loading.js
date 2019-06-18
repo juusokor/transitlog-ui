@@ -78,7 +78,7 @@ const Loading = ({className, inline, size}) => {
   const defaultSize = inline ? 24 : 35;
 
   return (
-    <LoadingIndicator inline={inline} className={className}>
+    <LoadingIndicator data-testid="loading" inline={inline} className={className}>
       <Spinner width={size || defaultSize} height={size || defaultSize} />
     </LoadingIndicator>
   );
@@ -87,7 +87,10 @@ const Loading = ({className, inline, size}) => {
 export default Loading;
 
 export const LoadingDisplay = ({loading = false, className, inline, size}) => (
-  <LoadingContainer className={className} loading={loading}>
+  <LoadingContainer
+    data-testid="loading-container"
+    className={className}
+    loading={loading}>
     <Loading inline={inline} size={size} />
   </LoadingContainer>
 );

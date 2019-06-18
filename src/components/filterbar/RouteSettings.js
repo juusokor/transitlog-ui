@@ -60,8 +60,9 @@ const RouteSettings = decorate(({Filters, state: {route, date}}) => {
                 </ControlGroup>
                 {selectedRoute && (
                   <SelectedOptionDisplay
+                    data-testid="selected-route-display"
                     withIcon={true}
-                    className={getTransportType(selectedRoute.routeId)}>
+                    className={getTransportType(selectedRoute.routeId || "")}>
                     <SuggestionText withIcon={true}>
                       <strong>{selectedRoute.routeId}</strong>{" "}
                       <Text>domain.direction</Text> {selectedRoute.direction}

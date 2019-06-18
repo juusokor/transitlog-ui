@@ -18,7 +18,7 @@ class DivIcon extends MapLayer {
     this.icon = new LeafletDivIcon({className, html, iconSize});
 
     this.leafletElement = new LeafletMarker(position, {
-      ...this.getOptions(props),
+      ...this.getOptions({...props, pane}),
       icon: this.icon,
     });
 

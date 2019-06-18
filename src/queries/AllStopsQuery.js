@@ -1,12 +1,11 @@
-import React, {useCallback, useRef} from "react";
+import React, {useRef} from "react";
 import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import get from "lodash/get";
-import {AlertFieldsFragment} from "./AlertFieldsFragment";
 
-const allStopsQuery = gql`
-  query allStopsQuery($search: String) {
-    stops(filter: {search: $search}) {
+export const allStopsQuery = gql`
+  query allStopsQuery($date: Date, $search: String) {
+    stops(date: $date, filter: {search: $search}) {
       id
       stopId
       shortId
@@ -15,34 +14,31 @@ const allStopsQuery = gql`
       name
       radius
       modes
-      alerts {
-        ...AlertFieldsFragment
+      routes {
+        routeId
+        direction
+        isTimingStop
       }
-      _matchScore
+      alerts {
+        level
+        startDateTime
+        endDateTime
+      }
     }
   }
-  ${AlertFieldsFragment}
 `;
 
-export default ({children}) => {
+const AllStopsQuery = ({children, date}) => {
   const prevResults = useRef([]);
 
-  const createSearchFetcher = useCallback(
-    (refetch) => (searchTerm) => refetch({search: searchTerm}),
-    []
-  );
-
   return (
-    <Query query={allStopsQuery}>
-      {({loading, error, data, refetch}) => {
-        const search = createSearchFetcher(refetch);
-
+    <Query partialRefetch={true} query={allStopsQuery} variables={{date}}>
+      {({loading, error, data}) => {
         if (loading || !data) {
           return children({
             loading,
             error,
             stops: prevResults.current,
-            search,
           });
         }
 
@@ -53,9 +49,10 @@ export default ({children}) => {
           loading,
           error,
           stops,
-          search,
         });
       }}
     </Query>
   );
 };
+
+export default AllStopsQuery;
