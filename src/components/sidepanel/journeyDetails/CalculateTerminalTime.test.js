@@ -1,6 +1,6 @@
 import {getMomentFromDateTime} from "../../../helpers/time";
 import CalculateTerminalTime from "./CalculateTerminalTime";
-import {render, cleanup} from "react-testing-library";
+import {render, cleanup} from "@testing-library/react";
 import React from "react";
 
 describe("CalculateTerminalTime", () => {

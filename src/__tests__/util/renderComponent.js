@@ -1,5 +1,5 @@
 import isEqual from "lodash/isEqual";
-import {render} from "react-testing-library";
+import {render} from "@testing-library/react";
 
 export const renderComponent = (getComponent = () => {}) => {
   let mounted;
