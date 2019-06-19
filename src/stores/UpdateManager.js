@@ -83,16 +83,13 @@ export default (state) => {
         pollingStart = Date.now();
         // timer() is a setInterval alternative that uses requestAnimationFrame.
         // This makes it more performant and can "pause" when the tab is not focused.
-        updateTimerHandle = timer(
-          () => {
-            if (Date.now() - pollingStart > 5000 * 60) {
-              timeActions.toggleLive(false);
-            }
+        updateTimerHandle = timer(() => {
+          if (Date.now() - pollingStart > 5000 * 60) {
+            timeActions.toggleLive(false);
+          }
 
-            update(true);
-          },
-          isCurrent ? 2000 : 1000
-        );
+          update(true);
+        }, 1000);
       }
     },
     {fireImmediately: true, delay: 100, name: "Auto-update time reaction"}
