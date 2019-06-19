@@ -36,22 +36,36 @@ const OriginStop = observer(
     onHoverStop = () => {},
     stopsExpanded,
   }) => {
-    if (!departure || !departure.stop) {
-      return null;
-    }
+    const stopArrivalTime = get(departure, "observedArrivalTime.arrivalTime", "");
+    const stopDepartureTime = get(departure, "observedDepartureTime.departureTime", "");
 
-    const stop = departure.stop;
+    const selectDepartureTime = useCallback(() => onClickTime(stopDepartureTime), [
+      stopDepartureTime,
+    ]);
+
+    const selectArrivalTime = useCallback(() => onClickTime(stopArrivalTime), [
+      stopArrivalTime,
+    ]);
+
+    const stop = get(departure, "stop", {stopId: ""});
 
     const selectWithStopId = useCallback(() => onSelectStop(stop.stopId), [stop.stopId]);
     const hoverWithStopId = useCallback(() => onHoverStop(stop.stopId), [stop.stopId]);
     const hoverReset = useCallback(() => onHoverStop(""), []);
 
-    let onStopClick = selectWithStopId;
+    const onStopClick = useCallback(() => {
+      selectWithStopId();
+      stopDepartureTime && selectDepartureTime();
+    });
 
     const hoverProps = {
       onMouseEnter: hoverWithStopId,
       onMouseLeave: hoverReset,
     };
+
+    if (!departure || !departure.stop) {
+      return null;
+    }
 
     // Bail here if we don't have data about departure arrival and departure times.
     if (!departure.observedDepartureTime || !departure.observedArrivalTime) {
@@ -69,16 +83,6 @@ const OriginStop = observer(
         </StopWrapper>
       );
     }
-
-    const stopArrivalTime = get(departure, "observedArrivalTime.arrivalTime", "");
-    const stopDepartureTime = get(departure, "observedDepartureTime.departureTime", "");
-
-    const selectDepartureTime = () => onClickTime(stopDepartureTime);
-
-    onStopClick = () => {
-      selectWithStopId();
-      selectDepartureTime();
-    };
 
     const departureDiff = departure.observedDepartureTime.departureTimeDifference;
     const departureDelayType = getDelayType(departureDiff);
@@ -105,7 +109,7 @@ const OriginStop = observer(
                 <TimeHeading>
                   <Text>journey.arrival</Text>
                 </TimeHeading>
-                <StopArrivalTime onClick={onClickTime(stopArrivalTime)}>
+                <StopArrivalTime onClick={selectArrivalTime}>
                   <PlainSlot
                     style={{
                       fontStyle: "italic",

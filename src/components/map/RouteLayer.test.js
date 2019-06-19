@@ -4,7 +4,7 @@ const {Map, TileLayer, Pane} = jest.requireActual("react-leaflet");
 import React from "react";
 import "jest-dom/extend-expect";
 import "jest-styled-components";
-import {cleanup} from "react-testing-library";
+import {cleanup} from "@testing-library/react";
 import RouteLayer from "./RouteLayer";
 import {renderComponent} from "../../__tests__/util/renderComponent";
 

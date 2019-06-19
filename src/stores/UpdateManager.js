@@ -95,7 +95,7 @@ export default (state) => {
         );
       }
     },
-    {fireImmediately: true, delay: 100}
+    {fireImmediately: true, delay: 100, name: "Auto-update time reaction"}
   );
 
   return {

@@ -6,7 +6,7 @@ import {
   cleanup,
   fireEvent,
   getByText as getByTextUtil,
-} from "react-testing-library";
+} from "@testing-library/react";
 import {observable, action} from "mobx";
 import {MobxProviders} from "../util/MobxProviders";
 import {MockedProvider} from "react-apollo/test-utils";
