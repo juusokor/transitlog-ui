@@ -27,11 +27,11 @@ const Wrapper = styled.div`
     z-index: 5;
   }
 
-  ${InputBase} {
+  /*${InputBase} {
     border-color: var(--blue);
     position: relative;
     z-index: 1;
-  }
+  }*/
 `;
 
 const PlusMinusInput = React.forwardRef((props, ref) => {

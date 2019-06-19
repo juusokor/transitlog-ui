@@ -26,6 +26,8 @@
     "babel-plugin-named-asset-import": "^0.3.2",
     "babel-preset-react-app": "^9.0.0",
     "bfj": "^6.1.1",
+    "browserslist": "4.6.3",
+    "caniuse-lite": "1.0.30000975",
     "case-sensitive-paths-webpack-plugin": "^2.1.2",
     "chalk": "^2.4.1",
     "copy-text-to-clipboard": "^2.1.0",
@@ -143,6 +145,10 @@
     "postinstall-prepare": "^1.0.1",
     "prettier": "^1.18.2",
     "react-test-renderer": "^16.8.6"
+  },
+  "resolutions": {
+    "browserslist": "4.6.2",
+    "caniuse-lite": "1.0.30000974"
   },
   "lint-staged": {
     "src/**/*.js": [

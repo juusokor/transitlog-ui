@@ -1,6 +1,6 @@
 import styled, {css, createGlobalStyle} from "styled-components";
 import React from "react";
-import {useTooltip} from "../hooks/useTooltip";
+import {useTooltip, applyTooltip} from "../hooks/useTooltip";
 import CrossThick from "../icons/CrossThick";
 
 export const GlobalFormStyle = createGlobalStyle`
@@ -63,7 +63,7 @@ export const StyledInputBase = styled.input`
 `;
 
 export const InputBase = React.forwardRef(({helpText, children, ...props}, ref) => (
-  <StyledInputBase {...props} {...useTooltip(helpText)} ref={ref} />
+  <StyledInputBase {...props} {...applyTooltip(helpText)} ref={ref} />
 ));
 
 export const StyledButton = styled.button`
