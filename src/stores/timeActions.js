@@ -10,7 +10,7 @@ const timeActions = (state) => {
   // in the url doesn't slow down the app.
   const setUrlTime = debounce((time) => setUrlValue("time", time), 1000);
 
-  const setTime = action((timeValue) => {
+  const setTime = action("Set time", (timeValue) => {
     state.time = timeValue;
     setUrlTime(state.time);
   });
@@ -20,12 +20,12 @@ const timeActions = (state) => {
     setTime(`${doubleDigit(hours)}:${doubleDigit(minutes)}:${doubleDigit(seconds)}`);
   };
 
-  const setTimeIncrement = action((timeIncrementValue = 0) => {
+  const setTimeIncrement = action("Set time increment", (timeIncrementValue = 0) => {
     state.timeIncrement = Math.max(Math.min(intval(timeIncrementValue || 0), 60 * 60), 1);
     setUrlValue("time_increment", state.timeIncrement);
   });
 
-  const setAreaSearchMinutes = action((searchValue = 0) => {
+  const setAreaSearchMinutes = action("Set area search minutes", (searchValue = 0) => {
     state.areaSearchRangeMinutes = Math.max(
       Math.min(intval(searchValue || 0), 60 * 12),
       5
@@ -33,7 +33,7 @@ const timeActions = (state) => {
     setUrlValue("area_search_minutes", state.areaSearchRangeMinutes);
   });
 
-  const toggleLive = action((setTo = !state.live) => {
+  const toggleLive = action("Toggle live", (setTo = !state.live) => {
     state.live = setTo;
     setUrlValue("live", state.live);
   });
