@@ -7,5 +7,4 @@ LICENSE
 graphql.config.json
 travis-build.sh
 *.log
-.env.local
-.env.test.local
+.env.*.local

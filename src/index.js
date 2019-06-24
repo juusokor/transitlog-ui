@@ -5,6 +5,8 @@ import {TIMEZONE} from "./constants";
 // Set the default timezone for the app
 moment.tz.setDefault(TIMEZONE);
 
+console.log(TIMEZONE);
+
 import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
