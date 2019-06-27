@@ -7,8 +7,7 @@ export const AlertFieldsFragment = gql`
     distribution
     category
     impact
-    publishedDateTime
-    updatedDateTime
+    lastModifiedDateTime
     startDateTime
     endDateTime
     title

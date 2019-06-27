@@ -25,7 +25,7 @@ const TabButtonsWrapper = styled.div`
 
 const TabButton = styled.button`
   font-family: inherit;
-  font-size: ${({fontSizeMultiplier = 1}) => `calc(0.4rem * ${fontSizeMultiplier})`};
+  font-size: ${({fontSizeMultiplier = 1}) => `calc(0.45rem * ${fontSizeMultiplier})`};
   text-transform: uppercase;
   background-color: ${({selected}) => (selected ? "white" : "var(--lightest-grey)")};
   border: 1px solid var(--alt-grey);
@@ -186,7 +186,7 @@ class Tabs extends Component {
     tabs = compact(tabs);
 
     const tabLabelFontSizeMultiplier =
-      tabs.length < 2 ? 1.75 : tabs.length < 4 ? 1.5 : 1.2;
+      tabs.length <= 2 ? 1.75 : tabs.length < 4 ? 1.5 : tabs.length < 5 ? 1.2 : 1;
 
     return (
       <TabsWrapper className={className}>

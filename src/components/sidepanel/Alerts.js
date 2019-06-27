@@ -20,7 +20,7 @@ const Alerts = decorate(({state}) => {
   return (
     <AlertsQuery time={searchTime} alertSearch={{all: true}}>
       {({alerts = [], loading: alertsLoading}) => (
-        <CancellationsQuery time={searchTime} cancellationsSearch={{all: true}}>
+        <CancellationsQuery date={searchTime} cancellationsSearch={{all: true}}>
           {({cancellations = [], loading: cancellationsLoading}) => (
             <Observer>
               {() => {

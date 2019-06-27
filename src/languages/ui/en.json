@@ -26,10 +26,10 @@
   "filterpanel.clear.route": "Clear route",
 
   "sidepanel.tabs.journeys": "Journeys",
-  "sidepanel.tabs.week_journeys": "Week journeys",
-  "sidepanel.tabs.timetables": "Timetables",
-  "sidepanel.tabs.vehicle_journeys": "Vehicle Journeys",
-  "sidepanel.tabs.area_events": "Area journeys",
+  "sidepanel.tabs.week_journeys": "Week",
+  "sidepanel.tabs.timetables": "Stop",
+  "sidepanel.tabs.vehicle_journeys": "Vehicle",
+  "sidepanel.tabs.area_events": "Area",
   "sidepanel.area_events.show_lines": "Show as heatmap",
   "sidepanel.area_events.show_markers": "Show as markers",
 
@@ -72,7 +72,7 @@
   "domain.line": "Line",
   "domain.route": "Route",
   "domain.direction": "direction",
-  "domain.alerts": "Exceptions",
+  "domain.alerts": "Alerts",
   "domain.alerts.all_routes": "All routes",
   "domain.alerts.all_stops": "All stops",
   "domain.alerts.network": "Network",
