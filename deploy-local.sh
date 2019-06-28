@@ -12,7 +12,7 @@ select opt in "${option_labels[@]}"; do
     ;;
   "Development")
     echo "You chose Development"
-    ENV=development
+    ENV=dev
     break
     ;;
   "Staging")

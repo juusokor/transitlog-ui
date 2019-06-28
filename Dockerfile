@@ -15,8 +15,8 @@ COPY . ${WORK}
 COPY .env.${BUILD_ENV} ${WORK}/.env.production
 
 RUN yarn run test:ci
-# RUN yarn run build
+RUN yarn run build
 
 EXPOSE 3000
 
-CMD yarn run build && yarn run production
+CMD yarn run production
