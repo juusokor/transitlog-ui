@@ -2,8 +2,10 @@ import React from "react";
 import gql from "graphql-tag";
 import {Query} from "react-apollo";
 import get from "lodash/get";
-import {observer} from "mobx-react";
+import {observer} from "mobx-react-lite";
 import {AlertFieldsFragment} from "./AlertFieldsFragment";
+import flow from "lodash/flow";
+import {inject} from "../helpers/inject";
 
 const alertsQuery = gql`
   query alertsQuery(
@@ -32,7 +34,12 @@ const alertsQuery = gql`
   ${AlertFieldsFragment}
 `;
 
-const AlertsQuery = observer(({time, alertSearch, children}) => {
+const decorate = flow(
+  observer,
+  inject("state")
+);
+
+const AlertsQuery = decorate(({state, time, alertSearch, children}) => {
   return (
     <Query query={alertsQuery} variables={{time, ...alertSearch}}>
       {({loading, error, data}) => {
