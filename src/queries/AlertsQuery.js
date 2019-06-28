@@ -10,6 +10,7 @@ import {inject} from "../helpers/inject";
 const alertsQuery = gql`
   query alertsQuery(
     $time: String!
+    $language: String!
     $all: Boolean
     $network: Boolean
     $allRoutes: Boolean
@@ -19,6 +20,7 @@ const alertsQuery = gql`
   ) {
     alerts(
       time: $time
+      language: $language
       alertSearch: {
         all: $all
         network: $network
@@ -41,7 +43,9 @@ const decorate = flow(
 
 const AlertsQuery = decorate(({state, time, alertSearch, children}) => {
   return (
-    <Query query={alertsQuery} variables={{time, ...alertSearch}}>
+    <Query
+      query={alertsQuery}
+      variables={{time, language: state.language, ...alertSearch}}>
       {({loading, error, data}) => {
         const alerts = get(data, "alerts", []);
 
